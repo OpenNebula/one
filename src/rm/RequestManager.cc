@@ -349,6 +349,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
+    xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -360,6 +361,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
+    xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -375,6 +377,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
+    xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -386,6 +389,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
+    xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -401,6 +405,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
+    xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -427,6 +432,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
     xmlrpc_c::methodPtr doc_chown(new DocumentChown());
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
+    xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -436,6 +442,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
+    xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -459,6 +466,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_rename(new DatastoreRename());
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
+    xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -883,6 +891,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vdc.rename",      vdc_rename);
 
     RequestManagerRegistry.addMethod("one.vdcpool.info",    vdcpool_info);
+
+    /* Virtual Router related methods*/
+    RequestManagerRegistry.addMethod("one.vrouter.update", vrouter_update);
+    RequestManagerRegistry.addMethod("one.vrouter.allocate",vrouter_allocate);
+    RequestManagerRegistry.addMethod("one.vrouter.delete", vrouter_delete);
+    RequestManagerRegistry.addMethod("one.vrouter.info", vrouter_info);
+    RequestManagerRegistry.addMethod("one.vrouter.chown", vrouter_chown);
+    RequestManagerRegistry.addMethod("one.vrouter.chmod", vrouter_chmod);
+    RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
+
+    RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
+
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

@@ -56,6 +56,8 @@ require 'opennebula/security_group_pool'
 require 'opennebula/vdc'
 require 'opennebula/vdc_pool'
 require 'opennebula/system'
+require 'opennebula/virtual_router'
+require 'opennebula/virtual_router_pool'
 
 module OpenNebula
 

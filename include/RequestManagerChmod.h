@@ -171,6 +171,24 @@ public:
 
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterChmod: public RequestManagerChmod
+{
+public:
+    VirtualRouterChmod():
+        RequestManagerChmod("VirtualRouterChmod",
+                            "Changes permission bits of a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterChmod(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

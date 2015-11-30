@@ -39,7 +39,8 @@ define(function(require) {
       User            = require('./opennebula/user'),
       Vdc             = require('./opennebula/vdc'),
       Vm              = require('./opennebula/vm'),
-      Zone            = require('./opennebula/zone')
+      Zone            = require('./opennebula/zone'),
+      VirtualRouter   = require('./opennebula/virtualrouter');
 
   if (typeof(csrftoken) != "undefined") {
     $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
@@ -88,8 +89,9 @@ define(function(require) {
     'User': User,
     'Vdc': Vdc,
     'VM': Vm,
-    'Zone': Zone
-  }
+    'Zone': Zone,
+    'VirtualRouter': VirtualRouter
+  };
 
   return OpenNebula;
 });

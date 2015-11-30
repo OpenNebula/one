@@ -776,3 +776,19 @@ int VdcAllocate::pool_allocate(
 
     return vdcpool->allocate(tmpl, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouterAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att)
+{
+    VirtualRouterPool * vrpool = static_cast<VirtualRouterPool *>(pool);
+
+    return vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+        tmpl, &id, error_str);
+}

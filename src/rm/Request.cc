@@ -622,6 +622,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "security group";
         case PoolObjectSQL::VDC:
             return "VDC";
+        case PoolObjectSQL::VROUTER:
+            return "virtual router";
         default:
             return "-";
       }

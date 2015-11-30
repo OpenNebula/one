@@ -1,0 +1,25 @@
+---
+:ID:
+  :desc: ONE identifier for the Virtual Router
+  :size: 4
+
+:NAME:
+  :desc: Name of the Virtual Router
+  :size: 27
+  :left: true
+
+:USER:
+  :desc: Username of the Virtual Router owner
+  :size: 15
+  :left: true
+
+:GROUP:
+  :desc: Group of the Virtual Router
+  :size: 15
+  :left: true
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME

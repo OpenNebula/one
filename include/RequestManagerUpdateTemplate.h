@@ -286,6 +286,24 @@ public:
     ~VdcUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VirtualRouterUpdateTemplate():
+        RequestManagerUpdateTemplate("VirtualRouterUpdateTemplate",
+                                     "Updates a virtual router template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

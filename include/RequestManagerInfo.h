@@ -318,6 +318,24 @@ public:
     ~VdcInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterInfo : public RequestManagerInfo
+{
+public:
+    VirtualRouterInfo():
+        RequestManagerInfo("VirtualRouterInfo",
+                           "Returns virtual router information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterInfo(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

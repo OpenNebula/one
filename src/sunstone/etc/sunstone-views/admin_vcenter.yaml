@@ -18,6 +18,7 @@ enabled_tabs:
     #- datastores-tab
     - vnets-tab
     #- secgroups-tab
+    - vrouters-tab
     - zones-tab
     #- marketplace-tab
     - oneflow-dashboard
@@ -426,6 +427,25 @@ tabs:
             SecurityGroup.chmod: true
             SecurityGroup.clone_dialog: true
             SecurityGroup.delete: true
+    vrouters-tab:
+        panel_tabs:
+            virtual_router_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+        actions:
+            VirtualRouter.refresh: true
+            VirtualRouter.create_dialog: true
+            VirtualRouter.update_dialog: true
+            VirtualRouter.rename: true
+            VirtualRouter.chown: true
+            VirtualRouter.chgrp: true
+            VirtualRouter.chmod: true
+            VirtualRouter.clone_dialog: true
+            VirtualRouter.delete: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

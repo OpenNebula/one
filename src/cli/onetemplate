@@ -160,7 +160,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     delete_desc = <<-EOT.unindent
-        Deletes the given Image
+        Deletes the given Template
     EOT
 
     command :delete, delete_desc, [:range, :templateid_list] do

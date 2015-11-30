@@ -354,6 +354,24 @@ public:
     ~VdcDelete(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterDelete : public RequestManagerDelete
+{
+public:
+    VirtualRouterDelete():
+        RequestManagerDelete("VirtualRouterDelete",
+                             "Deletes a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterDelete(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
