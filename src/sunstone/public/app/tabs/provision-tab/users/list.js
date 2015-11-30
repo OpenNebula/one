@@ -517,7 +517,7 @@ define(function(require) {
           '<div class="row">' +
             '<div class="large-10 large-centered columns">' +
               '<span style="font-size: 14px; line-height: 20px">' +
-                Locale.tr("Be careful, this action will inmediately remove the User from OpenNebula") +
+                Locale.tr("Be careful, this action will immediately remove the User from OpenNebula") +
               '</span>' +
             '</div>' +
           '</div>' +

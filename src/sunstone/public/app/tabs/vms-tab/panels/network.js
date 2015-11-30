@@ -372,7 +372,7 @@ define(function(require) {
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
-          body : Locale.tr("This will detach the nic inmediately"),
+          body : Locale.tr("This will detach the nic immediately"),
           //question :
           submit : function(){
             Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);

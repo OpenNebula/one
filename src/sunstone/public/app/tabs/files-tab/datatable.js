@@ -76,7 +76,7 @@ define(function(require) {
       "id_index": 1,
       "name_index": 4,
       "uname_index": 2,
-      "select_resource": Locale.tr("Please select an file from the list"),
+      "select_resource": Locale.tr("Please select a file from the list"),
       "you_selected": Locale.tr("You selected the following file:"),
       "select_resource_multiple": Locale.tr("Please select one or more files from the list"),
       "you_selected_multiple": Locale.tr("You selected the following files:")
