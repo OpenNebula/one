@@ -133,6 +133,7 @@ require.config({
         'tabs/datastores-tab',
         'tabs/vnets-tab',
         'tabs/secgroups-tab',
+        'tabs/vrouters-tab',
         'tabs/zones-tab',
         'tabs/marketplace-tab',
         'tabs/oneflow-dashboard',

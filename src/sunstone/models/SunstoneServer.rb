@@ -65,6 +65,7 @@ class SunstoneServer < CloudServer
             when "zone"       then ZonePoolJSON.new(client)
             when "security_group"   then SecurityGroupPoolJSON.new(client, user_flag)
             when "vdc"        then VdcPoolJSON.new(client)
+            when "vrouter"    then VirtualRouterPoolJSON.new(client, user_flag)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -122,6 +123,7 @@ class SunstoneServer < CloudServer
             when "zone"       then ZoneJSON.new(Zone.build_xml, @client)
             when "security_group"   then SecurityGroupJSON.new(SecurityGroup.build_xml, @client)
             when "vdc"        then VdcJSON.new(Vdc.build_xml, @client)
+            when "vrouter"    then VirtualRouterJSON.new(VirtualRouter.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -443,6 +445,7 @@ class SunstoneServer < CloudServer
             when "zone"       then ZoneJSON.new_with_id(id, @client)
             when "security_group"   then SecurityGroupJSON.new_with_id(id, @client)
             when "vdc"        then VdcJSON.new_with_id(id, @client)
+            when "vrouter"    then VirtualRouterJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error
