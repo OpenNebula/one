@@ -429,6 +429,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse the virtual router attributes
+    // ------------------------------------------------------------------------
+
+    rc = parse_vrouter(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_vrouter;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
 
@@ -584,6 +595,7 @@ error_one_vms:
 
 error_os:
 error_defaults:
+error_vrouter:
 error_public:
 error_name:
 error_common:
@@ -823,6 +835,32 @@ error_cleanup:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_vrouter(string& error_str)
+{
+    string st;
+
+    user_obj_template->get("VROUTER", st);
+
+    if (!st.empty())
+    {
+        obj_template->replace("VROUTER", st);
+    }
+
+    user_obj_template->get("VROUTER_ID", st);
+
+    if (!st.empty())
+    {
+        obj_template->replace("VROUTER_ID", st);
+    }
+
+    user_obj_template->erase("VROUTER");
+    user_obj_template->erase("VROUTER_ID");
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -3214,7 +3252,7 @@ int VirtualMachine::get_vrouter_id()
 {
     int vrid;
 
-    if (!user_obj_template->get("VROUTER_ID", vrid))
+    if (!obj_template->get("VROUTER_ID", vrid))
     {
         vrid = -1;
     }

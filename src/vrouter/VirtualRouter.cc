@@ -27,7 +27,8 @@ VirtualRouter::VirtualRouter(   int             id,
                                 const string&   _gname,
                                 int             _umask,
                                 Template * _template_contents):
-        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,table)
+        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,table),
+        vmid(-1)
 {
     if (_template_contents != 0)
     {
@@ -197,6 +198,7 @@ string& VirtualRouter::to_xml(string& xml) const
             << "<UNAME>"    << uname      << "</UNAME>"
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
+            << "<VMID>"     << vmid       << "</VMID>"
             << perms_to_xml(perm_str)
             << obj_template->to_xml(template_xml)
         << "</VROUTER>";
@@ -224,6 +226,7 @@ int VirtualRouter::from_xml(const string& xml)
     rc += xpath(uname,      "/VROUTER/UNAME",   "not_found");
     rc += xpath(gname,      "/VROUTER/GNAME",   "not_found");
     rc += xpath(name,       "/VROUTER/NAME",    "not_found");
+    rc += xpath(vmid,       "/VROUTER/VMID",    -1);
 
     // Permissions
     rc += perms_from_xml();

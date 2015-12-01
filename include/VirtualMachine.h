@@ -1969,6 +1969,13 @@ private:
     int parse_defaults(string& error_str);
 
     /**
+     * Parse virtual router related attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_vrouter(string& error_str);
+
+    /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
      *

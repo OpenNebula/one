@@ -52,6 +52,10 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
+            column :VMID, "VM associated with the Virtual Router", :size=>4 do |d|
+                d["VMID"]
+            end
+
             column :NAME, "Name of the Virtual Router", :left, :size=>27 do |d|
                 d["NAME"]
             end
@@ -65,7 +69,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
-            default :ID, :USER, :GROUP, :NAME
+            default :ID, :VMID, :USER, :GROUP, :NAME
         end
 
         table
@@ -94,6 +98,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
             str_h1 % "VIRTUAL ROUTER #{obj['ID']} INFORMATION")
         puts str % ["ID", obj.id.to_s]
         puts str % ["NAME", obj.name]
+        puts str % ["VIRTUAL MACHINE", obj['VMID']]
         puts str % ["USER", obj['UNAME']]
         puts str % ["GROUP", obj['GNAME']]
         puts
