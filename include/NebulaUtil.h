@@ -160,6 +160,33 @@ namespace one_util
     std::string float_to_str(const float &num);
 
     /**
+     *  Returns a scaped version of a value in the from "<op><val><cl>"
+     *    @param v the value to be escaped
+     *    @param op the opening escape string
+     *    @param cl the closing escape string
+     */
+    template <typename ValueType> inline
+    std::string escape(const ValueType& v, const char * op, const char * cl)
+    {
+        std::ostringstream oss;
+
+        oss << op << v << cl;
+
+        return oss.str();
+    }
+
+    template <typename ValueType> inline
+    std::string escape_xml(const ValueType &v)
+    {
+        return escape(v, "<![CDATA[", "]]>");
+    }
+
+    template <typename ValueType> inline
+    std::string escape_xml_attr(const ValueType &v)
+    {
+        return escape(v, "'", "'");
+    }
+    /**
      * Checks if a strings matches a regular expression
      *
      * @param pattern PCRE extended pattern

@@ -63,29 +63,31 @@ public:
         ZONE        = 0x0000800000000000LL,
         SECGROUP    = 0x0001000000000000LL,
         VDC         = 0x0002000000000000LL,
-        VROUTER     = 0x0004000000000000LL
+        VROUTER     = 0x0004000000000000LL,
+        MARKETPLACE = 0x0008000000000000LL
     };
 
     static string type_to_str(ObjectType ob)
     {
         switch (ob)
         {
-            case VM:        return "VM" ; break;
-            case HOST:      return "HOST" ; break;
-            case NET:       return "NET" ; break;
-            case IMAGE:     return "IMAGE" ; break;
-            case USER:      return "USER" ; break;
-            case TEMPLATE:  return "TEMPLATE" ; break;
-            case GROUP:     return "GROUP" ; break;
-            case ACL:       return "ACL" ; break;
-            case DATASTORE: return "DATASTORE" ; break;
-            case CLUSTER:   return "CLUSTER" ; break;
-            case DOCUMENT:  return "DOCUMENT" ; break;
-            case ZONE:      return "ZONE" ; break;
-            case SECGROUP:  return "SECGROUP" ; break;
-            case VDC:       return "VDC" ; break;
-            case VROUTER:   return "VROUTER" ; break;
-            default:        return "";
+            case VM:          return "VM" ; break;
+            case HOST:        return "HOST" ; break;
+            case NET:         return "NET" ; break;
+            case IMAGE:       return "IMAGE" ; break;
+            case USER:        return "USER" ; break;
+            case TEMPLATE:    return "TEMPLATE" ; break;
+            case GROUP:       return "GROUP" ; break;
+            case ACL:         return "ACL" ; break;
+            case DATASTORE:   return "DATASTORE" ; break;
+            case CLUSTER:     return "CLUSTER" ; break;
+            case DOCUMENT:    return "DOCUMENT" ; break;
+            case ZONE:        return "ZONE" ; break;
+            case SECGROUP:    return "SECGROUP" ; break;
+            case VDC:         return "VDC" ; break;
+            case VROUTER:     return "VROUTER" ; break;
+            case MARKETPLACE: return "MARKETPLACE" ; break;
+            default:          return "";
         }
     };
 
