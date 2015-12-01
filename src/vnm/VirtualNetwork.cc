@@ -46,7 +46,8 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
             Clusterable(_cluster_id, _cluster_name),
             bridge(""),
-            parent_vid(_pvid)
+            parent_vid(_pvid),
+            vrouters("VROUTERS")
 {
     if (_vn_template != 0)
     {
@@ -418,6 +419,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 {
     ostringstream   os;
 
+    string vrouters_xml;
     string template_xml;
     string leases_xml;
     string perm_str;
@@ -464,6 +466,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     }
     os  << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
+    os << vrouters.to_xml(vrouters_xml);
+
     os  << obj_template->to_xml(template_xml);
 
     os  << ar_pool.to_xml(leases_xml, extended, vms, vnets);
@@ -505,6 +509,18 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(phydev, "/VNET/PHYDEV", "");
     xpath(vlan_id,"/VNET/VLAN_ID","");
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
+
+    ObjectXML::get_nodes("/VNET/VROUTERS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vrouters.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
 
     // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
@@ -553,6 +569,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 int VirtualNetwork::nic_attribute(
         VectorAttribute *       nic,
         int                     vid,
+        int                     vrid,
         const vector<string>&   inherit_attrs)
 {
     string inherit_val;
@@ -641,6 +658,11 @@ int VirtualNetwork::nic_attribute(
 
     nic->replace("SECURITY_GROUPS",
         one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
+
+    if (rc == 0 && vrid != -1)
+    {
+        vrouters.add_collection_id(vrid);
+    }
 
     return rc;
 }

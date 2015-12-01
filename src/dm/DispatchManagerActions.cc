@@ -1442,6 +1442,7 @@ int DispatchManager::attach_nic(
     int max_nic_id;
     int uid;
     int oid;
+    int vrid;
     int rc;
 
     set<int> vm_sgs;
@@ -1496,8 +1497,9 @@ int DispatchManager::attach_nic(
 
     vm->set_resched(false);
 
-    uid = vm->get_uid();
-    oid = vm->get_oid();
+    uid  = vm->get_uid();
+    oid  = vm->get_oid();
+    vrid = vm->get_vrouter_id();
 
     vmpool->update(vm);
 
@@ -1505,6 +1507,7 @@ int DispatchManager::attach_nic(
 
     rc = VirtualMachine::set_up_attach_nic(oid,
                                     vm_sgs,
+                                    vrid,
                                     nic,
                                     sg_rules,
                                     max_nic_id,
@@ -1518,7 +1521,7 @@ int DispatchManager::attach_nic(
 
         if ( rc == 0 )
         {
-            VirtualMachine::release_network_leases(nic, vid);
+            VirtualMachine::release_network_leases(nic, vid, vrid);
 
             vector<VectorAttribute*>::iterator it;
             for(it = sg_rules.begin(); it != sg_rules.end(); it++)
