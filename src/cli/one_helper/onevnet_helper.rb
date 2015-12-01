@@ -324,6 +324,13 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
         end.show(leases, {})
 
+        puts
+
+        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS")
+        vn.vrouter_ids.each do |id|
+            puts "%-15s" % [id]
+        end
+
         if options[:show_ar]
             ar_list.each do |ar_id|
                 puts

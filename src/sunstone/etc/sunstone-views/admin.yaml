@@ -381,6 +381,7 @@ tabs:
             vnet_ar_list_tab: true
             vnet_leases_tab: true
             vnet_sg_list_tab: true
+            vnet_vr_list_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
