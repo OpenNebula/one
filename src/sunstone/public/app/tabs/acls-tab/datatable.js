@@ -171,6 +171,9 @@ define(function(require) {
       case "VDC":
           resources_str+=Locale.tr("VDCs")+", ";
           break;
+      case "VROUTER":
+          resources_str+=Locale.tr("Virtual Routers")+", ";
+          break;
       }
     }
     //remove ", " from end

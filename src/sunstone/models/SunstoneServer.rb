@@ -119,7 +119,7 @@ class SunstoneServer < CloudServer
             when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
             when "user"       then UserJSON.new(User.build_xml, @client)
             when "acl"        then AclJSON.new(Acl.build_xml, @client)
-            when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
+            when "datastore"  then DatastoreJSON.new(Datastore.build_xml, @client)
             when "zone"       then ZoneJSON.new(Zone.build_xml, @client)
             when "security_group"   then SecurityGroupJSON.new(SecurityGroup.build_xml, @client)
             when "vdc"        then VdcJSON.new(Vdc.build_xml, @client)
