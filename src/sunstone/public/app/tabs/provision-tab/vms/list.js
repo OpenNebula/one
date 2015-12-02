@@ -593,7 +593,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -612,7 +612,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
