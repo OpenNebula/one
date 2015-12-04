@@ -136,6 +136,29 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
+    //--------------------------------------------------------------------------
+    // Temporary code to create Virtual Routers from regular VM Templates
+
+    bool    is_vrouter;
+    int     vrid;
+    string  vr_error_str;
+
+    VirtualRouterPool* vrpool = Nebula::instance().get_vrouterpool();
+
+    tmpl->get("VROUTER", is_vrouter);
+
+    if (is_vrouter)
+    {
+        Template * vr_tmpl = new Template;
+
+        vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+            vr_tmpl, &vrid, vr_error_str);
+
+        tmpl->replace("VROUTER_ID", vrid);
+    }
+
+    //--------------------------------------------------------------------------
+
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.group_ids);
@@ -196,6 +219,24 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     delete extended_tmpl;
+
+    //--------------------------------------------------------------------------
+    // Temporary code to create Virtual Routers from regular VM Templates
+    // Final code would need roolback to delete the new VR on error
+
+    VirtualRouter *  vr;
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr != 0)
+    {
+        vr->set_vmid(vid);
+
+        vrpool->update(vr);
+
+        vr->unlock();
+    }
+    //--------------------------------------------------------------------------
 
     success_response(vid, att);
 }
