@@ -243,6 +243,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
                                       int     nic_id,
                                       int     uid,
                                       int     vid,
+                                      int     vrid,
                                       string& error)
 {
     string           network;
@@ -268,7 +269,7 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
         return -1;
     }
 
-    int rc = vnet->nic_attribute(nic, vid, inherit_attrs);
+    int rc = vnet->nic_attribute(nic, vid, vrid, inherit_attrs);
 
     if ( rc == 0 )
     {

@@ -56,6 +56,7 @@ define(function(require) {
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("VMID"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
       Locale.tr("Name")
@@ -63,7 +64,7 @@ define(function(require) {
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
+      "name_index": 5,
       "select_resource": Locale.tr("Please select a virtual router from the list"),
       "you_selected": Locale.tr("You selected the following virtual router:"),
       "select_resource_multiple": Locale.tr("Please select one or more virtual routers from the list"),
@@ -91,6 +92,7 @@ define(function(require) {
                              element.ID + '" name="selected_items" value="' +
                              element.ID + '"/>',
         element.ID,
+        element.VMID,
         element.UNAME,
         element.GNAME,
         element.NAME

@@ -3,6 +3,10 @@
   :desc: ONE identifier for the Virtual Router
   :size: 4
 
+:VMID:
+  :desc: VM associated with the Virtual Router
+  :size: 4
+
 :NAME:
   :desc: Name of the Virtual Router
   :size: 27
@@ -20,6 +24,7 @@
 
 :default:
 - :ID
+- :VMID
 - :USER
 - :GROUP
 - :NAME

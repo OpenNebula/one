@@ -24,6 +24,8 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
+  var Sunstone = require('sunstone');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -65,6 +67,13 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
+
+    var vmid = this.element.VMID;
+
+    if (vmid == "-1"){
+      vmid = undefined; // Change made to use {{#if vmid}} in handlebars
+    }
+
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     // TODO: simplify interface?
@@ -78,12 +87,22 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
+      'vmid': vmid,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML
     });
   }
 
   function _setup(context) {
+    $("a.vmid", context).on("click", function(){
+      // TODO: this should be checked internally in showElement,
+      // but it won't work because of bug #4198
+
+      if (Config.isTabEnabled("vms-tab")){
+        Sunstone.showElement("vms-tab", "VM.show", $(this).text());
+      }
+    });
+
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 

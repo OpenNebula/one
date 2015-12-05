@@ -429,6 +429,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse the virtual router attributes
+    // ------------------------------------------------------------------------
+
+    rc = parse_vrouter(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_vrouter;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
 
@@ -584,6 +595,7 @@ error_one_vms:
 
 error_os:
 error_defaults:
+error_vrouter:
 error_public:
 error_name:
 error_common:
@@ -823,6 +835,32 @@ error_cleanup:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_vrouter(string& error_str)
+{
+    string st;
+
+    user_obj_template->get("VROUTER", st);
+
+    if (!st.empty())
+    {
+        obj_template->replace("VROUTER", st);
+    }
+
+    user_obj_template->get("VROUTER_ID", st);
+
+    if (!st.empty())
+    {
+        obj_template->replace("VROUTER_ID", st);
+    }
+
+    user_obj_template->erase("VROUTER");
+    user_obj_template->erase("VROUTER_ID");
+
+    return 0;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2551,6 +2589,7 @@ VectorAttribute * VirtualMachine::get_attach_nic_info(
 int VirtualMachine::set_up_attach_nic(
                         int                      vm_id,
                         set<int>&                vm_sgs,
+                        int                      vm_vrid,
                         VectorAttribute *        new_nic,
                         vector<VectorAttribute*> &rules,
                         int                      max_nic_id,
@@ -2562,7 +2601,8 @@ int VirtualMachine::set_up_attach_nic(
 
     set<int> nic_sgs;
 
-    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
+    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id,
+                                    vm_vrid, error_str);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
@@ -2962,7 +3002,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
         merge_nic_defaults(nic);
 
-        rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
+        rc = vnpool->nic_attribute(nic, i, uid, oid, get_vrouter_id(), estr);
 
         if (rc == -1)
         {
@@ -3028,14 +3068,15 @@ void VirtualMachine::release_network_leases()
         VectorAttribute const *  nic =
             dynamic_cast<VectorAttribute const * >(nics[i]);
 
-        release_network_leases(nic, oid);
+        release_network_leases(nic, oid, get_vrouter_id());
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid)
+int VirtualMachine::release_network_leases(
+        VectorAttribute const * nic, int vmid, int vrid)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
     VirtualNetwork*     vn;
@@ -3073,11 +3114,11 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 
     if (nic->vector_value("AR_ID", ar_id) == 0)
     {
-        vn->free_addr(ar_id, vmid, mac);
+        vn->free_addr(ar_id, vmid, vrid, mac);
     }
     else
     {
-        vn->free_addr(vmid, mac);
+        vn->free_addr(vmid, vrid, mac);
     }
 
     vnpool->update(vn);
@@ -3202,6 +3243,21 @@ void VirtualMachine::release_security_groups(int id, const VectorAttribute *nic)
 
         sgroup->unlock();
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_vrouter_id()
+{
+    int vrid;
+
+    if (!obj_template->get("VROUTER_ID", vrid))
+    {
+        vrid = -1;
+    }
+
+    return vrid;
 }
 
 /* -------------------------------------------------------------------------- */

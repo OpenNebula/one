@@ -22,6 +22,7 @@
 #include "VirtualNetworkTemplate.h"
 #include "Clusterable.h"
 #include "AddressRangePool.h"
+#include "ObjectCollection.h"
 
 #include <vector>
 #include <string>
@@ -199,21 +200,33 @@ public:
      *  Release previously given address lease
      *    @param arid of the address range where the address was leased from
      *    @param vid the ID of the VM
+     *    @param vrid Virtual Router id if the VM is a VR, or -1
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(unsigned int arid, int vid, const string& mac)
+    void free_addr(unsigned int arid, int vid, int vrid, const string& mac)
     {
         ar_pool.free_addr(arid, PoolObjectSQL::VM, vid, mac);
+
+        if (vrid != -1)
+        {
+            vrouters.del_collection_id(vrid);
+        }
     }
 
     /**
      *  Release previously given address lease
      *    @param vid the ID of the VM
+     *    @param vrid Virtual Router id if the VM is a VR, or -1
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(int vid, const string& mac)
+    void free_addr(int vid, int vrid, const string& mac)
     {
         ar_pool.free_addr(PoolObjectSQL::VM, vid, mac);
+
+        if (vrid != -1)
+        {
+            vrouters.del_collection_id(vrid);
+        }
     }
 
     /**
@@ -246,6 +259,7 @@ public:
      *  * BRIDGE: for this virtual network
      *  @param nic attribute for the VM template
      *  @param vid of the VM getting the lease
+     *  @param vrid Virtual Router id if the VM is a VR, or -1
      *  @param inherit_attrs Attributes to be inherited from the vnet template
      *      into the nic
      *  @return 0 on success
@@ -253,6 +267,7 @@ public:
     int nic_attribute(
             VectorAttribute *       nic,
             int                     vid,
+            int                     vrid,
             const vector<string>&   inherit_attrs);
 
     /**
@@ -457,6 +472,11 @@ private:
      *  The Address Range Pool
      */
     AddressRangePool ar_pool;
+
+    /**
+     *  Set of Virtual Router IDs
+     */
+    ObjectCollection vrouters;
 
     // *************************************************************************
     // DataBase implementation (Private)

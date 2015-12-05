@@ -18,7 +18,7 @@
   <div class="large-6 columns">
     <table id="info_virtual_router_table" class="dataTable">
       <thead>
-         <tr>
+        <tr>
           <th colspan="3">{{tr "Information"}}</th>
         </tr>
       </thead>
@@ -28,6 +28,16 @@
           <td class="value_td" colspan="2">{{element.ID}}</td>
         </tr>
         {{{renameTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "VM ID"}}</td>
+          <td class="value_td" colspan="2">
+            {{#if vmid}}
+            <a class="vmid">{{vmid}}</a>
+            {{else}}
+            --
+            {{/if}}
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

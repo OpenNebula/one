@@ -107,6 +107,7 @@ public:
      *    @param nic_id the id for this NIC
      *    @param uid of the VM owner
      *    @param vid of the VM requesting the lease
+     *    @param vrid Virtual Router id if the VM is a VR, or -1
      *    @param error_str string describing the error
      *    @return 0 on success,
      *            -1 error,
@@ -117,6 +118,7 @@ public:
             int                 nic_id,
             int                 uid,
             int                 vid,
+            int                 vrid,
             string&             error_str);
 
     /**

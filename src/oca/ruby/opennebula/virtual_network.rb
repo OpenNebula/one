@@ -324,6 +324,17 @@ module OpenNebula
             end
         end
 
+        # Returns an array with the numeric virtual router ids
+        def vrouter_ids
+            array = Array.new
+
+            self.each("VROUTERS/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
+        end
+
     private
         def set_publish(published)
             group_u = published ? 1 : 0
