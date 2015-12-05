@@ -18,13 +18,13 @@
 require 'opennebula/pool'
 
 module OpenNebula
-    class DatastorePool < Pool
+    class MarketPlacePool < Pool
         #######################################################################
         # Constants and Class attribute accessors
         #######################################################################
 
-        DATASTORE_POOL_METHODS = {
-            :info => "datastorepool.info"
+        MARKETPLACE_POOL_METHODS = {
+            :info => "marketpool.info"
         }
 
         #######################################################################
@@ -33,21 +33,21 @@ module OpenNebula
 
         # +client+ a Client object that represents a XML-RPC connection
         def initialize(client)
-            super('DATASTORE_POOL','DATASTORE',client)
+            super('MARKETPLACE_POOL','MARKETPLACE', client)
         end
 
-        # Factory method to create datastore objects
+        # Factory method to create MarketPlace objects
         def factory(element_xml)
-            OpenNebula::Datastore.new(element_xml,@client)
+            OpenNebula::MarketPlace.new(element_xml, @client)
         end
 
         #######################################################################
         # XML-RPC Methods for the User Object
         #######################################################################
 
-        # Retrieves all the Groups in the pool.
+        # Retrieves all the marketplace apps
         def info()
-            super(DATASTORE_POOL_METHODS[:info])
+            super(MARKETPLACE_POOL_METHODS[:info])
         end
 
         alias_method :info!, :info

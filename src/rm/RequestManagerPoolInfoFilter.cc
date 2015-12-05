@@ -551,3 +551,14 @@ void VdcPoolInfo::request_execute(
 {
     dump(att, ALL, -1, -1, "", "");
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void MarketPlacePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+

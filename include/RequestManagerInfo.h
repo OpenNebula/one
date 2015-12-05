@@ -336,7 +336,24 @@ public:
     ~VirtualRouterInfo(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceInfo():
+        RequestManagerInfo("MarketPlaceInfo",
+                           "Returns MarketPlace information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceInfo(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

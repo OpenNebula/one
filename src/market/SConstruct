@@ -22,7 +22,8 @@ lib_name='nebula_marketplace'
 
 # Sources to generate the library
 source_files=[
-    'MarketPlace.cc'
+    'MarketPlace.cc',
+    'MarketPlacePool.cc'
 ]
 
 # Build library

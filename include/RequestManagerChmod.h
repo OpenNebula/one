@@ -189,7 +189,25 @@ public:
     ~VirtualRouterChmod(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceChmod: public RequestManagerChmod
+{
+public:
+    MarketPlaceChmod():
+        RequestManagerChmod("MarketPlaceChmod",
+                           "Changes permission bits of a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceChmod(){};
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

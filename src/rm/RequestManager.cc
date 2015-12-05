@@ -903,6 +903,51 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 
+    /* MarketPlace related methods */
+
+    xmlrpc_c::method * market_allocate_pt;
+    xmlrpc_c::method * market_update_pt;
+    xmlrpc_c::method * market_delete_pt;
+    xmlrpc_c::method * market_chmod_pt;
+    xmlrpc_c::method * market_chown_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        market_allocate_pt = new RequestManagerProxy("one.market.allocate");
+        market_update_pt   = new RequestManagerProxy("one.market.update");
+        market_delete_pt   = new RequestManagerProxy("one.market.delete");
+        market_chmod_pt    = new RequestManagerProxy("one.market.chmod");
+        market_chown_pt    = new RequestManagerProxy("one.market.chown");
+    }
+    else
+    {
+        market_allocate_pt = new MarketPlaceAllocate();
+        market_update_pt   = new MarketPlaceUpdateTemplate();
+        market_delete_pt   = new MarketPlaceDelete();
+        market_chmod_pt    = new MarketPlaceChmod();
+        market_chown_pt    = new MarketPlaceChown();
+    }
+
+    xmlrpc_c::methodPtr market_allocate(market_allocate_pt);
+    xmlrpc_c::methodPtr market_update(market_update_pt);
+    xmlrpc_c::methodPtr market_delete(market_delete_pt);
+    xmlrpc_c::methodPtr market_chmod(market_chmod_pt);
+    xmlrpc_c::methodPtr market_chown(market_chown_pt);
+
+    xmlrpc_c::methodPtr market_info(new MarketPlaceInfo());
+    xmlrpc_c::methodPtr market_rename(new MarketPlaceRename());
+    xmlrpc_c::methodPtr marketpool_info(new MarketPlacePoolInfo());
+
+    RequestManagerRegistry.addMethod("one.market.allocate", market_allocate);
+    RequestManagerRegistry.addMethod("one.market.update", market_update);
+    RequestManagerRegistry.addMethod("one.market.delete", market_delete);
+    RequestManagerRegistry.addMethod("one.market.chmod", market_chmod);
+    RequestManagerRegistry.addMethod("one.market.chown", market_chown);
+
+    RequestManagerRegistry.addMethod("one.market.info", market_info);
+    RequestManagerRegistry.addMethod("one.market.rename", market_rename);
+
+    RequestManagerRegistry.addMethod("one.marketpool.info", marketpool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

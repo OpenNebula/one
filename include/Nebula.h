@@ -35,6 +35,7 @@
 #include "SecurityGroupPool.h"
 #include "VdcPool.h"
 #include "VirtualRouterPool.h"
+#include "MarketPlacePool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -142,6 +143,10 @@ public:
         return vrouterpool;
     };
 
+    MarketPlacePool * get_mppool()
+    {
+        return mppool;
+    };
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -664,7 +669,7 @@ private:
         system_db(0), db(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0),
-        secgrouppool(0), vdcpool(0), vrouterpool(0),
+        secgrouppool(0), vdcpool(0), vrouterpool(0), mppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
         aclm(0), imagem(0)
     {
@@ -715,6 +720,7 @@ private:
         delete secgrouppool;
         delete vdcpool;
         delete vrouterpool;
+        delete mppool;
         delete vmm;
         delete lcm;
         delete im;
@@ -795,6 +801,7 @@ private:
     SecurityGroupPool  * secgrouppool;
     VdcPool            * vdcpool;
     VirtualRouterPool  * vrouterpool;
+    MarketPlacePool    * mppool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

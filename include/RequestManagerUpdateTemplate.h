@@ -304,7 +304,23 @@ public:
     ~VirtualRouterUpdateTemplate(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    MarketPlaceUpdateTemplate():
+        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+                                     "Updates a virtual router template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceUpdateTemplate(){};
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -792,3 +792,21 @@ int VirtualRouterAllocate::pool_allocate(
     return vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         tmpl, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int MarketPlaceAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att)
+{
+    MarketPlacePool *     mppool = static_cast<MarketPlacePool *>(pool);
+    MarketPlaceTemplate * ttmpl  = static_cast<MarketPlaceTemplate *>(tmpl);
+
+    return mppool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+        ttmpl, &id, error_str);
+}
+

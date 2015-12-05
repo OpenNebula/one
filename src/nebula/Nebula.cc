@@ -347,6 +347,7 @@ void Nebula::start(bool bootstrap_only)
             rc += GroupQuotas::bootstrap(db);
             rc += SecurityGroupPool::bootstrap(db);
             rc += VirtualRouterPool::bootstrap(db);
+            rc += MarketPlacePool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -493,6 +494,7 @@ void Nebula::start(bool bootstrap_only)
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
         vrouterpool = new VirtualRouterPool(db);
+        mppool  = new MarketPlacePool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);

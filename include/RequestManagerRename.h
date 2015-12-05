@@ -356,7 +356,30 @@ public:
     };
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceRename: public RequestManagerRename
+{
+public:
+    MarketPlaceRename():
+        RequestManagerRename("MarketPlaceRename", "Renames a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlacePool*>(pool)->get(name, lock);
+    };
+
+    //TODO implement batch rename for MarketPlaceApps
+    //void batch_rename(int oid);
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -488,10 +488,7 @@ public:
 
     ~VdcPoolInfo(){};
 
-    /* -------------------------------------------------------------------- */
-
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -515,6 +512,23 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+
+class MarketPlacePoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    MarketPlacePoolInfo():
+        RequestManagerPoolInfoFilter("MarketPlacePoolInfo",
+                                     "Returns the market place pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlacePoolInfo(){};
+
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+};
 
 #endif

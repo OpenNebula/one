@@ -17,7 +17,8 @@
 #ifndef MARKETPLACE_POOL_H_
 #define MARKETPLACE_POOL_H_
 
-#include "Marketplace.h"
+#include "MarketPlace.h"
+#include "NebulaLog.h"
 #include "SqlDB.h"
 
 class SqlDB;
@@ -34,9 +35,9 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Allocates a new Datastore, writing it in the pool database. No memory is
+     *  Allocates a new MarketPlace, writing it in the pool database. No memory is
      *  allocated for the object.
-     *    @param uid the user id of the Datastore owner
+     *    @param uid the user id of the MarketPlace owner
      *    @param gid the id of the group this object is assigned to
      *    @param uname name of the user
      *    @param gname name of the group
@@ -60,7 +61,7 @@ public:
     /**
      *  Function to get a MarketPlace from the pool, the object is loaded if not
      *  in memory
-     *    @param oid Datastore unique id
+     *    @param oid MarketPlace unique id
      *    @param lock locks the MarketPlace mutex
      *    @return a pointer to the MarketPlace, 0 if not loaded
      */
@@ -77,9 +78,9 @@ public:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Datastore * get(const std::string& name, bool lock)
+    MarketPlace * get(const std::string& name, bool lock)
     {
-        return static_cast<Datastore *>(PoolSQL::get(name,-1,lock));
+        return static_cast<MarketPlace *>(PoolSQL::get(name,-1,lock));
     };
 
     /**
@@ -94,22 +95,21 @@ public:
         return name;
     };
 
-    /** Update a particular Datastore
-     *    @param user pointer to Datastore
+    /** Update a particular MarketPlace
+     *    @param user pointer to MarketPlace
      *    @return 0 on success
      */
-    int update(Datastore * datastore)
+    int update(MarketPlace * mp)
     {
-        return datastore->update(db);
+        return mp->update(db);
     };
 
     /**
      *  Drops the MarketPlac data in the data base. The object mutex SHOULD be
      *  locked.
-     *    @param objsql a pointer to the Datastore object
+     *    @param objsql a pointer to the MarketPlace object
      *    @param error_msg Error reason, if any
-     *    @return 0 on success, -1 DB error
-     *            -3 Datastore's Image IDs set is not empty
+     *    @return 0 on success, -1 DB error -3 MarketPlace's App ID set not empty
      */
     int drop(PoolObjectSQL * objsql, std::string& error_msg)
 	{
@@ -119,7 +119,7 @@ public:
 		{
 			std::ostringstream oss;
 
-			oss << "MarketPlace " << datastore->get_oid() << " is not empty.";
+			oss << "MarketPlace " << mp->get_oid() << " is not empty.";
 			error_msg = oss.str();
 
 			NebulaLog::log("MARKETPLACE", Log::ERROR, error_msg);
@@ -131,7 +131,7 @@ public:
 	}
 
     /**
-     *  Bootstraps the database table(s) associated to the Datastore pool
+     *  Bootstraps the database table(s) associated to the MarketPlace pool
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)

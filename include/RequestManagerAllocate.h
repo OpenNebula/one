@@ -618,7 +618,39 @@ public:
                       RequestAttributes& att);
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAllocate : public RequestManagerAllocate
+{
+public:
+    MarketPlaceAllocate():
+        RequestManagerAllocate("MarketPlaceAllocate",
+                               "Allocates a new marketplace",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new MarketPlaceTemplate;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template *                 tmpl,
+                      int&                       id,
+                      string&                    error_str,
+                      RequestAttributes&         att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

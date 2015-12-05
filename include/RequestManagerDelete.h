@@ -372,7 +372,24 @@ public:
     ~VirtualRouterDelete(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceDelete():
+        RequestManagerDelete("MarketPlaceDelete",
+                             "Deletes a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceDelete(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

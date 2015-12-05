@@ -292,7 +292,29 @@ public:
     };
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceChown: public RequestManagerChown
+{
+public:
+    MarketPlaceChown():
+        RequestManagerChown("MarketPlaceChown",
+                            "Changes ownership of a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_mppool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

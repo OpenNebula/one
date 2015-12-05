@@ -43,10 +43,10 @@ MarketPlace::MarketPlace(
     const std::string&    uname,
     const std::string&    gname,
     int                   umask,
-    MarketPlaceTemplate*  mp_template):
+    MarketPlaceTemplate * mp_template):
         PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, table),
         ObjectCollection("MARKETPLACEAPPS"),
-        mp_mad(""),
+        market_mad(""),
         type(IMAGE_MP),
         total_mb(0),
         free_mb(0),
@@ -86,9 +86,9 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
 	//MarketPlacePool::allocate checks NAME
     erase_template_attribute("NAME", name);
 
-    get_template_attribute("MP_MAD", mp_mad);
+    erase_template_attribute("MARKET_MAD", market_mad);
 
-    if ( mp_mad.empty() == true )
+    if ( market_mad.empty() == true )
     {
         goto error_mad;
     }
@@ -102,17 +102,15 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
 		goto error_type;
 	}
 
-    add_template_attribute("TYPE", type_to_str(type));
-
     //--------------------------------------------------------------------------
 
     return insert_replace(db, false, error_str);
 
 error_mad:
-    error_str = "No MarketPlace driver (MP_MAD) in template.";
+    error_str = "No marketplace driver (MARKET_MAD) in template.";
     goto error_common;
 error_type:
-	error_str = "Unknown MarketPlace type: " + s_mp_type;
+	error_str = "Unknown marketplace type: " + s_mp_type;
 	goto error_common;
 
 error_common:
@@ -183,7 +181,7 @@ error_xml:
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
-    error_str = "Error transforming the MarketPlace to XML.";
+    error_str = "Error transforming the marketplace to XML.";
 
     goto error_common;
 
@@ -195,7 +193,7 @@ error_name:
     goto error_generic;
 
 error_generic:
-    error_str = "Error inserting MarketPlace in DB.";
+    error_str = "Error inserting marketplace in DB.";
 error_common:
     return -1;
 }
@@ -222,7 +220,8 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 			"<UNAME>" << uname << "</UNAME>" <<
 			"<GNAME>" << gname << "</GNAME>" <<
 			"<NAME>"  << name  << "</NAME>"  <<
-			"<MP_MAD>"<< one_util::escape_xml(mp_mad) << "</MP_MAD>" <<
+            "<TYPE>"  << type  << "</TYPE>"  <<
+			"<MARKET_MAD>"<<one_util::escape_xml(market_mad)<<"</MARKET_MAD>"<<
 			"<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
 			"<FREE_MB>"  << free_mb  << "</FREE_MB>"  <<
 			"<USED_MB>"  << used_mb  << "</USED_MB>"  <<
@@ -249,14 +248,15 @@ int MarketPlace::from_xml(const std::string &xml_str)
     update_from_str(xml_str);
 
     // ----- MARKETPLACE base attributes -----
-    rc += xpath(oid,    "/MARKETPLACE/ID",     -1);
-    rc += xpath(uid,    "/MARKETPLACE/UID",    -1);
-    rc += xpath(gid,    "/MARKETPLACE/GID",    -1);
-    rc += xpath(uname,  "/MARKETPLACE/UNAME",  "not_found");
-    rc += xpath(gname,  "/MARKETPLACE/GNAME",  "not_found");
-    rc += xpath(name,   "/MARKETPLACE/NAME",   "not_found");
-    rc += xpath(mp_mad, "/MARKETPLACE/MP_MAD", "not_found");
-    rc += xpath(itype,  "/MARKETPLACE/TYPE",   -1);
+    rc += xpath(oid,   "/MARKETPLACE/ID",    -1);
+    rc += xpath(uid,   "/MARKETPLACE/UID",   -1);
+    rc += xpath(gid,   "/MARKETPLACE/GID",   -1);
+    rc += xpath(uname, "/MARKETPLACE/UNAME", "not_found");
+    rc += xpath(gname, "/MARKETPLACE/GNAME", "not_found");
+    rc += xpath(name,  "/MARKETPLACE/NAME",  "not_found");
+    rc += xpath(itype, "/MARKETPLACE/TYPE",  -1);
+
+    rc += xpath(market_mad, "/MARKETPLACE/MARKET_MAD", "not_found");
 
     rc += xpath(total_mb, "/MARKETPLACE/TOTAL_MB", 0);
     rc += xpath(free_mb,  "/MARKETPLACE/FREE_MB",  0);
@@ -307,12 +307,12 @@ int MarketPlace::from_xml(const std::string &xml_str)
 int MarketPlace::post_update_template(string& error)
 {
 	std::string new_s_type;
-	std::string new_mp_mad;
+	std::string new_market_mad;
 
 	MarketPlaceType new_type;
 
 	// -------------------------------------------------------------------------
-    // Sanitize TYPE and MP_MAD attributes
+    // Sanitize TYPE and MARKET_MAD attributes
     // -------------------------------------------------------------------------
     erase_template_attribute("TYPE", new_s_type);
 
@@ -320,7 +320,7 @@ int MarketPlace::post_update_template(string& error)
 
 	if ( new_type == UNKNOWN )
 	{
-		error = "Unknown MarketPlace type: " + new_s_type;
+		error = "Unknown marketplace type: " + new_s_type;
 		return -1;
 	}
 
@@ -328,14 +328,14 @@ int MarketPlace::post_update_template(string& error)
 
     add_template_attribute("TYPE", type_to_str(type));
 
-    erase_template_attribute("MP_MAD", new_mp_mad);
+    erase_template_attribute("MARKET_MAD", new_market_mad);
 
-    if (!new_mp_mad.empty())
+    if (!new_market_mad.empty())
     {
-        mp_mad = new_mp_mad;
+        market_mad = new_market_mad;
     }
 
-    add_template_attribute("MP_MAD", mp_mad);
+    add_template_attribute("MARKET_MAD", market_mad);
 
 	return 0;
 }

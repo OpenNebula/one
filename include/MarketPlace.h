@@ -79,11 +79,11 @@ public:
     int from_xml(const string &xml_str);
 
     /**
-     *  Adds this image's ID to the set.
+     *  Adds this marketplace app's ID to the set.
      *    @param id of the app to be added to the MarketPlace
      *    @return 0 on success
      */
-    int add_mpapp(int id)
+    int add_marketapp(int id)
     {
         return add_collection_id(id);
     };
@@ -93,7 +93,7 @@ public:
      *    @param id of the image to be deleted from the MarketPlace
      *    @return 0 on success
      */
-    int del_mpapp(int id)
+    int del_marketapp(int id)
     {
         return del_collection_id(id);
     };
@@ -101,7 +101,7 @@ public:
     /**
      *  Returns a copy of the Image IDs set
      */
-    set<int> get_mpapp_ids()
+    set<int> get_marketapp_ids()
     {
         return get_collection_copy();
     }
@@ -110,9 +110,9 @@ public:
      *  Retrieves marketplace mad name
      *    @return string mp mad name
      */
-    const string& get_mp_mad() const
+    const string& get_market_mad() const
     {
-        return mp_mad;
+        return market_mad;
     };
 
     /**
@@ -148,7 +148,7 @@ private:
     /**
      * Name of the marketplace driver used to import apps
      */
-    string mp_mad;
+    string market_mad;
 
     /**
      * The marketplace type
@@ -174,12 +174,12 @@ private:
     // Constructor
     // *************************************************************************
     MarketPlace(
-            int                 uid,
-            int                 gid,
-            const string&       uname,
-            const string&       gname,
-            int                 umask,
-            MarketPlaceTemplate*  ds_template);
+            int                  uid,
+            int                  gid,
+            const string&        uname,
+            const string&        gname,
+            int                  umask,
+            MarketPlaceTemplate* mp_template);
 
     virtual ~MarketPlace();
 
@@ -241,3 +241,4 @@ private:
 };
 
 #endif /*MARKETPLACE_H*/
+
