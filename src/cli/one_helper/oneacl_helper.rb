@@ -44,7 +44,7 @@ private
     def self.resource_mask(str)
         resource_type=str.split("/")[0]
 
-        mask = "--------------"
+        mask = "---------------"
 
         resource_type.split("+").each{|type|
             case type
@@ -76,6 +76,8 @@ private
                     mask[12] = "v"
                 when "VROUTER"
                     mask[13] = "R"
+                when "MARKETPLACE"
+                    mask[14] = "M"
             end
         }
         mask
@@ -115,8 +117,8 @@ private
                 d['STRING'].split(" ")[0]
             end
 
-            column :RES_VHNIUTGDCOZSvR, "Resource to which the rule applies",
-                            :size => 18 do |d|
+            column :RES_VHNIUTGDCOZSvRM, "Resource to which the rule applies",
+                            :size => 19 do |d|
                OneAclHelper::resource_mask d['STRING'].split(" ")[1]
             end
 
@@ -133,7 +135,7 @@ private
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTGDCOZSvR, :RID, :OPE_UMAC, :ZONE
+            default :ID, :USER, :RES_VHNIUTGDCOZSvRM, :RID, :OPE_UMAC, :ZONE
         end
 
         table

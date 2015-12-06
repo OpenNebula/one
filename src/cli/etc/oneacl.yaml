@@ -9,9 +9,9 @@
   :size: 8
   :right: true
 
-:RES_VHNIUTGDCOZSvR:
+:RES_VHNIUTGDCOZSvRM:
   :desc: Which resource the rule applies to
-  :size: 18
+  :size: 19
 
 :RID:
   :desc: Resource ID
@@ -31,7 +31,7 @@
 :default:
 - :ID
 - :USER
-- :RES_VHNIUTGDCOZSvR
+- :RES_VHNIUTGDCOZSvRM
 - :RID
 - :OPE_UMAC
 - :ZONE

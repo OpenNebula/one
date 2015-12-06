@@ -33,6 +33,8 @@ module OpenNebula
     #                  ACL
     #                  SECGROUP
     #                  VDC
+    #                  VROUTER
+    #                  MARKETPLACE
     #     RIGHTS    -> + separated list
     #                  USE
     #                  MANAGE
@@ -62,7 +64,8 @@ module OpenNebula
             "ZONE"          =>  0x800000000000,
             "SECGROUP"      => 0x1000000000000,
             "VDC"           => 0x2000000000000,
-            "VROUTER"       => 0x4000000000000
+            "VROUTER"       => 0x4000000000000,
+            "MARKETPLACE"   => 0x8000000000000
         }
 
         RIGHTS =
