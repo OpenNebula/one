@@ -23,7 +23,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var TagFilter = require('utils/tag-filter');
+  var LabelsTable = require('utils/labels-table');
 
   /*
     TEMPLATES
@@ -50,7 +50,7 @@ define(function(require) {
 
     this.element = info[XML_ROOT];
 
-    this.tagFilter = new TagFilter({
+    this.labelsTable = new LabelsTable({
       element: this.element,
       resource: RESOURCE,
       xmlRoot: XML_ROOT
@@ -72,7 +72,7 @@ define(function(require) {
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var tagFilterTableHTML = this.tagFilter.html();
+    var labelsTableHTML = this.labelsTable.html();
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
 
     return TemplateInfo({
@@ -80,13 +80,13 @@ define(function(require) {
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'prettyRegTime': prettyRegTime,
-      'tagFilterTableHTML': tagFilterTableHTML
+      'labelsTableHTML': labelsTableHTML
     });
   }
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-    this.tagFilter.setup(context);
+    this.labelsTable.setup(context);
   }
 });

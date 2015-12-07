@@ -19,11 +19,11 @@ define(function(require) {
 
   var Tree = require('utils/tree');
   var TemplateUtils = require('utils/template-utils');
-  var TableTemplate = require('hbs!./tag-filter/table');
+  var TableTemplate = require('hbs!./labels-table/table');
   var Sunstone = require('sunstone');
 
   var TEMPLATE_ATTR = 'TEMPLATE';
-  var TAGS_ATTR = 'TAGS';
+  var LABELS_ATTR = 'LABELS';
 
   /* CONSTRUCTOR */
 
@@ -33,39 +33,39 @@ define(function(require) {
       opts.resource
       opts.xmlRoot
    */
-  function TagFilter(opts) {
+  function LabelsTable(opts) {
     this.element = opts.element;
     this.resource = opts.resource;
     this.xmlRoot = opts.xmlRoot;
-    this.tags = opts.element[TEMPLATE_ATTR][TAGS_ATTR];
+    this.labels = opts.element[TEMPLATE_ATTR][LABELS_ATTR];
 
     return this;
   };
 
-  TagFilter.prototype.html = _html;
-  TagFilter.prototype.setup = _setup;
+  LabelsTable.prototype.html = _html;
+  LabelsTable.prototype.setup = _setup;
 
-  return TagFilter;
+  return LabelsTable;
 
   /* FUNCTION DEFINITIONS */
 
   function _html() {
-    var tagsTreeHTML = Tree.html(_makeTree(_deserializeTags(this.tags)));
+    var labelsTreeHTML = Tree.html(_makeTree(_deserializeLabels(this.labels)));
     return TableTemplate({
-      'tagsTreeHTML': tagsTreeHTML
+      'labelsTreeHTML': labelsTreeHTML
     })
   }
 
   function _setup(context) {
     var that = this;
-    context.off("click", ".addTag");
-    context.on("click", ".addTag", function(){
-      var tags = _retrieveTags(context);
-      var newTag = $(".newTag", context).val();
-      tags.push(newTag);
+    context.off("click", ".addLabel");
+    context.on("click", ".addLabel", function(){
+      var labels = _retrieveLabels(context);
+      var newLabel = $(".newLabel", context).val();
+      labels.push(newLabel);
 
       var templateObj = that.element[TEMPLATE_ATTR];
-      templateObj[TAGS_ATTR] = tags.join();
+      templateObj[LABELS_ATTR] = labels.join();
       templateStr  = TemplateUtils.templateToString(templateObj);
 
       Sunstone.runAction(that.resource + ".update_template", that.element.ID, templateStr);
@@ -73,14 +73,14 @@ define(function(require) {
     });
 
     // Capture the enter key
-    context.off("keypress", '.newTag');
-    context.on("keypress", '.newTag', function(e) {
+    context.off("keypress", '.newLabel');
+    context.on("keypress", '.newLabel', function(e) {
       var ev = e || window.event;
       var key = ev.keyCode;
 
       if (key == 13 && !ev.altKey) {
         //Get the button the user wants to have clicked
-        $('.addTag', context).click();
+        $('.addLabel', context).click();
         ev.preventDefault();
       }
     });
@@ -88,29 +88,29 @@ define(function(require) {
     context.off('click', '.remove-tab');
     context.on('click', '.remove-tab', function() {
       $(this).closest('li').remove();
-      
-      var tags = _retrieveTags(context);
+
+      var labels = _retrieveLabels(context);
       var templateObj = that.element[TEMPLATE_ATTR];
-      templateObj[TAGS_ATTR] = tags.join();
+      templateObj[LABELS_ATTR] = labels.join();
       templateStr  = TemplateUtils.templateToString(templateObj);
       Sunstone.runAction(that.resource + ".update_template", that.element.ID, templateStr);
       return false;
     });
   }
 
-  function _retrieveTags(context) {
-    return $('.one-tag', context).map(function() {
-      return $(this).attr('one-tag-full-name');
+  function _retrieveLabels(context) {
+    return $('.one-label', context).map(function() {
+      return $(this).attr('one-label-full-name');
     }).get();
   }
 
-  function _deserializeTags(tags) {
-    var indexedTags = {};
+  function _deserializeLabels(labels) {
+    var indexedLabels = {};
 
-    if (tags) {
+    if (labels) {
       var parent;
-      $.each(tags.split(','), function() {
-        parent = indexedTags;
+      $.each(labels.split(','), function() {
+        parent = indexedLabels;
         $.each(this.split('/'), function() {
           if (parent[this] == undefined) {
             parent[this] = {};
@@ -120,16 +120,16 @@ define(function(require) {
       });
     }
 
-    return indexedTags;
+    return indexedLabels;
   }
 
-  function _makeTree(indexedTags) {
+  function _makeTree(indexedLabels) {
     var treeRoot = {
       htmlStr : '',
       subTree : []
     };
 
-    $.each(indexedTags, function(folderName, childs) {
+    $.each(indexedLabels, function(folderName, childs) {
       treeRoot.subTree.push(_makeSubTree('', folderName, childs));
     });
 
@@ -139,7 +139,7 @@ define(function(require) {
   function _makeSubTree(parentName, folderName, childs) {
     var fullName = parentName + folderName;
     var htmlStr = 
-      '<span class="label secondary one-tag" one-tag-full-name="' + fullName + '">' + 
+      '<span class="label secondary one-label" one-label-full-name="' + fullName + '">' + 
         folderName + 
         ' <i class="fa fa-times-circle remove-tab"></i>' + 
       '</span>';
