@@ -16,6 +16,7 @@ enabled_tabs:
     - clusters-tab
     - hosts-tab
     - datastores-tab
+    - vnets-topology-tab
     - vnets-tab
     - secgroups-tab
     - vrouters-tab
@@ -375,6 +376,11 @@ tabs:
             Datastore.delete: true
             Datastore.enable: true
             Datastore.disable: true
+    vnets-topology-tab:
+        panel_tabs:
+        actions:
+            NetworkTopology.refresh: true
+            NetworkTopology.toggleVMs: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
