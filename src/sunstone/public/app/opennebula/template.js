@@ -51,7 +51,7 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod_from_provision", action_obj);
     },
     "update" : function(params) {
-      var action_obj = params.data.extra_param;
+      var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
     "publish" : function(params) {

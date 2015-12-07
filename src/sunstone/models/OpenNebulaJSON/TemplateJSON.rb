@@ -70,14 +70,7 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            template_hash = parse_json(params, 'vmtemplate')
-            if template_hash['template_raw']
-                template = template_hash['template_raw']
-            else
-                template = template_to_str(template_hash)
-            end
-
-            super(template)
+            super(params['template_raw'])
         end
 
         def chown(params=Hash.new)
