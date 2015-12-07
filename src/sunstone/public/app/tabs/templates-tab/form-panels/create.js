@@ -158,9 +158,7 @@ define(function(require) {
                           {'vmtemplate': templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update",
-                          this.resourceId,
-                          JSON.stringify({'vmtemplate': templateJSON}));
+      Sunstone.runAction("Template.update", this.resourceId, TemplateUtils.templateToString(templateJSON));
       return false;
     }
   }
@@ -173,9 +171,7 @@ define(function(require) {
       return false;
 
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update",
-                          this.resourceId,
-                          JSON.stringify({"vmtemplate": {"template_raw": template}}));
+      Sunstone.runAction("Template.update", this.resourceId, template);
       return false;
     }
   }
