@@ -23,7 +23,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var LabelsTable = require('utils/labels-table');
+  var LabelsTable = require('utils/labels/labels-table');
 
   /*
     TEMPLATES
