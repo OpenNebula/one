@@ -14,30 +14,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MarketPlacePool::allocate(
-        int                   uid,
-        int                   gid,
-        const std::string&    uname,
-        const std::string&    gname,
-        int                   umask,
-        MarketPlaceTemplate * mp_template,
-        int *                 oid,
-        std::string&          error_str)
+int MarketPlaceAppPool:: allocate(
+            int                uid,
+            int                gid,
+            const std::string& uname,
+            const std::string& gname,
+            int                umask,
+            MarketPlaceAppTemplate * apptemplate,
+            int                mp_id,
+            const std::string& mp_name,
+            const std::string& origin,
+            int *              oid,
+            std::string&       error_str)
 {
-    MarketPlace * mp;
-    MarketPlace * mp_aux = 0;
+    MarketPlaceApp * mp;
+    MarketPlaceApp * mp_aux = 0;
 
     std::string name;
 
-    ostringstream oss;
+    std::ostringstream oss;
 
-    mp = new MarketPlace(uid, gid, uname, gname, umask, mp_template);
+    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
+
+    mp->mp_id   = mp_id;
+    mp->mp_name = mp_name;
+    mp->state   = MarketPlaceApp::INIT;
+    mp->origin  = origin;
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -50,7 +58,7 @@ int MarketPlacePool::allocate(
         goto error_name;
     }
 
-    mp_aux = get(name, false);
+    mp_aux = get(name, uid, false);
 
     if( mp_aux != 0 )
     {
@@ -62,7 +70,7 @@ int MarketPlacePool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by MARKETPLACE " << mp_aux->get_oid();
+    oss << "NAME is already taken by MARKETPLACEAPP " << mp_aux->get_oid();
     error_str = oss.str();
 
 error_name:
@@ -75,34 +83,12 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MarketPlacePool::drop(PoolObjectSQL * objsql, std::string& error_msg)
-{
-    MarketPlace *mp  = static_cast<MarketPlace *>(objsql);
-
-    if( mp->get_collection_size() > 0 )
-    {
-        std::ostringstream oss;
-
-        oss << "MarketPlace " << mp->get_oid() << " is not empty.";
-        error_msg = oss.str();
-
-        NebulaLog::log("MARKETPLACE", Log::ERROR, error_msg);
-
-        return -3;
-    }
-
-    return PoolSQL::drop(objsql, error_msg);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int MarketPlacePool::update(PoolObjectSQL * objsql)
+int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
         NebulaLog::log("ONE",Log::ERROR,
-                "MarketPlacePool::update called, but this "
+                "MarketPlaceAppPool::update called, but this "
                 "OpenNebula is a federation slave");
 
         return -1;

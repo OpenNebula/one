@@ -72,7 +72,8 @@ public class Acl extends PoolElement{
         tmpResources.put("SECGROUP" , 0x0001000000000000L);
         tmpResources.put("VDC"      , 0x0002000000000000L);
         tmpResources.put("VROUTER"  , 0x0004000000000000L);
-        tmpResources.put("MARKETPLACE", 0x0008000000000000L);
+        tmpResources.put("MARKETPLACE",    0x0008000000000000L);
+        tmpResources.put("MARKETPLACEAPP", 0x0010000000000000L);
 
         RESOURCES = Collections.unmodifiableMap(tmpResources);
 

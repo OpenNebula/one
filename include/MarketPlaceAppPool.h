@@ -14,35 +14,36 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef MARKETPLACE_POOL_H_
-#define MARKETPLACE_POOL_H_
+#ifndef MARKETPLACEAPP_POOL_H_
+#define MARKETPLACEAPP_POOL_H_
 
-#include "MarketPlace.h"
-#include "NebulaLog.h"
-#include "SqlDB.h"
+#include "MarketPlaceApp.h"
 
 class SqlDB;
 
-class MarketPlacePool : public PoolSQL
+class MarketPlaceAppPool : public PoolSQL
 {
 public:
-    MarketPlacePool(SqlDB * db):PoolSQL(db, MarketPlace::table, true, true){};
+    MarketPlaceAppPool(SqlDB * db):PoolSQL(db,MarketPlaceApp::table,true,true){};
 
-    ~MarketPlacePool(){};
+    ~MarketPlaceAppPool(){};
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Allocates a new MarketPlace, writing it in the pool database. No memory is
-     *  allocated for the object.
+     *  Allocates a new MarketPlaceApp, writing it in the pool database.
      *    @param uid the user id of the MarketPlace owner
      *    @param gid the id of the group this object is assigned to
      *    @param uname name of the user
      *    @param gname name of the group
      *    @param umask permissions umask
-     *    @param mp_template MarketPlace definition template
+     *    @param apptemplate MarketPlaceApp definition template
+     *    @param mp_id of the MarketPlace to store de App
+     *    @param mp_name of the MarketPlace
+     *    @param origin an opaque string with the origin of the App. Used by
+     *    the MARKET_MAD.
      *    @param oid the id assigned to the MarketPlace
      *    @param error_str Returns the error reason, if any
      *
@@ -54,61 +55,37 @@ public:
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            MarketPlaceTemplate * mp_template,
+            MarketPlaceAppTemplate * apptemplate,
+            int                mp_id,
+            const std::string& mp_name,
+            const std::string& origin,
             int *              oid,
             std::string&       error_str);
 
     /**
-     *  Function to get a MarketPlace from the pool, the object is loaded if not
-     *  in memory
-     *    @param oid MarketPlace unique id
-     *    @param lock locks the MarketPlace mutex
-     *    @return a pointer to the MarketPlace, 0 if not loaded
+     *  Function to get a MarketPlaceApp from the pool
+     *    @param oid MarketPlaceApp unique id
+     *    @param lock locks the MarketPlaceApp mutex
+     *    @return a pointer to the MarketPlaceApp, 0 if not loaded
      */
-    MarketPlace * get(int oid, bool lock)
+    MarketPlaceApp * get(int oid, bool lock)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get(oid,lock));
+        return static_cast<MarketPlaceApp *>(PoolSQL::get(oid,lock));
     };
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database).
      *   @param name of the object
+     *   @param uid id of owner
      *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    MarketPlace * get(const std::string& name, bool lock)
+    MarketPlaceApp * get(const std::string& name, int uid, bool lock)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get(name,-1,lock));
+        return static_cast<MarketPlaceApp *>(PoolSQL::get(name, uid, lock));
     };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const std::string& name, int uid)
-    {
-        return name;
-    };
-
-    /** Update a particular MarketPlaceApp
-     *    @param zone pointer to Zone
-     *    @return 0 on success
-     */
-    int update(PoolObjectSQL * objsql);
-
-    /**
-     *  Drops the MarketPlace data in the data base. The object mutex SHOULD be
-     *  locked.
-     *    @param objsql a pointer to the MarketPlace object
-     *    @param error_msg Error reason, if any
-     *    @return 0 on success, -1 DB error -3 MarketPlace's App ID set not empty
-     */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the MarketPlace pool
@@ -116,7 +93,7 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        return MarketPlace::bootstrap(_db);
+        return MarketPlaceApp::bootstrap(_db);
     };
 
     /**
@@ -131,9 +108,15 @@ public:
     int dump(std::ostringstream& oss, const std::string& where,
 		const std::string& limit)
     {
-        return PoolSQL::dump(oss, "MARKETPLACE_POOL", MarketPlace::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "MARKETPLACEAPP_POOL", MarketPlaceApp::table,
+                where, limit);
     };
+
+    /** Update a particular MarketPlaceApp
+     *    @param zone pointer to Zone
+     *    @return 0 on success
+     */
+    int update(PoolObjectSQL * objsql);
 
 private:
 
@@ -143,7 +126,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new MarketPlace(-1,-1,"","", 0, 0);
+        return new MarketPlaceApp(-1,-1,"","", 0, 0);
     };
 };
 

@@ -232,6 +232,14 @@ private:
     }
 
     /**
+     *  Factory method for marketplace templates
+     */
+    Template * get_new_template() const
+    {
+        return new MarketPlaceTemplate;
+    }
+
+    /**
      * Child classes can process the new template set with replace_template or
      * append_template with this method
      *    @param error string describing the error if any

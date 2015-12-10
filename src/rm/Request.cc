@@ -626,6 +626,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "virtual router";
         case PoolObjectSQL::MARKETPLACE:
             return "marketplace";
+        case PoolObjectSQL::MARKETPLACEAPP:
+            return "marketplaceapp";
       }
 };
 
