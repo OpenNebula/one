@@ -49,45 +49,47 @@ public:
      */
     enum ObjectType
     {
-        VM          = 0x0000001000000000LL,
-        HOST        = 0x0000002000000000LL,
-        NET         = 0x0000004000000000LL,
-        IMAGE       = 0x0000008000000000LL,
-        USER        = 0x0000010000000000LL,
-        TEMPLATE    = 0x0000020000000000LL,
-        GROUP       = 0x0000040000000000LL,
-        ACL         = 0x0000080000000000LL,
-        DATASTORE   = 0x0000100000000000LL,
-        CLUSTER     = 0x0000200000000000LL,
-        DOCUMENT    = 0x0000400000000000LL,
-        ZONE        = 0x0000800000000000LL,
-        SECGROUP    = 0x0001000000000000LL,
-        VDC         = 0x0002000000000000LL,
-        VROUTER     = 0x0004000000000000LL,
-        MARKETPLACE = 0x0008000000000000LL
+        VM             = 0x0000001000000000LL,
+        HOST           = 0x0000002000000000LL,
+        NET            = 0x0000004000000000LL,
+        IMAGE          = 0x0000008000000000LL,
+        USER           = 0x0000010000000000LL,
+        TEMPLATE       = 0x0000020000000000LL,
+        GROUP          = 0x0000040000000000LL,
+        ACL            = 0x0000080000000000LL,
+        DATASTORE      = 0x0000100000000000LL,
+        CLUSTER        = 0x0000200000000000LL,
+        DOCUMENT       = 0x0000400000000000LL,
+        ZONE           = 0x0000800000000000LL,
+        SECGROUP       = 0x0001000000000000LL,
+        VDC            = 0x0002000000000000LL,
+        VROUTER        = 0x0004000000000000LL,
+        MARKETPLACE    = 0x0008000000000000LL,
+        MARKETPLACEAPP = 0x0010000000000000LL
     };
 
     static string type_to_str(ObjectType ob)
     {
         switch (ob)
         {
-            case VM:          return "VM" ; break;
-            case HOST:        return "HOST" ; break;
-            case NET:         return "NET" ; break;
-            case IMAGE:       return "IMAGE" ; break;
-            case USER:        return "USER" ; break;
-            case TEMPLATE:    return "TEMPLATE" ; break;
-            case GROUP:       return "GROUP" ; break;
-            case ACL:         return "ACL" ; break;
-            case DATASTORE:   return "DATASTORE" ; break;
-            case CLUSTER:     return "CLUSTER" ; break;
-            case DOCUMENT:    return "DOCUMENT" ; break;
-            case ZONE:        return "ZONE" ; break;
-            case SECGROUP:    return "SECGROUP" ; break;
-            case VDC:         return "VDC" ; break;
-            case VROUTER:     return "VROUTER" ; break;
-            case MARKETPLACE: return "MARKETPLACE" ; break;
-            default:          return "";
+            case VM:             return "VM" ; break;
+            case HOST:           return "HOST" ; break;
+            case NET:            return "NET" ; break;
+            case IMAGE:          return "IMAGE" ; break;
+            case USER:           return "USER" ; break;
+            case TEMPLATE:       return "TEMPLATE" ; break;
+            case GROUP:          return "GROUP" ; break;
+            case ACL:            return "ACL" ; break;
+            case DATASTORE:      return "DATASTORE" ; break;
+            case CLUSTER:        return "CLUSTER" ; break;
+            case DOCUMENT:       return "DOCUMENT" ; break;
+            case ZONE:           return "ZONE" ; break;
+            case SECGROUP:       return "SECGROUP" ; break;
+            case VDC:            return "VDC" ; break;
+            case VROUTER:        return "VROUTER" ; break;
+            case MARKETPLACE:    return "MARKETPLACE" ; break;
+            case MARKETPLACEAPP: return "MARKETPLACEAPP" ; break;
+            default:             return "";
         }
     };
 
@@ -504,7 +506,7 @@ public:
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
-   string&  template_to_xml(string &xml) const
+    string& template_to_xml(string &xml) const
     {
         return obj_template->to_xml(xml);
     }

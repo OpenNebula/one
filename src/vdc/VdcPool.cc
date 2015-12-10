@@ -149,7 +149,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VdcPool::update(Vdc * vdc)
+int VdcPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -160,7 +160,7 @@ int VdcPool::update(Vdc * vdc)
         return -1;
     }
 
-    return vdc->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -86,12 +86,6 @@ public:
         return static_cast<SecurityGroup *>(PoolSQL::get(name,uid,lock));
     };
 
-    /** Update a particular SecurityGroup
-     *    @param securitygroup pointer to SecurityGroup
-     *    @return 0 on success
-     */
-    int update(SecurityGroup * securitygroup);
-
     /**
      *  Bootstraps the database table(s) associated to the SecurityGroup pool
      *    @return 0 on success

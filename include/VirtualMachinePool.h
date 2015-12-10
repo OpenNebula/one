@@ -112,14 +112,20 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(
-        VirtualMachine * objsql)
+    virtual int update(PoolObjectSQL * objsql)
     {
+        VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
+
+        if ( vm == 0 )
+        {
+            return -1;
+        }
+
         do_hooks(objsql, Hook::UPDATE);
 
-        objsql->set_prev_state();
+        vm->set_prev_state();
 
-        return objsql->update(db);
+        return vm->update(db);
     };
 
     /**

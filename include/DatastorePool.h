@@ -135,15 +135,6 @@ public:
         return name;
     };
 
-    /** Update a particular Datastore
-     *    @param user pointer to Datastore
-     *    @return 0 on success
-     */
-    int update(Datastore * datastore)
-    {
-        return datastore->update(db);
-    };
-
     /**
      *  Drops the Datastore data in the data base. The object mutex SHOULD be
      *  locked.

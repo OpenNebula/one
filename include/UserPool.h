@@ -114,7 +114,7 @@ public:
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(User * user);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular User's Quotas

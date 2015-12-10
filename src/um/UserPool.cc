@@ -399,7 +399,7 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::update(User * user)
+int UserPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -410,7 +410,7 @@ int UserPool::update(User * user)
         return -1;
     }
 
-    return user->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

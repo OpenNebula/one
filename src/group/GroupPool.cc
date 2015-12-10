@@ -144,7 +144,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::update(Group * group)
+int GroupPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -155,7 +155,7 @@ int GroupPool::update(Group * group)
         return -1;
     }
 
-    return group->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

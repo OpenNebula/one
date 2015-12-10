@@ -116,16 +116,6 @@ public:
     };
 
     /**
-     *  Update a particular Image
-     *    @param image pointer to Image
-     *    @return 0 on success
-     */
-    int update(Image * image)
-    {
-        return image->update(db);
-    };
-
-    /**
      *  Bootstraps the database table(s) associated to the Image pool
      *    @return 0 on success
      */

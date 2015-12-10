@@ -118,7 +118,7 @@ public:
      *    @param user pointer to Group
      *    @return 0 on success
      */
-    int update(Group * group);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular Group's Quotas
