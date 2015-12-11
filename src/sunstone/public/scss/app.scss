@@ -240,6 +240,7 @@ input.search {
             color: #222 !important;
         }
 
+        background: rgba(0,0,0,0.025);
         border-left: 2px solid #008cba !important;
     }
 
@@ -1326,3 +1327,122 @@ hr {
 .custom_tags td {
   vertical-align: top; 
 }  
+
+
+.labels-tree input[type="checkbox"] {
+  margin: 0px;
+}
+
+.labels-tree {
+  font: inherit;
+  list-style-type: none;
+  padding-bottom: 1em;
+  padding-right: 1em;
+  margin-left: 0;
+  margin-bottom: 0;
+
+  .fa-angle-down, .fa-angle-right {
+    padding: 3px;
+    cursor: pointer;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
+
+  .fa-tag {
+    color: #999;
+  }
+
+  .one-label {
+    cursor: pointer;
+
+    &:hover, &.active {
+      font-weight: bold;
+    }
+  }
+}
+
+.labels-tree ul{
+  font: inherit;
+  list-style-type: none;
+  margin-left: 1em;
+  padding: 0;
+  position: relative;
+}
+
+.labels-tree li{
+  margin: 0;
+  padding: 0 0 0 1em;
+  position: relative;
+}
+
+.labels-tree li:before, .labels-tree li:after{
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+/* horizontal line on inner list items */
+.labels-tree li:before{
+  //border-top: 1px solid #999;
+  top: 0.5em;
+  width: 10px;
+  height: 0;
+}
+
+/* vertical line on list items */
+.labels-tree li:after{
+  //border-left: 1px solid #999;
+  height: 100%;
+  width: 0px;
+  top: -0.5em;
+}
+
+/* lower line on list items from the first level because they don't have parents */
+/*.labels-tree > li::after{
+  top: 0.5em;
+}*/
+
+/* hide line from the last of the first level list items */
+/*.labels-tree > li:last-child::after{
+  display: none;
+}*/
+
+.labels-tree li:last-child:after{
+  height:1em;
+}
+
+.labels-dropdown {
+  margin: 0px;
+
+  h6 {
+    margin: 0.5em 1em;
+    border-bottom: 1px solid #efefef;
+  }
+
+  .input-container {
+    margin: 0 1em;
+  }
+
+  li {
+    cursor: auto;
+
+    &:hover {
+      background: none;
+    }
+  }
+
+  .fa-check-square-o,
+  .fa-square-o,
+  .fa-minus-square-o {
+    position: absolute;
+    right: 0;
+    padding: 2px;
+
+    &:hover {
+      cursor: pointer;
+      background: #bfbfbf;
+    }
+  }
+}

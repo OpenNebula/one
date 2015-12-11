@@ -17,7 +17,7 @@
 define(function(require) {
   /* DEPENDENCIES */
 
-  var Tree = require('utils/tree');
+  var Tree = require('./tree');
 
   var TEMPLATE_ATTR = 'TEMPLATE';
   var LABELS_ATTR = 'LABELS';
@@ -25,20 +25,23 @@ define(function(require) {
   return {
     'TEMPLATE_ATTR': TEMPLATE_ATTR,
     'LABELS_ATTR': LABELS_ATTR,
+    'labelsStr': _labelsStr,
     'deserializeLabels': _deserializeLabels,
     'makeTree': _makeTree
   };
 
   /* FUNCTION DEFINITIONS */
 
+  function _labelsStr(element) {
+    return element[TEMPLATE_ATTR][LABELS_ATTR];
+  }
 
-  function _deserializeLabels(element) {
-    var labels = element[TEMPLATE_ATTR][LABELS_ATTR];
+  function _deserializeLabels(labelsStr) {
     var indexedLabels = {};
 
-    if (labels) {
+    if (labelsStr) {
       var parent;
-      $.each(labels.split(','), function() {
+      $.each(labelsStr.split(','), function() {
         parent = indexedLabels;
         $.each(this.split('/'), function() {
           if (parent[this] == undefined) {
@@ -68,9 +71,10 @@ define(function(require) {
   function _makeSubTree(parentName, folderName, childs) {
     var fullName = parentName + folderName;
     var htmlStr = 
-      '<span class="label secondary one-label" one-label-full-name="' + fullName + '">' + 
+      '<span class="secondary one-label" one-label-full-name="' + fullName + '">' + 
+        //'<input type="checkbox" class="labelCheckbox"/> ' + 
         folderName + 
-        ' <i class="fa fa-times-circle remove-tab"></i>' + 
+        //' <i class="fa fa-times-circle remove-tab"></i>' + 
       '</span>';
 
     var tree = {
