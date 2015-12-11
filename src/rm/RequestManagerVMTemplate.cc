@@ -140,6 +140,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     // Temporary code to create Virtual Routers from regular VM Templates
 
     bool    is_vrouter;
+    bool    has_vrouter_id;
     int     vrid;
     string  vr_error_str;
 
@@ -147,7 +148,9 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     tmpl->get("VROUTER", is_vrouter);
 
-    if (is_vrouter)
+    has_vrouter_id = tmpl->get("VROUTER_ID", vrid);
+
+    if (is_vrouter && !has_vrouter_id)
     {
         Template * vr_tmpl = new Template;
 
@@ -222,7 +225,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     //--------------------------------------------------------------------------
     // Temporary code to create Virtual Routers from regular VM Templates
-    // Final code would need roolback to delete the new VR on error
+    // Final code would need rollback to delete the new VR on error
 
     VirtualRouter *  vr;
 
@@ -230,7 +233,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (vr != 0)
     {
-        vr->set_vmid(vid);
+        vr->add_vmid(vid);
 
         vrpool->update(vr);
 

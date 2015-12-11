@@ -14,49 +14,75 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
+define(function(require){
+  /*
+    DEPENDENCIES
+   */
+
   var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  var VMsTable = require('tabs/vms-tab/datatable');
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
+  /*
+    CONSTANTS
+   */
 
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/clone')
-  ];
+  var PANEL_ID = require('./vms/panelId');
+  var VMS_TABLE_ID = PANEL_ID + "VMsTable";
+  var RESOURCE = "VirtualRouter";
+  var XML_ROOT = "VROUTER";
 
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
+  /*
+    CONSTRUCTOR
+   */
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  function Panel(info) {
+    this.title = Locale.tr("VMs");
+    this.icon = "fa-cloud";
 
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
+    this.element = info[XML_ROOT];
 
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    tabClass: "subTab",
-    parentTab: "infra-tab",
-    listHeader: '<i class="fa fa-fw fa-random"></i>&emsp;'+Locale.tr("Virtual Routers"),
-    infoHeader: '<i class="fa fa-fw fa-random"></i>&emsp;'+Locale.tr("Virtual Router"),
-    subheader: '<span/> <small></small>&emsp;',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
-  };
+    return this;
+  }
 
-  return Tab;
+  Panel.PANEL_ID = PANEL_ID;
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
+
+  return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    var vms = [];
+
+    if (this.element.VMS.ID != undefined){
+      vms = this.element.VMS.ID;
+
+      if (!$.isArray(vms)){
+        vms = [vms];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: vms
+      }
+    };
+
+    this.vmsTable = new VMsTable(VMS_TABLE_ID, opts);
+
+    return this.vmsTable.dataTableHTML;
+  }
+
+  function _setup(context) {
+    this.vmsTable.initialize();
+    this.vmsTable.refreshResourceTableSelect();
+
+    return false;
+  }
 });

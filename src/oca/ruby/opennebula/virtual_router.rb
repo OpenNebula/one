@@ -163,5 +163,16 @@ module OpenNebula
         def owner_id
             self['UID'].to_i
         end
+
+        # Returns an array with the numeric VM ids
+        def vm_ids
+            array = Array.new
+
+            self.each("VMS/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
+        end
     end
 end

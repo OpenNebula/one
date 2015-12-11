@@ -19,6 +19,7 @@
 
 #include "PoolObjectSQL.h"
 #include "Template.h"
+#include "ObjectCollection.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -37,14 +38,9 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    int get_vmid()
+    int add_vmid(int vmid)
     {
-        return vmid;
-    }
-
-    void set_vmid(int vmid)
-    {
-        this->vmid = vmid;
+        return vms.add_collection_id(vmid);
     }
 
     // ------------------------------------------------------------------------
@@ -81,7 +77,7 @@ private:
     // Attributes
     // *************************************************************************
 
-    int vmid;
+    ObjectCollection vms;
 
     // *************************************************************************
     // DataBase implementation (Private)

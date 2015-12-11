@@ -68,12 +68,6 @@ define(function(require) {
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
 
-    var vmid = this.element.VMID;
-
-    if (vmid == "-1"){
-      vmid = undefined; // Change made to use {{#if vmid}} in handlebars
-    }
-
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     // TODO: simplify interface?
@@ -87,7 +81,6 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
-      'vmid': vmid,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML
     });

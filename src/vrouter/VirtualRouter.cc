@@ -28,7 +28,7 @@ VirtualRouter::VirtualRouter(   int             id,
                                 int             _umask,
                                 Template * _template_contents):
         PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,table),
-        vmid(-1)
+        vms("VMS")
 {
     if (_template_contents != 0)
     {
@@ -189,6 +189,7 @@ string& VirtualRouter::to_xml(string& xml) const
 {
     ostringstream   oss;
     string          template_xml;
+    string          vm_collection_xml;
     string          perm_str;
 
     oss << "<VROUTER>"
@@ -198,8 +199,8 @@ string& VirtualRouter::to_xml(string& xml) const
             << "<UNAME>"    << uname      << "</UNAME>"
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
-            << "<VMID>"     << vmid       << "</VMID>"
             << perms_to_xml(perm_str)
+            << vms.to_xml(vm_collection_xml)
             << obj_template->to_xml(template_xml)
         << "</VROUTER>";
 
@@ -226,12 +227,23 @@ int VirtualRouter::from_xml(const string& xml)
     rc += xpath(uname,      "/VROUTER/UNAME",   "not_found");
     rc += xpath(gname,      "/VROUTER/GNAME",   "not_found");
     rc += xpath(name,       "/VROUTER/NAME",    "not_found");
-    rc += xpath(vmid,       "/VROUTER/VMID",    -1);
 
     // Permissions
     rc += perms_from_xml();
 
     // Get associated classes
+    ObjectXML::get_nodes("/VROUTER/VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vms.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
     ObjectXML::get_nodes("/VROUTER/TEMPLATE", content);
 
     if (content.empty())
@@ -243,6 +255,7 @@ int VirtualRouter::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+    content.clear();
 
     if (rc != 0)
     {
