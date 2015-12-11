@@ -454,13 +454,13 @@ define(function(require) {
 
   var _setupTabs = function() {
     var topTabs = $(".left-content ul li.topTab");
-    var subTabs = $(".left-content ul li.subTab");
+    var subTabs = $(".left-content ul li.subTab > a");
 
     subTabs.on("click", function() {
-      if ($(this).hasClass('topTab')) {
+      if ($(this).closest('li').hasClass('topTab')) {
         return false;
       } else {
-        var tabName = $(this).attr('id').substring(3);
+        var tabName = $(this).closest('li').attr('id').substring(3);
         _showTab(tabName);
         return false;
       }
@@ -527,6 +527,7 @@ define(function(require) {
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
+    $('.tree', '#navigation').remove();
 
     var tab = $('#' + tabName);
     //show tab
@@ -534,6 +535,9 @@ define(function(require) {
 
     var dataTable = SunstoneCfg['tabs'][tabName]['dataTable'];
     if (dataTable) {
+      if (dataTable.clearLabelsFilter) {
+        dataTable.clearLabelsFilter();
+      }
       dataTable.recountCheckboxes();
     }
 

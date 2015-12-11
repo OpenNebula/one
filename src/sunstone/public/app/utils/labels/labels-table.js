@@ -17,7 +17,7 @@
 define(function(require) {
   /* DEPENDENCIES */
 
-  var Tree = require('utils/tree');
+  var Tree = require('./tree');
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('./utils');
   var TableTemplate = require('hbs!./labels-table/table');
@@ -38,7 +38,7 @@ define(function(require) {
     this.element = opts.element;
     this.resource = opts.resource;
     this.xmlRoot = opts.xmlRoot;
-    this.labels = LabelsUtils.deserializeLabels(this.element);
+    this.labels = LabelsUtils.deserializeLabels(LabelsUtils.labelsStr(this.element));
 
     return this;
   };

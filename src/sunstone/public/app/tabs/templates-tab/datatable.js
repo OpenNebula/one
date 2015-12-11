@@ -23,6 +23,8 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var LabelsUtils = require('utils/labels/utils');
+  var Tree = require('utils/labels/tree');
 
   /*
     CONSTANTS
@@ -60,7 +62,8 @@ define(function(require) {
       Locale.tr("Owner") ,
       Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("Registration time")
+      Locale.tr("Registration time"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -72,12 +75,17 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following Templates:")
     };
 
+    this.labels = [];
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.clearLabelsFilter = _clearLabelsFilter;
 
   return Table;
 
@@ -88,6 +96,11 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
+    var labelsStr = LabelsUtils.labelsStr(element);
+    if (labelsStr) {
+      this.labels.push(labelsStr);
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
@@ -96,7 +109,77 @@ define(function(require) {
         element.UNAME,
         element.GNAME,
         element.NAME,
-        Humanize.prettyTime(element.REGTIME)
+        Humanize.prettyTime(element.REGTIME),
+        (labelsStr||'')
     ];
+  }
+
+  function _preUpdateView() {
+    this.labels = [];
+  }
+
+  function _postUpdateView() {
+    var that = this;
+    var labels = LabelsUtils.deserializeLabels(this.labels.join(','));
+    /*var labelsDropdown = $('#' + TAB_NAME + 'LabelsDropdown');
+    labelsDropdown.html(Tree.html(LabelsUtils.makeTree(labels)));
+    labelsDropdown.on('change', '.labelCheckbox', function() {
+      var regExp = [];
+      var label;
+      $('.labelCheckbox:checked', labelsDropdown).each(function() {
+        label = $(this).closest('span').attr('one-label-full-name');
+        regExp.push('^' + label + '$');
+        regExp.push(',' + label + '$');
+        regExp.push('^' + label + ',');
+        regExp.push(',' + label + ',');
+      });
+
+      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
+    });*/
+    $('.labels-tree', '#li_' + TAB_NAME).remove();
+    $('#li_' + TAB_NAME).append(Tree.html(LabelsUtils.makeTree(labels), true));
+    Tree.setup($('.labels-tree', '#li_' + TAB_NAME));
+
+    $('#' + TAB_NAME + 'LabelsDropdown').html(
+      '<div>' +
+      '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
+      Tree.html(LabelsUtils.makeTree(labels), false) +
+      '<div class="input-container">' +
+        '<input type="text" placeholder="' + Locale.tr("Add Label") + '"/>' +
+      '</div>' +
+      '</div>');
+
+    $('#li_' + TAB_NAME).off('click', '.one-label');
+    $('#li_' + TAB_NAME).on('click', '.one-label', function() {
+      var regExp = [];
+      var label = $(this).attr('one-label-full-name');
+      regExp.push('^' + label + '$');
+      regExp.push(',' + label + '$');
+      regExp.push('^' + label + ',');
+      regExp.push(',' + label + ',');
+      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
+      return false;
+    });
+
+
+    /*$('#li_' + TAB_NAME).off('change', '.labelCheckbox');
+    $('#li_' + TAB_NAME).on('change', '.labelCheckbox', function() {
+      var regExp = [];
+      var label;
+      $('.labelCheckbox:checked', '#li_' + TAB_NAME).each(function() {
+        label = $(this).closest('span').attr('one-label-full-name');
+        regExp.push('^' + label + '$');
+        regExp.push(',' + label + '$');
+        regExp.push('^' + label + ',');
+        regExp.push(',' + label + ',');
+      });
+
+      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
+      return false;
+    });*/
+  }
+
+  function _clearLabelsFilter() {
+    this.dataTable.fnFilter('', 6, true, false);
   }
 });
