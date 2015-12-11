@@ -17,7 +17,7 @@
   :size: 5
   :left: true
 
-:MARKETAPPS:
+:APPS:
   :desc: Number of Marketplace Apps
   :size: 6
 
@@ -36,6 +36,6 @@
 - :NAME
 - :SIZE
 - :AVAIL
-- :MARKETAPPS
+- :APPS
 - :TYPE
 - :MAD

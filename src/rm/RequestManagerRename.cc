@@ -302,3 +302,41 @@ void HostRename::batch_rename(int oid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void MarketPlaceRename::batch_rename(int oid)
+{
+    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get(oid, true);
+
+    if (market == 0)
+    {
+        return;
+    }
+
+    const std::set<int> & apps = market->get_marketapp_ids();
+
+    std::set<int>::iterator it;
+
+    std::string market_name = market->get_name();
+
+    market->unlock();
+
+    MarketPlaceApp *     app;
+    MarketPlaceAppPool * apppool = Nebula::instance().get_apppool();
+
+    for (it = apps.begin(); it != apps.end(); it++)
+    {
+        app = apppool->get(*it, true);
+
+        if (app != 0)
+        {
+            if (app->get_market_id() == oid)
+            {
+                app->set_market_name(market_name);
+                apppool->update(app);
+            }
+
+            app->unlock();
+        }
+    }
+}
+

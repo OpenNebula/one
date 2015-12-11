@@ -586,6 +586,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevdc \
            src/cli/onevrouter \
            src/cli/onemarket \
+           src/cli/onemarketapp \
            src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
@@ -1382,7 +1383,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/virtual_router_pool.rb \
                             src/oca/ruby/opennebula/virtual_router.rb \
                             src/oca/ruby/opennebula/marketplace_pool.rb \
-                            src/oca/ruby/opennebula/marketplace.rb"
+                            src/oca/ruby/opennebula/marketplace.rb \
+                            src/oca/ruby/opennebula/marketplaceapp_pool.rb \
+                            src/oca/ruby/opennebula/marketplaceapp.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1534,6 +1537,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
                    src/cli/one_helper/onesecgroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
+                   src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
@@ -1554,6 +1558,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneshowback \
                src/cli/onevdc \
                src/cli/onevrouter \
+               src/cli/onemarketapp \
                src/cli/onemarket"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
@@ -1572,6 +1577,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneshowback.yaml \
                 src/cli/etc/onevdc.yaml \
                 src/cli/etc/onevrouter.yaml \
+                src/cli/etc/onemarketapp.yaml \
                 src/cli/etc/onemarket.yaml"
 
 #-----------------------------------------------------------------------------
@@ -1846,6 +1852,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onevdc.1.gz \
         share/man/onevrouter.1.gz \
         share/man/onemarket.1.gz \
+        share/man/onemarketapp.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \

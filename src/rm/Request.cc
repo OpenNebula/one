@@ -629,6 +629,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
         case PoolObjectSQL::MARKETPLACEAPP:
             return "marketplaceapp";
       }
+
+    return "unknown";
 };
 
 /* -------------------------------------------------------------------------- */

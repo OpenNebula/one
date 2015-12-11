@@ -631,7 +631,7 @@ public:
                                true)
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
@@ -649,6 +649,42 @@ public:
                       int&                       id,
                       string&                    error_str,
                       RequestAttributes&         att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppAllocate : public RequestManagerAllocate
+{
+public:
+    MarketPlaceAppAllocate():
+        RequestManagerAllocate("MarketPlaceAppAllocate",
+                               "Allocates a new marketplace app",
+                               "A:ssi",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        mppool      = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new MarketPlaceAppTemplate;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template *                 tmpl,
+                      int&                       id,
+                      string&                    error_str,
+                      RequestAttributes&         att);
+private:
+    MarketPlacePool * mppool;
 };
 
 /* -------------------------------------------------------------------------- */

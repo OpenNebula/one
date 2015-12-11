@@ -344,16 +344,33 @@ class MarketPlaceInfo : public RequestManagerInfo
 public:
     MarketPlaceInfo():
         RequestManagerInfo("MarketPlaceInfo",
-                           "Returns MarketPlace information")
+                           "Returns marketplace information")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
     ~MarketPlaceInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceAppInfo():
+        RequestManagerInfo("MarketPlaceAppInfo",
+                           "Returns marketplace app information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppInfo(){};
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

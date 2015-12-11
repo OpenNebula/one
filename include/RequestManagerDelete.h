@@ -383,13 +383,30 @@ public:
                              "Deletes a marketplace")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
     ~MarketPlaceDelete(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceAppDelete():
+        RequestManagerDelete("MarketPlaceAppDelete",
+                             "Deletes a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppDelete(){};
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

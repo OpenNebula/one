@@ -23,7 +23,6 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
-
         IMAGE_POOL_METHODS = {
             :info => "imagepool.info"
         }

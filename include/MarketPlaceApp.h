@@ -69,6 +69,30 @@ public:
      */
     int from_xml(const std::string &xml_str);
 
+    /**
+     * Returns the marketplace ID
+     */
+    int get_market_id() const
+    {
+        return market_id;
+    };
+
+    /**
+     * Returns the marketplace name
+     */
+    const std::string& get_market_name() const
+    {
+        return market_name;
+    };
+
+    /**
+     * Updates the marketplace name
+     */
+    void set_market_name(const std::string& name)
+    {
+        market_name = name;
+    };
+
 private:
 
     friend class MarketPlaceAppPool;
@@ -77,9 +101,9 @@ private:
     // MarketPlaceApp Attributes
     // *************************************************************************
     /**
-     *  Size of this app
+     *  Publishing date
      */
-    std::string date;
+    time_t      date;
 
     /**
      *  Source URL for the marketplace app
@@ -119,12 +143,12 @@ private:
     /**
      *  Marketplace ID that holds this app
      */
-    int mp_id;
+    int market_id;
 
     /**
      *  Marketplace name
      */
-    std::string mp_name;
+    std::string market_name;
 
     /**
      *  Marketplace App state
@@ -204,6 +228,14 @@ private:
      *    @return 0 on success
      */
     int post_update_template(std::string& error);
+
+    /**
+     *  Factory method for marketplace app templates
+     */
+    Template * get_new_template() const
+    {
+        return new MarketPlaceAppTemplate;
+    }
 };
 
 #endif /*MARKETPLACEAPP_H*/

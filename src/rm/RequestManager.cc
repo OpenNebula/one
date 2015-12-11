@@ -949,6 +949,52 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.marketpool.info", marketpool_info);
 
+    /* MarketPlaceApp related methods */
+
+    xmlrpc_c::method * marketapp_allocate_pt;
+    xmlrpc_c::method * marketapp_update_pt;
+    xmlrpc_c::method * marketapp_delete_pt;
+    xmlrpc_c::method * marketapp_chmod_pt;
+    xmlrpc_c::method * marketapp_chown_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        marketapp_allocate_pt = new RequestManagerProxy("one.marketapp.allocate");
+        marketapp_update_pt   = new RequestManagerProxy("one.marketapp.update");
+        marketapp_delete_pt   = new RequestManagerProxy("one.marketapp.delete");
+        marketapp_chmod_pt    = new RequestManagerProxy("one.marketapp.chmod");
+        marketapp_chown_pt    = new RequestManagerProxy("one.marketapp.chown");
+    }
+    else
+    {
+        marketapp_allocate_pt = new MarketPlaceAppAllocate();
+        marketapp_update_pt   = new MarketPlaceAppUpdateTemplate();
+        marketapp_delete_pt   = new MarketPlaceAppDelete();
+        marketapp_chmod_pt    = new MarketPlaceAppChmod();
+        marketapp_chown_pt    = new MarketPlaceAppChown();
+    }
+
+    xmlrpc_c::methodPtr marketapp_allocate(marketapp_allocate_pt);
+    xmlrpc_c::methodPtr marketapp_update(marketapp_update_pt);
+    xmlrpc_c::methodPtr marketapp_delete(marketapp_delete_pt);
+    xmlrpc_c::methodPtr marketapp_chmod(marketapp_chmod_pt);
+    xmlrpc_c::methodPtr marketapp_chown(marketapp_chown_pt);
+
+    xmlrpc_c::methodPtr marketapp_info(new MarketPlaceAppInfo());
+    xmlrpc_c::methodPtr marketapp_rename(new MarketPlaceAppRename());
+    xmlrpc_c::methodPtr marketapppool_info(new MarketPlaceAppPoolInfo());
+
+    RequestManagerRegistry.addMethod("one.marketapp.allocate", marketapp_allocate);
+    RequestManagerRegistry.addMethod("one.marketapp.update", marketapp_update);
+    RequestManagerRegistry.addMethod("one.marketapp.delete", marketapp_delete);
+    RequestManagerRegistry.addMethod("one.marketapp.chmod", marketapp_chmod);
+    RequestManagerRegistry.addMethod("one.marketapp.chown", marketapp_chown);
+
+    RequestManagerRegistry.addMethod("one.marketapp.info", marketapp_info);
+    RequestManagerRegistry.addMethod("one.marketapp.rename", marketapp_rename);
+
+    RequestManagerRegistry.addMethod("one.marketapppool.info", marketapppool_info);
+
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
     RequestManagerRegistry.addMethod("one.system.config", system_config);

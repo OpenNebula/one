@@ -52,8 +52,8 @@ MarketPlaceApp::MarketPlaceApp(
         publisher(""),
         version(""),
         apptemplate64(""),
-        mp_id(-1),
-        mp_name(""),
+        market_id(-1),
+        market_name(""),
         state(INIT)
 {
     if (app_template != 0)
@@ -81,11 +81,6 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
 {
     std::ostringstream oss;
 
-    std::string attr;
-
-    char        str[26];
-    time_t      the_time = time(NULL);
-
     // -------------------------------------------------------------------------
     // Check default marketplace app attributes
     // -------------------------------------------------------------------------
@@ -94,36 +89,41 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
 
     //Atrributes updated after export
-    remove_template_attribute("ORIGIN");
     remove_template_attribute("SOURCE");
     remove_template_attribute("SIZE");
     remove_template_attribute("CHECKSUM");
 
-    ctime_r(&(the_time), str);
-    date = str;
+    date = time(NULL);
 
     //Known attributes
+    //ORIGIN
     //DESCRIPTION
     //APPTEMPLATE64
     //PUBLISHER
     //VERSION
+    erase_template_attribute("ORIGIN", origin);
+
+    if (origin.empty())
+    {
+        goto error_origin;
+    }
 
     get_template_attribute("DESCRIPTION", description);
 
     get_template_attribute("APPTEMPLATE64", apptemplate64);
 
-    get_template_attribute("PUBLISHER", attr);
+    get_template_attribute("PUBLISHER", publisher);
 
-    if (attr.empty())
+    if (publisher.empty())
     {
         publisher = uname;
     }
 
-    get_template_attribute("VERSION", attr);
+    get_template_attribute("VERSION", version);
 
-    if (!attr.empty())
+    if (version.empty())
     {
-        version = attr;
+        version = "0.0";
     }
 
     state = LOCKED;
@@ -131,6 +131,11 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     //--------------------------------------------------------------------------
 
     return insert_replace(db, false, error_str);
+
+error_origin:
+    error_str = "Missing ORIGIN for the MARKETPLACEAPP";
+    NebulaLog::log("MRK", Log::ERROR, error_str);
+    return -1;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -241,8 +246,8 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
             "<PUBLISHER>"      << publisher     << "</PUBLISHER>" <<
             "<VERSION>"        << version       << "</VERSION>" <<
             "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
-            "<MARKETPLACE_ID>" << mp_id        << "</MARKETPLACE_ID>" <<
-            "<MARKETPLACE>"    << mp_name       << "</MARKETPLACE>" <<
+            "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
+            "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
             "<STATE>"          << state         << "</STATE>" <<
 			perms_to_xml(perm_str) <<
 			obj_template->to_xml(template_xml) <<
@@ -272,7 +277,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(uname,        "/MARKETPLACEAPP/UNAME", "not_found");
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
-    rc += xpath(date,         "/MARKETPLACEAPP/DATE", "not_found");
+    rc += xpath(date,         "/MARKETPLACEAPP/DATE", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE","not_found");
     rc += xpath(origin,       "/MARKETPLACEAPP/ORIGIN","not_found");
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
@@ -282,8 +287,8 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(checksum,     "/MARKETPLACEAPP/CHECKSUM", "not_found");
     rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");
     rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
-    rc += xpath(mp_name,      "/MARKETPLACEAPP/MARKETPLACE", "not_found");
-    rc += xpath(mp_id,        "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
+    rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
+    rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
 
     state = static_cast<MarketPlaceAppState>(istate);
 

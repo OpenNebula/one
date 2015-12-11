@@ -366,7 +366,7 @@ public:
         RequestManagerRename("MarketPlaceRename", "Renames a marketplace")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
@@ -377,9 +377,31 @@ public:
         return static_cast<MarketPlacePool*>(pool)->get(name, lock);
     };
 
-    //TODO implement batch rename for MarketPlaceApps
-    //void batch_rename(int oid);
+    void batch_rename(int oid);
 };
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppRename: public RequestManagerRename
+{
+public:
+    MarketPlaceAppRename():
+        RequestManagerRename("MarketPlaceRename", "Renames a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlaceAppPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -67,16 +67,16 @@ module OpenNebula
         # XML-RPC Methods for the MarketPlace Object
         #######################################################################
 
-        # Retrieves the information of the given MarketPlace.
+        # Retrieves the information of the given marketplace.
         def info()
             super(MARKETPLACE_METHODS[:info], 'MARKETPLACE')
         end
 
         alias_method :info!, :info
 
-        # Allocates a new MarketPlace in OpenNebula
+        # Allocates a new marketplace in OpenNebula
         #
-        # @param description [String] The template of the MarketPlace.
+        # @param description [String] The template of the marketplace.
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
@@ -84,7 +84,7 @@ module OpenNebula
             super(MARKETPLACE_METHODS[:allocate], description)
         end
 
-        # Deletes the MarketPlace
+        # Deletes the marketplace
         def delete()
             super(MARKETPLACE_METHODS[:delete])
         end
@@ -159,11 +159,6 @@ module OpenNebula
         # Returns the marketplace type (string value)
         def short_type_str
             SHORT_MARKETPLACE_TYPES[type_str]
-        end
-
-        # Returns the state of the marketplace (numeric value)
-        def state
-            self['STATE'].to_i
         end
 
         # Returns whether or not the marketplace app with id 'id' is part of

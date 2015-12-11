@@ -42,8 +42,6 @@ public:
      *    @param apptemplate MarketPlaceApp definition template
      *    @param mp_id of the MarketPlace to store de App
      *    @param mp_name of the MarketPlace
-     *    @param origin an opaque string with the origin of the App. Used by
-     *    the MARKET_MAD.
      *    @param oid the id assigned to the MarketPlace
      *    @param error_str Returns the error reason, if any
      *
@@ -58,7 +56,6 @@ public:
             MarketPlaceAppTemplate * apptemplate,
             int                mp_id,
             const std::string& mp_name,
-            const std::string& origin,
             int *              oid,
             std::string&       error_str);
 

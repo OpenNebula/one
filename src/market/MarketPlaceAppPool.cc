@@ -29,7 +29,6 @@ int MarketPlaceAppPool:: allocate(
             MarketPlaceAppTemplate * apptemplate,
             int                mp_id,
             const std::string& mp_name,
-            const std::string& origin,
             int *              oid,
             std::string&       error_str)
 {
@@ -42,10 +41,10 @@ int MarketPlaceAppPool:: allocate(
 
     mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
 
-    mp->mp_id   = mp_id;
-    mp->mp_name = mp_name;
-    mp->state   = MarketPlaceApp::INIT;
-    mp->origin  = origin;
+    mp->market_id   = mp_id;
+    mp->market_name = mp_name;
+
+    mp->state = MarketPlaceApp::INIT;
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

@@ -95,8 +95,8 @@ public:
         return name;
     };
 
-    /** Update a particular MarketPlaceApp
-     *    @param zone pointer to Zone
+    /** Update a particular MarketPlace
+     *    @param  objsql points to the market
      *    @return 0 on success
      */
     int update(PoolObjectSQL * objsql);

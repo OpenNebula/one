@@ -312,15 +312,34 @@ class MarketPlaceUpdateTemplate : public RequestManagerUpdateTemplate
 public:
     MarketPlaceUpdateTemplate():
         RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
-                                     "Updates a virtual router template")
+                                     "Updates a marketplace template")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
     ~MarketPlaceUpdateTemplate(){};
 };
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    MarketPlaceAppUpdateTemplate():
+        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+                                     "Updates a marketplace app template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -17,7 +17,7 @@
 require 'one_helper'
 
 class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
-    DATASTORE = {
+    MARKETPLACE = {
         :name   => "marketplace",
         :short  => "-m id|name",
         :large  => "--marketplace id|name" ,
@@ -60,7 +60,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :MARKETAPPS, "Number of marketplace apps", :size=>6 do |d|
+            column :APPS, "Number of marketplace apps", :size=>6 do |d|
                 if d["MARKETPLACEAPPS"]["ID"].nil?
                     "0"
                 else
@@ -77,7 +77,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["MARKET_MAD"]
             end
 
-            default :ID, :NAME, :SIZE, :AVAIL, :MARKETAPPS, :TYPE, :MAD
+            default :ID, :NAME, :SIZE, :AVAIL, :APPS, :TYPE, :MAD
         end
 
         table

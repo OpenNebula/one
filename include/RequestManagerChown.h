@@ -303,7 +303,7 @@ public:
                             "Changes ownership of a marketplace")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_mppool();
+        pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
@@ -312,6 +312,29 @@ public:
     PoolObjectSQL * get(const string& name, int uid, bool lock)
     {
         return 0;
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppChown: public RequestManagerChown
+{
+public:
+    MarketPlaceAppChown():
+        RequestManagerChown("MarketPlaceAppChown",
+                            "Changes ownership of a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlaceAppPool *>(pool)->get(name, uid, lock);
     };
 };
 
