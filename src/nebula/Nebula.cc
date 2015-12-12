@@ -910,6 +910,8 @@ void Nebula::start(bool bootstrap_only)
 
     lcm->init_managers();
 
+    marketm->init_managers();
+
     // ---- Start the Request Manager ----
 
     rc = rm->start();

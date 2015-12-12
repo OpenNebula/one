@@ -855,4 +855,6 @@ int MarketPlaceAppAllocate::pool_allocate(
 
         mp->unlock();
     }
+
+    return rc;
 }

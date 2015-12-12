@@ -29,41 +29,6 @@ class MarketPlace : public PoolObjectSQL, ObjectCollection
 {
 public:
     /**
-     *  MarketPlace container types
-     */
-    enum MarketPlaceType
-    {
-		UNKNOWN       = 0, /** < Unknown types     */
-        IMAGE_MP      = 1, /** < Image MarketPlace */
-        VMTEMPLATE_MP = 2, /** < VM Template MarketPlace */
-        FLOW_MP       = 3  /** < Flow MarketPlace */
-    };
-
-    /**
-     *  Return the string representation of a MarketPlaceType
-     *    @param ob the type
-     *    @return the string
-     */
-    static string type_to_str(MarketPlaceType ob)
-    {
-        switch (ob)
-        {
-            case IMAGE_MP:      return "IMAGE_MP"; break;
-            case VMTEMPLATE_MP: return "VMTEMPLATE_MP"; break;
-            case FLOW_MP:       return "FLOW_MP"; break;
-            default:            return "";
-        }
-    };
-
-    /**
-     *  Return the string representation of a MarketPlaceType, By default it will
-     *  return IMAGE_MP.
-     *    @param str_type string representing the type
-     *    @return the MarketPlaceType
-     */
-    static MarketPlaceType str_to_type(string& str_type);
-
-    /**
      * Function to print the MarketPlace object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -116,15 +81,6 @@ public:
     };
 
     /**
-     * Returns the marketplace type
-     *    @return marketplace type
-     */
-    MarketPlaceType get_type() const
-    {
-        return type;
-    };
-
-    /**
      *  Set monitor information for the MarketPlace
      *    @param total_mb
      *    @param free_mb
@@ -149,11 +105,6 @@ private:
      * Name of the marketplace driver used to import apps
      */
     string market_mad;
-
-    /**
-     * The marketplace type
-     */
-    MarketPlaceType type;
 
     /**
      * Total capacity in MB

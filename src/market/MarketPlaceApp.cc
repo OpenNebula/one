@@ -54,7 +54,8 @@ MarketPlaceApp::MarketPlaceApp(
         apptemplate64(""),
         market_id(-1),
         market_name(""),
-        state(INIT)
+        state(INIT),
+        type(IMAGE)
 {
     if (app_template != 0)
     {
@@ -95,6 +96,8 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
 
     date = time(NULL);
 
+    type = IMAGE;
+
     //Known attributes
     //ORIGIN
     //DESCRIPTION
@@ -134,7 +137,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
 
 error_origin:
     error_str = "Missing ORIGIN for the MARKETPLACEAPP";
-    NebulaLog::log("MRK", Log::ERROR, error_str);
+    NebulaLog::log("MKP", Log::ERROR, error_str);
     return -1;
 }
 
@@ -249,6 +252,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
             "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
             "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
             "<STATE>"          << state         << "</STATE>" <<
+            "<TYPE>"           << type          << "</TYPE>"  <<
 			perms_to_xml(perm_str) <<
 			obj_template->to_xml(template_xml) <<
         "</MARKETPLACEAPP>";
@@ -265,6 +269,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 {
     int rc = 0;
     int istate;
+    int itype;
     std::vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -281,6 +286,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE","not_found");
     rc += xpath(origin,       "/MARKETPLACEAPP/ORIGIN","not_found");
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
+    rc += xpath(itype,        "/MARKETPLACEAPP/TYPE",  -1);
     rc += xpath(description,  "/MARKETPLACEAPP/DESCRIPTION", "not_found");
     rc += xpath(size_mb,      "/MARKETPLACEAPP/SIZE", -1);
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
@@ -291,6 +297,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
 
     state = static_cast<MarketPlaceAppState>(istate);
+    type  = static_cast<MarketPlaceAppType>(itype);
 
 	// ----- Permissions -----
     rc += perms_from_xml();
@@ -339,5 +346,28 @@ int MarketPlaceApp::post_update_template(string& error)
     version       = n_version;
 
 	return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+MarketPlaceApp::MarketPlaceAppType MarketPlaceApp::str_to_type(string& str_type)
+{
+    one_util::toupper(str_type);
+
+    if ( str_type == "IMAGE" )
+    {
+        return IMAGE;
+    }
+    else if ( str_type == "VMTEMPLATE" )
+    {
+        return VMTEMPLATE;
+    }
+    else if ( str_type == "FLOW" )
+    {
+        return FLOW;
+    }
+
+    return UNKNOWN;
 }
 

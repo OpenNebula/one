@@ -64,11 +64,16 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
+            column :TYPE, "Marketplace app type", :left, :size=>4 do |d|
+                type = MarketPlaceApp::MARKETPLACEAPP_TYPES[d["TYPE"].to_i]
+                MarketPlaceApp::SHORT_MARKETPLACEAPP_TYPES[type]
+            end
+
             column :MARKET, "Name of the marketplace", :left, :size=>10 do |d|
                 d["MARKETPLACE"]
             end
 
-            default :ID,:NAME,:PUBLISHER,:VERSION,:SIZE,:STAT,:DATE,:MARKET
+            default :ID,:NAME,:PUBLISHER,:VERSION,:SIZE,:STAT,:DATE,:TYPE,:MARKET
         end
 
         table
@@ -96,6 +101,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "MARKETPLACE APP #{app['ID']} INFORMATION")
         puts str % ["ID",    app.id.to_s]
         puts str % ["NAME",  app.name]
+        puts str % ["TYPE",  app.type_str]
         puts str % ["USER",  app['UNAME']]
         puts str % ["GROUP", app['GNAME']]
         puts str % ["MARKETPLACE", app['MARKETPLACE']]

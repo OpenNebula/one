@@ -28,6 +28,9 @@
 class MarketPlaceApp : public PoolObjectSQL
 {
 public:
+    /**
+     *  MarketPlaceApp states
+     */
     enum MarketPlaceAppState
     {
         INIT      = 0, /** < Initialization state */
@@ -53,6 +56,40 @@ public:
         }
     };
 
+    /**
+     *  MarketPlaceApp container types
+     */
+    enum MarketPlaceAppType
+    {
+		UNKNOWN    = 0, /** < Unknown types     */
+        IMAGE      = 1, /** < Image MarketPlace App*/
+        VMTEMPLATE = 2, /** < VM Template MarketPlace App*/
+        FLOW       = 3  /** < Flow MarketPlace App*/
+    };
+
+    /**
+     *  Return the string representation of a MarketPlaceType
+     *    @param ob the type
+     *    @return the string
+     */
+    static string type_to_str(MarketPlaceAppType ob)
+    {
+        switch (ob)
+        {
+            case IMAGE:      return "IMAGE"; break;
+            case VMTEMPLATE: return "VMTEMPLATE"; break;
+            case FLOW:       return "FLOW"; break;
+            default:         return "";
+        }
+    };
+
+    /**
+     *  Return the string representation of a MarketPlaceType, By default it will
+     *  return IMAGE_MP.
+     *    @param str_type string representing the type
+     *    @return the MarketPlaceType
+     */
+    static MarketPlaceAppType str_to_type(string& str_type);
 
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
@@ -91,6 +128,15 @@ public:
     void set_market_name(const std::string& name)
     {
         market_name = name;
+    };
+
+    /**
+     * Returns the marketplace app type
+     *    @return marketplace app type
+     */
+    MarketPlaceAppType get_type() const
+    {
+        return type;
     };
 
 private:
@@ -154,6 +200,11 @@ private:
      *  Marketplace App state
      */
     MarketPlaceAppState state;
+
+    /**
+     * The marketplace type
+     */
+    MarketPlaceAppType type;
 
     /**
      *  Origin of this App

@@ -98,46 +98,45 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         OpenNebula::MarketPlacePool.new(@client)
     end
 
-    def format_resource(datastore, options = {})
+    def format_resource(market, options = {})
         str="%-15s: %-20s"
         str_h1="%-80s"
 
-        CLIHelper.print_header(str_h1 % "MARKETPLACE #{datastore['ID']} INFORMATION")
-        puts str % ["ID",    datastore.id.to_s]
-        puts str % ["NAME",  datastore.name]
-        puts str % ["USER",  datastore['UNAME']]
-        puts str % ["GROUP", datastore['GNAME']]
-        puts str % ["TYPE",  datastore.type_str]
+        CLIHelper.print_header(str_h1 % "MARKETPLACE #{market['ID']} INFORMATION")
+        puts str % ["ID",    market.id.to_s]
+        puts str % ["NAME",  market.name]
+        puts str % ["USER",  market['UNAME']]
+        puts str % ["GROUP", market['GNAME']]
 
-        puts str % ["MARKET_MAD", datastore['MARKET_MAD']]
+        puts str % ["MARKET_MAD", market['MARKET_MAD']]
         puts
 
         CLIHelper.print_header(str_h1 % "MARKETPLACE CAPACITY", false)
 
-        puts str % ["TOTAL:", OpenNebulaHelper.unit_to_str(datastore['TOTAL_MB'].to_i,{},'M')]
-        puts str % ["FREE:",  OpenNebulaHelper.unit_to_str(datastore['FREE_MB'].to_i, {},'M')]
-        puts str % ["USED: ", OpenNebulaHelper.unit_to_str(datastore['USED_MB'].to_i, {},'M')]
+        puts str % ["TOTAL:", OpenNebulaHelper.unit_to_str(market['TOTAL_MB'].to_i,{},'M')]
+        puts str % ["FREE:",  OpenNebulaHelper.unit_to_str(market['FREE_MB'].to_i, {},'M')]
+        puts str % ["USED: ", OpenNebulaHelper.unit_to_str(market['USED_MB'].to_i, {},'M')]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
 
         ["OWNER", "GROUP", "OTHER"].each { |e|
             mask = "---"
-            mask[0] = "u" if datastore["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if datastore["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if datastore["PERMISSIONS/#{e}_A"] == "1"
+            mask[0] = "u" if market["PERMISSIONS/#{e}_U"] == "1"
+            mask[1] = "m" if market["PERMISSIONS/#{e}_M"] == "1"
+            mask[2] = "a" if market["PERMISSIONS/#{e}_A"] == "1"
 
             puts str % [e,  mask]
         }
         puts
 
         CLIHelper.print_header(str_h1 % "MARKETPLACE TEMPLATE", false)
-        puts datastore.template_str
+        puts market.template_str
 
         puts
 
         CLIHelper.print_header("%-15s" % "MARKETAPPS")
-        datastore.marketapp_ids.each do |id|
+        market.marketapp_ids.each do |id|
             puts "%-15s" % [id]
         end
     end

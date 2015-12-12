@@ -41,6 +41,14 @@ module OpenNebula
             "ERROR"     => "err",
         }
 
+        MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE FLOW}
+
+        SHORT_MARKETPLACEAPP_TYPES = {
+            "UNKNOWN"   => "unk",
+            "IMAGE"     => "img",
+            "VMTEMPLATE"=> "tpl",
+            "FLOW"      => "flo"
+        }
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.
         # +id+ the id of the user
@@ -146,6 +154,21 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
+
+        # Returns the marketplace app type
+        def type
+            self['TYPE'].to_i
+        end
+
+        # Returns the marketplace app type (string value)
+        def type_str
+            MARKETPLACEAPP_TYPES[type]
+        end
+
+        # Returns the marketplace app type (string value)
+        def short_type_str
+            SHORT_MARKETPLACEAPP_TYPES[type_str]
+        end
 
         # Returns the state of the marketplace app (numeric value)
         def state

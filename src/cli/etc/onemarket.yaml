@@ -21,11 +21,6 @@
   :desc: Number of Marketplace Apps
   :size: 6
 
-:TYPE:
-  :desc: Marketplace type
-  :size: 4
-  :left: true
-
 :MAD:
   :desc: Marketplace driver
   :size: 7
@@ -37,5 +32,4 @@
 - :SIZE
 - :AVAIL
 - :APPS
-- :TYPE
 - :MAD

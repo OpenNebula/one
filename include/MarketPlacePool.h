@@ -135,6 +135,17 @@ public:
                              limit);
     };
 
+    /**
+     *  Lists the Datastore ids
+     *  @param oids a vector with the oids of the objects.
+     *
+     *  @return 0 on success
+     */
+     int list(std::vector<int>& oids)
+     {
+        return PoolSQL::list(oids, MarketPlace::table);
+     }
+
 private:
 
     /**

@@ -47,7 +47,6 @@ MarketPlace::MarketPlace(
         PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, table),
         ObjectCollection("MARKETPLACEAPPS"),
         market_mad(""),
-        type(IMAGE_MP),
         total_mb(0),
         free_mb(0),
         used_mb(0)
@@ -77,8 +76,6 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
 {
     std::ostringstream oss;
 
-    std::string s_mp_type;
-
     // -------------------------------------------------------------------------
     // Check default marketplace attributes
     // -------------------------------------------------------------------------
@@ -93,15 +90,6 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
         goto error_mad;
     }
 
-    erase_template_attribute("TYPE", s_mp_type);
-
-    type = str_to_type(s_mp_type);
-
-	if ( type == UNKNOWN )
-	{
-		goto error_type;
-	}
-
     //--------------------------------------------------------------------------
 
     return insert_replace(db, false, error_str);
@@ -109,12 +97,9 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
 error_mad:
     error_str = "No marketplace driver (MARKET_MAD) in template.";
     goto error_common;
-error_type:
-	error_str = "Unknown marketplace type: " + s_mp_type;
-	goto error_common;
 
 error_common:
-    NebulaLog::log("MARKETPLACE", Log::ERROR, error_str);
+    NebulaLog::log("MKP", Log::ERROR, error_str);
     return -1;
 }
 
@@ -220,7 +205,6 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 			"<UNAME>" << uname << "</UNAME>" <<
 			"<GNAME>" << gname << "</GNAME>" <<
 			"<NAME>"  << name  << "</NAME>"  <<
-            "<TYPE>"  << type  << "</TYPE>"  <<
 			"<MARKET_MAD>"<<one_util::escape_xml(market_mad)<<"</MARKET_MAD>"<<
 			"<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
 			"<FREE_MB>"  << free_mb  << "</FREE_MB>"  <<
@@ -241,7 +225,6 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 int MarketPlace::from_xml(const std::string &xml_str)
 {
     int rc = 0;
-    int itype;
     std::vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -254,15 +237,12 @@ int MarketPlace::from_xml(const std::string &xml_str)
     rc += xpath(uname, "/MARKETPLACE/UNAME", "not_found");
     rc += xpath(gname, "/MARKETPLACE/GNAME", "not_found");
     rc += xpath(name,  "/MARKETPLACE/NAME",  "not_found");
-    rc += xpath(itype, "/MARKETPLACE/TYPE",  -1);
 
     rc += xpath(market_mad, "/MARKETPLACE/MARKET_MAD", "not_found");
 
     rc += xpath(total_mb, "/MARKETPLACE/TOTAL_MB", 0);
     rc += xpath(free_mb,  "/MARKETPLACE/FREE_MB",  0);
     rc += xpath(used_mb,  "/MARKETPLACE/USED_MB",  0);
-
-    type = static_cast<MarketPlace::MarketPlaceType>(itype);
 
 	// ----- Permissions -----
     rc += perms_from_xml();
@@ -306,27 +286,7 @@ int MarketPlace::from_xml(const std::string &xml_str)
 
 int MarketPlace::post_update_template(string& error)
 {
-	std::string new_s_type;
 	std::string new_market_mad;
-
-	MarketPlaceType new_type;
-
-	// -------------------------------------------------------------------------
-    // Sanitize TYPE and MARKET_MAD attributes
-    // -------------------------------------------------------------------------
-    erase_template_attribute("TYPE", new_s_type);
-
-    new_type = str_to_type(new_s_type);
-
-	if ( new_type == UNKNOWN )
-	{
-		error = "Unknown marketplace type: " + new_s_type;
-		return -1;
-	}
-
-	type = new_type;
-
-    add_template_attribute("TYPE", type_to_str(type));
 
     erase_template_attribute("MARKET_MAD", new_market_mad);
 
@@ -338,28 +298,5 @@ int MarketPlace::post_update_template(string& error)
     add_template_attribute("MARKET_MAD", market_mad);
 
 	return 0;
-}
-
-/* --------------------------------------------------------------------------- */
-/* --------------------------------------------------------------------------- */
-
-MarketPlace::MarketPlaceType MarketPlace::str_to_type(string& str_type)
-{
-    one_util::toupper(str_type);
-
-    if ( str_type == "IMAGE_MP" )
-    {
-        return IMAGE_MP;
-    }
-    else if ( str_type == "VMTEMPLATE_MP" )
-    {
-        return VMTEMPLATE_MP;
-    }
-    else if ( str_type == "FLOW_MP" )
-    {
-        return FLOW_MP;
-    }
-
-    return UNKNOWN;
 }
 

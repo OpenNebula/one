@@ -31,6 +31,11 @@
   :desc: Publishing date for the marketplace app
   :size: 15
 
+:TYPE:
+  :desc: Marketplace app type
+  :size: 4
+  :left: true
+
 :MARKET:
   :desc: Name of the marketplace 
   :size: 10
@@ -44,4 +49,5 @@
 - :SIZE
 - :STAT
 - :DATE
+- :TYPE
 - :MARKET

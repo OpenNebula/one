@@ -32,15 +32,6 @@ module OpenNebula
             :rename     => "market.rename"
         }
 
-        MARKETPLACE_TYPES=%w{UNKNOWN IMAGE_MP VMTEMPLATE_MP FLOW_MP}
-
-        SHORT_MARKETPLACE_TYPES = {
-            "UNKNOWN"   => "unk",
-            "IMAGE_MP"     => "img",
-            "VMTEMPLATE_MP"=> "tpl",
-            "FLOW_MP"      => "flo"
-        }
-
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.
         # +id+ the id of the user
@@ -145,21 +136,6 @@ module OpenNebula
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
-
-        # Returns the marketplace type
-        def type
-            self['TYPE'].to_i
-        end
-
-        # Returns the marketplace type (string value)
-        def type_str
-            MARKETPLACE_TYPES[type]
-        end
-
-        # Returns the marketplace type (string value)
-        def short_type_str
-            SHORT_MARKETPLACE_TYPES[type_str]
-        end
 
         # Returns whether or not the marketplace app with id 'id' is part of
         # this marketplace
