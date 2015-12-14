@@ -25,7 +25,9 @@ source_files=[
     'MarketPlace.cc',
     'MarketPlacePool.cc',
     'MarketPlaceApp.cc',
-    'MarketPlaceAppPool.cc'
+    'MarketPlaceAppPool.cc',
+    'MarketPlaceManager.cc',
+    'MarketPlaceManagerDriver.cc'
 ]
 
 # Build library

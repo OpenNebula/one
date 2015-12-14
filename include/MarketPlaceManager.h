@@ -23,8 +23,8 @@
 
 extern "C" void * marketplace_action_loop(void *arg);
 
-class MarketPlace;
-class MarketPlaceApp;
+class MarketPlacePool;
+class MarketPlaceAppPool;
 
 class MarketPlaceManager : public MadManager, public ActionListener
 {
@@ -44,6 +44,12 @@ public:
     };
 
     ~MarketPlaceManager(){};
+
+    /**
+     * Initializes internal pointers to other managers. Must be called when
+     * all the other managers exist in Nebula::instance
+     */
+    void init_managers();
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -67,7 +73,7 @@ public:
      */
     pthread_t get_thread_id() const
     {
-        return marektm_thread;
+        return marketm_thread;
     };
 
     /**
@@ -88,7 +94,7 @@ public:
      *
      *    @return 0 on success
      */
-    int import_app(int appid, const std::string& market_data, std::string& error);
+    int import_app(int appid, const std::string& market_data, std::string& err);
 
     /**
      *  Exports the app to this cloud. If an APPTEMPLATE64 is provided associated
@@ -99,7 +105,7 @@ public:
      *
      *    @return 0 on success
      */
-    int export_app(int appid, const std::string& market_data, std::string& error);
+    int export_app(int appid, const std::string& market_data, std::string& err);
 
     /**
      *  Deletes an app from the marketplace.

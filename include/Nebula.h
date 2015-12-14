@@ -48,6 +48,7 @@
 #include "AuthManager.h"
 #include "AclManager.h"
 #include "ImageManager.h"
+#include "MarketPlaceManager.h"
 
 #include "DefaultQuotas.h"
 
@@ -201,6 +202,11 @@ public:
     AclManager * get_aclm()
     {
         return aclm;
+    };
+
+    MarketPlaceManager * get_marketm()
+    {
+        return marketm;
     };
 
     // --------------------------------------------------------------
@@ -678,7 +684,7 @@ private:
         dspool(0), clpool(0), docpool(0), zonepool(0),
         secgrouppool(0), vdcpool(0), vrouterpool(0), marketpool(0), apppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
-        aclm(0), imagem(0)
+        aclm(0), imagem(0), marketm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -739,6 +745,7 @@ private:
         delete authm;
         delete aclm;
         delete imagem;
+        delete marketm;
         delete nebula_configuration;
         delete db;
         delete system_db;
@@ -826,6 +833,7 @@ private:
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;
+    MarketPlaceManager *    marketm;
 
     // ---------------------------------------------------------------
     // Implementation functions

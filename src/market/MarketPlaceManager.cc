@@ -15,9 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "MarketPlaceManager.h"
-#include "NebulaLog.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "MarketPlaceManagerDriver.h"
+
+#include "NebulaLog.h"
 #include "Nebula.h"
 
 const char * MarketPlaceManager::market_driver_name = "market_exe";
@@ -74,7 +76,7 @@ int MarketPlaceManager::load_mads(int uid)
 
     market_conf.replace("NAME", market_driver_name);
 
-    marketm_mad= new MarketManagerDriver(0, market_conf.value(), false);
+    marketm_mad= new MarketPlaceManagerDriver(0, market_conf.value(), false);
 
     rc = add(marketm_mad);
 
@@ -145,8 +147,8 @@ void MarketPlaceManager::init_managers()
 {
     Nebula& nd = Nebula::instance();
 
-    mppool = nd.get_mppool();
-    appool = nd.get_appool();
+    mppool  = nd.get_marketpool();
+    apppool = nd.get_apppool();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -235,7 +237,7 @@ void MarketPlaceManager::monitor_market(int mp_id)
 
     MarketPlace * mp = mppool->get(mp_id, true);
 
-    if ( ds == 0 )
+    if ( mp == 0 )
     {
         return;
     }
