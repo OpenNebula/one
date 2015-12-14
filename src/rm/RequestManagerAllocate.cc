@@ -834,11 +834,14 @@ int MarketPlaceAppAllocate::pool_allocate(
     }
 
     std::string mp_name = mp->get_name();
+    std::string mp_data;
+
+    mp->to_xml(mp_data);
 
     mp->unlock();
 
     int rc = appool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        ttmpl, mp_id, mp_name, &id, error_str);
+        ttmpl, mp_id, mp_name, mp_data, &id, error_str);
 
 	if (rc < 0)
 	{

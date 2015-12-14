@@ -29,11 +29,15 @@ int MarketPlaceAppPool:: allocate(
             MarketPlaceAppTemplate * apptemplate,
             int                mp_id,
             const std::string& mp_name,
+            const std::string& mp_data,
             int *              oid,
             std::string&       error_str)
 {
     MarketPlaceApp * mp;
     MarketPlaceApp * mp_aux = 0;
+
+    Nebula&                   nd = Nebula::instance();
+    MarketPlaceManager * marketm = nd.get_marketm();
 
     std::string name;
 
@@ -49,7 +53,6 @@ int MarketPlaceAppPool:: allocate(
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
-
     mp->get_template_attribute("NAME", name);
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
@@ -65,6 +68,25 @@ int MarketPlaceAppPool:: allocate(
     }
 
     *oid = PoolSQL::allocate(mp, error_str);
+
+    if ( *oid != -1 )
+    {
+        if (marketm->import_app(*oid, mp_data, error_str) == -1)
+        {
+            MarketPlaceApp * app = get(*oid, true);
+
+            if ( app != 0 )
+            {
+                string aux_str;
+
+                drop(app, aux_str);
+
+                app->unlock();
+            }
+
+            *oid = -1;
+        }
+    }
 
     return *oid;
 

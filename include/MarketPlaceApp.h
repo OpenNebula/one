@@ -139,6 +139,29 @@ public:
         return type;
     };
 
+    //--------------------------------------------------------------------------
+    // Set Marketplace app attributes
+    //--------------------------------------------------------------------------
+    void set_state(MarketPlaceAppState _state)
+    {
+        state = _state;
+    };
+
+    void set_source(const std::string& _source)
+    {
+        source = _source;
+    };
+
+    void set_checksum(const std::string& _checksum)
+    {
+        checksum = _checksum;
+    };
+
+    void set_size(long long _size_mb)
+    {
+        size_mb = _size_mb;
+    };
+
 private:
 
     friend class MarketPlaceAppPool;

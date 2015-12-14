@@ -226,6 +226,80 @@ static void monitor_action(istringstream& is,
 }
 */
 
+static int import_action(
+        std::istringstream&  is,
+        MarketPlaceAppPool * apppool,
+        int                  id,
+        const std::string&   result)
+{
+    std::string   error;
+    std::string   info64;
+    std::string * info;
+
+    getline(is, info64);
+
+    if (is.fail())
+    {
+        //goto error_parse;
+    }
+
+    info = one_util::base64_decode(info64);
+
+    if ( info == 0 )
+    {
+        //goto error_decode64;
+    }
+
+    MarketPlaceAppTemplate tmpl;
+
+    if ( tmpl.parse_str_or_xml(*info, error) != 0 )
+    {
+        delete info;
+        //goto error_parse;
+    }
+
+    delete info;
+
+    std::string source;
+    std::string checksum;
+    long long   size_mb;
+
+    tmpl.get("SOURCE", source);
+    tmpl.get("CHECKSUM", checksum);
+    bool rc = tmpl.get("SIZE", size_mb);
+
+    if ( source.empty() || checksum.empty() || rc == false )
+    {
+        //goto error_attributes;
+    }
+
+    MarketPlaceApp * app = apppool->get(id, true);
+
+    if (app == 0)
+    {
+        //goto error_app;
+    }
+
+    app->set_source(source);
+    app->set_checksum(checksum);
+    app->set_size(size_mb);
+
+    app->set_state(MarketPlaceApp::READY);
+
+    apppool->update(app);
+
+    app->unlock();
+
+    NebulaLog::log("MKP", Log::INFO, "Marketplace app successfully imported");
+
+    return 0;
+
+//error_parse:
+//error_decode64:
+//error_parse:
+//error_attributes:
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
