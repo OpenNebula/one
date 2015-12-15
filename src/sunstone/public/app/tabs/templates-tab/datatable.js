@@ -22,10 +22,12 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Sunstone = require('sunstone');
+  var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var LabelsUtils = require('utils/labels/utils');
   var Tree = require('utils/labels/tree');
+  var Notifier = require('utils/notifier');
 
   /*
     CONSTANTS
@@ -123,7 +125,7 @@ define(function(require) {
 
   function _postUpdateView() {
     var that = this;
-    var labels = LabelsUtils.deserializeLabels(this.labels.join(','));
+    var labels = LabelsUtils.deserializeLabels(that.labels.join(','));
 
     /*
       Add labels tree to the left menu
@@ -155,7 +157,7 @@ define(function(require) {
       '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
       Tree.html(LabelsUtils.makeTree(labels), false) +
       '<div class="input-container">' +
-        '<input type="text" placeholder="' + Locale.tr("Add Label") + '"/>' +
+        '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
       '</div>' +
       '</div>');
 
@@ -180,6 +182,7 @@ define(function(require) {
         aData = that.dataTable.fnGetData($(this).closest('tr'));
         labelsArray = aData[LABELS_COLUMN] != '' ? aData[LABELS_COLUMN].split(',') : [];
         labelIndex = $.inArray(labelName, labelsArray);
+
         if (action == 'add' && labelIndex == -1) {
           labelsArray.push(labelName)
           updateResouceLabels(resourceId, labelsArray);
@@ -190,9 +193,55 @@ define(function(require) {
       });
     });
 
+    // Capture the enter key
+    $('#' + TAB_NAME + 'LabelsDropdown').off('keypress', '.newLabelInput');
+    $('#' + TAB_NAME + 'LabelsDropdown').on('keypress', '.newLabelInput', function(e) {
+      var ev = e || window.event;
+      var key = ev.keyCode;
+
+      if (key == 13 && !ev.altKey) {
+        var labelName = $(this).val();
+        var resourceId, aData, labelsArray, labelIndex;
+        $('.check_item:checked', that.dataTable).each(function() {
+          resourceId = $(this).val();
+          aData = that.dataTable.fnGetData($(this).closest('tr'));
+          labelsArray = aData[LABELS_COLUMN] != '' ? aData[LABELS_COLUMN].split(',') : [];
+          labelIndex = $.inArray(labelName, labelsArray);
+          if (labelIndex == -1) {
+            labelsArray.push(labelName)
+            that.labels.push(labelName)
+            updateResouceLabels(resourceId, labelsArray);
+          }
+        });
+
+        ev.preventDefault();
+      }
+    });
+
     function updateResouceLabels(resourceId, labelsArray) {
       var templateStr = LabelsUtils.LABELS_ATTR + '="' + labelsArray.join(',') + '"';
-      Sunstone.runAction(RESOURCE + '.append_template', resourceId, templateStr);
+
+      OpenNebula[RESOURCE].append({
+        timeout: true,
+        data : {
+            id: resourceId,
+            extra_param: templateStr
+        },
+        success: function(request) {
+          OpenNebula[RESOURCE].show({
+            timeout: true,
+            data : {
+                id: resourceId
+            },
+            success: function(request, response) {
+              that.updateElement(request, response);
+              that.postUpdateView();
+            },
+            error: Notifier.onError
+          });
+        },
+        error: Notifier.onError
+      })
     }
 
     /* 
