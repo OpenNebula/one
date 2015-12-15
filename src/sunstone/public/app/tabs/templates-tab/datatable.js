@@ -21,6 +21,7 @@ define(function(require) {
 
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
+  var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var LabelsUtils = require('utils/labels/utils');
@@ -33,6 +34,7 @@ define(function(require) {
   var RESOURCE = "Template";
   var XML_ROOT = "VMTEMPLATE";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 6;
 
   /*
     CONSTRUCTOR
@@ -86,6 +88,7 @@ define(function(require) {
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
   Table.prototype.clearLabelsFilter = _clearLabelsFilter;
+  Table.prototype.setLabelsFilter = _setLabelsFilter;
 
   return Table;
 
@@ -121,25 +124,32 @@ define(function(require) {
   function _postUpdateView() {
     var that = this;
     var labels = LabelsUtils.deserializeLabels(this.labels.join(','));
-    /*var labelsDropdown = $('#' + TAB_NAME + 'LabelsDropdown');
-    labelsDropdown.html(Tree.html(LabelsUtils.makeTree(labels)));
-    labelsDropdown.on('change', '.labelCheckbox', function() {
-      var regExp = [];
-      var label;
-      $('.labelCheckbox:checked', labelsDropdown).each(function() {
-        label = $(this).closest('span').attr('one-label-full-name');
-        regExp.push('^' + label + '$');
-        regExp.push(',' + label + '$');
-        regExp.push('^' + label + ',');
-        regExp.push(',' + label + ',');
-      });
 
-      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
-    });*/
+    /*
+      Add labels tree to the left menu
+     */
     $('.labels-tree', '#li_' + TAB_NAME).remove();
     $('#li_' + TAB_NAME).append(Tree.html(LabelsUtils.makeTree(labels), true));
     Tree.setup($('.labels-tree', '#li_' + TAB_NAME));
 
+    /*
+      Filter datatable when a label in the left menu is clicked
+     */
+    $('#li_' + TAB_NAME).off('click', '.one-label');
+    $('#li_' + TAB_NAME).on('click', '.one-label', function() {
+      var regExp = [];
+      var label = $(this).attr('one-label-full-name');
+      regExp.push('^' + label + '$');
+      regExp.push(',' + label + '$');
+      regExp.push('^' + label + ',');
+      regExp.push(',' + label + ',');
+      that.setLabelsFilter(regExp.join('|'));
+      return false;
+    });
+
+    /*
+      Generate labels dropdown content
+     */
     $('#' + TAB_NAME + 'LabelsDropdown').html(
       '<div>' +
       '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
@@ -149,37 +159,104 @@ define(function(require) {
       '</div>' +
       '</div>');
 
-    $('#li_' + TAB_NAME).off('click', '.one-label');
-    $('#li_' + TAB_NAME).on('click', '.one-label', function() {
-      var regExp = [];
-      var label = $(this).attr('one-label-full-name');
-      regExp.push('^' + label + '$');
-      regExp.push(',' + label + '$');
-      regExp.push('^' + label + ',');
-      regExp.push(',' + label + ',');
-      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
-      return false;
+    recountLabels();
+
+    // Check label & Update Templates
+    $('#' + TAB_NAME + 'LabelsDropdown').off('click');
+    $('#' + TAB_NAME + 'LabelsDropdown').on('click', '.labelsCheckbox', function() {
+      var action;
+      if ($(this).hasClass('fa-square-o')) {
+        action = 'add';
+        $(this).removeClass('fa-square-o').addClass('fa-check-square-o');
+      } else {
+        action = 'remove';
+        $(this).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
+      }
+
+      var labelName = $('.one-label', $(this).parent('li')).attr('one-label-full-name');
+      var resourceId, aData, labelsArray, labelIndex;
+      $('.check_item:checked', that.dataTable).each(function() {
+        resourceId = $(this).val();
+        aData = that.dataTable.fnGetData($(this).closest('tr'));
+        labelsArray = aData[LABELS_COLUMN] != '' ? aData[LABELS_COLUMN].split(',') : [];
+        labelIndex = $.inArray(labelName, labelsArray);
+        if (action == 'add' && labelIndex == -1) {
+          labelsArray.push(labelName)
+          updateResouceLabels(resourceId, labelsArray);
+        } else if (action == 'remove' && labelIndex != -1) {
+          labelsArray.splice(labelIndex, 1);
+          updateResouceLabels(resourceId, labelsArray);
+        }
+      });
     });
 
+    function updateResouceLabels(resourceId, labelsArray) {
+      var templateStr = LabelsUtils.LABELS_ATTR + '="' + labelsArray.join(',') + '"';
+      Sunstone.runAction(RESOURCE + '.append_template', resourceId, templateStr);
+    }
 
-    /*$('#li_' + TAB_NAME).off('change', '.labelCheckbox');
-    $('#li_' + TAB_NAME).on('change', '.labelCheckbox', function() {
-      var regExp = [];
-      var label;
-      $('.labelCheckbox:checked', '#li_' + TAB_NAME).each(function() {
-        label = $(this).closest('span').attr('one-label-full-name');
-        regExp.push('^' + label + '$');
-        regExp.push(',' + label + '$');
-        regExp.push('^' + label + ',');
-        regExp.push(',' + label + ',');
+    /* 
+      DataTable Checkbox Listener
+     */
+    that.dataTable.on('change', 'tbody .check_item', recountLabels);
+
+    /*
+      Update Dropdown with selected items
+      [v] If all the selected items has a label
+      [-] If any of the selected items has a label
+      [ ] If no selected item has an existing label
+     */
+    function recountLabels() {
+      // Generate Hash with labels and number of items
+      var aData, labelsStr, labelsIndexed = {};
+      var selectedItems = $('.check_item:checked', that.dataTable);
+      selectedItems.each(function() {
+        aData = that.dataTable.fnGetData($(this).closest('tr'));
+        labelsStr = aData[LABELS_COLUMN];
+        if (labelsStr != '') {
+          $.each(labelsStr.split(','), function(){
+            if (labelsIndexed[this]) {
+              labelsIndexed[this] += 1
+            } else {
+              labelsIndexed[this] = 1
+            }
+          })
+        }
       });
 
-      that.dataTable.fnFilter(regExp.join('|'), 6, true, false);
-      return false;
-    });*/
+      // Reset label checkboxes
+      $('.labelsCheckbox', labelsDropdown)
+        .removeClass('fa-minus-square-o')
+        .removeClass('fa-check-square-o')
+        .addClass('fa-square-o');
+
+      // Set checkboxes (check|minus) depending on the number of items
+      var selectedItemsLength = selectedItems.length;
+      var labelsCheckbox;
+      var labelsDropdown = $('#' + TAB_NAME + 'LabelsDropdown');
+      $.each(labelsIndexed, function(labelName, numberOfItems) {
+        labelsCheckbox = $('.labelsCheckbox', 
+          $('[one-label-full-name="' + labelName + '"]', labelsDropdown).closest('li'));
+        if (labelsCheckbox.length > 0) {
+          if (numberOfItems == selectedItemsLength) {
+            $(labelsCheckbox[0])
+              .removeClass('fa-square-o')
+              .addClass('fa-check-square-o');
+          } else {
+            $(labelsCheckbox[0])
+              .removeClass('fa-square-o')
+              .addClass('fa-minus-square-o');
+          }
+        }
+      });
+    }
+  }
+
+  function _setLabelsFilter(regExp) {
+    this.dataTable.fnFilter(regExp, LABELS_COLUMN, true, false);
   }
 
   function _clearLabelsFilter() {
-    this.dataTable.fnFilter('', 6, true, false);
+    this.dataTable.fnFilter('', LABELS_COLUMN, true, false);
   }
 });
