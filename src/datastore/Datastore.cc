@@ -109,6 +109,7 @@ void Datastore::disk_attribute(
     ostringstream oss;
     string st;
     string inherit_val;
+    string current_val;
 
     vector<string>::const_iterator it;
 
@@ -142,9 +143,10 @@ void Datastore::disk_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
+        current_val = disk->vector_value((*it).c_str());
         get_template_attribute((*it).c_str(), inherit_val);
 
-        if (!inherit_val.empty())
+        if ( current_val.empty() && !inherit_val.empty() )
         {
             disk->replace(*it, inherit_val);
         }
