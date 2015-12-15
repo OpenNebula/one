@@ -28,6 +28,8 @@ const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
 
 const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
 
+const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
+
 /**
  *  This function generates the <host> element for network disks
  */
@@ -126,6 +128,10 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
+    string  iscsi_host      = "";
+    string  iscsi_user      = "";
+    string  iscsi_usage     = "";
+    string  iscsi_iqn       = "";
     string  pool_name       = "";
     string  sheepdog_host   = "";
     string  gluster_host    = "";
@@ -455,6 +461,11 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_user       = disk->vector_value("CEPH_USER");
         pool_name       = disk->vector_value("POOL_NAME");
 
+        iscsi_host      = disk->vector_value("ISCSI_HOST");
+        iscsi_user      = disk->vector_value("ISCSI_USER");
+        iscsi_usage     = disk->vector_value("ISCSI_USAGE");
+        iscsi_iqn       = disk->vector_value("ISCSI_IQN");
+
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
 
@@ -522,6 +533,31 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
+        }
+        else if ( type == "ISCSI" )
+        {
+            file << "\t\t<disk type='network' device='disk'>" << endl;
+
+            file << "\t\t\t<source protocol='iscsi' name='";
+
+            if ( !iscsi_iqn.empty() )
+            {
+                file << iscsi_iqn;
+            }
+            else
+            {
+                file << source;
+            }
+
+            do_network_hosts(file, iscsi_host, "", ISCSI_DEFAULT_PORT);
+
+            if ( !iscsi_user.empty() && !iscsi_usage.empty() )
+            {
+                file << "\t\t\t<auth username='"<< iscsi_user <<"'>" << endl
+                     << "\t\t\t\t<secret type='iscsi' usage='"
+                     << iscsi_usage << "'/>" << endl
+                     << "\t\t\t</auth>" << endl;
+            }
         }
         else if ( type == "RBD" || type == "RBD_CDROM" || disk_type == "RBD" )
         {
