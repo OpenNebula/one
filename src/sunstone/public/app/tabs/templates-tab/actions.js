@@ -50,6 +50,7 @@ define(function(require) {
         Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
       }
     },
+    "Template.append_template" : _commonActions.appendTemplate(),
     "Template.update" : _commonActions.update(),
     "Template.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Template.update_template" : _commonActions.updateTemplate(),
