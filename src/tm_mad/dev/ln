@@ -26,15 +26,16 @@
 
 SRC=$1
 DST=$2
-
-VMID=$3
-DSID=$4
+VM_ID=$3
+DS_ID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
+
+DRIVER_PATH=$(dirname $0)
 
 . $TMCOMMON
 
@@ -44,14 +45,37 @@ DST_DIR=`dirname $DST_PATH`
 
 SRC_PATH=`arg_path $SRC`
 
+DISK_ID=$(echo $DST|awk -F. '{print $NF}')
+
 #-------------------------------------------------------------------------------
 # Create DST path
 #-------------------------------------------------------------------------------
 ssh_make_path $DST_HOST $DST_DIR
 
 #-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+        done < <(onevm show -x $VM_ID| $XPATH  \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE)
+
+TYPE="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Link (ln) SRC into DST
 #-------------------------------------------------------------------------------
+
+if [ "$TYPE" = "ISCSI" ]; then
+    # No need to do anything
+    exit 0
+fi
+
 log "Linking $SRC_PATH in $DST"
 
 ssh_exec_and_log $DST_HOST \
