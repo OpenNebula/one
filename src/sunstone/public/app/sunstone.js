@@ -975,6 +975,12 @@ define(function(require) {
     }
   }
 
+  var _getResource = function(tabName) {
+    if (SunstoneCfg['tabs'][tabName]) {
+      return SunstoneCfg['tabs'][tabName].resource;
+    }
+  }
+
   var _getDialogInstance = function(dialogId) {
     var dialogInstance = SunstoneCfg['dialogInstances'][dialogId];
     if (dialogInstance == undefined) {
@@ -1015,6 +1021,7 @@ define(function(require) {
     "getAction": _getAction,
     "getButton": _getButton,
     "getDataTable": _getDataTable,
+    "getResource": _getResource,
     "getDialog": _getDialogInstance,
 
     "insertButtonsInTab": _insertButtonsInTab,
