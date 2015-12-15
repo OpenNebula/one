@@ -226,58 +226,132 @@ static void monitor_action(istringstream& is,
 }
 */
 
+/* -------------------------------------------------------------------------- */
+/* Helper functions for failure and error conditions                          */
+/* -------------------------------------------------------------------------- */
+
+static void set_failure_response(
+        std::istringstream * is,
+        PoolObjectSQL *     obj,
+        const std::string&  msg)
+{
+    std::ostringstream oss;
+    std::string        info;
+
+    oss << msg;
+
+    getline(*is, info);
+
+    if (!info.empty() && (info[0] != '-'))
+    {
+        oss << ": " << info;
+    }
+
+    if (obj != 0)
+    {
+        obj->set_template_error_message(oss.str());
+    }
+
+    NebulaLog::log("MKP", Log::ERROR, oss);
+}
+
+static void app_failure_action(
+        std::istringstream * is,
+        MarketPlaceAppPool * apppool,
+        int                  id,
+        const std::string&   msg)
+{
+    MarketPlaceApp * app = apppool->get(id, true);
+
+    if (app == 0)
+    {
+        return;
+    }
+
+    if ( is == 0)
+    {
+        app->set_template_error_message(msg);
+
+        NebulaLog::log("MKP", Log::ERROR, msg);
+    }
+    else
+    {
+        set_failure_response(is, app, msg);
+    }
+
+    app->set_state(MarketPlaceApp::ERROR);
+
+    apppool->update(app);
+
+    app->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+
 static int import_action(
         std::istringstream&  is,
         MarketPlaceAppPool * apppool,
         int                  id,
         const std::string&   result)
 {
+    bool rc;
+    int  rci;
+
     std::string   error;
     std::string   info64;
     std::string * info;
+
+    MarketPlaceApp *       app;
+    MarketPlaceAppTemplate tmpl;
+
+    std::string source;
+    std::string checksum;
+    long long   size_mb;
+
+    if ( result == "FAILURE" )
+    {
+        app_failure_action(&is, apppool, id,
+            "Error importing app into marketplace");
+        return -1;
+    }
 
     getline(is, info64);
 
     if (is.fail())
     {
-        //goto error_parse;
+        goto error_parse;
     }
 
     info = one_util::base64_decode(info64);
 
     if ( info == 0 )
     {
-        //goto error_decode64;
+        goto error_decode64;
     }
 
-    MarketPlaceAppTemplate tmpl;
-
-    if ( tmpl.parse_str_or_xml(*info, error) != 0 )
-    {
-        delete info;
-        //goto error_parse;
-    }
+    rci = tmpl.parse_str_or_xml(*info, error);
 
     delete info;
 
-    std::string source;
-    std::string checksum;
-    long long   size_mb;
+    if ( rci != 0 )
+    {
+        goto error_parse_template;
+    }
 
     tmpl.get("SOURCE", source);
     tmpl.get("CHECKSUM", checksum);
-    bool rc = tmpl.get("SIZE", size_mb);
+    rc = tmpl.get("SIZE", size_mb);
 
     if ( source.empty() || checksum.empty() || rc == false )
     {
-        //goto error_attributes;
+        goto error_attributes;
     }
 
-    MarketPlaceApp * app = apppool->get(id, true);
+    app = apppool->get(id, true);
 
     if (app == 0)
     {
-        //goto error_app;
+        goto error_app;
     }
 
     app->set_source(source);
@@ -294,10 +368,30 @@ static int import_action(
 
     return 0;
 
-//error_parse:
-//error_decode64:
-//error_parse:
-//error_attributes:
+error_parse:
+    app_failure_action(0, apppool, id,
+        "Error importing app into marketplace. Wrong message from driver.");
+    return -1;
+
+error_decode64:
+    app_failure_action(0, apppool, id,
+        "Error importing app into marketplace. Bad base64 encoding.");
+    return -1;
+
+error_parse_template:
+    app_failure_action(0, apppool, id,
+        "Error importing app into marketplace. Parse error: " + error);
+    return -1;
+
+error_attributes:
+    app_failure_action(0, apppool, id,
+        "Error importing app into marketplace. Missing app atributes.");
+    return -1;
+
+error_app:
+    NebulaLog::log("MKP", Log::ERROR, "Marketplace app successfully imported "
+        "but it no longer exists. You may need to manually remove: " + source);
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -310,7 +404,6 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
 
     std::string action;
     std::string result;
-    std::string source;
     std::string info;
 
     int id;
@@ -352,7 +445,7 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
 
     if (action == "EXPORT")
     {
-        return;
+        import_action(is, apppool, id, result);
     }
     else if (action == "IMPORT")
     {

@@ -23,6 +23,9 @@
 
 #include "Mad.h"
 
+class MarketPlacePool;
+class MarketPlaceAppPool;
+
 /**
  *  ImageManagerDriver represents the basic abstraction for Image Repository
  *  drivers. It implements the protocol and recover functions from the Mad
@@ -31,10 +34,12 @@
 class MarketPlaceManagerDriver : public Mad
 {
 public:
-    MarketPlaceManagerDriver(int   userid,
-       const std::map<string,string>& attrs,
-       bool  sudo):
-            Mad(userid,attrs,sudo){};
+    MarketPlaceManagerDriver(int userid,
+        const std::map<string,string>& attrs,
+        bool sudo,
+        MarketPlacePool    * _marketpool,
+        MarketPlaceAppPool * _apppool
+       ):Mad(userid,attrs,sudo), marketpool(_marketpool), apppool(_apppool){};
 
     virtual ~MarketPlaceManagerDriver(){};
 
@@ -51,6 +56,13 @@ public:
 
 private:
     friend class MarketPlaceManager;
+
+    /**
+     *  Reference to Marketplace related pools
+     */
+    MarketPlacePool    * marketpool;
+
+    MarketPlaceAppPool * apppool;
 
     /**
      *  Sends a stat  request to the MAD.
