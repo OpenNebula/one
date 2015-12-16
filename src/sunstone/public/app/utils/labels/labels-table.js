@@ -38,7 +38,7 @@ define(function(require) {
     this.element = opts.element;
     this.resource = opts.resource;
     this.xmlRoot = opts.xmlRoot;
-    this.labels = LabelsUtils.deserializeLabels(LabelsUtils.labelsStr(this.element));
+    this.labels = LabelsUtils.deserializeLabels(LabelsUtils.labelsStr(this.element[TEMPLATE_ATTR]));
 
     return this;
   };
@@ -51,7 +51,7 @@ define(function(require) {
   /* FUNCTION DEFINITIONS */
 
   function _html() {
-    var labelsTreeHTML = Tree.html(LabelsUtils.makeTree(this.labels));
+    var labelsTreeHTML = Tree.html(LabelsUtils.makeTree(this.labels, true));
     return TableTemplate({
       'labelsTreeHTML': labelsTreeHTML
     })

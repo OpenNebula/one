@@ -23,12 +23,9 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
 
-  var TEMPLATE_ATTR = 'TEMPLATE';
   var LABELS_ATTR = 'LABELS';
 
   return {
-    'TEMPLATE_ATTR': TEMPLATE_ATTR,
-    'LABELS_ATTR': LABELS_ATTR,
     'labelsStr': _labelsStr,
     'deserializeLabels': _deserializeLabels,
     'makeTree': _makeTree,
@@ -227,7 +224,9 @@ define(function(require) {
             if (Sunstone.rightInfoVisible($('#' + tabName))) {
               Sunstone.insertPanels(tabName, response);
             }
-            dataTable.postUpdateView();
+
+            _insertLabelsMenu(tabName);
+            _insertLabelsDropdown(tabName);
           },
           error: Notifier.onError
         });
@@ -236,8 +235,8 @@ define(function(require) {
     })
   }
 
-  function _labelsStr(element) {
-    return element[TEMPLATE_ATTR][LABELS_ATTR];
+  function _labelsStr(elementTemplate) {
+    return elementTemplate[LABELS_ATTR];
   }
 
   function _deserializeLabels(labelsStr) {

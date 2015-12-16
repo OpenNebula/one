@@ -25,9 +25,9 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var LabelsUtils = require('utils/labels/utils');
   var Tree = require('utils/labels/tree');
   var Notifier = require('utils/notifier');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -37,6 +37,7 @@ define(function(require) {
   var XML_ROOT = "VMTEMPLATE";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 6;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -48,6 +49,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -89,11 +91,6 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
-  Table.prototype.clearLabelsFilter = _clearLabelsFilter;
-  Table.prototype.setLabelsFilter = _setLabelsFilter;
-  Table.prototype.getLabels = _getLabels;
-  Table.prototype.getLabel = _getLabel;
-  Table.prototype.LABELS_COLUMN = LABELS_COLUMN;
 
   return Table;
 
@@ -104,8 +101,6 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    var labelsStr = LabelsUtils.labelsStr(element);
-
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
@@ -115,7 +110,7 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         Humanize.prettyTime(element.REGTIME),
-        (labelsStr||'')
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 
@@ -123,30 +118,5 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    LabelsUtils.insertLabelsMenu(TAB_NAME);
-    LabelsUtils.insertLabelsDropdown(TAB_NAME);
-  }
-
-  function _setLabelsFilter(regExp) {
-    this.dataTable.fnFilter(regExp, LABELS_COLUMN, true, false);
-  }
-
-  function _clearLabelsFilter() {
-    this.dataTable.fnFilter('', LABELS_COLUMN, true, false);
-  }
-
-  function _getLabels() {
-    var labels = [];
-    $.each(this.dataTable.fnGetData(), function() {
-      if (this[LABELS_COLUMN] != '') {
-        labels.push(this[LABELS_COLUMN]);
-      }
-    })
-    return LabelsUtils.deserializeLabels(labels.join(','));
-  }
-
-  function _getLabel(resourceId) {
-    var aData = this.getElementData(resourceId, RESOURCE.toLowerCase());
-    return aData[this.LABELS_COLUMN];
   }
 });
