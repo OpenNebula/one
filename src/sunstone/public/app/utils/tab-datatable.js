@@ -28,6 +28,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
   var OpenNebulaUser = require('opennebula/user');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     TEMPLATES
@@ -153,7 +154,11 @@ define(function(require) {
     'idInput': _idInput,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'updateFn': _updateFn,
-    'list': _list
+    'list': _list,
+    'clearLabelsFilter': _clearLabelsFilter,
+    'setLabelsFilter': _setLabelsFilter,
+    'getLabels': _getLabels,
+    'getLabel': _getLabel
   }
 
   return TabDatatable;
@@ -481,9 +486,42 @@ define(function(require) {
       });
     }
 
+    if (that.labelsColumn) {
+      LabelsUtils.insertLabelsMenu(that.tabId);
+      LabelsUtils.insertLabelsDropdown(that.tabId);
+    }
+
     if (that.postUpdateView) {
       that.postUpdateView();
     }
+  }
+
+  /*
+    LABELS
+   */
+
+  function _setLabelsFilter(regExp) {
+    this.dataTable.fnFilter(regExp, this.labelsColumn, true, false);
+  }
+
+  function _clearLabelsFilter() {
+    this.dataTable.fnFilter('', this.labelsColumn, true, false);
+  }
+
+  function _getLabels() {
+    var that = this;
+    var labels = [];
+    $.each(this.dataTable.fnGetData(), function() {
+      if (this[that.labelsColumn] != '') {
+        labels.push(this[that.labelsColumn]);
+      }
+    })
+    return LabelsUtils.deserializeLabels(labels.join(','));
+  }
+
+  function _getLabel(resourceId) {
+    var aData = this.getElementData(resourceId, this.resource.toLowerCase());
+    return aData[this.labelsColumn];
   }
 
   //replaces an element with id 'tag' in a dataTable with a new one
