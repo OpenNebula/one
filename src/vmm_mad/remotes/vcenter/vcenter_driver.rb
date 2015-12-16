@@ -1431,7 +1431,7 @@ private
         vc_template = connection.find_vm_template(uuid)
 
         if connection.rp_confined?
-            rp = connection.cluster.resource_pool.first
+            rp = connection.resource_pool.first
         else
             rp = connection.default_resource_pool
         end
