@@ -225,6 +225,10 @@ input.search {
               color: #555 !important;
             }
         }
+
+        .labels-tree {
+          display: none;
+        }
     }
 
     li {
@@ -238,6 +242,10 @@ input.search {
     .navigation-active-li {
         a {
             color: #222 !important;
+        }
+
+        .labels-tree {
+          display: block;
         }
 
         background: rgba(0,0,0,0.025);
