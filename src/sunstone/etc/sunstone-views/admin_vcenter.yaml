@@ -251,6 +251,7 @@ tabs:
             - 10        # Status
             - 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             Image.refresh: true
             Image.create_dialog: true
