@@ -504,8 +504,10 @@ define(function(require) {
   }
 
   function _getElementData(id, resource_tag) {
+    // TODO If the element is not included in the visible rows of 
+    // the table, it will not be included in the fnGetNodes response
     var nodes = this.dataTable.fnGetNodes();
-    var tr = $(resource_tag + '_' + id, nodes).parents('tr')[0];
+    var tr = $('#' + resource_tag + '_' + id, nodes).closest('tr');
     return this.dataTable.fnGetData(tr);
   }
 
