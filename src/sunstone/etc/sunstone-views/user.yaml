@@ -210,6 +210,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             - 5         # Registration time
+            #- 6         # Labels
         actions:
             Template.refresh: true
             Template.create_dialog: true
