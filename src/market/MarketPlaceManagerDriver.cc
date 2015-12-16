@@ -443,11 +443,11 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
     else
         return;
 
-    if (action == "EXPORT")
+    if (action == "IMPORT")
     {
         import_action(is, apppool, id, result);
     }
-    else if (action == "IMPORT")
+    else if (action == "EXPORT")
     {
         return;
     }
