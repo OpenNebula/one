@@ -86,12 +86,11 @@ define(function(require) {
     function recountLabels(tabName) {
       // Generate Hash with labels and number of items
       var dataTable = Sunstone.getDataTable(tabName);
-      var aData, labelsStr, labelsIndexed = {};
-      var selectedItems = $('.check_item:checked', dataTable.dataTable);
-      var selectedItemsLength = selectedItems.length;
-      selectedItems.each(function() {
-        aData = dataTable.dataTable.fnGetData($(this).closest('tr'));
-        labelsStr = aData[dataTable.LABELS_COLUMN];
+      var labelsStr, labelsIndexed = {};
+
+      var selectedItems = dataTable.elements();
+      $.each(selectedItems, function(index, resourceId) {
+        labelsStr = dataTable.getLabel(resourceId);
         if (labelsStr != '') {
           $.each(labelsStr.split(','), function(){
             if (labelsIndexed[this]) {
@@ -117,7 +116,7 @@ define(function(require) {
         labelsCheckbox = $('.labelsCheckbox', 
           $('[one-label-full-name="' + labelName + '"]', labelsDropdown).closest('li'));
         if (labelsCheckbox.length > 0) {
-          if (numberOfItems == selectedItemsLength) {
+          if (numberOfItems == selectedItems.length) {
             $(labelsCheckbox[0])
               .removeClass('fa-square-o')
               .addClass('fa-check-square-o');
@@ -152,17 +151,17 @@ define(function(require) {
 
       var labelName = $('.one-label', $(this).parent('li')).attr('one-label-full-name');
       var dataTable = Sunstone.getDataTable(tabName);
-      var resourceId, aData, labelsArray, labelIndex;
-      $('.check_item:checked', dataTable.dataTable).each(function() {
-        resourceId = $(this).val();
-        aData = dataTable.dataTable.fnGetData($(this).closest('tr'));
-        if (aData[dataTable.LABELS_COLUMN] != '') {
-          labelsArray = aData[dataTable.LABELS_COLUMN].split(',')
+      var labelsArray, labelIndex;
+      var selectedItems = dataTable.elements();
+      $.each(selectedItems, function(index, resourceId) {
+        labelsStr = dataTable.getLabel(resourceId);
+        if (labelsStr != '') {
+          labelsArray = labelsStr.split(',')
         } else {
           labelsArray = []
         }
-        labelIndex = $.inArray(labelName, labelsArray);
 
+        labelIndex = $.inArray(labelName, labelsArray);
         if (action == 'add' && labelIndex == -1) {
           labelsArray.push(labelName)
           _updateResouceLabels(tabName, resourceId, labelsArray);
@@ -184,19 +183,19 @@ define(function(require) {
       if (key == 13 && !ev.altKey) {
         var labelName = $(this).val();
         var dataTable = Sunstone.getDataTable(tabName);
-        var resourceId, aData, labelsArray, labelIndex;
-        $('.check_item:checked', dataTable.dataTable).each(function() {
-          resourceId = $(this).val();
-          aData = dataTable.dataTable.fnGetData($(this).closest('tr'));
-          if (aData[dataTable.LABELS_COLUMN] != '') {
-            labelsArray = aData[dataTable.LABELS_COLUMN].split(',')
+        var labelsArray, labelIndex;
+        var selectedItems = dataTable.elements();
+        $.each(selectedItems, function(index, resourceId) {
+          labelsStr = dataTable.getLabel(resourceId);
+          if (labelsStr != '') {
+            labelsArray = labelsStr.split(',')
           } else {
             labelsArray = []
           }
+
           labelIndex = $.inArray(labelName, labelsArray);
           if (labelIndex == -1) {
-            labelsArray.push(labelName)
-            //that.labels.push(labelName)
+            labelsArray.push(labelName);
             _updateResouceLabels(tabName, resourceId, labelsArray);
           }
         });
@@ -225,6 +224,9 @@ define(function(require) {
           },
           success: function(request, response) {
             dataTable.updateElement(request, response);
+            if (Sunstone.rightInfoVisible($('#' + tabName))) {
+              Sunstone.insertPanels(tabName, response);
+            }
             dataTable.postUpdateView();
           },
           error: Notifier.onError
@@ -273,10 +275,8 @@ define(function(require) {
   function _makeSubTree(parentName, folderName, childs) {
     var fullName = parentName + folderName;
     var htmlStr = 
-      '<span class="secondary one-label" one-label-full-name="' + fullName + '">' + 
-        //'<input type="checkbox" class="labelCheckbox"/> ' + 
-        folderName + 
-        //' <i class="fa fa-times-circle remove-tab"></i>' + 
+      '<span class="secondary one-label" one-label-full-name="' + fullName + '">' +
+        folderName +
       '</span>';
 
     var tree = {

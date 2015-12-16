@@ -92,6 +92,7 @@ define(function(require) {
   Table.prototype.clearLabelsFilter = _clearLabelsFilter;
   Table.prototype.setLabelsFilter = _setLabelsFilter;
   Table.prototype.getLabels = _getLabels;
+  Table.prototype.getLabel = _getLabel;
   Table.prototype.LABELS_COLUMN = LABELS_COLUMN;
 
   return Table;
@@ -142,5 +143,10 @@ define(function(require) {
       }
     })
     return LabelsUtils.deserializeLabels(labels.join(','));
+  }
+
+  function _getLabel(resourceId) {
+    var aData = this.getElementData(resourceId, RESOURCE.toLowerCase());
+    return aData[this.LABELS_COLUMN];
   }
 });
