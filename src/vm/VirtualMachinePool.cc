@@ -1119,7 +1119,6 @@ void VirtualMachinePool::delete_attach_nic(int vid)
     int uid;
     int gid;
     int oid;
-    int vrid;
 
     vm = get(vid,true);
 
@@ -1132,7 +1131,6 @@ void VirtualMachinePool::delete_attach_nic(int vid)
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     oid  = vm->get_oid();
-    vrid = vm->get_vrouter_id();
 
     update(vm);
 
@@ -1146,6 +1144,6 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
         Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
 
-        VirtualMachine::release_network_leases(nic, oid, vrid);
+        VirtualMachine::release_network_leases(nic, oid);
     }
 }

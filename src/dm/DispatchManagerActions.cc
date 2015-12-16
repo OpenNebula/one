@@ -1442,7 +1442,6 @@ int DispatchManager::attach_nic(
     int max_nic_id;
     int uid;
     int oid;
-    int vrid;
     int rc;
 
     set<int> vm_sgs;
@@ -1477,6 +1476,19 @@ int DispatchManager::attach_nic(
         return -1;
     }
 
+    if (vm->is_vrouter())
+    {
+        oss << "Could not add a new NIC to VM " << vid
+            << ", it is associated to the Virtual Router "
+            << vm->get_vrouter_id() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
     nic = vm->get_attach_nic_info(tmpl, max_nic_id, error_str);
 
     if ( nic == 0 )
@@ -1499,7 +1511,6 @@ int DispatchManager::attach_nic(
 
     uid  = vm->get_uid();
     oid  = vm->get_oid();
-    vrid = vm->get_vrouter_id();
 
     vmpool->update(vm);
 
@@ -1507,7 +1518,6 @@ int DispatchManager::attach_nic(
 
     rc = VirtualMachine::set_up_attach_nic(oid,
                                     vm_sgs,
-                                    vrid,
                                     nic,
                                     sg_rules,
                                     max_nic_id,
@@ -1521,7 +1531,7 @@ int DispatchManager::attach_nic(
 
         if ( rc == 0 )
         {
-            VirtualMachine::release_network_leases(nic, vid, vrid);
+            VirtualMachine::release_network_leases(nic, vid);
 
             vector<VectorAttribute*>::iterator it;
             for(it = sg_rules.begin(); it != sg_rules.end(); it++)
@@ -1639,6 +1649,19 @@ int DispatchManager::detach_nic(
     {
         oss << "Could not detach NIC from VM " << vid << ", wrong state "
             << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    if (vm->is_vrouter())
+    {
+        oss << "Could not detach NIC from VM " << vid
+            << ", it is associated to the Virtual Router "
+            << vm->get_vrouter_id() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);

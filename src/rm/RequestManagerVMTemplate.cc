@@ -35,11 +35,14 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     ostringstream sid;
 
     PoolObjectAuth perms;
+    PoolObjectAuth vr_perms;
 
     Nebula& nd = Nebula::instance();
 
     VirtualMachinePool* vmpool  = nd.get_vmpool();
     VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    VirtualRouterPool*  vrpool  = nd.get_vrouterpool();
+    VirtualRouter *     vr;
 
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate * extended_tmpl = 0;
@@ -48,6 +51,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     string error_str;
     string aname;
+    bool   has_vrouter_id;
+    int    vrid;
 
     string tmpl_name;
 
@@ -136,28 +141,39 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
-    //--------------------------------------------------------------------------
-    // Temporary code to create Virtual Routers from regular VM Templates
-
-    bool    is_vrouter;
-    bool    has_vrouter_id;
-    int     vrid;
-    string  vr_error_str;
-
-    VirtualRouterPool* vrpool = Nebula::instance().get_vrouterpool();
-
-    tmpl->get("VROUTER", is_vrouter);
+    /* ---------------------------------------------------------------------- */
+    /* If it is a Virtual Router, get the NICs                                */
+    /* ---------------------------------------------------------------------- */
 
     has_vrouter_id = tmpl->get("VROUTER_ID", vrid);
 
-    if (is_vrouter && !has_vrouter_id)
+    if ( has_vrouter_id )
     {
-        Template * vr_tmpl = new Template;
+        vr = vrpool->get(vrid, true);
 
-        vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            vr_tmpl, &vrid, vr_error_str);
+        if (vr == 0)
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                    att);
 
-        tmpl->replace("VROUTER_ID", vrid);
+            delete tmpl;
+            return;
+        }
+
+        vr->get_permissions(vr_perms);
+
+        tmpl->erase("NIC");
+        rc = tmpl->merge(vr->get_nics(), error_str);
+
+        vr->unlock();
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -179,6 +195,11 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
+
+        if (has_vrouter_id)
+        {
+            ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -223,23 +244,19 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     delete extended_tmpl;
 
-    //--------------------------------------------------------------------------
-    // Temporary code to create Virtual Routers from regular VM Templates
-    // Final code would need rollback to delete the new VR on error
-
-    VirtualRouter *  vr;
-
-    vr = vrpool->get(vrid, true);
-
-    if (vr != 0)
+    if ( has_vrouter_id )
     {
-        vr->add_vmid(vid);
+        vr = vrpool->get(vrid, true);
 
-        vrpool->update(vr);
+        if (vr != 0)
+        {
+            vr->add_vmid(vid);
 
-        vr->unlock();
+            vrpool->update(vr);
+
+            vr->unlock();
+        }
     }
-    //--------------------------------------------------------------------------
 
     success_response(vid, att);
 }

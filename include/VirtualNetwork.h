@@ -157,75 +157,79 @@ public:
 
     /**
      *    Gets a new address lease for a specific VM
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_addr(int vid, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_addr(PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_addr(ot, oid, nic, inherit);
     }
 
     /**
      *    Gets a new address lease for a specific VM by MAC
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac the MAC address requested
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_by_mac(int vid, const string& mac, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_by_mac(PoolObjectSQL::ObjectType ot, int oid, const string& mac,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_by_mac(mac, PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
     }
 
     /**
      *    Gets a new address lease for a specific VM by IP
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param ip the IP address requested
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_by_ip(int vid, const string& ip, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_by_ip(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_by_ip(ip, PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
     }
 
     /**
      *  Release previously given address lease
      *    @param arid of the address range where the address was leased from
-     *    @param vid the ID of the VM
-     *    @param vrid Virtual Router id if the VM is a VR, or -1
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(unsigned int arid, int vid, int vrid, const string& mac)
+    void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int oid,
+                    const string& mac)
     {
-        ar_pool.free_addr(arid, PoolObjectSQL::VM, vid, mac);
+        ar_pool.free_addr(arid, ot, oid, mac);
 
-        if (vrid != -1)
+        if (ot == PoolObjectSQL::VROUTER)
         {
-            vrouters.del_collection_id(vrid);
+            vrouters.del_collection_id(oid);
         }
     }
 
     /**
      *  Release previously given address lease
-     *    @param vid the ID of the VM
-     *    @param vrid Virtual Router id if the VM is a VR, or -1
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(int vid, int vrid, const string& mac)
+    void free_addr(PoolObjectSQL::ObjectType ot, int oid, const string& mac)
     {
-        ar_pool.free_addr(PoolObjectSQL::VM, vid, mac);
+        ar_pool.free_addr(ot, oid, mac);
 
-        if (vrid != -1)
+        if (ot == PoolObjectSQL::VROUTER)
         {
-            vrouters.del_collection_id(vrid);
+            vrouters.del_collection_id(oid);
         }
     }
 
@@ -259,7 +263,6 @@ public:
      *  * BRIDGE: for this virtual network
      *  @param nic attribute for the VM template
      *  @param vid of the VM getting the lease
-     *  @param vrid Virtual Router id if the VM is a VR, or -1
      *  @param inherit_attrs Attributes to be inherited from the vnet template
      *      into the nic
      *  @return 0 on success
@@ -267,6 +270,20 @@ public:
     int nic_attribute(
             VectorAttribute *       nic,
             int                     vid,
+            const vector<string>&   inherit_attrs);
+
+    /**
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  @param nic attribute for the VRouter template
+     *  @param vrid of the VRouter getting the lease
+     *  @param inherit_attrs Attributes to be inherited from the vnet template
+     *      into the nic
+     *  @return 0 on success
+     */
+    int vrouter_nic_attribute(
+            VectorAttribute *       nic,
             int                     vrid,
             const vector<string>&   inherit_attrs);
 

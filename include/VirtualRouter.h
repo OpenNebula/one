@@ -65,6 +65,8 @@ public:
                 *(static_cast<Template *>(obj_template)));
     };
 
+    Template * get_nics() const;
+
 private:
     // -------------------------------------------------------------------------
     // Friends
@@ -111,8 +113,6 @@ private:
      */
     int from_xml(const string &xml_str);
 
-protected:
-
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -145,6 +145,13 @@ protected:
     int insert(SqlDB *db, string& error_str);
 
     /**
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    virtual int drop(SqlDB *db);
+
+    /**
      *  Writes/updates the VirtualRouter data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
@@ -154,6 +161,30 @@ protected:
         string err;
         return insert_replace(db, true, err);
     };
+
+    // -------------------------------------------------------------------------
+    // NIC Management
+    // -------------------------------------------------------------------------
+
+    /**
+     *  Get all network leases for this Virtual Router
+     *  @return 0 onsuccess
+     */
+    int get_network_leases(string& estr);
+
+    /**
+     *  Releases all network leases taken by this Virtual Router
+     */
+    void release_network_leases();
+
+    /**
+     * Releases the network lease taken by this NIC
+     *
+     * @param nic NIC to be released
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int release_network_leases(VectorAttribute const * nic);
 };
 
 #endif /*VIRTUAL_ROUTER_H_*/

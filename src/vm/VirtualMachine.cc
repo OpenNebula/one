@@ -842,13 +842,6 @@ int VirtualMachine::parse_vrouter(string& error_str)
 {
     string st;
 
-    user_obj_template->get("VROUTER", st);
-
-    if (!st.empty())
-    {
-        obj_template->replace("VROUTER", st);
-    }
-
     user_obj_template->get("VROUTER_ID", st);
 
     if (!st.empty())
@@ -856,7 +849,6 @@ int VirtualMachine::parse_vrouter(string& error_str)
         obj_template->replace("VROUTER_ID", st);
     }
 
-    user_obj_template->erase("VROUTER");
     user_obj_template->erase("VROUTER_ID");
 
     return 0;
@@ -2589,7 +2581,6 @@ VectorAttribute * VirtualMachine::get_attach_nic_info(
 int VirtualMachine::set_up_attach_nic(
                         int                      vm_id,
                         set<int>&                vm_sgs,
-                        int                      vm_vrid,
                         VectorAttribute *        new_nic,
                         vector<VectorAttribute*> &rules,
                         int                      max_nic_id,
@@ -2601,8 +2592,7 @@ int VirtualMachine::set_up_attach_nic(
 
     set<int> nic_sgs;
 
-    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id,
-                                    vm_vrid, error_str);
+    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
@@ -3002,7 +2992,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
         merge_nic_defaults(nic);
 
-        rc = vnpool->nic_attribute(nic, i, uid, oid, get_vrouter_id(), estr);
+        rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
 
         if (rc == -1)
         {
@@ -3068,7 +3058,7 @@ void VirtualMachine::release_network_leases()
         VectorAttribute const *  nic =
             dynamic_cast<VectorAttribute const * >(nics[i]);
 
-        release_network_leases(nic, oid, get_vrouter_id());
+        release_network_leases(nic, oid);
     }
 }
 
@@ -3076,7 +3066,7 @@ void VirtualMachine::release_network_leases()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::release_network_leases(
-        VectorAttribute const * nic, int vmid, int vrid)
+        VectorAttribute const * nic, int vmid)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
     VirtualNetwork*     vn;
@@ -3114,11 +3104,11 @@ int VirtualMachine::release_network_leases(
 
     if (nic->vector_value("AR_ID", ar_id) == 0)
     {
-        vn->free_addr(ar_id, vmid, vrid, mac);
+        vn->free_addr(ar_id, PoolObjectSQL::VM, vmid, mac);
     }
     else
     {
-        vn->free_addr(vmid, vrid, mac);
+        vn->free_addr(PoolObjectSQL::VM, vmid, mac);
     }
 
     vnpool->update(vn);
@@ -3258,6 +3248,14 @@ int VirtualMachine::get_vrouter_id()
     }
 
     return vrid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_vrouter()
+{
+    return get_vrouter_id() != -1;
 }
 
 /* -------------------------------------------------------------------------- */

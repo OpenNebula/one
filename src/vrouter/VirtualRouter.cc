@@ -15,6 +15,8 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VirtualRouter.h"
+#include "VirtualNetworkPool.h"
+#include "Nebula.h"
 
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
@@ -78,15 +80,20 @@ int VirtualRouter::insert(SqlDB *db, string& error_str)
 
     erase_template_attribute("NAME", name);
 
-    if ( name.empty() == true )
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        oss << "vrouter-" << oid;
-        name = oss.str();
+        goto error_name;
     }
-    else if ( name.length() > 128 )
+
+    // ------------------------------------------------------------------------
+    // Get network leases
+    // ------------------------------------------------------------------------
+
+    rc = get_network_leases(error_str);
+
+    if ( rc != 0 )
     {
-        error_str = "NAME is too long; max length is 128 chars.";
-        return -1;
+        goto error_leases_rollback;
     }
 
     // ------------------------------------------------------------------------
@@ -96,6 +103,63 @@ int VirtualRouter::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
+
+error_leases_rollback:
+    release_network_leases();
+    goto error_common;
+
+error_name:
+error_common:
+    //NebulaLog::log("ONE",Log::ERROR, error_str);
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouter::drop(SqlDB * db)
+{
+    int rc;
+
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 )
+    {
+        release_network_leases();
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualRouter::get_network_leases(string& estr)
+{
+    int                   num_nics, rc;
+    vector<Attribute  * > nics;
+    VirtualNetworkPool *  vnpool;
+    VectorAttribute *     nic;
+
+    Nebula& nd = Nebula::instance();
+    vnpool     = nd.get_vnpool();
+
+    num_nics = obj_template->get("NIC",nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = static_cast<VectorAttribute * >(nics[i]);
+
+        rc = vnpool->vrouter_nic_attribute(nic, uid, oid, estr);
+
+        if (rc == -1)
+        {
+            return -1;
+        }
+    }
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -263,4 +327,121 @@ int VirtualRouter::from_xml(const string& xml)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouter::release_network_leases()
+{
+    string                        vnid;
+    string                        ip;
+    int                           num_nics;
+    vector<Attribute const  * >   nics;
+
+    num_nics = get_template_attribute("NIC",nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        VectorAttribute const *  nic =
+            dynamic_cast<VectorAttribute const * >(nics[i]);
+
+        release_network_leases(nic);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouter::release_network_leases(VectorAttribute const * nic)
+{
+    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
+    VirtualNetwork*     vn;
+
+    int     vnid;
+    int     ar_id;
+    string  mac;
+    string  error_msg;
+
+    if ( nic == 0 )
+    {
+        return -1;
+    }
+
+    if (nic->vector_value("NETWORK_ID", vnid) != 0)
+    {
+        return -1;
+    }
+
+    mac = nic->vector_value("MAC");
+
+    vn = vnpool->get(vnid, true);
+
+    if ( vn == 0 )
+    {
+        return -1;
+    }
+
+    if (nic->vector_value("AR_ID", ar_id) == 0)
+    {
+        vn->free_addr(ar_id, PoolObjectSQL::VROUTER, oid, mac);
+    }
+    else
+    {
+        vn->free_addr(PoolObjectSQL::VROUTER, oid, mac);
+    }
+
+    vnpool->update(vn);
+
+    vn->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Template * VirtualRouter::get_nics() const
+{
+    Template * tmpl = new Template();
+
+    int                   num_nics;
+    bool                  floating;
+    string                ip;
+    vector<Attribute  * > nics;
+    VectorAttribute *     nic;
+
+    num_nics = obj_template->get("NIC",nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = static_cast<VectorAttribute * >(nics[i]);
+
+        if (nic == 0)
+        {
+            continue;
+        }
+
+        nic = nic->clone();
+
+        floating = false;
+        nic->vector_value("FLOATING_IP", floating);
+
+        if (floating)
+        {
+            // TODO: this is IPv4 only
+            nic->remove("MAC");
+            if (nic->vector_value("IP", ip) == 0)
+            {
+                nic->remove("IP");
+                nic->replace("VROUTER_IP", ip);
+            }
+
+            // TODO: remove all other attrs, such as AR, BRIDGE, etc?
+        }
+
+        tmpl->set(nic);
+    }
+
+    return tmpl;
 }

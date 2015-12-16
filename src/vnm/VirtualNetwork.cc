@@ -569,7 +569,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
 int VirtualNetwork::nic_attribute(
         VectorAttribute *       nic,
         int                     vid,
-        int                     vrid,
         const vector<string>&   inherit_attrs)
 {
     string inherit_val;
@@ -630,15 +629,15 @@ int VirtualNetwork::nic_attribute(
 
     if (!ip.empty())
     {
-        rc = allocate_by_ip(vid, ip, nic, inherit_attrs);
+        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic, inherit_attrs);
     }
     else if (!mac.empty())
     {
-        rc = allocate_by_mac(vid, mac, nic, inherit_attrs);
+        rc = allocate_by_mac(PoolObjectSQL::VM, vid, mac, nic, inherit_attrs);
     }
     else
     {
-        rc = allocate_addr(vid, nic, inherit_attrs);
+        rc = allocate_addr(PoolObjectSQL::VM, vid, nic, inherit_attrs);
     }
 
     //--------------------------------------------------------------------------
@@ -659,7 +658,53 @@ int VirtualNetwork::nic_attribute(
     nic->replace("SECURITY_GROUPS",
         one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
 
-    if (rc == 0 && vrid != -1)
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::vrouter_nic_attribute(
+        VectorAttribute *       nic,
+        int                     vrid,
+        const vector<string>&   inherit_attrs)
+{
+    int     rc = 0;
+    bool    floating;
+    vector<string>::const_iterator it;
+
+    //--------------------------------------------------------------------------
+    //  Set default values from the Virtual Network
+    //--------------------------------------------------------------------------
+
+    nic->replace("NETWORK", name);
+    nic->replace("NETWORK_ID", oid);
+
+    //--------------------------------------------------------------------------
+    //  Get the lease from the Virtual Network
+    //--------------------------------------------------------------------------
+    nic->vector_value("FLOATING_IP", floating);
+
+    if (floating)
+    {
+        string ip  = nic->vector_value("IP");
+        string mac = nic->vector_value("MAC");
+
+        if (!ip.empty())
+        {
+            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip, nic, inherit_attrs);
+        }
+        else if (!mac.empty())
+        {
+            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac, nic, inherit_attrs);
+        }
+        else
+        {
+            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid, nic, inherit_attrs);
+        }
+    }
+
+    if (rc == 0)
     {
         vrouters.add_collection_id(vrid);
     }
