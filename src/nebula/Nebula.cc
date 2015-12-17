@@ -821,6 +821,27 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the Image Manager");
     }
 
+    // ---- Marketplace Manager ----
+    try
+    {
+        vector<const Attribute *> mmads ;
+
+        nebula_configuration->get("MARKET_MAD", mmads);
+
+        marketm = new MarketPlaceManager(timer_period, monitor_period, mmads);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = marketm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Marketplace Manager");
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -850,6 +871,11 @@ void Nebula::start(bool bootstrap_only)
     }
 
     if (imagem->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (marketm->load_mads(0) != 0)
     {
         goto error_mad;
     }
@@ -946,6 +972,7 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     hm->finalize();
     imagem->finalize();
+    marketm->finalize();
     aclm->finalize();
 
     //sleep to wait drivers???

@@ -294,6 +294,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
+          $VAR_LOCATION/remotes/market \
+          $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -327,10 +329,6 @@ LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
-LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cloud/marketplace"
-
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula"
 
@@ -340,7 +338,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
@@ -427,6 +425,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
+    MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -445,8 +444,6 @@ INSTALL_FILES=(
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
     ECO_BIN_FILES:$BIN_LOCATION
-    MARKET_LIB_FILES:$LIB_LOCATION/ruby/cloud/marketplace
-    MARKET_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -463,8 +460,6 @@ INSTALL_CLIENT_FILES=(
     ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_BIN_CLIENT_FILES:$BIN_LOCATION
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    MARKET_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/marketplace
-    MARKET_BIN_CLIENT_FILES:$BIN_LOCATION
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
@@ -663,7 +658,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/authm_mad/one_auth_mad.rb \
               src/authm_mad/one_auth_mad \
               src/datastore_mad/one_datastore.rb \
-              src/datastore_mad/one_datastore"
+              src/datastore_mad/one_datastore \
+              src/market_mad/one_market.rb \
+              src/market_mad/one_market"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -1149,7 +1146,8 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/snap_delete \
                          src/datastore_mad/remotes/dummy/snap_revert \
                          src/datastore_mad/remotes/dummy/snap_flatten \
-                         src/datastore_mad/remotes/dummy/rm"
+                         src/datastore_mad/remotes/dummy/rm \
+                         src/datastore_mad/remotes/dummy/export"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
@@ -1159,7 +1157,8 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/snap_delete \
                          src/datastore_mad/remotes/fs/snap_revert \
                          src/datastore_mad/remotes/fs/snap_flatten \
-                         src/datastore_mad/remotes/fs/rm"
+                         src/datastore_mad/remotes/fs/rm \
+                         src/datastore_mad/remotes/fs/export"
 
 DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/mkfs \
@@ -1204,6 +1203,19 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/snap_revert \
                          src/datastore_mad/remotes/dev/snap_flatten \
                          src/datastore_mad/remotes/dev/clone"
+
+#-------------------------------------------------------------------------------
+# Marketplace drivers, to be installed under $REMOTES_LOCATION/market
+#   - HTTP based marketplace, $REMOTES_LOCATION/market/http
+#   - S3-obeject based Image Repository, $REMOTES_LOCATION/datastore/fs
+#   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
+#   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
+#-------------------------------------------------------------------------------
+
+MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
+            src/market_mad/remotes/http/export \
+            src/market_mad/remotes/http/delete \
+            src/market_mad/remotes/http/monitor"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -1499,19 +1511,6 @@ ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
 ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
 
 ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
-
-#-------------------------------------------------------------------------------
-# Marketplace Client
-#-------------------------------------------------------------------------------
-
-#MARKET_LIB_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
-
-#MARKET_LIB_CLIENT_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
-
-#MARKET_BIN_FILES="src/cloud/marketplace/bin/onemarket"
-
-#MARKET_BIN_CLIENT_FILES="src/cloud/marketplace/bin/onemarket"
-
 
 #-----------------------------------------------------------------------------
 # CLI files

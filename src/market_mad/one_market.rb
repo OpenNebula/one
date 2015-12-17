@@ -101,8 +101,9 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         type   = app['TYPE'] if !app.nil?
         origin = app['ORIGIN'] if !app.nil?
+        mp_mad = market['MARKET_MAD'] if !app.nil?
 
-        if market.nil? || app.nil? || type.nil? || origin.nil?
+        if market.nil? || app.nil? || type.nil? || origin.nil? || mp_mad.nil?
             failure(:import, id,"Wrong driver message format")
             return
         end
@@ -133,7 +134,7 @@ class MarketPlaceDriver < OpenNebulaDriver
                 rc = ds.info
 
                 if OpenNebula.is_error?(rc)
-                    failure(:import, id, "Cannot find information for datastore #{ds_id}")
+                    failure(:import, id, "Datastore #{ds_id} not found: #{rc}")
                     return
                 end
 
@@ -152,7 +153,7 @@ class MarketPlaceDriver < OpenNebulaDriver
                 ds_msg64 = Base64::encode64(ds_msg)
 
                 result, info = do_action(id, nil, datastore, :export,
-                    "#{ds_msg64} #{id}")
+                    "#{ds_msg64} #{id}", false)
 
                 if ( result == RESULT[:failure] )
                     failure(:import, id, "Error exporting image to file: #{info}")
@@ -160,14 +161,14 @@ class MarketPlaceDriver < OpenNebulaDriver
                 end
 
                 source = info
-            elsif ( source =~ /\d+$|\/.+|https?:\/\// )
+            elsif ( source =~ /\/.+|https?:\/\// )
                 source = origin
             else
-                failure(:import, id, "Marketplace app origin not a valid ID, path or http URL")
+                failure(:import, id, "Origin is not a valid ID, path or URL")
                 return
             end
           else # Only IMAGE type is supported
-                failure(:import, id, "Marketplace app type #{apptype} not supported")
+                failure(:import, id, "Type #{apptype} not supported")
                 return
         end
 
@@ -178,7 +179,8 @@ class MarketPlaceDriver < OpenNebulaDriver
                  "</MARKETPLACE_DRIVER_ACTION_DATA>"
         mp_msg64 = Base64::encode64(mp_msg)
 
-        result, info = do_action(id, market, nil, :import, "#{mp_msg64} #{id}")
+        result, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",
+                            true)
 
         send_message(ACTION[:import], result, id, info)
     end
@@ -215,7 +217,7 @@ class MarketPlaceDriver < OpenNebulaDriver
     #  @param action to invoke from the driver
     #  @param arguments for the action
     #  @return result and info of the action
-    def do_action(id, market, datastore, action, arguments)
+    def do_action(id, market, datastore, action, arguments, encode)
 
         if !datastore.empty?
             path = File.join(@local_ds_scripts_path, datastore)
@@ -230,6 +232,8 @@ class MarketPlaceDriver < OpenNebulaDriver
         rc = LocalCommand.run(cmd, log_method(id))
 
         result, info = get_info_from_execution(rc)
+
+        result = Base64::encode64(result) if encode
 
         return result, info
     end

@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to import a file into the marketplace. The source file
+# is an opaque representation of an OpenNebula object, like a image file or a
+# tar.gz with several vm template or flow disk images
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../../datastore/libfs.sh
+
+XPATH_PATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+
+# -------- Get arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="$XPATH_PATH/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /MARKETPLACE_DRIVER_ACTION_DATA/IMPORT_SOURCE \
+                    /MARKETPLACE_DRIVER_ACTION_DATA/MARKETPLACE/BASE_URL \
+                    /MARKETPLACE_DRIVER_ACTION_DATA/MARKETPLACE/PUBLIC_DIR)
+unset i
+
+IMPORT_SOURCE="${XPATH_ELEMENTS[i++]}"
+BASE_URL="${XPATH_ELEMENTS[i++]}"
+PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
+
+# -------- Copy source to public folder an generarte App data ------------
+
+APPNAME=`generate_image_hash`
+DST_PATH="${PUBLIC_DIR}/${APP_NAME}"
+SOURCE="${BASE_URL}/${APP_NAME}"
+
+if [ ! -f ${IMPORT_SOURCE} ]; then
+    log_error "File ${IMPORT_SOURCE} does not exits"
+    exit -1
+fi
+
+CHECKSUM=$(${MD5SUM} ${IMPORT_SOURCE} | cut -f1 -d' ')
+
+SIZE=$(fs_size ${IMPORT_SOURCE})
+
+if [ "$SIZE" = "0" ]; then
+    log_error "Cannot determine size for ${IMPORT_SOURCE}"
+    exit -1
+fi
+
+exec_and_log "$CP ${IMPORT_SOURCE} ${DST_PATH}" \
+    "Error copying ${IMPORT_SOURCE} to ${DST_PATH}. ${IMPORT_SOURCE} not removed"
+
+exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
+
+RESPONSE=$(cat << EOF
+SOURCE="$SOURCE"
+CHECKSUM="$CHECKSUM"
+SIZE="$SIZE"
+EOF
+)
+
+echo "$RESPONSE"
