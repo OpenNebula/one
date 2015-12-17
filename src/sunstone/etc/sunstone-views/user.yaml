@@ -90,6 +90,7 @@ tabs:
             - 4         # VMs
             - 5         # Memory
             - 6         # CPU
+            #- 7         # Labels
         actions:
             Group.refresh: true
             Group.create_dialog: true
