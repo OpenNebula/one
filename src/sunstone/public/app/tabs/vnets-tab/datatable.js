@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var ProgressBar = require('utils/progress-bar');
   var Utils = require('./utils/common');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -32,6 +33,8 @@ define(function(require) {
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 10;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -43,6 +46,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -65,7 +69,8 @@ define(function(require) {
       Locale.tr("Cluster"),
       Locale.tr("Bridge"),
       Locale.tr("Leases"),
-      Locale.tr("VLAN ID")
+      Locale.tr("VLAN ID"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -122,7 +127,8 @@ define(function(require) {
       element.CLUSTER.length ? element.CLUSTER : "-",
       element.BRIDGE,
       ProgressBar.html(element.USED_LEASES, total_size),
-      element.VLAN_ID.length ? element.VLAN_ID : "-"
+      element.VLAN_ID.length ? element.VLAN_ID : "-",
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 
