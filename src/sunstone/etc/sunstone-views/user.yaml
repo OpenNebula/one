@@ -111,6 +111,7 @@ tabs:
             - 5         # Hosts
             - 6         # VNets
             - 7         # Datastores
+            #- 8         # Labels
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
