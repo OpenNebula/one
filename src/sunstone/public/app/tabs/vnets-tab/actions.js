@@ -50,6 +50,7 @@ define(function(require) {
     "Network.rename": _commonActions.singleAction('rename'),
     "Network.update" : _commonActions.update(),
     "Network.update_template" : _commonActions.updateTemplate(),
+    "Network.append_template" : _commonActions.appendTemplate(),
     "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 
