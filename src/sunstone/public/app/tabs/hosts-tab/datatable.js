@@ -25,7 +25,9 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var CPUBars = require('./utils/cpu-bars');
   var MemoryBars = require('./utils/memory-bars');
-  var OpenNebulaHost = require('opennebula/host')
+  var OpenNebulaHost = require('opennebula/host');
+  var LabelsUtils = require('utils/labels/utils');
+
 
   /*
     CONSTANTS
@@ -34,6 +36,8 @@ define(function(require) {
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 13;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -45,6 +49,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -70,7 +75,8 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("IM MAD"),
       Locale.tr("VM MAD"),
-      Locale.tr("Last monitored on")
+      Locale.tr("Last monitored on"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -157,7 +163,8 @@ define(function(require) {
         OpenNebulaHost.simpleStateStr(element.STATE),
         element.IM_MAD,
         element.VM_MAD,
-        Humanize.prettyTime(element.LAST_MON_TIME)
+        Humanize.prettyTime(element.LAST_MON_TIME),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

@@ -346,6 +346,7 @@ tabs:
             #- 10        # IM MAD
             #- 11        # VM MAD
             #- 12        # Last monitored on
+            #- 13        # Labels
         actions:
             Host.refresh: true
             Host.create_dialog: true
