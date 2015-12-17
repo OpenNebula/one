@@ -37,6 +37,7 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 13;
 
 
   /*
@@ -49,6 +50,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,

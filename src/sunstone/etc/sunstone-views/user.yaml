@@ -159,6 +159,7 @@ tabs:
             #- 10      # Start Time
             - 11      # VNC
             #- 12      # Hidden Template
+            #- 13      # Labels
         actions:
             VM.refresh: true
             VM.create_dialog: true
