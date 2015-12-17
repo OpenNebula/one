@@ -124,6 +124,8 @@ define(function(require) {
           }
         }
       });
+
+      $('.newLabelInput', labelsDropdown).focus();
     }
     
     recountLabels(tabName);
