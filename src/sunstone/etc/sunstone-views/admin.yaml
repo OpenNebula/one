@@ -401,6 +401,7 @@ tabs:
             #- 7         # Bridge
             - 8         # Leases
             #- 9         # VLAN ID
+            #- 10         # Labels
         actions:
             Network.refresh: true
             Network.create_dialog: true
