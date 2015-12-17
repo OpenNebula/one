@@ -131,8 +131,15 @@ define(function(require) {
   }
 
   var _setupDataTable = function(tabName) {
-    if (SunstoneCfg['tabs'][tabName].dataTable) {
-      SunstoneCfg['tabs'][tabName].dataTable.initialize();
+    var dataTable = SunstoneCfg['tabs'][tabName].dataTable;
+    if (dataTable) {
+      dataTable.initialize();
+      if (dataTable.labelsColumn) {
+        $('#' + tabName + 'labels_buttons').html(
+          '<button href="#" data-dropdown="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button small secondary button dropdown radius">' +
+            '<i class="fa fa-tags"/></button>' +
+          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown f-dropdown" data-dropdown-content></ul>');
+      }
     }
   }
 
