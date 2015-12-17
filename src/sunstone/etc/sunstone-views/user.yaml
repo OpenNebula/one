@@ -538,6 +538,7 @@ tabs:
             - 1         # ID
             - 2         # Name
             - 3         # Endpoint
+            #- 4         # Labels
         actions:
             Zone.refresh: true
             Zone.create_dialog: true
