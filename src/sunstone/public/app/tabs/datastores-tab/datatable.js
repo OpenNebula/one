@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('./utils/datastore-capacity-bar');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -32,6 +33,8 @@ define(function(require) {
   var RESOURCE = "Datastore";
   var XML_ROOT = "DATASTORE";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 12;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -57,6 +60,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -83,6 +87,7 @@ define(function(require) {
       Locale.tr("DS MAD"),
       Locale.tr("Type"),
       Locale.tr("Status"),
+      Locale.tr("Labels")
     ]
 
     this.selectOptions = {
@@ -125,7 +130,8 @@ define(function(require) {
         element.TM_MAD,
         element.DS_MAD,
         OpenNebulaDatastore.typeStr(element.TYPE),
-        OpenNebulaDatastore.stateStr(element.STATE)
+        OpenNebulaDatastore.stateStr(element.STATE),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });

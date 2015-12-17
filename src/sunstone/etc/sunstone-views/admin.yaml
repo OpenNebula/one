@@ -372,6 +372,7 @@ tabs:
             #- 9         # DS
             - 10        # Type
             - 11        # Status
+            #- 12        # Labels
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
