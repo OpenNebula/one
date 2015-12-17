@@ -290,6 +290,7 @@ tabs:
             - 10        # Status
             #- 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             File.refresh: true
             File.create_dialog: true
