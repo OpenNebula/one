@@ -64,6 +64,7 @@ tabs:
             - 7         # CPU
             #- 8         # Group ID
             #- 9         # Hidden User Data
+            #- 10        # Labels
         actions:
             User.refresh: true
             User.create_dialog: true
