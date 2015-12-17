@@ -65,7 +65,7 @@ EXPORT_DIR="${EXPORT_DIR-$BASE_PATH}"
 
 log "Removing $SRC from the image repository"
 
-exec_and_log "$QEMU_IMG convert -O qcow2 $SRC $SRC.export." \
+exec_and_log "$QEMU_IMG convert -O qcow2 $SRC $SRC.export" \
 	"Error converting image to qcow2 format"
 
 echo "$SRC.export"

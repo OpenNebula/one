@@ -65,6 +65,11 @@ module OpenNebula
             return doc
         end
 
+        # Checks if the internal XML representation is valid
+        def nil?
+            return @xml.nil?
+        end
+
         # Extract a text element from the XML description of the PoolElement.
         #
         # @param [String] key Xpath expression

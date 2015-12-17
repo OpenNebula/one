@@ -97,13 +97,18 @@ class MarketPlaceDriver < OpenNebulaDriver
     ############################################################################
 
     def import(id, drv_message)
-        market, app = decode(drv_message)
+        xml = decode(drv_message)
 
-        type   = app['TYPE'] if !app.nil?
-        origin = app['ORIGIN'] if !app.nil?
-        mp_mad = market['MARKET_MAD'] if !app.nil?
+        if xml.nil?
+            failure(:import, id, "Cannot decode driver message")
+            return
+        end
 
-        if market.nil? || app.nil? || type.nil? || origin.nil? || mp_mad.nil?
+        type   = xml['MARKETPLACEAPP/TYPE']
+        origin = xml['MARKETPLACEAPP/ORIGIN']
+        mp_mad = xml['MARKETPLACE/MARKET_MAD']
+
+        if type.nil? || origin.nil? || mp_mad.nil?
             failure(:import, id,"Wrong driver message format")
             return
         end
@@ -119,7 +124,8 @@ class MarketPlaceDriver < OpenNebulaDriver
                 rc    = image.info
 
                 if OpenNebula.is_error?(rc)
-                    failure(:import, id, "Cannot find information for image #{origin}")
+                    failure(:import, id, "Cannot find information for image "\
+                            "#{origin}: #{rc.to_str()}")
                     return
                 end
 
@@ -138,9 +144,9 @@ class MarketPlaceDriver < OpenNebulaDriver
                     return
                 end
 
-                mad = ds['DS_MAD']
+                ds_mad = ds['DS_MAD']
 
-                if mad.nil?
+                if ds_mad.nil?
                     failure(:import, id, "Cannot find datastore driver")
                     return
                 end
@@ -150,9 +156,9 @@ class MarketPlaceDriver < OpenNebulaDriver
                            "#{image.to_xml}"\
                            "#{ds.to_xml}"\
                            "</DS_DRIVER_ACTION_DATA>"
-                ds_msg64 = Base64::encode64(ds_msg)
+                ds_msg64 = Base64::strict_encode64(ds_msg)
 
-                result, info = do_action(id, nil, datastore, :export,
+                result, info = do_action(id, nil, ds_mad, :export,
                     "#{ds_msg64} #{id}", false)
 
                 if ( result == RESULT[:failure] )
@@ -172,12 +178,9 @@ class MarketPlaceDriver < OpenNebulaDriver
                 return
         end
 
-        mp_msg = "<MARKETPLACE_DRIVER_ACTION_DATA>"\
-                 "#{market.to_s}"\
-                 "#{app.to_s}"\
-                 "<IMPORT_SOURCE>#{source}</IMPORT_SOURCE>"\
-                 "</MARKETPLACE_DRIVER_ACTION_DATA>"
-        mp_msg64 = Base64::encode64(mp_msg)
+        xml.add_element('/MARKET_DRIVER_ACTION_DATA',
+            'IMPORT_SOURCE' => "#{source}")
+        mp_msg64 = Base64::strict_encode64(xml.to_xml)
 
         result, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",
                             true)
@@ -219,7 +222,7 @@ class MarketPlaceDriver < OpenNebulaDriver
     #  @return result and info of the action
     def do_action(id, market, datastore, action, arguments, encode)
 
-        if !datastore.empty?
+        if !datastore.nil?
             path = File.join(@local_ds_scripts_path, datastore)
         else
             return if not is_available?(market, id, action)
@@ -233,7 +236,7 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         result, info = get_info_from_execution(rc)
 
-        result = Base64::encode64(result) if encode
+        info = Base64::strict_encode64(info) if encode
 
         return result, info
     end
@@ -241,13 +244,11 @@ class MarketPlaceDriver < OpenNebulaDriver
     # Decodes the core message and returns the app and market information as
     # xml documents
     def decode(drv_message)
-        message = Base64.decode64(drv_message)
-        xml_doc = REXML::Document.new(message)
+        msg = Base64.decode64(drv_message)
+        doc = OpenNebula::XMLElement.new
+        doc.initialize_xml(msg, 'MARKET_DRIVER_ACTION_DATA')
 
-        market = xml_doc.root.elements[MARKETPLACE_XPATH]
-        app    = xml_doc.root.elements[MARKETPLACEAPP_XPATH]
-
-        return market, app
+        return doc
     end
 
     def failure(asym, id, message)

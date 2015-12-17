@@ -42,6 +42,7 @@ RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
+CP=${CP:-cp}
 SCP=${SCP:-scp}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}

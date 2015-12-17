@@ -35,7 +35,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 
-XPATH_PATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+XPATH_PATH="${DRIVER_PATH}/../../datastore"
 
 # -------- Get arguments from OpenNebula core ------------
 
@@ -48,9 +48,9 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /MARKETPLACE_DRIVER_ACTION_DATA/IMPORT_SOURCE \
-                    /MARKETPLACE_DRIVER_ACTION_DATA/MARKETPLACE/BASE_URL \
-                    /MARKETPLACE_DRIVER_ACTION_DATA/MARKETPLACE/PUBLIC_DIR)
+done < <($XPATH     /MARKET_DRIVER_ACTION_DATA/IMPORT_SOURCE \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BASE_URL \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR)
 unset i
 
 IMPORT_SOURCE="${XPATH_ELEMENTS[i++]}"
@@ -60,8 +60,8 @@ PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
 # -------- Copy source to public folder an generarte App data ------------
 
 APPNAME=`generate_image_hash`
-DST_PATH="${PUBLIC_DIR}/${APP_NAME}"
-SOURCE="${BASE_URL}/${APP_NAME}"
+DST_PATH="${PUBLIC_DIR}/${APPNAME}"
+SOURCE="${BASE_URL}/${APPNAME}"
 
 if [ ! -f ${IMPORT_SOURCE} ]; then
     log_error "File ${IMPORT_SOURCE} does not exits"
