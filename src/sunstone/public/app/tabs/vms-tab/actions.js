@@ -80,6 +80,7 @@ define(function(require) {
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),
     "VM.update_template": _commonActions.updateTemplate(),
+    "VM.append_template": _commonActions.appendTemplate(),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
