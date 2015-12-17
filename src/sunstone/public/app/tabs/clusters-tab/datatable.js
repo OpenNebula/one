@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -30,6 +31,8 @@ define(function(require) {
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 6;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -41,6 +44,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -59,7 +63,8 @@ define(function(require) {
       Locale.tr("Name"),
       Locale.tr("Hosts"),
       Locale.tr("VNets"),
-      Locale.tr("Datastores")
+      Locale.tr("Datastores"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -95,7 +100,8 @@ define(function(require) {
       element.NAME,
       _lengthOf(element.HOSTS.ID),
       _lengthOf(element.VNETS.ID),
-      _lengthOf(element.DATASTORES.ID)
+      _lengthOf(element.DATASTORES.ID),
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

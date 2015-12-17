@@ -318,6 +318,7 @@ tabs:
             - 3         # Hosts
             - 4         # VNets
             - 5         # Datastores
+            #- 6         # Labels
         actions:
             Cluster.refresh: true
             Cluster.create_dialog: true
