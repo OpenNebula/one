@@ -30,26 +30,15 @@ class MarketPlaceManager : public MadManager, public ActionListener
 {
 public:
 
-    MarketPlaceManager(
-            time_t _timer_period,
-            time_t _monitor_period,
-            std::vector<const Attribute*>& _mads):
-        MadManager(_mads),
-        timer_period(_timer_period),
-        monitor_period(_monitor_period),
-        mppool(0),
-        apppool(0)
-    {
-        am.addListener(this);
-    };
+    /**
+     *  Inititalizes the Marketplace manager:
+     *    @param t, timer_period to wake up the manger to perform actions
+     *    @param m, monitor_period to monitor marketplaces
+     *    @param mad, list of drivers for the manager
+     */
+    MarketPlaceManager( time_t t, time_t m, std::vector<const Attribute*>& mad);
 
     ~MarketPlaceManager(){};
-
-    /**
-     * Initializes internal pointers to other managers. Must be called when
-     * all the other managers exist in Nebula::instance
-     */
-    void init_managers();
 
     /**
      *  This functions starts the associated listener thread, and creates a
