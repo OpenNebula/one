@@ -1383,6 +1383,9 @@ hr {
   margin: 0;
   padding: 0 0 0 1em;
   position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .labels-tree li:before, .labels-tree li:after{
@@ -1447,6 +1450,7 @@ hr {
     position: absolute;
     right: 0;
     padding: 2px;
+    background: #fff;
 
     &:hover {
       cursor: pointer;
