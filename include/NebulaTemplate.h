@@ -176,6 +176,13 @@ private:
      *  Sets the defaults value for the template
      */
     void set_conf_default();
+
+
+    /**
+     *  Sets a default single attribute value
+     */
+    void set_conf_default_single(const std::string& attr,
+                                 const std::string& value);
 };
 
 
