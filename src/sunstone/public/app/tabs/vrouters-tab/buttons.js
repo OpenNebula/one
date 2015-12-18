@@ -27,11 +27,6 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "VirtualRouter.update_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Update")
-    },
     "VirtualRouter.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),

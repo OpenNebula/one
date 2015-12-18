@@ -441,7 +441,6 @@ tabs:
         actions:
             VirtualRouter.refresh: true
             VirtualRouter.create_dialog: true
-            VirtualRouter.update_dialog: true
             VirtualRouter.rename: true
             VirtualRouter.chown: true
             VirtualRouter.chgrp: true
