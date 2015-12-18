@@ -37,6 +37,30 @@
 </div>
 <div class="row">
   <div class="large-9 columns">
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th>{{tr "Network"}}</th>
+          <th>{{tr "Floating IP"}}</th>
+          <th>{{tr "Floating IPv6 ULA"}}</th>
+          <th>{{tr "Floating IPv6 Global"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each nics}}
+        <tr>
+          <td>{{NETWORK}}</td>
+          <td>{{valOrDefault IP "--"}}</td>
+          <td>{{valOrDefault IP6_ULA "--"}}</td>
+          <td>{{valOrDefault IP6_GLOBAL "--"}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="row">
+  <div class="large-9 columns">
     {{{templateTableHTML}}}
   </div>
 </div>

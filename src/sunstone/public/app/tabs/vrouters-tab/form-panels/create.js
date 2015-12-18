@@ -31,6 +31,7 @@ define(function(require) {
   var TemplatesTable = require('tabs/templates-tab/datatable');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
   var OpenNebulaTemplate = require('opennebula/template');
+  var OpenNebulaAction = require('opennebula/action');
   var Notifier = require('utils/notifier');
 
   /*
@@ -147,6 +148,8 @@ define(function(require) {
       virtual_router_json.NIC = nics;
     }
 
+    delete virtual_router_json["FLOATING_IP"];
+
     var tmplId = this.templatesTable.retrieveResourceTableSelect();
 
     if (this.action == "create") {
@@ -197,6 +200,9 @@ define(function(require) {
                 extra_param: extra_info
               },
               timeout: true,
+              success: function(request, response){
+                OpenNebulaAction.clear_cache("VM");
+              },
               error: Notifier.onError
             });
           }
