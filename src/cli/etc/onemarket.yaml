@@ -5,7 +5,7 @@
 
 :NAME:
   :desc: Name of the Marketplace
-  :size: 13
+  :size: 30
   :left: true
 
 :SIZE:
@@ -14,7 +14,7 @@
 
 :AVAIL:
   :desc: MarketPlace free size (%)
-  :size: 5
+  :size: 10
   :left: true
 
 :APPS:
@@ -28,8 +28,8 @@
 
 :default:
 - :ID
-- :NAME
 - :SIZE
 - :AVAIL
 - :APPS
 - :MAD
+- :NAME

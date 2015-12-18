@@ -39,41 +39,40 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the marketplace app", :left, :size=>13 do |d|
+            column :NAME, "Name of the marketplace app", :left, :size=>15 do |d|
                 d["NAME"]
             end
 
-            column :PUBLISHER, "Publisher of the App", :left, :size=>15 do |d|
+            column :PUBLISHER, "Publisher of the App", :left, :size=>25 do |d|
                 d["PUBLISHER"]
             end
 
-            column :VERSION, "Version of the app", :left, :size=>10 do |d|
+            column :VERSION, "Version of the app", :size=>7 do |d|
                 d["VERSION"]
             end
 
-            column :SIZE, "App size", :size =>8 do |d|
+            column :SIZE, "App size", :size =>5 do |d|
                 OpenNebulaHelper.unit_to_str(d['SIZE'].to_i, {}, 'M')
             end
 
-            column :STAT, "State of the app", :left, :size=>4 do |d|
+            column :STAT, "State of the app", :size=>4 do |d|
                 OneMarketPlaceAppHelper.state_to_str(d["STATE"])
             end
 
-            column :DATE, "Publishing date of the app",
-                    :size=>15 do |d|
-                OpenNebulaHelper.time_to_str(d["DATE"])
+            column :DATE, "Publishing date of the app", :size=>8 do |d|
+                Time.at(d['DATE'].to_i).strftime("%D")
             end
 
-            column :TYPE, "Marketplace app type", :left, :size=>4 do |d|
+            column :TYPE, "Marketplace app type", :size=>4 do |d|
                 type = MarketPlaceApp::MARKETPLACEAPP_TYPES[d["TYPE"].to_i]
                 MarketPlaceApp::SHORT_MARKETPLACEAPP_TYPES[type]
             end
 
-            column :MARKET, "Name of the marketplace", :left, :size=>10 do |d|
-                d["MARKETPLACE"]
+            column :MARKET, "ID of the marketplace", :size=>6 do |d|
+                d["MARKETPLACE_ID"]
             end
 
-            default :ID,:NAME,:PUBLISHER,:VERSION,:SIZE,:STAT,:DATE,:TYPE,:MARKET
+            default :ID,:NAME,:VERSION,:SIZE,:STAT,:TYPE,:DATE,:MARKET,:PUBLISHER
         end
 
         table
@@ -126,7 +125,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         puts str % ["SOURCE", app['SOURCE']]
         puts str % ["CHECKSUM", app['CHECKSUM']]
         puts str % ["PUBLISHER", app['PUBLISHER']]
-        puts str % ["PUB. DATE", OpenNebulaHelper.time_to_str(app["DATE"])]
+        puts str % ["PUB. DATE", Time.at(app['DATE'].to_i).strftime("%c") ]
         puts str % ["VERSION", app['VERSION']]
         puts str % ["DESCRIPTION", app['DESCRIPTION']]
         puts str % ["SIZE", OpenNebulaHelper.unit_to_str(app['SIZE'].to_i,{},'M')]

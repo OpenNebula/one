@@ -5,49 +5,46 @@
 
 :NAME:
   :desc: Name of the marketplace app
-  :size: 13
-  :left: true
-
-:PUBLISHER:
-  :desc: Publisher of the marketplace app
   :size: 15
   :left: true
 
 :VERSION:
   :desc: Version of the marketplace app
-  :size: 10
-  :left: true
+  :size: 7
 
 :SIZE:
   :desc: Marketplace app size (M)
-  :size: 8
+  :size: 5
 
 :STAT:
   :desc: State of the app
   :size: 4
-  :left: true
-
-:DATE:
-  :desc: Publishing date for the marketplace app
-  :size: 15
 
 :TYPE:
   :desc: Marketplace app type
   :size: 4
-  :left: true
+
+:DATE:
+  :desc: Publishing date for the marketplace app
+  :size: 8
 
 :MARKET:
-  :desc: Name of the marketplace 
-  :size: 10
+  :desc: ID of the marketplace
+  :size: 6
+
+:PUBLISHER:
+  :desc: Publisher of the marketplace app
+  :size: 25
   :left: true
+
 
 :default:
 - :ID
 - :NAME
-- :PUBLISHER
 - :VERSION
 - :SIZE
 - :STAT
-- :DATE
 - :TYPE
+- :DATE
 - :MARKET
+- :PUBLISHER

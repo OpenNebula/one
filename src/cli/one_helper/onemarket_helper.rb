@@ -44,7 +44,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Marketplace", :left, :size=>13 do |d|
+            column :NAME, "Name of the Marketplace", :left, :size=>30 do |d|
                 d["NAME"]
             end
 
@@ -52,7 +52,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['TOTAL_MB'].to_i, {}, 'M')
             end
 
-            column :AVAIL, "Marketplace free size", :left, :size =>5 do |d|
+            column :AVAIL, "Marketplace free size", :left, :size =>10 do |d|
                 if d['TOTAL_MB'].to_i == 0
                     "-"
                 else
@@ -77,7 +77,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["MARKET_MAD"]
             end
 
-            default :ID, :NAME, :SIZE, :AVAIL, :APPS, :TYPE, :MAD
+            default :ID, :SIZE, :AVAIL, :APPS, :TYPE, :MAD, :NAME
         end
 
         table
