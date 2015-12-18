@@ -25,7 +25,13 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplateUtils = require('utils/template-utils');
+  var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
+  var NicsSection = require('utils/nics-section');
+  var TemplatesTable = require('tabs/templates-tab/datatable');
+  var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
+  var OpenNebulaTemplate = require('opennebula/template');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -53,13 +59,10 @@ define(function(require) {
         'title': Locale.tr("Create Virtual Router"),
         'buttonText': Locale.tr("Create"),
         'resetButton': true
-      },
-      'update': {
-        'title': Locale.tr("Update Virtual Router"),
-        'buttonText': Locale.tr("Update"),
-        'resetButton': false
       }
     };
+
+    this.templatesTable = new TemplatesTable('vr_create', {'select': true});
 
     BaseFormPanel.call(this);
   }
@@ -72,7 +75,6 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.submitAdvanced = _submitAdvanced;
   FormPanel.prototype.onShow = _onShow;
-  FormPanel.prototype.fill = _fill;
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
@@ -83,7 +85,8 @@ define(function(require) {
 
   function _htmlWizard() {
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId
+      'formPanelId': this.formPanelId,
+      'templatesTableHTML': this.templatesTable.dataTableHTML
     });
   }
 
@@ -94,35 +97,115 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    NicsSection.insert({}, $(".nicsContext", context));
+
+    this.templatesTable.initialize();
+
+    this.templatesTable.idInput().attr("required", "");
+
+    this.templatesTable.idInput().on("change", function(){
+      var templateId = $(this).val();
+
+      var inputs_div = $(".template_user_inputs", context);
+      inputs_div.empty();
+
+      OpenNebulaTemplate.show({
+        data : {
+          id: templateId
+        },
+        timeout: true,
+        success: function (request, template_json) {
+          UserInputs.vmTemplateInsert(
+              inputs_div,
+              template_json,
+              {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+        },
+        error: Notifier.onError
+      });
+    });
+
+    $(".vr_attributes #name", context).on("input", function(){
+      $('#vm_name', context).val("vr-"+$(this).val()+"-%i");
+    });
+
     Tips.setup();
 
     return false;
   }
 
   function _submitWizard(context) {
+    var virtual_router_json = WizardFields.retrieve($(".vr_attributes", context));
 
-    var name = $('#virtual_router_name', context).val();
-    var description = $('#virtual_router_description', context).val();
+    var nics = NicsSection.retrieve($(".nicsContext", context));
+    if (nics.length > 0) {
+      // TODO: Instead of a global checkbox, each vnet should have
+      // its own checkbox to choose floating IP or not
+      $.each(nics, function(){
+        this["FLOATING_IP"] = virtual_router_json["FLOATING_IP"];
+      });
 
-    var virtual_router_json = {
-      "NAME" : name,
-      "DESCRIPTION": description
-    };
+      virtual_router_json.NIC = nics;
+    }
+
+    var tmplId = this.templatesTable.retrieveResourceTableSelect();
 
     if (this.action == "create") {
       virtual_router_json = {
         "virtual_router" : virtual_router_json
       };
 
-      Sunstone.runAction("VirtualRouter.create",virtual_router_json);
-      return false;
-    } else if (this.action == "update") {
-      delete virtual_router_json["NAME"];
+      var vm_name = $('#vm_name', context).val();
+      var n_times = parseInt($('#vm_n_times', context).val());
 
-      Sunstone.runAction(
-        "VirtualRouter.update",
-        this.resourceId,
-        TemplateUtils.templateToString(virtual_router_json));
+      if (isNaN(n_times)){
+        n_times = 1;
+      }
+
+      var hold = $('#hold', context).prop("checked");
+
+      OpenNebulaVirtualRouter.create({
+        data : virtual_router_json,
+        timeout: true,
+        success: function (request, response) {
+
+          // TODO: close form panel only on instantiate success
+          Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
+          Sunstone.hideFormPanel(TAB_ID);
+
+          var extra_msg = "";
+          if (n_times > 1) {
+            extra_msg = n_times + " times";
+          }
+
+          Notifier.notifySubmit("Template.instantiate", tmplId, extra_msg);
+
+          var extra_info = {
+            'hold': hold
+          };
+
+          var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
+          tmpl["VROUTER_ID"] = response.VROUTER.ID;
+
+          extra_info['template'] = tmpl;
+
+          for (var i = 0; i < n_times; i++) {
+            extra_info['vm_name'] = vm_name.replace(/%i/gi, i);
+
+            OpenNebulaTemplate.instantiate({
+              data:{
+                id: tmplId,
+                extra_param: extra_info
+              },
+              timeout: true,
+              error: Notifier.onError
+            });
+          }
+        },
+        error: function(request, response) {
+          Sunstone.hideFormPanelLoading(TAB_ID);
+          Notifier.onError(request, response);
+        },
+      });
 
       return false;
     }
@@ -134,29 +217,10 @@ define(function(require) {
       var virtual_router_json = {virtual_router: {virtual_router_raw: template}};
       Sunstone.runAction("VirtualRouter.create",virtual_router_json);
       return false;
-    } else if (this.action == "update") {
-      var template_raw = $('textarea#template', context).val();
-      Sunstone.runAction("VirtualRouter.update", this.resourceId, template_raw);
-      return false;
     }
   }
 
   function _onShow(context) {
-  }
-
-  function _fill(context, element) {
-    var that = this;
-
-    this.resourceId = element.ID;
-
-    // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
-
-    $('#virtual_router_name',context).val(
-      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.NAME ))).
-      prop("disabled", true);
-
-    $('#virtual_router_description', context).val(
-      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.TEMPLATE.DESCRIPTION )) );
+    this.templatesTable.refreshResourceTableSelect();
   }
 });

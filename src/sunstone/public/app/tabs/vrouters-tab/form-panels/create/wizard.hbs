@@ -16,18 +16,81 @@
 
 <div id="create_virtual_router_form_wrapper">
   <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
-    <div class="row">
-      <div class="medium-4 columns">
-        <label for="virtual_router_name">{{tr "Virtual Router Name"}}:</label>
-        <input required type="text" name="virtual_router_name" id="virtual_router_name"/>
+    <div class="vr_attributes">
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="name" >
+            {{tr "Name"}}:
+          </label>
+          <input type="text" wizard_field="NAME" required name="name" id="name"/>
+        </div>
       </div>
-      <div class="medium-8 columns">
-        <label for="virtual_router_description">{{tr "Description"}}
-          <span class="tip">{{tr "Description for the Virtual Router"}}</span>
-        </label>
-        <textarea type="text" id="virtual_router_description" name="virtual_router_description" style="height: 70px;"/>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="DESCRIPTION" >
+            {{tr "Description"}}
+            <span class="tip">{{tr "Description of the Virtual Router"}}</span>
+          </label>
+          <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="floating_ip">
+            <input type="checkbox" wizard_field="FLOATING_IP" value="YES" name="floating_ip" id="floating_ip" />
+            {{tr "Floating IPs"}}
+            <span class="tip">
+              {{tr "If checked, each Virtual Machine will have a floating IP added to its network interface."}}
+            </span>
+          </label>
+        </div>
       </div>
     </div>
-    <hr/>
+    <div class="row">
+      <div class="large-12 columns nicsContext">
+        <div class="provision_network_selector">
+        </div>
+        <br>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      {{{templatesTableHTML}}}
+    </div>
+    {{!TODO: duplicated html from templates-tab/form-panels/instantiate/html.hbs}}
+    <div class="row nameContainer">
+      <div class="medium-4 columns">
+        <label for="vm_name">
+          {{tr "VM Name"}}
+          <span class="tip">
+            {{tr "Defaults to template name when emtpy. You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them"}}.
+          </span>
+        </label>
+        <input type="text" name="vm_name" id="vm_name" />
+      </div> 
+      <div class="medium-4 columns">
+        <label for="vm_n_times">
+          {{tr "Number of instances"}}
+          <span class="tip">
+            {{tr "Number of Virtual Machines that will be created using this template"}}.
+          </span>
+        </label>
+        <input type="text" name="vm_n_times" id="vm_n_times" value="1">
+      </div>
+      <div class="medium-4 columns">
+        <input type="checkbox" name="hold" id="hold"/>
+        <label for="hold">
+          {{tr "Hold"}}
+          <span class="tip">
+            {{tr "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."}}
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns large-centered template_user_inputs">
+      </div>
+      <br>
+    </div>
   </form>
 </div>

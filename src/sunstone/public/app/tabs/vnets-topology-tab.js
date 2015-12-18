@@ -167,6 +167,8 @@ define(function(require) {
         }
       }
 
+      // TODO: VR edges with floating IPs
+
       $.each(vrs, function(j,vr){
         var nodeId = "vr"+vr;
 
@@ -217,6 +219,25 @@ define(function(require) {
               // vnetId is only set the first time a VM node is created,
               // but we only use it to cluster VMs that belong to one VNet.
               // So it doesn't matter if we don't store the rest of VNet IDs
+            }
+
+            var label = undefined;
+
+            // TODO: IPv6 IPs
+            if (lease.IP != undefined){
+              label = lease.IP;
+            }
+
+            edges.push({from: vnetNodeId, to: nodeId, label: label});
+          } else if (lease.VROUTER != undefined){
+            var nodeId = "vr"+lease.VROUTER;
+
+            if (!nodeIndex[nodeId]){
+              nodeIndex[nodeId] = true;
+              nodes.push({
+                id: nodeId,
+                label: "VR "+vr,
+                group: "vr"});
             }
 
             var label = undefined;
