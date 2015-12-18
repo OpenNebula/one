@@ -167,8 +167,6 @@ define(function(require) {
         }
       }
 
-      // TODO: VR edges with floating IPs
-
       $.each(vrs, function(j,vr){
         var nodeId = "vr"+vr;
 
@@ -223,9 +221,14 @@ define(function(require) {
 
             var label = undefined;
 
-            // TODO: IPv6 IPs
             if (lease.IP != undefined){
               label = lease.IP;
+            } else if (lease.IP6_GLOBAL != undefined){
+              label = lease.IP6_GLOBAL;
+            } else if (lease.IP6_ULA != undefined){
+              label = lease.IP6_ULA;
+            } else if (lease.IP6_LINK != undefined){
+              label = lease.IP6_LINK;
             }
 
             edges.push({from: vnetNodeId, to: nodeId, label: label});
@@ -242,9 +245,14 @@ define(function(require) {
 
             var label = undefined;
 
-            // TODO: IPv6 IPs
             if (lease.IP != undefined){
               label = lease.IP;
+            } else if (lease.IP6_GLOBAL != undefined){
+              label = lease.IP6_GLOBAL;
+            } else if (lease.IP6_ULA != undefined){
+              label = lease.IP6_ULA;
+            } else if (lease.IP6_LINK != undefined){
+              label = lease.IP6_LINK;
             }
 
             edges.push({from: vnetNodeId, to: nodeId, label: label});

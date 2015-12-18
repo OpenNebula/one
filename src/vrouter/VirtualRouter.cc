@@ -401,13 +401,25 @@ int VirtualRouter::release_network_leases(VectorAttribute const * nic)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void vrouter_prefix(VectorAttribute* nic, const string& attr)
+{
+    string val;
+
+    if (nic->vector_value(attr.c_str(), val) == 0)
+    {
+        nic->remove(attr);
+        nic->replace("VROUTER_"+attr, val);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 Template * VirtualRouter::get_nics() const
 {
     Template * tmpl = new Template();
 
     int                   num_nics;
     bool                  floating;
-    string                ip;
     vector<Attribute  * > nics;
     VectorAttribute *     nic;
 
@@ -429,13 +441,12 @@ Template * VirtualRouter::get_nics() const
 
         if (floating)
         {
-            // TODO: this is IPv4 only
             nic->remove("MAC");
-            if (nic->vector_value("IP", ip) == 0)
-            {
-                nic->remove("IP");
-                nic->replace("VROUTER_IP", ip);
-            }
+
+            vrouter_prefix(nic, "IP");
+            vrouter_prefix(nic, "IP6_LINK");
+            vrouter_prefix(nic, "IP6_ULA");
+            vrouter_prefix(nic, "IP6_GLOBAL");
 
             // TODO: remove all other attrs, such as AR, BRIDGE, etc?
         }
