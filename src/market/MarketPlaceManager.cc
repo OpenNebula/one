@@ -55,12 +55,15 @@ MarketPlaceManager::MarketPlaceManager(
             std::vector<const Attribute*>& _mads):
         MadManager(_mads),
         timer_period(_timer_period),
-        monitor_period(_monitor_period)
+        monitor_period(_monitor_period),
+        imagem(0)
 {
     Nebula& nd = Nebula::instance();
 
     mppool  = nd.get_marketpool();
     apppool = nd.get_apppool();
+    dspool  = nd.get_dspool();
+    ipool   = nd.get_ipool();
 
     am.addListener(this);
 };
@@ -108,6 +111,16 @@ int MarketPlaceManager::load_mads(int uid)
     }
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void MarketPlaceManager::init_managers()
+{
+    Nebula& nd = Nebula::instance();
+
+    imagem = nd.get_imagem();
 }
 
 /* -------------------------------------------------------------------------- */

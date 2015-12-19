@@ -287,12 +287,8 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
         case Image::ERROR:
         case Image::USED_PERS:
         case Image::LOCKED:
-            ostringstream oss;
-
-            oss << "Releasing image in wrong state: "
-                << Image::state_to_str(img->get_state());
-
-            NebulaLog::log("ImM", Log::ERROR, oss.str());
+            NebulaLog::log("ImM", Log::ERROR, "Release cloning image"
+                " in wrong state");
             break;
     }
 
@@ -564,8 +560,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::can_clone_image(  int             cloning_id,
-                                    ostringstream&  oss_error)
+int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 {
     Image *       img;
 
@@ -607,29 +602,10 @@ int ImageManager::can_clone_image(  int             cloning_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::clone_image(int   new_id,
-                              int   cloning_id,
-                              const string& ds_data,
-                              string& error)
+int ImageManager::set_clone_state(int new_id, int cloning_id, std::string& error)
 {
-    const ImageManagerDriver* imd = get();
-
-    ostringstream oss;
-    Image *       img;
-
-    string  path;
-    string  img_tmpl;
-    string* drv_msg;
-
-    if ( imd == 0 )
-    {
-        error = "Could not get datastore driver";
-
-        NebulaLog::log("ImM", Log::ERROR, error);
-        return -1;
-    }
-
-    img = ipool->get(cloning_id, true);
+    int     rc  = 0;
+    Image * img = ipool->get(cloning_id, true);
 
     if (img == 0)
     {
@@ -652,18 +628,13 @@ int ImageManager::clone_image(int   new_id,
             }
 
             ipool->update(img);
-
-            img->unlock();
-        break;
+            break;
 
         case Image::USED:
         case Image::CLONE:
             img->inc_cloning(new_id);
-
             ipool->update(img);
-
-            img->unlock();
-        break;
+            break;
 
         case Image::USED_PERS:
         case Image::INIT:
@@ -671,19 +642,52 @@ int ImageManager::clone_image(int   new_id,
         case Image::ERROR:
         case Image::DELETE:
         case Image::LOCKED:
-            oss << "Cannot clone image in state: "
-                << Image::state_to_str(img->get_state());
+            error = "Cannot clone image in current state";
+            rc    = -1;
+            break;
+    }
 
-            error = oss.str();
-            img->unlock();
-            return -1;
-        break;
+    img->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::clone_image(int   new_id,
+                              int   cloning_id,
+                              const string& ds_data,
+                              string& error)
+{
+    const ImageManagerDriver* imd = get();
+
+    ostringstream oss;
+    Image *       img;
+
+    string  path;
+    string  img_tmpl;
+    string* drv_msg;
+
+    if ( imd == 0 )
+    {
+        error = "Could not get datastore driver";
+
+        NebulaLog::log("ImM", Log::ERROR, error);
+        return -1;
+    }
+
+    if ( set_clone_state(new_id, cloning_id, error) == -1 )
+    {
+        return -1;
     }
 
     img = ipool->get(new_id,true);
 
-    if (img == 0) //TODO: Rollback cloning counter
+    if (img == 0)
     {
+        release_cloning_image(cloning_id, new_id);
+
         error = "Target image deleted during cloning operation";
         return -1;
     }

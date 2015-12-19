@@ -19,6 +19,10 @@
 #include "MarketPlaceAppPool.h"
 #include "MarketPlaceManagerDriver.h"
 
+#include "Image.h"
+#include "Datastore.h"
+#include "ImageManager.h"
+
 #include "NebulaLog.h"
 #include "Nebula.h"
 
@@ -31,7 +35,22 @@ int MarketPlaceManager::import_app(
         const std::string& market_data,
         std::string&       err)
 {
-    std::string      app_data;
+    std::string app_data, image_data, ds_data;
+	std::string * msg;
+
+	Image * image;
+	Datastore * ds;
+
+	int ds_id;
+
+    const MarketPlaceManagerDriver* mpmd = get();
+
+    if ( mpmd == 0 )
+    {
+        err = "Error getting MarketPlaceManagerDriver";
+        return -1;
+    }
+
     MarketPlaceApp * app = apppool->get(appid, true);
 
     if ( app == 0 )
@@ -42,17 +61,56 @@ int MarketPlaceManager::import_app(
 
     app->to_xml(app_data);
 
+    MarketPlaceApp::MarketPlaceAppType type = app->get_type();
+
+	int app_id    = app->get_oid();
+    int origin_id = app->get_origin_id();
+
     app->unlock();
 
-    std::string * msg = format_message(app_data, market_data, "");
-
-    const MarketPlaceManagerDriver* mpmd = get();
-
-    if ( mpmd == 0 )
+    switch (type)
     {
-        err = "Error getting MarketPlaceManagerDriver";
-        return -1;
+        case MarketPlaceApp::IMAGE:
+            image = ipool->get(origin_id, true);
+
+			if ( image == 0 )
+			{
+				err = "Image does not exist.";
+				return -1;
+			}
+
+            image->to_xml(image_data);
+
+            ds_id = image->get_ds_id();
+
+            image->unlock();
+
+            ds = dspool->get(ds_id, true);
+
+			if ( ds == 0 )
+			{
+				err = "Image datastore no longer exists.";
+				return -1;
+			}
+
+            ds->to_xml(ds_data);
+
+            ds->unlock();
+
+			if (imagem->set_clone_state(-app_id, origin_id, err) != 0)
+			{
+				return -1;
+			}
+			break;
+
+        case MarketPlaceApp::VMTEMPLATE:
+        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::UNKNOWN:
+            err = "Marketplace app type not supported.";
+            return -1;
     }
+
+    msg = format_message(app_data, market_data, image_data + ds_data);
 
     mpmd->importapp(appid, *msg);
 

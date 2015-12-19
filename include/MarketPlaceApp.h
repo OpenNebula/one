@@ -139,6 +139,15 @@ public:
         return type;
     };
 
+    /**
+     * Returns the ID of the object originating this app
+     *    @return the image, vmtemplate or flow id
+     */
+    int get_origin_id() const
+    {
+        return origin_id;
+    };
+
     //--------------------------------------------------------------------------
     // Set Marketplace app attributes
     //--------------------------------------------------------------------------
@@ -232,7 +241,7 @@ private:
     /**
      *  Origin of this App
      */
-    std::string origin;
+    int origin_id;
 
     // *************************************************************************
     // Constructor

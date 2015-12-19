@@ -1207,9 +1207,7 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
 #-------------------------------------------------------------------------------
 # Marketplace drivers, to be installed under $REMOTES_LOCATION/market
 #   - HTTP based marketplace, $REMOTES_LOCATION/market/http
-#   - S3-obeject based Image Repository, $REMOTES_LOCATION/datastore/fs
-#   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
-#   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
+#   - S3-obeject based marketplace, $REMOTES_LOCATION/market/s3
 #-------------------------------------------------------------------------------
 
 MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \

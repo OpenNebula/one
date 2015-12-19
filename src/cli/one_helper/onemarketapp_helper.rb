@@ -129,6 +129,8 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         puts str % ["VERSION", app['VERSION']]
         puts str % ["DESCRIPTION", app['DESCRIPTION']]
         puts str % ["SIZE", OpenNebulaHelper.unit_to_str(app['SIZE'].to_i,{},'M')]
+        puts str % ["ORIGIN_ID", app['ORIGIN_ID']]
+        puts str % ["FORMAT", app['FORMAT']]
 
         puts
 

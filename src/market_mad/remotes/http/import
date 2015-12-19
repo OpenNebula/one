@@ -35,26 +35,36 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 
-XPATH_PATH="${DRIVER_PATH}/../../datastore"
+UTILS_PATH="${DRIVER_PATH}/../../datastore"
 
 # -------- Get arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
 
-XPATH="$XPATH_PATH/xpath.rb -b $DRV_ACTION"
+XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /MARKET_DRIVER_ACTION_DATA/IMPORT_SOURCE \
+                    /MARKET_DRIVER_ACTION_DATA/FORMAT \
+                    /MARKET_DRIVER_ACTION_DATA/DISPOSE \
+                    /MARKET_DRIVER_ACTION_DATA/SIZE \
+                    /MARKET_DRIVER_ACTION_DATA/CHECKSUM \
                     /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BASE_URL \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BRIDGE_LIST \
                     /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR)
 unset i
 
 IMPORT_SOURCE="${XPATH_ELEMENTS[i++]}"
+FORMAT="${XPATH_ELEMENTS[i++]}"
+DISPOSE="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
+CHECKSUM="${XPATH_ELEMENTS[i++]}"
 BASE_URL="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
 
 # -------- Copy source to public folder an generarte App data ------------
@@ -63,29 +73,31 @@ APPNAME=`generate_image_hash`
 DST_PATH="${PUBLIC_DIR}/${APPNAME}"
 SOURCE="${BASE_URL}/${APPNAME}"
 
-if [ ! -f ${IMPORT_SOURCE} ]; then
-    log_error "File ${IMPORT_SOURCE} does not exits"
-    exit -1
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=`get_destination_host $ID`
+    CP_CMD="$UTILS_PATH/downloader.sh ${IMPORT_SOURCE} -"
+
+    exec_and_log "eval $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
+                 "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
+
+    #if [ "${DISPOSE}" = "YES" ]; then
+    #TODO This should call a ds operation
+    #fi
+else
+    CP_CMD="$UTILS_PATH/downloader.sh ${IMPORT_SOURCE} ${DST_PATH}"
+    exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
+
+    if [ "${DISPOSE}" = "YES" ]; then
+    #TODO This should call a ds operation
+        exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
+    fi
 fi
-
-CHECKSUM=$(${MD5SUM} ${IMPORT_SOURCE} | cut -f1 -d' ')
-
-SIZE=$(fs_size ${IMPORT_SOURCE})
-
-if [ "$SIZE" = "0" ]; then
-    log_error "Cannot determine size for ${IMPORT_SOURCE}"
-    exit -1
-fi
-
-exec_and_log "$CP ${IMPORT_SOURCE} ${DST_PATH}" \
-    "Error copying ${IMPORT_SOURCE} to ${DST_PATH}. ${IMPORT_SOURCE} not removed"
-
-exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
 
 RESPONSE=$(cat << EOF
 SOURCE="$SOURCE"
 CHECKSUM="$CHECKSUM"
 SIZE="$SIZE"
+FORMAT="$FORMAT"
 EOF
 )
 

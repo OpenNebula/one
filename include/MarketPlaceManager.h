@@ -25,6 +25,10 @@ extern "C" void * marketplace_action_loop(void *arg);
 
 class MarketPlacePool;
 class MarketPlaceAppPool;
+class ImagePool;
+class DatastorePool;
+
+class ImageManager;
 
 class MarketPlaceManager : public MadManager, public ActionListener
 {
@@ -36,9 +40,15 @@ public:
      *    @param m, monitor_period to monitor marketplaces
      *    @param mad, list of drivers for the manager
      */
-    MarketPlaceManager( time_t t, time_t m, std::vector<const Attribute*>& mad);
+    MarketPlaceManager(time_t t, time_t m, std::vector<const Attribute*>& mad);
 
     ~MarketPlaceManager(){};
+
+    /**
+     * Initializes internal pointers to other managers. Must be called when
+     * all the other managers exist in Nebula::instance
+     */
+    void init_managers();
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -75,7 +85,7 @@ public:
 
     /**
      *  Imports a new app into the marketplace. The marketplace app needs to
-     *  include the ORIGIN attribute so the driver can locate the app. An
+     *  include the ORIGIN_ID attribute so the driver can locate the app. An
      *  optional template maybe provided to export the app to a cloud.
      *    @param appid of the app
      *    @param market_data of the associated marketplace in XML format
@@ -141,6 +151,21 @@ private:
      *  Pointer to the app pool
      */
     MarketPlaceAppPool * apppool;
+
+	/**
+     *  Pointer to the image pool
+     */
+	ImagePool *          ipool;
+
+	/**
+     * Pointer to the image pool
+     */
+	DatastorePool *      dspool;
+
+	/**
+	 *  Pointer to the Image Manger
+     */
+	ImageManager *       imagem;
 
     /**
      *  Action engine for the Manager

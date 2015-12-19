@@ -93,9 +93,12 @@ class MarketPlaceDriver < OpenNebulaDriver
     end
 
     ############################################################################
-    # Image Manager Protocol Actions (generic implementation)
+    # Import a marketplace app into the marketplace. This is a two step process:
+    #   1- The associated datastore_mad/export script is invoked to generate
+    #      a file representation of the app.
+    #   2- The resulting file path is used to import it into the marketplace
+    #      invoking marketplace_mad/import.
     ############################################################################
-
     def import(id, drv_message)
         xml = decode(drv_message)
 
@@ -105,81 +108,60 @@ class MarketPlaceDriver < OpenNebulaDriver
         end
 
         type   = xml['MARKETPLACEAPP/TYPE']
-        origin = xml['MARKETPLACEAPP/ORIGIN']
+        origin = xml['MARKETPLACEAPP/ORIGIN_ID']
         mp_mad = xml['MARKETPLACE/MARKET_MAD']
 
         if type.nil? || origin.nil? || mp_mad.nil?
-            failure(:import, id,"Wrong driver message format")
+            failure(:import, id, "Wrong driver message format")
             return
         end
 
-        #-----------------------------------------------------------------------
-        #  Export origin to a path
-        #-----------------------------------------------------------------------
         case OpenNebula::MarketPlaceApp::MARKETPLACEAPP_TYPES[type.to_i]
-          when "IMAGE" then
-            if ( origin =~ /\d+$/ )
-                # Get the associated datastore ID
-                image = OpenNebula::Image.new_with_id(origin, @one)
-                rc    = image.info
+        #-----------------------------------------------------------------------
+        # Export marketplace origin to a file path, IMAGE
+        #-----------------------------------------------------------------------
+        when "IMAGE" then
+            # ------------ Execute export action from Datastore ----------------
+            ds_mad = xml['DATASTORE/DS_MAD']
 
-                if OpenNebula.is_error?(rc)
-                    failure(:import, id, "Cannot find information for image "\
-                            "#{origin}: #{rc.to_str()}")
-                    return
-                end
-
-                ds_id = image['DATASTORE_ID']
-
-                if ds_id.nil?
-                    failure(:import, id, "Cannot find datastore for image #{origin}")
-                    return
-                end
-
-                ds = OpenNebula::Datastore.new_with_id(ds_id, @one)
-                rc = ds.info
-
-                if OpenNebula.is_error?(rc)
-                    failure(:import, id, "Datastore #{ds_id} not found: #{rc}")
-                    return
-                end
-
-                ds_mad = ds['DS_MAD']
-
-                if ds_mad.nil?
-                    failure(:import, id, "Cannot find datastore driver")
-                    return
-                end
-
-                #Execute export action from Datastore
-                ds_msg   = "<DS_DRIVER_ACTION_DATA>"\
-                           "#{image.to_xml}"\
-                           "#{ds.to_xml}"\
-                           "</DS_DRIVER_ACTION_DATA>"
-                ds_msg64 = Base64::strict_encode64(ds_msg)
-
-                result, info = do_action(id, nil, ds_mad, :export,
-                    "#{ds_msg64} #{id}", false)
-
-                if ( result == RESULT[:failure] )
-                    failure(:import, id, "Error exporting image to file: #{info}")
-                    return
-                end
-
-                source = info
-            elsif ( source =~ /\/.+|https?:\/\// )
-                source = origin
-            else
-                failure(:import, id, "Origin is not a valid ID, path or URL")
+            if ds_mad.nil?
+                failure(:import, id, "Wrong driver message format")
                 return
             end
-          else # Only IMAGE type is supported
-                failure(:import, id, "Type #{apptype} not supported")
+
+            ds_msg = "<DS_DRIVER_ACTION_DATA>"\
+                     "#{xml.element_xml('IMAGE')}"\
+                     "#{xml.element_xml('DATASTORE')}"\
+                     "</DS_DRIVER_ACTION_DATA>"
+
+            ds_msg64 = Base64::strict_encode64(ds_msg)
+
+            result, info = do_action(id, nil, ds_mad, :export,
+                "#{ds_msg64} #{id}", false)
+
+            if ( result == RESULT[:failure] )
+                failure(:import, id, "Error exporting image to file: #{info}")
                 return
+            end
+
+            info_doc = OpenNebula::XMLElement.new
+            info_doc.initialize_xml(info, 'IMPORT_INFO')
+        #-----------------------------------------------------------------------
+        # Only IMAGE type is supported
+        #-----------------------------------------------------------------------
+        else
+            failure(:import, id, "Type #{apptype} not supported")
+            return
         end
 
+        # --------------- Import image app into the marketplace ----------------
         xml.add_element('/MARKET_DRIVER_ACTION_DATA',
-            'IMPORT_SOURCE' => "#{source}")
+                        'IMPORT_SOURCE' => "#{info_doc['IMPORT_SOURCE']}",
+                        'CHECKSUM'      => "#{info_doc['CHECKSUM']}",
+                        'SIZE'          => "#{info_doc['SIZE']}",
+                        'FORMAT'        => "#{info_doc['FORMAT']}",
+                        'DISPOSE'       => "#{info_doc['DISPOSE']}")
+
         mp_msg64 = Base64::strict_encode64(xml.to_xml)
 
         result, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",
@@ -236,7 +218,7 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         result, info = get_info_from_execution(rc)
 
-        info = Base64::strict_encode64(info) if encode
+        info = Base64::strict_encode64(info) if encode && result != RESULT[:failure]
 
         return result, info
     end

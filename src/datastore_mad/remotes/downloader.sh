@@ -176,6 +176,16 @@ http://*|https://*)
 
     command="curl $curl_args"
     ;;
+ssh://*)
+    # pseudo-url for ssh transfers ssh://user@host:path
+    # -l to limit the bw
+    ssh_src=$(echo $FROM | grep -Po '(?<=ssh://).+')
+    ssh_arg=(${ssh_src//:/ })
+
+    rmt_cmd="'cat ${ssh_arg[1]}'"
+
+    command="ssh ${ssh_arg[0]} $rmt_cmd"
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2

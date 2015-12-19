@@ -45,27 +45,45 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/EXPORT_DIR \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
 unset i
 
 SRC="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
-EXPORT_DIR="${XPATH_ELEMENTS[i++]}"
-BASE_PATH="${XPATH_ELEMENTS[i++]}"
 
-EXPORT_DIR="${EXPORT_DIR-$BASE_PATH}"
-
-# -------------------- Convert image to qcow2 format ---------------------------
-# TODO:
-#   Export directories needs to be defined, probably in oned.conf
-#   BRIDGE_LIST needs to be handled
+#-------------------------------------------------------------------------------
+# Output image source and format
 #-------------------------------------------------------------------------------
 
-log "Removing $SRC from the image repository"
+INFO_SCRIPT=$(cat <<EOF
 
-exec_and_log "$QEMU_IMG convert -O qcow2 $SRC $SRC.export" \
-	"Error converting image to qcow2 format"
+CHECKSUM=\$(${MD5SUM} ${SRC} | cut -f1 -d' ')
+SIZE=\$(${DU} -LBM ${SRC} | cut -f1)
+FORMAT=\$(${QEMU_IMG} info ${SRC} 2>/dev/null | grep -Po '(?<=file format: )\w+')
 
-echo "$SRC.export"
+echo "<CHECKSUM>\$CHECKSUM</CHECKSUM>"
+echo "<SIZE>\$SIZE</SIZE>"
+echo "<FORMAT>\$FORMAT</FORMAT>"
+
+EOF
+)
+
+if [ -n "$BRIDGE_LIST" ]; then
+    HOST=`get_destination_host $ID`
+    INFO=$(ssh_monitor_and_log "$HOST" "$INFO_SCRIPT" "Image info script" 2>&1)
+    SRC="ssh://$HOST:$SRC"
+else
+    INFO=$(monitor_and_log "$INFO_SCRIPT" "Image info script" 2>&1)
+fi
+
+INFO_STATUS=$?
+
+if [ "$INFO_STATUS" != "0" ]; then
+    echo "$INFO"
+    exit $INFO_STATUS
+fi
+
+echo "<IMPORT_INFO><IMPORT_SOURCE>$SRC</IMPORT_SOURCE> \
+      $INFO \
+      <DISPOSE>NO</DISPOSE></IMPORT_INFO>"
+

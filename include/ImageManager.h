@@ -115,8 +115,8 @@ public:
 
     /**
      *  Closes any cloning operation on the image, updating the state if needed
-     *    @param iid image id of the image to be released
-     *    @param clone_img_id image id of the image that was being cloned
+     *    @param iid image id of the image to that was being cloned
+     *    @param clone_img_id the cloned image (id > 0) or market app (id =< 0)
      */
     void release_cloning_image(int iid, int clone_img_id);
 
@@ -147,8 +147,16 @@ public:
      *
      * @return 0 if the image can be cloned, -1 otherwise
      */
-    int can_clone_image(int             cloning_id,
-                        ostringstream&  oss_error);
+    int can_clone_image(int cloning_id, ostringstream&  oss_error);
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param new_id for the target image (new_id>0) or market app (new_id =<0)
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 if siccess
+     */
+    int set_clone_state(int new_id, int cloning_id, std::string& error);
 
     /**
      *  Clone an existing image to the repository
@@ -162,7 +170,6 @@ public:
                     int cloning_id,
                     const string& ds_data,
                     string& error);
-
     /**
      *  Deletes an image from the repository and the DB. The Datastore image list
      *  is also updated

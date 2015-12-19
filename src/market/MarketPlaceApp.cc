@@ -99,17 +99,17 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     type = IMAGE;
 
     //Known attributes
-    //ORIGIN
+    //ORIGIN_ID
     //DESCRIPTION
     //APPTEMPLATE64
     //PUBLISHER
     //VERSION
-    erase_template_attribute("ORIGIN", origin);
-
-    if (origin.empty())
+    if (!get_template_attribute("ORIGIN_ID", origin_id))
     {
         goto error_origin;
     }
+
+    remove_template_attribute("ORIGIN_ID");
 
     get_template_attribute("DESCRIPTION", description);
 
@@ -136,7 +136,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     return insert_replace(db, false, error_str);
 
 error_origin:
-    error_str = "Missing ORIGIN for the MARKETPLACEAPP";
+    error_str = "Missing ORIGIN_ID for the MARKETPLACEAPP";
     NebulaLog::log("MKP", Log::ERROR, error_str);
     return -1;
 }
@@ -241,7 +241,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GNAME>"          << gname         << "</GNAME>" <<
 			"<DATE>"           << date          << "</DATE>" <<
 			"<NAME>"           << name          << "</NAME>" <<
-            "<ORIGIN>"         << origin        << "</ORIGIN>" <<
+            "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
             "<SOURCE>"         << source        << "</SOURCE>" <<
             "<CHECKSUM>"       << checksum      << "</CHECKSUM>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
@@ -283,8 +283,8 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
     rc += xpath(date,         "/MARKETPLACEAPP/DATE", -1);
-    rc += xpath(source,       "/MARKETPLACEAPP/SOURCE","not_found");
-    rc += xpath(origin,       "/MARKETPLACEAPP/ORIGIN","not_found");
+    rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
+    rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
     rc += xpath(itype,        "/MARKETPLACEAPP/TYPE",  -1);
     rc += xpath(description,  "/MARKETPLACEAPP/DESCRIPTION", "not_found");

@@ -53,6 +53,14 @@ function set_up_datastore {
 }
 
 #-------------------------------------------------------------------------------
+# Get file format using qemu-img
+#   @return string representation of the format, empty if error
+#-------------------------------------------------------------------------------
+function image_format {
+    echo "$($QEMU_IMG info $1 2>/dev/null | grep -Po '(?<=file format: )\w+')"
+}
+
+#-------------------------------------------------------------------------------
 # Generates an unique image hash. Requires ID to be set
 #   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
