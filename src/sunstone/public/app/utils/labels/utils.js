@@ -30,7 +30,11 @@ define(function(require) {
     'deserializeLabels': _deserializeLabels,
     'makeTree': _makeTree,
     'insertLabelsMenu': _insertLabelsMenu,
-    'insertLabelsDropdown': _insertLabelsDropdown
+    'insertLabelsDropdown': _insertLabelsDropdown,
+    'clearLabelsFilter': _clearLabelsFilter,
+    'setLabelsFilter': _setLabelsFilter,
+    'getLabels': _getLabels,
+    'getLabel': _getLabel
   };
 
   /* FUNCTION DEFINITIONS */
@@ -38,24 +42,24 @@ define(function(require) {
   /*
     Add labels tree to the left menu
    */
-  function _insertLabelsMenu(tabName) {
-    var labels = Sunstone.getDataTable(tabName).getLabels();
-    $('.labels-tree', '#li_' + tabName).remove();
-    $('#li_' + tabName).append(Tree.html(_makeTree(labels), true));
-    Tree.setup($('.labels-tree', '#li_' + tabName));
+  function _insertLabelsMenu(context, dataTable, labelsColumn, labelsPath) {
+    var labels = _getLabels(dataTable, labelsColumn, labelsPath);
+    $('.labels-tree', context).remove();
+    context.append(Tree.html(_makeTree(labels), true));
+    Tree.setup($('.labels-tree', context));
 
     /*
       Filter datatable when a label in the left menu is clicked
      */
-    $('#li_' + tabName).off('click', '.one-label');
-    $('#li_' + tabName).on('click', '.one-label', function() {
+    context.off('click', '.one-label');
+    context.on('click', '.one-label', function() {
       var regExp = [];
       var label = $(this).attr('one-label-full-name');
       regExp.push('^' + label + '$');
       regExp.push(',' + label + '$');
       regExp.push('^' + label + ',');
       regExp.push(',' + label + ',');
-      Sunstone.getDataTable(tabName).setLabelsFilter(regExp.join('|'));
+      _setLabelsFilter(dataTable, labelsColumn, regExp.join('|'));
       return false;
     });
   }
@@ -64,7 +68,11 @@ define(function(require) {
     Generate labels dropdown
    */
   function _insertLabelsDropdown(tabName) {
-    var labels = Sunstone.getDataTable(tabName).getLabels();
+    var tabTable = Sunstone.getDataTable(tabName);
+    var dataTable = tabTable.dataTable;
+    var labelsColumn = tabTable.labelsColumn;
+
+    var labels = _getLabels(dataTable, labelsColumn);
     $('#' + tabName + 'LabelsDropdown').html(
       '<div>' +
       '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
@@ -80,14 +88,13 @@ define(function(require) {
       [-] If any of the selected items has a label
       [ ] If no selected item has an existing label
      */
-    function recountLabels(tabName) {
+    function recountLabels() {
       // Generate Hash with labels and number of items
-      var dataTable = Sunstone.getDataTable(tabName);
       var labelsStr, labelsIndexed = {};
 
-      var selectedItems = dataTable.elements();
+      var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
-        labelsStr = dataTable.getLabel(resourceId);
+        labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
         if (labelsStr != '') {
           $.each(labelsStr.split(','), function(){
             if (labelsIndexed[this]) {
@@ -128,10 +135,10 @@ define(function(require) {
       $('.newLabelInput', labelsDropdown).focus();
     }
     
-    recountLabels(tabName);
+    recountLabels();
     $('[data-dropdown="' + tabName + 'LabelsDropdown"]').off('click');
     $('[data-dropdown="' + tabName + 'LabelsDropdown"]').on('click', function(){
-      recountLabels(tabName);
+      recountLabels();
     });
 
     /*
@@ -149,11 +156,10 @@ define(function(require) {
       }
 
       var labelName = $('.one-label', $(this).parent('li')).attr('one-label-full-name');
-      var dataTable = Sunstone.getDataTable(tabName);
       var labelsArray, labelIndex;
-      var selectedItems = dataTable.elements();
+      var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
-        labelsStr = dataTable.getLabel(resourceId);
+        labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
         if (labelsStr != '') {
           labelsArray = labelsStr.split(',')
         } else {
@@ -181,11 +187,10 @@ define(function(require) {
 
       if (key == 13 && !ev.altKey) {
         var labelName = $(this).val();
-        var dataTable = Sunstone.getDataTable(tabName);
         var labelsArray, labelIndex;
-        var selectedItems = dataTable.elements();
+        var selectedItems = tabTable.elements();
         $.each(selectedItems, function(index, resourceId) {
-          labelsStr = dataTable.getLabel(resourceId);
+          labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
           if (labelsStr != '') {
             labelsArray = labelsStr.split(',')
           } else {
@@ -207,7 +212,7 @@ define(function(require) {
   function _updateResouceLabels(tabName, resourceId, labelsArray) {
     var templateStr = LABELS_ATTR + '="' + labelsArray.join(',') + '"';
     var resource = Sunstone.getResource(tabName);
-    var dataTable = Sunstone.getDataTable(tabName);
+    var tabTable = Sunstone.getDataTable(tabName);
 
     OpenNebula[resource].append({
       timeout: true,
@@ -222,7 +227,7 @@ define(function(require) {
               id: resourceId
           },
           success: function(request, response) {
-            dataTable.updateElement(request, response);
+            tabTable.updateElement(request, response);
             if (Sunstone.rightInfoVisible($('#' + tabName))) {
               Sunstone.insertPanels(tabName, response);
             }
@@ -276,7 +281,7 @@ define(function(require) {
   function _makeSubTree(parentName, folderName, childs) {
     var fullName = parentName + folderName;
     var htmlStr = 
-      '<span class="secondary one-label" one-label-full-name="' + fullName + '">' +
+      '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
         folderName +
       '</span>';
 
@@ -290,5 +295,47 @@ define(function(require) {
     });
 
     return tree;
+  }
+
+  /*
+    dataTable Filters
+   */
+
+  function _setLabelsFilter(dataTable, labelsColumn, regExp) {
+    dataTable.fnFilter(regExp, labelsColumn, true, false);
+  }
+
+  function _clearLabelsFilter(dataTable, labelsColumn) {
+    dataTable.fnFilter('', labelsColumn, true, false);
+  }
+
+  function _getLabels(dataTable, labelsColumn, labelsPath) {
+    var labels = [];
+    var tmp;
+    $.each(dataTable.fnGetData(), function() {
+      if (labelsPath) {
+        tmp = this;
+        $.each(labelsPath.split('.'), function() {
+          if (tmp) {
+            tmp = tmp[this];
+          }
+        });
+        if (tmp && tmp != '') {
+          labels.push(tmp);
+        }
+      } else {
+        if (this[labelsColumn] != '') {
+          labels.push(this[labelsColumn]);
+        }
+      }
+    })
+    return _deserializeLabels(labels.join(','));
+  }
+
+  function _getLabel(dataTable, labelsColumn, resourceId) {
+    var nodes = dataTable.fnGetNodes();
+    var tr = $('.check_item[value="' + resourceId + '"]', nodes).closest('tr');
+    var aData = dataTable.fnGetData(tr);
+    return aData[labelsColumn];
   }
 });

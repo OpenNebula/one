@@ -156,9 +156,7 @@ define(function(require) {
     'updateFn': _updateFn,
     'list': _list,
     'clearLabelsFilter': _clearLabelsFilter,
-    'setLabelsFilter': _setLabelsFilter,
-    'getLabels': _getLabels,
-    'getLabel': _getLabel
+    'setLabelsFilter': _setLabelsFilter
   }
 
   return TabDatatable;
@@ -487,41 +485,15 @@ define(function(require) {
     }
 
     if (that.labelsColumn) {
-      LabelsUtils.insertLabelsMenu(that.tabId);
+      var dataTable = that.dataTable;
+      var labelsColumn = that.labelsColumn;
+      LabelsUtils.insertLabelsMenu($('#li_' + that.tabId), dataTable, labelsColumn);
       LabelsUtils.insertLabelsDropdown(that.tabId);
     }
 
     if (that.postUpdateView) {
       that.postUpdateView();
     }
-  }
-
-  /*
-    LABELS
-   */
-
-  function _setLabelsFilter(regExp) {
-    this.dataTable.fnFilter(regExp, this.labelsColumn, true, false);
-  }
-
-  function _clearLabelsFilter() {
-    this.dataTable.fnFilter('', this.labelsColumn, true, false);
-  }
-
-  function _getLabels() {
-    var that = this;
-    var labels = [];
-    $.each(this.dataTable.fnGetData(), function() {
-      if (this[that.labelsColumn] != '') {
-        labels.push(this[that.labelsColumn]);
-      }
-    })
-    return LabelsUtils.deserializeLabels(labels.join(','));
-  }
-
-  function _getLabel(resourceId) {
-    var aData = this.getElementData(resourceId, this.resource.toLowerCase());
-    return aData[this.labelsColumn];
   }
 
   //replaces an element with id 'tag' in a dataTable with a new one
@@ -1039,5 +1011,13 @@ define(function(require) {
       },
       error: Notifier.onError
     });
+  }
+
+  function _setLabelsFilter(regExp) {
+    LabelsUtils.setLabelsFilter(this.dataTable, this.labelsColumn, regExp);
+  }
+
+  function _clearLabelsFilter() {
+    LabelsUtils.clearLabelsFilter(this.dataTable, this.labelsColumn);
   }
 })
