@@ -148,6 +148,16 @@ public:
         return origin_id;
     };
 
+    const string& get_source()
+    {
+        return source;
+    }
+
+    MarketPlaceAppState get_state()
+    {
+        return state;
+    }
+
     //--------------------------------------------------------------------------
     // Set Marketplace app attributes
     //--------------------------------------------------------------------------
@@ -169,6 +179,11 @@ public:
     void set_size(long long _size_mb)
     {
         size_mb = _size_mb;
+    };
+
+    void set_format(const std::string&  _format)
+    {
+        format = _format;
     };
 
 private:
@@ -212,6 +227,11 @@ private:
      *  Version of the app
      */
     std::string version;
+
+    /**
+     *  format of the disk images
+     */
+    std::string format;
 
     /**
      * App template to import it

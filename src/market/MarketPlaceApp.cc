@@ -93,6 +93,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     remove_template_attribute("SOURCE");
     remove_template_attribute("SIZE");
     remove_template_attribute("CHECKSUM");
+    remove_template_attribute("FORMAT");
 
     date = time(NULL);
 
@@ -248,6 +249,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
             "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
             "<PUBLISHER>"      << publisher     << "</PUBLISHER>" <<
             "<VERSION>"        << version       << "</VERSION>" <<
+            "<FORMAT>"         << format        << "</FORMAT>" <<
             "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
             "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
             "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
@@ -292,6 +294,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
     rc += xpath(checksum,     "/MARKETPLACEAPP/CHECKSUM", "not_found");
     rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");
+    rc += xpath(format,       "/MARKETPLACEAPP/FORMAT", "not_found");
     rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
     rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
     rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);

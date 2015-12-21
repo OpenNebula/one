@@ -68,70 +68,6 @@ void MarketPlaceManagerDriver::monitor(int oid, const std::string& msg) const
 /* MAD Interface                                                              */
 /* ************************************************************************** */
 /*
-static int delete_action(istringstream& is,
-                     ImagePool*     ipool,
-                     int            id,
-                     const string&  result)
-{
-    int rc;
-    int ds_id = -1;
-
-    string  tmp_error;
-    string  source;
-    string  info;
-    Image * image;
-
-    ostringstream oss;
-
-    image = ipool->get(id, true);
-
-    if ( image == 0 )
-    {
-        return ds_id;
-    }
-
-    ds_id  = image->get_ds_id();
-    source = image->get_source();
-
-    rc = ipool->drop(image, tmp_error);
-
-    image->unlock();
-
-    if ( result == "FAILURE" )
-    {
-       goto error;
-    }
-    else if ( rc < 0 )
-    {
-        goto error_drop;
-    }
-
-    NebulaLog::log("ImM", Log::INFO, "Image successfully removed.");
-
-    return ds_id;
-
-error_drop:
-    oss << "Error removing image from DB: " << tmp_error
-        << ". Remove image source " << source << " to completely delete image.";
-
-    NebulaLog::log("ImM", Log::ERROR, oss);
-    return ds_id;
-
-error:
-    oss << "Error removing image from datastore. Manually remove image source "
-        << source << " to completely delete the image";
-
-    getline(is,info);
-
-    if (!info.empty() && (info[0] != '-'))
-    {
-        oss << ": " << info;
-    }
-
-    NebulaLog::log("ImM", Log::ERROR, oss);
-
-    return ds_id;
-}
 */
 /* -------------------------------------------------------------------------- */
 /*
@@ -287,10 +223,12 @@ static void app_failure_action(
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 static int import_action(
         std::istringstream&  is,
         MarketPlaceAppPool * apppool,
+        MarketPlaceManager * marketm,
         int                  id,
         const std::string&   result)
 {
@@ -306,12 +244,14 @@ static int import_action(
 
     std::string source;
     std::string checksum;
+    std::string format;
     long long   size_mb;
+
+    marketm->release_app_resources(id);
 
     if ( result == "FAILURE" )
     {
-        app_failure_action(&is, apppool, id,
-            "Error importing app into marketplace");
+        app_failure_action(&is, apppool, id, "Error importing app into marketplace");
         return -1;
     }
 
@@ -340,9 +280,10 @@ static int import_action(
 
     tmpl.get("SOURCE", source);
     tmpl.get("CHECKSUM", checksum);
+    tmpl.get("FORMAT", format);
     rc = tmpl.get("SIZE", size_mb);
 
-    if ( source.empty() || checksum.empty() || rc == false )
+    if ( source.empty() || checksum.empty() || format.empty() || rc == false )
     {
         goto error_attributes;
     }
@@ -357,6 +298,7 @@ static int import_action(
     app->set_source(source);
     app->set_checksum(checksum);
     app->set_size(size_mb);
+    app->set_format(format);
 
     app->set_state(MarketPlaceApp::READY);
 
@@ -392,6 +334,68 @@ error_app:
     NebulaLog::log("MKP", Log::ERROR, "Marketplace app successfully imported "
         "but it no longer exists. You may need to manually remove: " + source);
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int delete_action(
+        std::istringstream&  is,
+        MarketPlaceAppPool * apppool,
+        MarketPlaceManager * marketm,
+        int                  id,
+        const std::string&   result)
+{
+    int rc;
+
+    std::string source;
+    std::string error;
+
+    std::ostringstream eoss("Error removing app from marketplace");
+
+    MarketPlaceApp * app = apppool->get(id, true);
+
+    if ( app == 0 )
+    {
+        return -1;
+    }
+
+    source = app->get_source();
+
+    rc = apppool->drop(app, error);
+
+    app->unlock();
+
+    if ( result == "FAILURE" )
+    {
+        std::string info;
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            eoss << ": " << info;
+        }
+
+        eoss << ".";
+    }
+
+    if ( rc < 0 )
+    {
+        eoss << " Error removing app from DB: " << error
+             << ". Remove app manually, source is: " << source;
+    }
+
+    if ( rc < 0 || result == "FAILURE" )
+    {
+        NebulaLog::log("MKP", Log::ERROR, eoss.str());
+    }
+    else
+    {
+        NebulaLog::log("MKP",Log::INFO,"Marketplace app successfully removed.");
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -445,7 +449,7 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
 
     if (action == "IMPORT")
     {
-        import_action(is, apppool, id, result);
+        import_action(is, apppool, marketm, id, result);
     }
     else if (action == "EXPORT")
     {
@@ -453,7 +457,7 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
     }
     else if (action == "DELETE")
     {
-        return;
+        delete_action(is, apppool, marketm, id, result);
     }
     else if (action == "MONITOR")
     {

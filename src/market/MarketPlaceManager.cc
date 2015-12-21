@@ -98,7 +98,7 @@ int MarketPlaceManager::load_mads(int uid)
     market_conf.replace("NAME", market_driver_name);
 
     marketm_mad= new MarketPlaceManagerDriver(0, market_conf.value(), false,
-            mppool, apppool);
+            mppool, apppool, this);
 
     rc = add(marketm_mad);
 

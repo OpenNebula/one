@@ -66,7 +66,7 @@ module OpenNebula
         end
 
         # Checks if the internal XML representation is valid
-        def nil?
+        def xml_nil?
             return @xml.nil?
         end
 

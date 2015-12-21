@@ -137,9 +137,6 @@ public:
 
     ~ImageDelete(){};
 
-
-    /* -------------------------------------------------------------------- */
-
     int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
@@ -406,6 +403,8 @@ public:
     };
 
     ~MarketPlaceAppDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

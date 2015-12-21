@@ -363,3 +363,41 @@ int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg
 
     return RequestManagerDelete::drop(oid, object, error_msg);
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
+{
+    Nebula& nd = Nebula::instance();
+
+    MarketPlaceManager * marketm = nd.get_marketm();
+    MarketPlacePool * marketpool = nd.get_marketpool();
+
+    MarketPlaceApp * app = static_cast<MarketPlaceApp *>(object);
+
+    int mp_id = app->get_market_id();
+
+    app->unlock();
+
+    MarketPlace * mp = marketpool->get(mp_id, true);
+
+    if ( mp == 0 )
+    {
+        emsg = "Cannot find associated MARKETPLACE";
+        return -1;
+    }
+
+    std::string mp_name = mp->get_name();
+    std::string mp_data;
+
+    mp->to_xml(mp_data);
+
+    mp->unlock();
+
+    return marketm->delete_app(oid, mp_data, emsg);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+

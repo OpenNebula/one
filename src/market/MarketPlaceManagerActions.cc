@@ -122,3 +122,108 @@ int MarketPlaceManager::import_app(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void MarketPlaceManager::release_app_resources(int appid)
+{
+    MarketPlaceApp * app = apppool->get(appid, true);
+
+    if (app == 0)
+    {
+        return;
+    }
+
+    MarketPlaceApp::MarketPlaceAppType type = app->get_type();
+
+    int iid = app->get_origin_id();
+
+    app->unlock();
+
+    switch (type)
+    {
+        case MarketPlaceApp::IMAGE:
+            imagem->release_cloning_image(iid, -appid);
+            return;
+
+        case MarketPlaceApp::VMTEMPLATE:
+        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::UNKNOWN:
+            return;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
+        std::string& error_str)
+{
+    MarketPlaceApp * app;
+    MarketPlace *    mp;
+
+    std::string app_data;
+    std::string * msg;
+
+    const MarketPlaceManagerDriver* mpmd = get();
+
+    if ( mpmd == 0 )
+    {
+        error_str = "Error getting MarketPlaceManagerDriver";
+        return -1;
+    }
+
+    app = apppool->get(appid, true);
+
+    if (app == 0)
+    {
+        error_str = "Marketplace app no longer exists";
+        return -1;
+    }
+
+    app->to_xml(app_data);
+
+    MarketPlaceApp::MarketPlaceAppType type   = app->get_type();
+    MarketPlaceApp::MarketPlaceAppState state = app->get_state();
+
+    int market_id = app->get_market_id();
+
+    app->unlock();
+
+    switch (type)
+    {
+        case MarketPlaceApp::IMAGE:
+            switch (state)
+            {
+                case MarketPlaceApp::LOCKED:
+                    release_app_resources(appid);
+                    break;
+                case MarketPlaceApp::INIT:
+                case MarketPlaceApp::READY :
+                case MarketPlaceApp::ERROR:
+                    break;
+            }
+            break;
+
+        case MarketPlaceApp::VMTEMPLATE:
+        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::UNKNOWN:
+            return -1;
+    }
+
+    mp = mppool->get(market_id, true);
+
+    if ( mp != 0 )
+    {
+        mp->del_marketapp(appid);
+
+        mppool->update(mp);
+
+        mp->unlock();
+    }
+
+    msg = format_message(app_data, market_data, "");
+
+    mpmd->deleteapp(appid, *msg);
+
+    delete msg;
+
+    return 0;
+}

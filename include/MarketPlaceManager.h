@@ -108,18 +108,25 @@ public:
 
     /**
      *  Deletes an app from the marketplace.
-     *    @param iid id of image
-     *    @param error_str Error reason, if any
+     *    @param appid of the app
+     *    @param market_data of the associated marketplace in XML format
+     *    @param error descrition
      *
      *    @return 0 on success
      */
-    int delete_app(int iid, std::string& error_str);
+    int delete_app(int appid, const std::string& market_data, std::string& err);
 
      /**
       *  Trigger a monitor action for the marketplace .
       *    @param ds_id id of the datastore to monitor
       */
      void monitor_market(int ds_id);
+
+     /**
+      *  Relsease resources locked by this app during the import phase
+      *    @param appid of the app
+      */
+    void release_app_resources(int appid);
 
 private:
     /**

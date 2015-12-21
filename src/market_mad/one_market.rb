@@ -164,18 +164,36 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         mp_msg64 = Base64::strict_encode64(xml.to_xml)
 
-        result, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",
-                            true)
+        rc, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",true)
 
-        send_message(ACTION[:import], result, id, info)
+        send_message(ACTION[:import], rc, id, info)
     end
 
     def export(id, drv_message)
         send_message(ACTION[:export], RESULT[:failure], id, "Not implemented")
     end
 
+    ############################################################################
+    # Deletes an app from the marketplace by freeing the underlying resources
+    ############################################################################
     def delete(id, drv_message)
-        send_message(ACTION[:export], RESULT[:failure], id, "Not implemented")
+        xml = decode(drv_message)
+
+        if xml.nil?
+            failure(:import, id, "Cannot decode driver message")
+            return
+        end
+
+        mp_mad = xml['MARKETPLACE/MARKET_MAD']
+
+        if mp_mad.nil?
+            failure(:import, id, "Wrong driver message format")
+            return
+        end
+
+        rc, info = do_action(id,mp_mad,nil,:delete,"#{drv_message} #{id}",false)
+
+        send_message(ACTION[:delete], rc, id, info)
     end
 
     def monitor(id, drv_message)
@@ -229,6 +247,8 @@ class MarketPlaceDriver < OpenNebulaDriver
         msg = Base64.decode64(drv_message)
         doc = OpenNebula::XMLElement.new
         doc.initialize_xml(msg, 'MARKET_DRIVER_ACTION_DATA')
+
+        doc = nil if doc.xml_nil?
 
         return doc
     end

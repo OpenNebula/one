@@ -25,6 +25,7 @@
 
 class MarketPlacePool;
 class MarketPlaceAppPool;
+class MarketPlaceManager;
 
 /**
  *  ImageManagerDriver represents the basic abstraction for Image Repository
@@ -38,8 +39,10 @@ public:
         const std::map<string,string>& attrs,
         bool sudo,
         MarketPlacePool    * _marketpool,
-        MarketPlaceAppPool * _apppool
-       ):Mad(userid,attrs,sudo), marketpool(_marketpool), apppool(_apppool){};
+        MarketPlaceAppPool * _apppool,
+        MarketPlaceManager * _marketm
+       ):Mad(userid,attrs,sudo), marketpool(_marketpool), apppool(_apppool),
+         marketm(_marketm){};
 
     virtual ~MarketPlaceManagerDriver(){};
 
@@ -63,6 +66,8 @@ private:
     MarketPlacePool    * marketpool;
 
     MarketPlaceAppPool * apppool;
+
+    MarketPlaceManager * marketm;
 
     /**
      *  Sends a stat  request to the MAD.
