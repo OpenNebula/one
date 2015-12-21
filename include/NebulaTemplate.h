@@ -199,6 +199,12 @@ private:
     void set_conf_single(const std::string& attr, const std::string& value);
 
     /**
+     *  Sets a the defaults for a DS
+     */
+    void set_conf_ds(const std::string& name,
+                     const std::string& required_attrs);
+
+    /**
      *  Sets a the defaults for a TM
      */
     void set_conf_tm(const std::string& name,

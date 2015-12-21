@@ -498,6 +498,37 @@ public:
     };
 
     /**
+     *  Gets a DS configuration attribute
+     */
+    int get_ds_conf_attribute(
+        const string& tm_name,
+        const VectorAttribute* &value) const
+    {
+        vector<const Attribute*>::const_iterator it;
+        vector<const Attribute*> values;
+
+        nebula_configuration->Template::get("DS_MAD_CONF", values);
+
+        for (it = values.begin(); it != values.end(); it ++)
+        {
+            value = dynamic_cast<const VectorAttribute*>(*it);
+
+            if (value == 0)
+            {
+                continue;
+            }
+
+            if (value->vector_value("NAME") == tm_name)
+            {
+                return 0;
+            }
+        }
+
+        value = 0;
+        return -1;
+    };
+
+    /**
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(

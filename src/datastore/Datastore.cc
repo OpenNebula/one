@@ -211,6 +211,67 @@ static int check_tm_target_type(string& tm_tt)
 
 /* -------------------------------------------------------------------------- */
 
+int Datastore::set_ds_mad(std::string &tm_mad, std::string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::vector <std::string> vrequired_attrs;
+
+    int    rc;
+    std::string required_attrs, required_attr, value;
+
+    std::ostringstream oss;
+
+    rc = Nebula::instance().get_ds_conf_attribute(ds_mad, vatt);
+
+
+    if ( rc != 0 )
+    {
+        oss << "DS_MAD named \"" << ds_mad << "\" is not defined in oned.conf";
+
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    rc = vatt->vector_value("REQUIRED_ATTRS", required_attrs);
+
+    if ( rc == -1 )
+    {
+        // This DS_MAD has no required attributes: exit
+        return 0;
+    }
+
+    vrequired_attrs = one_util::split(required_attrs, ',');
+
+    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
+         it != vrequired_attrs.end(); it++ )
+    {
+        required_attr = *it;
+
+        required_attr = one_util::trim(required_attr);
+        one_util::toupper(required_attr);
+
+        get_template_attribute(required_attr.c_str(), value);
+
+        if ( value.empty() )
+        {
+            goto error;
+        }
+    }
+
+    return 0;
+
+error:
+    oss << "Datastore template is missing the \"" << required_attr
+        << "\" attribute or it's empty.";
+
+    error_str = oss.str();
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 {
     const VectorAttribute* vatt;
@@ -418,6 +479,11 @@ int Datastore::insert(SqlDB *db, string& error_str)
     else if ( ds_mad.empty() == true )
     {
         goto error_ds;
+    }
+
+    if (set_ds_mad(ds_mad, error_str) != 0)
+    {
+        goto error_common;
     }
 
     get_template_attribute("TM_MAD", tm_mad);

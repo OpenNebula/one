@@ -115,6 +115,34 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_tm("dev",    "NONE",   "NONE",   "yes", "no");
 
     register_multiple_conf_default("TM_MAD_CONF");
+
+
+/*
+#*******************************************************************************
+# Datastore Manager Configuration
+#*******************************************************************************
+# ceph
+# dev
+# dummy
+# fs
+# lvm
+# shared
+# ssh
+# vmfs
+#******
+*/
+
+        set_conf_ds("ceph",
+                    "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET");
+        set_conf_ds("dev", "DISK_TYPE,ISCSI_HOST");
+        set_conf_ds("dummy", "");
+        set_conf_ds("fs", "");
+        set_conf_ds("lvm", "DISK_TYPE");
+        set_conf_ds("shared", "");
+        set_conf_ds("ssh", "");
+        set_conf_ds("vmfs", "BRIDGE_LIST");
+
+        register_multiple_conf_default("DS_MAD_CONF");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -204,6 +232,21 @@ void OpenNebulaTemplate::set_conf_single(const std::string& attr,
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_ds(const std::string& name,
+                                     const std::string& required_attrs)
+{
+    VectorAttribute *   vattribute;
+    map<string,string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+
+    vattribute = new VectorAttribute("DS_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
