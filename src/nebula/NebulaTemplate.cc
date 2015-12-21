@@ -72,8 +72,11 @@ int NebulaTemplate::load_configuration()
         }
     }
 
+    set_multiple_conf_default();
+
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -82,13 +85,141 @@ const char * OpenNebulaTemplate::conf_name="oned.conf";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OpenNebulaTemplate::set_conf_default_single(const std::string& attr,
-                                                 const std::string& value)
+void OpenNebulaTemplate::set_multiple_conf_default()
+{
+
+/*
+#*******************************************************************************
+# Transfer Manager Configuration
+#*******************************************************************************
+# dummy
+# lvm
+# shared
+# fs_lvm
+# qcow2
+# ssh
+# vmfs
+# ceph
+# dev
+#*******************************************************************************
+*/
+
+    set_conf_tm("dummy",  "NONE",   "SYSTEM", "yes", "yes");
+    set_conf_tm("lvm",    "NONE",   "SELF",   "yes", "no");
+    set_conf_tm("shared", "NONE",   "SYSTEM", "yes", "yes");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "yes", "no");
+    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "yes", "no");
+    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "no",  "yes");
+    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "yes", "no");
+    set_conf_tm("ceph",   "NONE",   "SELF",   "yes", "no");
+    set_conf_tm("dev",    "NONE",   "NONE",   "yes", "no");
+
+    // *************************************************************************
+    // Defaults
+    // *************************************************************************
+    string      defaults_name, attributes_name, conf_section;
+    Attribute * defaults_value;
+    bool found;
+
+    const VectorAttribute* defaults_attr;
+    const VectorAttribute* attributes_attr;
+
+    map<string, Attribute *>::iterator  iter_defaults, prev;
+
+    vector<const Attribute*>::const_iterator iter_attributes;
+    vector<const Attribute*> attributes_values;
+
+    conf_section = "TM_MAD_CONF";
+
+    get(conf_section.c_str(), attributes_values);
+
+    for( iter_defaults  = conf_default.begin();
+         iter_defaults != conf_default.end(); )
+    {
+        if ( iter_defaults->first == conf_section )
+        {
+            found = false;
+
+            defaults_value = iter_defaults->second;
+
+            defaults_attr = dynamic_cast<const VectorAttribute*>
+                            (defaults_value);
+
+            defaults_name = defaults_attr->vector_value("NAME");
+
+            for (iter_attributes = attributes_values.begin();
+                 iter_attributes != attributes_values.end(); iter_attributes++)
+            {
+                attributes_attr = dynamic_cast<const VectorAttribute*>
+                                  (*iter_attributes);
+
+                if (attributes_attr == 0)
+                {
+                    continue;
+                }
+
+                attributes_name = attributes_attr->vector_value("NAME");
+
+                if ( attributes_name == defaults_name )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( !found )
+            {
+                // insert into attributes
+                attributes.insert(make_pair(conf_section, defaults_value));
+                iter_defaults++;
+            }
+            else
+            {
+                // remove from conf_defaults
+                delete iter_defaults->second;
+                prev = iter_defaults++;
+                conf_default.erase(prev);
+            }
+        }
+        else
+        {
+            iter_defaults++;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_single(const std::string& attr,
+                                         const std::string& value)
 {
     SingleAttribute *   attribute;
 
     attribute = new SingleAttribute(attr, value);
     conf_default.insert(make_pair(attribute->name(),attribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_tm(const std::string& name,
+                                     const std::string& ln_target,
+                                     const std::string& clone_target,
+                                     const std::string& shared,
+                                     const std::string& ds_migrate)
+{
+    VectorAttribute *   vattribute;
+    map<string,string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("LN_TARGET", ln_target));
+    vvalue.insert(make_pair("CLONE_TARGET", clone_target));
+    vvalue.insert(make_pair("SHARED", shared));
+    vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
+
+    vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,19 +251,19 @@ void OpenNebulaTemplate::set_conf_default()
 #  VM_SUBMIT_ON_HOLD
 #*******************************************************************************
 */
-    set_conf_default_single("MANAGER_TIMER", "15");
-    set_conf_default_single("MONITORING_INTERVAL", "60");
-    set_conf_default_single("MONITORING_THREADS", "50");
-    set_conf_default_single("HOST_PER_INTERVAL", "15");
-    set_conf_default_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
-    set_conf_default_single("VM_INDIVIDUAL_MONITORING", "no");
-    set_conf_default_single("VM_PER_INTERVAL", "5");
-    set_conf_default_single("VM_MONITORING_EXPIRATION_TIME", "14400");
-    set_conf_default_single("PORT", "2633");
-    set_conf_default_single("LISTEN_ADDRESS", "0.0.0.0");
-    set_conf_default_single("VNC_BASE_PORT", "5900");
-    set_conf_default_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
-    set_conf_default_single("VM_SUBMIT_ON_HOLD", "NO");
+    set_conf_single("MANAGER_TIMER", "15");
+    set_conf_single("MONITORING_INTERVAL", "60");
+    set_conf_single("MONITORING_THREADS", "50");
+    set_conf_single("HOST_PER_INTERVAL", "15");
+    set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
+    set_conf_single("VM_INDIVIDUAL_MONITORING", "no");
+    set_conf_single("VM_PER_INTERVAL", "5");
+    set_conf_single("VM_MONITORING_EXPIRATION_TIME", "14400");
+    set_conf_single("PORT", "2633");
+    set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
+    set_conf_single("VNC_BASE_PORT", "5900");
+    set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
+    set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
@@ -193,14 +324,14 @@ void OpenNebulaTemplate::set_conf_default()
 #  LOG_CALL_FORMAT
 #*******************************************************************************
 */
-    set_conf_default_single("MAX_CONN", "15");
-    set_conf_default_single("MAX_CONN_BACKLOG", "15");
-    set_conf_default_single("KEEPALIVE_TIMEOUT", "15");
-    set_conf_default_single("KEEPALIVE_MAX_CONN", "30");
-    set_conf_default_single("TIMEOUT", "15");
-    set_conf_default_single("RPC_LOG", "NO");
-    set_conf_default_single("MESSAGE_SIZE", "1073741824");
-    set_conf_default_single("LOG_CALL_FORMAT", "Req:%i UID:%u %m invoked %l");
+    set_conf_single("MAX_CONN", "15");
+    set_conf_single("MAX_CONN_BACKLOG", "15");
+    set_conf_single("KEEPALIVE_TIMEOUT", "15");
+    set_conf_single("KEEPALIVE_MAX_CONN", "30");
+    set_conf_single("TIMEOUT", "15");
+    set_conf_single("RPC_LOG", "NO");
+    set_conf_single("MESSAGE_SIZE", "1073741824");
+    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u %m invoked %l");
 
 /*
 #*******************************************************************************
@@ -211,8 +342,8 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 */
 
-    set_conf_default_single("MAC_PREFIX", "02:00");
-    set_conf_default_single("NETWORK_SIZE", "254");
+    set_conf_single("MAC_PREFIX", "02:00");
+    set_conf_single("NETWORK_SIZE", "254");
 
 /*
 #*******************************************************************************
@@ -226,12 +357,12 @@ void OpenNebulaTemplate::set_conf_default()
 #  DEFAULT_CDROM_DEVICE_PREFIX
 #*******************************************************************************
 */
-    set_conf_default_single("DATASTORE_LOCATION", var_location + "/datastores");
-    set_conf_default_single("DATASTORE_BASE_PATH", var_location + "/datastores");
-    set_conf_default_single("DATASTORE_CAPACITY_CHECK", "YES");
-    set_conf_default_single("DEFAULT_IMAGE_TYPE", "OS");
-    set_conf_default_single("DEFAULT_DEVICE_PREFIX", "hd");
-    set_conf_default_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
+    set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
+    set_conf_single("DATASTORE_BASE_PATH", var_location + "/datastores");
+    set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
+    set_conf_single("DEFAULT_IMAGE_TYPE", "OS");
+    set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
+    set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
 /*
 #*******************************************************************************
@@ -243,10 +374,10 @@ void OpenNebulaTemplate::set_conf_default()
 # DEFAULT_UMASK
 #*******************************************************************************
 */
-    set_conf_default_single("DEFAULT_AUTH", "default");
-    set_conf_default_single("SESSION_EXPIRATION_TIME", "0");
-    set_conf_default_single("ENABLE_OTHER_PERMISSIONS", "YES");
-    set_conf_default_single("DEFAULT_UMASK", "177");
+    set_conf_single("DEFAULT_AUTH", "default");
+    set_conf_single("SESSION_EXPIRATION_TIME", "0");
+    set_conf_single("ENABLE_OTHER_PERMISSIONS", "YES");
+    set_conf_single("DEFAULT_UMASK", "177");
 }
 
 /* -------------------------------------------------------------------------- */
