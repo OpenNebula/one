@@ -114,10 +114,16 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_tm("ceph",   "NONE",   "SELF",   "yes", "no");
     set_conf_tm("dev",    "NONE",   "NONE",   "yes", "no");
 
-    // *************************************************************************
-    // Defaults
-    // *************************************************************************
-    string      defaults_name, attributes_name, conf_section;
+    register_multiple_conf_default("TM_MAD_CONF");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::register_multiple_conf_default(
+                                                const std::string& conf_section)
+{
+    string      defaults_name, attributes_name;
     Attribute * defaults_value;
     bool found;
 
@@ -128,8 +134,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 
     vector<const Attribute*>::const_iterator iter_attributes;
     vector<const Attribute*> attributes_values;
-
-    conf_section = "TM_MAD_CONF";
 
     get(conf_section.c_str(), attributes_values);
 

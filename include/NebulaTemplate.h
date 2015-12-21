@@ -188,6 +188,12 @@ private:
     void set_multiple_conf_default();
 
     /**
+     *  register the multiple configuration attributes and clean the
+     *  conf_default hash
+     */
+    void register_multiple_conf_default(const std::string& conf_section);
+
+    /**
      *  Sets a default single attribute value
      */
     void set_conf_single(const std::string& attr, const std::string& value);
