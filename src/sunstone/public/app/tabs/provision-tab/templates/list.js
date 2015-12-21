@@ -22,10 +22,12 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
+  var LabelsUtils = require('utils/labels/utils');
 
   var TemplateTemplatesList = require('hbs!./list');
 
   var _accordionId = 0;
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   return {
     'generate': generate_provision_templates_list,
@@ -90,6 +92,9 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
+            LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
+            var context = $('.labels-dropdown', datatable.closest('.content'));
+            LabelsUtils.insertLabelsMenu(context, datatable, TEMPLATE_LABELS_COLUMN, "VMTEMPLATE.TEMPLATE.LABELS");
           }
         },
         error: Notifier.onError

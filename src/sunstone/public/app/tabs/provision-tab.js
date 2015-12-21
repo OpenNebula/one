@@ -35,6 +35,7 @@ define(function(require) {
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -56,6 +57,7 @@ define(function(require) {
   var TemplateGroupInfo = require('hbs!./provision-tab/group/info');
 
   var TAB_ID = require('./provision-tab/tabId');
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   var povision_actions = {
     "Provision.User.create" : {
@@ -1193,7 +1195,9 @@ define(function(require) {
           "aoColumns": [
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_system_templates")
@@ -1201,6 +1205,8 @@ define(function(require) {
           "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             appendTemplateCard(aData, "provision_system_templates");
             return nRow;
+          },
+          "fnDrawCallback": function(oSettings) {
           }
         });
 
@@ -1216,7 +1222,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_vdc_templates")
@@ -1239,7 +1246,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_saved_templates")
@@ -1251,10 +1259,28 @@ define(function(require) {
         });
 
 
-        $('#provision_create_template_search').on('input',function(){
+        $('#provision_create_system_template_search').on('input',function(){
           provision_system_templates_datatable.fnFilter( $(this).val() );
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_vdc_template_search').on('input',function(){
           provision_vdc_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_saved_template_search').on('input',function(){
+          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('[href="#provision_system_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
+        })
+
+        $('[href="#provision_saved_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
+        })
+
+        $('[href="#provision_vdc_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
         })
 
         $("#provision_create_template_refresh_button").click(function(){
