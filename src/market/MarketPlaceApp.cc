@@ -46,7 +46,7 @@ MarketPlaceApp::MarketPlaceApp(
     MarketPlaceAppTemplate * app_template):
         PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, table),
         source(""),
-        checksum(""),
+        md5(""),
         size_mb(0),
         description(""),
         publisher(""),
@@ -92,7 +92,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     //Atrributes updated after export
     remove_template_attribute("SOURCE");
     remove_template_attribute("SIZE");
-    remove_template_attribute("CHECKSUM");
+    remove_template_attribute("MD5");
     remove_template_attribute("FORMAT");
 
     date = time(NULL);
@@ -244,7 +244,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<NAME>"           << name          << "</NAME>" <<
             "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
             "<SOURCE>"         << source        << "</SOURCE>" <<
-            "<CHECKSUM>"       << checksum      << "</CHECKSUM>" <<
+            "<MD5>"            << md5           << "</MD5>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
             "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
             "<PUBLISHER>"      << publisher     << "</PUBLISHER>" <<
@@ -292,7 +292,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(description,  "/MARKETPLACEAPP/DESCRIPTION", "not_found");
     rc += xpath(size_mb,      "/MARKETPLACEAPP/SIZE", -1);
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
-    rc += xpath(checksum,     "/MARKETPLACEAPP/CHECKSUM", "not_found");
+    rc += xpath(md5,          "/MARKETPLACEAPP/MD5", "not_found");
     rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");
     rc += xpath(format,       "/MARKETPLACEAPP/FORMAT", "not_found");
     rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");

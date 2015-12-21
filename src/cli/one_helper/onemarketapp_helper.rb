@@ -123,7 +123,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "DETAILS", false)
 
         puts str % ["SOURCE", app['SOURCE']]
-        puts str % ["CHECKSUM", app['CHECKSUM']]
+        puts str % ["MD5", app['MD5']]
         puts str % ["PUBLISHER", app['PUBLISHER']]
         puts str % ["PUB. DATE", Time.at(app['DATE'].to_i).strftime("%c") ]
         puts str % ["VERSION", app['VERSION']]

@@ -171,9 +171,9 @@ public:
         source = _source;
     };
 
-    void set_checksum(const std::string& _checksum)
+    void set_md5(const std::string& _md5)
     {
-        checksum = _checksum;
+        md5 = _md5;
     };
 
     void set_size(long long _size_mb)
@@ -206,7 +206,7 @@ private:
     /**
      *  Source URL for the marketplace app
      */
-    std::string checksum;
+    std::string md5;
 
     /**
      *  Size of this app

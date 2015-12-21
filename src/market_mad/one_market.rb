@@ -157,7 +157,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         # --------------- Import image app into the marketplace ----------------
         xml.add_element('/MARKET_DRIVER_ACTION_DATA',
                         'IMPORT_SOURCE' => "#{info_doc['IMPORT_SOURCE']}",
-                        'CHECKSUM'      => "#{info_doc['CHECKSUM']}",
+                        'MD5'           => "#{info_doc['MD5']}",
                         'SIZE'          => "#{info_doc['SIZE']}",
                         'FORMAT'        => "#{info_doc['FORMAT']}",
                         'DISPOSE'       => "#{info_doc['DISPOSE']}")

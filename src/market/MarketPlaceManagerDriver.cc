@@ -279,7 +279,7 @@ static int import_action(
     }
 
     tmpl.get("SOURCE", source);
-    tmpl.get("CHECKSUM", checksum);
+    tmpl.get("MD5", checksum);
     tmpl.get("FORMAT", format);
     rc = tmpl.get("SIZE", size_mb);
 
@@ -296,7 +296,7 @@ static int import_action(
     }
 
     app->set_source(source);
-    app->set_checksum(checksum);
+    app->set_md5(checksum);
     app->set_size(size_mb);
     app->set_format(format);
 
