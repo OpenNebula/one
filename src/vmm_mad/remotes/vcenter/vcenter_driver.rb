@@ -584,6 +584,33 @@ class VIClient
             raise "Error connecting to #{@host}: #{e.message}"
         end
     end
+
+    ######################### Datastore Operations #############################
+
+    def stat(ds_name, img_str)
+        img_path = File.dirname img_str
+        img_name = File.basename img_str
+
+        # Find datastore within datacenter
+        ds=@dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+
+        # Create Search Spec
+        spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
+        spec.query   = [RbVmomi::VIM::FileQuery.new]
+        spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
+                                                    :fileSize => true,
+                                                    :fileType => true,
+                                                    :modification => true)
+        spec.matchPattern=[img_name]
+
+        search_params = {'datastorePath' => "[#{ds_name}] #{img_path}", 
+                         'searchSpec'    => spec}
+
+        # Perform search task and return results
+        search_task=ds.browser.SearchDatastoreSubFolders_Task(search_params)
+        search_task.wait_for_completion
+        search_task.info.result[0].file[0].fileSize
+    end
 end
 
 ################################################################################
