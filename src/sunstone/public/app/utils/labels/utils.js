@@ -232,7 +232,8 @@ define(function(require) {
               Sunstone.insertPanels(tabName, response);
             }
 
-            _insertLabelsMenu(tabName);
+            
+            _insertLabelsMenu($('#li_' + tabName), tabTable.dataTable, tabTable.labelsColumn);
             _insertLabelsDropdown(tabName);
           },
           error: Notifier.onError
