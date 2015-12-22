@@ -501,11 +501,13 @@ public:
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(
-        const string& tm_name,
+        const string& ds_name,
         const VectorAttribute* &value) const
     {
         vector<const Attribute*>::const_iterator it;
         vector<const Attribute*> values;
+        std::string template_ds_name;
+        std::string ds_name_upper;
 
         nebula_configuration->Template::get("DS_MAD_CONF", values);
 
@@ -518,7 +520,13 @@ public:
                 continue;
             }
 
-            if (value->vector_value("NAME") == tm_name)
+            template_ds_name = value->vector_value("NAME");
+            ds_name_upper = ds_name;
+
+            one_util::toupper(ds_name_upper);
+            one_util::toupper(template_ds_name);
+
+            if ( template_ds_name == ds_name_upper)
             {
                 return 0;
             }
@@ -537,6 +545,8 @@ public:
     {
         vector<const Attribute*>::const_iterator it;
         vector<const Attribute*> values;
+        std::string template_tm_name;
+        std::string tm_name_upper;
 
         nebula_configuration->Template::get("TM_MAD_CONF", values);
 
@@ -549,7 +559,13 @@ public:
                 continue;
             }
 
-            if (value->vector_value("NAME") == tm_name)
+            template_tm_name = value->vector_value("NAME");
+            tm_name_upper = tm_name;
+
+            one_util::toupper(tm_name_upper);
+            one_util::toupper(template_tm_name);
+
+            if ( tm_name_upper == template_tm_name)
             {
                 return 0;
             }
