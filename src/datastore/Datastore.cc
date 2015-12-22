@@ -761,6 +761,8 @@ int Datastore::from_xml(const string& xml)
 
 int Datastore::post_update_template(string& error_str)
 {
+    int rc;
+
     string new_ds_mad;
     string new_tm_mad;
     string s_ds_type;
@@ -876,6 +878,17 @@ int Datastore::post_update_template(string& error_str)
             // DS are monitored by the DS mad, reset information
             update_monitor(0, 0, 0);
         }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Verify that the template has the required attributees                  */
+    /* ---------------------------------------------------------------------- */
+
+    rc = set_ds_mad(ds_mad, error_str);
+
+    if ( rc !=  0 )
+    {
+        return rc;
     }
 
     /* ---------------------------------------------------------------------- */
