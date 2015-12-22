@@ -580,6 +580,7 @@ class VIClient
         begin
             @vim  = RbVmomi::VIM.connect(opts)
             @root = @vim.root
+            @vdm  = @vim.serviceContent.virtualDiskManager
         rescue Exception => e
             raise "Error connecting to #{@host}: #{e.message}"
         end
@@ -587,6 +588,12 @@ class VIClient
 
     ######################### Datastore Operations #############################
 
+    ############################################################################
+    # Retrieve size for a VirtualDisk in a particular datastore
+    # @param ds_name [String] name of the datastore
+    # @param img_str [String] path to the VirtualDisk
+    # @return size of the file in Kb
+    ############################################################################
     def stat(ds_name, img_str)
         img_path = File.dirname img_str
         img_name = File.basename img_str
@@ -596,7 +603,7 @@ class VIClient
 
         # Create Search Spec
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
-        spec.query   = [RbVmomi::VIM::FileQuery.new]
+        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
         spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
                                                     :fileSize => true,
                                                     :fileType => true,
@@ -609,7 +616,40 @@ class VIClient
         # Perform search task and return results
         search_task=ds.browser.SearchDatastoreSubFolders_Task(search_params)
         search_task.wait_for_completion
-        search_task.info.result[0].file[0].fileSize
+        (search_task.info.result[0].file[0].fileSize / 1024) / 1024
+    end
+
+    ############################################################################
+    # Returns Datastore information
+    # @param ds_name [String] name of the datastore
+    # @return [String] monitor information of the DS
+    ############################################################################
+    def monitor_ds(ds_name)
+        # Find datastore within datacenter
+        ds=@dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+
+        total_mb = (ds.summary.capacity.to_i / 1024) / 1024
+        free_mb = (ds.summary.freeSpace.to_i / 1024) / 1024
+        used_mb = total_mb - free_mb
+
+        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
+    end
+
+    ############################################################################
+    # Copy a VirtualDisk
+    # @param ds_name [String] name of the datastore
+    # @param img_str [String] path to the VirtualDisk
+    # @return size of the file in Kb
+    ############################################################################
+    def copy_virtual_disk(source_path, source_ds, target_path, target_ds=nil)
+        target_ds = source_ds if target_ds.nil?
+
+        copy_params= {:sourceName => "[#{source_ds}] #{source_path}", 
+                      :sourceDatacenter => @dc, 
+                      :destName => "[#{target_ds}] #{target_path}"}
+
+        @vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+
     end
 end
 
