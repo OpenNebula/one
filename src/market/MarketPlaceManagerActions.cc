@@ -198,6 +198,7 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
                 case MarketPlaceApp::INIT:
                 case MarketPlaceApp::READY :
                 case MarketPlaceApp::ERROR:
+                case MarketPlaceApp::DISABLED:
                     break;
             }
             break;

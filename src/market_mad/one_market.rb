@@ -148,6 +148,8 @@ class MarketPlaceDriver < OpenNebulaDriver
             info_doc.initialize_xml(info, 'IMPORT_INFO')
         #-----------------------------------------------------------------------
         # Only IMAGE type is supported
+        # when "VMTEMPLATE"
+        # when "FLOW"
         #-----------------------------------------------------------------------
         else
             failure(:import, id, "Type #{apptype} not supported")
@@ -169,12 +171,8 @@ class MarketPlaceDriver < OpenNebulaDriver
         send_message(ACTION[:import], rc, id, info)
     end
 
-    def export(id, drv_message)
-        send_message(ACTION[:export], RESULT[:failure], id, "Not implemented")
-    end
-
     ############################################################################
-    # Deletes an app from the marketplace by freeing the underlying resources
+    # Deletes an app from the marketplace
     ############################################################################
     def delete(id, drv_message)
         xml = decode(drv_message)
@@ -196,6 +194,9 @@ class MarketPlaceDriver < OpenNebulaDriver
         send_message(ACTION[:delete], rc, id, info)
     end
 
+    ############################################################################
+    # Monitor the marketplace. It gathers information about usage and app status
+    ############################################################################
     def monitor(id, drv_message)
         send_message(ACTION[:export], RESULT[:failure], id, "Not implemented")
     end

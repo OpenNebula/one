@@ -374,3 +374,31 @@ MarketPlaceApp::MarketPlaceAppType MarketPlaceApp::str_to_type(string& str_type)
     return UNKNOWN;
 }
 
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+int MarketPlaceApp::enable(bool enable, string& error_str)
+{
+    switch(state)
+    {
+        case INIT:
+        case LOCKED:
+        case ERROR:
+            break;
+
+        case READY:
+        case DISABLED:
+            if (enable)
+            {
+                state = READY;
+            }
+            else
+            {
+                state = DISABLED;
+            }
+            break;
+    }
+
+    return 0;
+}
+

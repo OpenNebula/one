@@ -30,6 +30,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 require 'command_parser'
 require 'one_helper/onemarketapp_helper'
 require 'one_helper/onemarket_helper'
+require 'one_helper/onedatastore_helper'
 
 CommandParser::CmdParser.new(ARGV) do
     usage "`onemarket` <command> [<args>] [<options>]"
@@ -52,6 +53,7 @@ CommandParser::CmdParser.new(ARGV) do
     list_options << OpenNebulaHelper::DESCRIBE
 
     CREATE_OPTIONS = [OneMarketPlaceHelper::MARKETPLACE]
+    EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE]
 
     ########################################################################
     # Formatters for arguments
@@ -103,12 +105,32 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    export_desc = <<-EOT.unindent
+        Exports the marketplace app to the OpenNebula cloud
+    EOT
+
+    command :export, export_desc, :appid, :name, :options=>EXPORT_OPTIONS  do
+        helper.perform_action(args[0], options, "exported") do |obj|
+
+            rc = obj.export(:dsid=>options[:datastore], :name=>args[1])
+
+            next rc if OpenNebula.is_error?(rc)
+
+            rc.each { |key, value|
+                puts "#{key.to_s.upcase}"
+                value.each{ |id|
+                    puts "    ID: #{id}"
+                }
+            }
+        end
+    end
+
     delete_desc = <<-EOT.unindent
         Deletes the given marketplace app
     EOT
 
     command :delete, delete_desc, [:range, :appid_list] do
-        helper.perform_actions(args[0],options,"deleted") do |app|
+        helper.perform_actions(args[0], options, "deleted") do |app|
             app.delete
         end
     end
@@ -119,7 +141,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :appid, [:file, nil],
-    :options=>OpenNebulaHelper::APPEND do
+        :options=>OpenNebulaHelper::APPEND do
+
         helper.perform_action(args[0],options,"modified") do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
@@ -136,7 +159,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc,[:range, :appid_list], :groupid do
-        helper.perform_actions(args[0],options,"Group changed") do |app|
+        helper.perform_actions(args[0], options, "Group changed") do |app|
             app.chown(-1, args[1].to_i)
         end
     end
@@ -146,10 +169,10 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chown, chown_desc, [:range, :appid_list], :userid,
-            [:groupid,nil] do
+            [:groupid, nil] do
         gid = args[2].nil? ? -1 : args[2].to_i
-        helper.perform_actions(args[0],options,
-                "Owner/Group changed") do |app|
+
+        helper.perform_actions(args[0], options, "Owner/Group changed") do |app|
             app.chown(args[1].to_i, gid)
         end
     end
@@ -159,8 +182,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :appid_list], :octet do
-        helper.perform_actions(args[0],options,
-                "Permissions changed") do |app|
+        helper.perform_actions(args[0], options, "Permissions changed") do |app|
             app.chmod_octet(args[1])
         end
     end
@@ -170,7 +192,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :appid, :name do
-        helper.perform_action(args[0],options,"renamed") do |o|
+        helper.perform_action(args[0], options, "renamed") do |o|
             o.rename(args[1])
         end
     end
@@ -188,6 +210,27 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :appid, :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args[0],options)
+        helper.show_resource(args[0], options)
+    end
+
+    enable_desc = <<-EOT.unindent
+        Enables the marketplace app
+    EOT
+
+    command :enable, enable_desc, [:range, :appid_list] do
+        helper.perform_actions(args[0], options, "enabled") do |obj|
+            obj.enable
+        end
+    end
+
+    disable_desc = <<-EOT.unindent
+        Disables the marketplace app. A disabled marketplace app cannot be
+        exported to a cloud
+    EOT
+
+    command :disable, disable_desc, [:range, :appid_list] do
+        helper.perform_actions(args[0], options, "disabled") do |obj|
+            obj.disable
+        end
     end
 end

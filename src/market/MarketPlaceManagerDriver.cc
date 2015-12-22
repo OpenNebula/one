@@ -33,17 +33,6 @@ void MarketPlaceManagerDriver::importapp(int oid, const std::string& msg) const
 
 /* -------------------------------------------------------------------------- */
 
-void MarketPlaceManagerDriver::exportapp(int oid, const std::string& msg) const
-{
-    std::ostringstream os;
-
-    os << "EXPORT " << oid << " " << msg << endl;
-
-    write(os);
-}
-
-/* -------------------------------------------------------------------------- */
-
 void MarketPlaceManagerDriver::deleteapp(int oid, const std::string& msg) const
 {
     std::ostringstream os;
@@ -450,10 +439,6 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
     if (action == "IMPORT")
     {
         import_action(is, apppool, marketm, id, result);
-    }
-    else if (action == "EXPORT")
-    {
-        return;
     }
     else if (action == "DELETE")
     {

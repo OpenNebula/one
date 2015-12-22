@@ -29,16 +29,18 @@ module OpenNebula
             :update     => "marketapp.update",
             :chown      => "marketapp.chown",
             :chmod      => "marketapp.chmod",
-            :rename     => "marketapp.rename"
+            :rename     => "marketapp.rename",
+            :enable     => "marketapp.enable"
         }
 
-        MARKETPLACEAPP_STATES=%w{INIT READY LOCKED ERROR}
+        MARKETPLACEAPP_STATES=%w{INIT READY LOCKED ERROR DISABLED}
 
         SHORT_MARKETPLACEAPP_STATES={
-            "INIT"      => "init",
+            "INIT"      => "ini",
             "READY"     => "rdy",
-            "LOCKED"    => "lock",
+            "LOCKED"    => "lck",
             "ERROR"     => "err",
+            "DISABLED"  => "dis"
         }
 
         MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE FLOW}
@@ -137,8 +139,8 @@ module OpenNebula
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
-            super(MARKETPLACEAPP_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
-                group_m, group_a, other_u, other_m, other_a)
+            super(MARKETPLACEAPP_METHODS[:chmod], owner_u, owner_m, owner_a,
+                group_u, group_m, group_a, other_u, other_m, other_a)
         end
 
         # Renames this marketplace app
@@ -149,6 +151,78 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(MARKETPLACEAPP_METHODS[:rename], @pe_id, name)
+        end
+
+        # Exports this app to a suitable OpenNebula object
+        # @param appid [Integer] id of the marketplace app
+        # @param options [Hash] to control the export behavior
+        #   dsid [Integer] datastore to save images
+        #   name [String] of the new object
+        #
+        # @return [Hash, OpenNebula::Error] with the ID and type of the created
+        # objects
+        #   { :vm => [ vm ids ],
+        #     :vmtemplate => [vmtemplates ids],
+        #     :image => [ vm ids] }
+        def export(options={})
+            return Error.new("Missing datastore id") if options[:dsid].nil?
+            return Error.new("Missing name to export app") if options[:name].nil?
+
+            one = Client.new()
+
+            rc  = info
+            return rc if OpenNebula.is_error?(rc)
+            return Error.new("App is not in READY state") if state_str!="READY"
+
+            case type_str
+            when "IMAGE"
+                if !self['APPTEMPLATE64'].nil?
+                    tmpl=Base64::decode64(self['APPTEMPLATE64'])
+                else
+                    tmpl=""
+                end
+
+                name = options[:name] || "marketapp-#{self.id}"
+
+                tmpl << "\n"
+                tmpl << "NAME=\"" << name << "\"\n"
+                tmpl << "PATH="   << self['SOURCE'] << "\n"
+                tmpl << "FORMAT=" << self['FORMAT'] << "\n"
+                tmpl << "MD5="    << self['MD5'] << "\n"
+                tmpl << "FROM_APP=\""      << self['ID'] << "\"\n"
+                tmpl << "FROM_APP_NAME=\"" << self['NAME'] << "\"\n"
+
+                image = Image.new(Image.build_xml, one)
+                rc    = image.allocate(tmpl, options[:dsid])
+
+                return rc if OpenNebula.is_error?(rc)
+
+                if !self['TEMPLATE/VMTEMPLATE64'].nil?
+                    tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
+
+                    tmpl << "\nNAME=#{name}\n"
+                    tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
+
+                    vmtpl = Template.new(Template.build_xml, one)
+                    rc    = vmtpl.allocate(tmpl)
+
+                    return rc if OpenNebula.is_error?(rc)
+                end
+
+                return { :image => [image.id], :vmtemplate => [vmtpl.id] }
+            else
+                return Error.new("App type #{app.type_str} not supported")
+            end
+        end
+
+        # Enables this app
+        def enable
+            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)
+        end
+
+        # Enables this app
+        def disable
+            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, false)
         end
 
         # ---------------------------------------------------------------------

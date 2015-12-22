@@ -70,29 +70,22 @@ private:
     MarketPlaceManager * marketm;
 
     /**
-     *  Sends a stat  request to the MAD.
-     *    @param oid the id of the stat request
+     *  Imports a new object into the marketplace
+     *    @param oid of the app
      *    @param drv_msg xml data for the mad operation.
      */
     void importapp(int oid, const std::string& drv_msg) const;
 
     /**
-     *  Sends a make filesystem request to the MAD.
-     *    @param oid the image id.
-     *    @param drv_msg xml data for the mad operation.
-     */
-    void exportapp(int oid, const std::string& drv_msg) const;
-
-    /**
-     *  Sends a delete request to the MAD: "DELETE IMAGE_ID PATH"
-     *    @param oid the image id.
+     *  Deletes an app from the marketplace
+     *    @param oid of the app
      *    @param drv_msg xml data for the mad operation.
      */
     void deleteapp(int oid, const std::string& drv_msg) const;
 
     /**
-     *  Sends a monitor request to the MAD: "MONITOR DS_ID DS_XML"
-     *    @param oid the datastore id.
+     *  Monitors the marketplace
+     *    @param oid of the operation
      *    @param drv_msg xml data for the mad operation.
      */
     void monitor(int oid, const std::string& drv_msg) const;

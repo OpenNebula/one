@@ -37,6 +37,7 @@ public:
         READY     = 1, /** < Ready to use */
         LOCKED    = 2, /** < Operation in process */
         ERROR     = 3, /** < Error state the operation failed*/
+        DISABLED  = 4
     };
 
     /**
@@ -48,10 +49,11 @@ public:
     {
         switch(state)
         {
-            case INIT:   return "INIT";   break;
-            case READY:  return "READY";  break;
-            case LOCKED: return "LOCKED"; break;
-            case ERROR:  return "ERROR";  break;
+            case INIT:     return "INIT";   break;
+            case READY:    return "READY";  break;
+            case LOCKED:   return "LOCKED"; break;
+            case ERROR:    return "ERROR";  break;
+            case DISABLED: return "DISABLED";  break;
             default:     return "";
         }
     };
@@ -105,6 +107,15 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const std::string &xml_str);
+
+    /**
+     * Enable or disable the app. A disabled app cannot be exported
+     * @param enable true to enable
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int enable(bool enable, string& error_str);
 
     /**
      * Returns the marketplace ID
