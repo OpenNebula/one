@@ -153,17 +153,19 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 void OpenNebulaTemplate::register_multiple_conf_default(
                                                 const std::string& conf_section)
 {
-    string      defaults_name, attributes_name;
+    std::string defaults_name, attributes_name;
+
     Attribute * defaults_value;
+
     bool found;
 
     const VectorAttribute* defaults_attr;
     const VectorAttribute* attributes_attr;
 
-    map<string, Attribute *>::iterator  iter_defaults, prev;
+    std::map<std::string, Attribute *>::iterator  iter_defaults, prev;
 
-    vector<const Attribute*>::const_iterator iter_attributes;
-    vector<const Attribute*> attributes_values;
+    std::vector<const Attribute*>::const_iterator iter_attributes;
+    std::vector<const Attribute*> attributes_values;
 
     get(conf_section.c_str(), attributes_values);
 
@@ -242,7 +244,7 @@ void OpenNebulaTemplate::set_conf_ds(const std::string& name,
                                      const std::string& persistent_only)
 {
     VectorAttribute *   vattribute;
-    map<string,string>  vvalue;
+    std::map<std::string,std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
@@ -261,7 +263,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& ds_migrate)
 {
     VectorAttribute *   vattribute;
-    map<string,string>  vvalue;
+    std::map<std::string,std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("LN_TARGET", ln_target));

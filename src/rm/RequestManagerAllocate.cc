@@ -482,7 +482,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( ds_persistent_only && persistent_attr == false )
     {
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "This Datastore only accepts persistent images.";
 
         failure_response(INTERNAL, allocate_error(oss.str()), att);

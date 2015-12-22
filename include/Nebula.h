@@ -501,11 +501,11 @@ public:
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(
-        const string& ds_name,
+        const std::string& ds_name,
         const VectorAttribute* &value) const
     {
-        vector<const Attribute*>::const_iterator it;
-        vector<const Attribute*> values;
+        std::vector<const Attribute*>::const_iterator it;
+        std::vector<const Attribute*> values;
         std::string template_ds_name;
         std::string ds_name_upper;
 
