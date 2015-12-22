@@ -148,6 +148,9 @@ define(function(require) {
         case 'dev':
           _selectDevices(dialog);
           break;
+        case 'iscsi':
+          _selectISCSI(dialog);
+          break;
         case 'custom':
           _selectCustom(dialog);
           break;
@@ -192,6 +195,9 @@ define(function(require) {
     var rbd_format      = $('#rbd_format', dialog).val();
     var staging_dir     = $('#staging_dir', dialog).val();
     var ceph_conf       = $('#ceph_conf', dialog).val();
+    var iscsi_host      = $('#iscsi_host', dialog).val();
+    var iscsi_user      = $('#iscsi_user', dialog).val();
+    var iscsi_usage     = $('#iscsi_usage', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -265,6 +271,15 @@ define(function(require) {
     if (ceph_conf)
         ds_obj.datastore.ceph_conf = ceph_conf;
 
+    if (iscsi_host)
+        ds_obj.datastore.iscsi_host = iscsi_host;
+
+    if (iscsi_user)
+        ds_obj.datastore.iscsi_user = iscsi_user;
+
+    if (iscsi_usage)
+        ds_obj.datastore.iscsi_usage = iscsi_usage;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -308,6 +323,9 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_host"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_user"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_usage"],input#ceph_conf', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
@@ -468,6 +486,27 @@ define(function(require) {
     $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('select#disk_type', dialog).val('block');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#base_path', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+  }
+
+  function _selectISCSI(dialog) {
+    $('select#ds_mad', dialog).val('iscsi');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('iscsi');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().fadeIn();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().fadeIn();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('iscsi');
     $('select#disk_type', dialog).attr('disabled', 'disabled');
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
