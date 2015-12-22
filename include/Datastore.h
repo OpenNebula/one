@@ -224,6 +224,12 @@ public:
     };
 
     /**
+     * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
+     * @return true if persistent only
+     */
+    bool is_persistent_only();
+
+    /**
      * Enable or disable the DS. Only for System DS.
      * @param enable true to enable
      * @param error_str Returns the error reason, if any

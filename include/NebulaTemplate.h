@@ -202,7 +202,8 @@ private:
      *  Sets a the defaults for a DS
      */
     void set_conf_ds(const std::string& name,
-                     const std::string& required_attrs);
+                     const std::string& required_attrs,
+                     const std::string& persistent_only);
 
     /**
      *  Sets a the defaults for a TM

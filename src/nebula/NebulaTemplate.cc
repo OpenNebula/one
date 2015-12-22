@@ -104,15 +104,15 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #*******************************************************************************
 */
 
-    set_conf_tm("dummy",  "NONE",   "SYSTEM", "yes", "yes");
-    set_conf_tm("lvm",    "NONE",   "SELF",   "yes", "no");
-    set_conf_tm("shared", "NONE",   "SYSTEM", "yes", "yes");
-    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "yes", "no");
-    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "yes", "no");
-    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "no",  "yes");
-    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "yes", "no");
-    set_conf_tm("ceph",   "NONE",   "SELF",   "yes", "no");
-    set_conf_tm("dev",    "NONE",   "NONE",   "yes", "no");
+    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES");
+    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO");
+    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO");
+    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO");
+    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES");
+    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO");
+    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO");
+    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO");
 
     register_multiple_conf_default("TM_MAD_CONF");
 
@@ -132,15 +132,17 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #******
 */
 
+        set_conf_ds("dev",    "DISK_TYPE",            "YES");
+        set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
+        set_conf_ds("dummy",  "",                     "NO");
+        set_conf_ds("fs",     "",                     "NO");
+        set_conf_ds("lvm",    "DISK_TYPE",            "NO");
+        set_conf_ds("shared", "",                     "NO");
+        set_conf_ds("ssh",    "",                     "NO");
+        set_conf_ds("vmfs",   "BRIDGE_LIST",          "NO");
         set_conf_ds("ceph",
-                    "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET");
-        set_conf_ds("dev", "DISK_TYPE,ISCSI_HOST");
-        set_conf_ds("dummy", "");
-        set_conf_ds("fs", "");
-        set_conf_ds("lvm", "DISK_TYPE");
-        set_conf_ds("shared", "");
-        set_conf_ds("ssh", "");
-        set_conf_ds("vmfs", "BRIDGE_LIST");
+                    "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
+                    "NO");
 
         register_multiple_conf_default("DS_MAD_CONF");
 }
@@ -236,13 +238,15 @@ void OpenNebulaTemplate::set_conf_single(const std::string& attr,
 /* -------------------------------------------------------------------------- */
 
 void OpenNebulaTemplate::set_conf_ds(const std::string& name,
-                                     const std::string& required_attrs)
+                                     const std::string& required_attrs,
+                                     const std::string& persistent_only)
 {
     VectorAttribute *   vattribute;
     map<string,string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+    vvalue.insert(make_pair("PERSISTENT_ONLY", persistent_only));
 
     vattribute = new VectorAttribute("DS_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));

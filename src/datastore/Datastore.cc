@@ -951,3 +951,27 @@ bool Datastore::get_avail_mb(long long &avail)
 
     return check;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+bool Datastore::is_persistent_only()
+{
+    int rc;
+    bool persistent_only = false;
+
+    const VectorAttribute* vatt;
+
+    rc = Nebula::instance().get_ds_conf_attribute(ds_mad, vatt);
+
+    if ( rc != 0 )
+    {
+        // No DS_MAD_CONF is available for this DS_MAD.
+        // Assuming this DS is not PERSISTENT_ONLY
+        return false;
+    }
+
+    vatt->vector_value("PERSISTENT_ONLY", persistent_only);
+
+    return persistent_only;
+};
