@@ -23,7 +23,6 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var LabelsTable = require('utils/labels/labels-table');
 
   /*
     TEMPLATES
@@ -50,12 +49,6 @@ define(function(require) {
 
     this.element = info[XML_ROOT];
 
-    this.labelsTable = new LabelsTable({
-      element: this.element,
-      resource: RESOURCE,
-      xmlRoot: XML_ROOT
-    })
-
     return this;
   };
 
@@ -72,21 +65,18 @@ define(function(require) {
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var labelsTableHTML = this.labelsTable.html();
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
 
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'prettyRegTime': prettyRegTime,
-      'labelsTableHTML': labelsTableHTML
+      'prettyRegTime': prettyRegTime
     });
   }
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-    this.labelsTable.setup(context);
   }
 });
