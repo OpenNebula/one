@@ -45,7 +45,6 @@ class MarketPlaceDriver < OpenNebulaDriver
     # Market Driver Protocol constants
     ACTION = {
         :import  => "IMPORT",
-        :export  => "EXPORT",
         :delete  => "DELETE",
         :log     => "LOG",
         :monitor => "MONITOR"
@@ -63,7 +62,6 @@ class MarketPlaceDriver < OpenNebulaDriver
             :retries => 0,
             :local_actions => {
                 ACTION[:import]  => nil,
-                ACTION[:export]  => nil,
                 ACTION[:delete]  => nil,
                 ACTION[:log]     => nil,
                 ACTION[:monitor] => nil
@@ -87,7 +85,6 @@ class MarketPlaceDriver < OpenNebulaDriver
         @one = OpenNebula::Client.new()
 
         register_action(ACTION[:import].to_sym, method("import"))
-        register_action(ACTION[:export].to_sym, method("export"))
         register_action(ACTION[:delete].to_sym, method("delete"))
         register_action(ACTION[:monitor].to_sym,method("monitor"))
     end
@@ -185,7 +182,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         mp_mad = xml['MARKETPLACE/MARKET_MAD']
 
         if mp_mad.nil?
-            failure(:import, id, "Wrong driver message format")
+            failure(:delete, id, "Wrong driver message format")
             return
         end
 
@@ -198,7 +195,23 @@ class MarketPlaceDriver < OpenNebulaDriver
     # Monitor the marketplace. It gathers information about usage and app status
     ############################################################################
     def monitor(id, drv_message)
-        send_message(ACTION[:export], RESULT[:failure], id, "Not implemented")
+        xml = decode(drv_message)
+
+        if xml.nil?
+            failure(:monitor, id, "Cannot decode driver message")
+            return
+        end
+
+        mp_mad = xml['MARKETPLACE/MARKET_MAD']
+
+        if mp_mad.nil?
+            failure(:monitor, id, "Wrong driver message format")
+            return
+        end
+
+        rc, info = do_action(id,mp_mad,nil,:monitor,"#{drv_message} #{id}",true)
+
+        send_message(ACTION[:monitor], rc, id, info)
     end
 
     private

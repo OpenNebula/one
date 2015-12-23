@@ -56,100 +56,91 @@ void MarketPlaceManagerDriver::monitor(int oid, const std::string& msg) const
 /* ************************************************************************** */
 /* MAD Interface                                                              */
 /* ************************************************************************** */
-/*
-*/
-/* -------------------------------------------------------------------------- */
-/*
-static void monitor_action(istringstream& is,
-                           DatastorePool* dspool,
-                           int            id,
-                           const string&  result)
+
+static void monitor_action(
+        std::istringstream&  is,
+        MarketPlacePool *    marketpool,
+        MarketPlaceManager * marketm,
+        int                  id,
+        const std::string&   result)
 {
-    string  dsinfo64;
-    string *dsinfo = 0;
+    std::string  info64;
+    std::string* info = 0;
 
-    ostringstream oss;
+    std::ostringstream oss;
 
-    getline (is, dsinfo64);
+    getline (is, info64);
 
     if (is.fail())
     {
-        oss << "Error monitoring datastore " << id << ". Bad monitor data: "
-            << dsinfo64;
+        oss << "Error monitoring marketplace " << id << ". Bad monitor data: "
+            << info64;
 
-        NebulaLog::log("ImM", Log::ERROR, oss);
+        NebulaLog::log("MKP", Log::ERROR, oss);
         return;
     }
 
-    dsinfo = one_util::base64_decode(dsinfo64);
+    info = one_util::base64_decode(info64);
 
-    if (dsinfo == 0)
+    if (info == 0)
     {
-        oss << "Error monitoring datastore " << id << ". Bad monitor data: "
-            << dsinfo64;
+        oss << "Error monitoring marketplace " << id << ". Bad monitor data: "
+            << info64;
 
-        NebulaLog::log("ImM", Log::ERROR, oss);
+        NebulaLog::log("MKP", Log::ERROR, oss);
         return;
     }
 
     if (result != "SUCCESS")
     {
-        oss << "Error monitoring datastore " << id << ": " << *dsinfo;
-        NebulaLog::log("ImM", Log::ERROR, oss);
+        oss << "Error monitoring datastore " << id << ": " << *info;
+        NebulaLog::log("MKP", Log::ERROR, oss);
 
-        delete dsinfo;
+        delete info;
         return;
     }
 
     Template monitor_data;
 
-    char*  error_msg;
-    int    rc = monitor_data.parse(*dsinfo, &error_msg);
+    char * error_msg;
+    int    rc = monitor_data.parse(*info, &error_msg);
+
+    delete info;
 
     if ( rc != 0 )
     {
-        oss << "Error parsing datastore information: " << error_msg
-            << ". Monitoring information: " << endl << *dsinfo;
+        oss << "Error parsing marketplace information: " << error_msg
+            << ". Monitoring information: " << endl << *info;
 
-        NebulaLog::log("ImM", Log::ERROR, oss);
+        NebulaLog::log("MKP", Log::ERROR, oss);
 
-        delete dsinfo;
         free(error_msg);
-
         return;
     }
 
-    delete dsinfo;
+    std::string   name;
+    MarketPlace * market = marketpool->get(id, true);
 
-    float  total, free, used;
-    string ds_name;
-
-    monitor_data.get("TOTAL_MB", total);
-    monitor_data.get("FREE_MB", free);
-    monitor_data.get("USED_MB", used);
-
-    Datastore * ds = dspool->get(id, true);
-
-    if (ds == 0 )
+    if (market == 0 )
     {
         return;
     }
 
-    ds_name = ds->get_name();
+    name = market->get_name();
 
-    ds->update_monitor(total, free, used);
+    market->update_monitor(monitor_data);
 
-    dspool->update(ds);
+    marketpool->update(market);
 
-    ds->unlock();
+    market->unlock();
 
-    oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";
+
+    oss << "Marketplace " << name << " (" << id << ") successfully monitored.";
 
     NebulaLog::log("ImM", Log::DEBUG, oss);
 
     return;
 }
-*/
 
 /* -------------------------------------------------------------------------- */
 /* Helper functions for failure and error conditions                          */
@@ -446,7 +437,7 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
     }
     else if (action == "MONITOR")
     {
-        return;
+        monitor_action(is, marketpool, marketm, id, result);
     }
     else if (action == "LOG")
     {

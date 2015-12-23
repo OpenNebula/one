@@ -281,10 +281,10 @@ int MarketPlace::from_xml(const std::string &xml_str)
     return 0;
 }
 
-/* --------------------------------------------------------------------------- */
-/* --------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-int MarketPlace::post_update_template(string& error)
+int MarketPlace::post_update_template(std::string& error)
 {
 	std::string new_market_mad;
 
@@ -298,5 +298,15 @@ int MarketPlace::post_update_template(string& error)
     add_template_attribute("MARKET_MAD", market_mad);
 
 	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void MarketPlace::update_monitor(const Template& data)
+{
+    data.get("TOTAL_MB", total_mb);
+    data.get("FREE_MB",  free_mb);
+    data.get("USED_MB",  used_mb);
 }
 

@@ -82,16 +82,9 @@ public:
 
     /**
      *  Set monitor information for the MarketPlace
-     *    @param total_mb
-     *    @param free_mb
-     *    @param used_mb
+     *    @param data template with monitor information
      */
-    void update_monitor(long long total, long long free, long long used)
-    {
-        total_mb = total;
-        free_mb  = free;
-        used_mb  = used;
-    }
+    void update_monitor(const Template& data);
 
 private:
 

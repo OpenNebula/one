@@ -1211,7 +1211,6 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
 #-------------------------------------------------------------------------------
 
 MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
-            src/market_mad/remotes/http/export \
             src/market_mad/remotes/http/delete \
             src/market_mad/remotes/http/monitor"
 
