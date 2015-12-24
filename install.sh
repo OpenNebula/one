@@ -296,6 +296,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
+          $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -426,6 +427,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
+    MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -1207,12 +1209,17 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
 #-------------------------------------------------------------------------------
 # Marketplace drivers, to be installed under $REMOTES_LOCATION/market
 #   - HTTP based marketplace, $REMOTES_LOCATION/market/http
+#   - OpenNebula public marketplace, $REMOTES_LOCATION/market/one
 #   - S3-obeject based marketplace, $REMOTES_LOCATION/market/s3
 #-------------------------------------------------------------------------------
 
 MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
             src/market_mad/remotes/http/delete \
             src/market_mad/remotes/http/monitor"
+
+MARKETPLACE_DRIVER_ONE_SCRIPTS="src/market_mad/remotes/one/import \
+            src/market_mad/remotes/one/delete \
+            src/market_mad/remotes/one/monitor"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION

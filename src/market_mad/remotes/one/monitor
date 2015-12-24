@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+require 'net/http'
+require 'uri'
+require 'json'
+require 'base64'
+
+class OneMarket
+    ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
+    AGENT          = 'Market Driver'
+    VERSION        = '../../VERSION'
+
+    def initialize(url=ONE_MARKET_URL)
+        @url   = url
+        @agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
+    end
+
+    def get(path)
+        uri = URI(@url + path)
+        req = Net::HTTP::Get.new(uri)
+
+        req['User-Agent'] = @agent
+
+        response = Net::HTTP.start(uri.hostname, uri.port) {|http|
+            http.request(req)
+        }
+
+        if response.is_a? Net::HTTPSuccess
+            return 0, response.body
+        else
+            return response.code.to_i, response.msg
+        end
+    end
+
+    def get_appliances()
+        rc, body = get('/appliance')
+
+        if rc != 0
+            return rc, body
+        end
+
+        applist = JSON.parse(body)
+        appstr  = ""
+
+        applist['appliances'].each { |app|
+            tmpl =  "NAME        =\"#{app["name"]}\"\n"
+            tmpl << "IMPORT_ID   =\"#{app["_id"]["$oid"]}\"\n"
+            tmpl << "TYPE        = IMAGE\n"
+            tmpl << "PUBLISHER   = #{app["publisher"]}\n"
+            tmpl << "FORMAT      = #{app["format"]}\n"
+            tmpl << "DESCRIPTION = \"#{app["short_description"]}\"\n"
+            tmpl << "VERSION     = #{app["version"]}\n"
+            tmpl << "TAGS        = \"#{app["tags"].join(', ')}\"\n"
+            tmpl << "DATE        = #{app["creation_time"]}\n"
+
+            if !app["files"].nil? && !app["files"][0].nil?
+                file = app["files"][0]
+
+                tmpl << "SIZE = #{app["files"][0]["size"]}\n"
+                tmpl << "MD5   = #{app["files"][0]["md5"]}\n"
+
+                tmpl64 = ""
+                tmpl64 << "DEV_PREFIX = #{file["dev_prefix"]}\n" if file["dev_prefix"]
+                tmpl64 << "DRIVER     = #{file["driver"]}\n" if file["driver"]
+                tmpl64 << "TYPE       = #{file["type"]}\n" if file["type"]
+
+                if !tmpl64.empty?
+                    tmpl << "APPTEMPLATE64 = \"#{Base64::strict_encode64(tmpl64)}\"\n"
+                end
+            end
+
+            if !app["opennebula_template"].nil?
+                vmtmpl64 = template_to_str(JSON.parse(app["opennebula_template"]))
+                tmpl << "VMTEMPLATE64 = \"#{Base64::strict_encode64(vmtmpl64)}\"\n"
+            end
+
+            tmpl << "APPTEMPLATE64 = \"#{Base64::strict_encode64(tmpl64)}\"\n"
+
+            appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"
+        }
+
+        appstr
+    end
+
+    private
+
+    def template_to_str(thash)
+        thash.collect do |key, value|
+            next if value.nil? || value.empty?
+
+            str = case value.class.name
+            when "Hash"
+                attr = "#{key.to_s.upcase} = [ "
+
+                attr << value.collect do |k, v|
+                     next if v.nil? || v.empty?
+                     "#{k.to_s.upcase}  =\"#{v.to_s}\""
+                end.compact.join(",")
+
+                attr << "]\n"
+            when "String"
+                "#{key.to_s.upcase} = \"#{value.to_s}\""
+            end
+        end.compact.join("\n")
+    end
+end
+
+################################################################################
+# Main Program. Outpust the list of marketplace appliances
+################################################################################
+#TODO get marketplace URL from MARKETPLACE Templace for other markets
+one_market = OneMarket.new
+puts one_market.get_appliances()
+
