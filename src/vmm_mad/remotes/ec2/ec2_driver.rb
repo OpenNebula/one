@@ -378,7 +378,8 @@ class EC2Driver
         usedmemory = 0
 
         # Build an array of VMs and last_polls for monitoring
-        vpool      = OpenNebula::VirtualMachinePool.new OpenNebula::Client.new
+        vpool      = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
+                                    OpenNebula::VirtualMachinePool::INFO_ALL_VM)
         vpool.info
         onevm_info = {}
 
