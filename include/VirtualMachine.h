@@ -1262,12 +1262,11 @@ public:
      *
      * @param nic NIC to be released
      * @param vmid Virtual Machine oid
-     * @param vrid Virtual Router id if the VM is a VR, or -1
      *
      * @return 0 on success, -1 otherwise
      */
     static int release_network_leases(
-            VectorAttribute const * nic, int vmid, int vrid);
+            VectorAttribute const * nic, int vmid);
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -1328,6 +1327,12 @@ public:
      * @return VR ID or -1
      */
     int get_vrouter_id();
+
+    /**
+     * Returns true if this VM is a Virtual Router
+     * @return true if this VM is a Virtual Router
+     */
+    bool is_vrouter();
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1544,7 +1549,6 @@ public:
      *
      * @param vm_id Id of the VM where this nic will be attached
      * @param vm_sgs the securty group ids already present in the VM
-     * @param vm_vrid Virtual Router id if the VM is a VR, or -1
      * @param new_nic New NIC vector attribute, obtained from get_attach_nic_info
      * @param rules Security Group rules will be added at the end of this
      * vector. If not used, the VectorAttributes must be freed by the calling
@@ -1557,7 +1561,6 @@ public:
     static int set_up_attach_nic(
                             int                      vm_id,
                             set<int>&                vm_sgs,
-                            int                      vm_vrid,
                             VectorAttribute *        new_nic,
                             vector<VectorAttribute*> &rules,
                             int                      max_nic_id,

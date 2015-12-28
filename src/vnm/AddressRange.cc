@@ -508,6 +508,14 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                     is_in = true;
                 }
             }
+            else if (it->second & PoolObjectSQL::VROUTER)
+            {
+                int oid = it->second & 0x00000000FFFFFFFFLL;
+
+                // TODO: all_vrouters?
+                lease.replace("VROUTER", oid);
+                is_in = true;
+            }
 
             if (!is_in)
             {

@@ -52,10 +52,6 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :VMID, "VM associated with the Virtual Router", :size=>4 do |d|
-                d["VMID"]
-            end
-
             column :NAME, "Name of the Virtual Router", :left, :size=>27 do |d|
                 d["NAME"]
             end
@@ -69,7 +65,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
-            default :ID, :VMID, :USER, :GROUP, :NAME
+            default :ID, :USER, :GROUP, :NAME
         end
 
         table
@@ -98,7 +94,6 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
             str_h1 % "VIRTUAL ROUTER #{obj['ID']} INFORMATION")
         puts str % ["ID", obj.id.to_s]
         puts str % ["NAME", obj.name]
-        puts str % ["VIRTUAL MACHINE", obj['VMID']]
         puts str % ["USER", obj['UNAME']]
         puts str % ["GROUP", obj['GNAME']]
         puts
@@ -113,9 +108,90 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
+
+        if obj.has_elements?("/VROUTER/TEMPLATE/NIC")
+            puts
+            CLIHelper.print_header(str_h1 % "VIRTUAL ROUTER NICS",false)
+
+            nic_default = {"NETWORK" => "-",
+                           "IP" => "-"}
+
+            shown_ips = []
+
+            array_id = 0
+            vm_nics = [obj.to_hash['VROUTER']['TEMPLATE']['NIC']].flatten.compact
+            vm_nics.each {|nic|
+
+                next if nic.has_key?("CLI_DONE")
+
+                if nic.has_key?("IP6_LINK")
+                    shown_ips << nic["IP6_LINK"]
+
+                    ip6_link = {"IP"           => nic.delete("IP6_LINK"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_ULA")
+                    shown_ips << nic["IP6_ULA"]
+
+                    ip6_link = {"IP"           => nic.delete("IP6_ULA"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                if nic.has_key?("IP6_GLOBAL")
+                    shown_ips << nic["IP6_GLOBAL"]
+
+                    ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
+                                "CLI_DONE"     => true,
+                                "DOUBLE_ENTRY" => true}
+                    vm_nics.insert(array_id+1,ip6_link)
+
+                    array_id += 1
+                end
+
+                shown_ips << nic["IP"] if nic.has_key?("IP")
+
+                nic.merge!(nic_default) {|k,v1,v2| v1}
+                array_id += 1
+            }
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :NETWORK, "", :left, :size=>20 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NETWORK"]
+                    end
+                end
+
+                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                    d["IP"]
+                end
+            end.show(vm_nics,{})
+        end
+
+        while obj.has_elements?("/VROUTER/TEMPLATE/NIC")
+            obj.delete_element("/VROUTER/TEMPLATE/NIC")
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
         puts obj.template_str
+
+        puts
+
+        CLIHelper.print_header("%-15s" % "VIRTUAL MACHINES")
+        obj.vm_ids.each do |id|
+            puts "%-15s" % [id]
+        end
     end
 end

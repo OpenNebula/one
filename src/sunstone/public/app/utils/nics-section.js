@@ -30,22 +30,27 @@ define(function(require) {
   }
 
   function _insert(template_json, context) {
-    if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO") {
-      var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-      var nics = []
-      if ($.isArray(template_nic))
-          nics = template_nic
-      else if (!$.isEmptyObject(template_nic))
-          nics = [template_nic]
-        
+    try {
+      if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO") {
+        var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+        var nics = []
+        if ($.isArray(template_nic))
+            nics = template_nic
+        else if (!$.isEmptyObject(template_nic))
+            nics = [template_nic]
+
+        _generate_provision_network_accordion(
+          $(".provision_network_selector", context));
+
+        $.each(nics, function(index, nic) {
+          _generate_provision_network_table(
+            $(".provision_nic_accordion", context),
+            nic);
+        })
+      }
+    } catch(err) {
       _generate_provision_network_accordion(
         $(".provision_network_selector", context));
-
-      $.each(nics, function(index, nic) {
-        _generate_provision_network_table(
-          $(".provision_nic_accordion", context),
-          nic);
-      })
     }
   }
 

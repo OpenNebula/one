@@ -68,17 +68,19 @@ define(function(require) {
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
 
-    var vmid = this.element.VMID;
-
-    if (vmid == "-1"){
-      vmid = undefined; // Change made to use {{#if vmid}} in handlebars
-    }
-
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
+
+    var nics = [];
+
+    if ($.isArray(this.element.TEMPLATE.NIC)){
+      nics = this.element.TEMPLATE.NIC;
+    } else if (!$.isEmptyObject(this.element.TEMPLATE.NIC)){
+      nics = [this.element.TEMPLATE.NIC];
+    }
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    //delete strippedTemplate[""];
+    delete strippedTemplate["NIC"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -87,8 +89,8 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
-      'vmid': vmid,
       'permissionsTableHTML': permissionsTableHTML,
+      'nics': nics,
       'templateTableHTML': templateTableHTML
     });
   }
@@ -108,9 +110,13 @@ define(function(require) {
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    //delete strippedTemplate[""];
+    delete strippedTemplate["NIC"];
 
-    var hiddenValues = {RULE: this.element.TEMPLATE.RULE};
+    var hiddenValues = {};
+
+    if (this.element.TEMPLATE.NIC != undefined){
+        hiddenValues.NIC = this.element.TEMPLATE.NIC;
+    }
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===

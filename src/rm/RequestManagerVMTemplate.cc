@@ -35,11 +35,14 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     ostringstream sid;
 
     PoolObjectAuth perms;
+    PoolObjectAuth vr_perms;
 
     Nebula& nd = Nebula::instance();
 
     VirtualMachinePool* vmpool  = nd.get_vmpool();
     VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    VirtualRouterPool*  vrpool  = nd.get_vrouterpool();
+    VirtualRouter *     vr;
 
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate * extended_tmpl = 0;
@@ -48,6 +51,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     string error_str;
     string aname;
+    bool   has_vrouter_id;
+    int    vrid;
 
     string tmpl_name;
 
@@ -136,6 +141,43 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* If it is a Virtual Router, get the NICs                                */
+    /* ---------------------------------------------------------------------- */
+
+    has_vrouter_id = tmpl->get("VROUTER_ID", vrid);
+
+    if ( has_vrouter_id )
+    {
+        vr = vrpool->get(vrid, true);
+
+        if (vr == 0)
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                    att);
+
+            delete tmpl;
+            return;
+        }
+
+        vr->get_permissions(vr_perms);
+
+        tmpl->erase("NIC");
+        rc = tmpl->merge(vr->get_nics(), error_str);
+
+        vr->unlock();
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.group_ids);
@@ -153,6 +195,11 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
+
+        if (has_vrouter_id)
+        {
+            ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -196,6 +243,20 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     delete extended_tmpl;
+
+    if ( has_vrouter_id )
+    {
+        vr = vrpool->get(vrid, true);
+
+        if (vr != 0)
+        {
+            vr->add_vmid(vid);
+
+            vrpool->update(vr);
+
+            vr->unlock();
+        }
+    }
 
     success_response(vid, att);
 }

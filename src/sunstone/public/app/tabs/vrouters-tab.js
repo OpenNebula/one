@@ -28,7 +28,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./vrouters-tab/panels/info')
+    require('./vrouters-tab/panels/info'),
+    require('./vrouters-tab/panels/vms')
   ];
 
   var _panelsHooks = [

@@ -16,6 +16,7 @@ enabled_tabs:
     - clusters-tab
     - hosts-tab
     - datastores-tab
+    - vnets-topology-tab
     - vnets-tab
     - secgroups-tab
     - vrouters-tab
@@ -375,6 +376,11 @@ tabs:
             Datastore.delete: true
             Datastore.enable: true
             Datastore.disable: true
+    vnets-topology-tab:
+        panel_tabs:
+        actions:
+            NetworkTopology.refresh: true
+            NetworkTopology.toggleVMs: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
@@ -431,17 +437,16 @@ tabs:
     vrouters-tab:
         panel_tabs:
             virtual_router_info_tab: true
+            virtual_router_vms_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
-            - 2         # VMID
-            - 3         # Owner
-            - 4         # Group
-            - 5         # Name
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
         actions:
             VirtualRouter.refresh: true
             VirtualRouter.create_dialog: true
-            VirtualRouter.update_dialog: true
             VirtualRouter.rename: true
             VirtualRouter.chown: true
             VirtualRouter.chgrp: true

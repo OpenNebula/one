@@ -308,6 +308,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     "V:#{d['VM']}"
                 elsif d['VNET']
                     "N:#{d['VNET']}"
+                elsif d['VROUTER']
+                    "R:#{d['VROUTER']}"
                 end
             end
 
