@@ -60,6 +60,7 @@ void MarketPlaceManagerDriver::monitor(int oid, const std::string& msg) const
 static void monitor_action(
         std::istringstream&  is,
         MarketPlacePool *    marketpool,
+        MarketPlaceAppPool * apppool,
         MarketPlaceManager * marketm,
         int                  id,
         const std::string&   result)
@@ -80,6 +81,15 @@ static void monitor_action(
         return;
     }
 
+    if (result != "SUCCESS")
+    {
+        oss << "Error monitoring datastore " << id << ": " << info64;
+        NebulaLog::log("MKP", Log::ERROR, oss);
+
+        delete info;
+        return;
+    }
+
     info = one_util::base64_decode(info64);
 
     if (info == 0)
@@ -91,14 +101,6 @@ static void monitor_action(
         return;
     }
 
-    if (result != "SUCCESS")
-    {
-        oss << "Error monitoring datastore " << id << ": " << *info;
-        NebulaLog::log("MKP", Log::ERROR, oss);
-
-        delete info;
-        return;
-    }
 
     Template monitor_data;
 
@@ -134,10 +136,29 @@ static void monitor_action(
 
     market->unlock();
 
+    std::vector<Attribute *> apps;
+    std::string err;
+
+    int num = monitor_data.get("APP", apps);
+
+    for (int i=0; i< num ; i++)
+    {
+        SingleAttribute * sa = static_cast<SingleAttribute *>(apps[i]);
+
+        if ( sa == 0 )
+        {
+            continue;
+        }
+
+        if ( apppool->import(sa->value(), id, name, err) == -1 )
+        {
+            NebulaLog::log("MKP", Log::ERROR, "Error importing app: " + err);
+        }
+    }
 
     oss << "Marketplace " << name << " (" << id << ") successfully monitored.";
 
-    NebulaLog::log("ImM", Log::DEBUG, oss);
+    NebulaLog::log("MKP", Log::DEBUG, oss);
 
     return;
 }
@@ -437,7 +458,7 @@ void MarketPlaceManagerDriver::protocol(const string& message) const
     }
     else if (action == "MONITOR")
     {
-        monitor_action(is, marketpool, marketm, id, result);
+        monitor_action(is, marketpool, apppool, marketm, id, result);
     }
     else if (action == "LOG")
     {

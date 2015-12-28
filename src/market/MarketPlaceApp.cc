@@ -81,6 +81,12 @@ MarketPlaceApp::~MarketPlaceApp()
 int MarketPlaceApp::insert(SqlDB *db, string& error_str)
 {
     std::ostringstream oss;
+    bool imported;
+
+    if (get_template_attribute("IMPORTED", imported) && imported)
+    {
+        return insert_replace(db, false, error_str);
+    }
 
     // -------------------------------------------------------------------------
     // Check default marketplace app attributes
@@ -400,5 +406,63 @@ int MarketPlaceApp::enable(bool enable, string& error_str)
     }
 
     return 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
+int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
+{
+    std::string * info = one_util::base64_decode(info64);
+    std::string sdate;
+
+    if (info == 0)
+    {
+        err = "Error decoding driver message";
+        return -1;
+    }
+
+    char *   error_msg;
+
+    int rc = obj_template->parse(*info, &error_msg);
+
+    delete info;
+
+    if ( rc != 0 )
+    {
+        err = error_msg;
+
+        free(error_msg);
+        return -1;
+    }
+
+    state = READY;
+
+    type      = IMAGE;
+    origin_id = -1;
+    remove_template_attribute("TYPE");
+    remove_template_attribute("ORIGIN_ID");
+
+    erase_template_attribute("NAME", name);
+    erase_template_attribute("SOURCE", source);
+    erase_template_attribute("DESCRIPTION", description);
+    erase_template_attribute("SIZE", size_mb);
+    erase_template_attribute("VERSION", version);
+    erase_template_attribute("MD5", md5);
+    erase_template_attribute("PUBLISHER", publisher);
+    erase_template_attribute("FORMAT", format);
+    erase_template_attribute("APPTEMPLATE64", apptemplate64);
+
+    erase_template_attribute("DATE", sdate);
+    std::istringstream iss(sdate);
+    iss >> date;
+
+    if ( date == 0 )
+    {
+        date = time(NULL);
+    }
+
+   replace_template_attribute("IMPORTED", "YES");
+   return 0;
 }
 

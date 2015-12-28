@@ -109,13 +109,22 @@ public:
     int from_xml(const std::string &xml_str);
 
     /**
+     *  Rebuilds the object from base64 encoded template representation
+     *    @param str The template string, base64 encoded
+     *    @param error_str Returns the error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_template64(const std::string &xml_str, std::string& error_str);
+
+    /**
      * Enable or disable the app. A disabled app cannot be exported
      * @param enable true to enable
      * @param error_str Returns the error reason, if any
      *
      * @return 0 on success
      */
-    int enable(bool enable, string& error_str);
+    int enable(bool enable, std::string& error_str);
 
     /**
      * Returns the marketplace ID

@@ -50,6 +50,8 @@ int MarketPlaceAppPool:: allocate(
 
     mp->state = MarketPlaceApp::INIT;
 
+    mp->remove_template_attribute("IMPORTED");
+
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
@@ -99,6 +101,53 @@ error_name:
     *oid = -1;
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
+        const std::string& mp_name, std::string& error_str)
+{
+    MarketPlaceApp * app = new MarketPlaceApp(UserPool::ONEADMIN_ID,
+        GroupPool::ONEADMIN_ID, UserPool::oneadmin_name,
+        GroupPool::ONEADMIN_NAME, 0133, 0);
+
+    int rc = app->from_template64(t64, error_str);
+
+    if ( rc != 0 )
+    {
+        delete app;
+        return -1;
+    }
+
+    app->market_id   = mp_id;
+    app->market_name = mp_name;
+
+    if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
+    {
+        std::ostringstream oss;
+
+        oss << "imported-" << app->get_origin_id();
+        app->name = oss.str();
+
+        if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
+        {
+            error_str = "Cannot generate a valida name for app";
+            return -1;
+        }
+    }
+
+    MarketPlaceApp * mp_aux = get(app->name, 0, false);
+
+    if( mp_aux != 0 )
+    {
+        //Marketplace app already imported
+        delete app;
+        return 0;
+    }
+
+    return PoolSQL::allocate(app, error_str);
 }
 
 /* -------------------------------------------------------------------------- */

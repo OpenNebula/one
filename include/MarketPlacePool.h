@@ -22,6 +22,7 @@
 #include "SqlDB.h"
 
 class SqlDB;
+class MarketPlaceApp;
 
 class MarketPlacePool : public PoolSQL
 {

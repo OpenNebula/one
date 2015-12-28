@@ -24,7 +24,7 @@ require 'base64'
 class OneMarket
     ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
     AGENT          = 'Market Driver'
-    VERSION        = '../../VERSION'
+    VERSION        = File.dirname(__FILE__) + '/../../VERSION'
 
     def initialize(url=ONE_MARKET_URL)
         @url   = url
@@ -59,38 +59,48 @@ class OneMarket
         appstr  = ""
 
         applist['appliances'].each { |app|
-            tmpl =  "NAME        =\"#{app["name"]}\"\n"
-            tmpl << "IMPORT_ID   =\"#{app["_id"]["$oid"]}\"\n"
-            tmpl << "TYPE        = IMAGE\n"
-            tmpl << "PUBLISHER   = #{app["publisher"]}\n"
-            tmpl << "FORMAT      = #{app["format"]}\n"
-            tmpl << "DESCRIPTION = \"#{app["short_description"]}\"\n"
-            tmpl << "VERSION     = #{app["version"]}\n"
-            tmpl << "TAGS        = \"#{app["tags"].join(', ')}\"\n"
-            tmpl << "DATE        = #{app["creation_time"]}\n"
+            id     = app["_id"]["$oid"]
+            source = "#{@url}/appliance/#{id}/download/0"
+
+            tmpl = ""
+
+            print_var(tmpl, "NAME",        app["name"])
+            print_var(tmpl, "SOURCE",      source)
+            print_var(tmpl, "IMPORT_ID",   id)
+            print_var(tmpl, "ORIGIN_ID",   "-1")
+            print_var(tmpl, "TYPE",        "IMAGE")
+            print_var(tmpl, "PUBLISHER",   app["publisher"])
+            print_var(tmpl, "FORMAT",      app["format"])
+            print_var(tmpl, "DESCRIPTION", app["short_description"])
+            print_var(tmpl, "VERSION",     app["version"])
+            print_var(tmpl, "TAGS",        app["tags"].join(', '))
+            print_var(tmpl, "DATE",        app["creation_time"])
 
             if !app["files"].nil? && !app["files"][0].nil?
                 file = app["files"][0]
+                size = 0
 
-                tmpl << "SIZE = #{app["files"][0]["size"]}\n"
-                tmpl << "MD5   = #{app["files"][0]["md5"]}\n"
+                if (file["size"].to_i != 0)
+                    size = file["size"].to_i / (2**20)
+                end
+
+                print_var(tmpl, "SIZE", size)
+                print_var(tmpl, "MD5",  file["md5"])
 
                 tmpl64 = ""
-                tmpl64 << "DEV_PREFIX = #{file["dev_prefix"]}\n" if file["dev_prefix"]
-                tmpl64 << "DRIVER     = #{file["driver"]}\n" if file["driver"]
-                tmpl64 << "TYPE       = #{file["type"]}\n" if file["type"]
+                print_var(tmpl64, "DEV_PREFIX", file["dev_prefix"])
+                print_var(tmpl64, "DRIVER",     file["driver"])
+                print_var(tmpl64, "TYPE",       file["type"])
 
                 if !tmpl64.empty?
-                    tmpl << "APPTEMPLATE64 = \"#{Base64::strict_encode64(tmpl64)}\"\n"
+                    print_var(tmpl64, "APPTEMPLATE64", Base64::strict_encode64(tmpl64))
                 end
             end
 
             if !app["opennebula_template"].nil?
                 vmtmpl64 = template_to_str(JSON.parse(app["opennebula_template"]))
-                tmpl << "VMTEMPLATE64 = \"#{Base64::strict_encode64(vmtmpl64)}\"\n"
+                print_var(tmpl, "VMTEMPLATE64", Base64::strict_encode64(vmtmpl64))
             end
-
-            tmpl << "APPTEMPLATE64 = \"#{Base64::strict_encode64(tmpl64)}\"\n"
 
             appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"
         }
@@ -99,6 +109,13 @@ class OneMarket
     end
 
     private
+
+    def print_var(str, name, val)
+        return if val.nil?
+        return if val.class == String && val.empty?
+
+        str << "#{name}=\"#{val}\"\n"
+    end
 
     def template_to_str(thash)
         thash.collect do |key, value|

@@ -60,6 +60,17 @@ public:
             const std::string& mp_data,
             int *              oid,
             std::string&       error_str);
+    /**
+     *  Imports an app into the marketplace, as reported by the monitor driver
+     *    @param template to generate app with the from_template64 function
+     *    @param mp_id of the MarketPlace to store de App
+     *    @param mp_name of the MarketPlace
+     *    @param error_str Returns the error reason, if any
+     *
+     *    @return 0 on success
+     */
+    int import(const std::string& t64, int mp_id, const std::string& mp_name,
+            std::string& error_str);
 
     /**
      *  Function to get a MarketPlaceApp from the pool
