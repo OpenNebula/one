@@ -197,6 +197,9 @@ module OpenNebula
 
                 return rc if OpenNebula.is_error?(rc)
 
+                image_id = image.id
+                vmtpl_id = -1
+
                 if !self['TEMPLATE/VMTEMPLATE64'].nil?
                     tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
 
@@ -207,9 +210,11 @@ module OpenNebula
                     rc    = vmtpl.allocate(tmpl)
 
                     return rc if OpenNebula.is_error?(rc)
+
+                    vmtpl_id = vmtpl.id
                 end
 
-                return { :image => [image.id], :vmtemplate => [vmtpl.id] }
+                return { :image => [image_id], :vmtemplate => [vmtpl_id] }
             else
                 return Error.new("App type #{app.type_str} not supported")
             end

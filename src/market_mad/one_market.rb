@@ -47,7 +47,8 @@ class MarketPlaceDriver < OpenNebulaDriver
         :import  => "IMPORT",
         :delete  => "DELETE",
         :log     => "LOG",
-        :monitor => "MONITOR"
+        :monitor => "MONITOR",
+        :export  => "EXPORT"  #For Datastore export action
     }
 
     # XPATHs for driver messages
