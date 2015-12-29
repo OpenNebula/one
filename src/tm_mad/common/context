@@ -101,7 +101,8 @@ exec_and_set_error "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
 [ -n "$ERROR" ] && exit_error
 
 # Creates symbolic link to add a .iso suffix, needed for VMware CDROMs
-ssh_exec_and_log $DST_HOST "$LN -sf $DST_PATH $DST_PATH.iso" "Error creating ISO symbolic link"
+DST_FILE=${DST_PATH##*/}
+ssh_exec_and_log $DST_HOST "cd $DST_DIR && $LN -sf $DST_FILE $DST_FILE.iso" "Error creating ISO symbolic link"
 
 rm -rf $ISO_DIR > /dev/null 2>&1
 
