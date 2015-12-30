@@ -453,7 +453,7 @@ fi
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $? -ne 0 ]; then
+    if [ $SSH_EXEC_RC -ne 0 ]; then
         error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
 
         exit $SSH_EXEC_RC
