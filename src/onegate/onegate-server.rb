@@ -396,31 +396,33 @@ post '/vms/:id/action' do
 
     vm = get_vm(source_vm_id, client)
 
-    service_id = vm['USER_TEMPLATE/SERVICE_ID']
-    service = get_service(service_id, client)
+    if source_vm_id != requested_vm_id
+        service_id = vm['USER_TEMPLATE/SERVICE_ID']
+        service = get_service(service_id, client)
 
-    service_hash = JSON.parse(service)
+        service_hash = JSON.parse(service)
 
-    response = build_service_hash(service_hash) rescue nil
+        response = build_service_hash(service_hash) rescue nil
 
-    if response.nil?
-        error_msg = "VMID:#{source_vm_id} Service #{service_id} is empty."
-        logger.error {error_msg}
-        halt 400, error_msg
+        if response.nil?
+            error_msg = "VMID:#{source_vm_id} Service #{service_id} is empty."
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        # Check that the user has not spoofed the Service_ID
+        service_vm_ids = response["SERVICE"]["roles"].collect do |r|
+                            r["nodes"].collect{|n| n["deploy_id"]}
+                         end.flatten rescue []
+
+        if service_vm_ids.empty? || !service_vm_ids.include?(requested_vm_id)
+            error_msg = "VMID:#{requested_vm_id} Service #{service_id} does not contain VM."
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        vm = get_vm(requested_vm_id, client)
     end
-
-    # Check that the user has not spoofed the Service_ID
-    service_vm_ids = response["SERVICE"]["roles"].collect do |r|
-                        r["nodes"].collect{|n| n["deploy_id"]}
-                     end.flatten rescue []
-
-    if service_vm_ids.empty? || !service_vm_ids.include?(requested_vm_id)
-        error_msg = "VMID:#{requested_vm_id} Service #{service_id} does not contain VM."
-        logger.error {error_msg}
-        halt 400, error_msg
-    end
-
-    vm = get_vm(requested_vm_id, client)
 
     action_hash = parse_json(request.body.read, 'action')
     if OpenNebula.is_error?(action_hash)
