@@ -639,7 +639,6 @@ class VIClient
     # Copy a VirtualDisk
     # @param ds_name [String] name of the datastore
     # @param img_str [String] path to the VirtualDisk
-    # @return size of the file in Kb
     ############################################################################
     def copy_virtual_disk(source_path, source_ds, target_path, target_ds=nil)
         target_ds = source_ds if target_ds.nil?
@@ -649,7 +648,46 @@ class VIClient
                       :destName => "[#{target_ds}] #{target_path}"}
 
         @vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+    end
 
+    ############################################################################
+    # Create a VirtualDisk
+    # @param img_name [String] name of the image
+    # @param ds_name  [String] name of the datastore on which the VD will be 
+    #                         created    
+    # @param size     [String] size of the new image in MB
+    # @param adapter_type [String] as described in
+    #   http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc/vim.VirtualDiskManager.VirtualDiskAdapterType.html
+    # @param disk_type [String] as describd in 
+    #   http://pubs.vmware.com/vsphere-60/index.jsp?topic=%2Fcom.vmware.wssdk.apiref.doc%2Fvim.VirtualDiskManager.VirtualDiskType.html 
+    # @return name of the final image
+    ############################################################################
+    def create_virtual_disk(img_name, ds_name, size, adapter_type, disk_type)
+        vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
+            adapterType: adapter_type,
+            capacityKb: size.to_i*1024,
+            diskType: disk_type
+        )
+
+        @vdm.CreateVirtualDisk_Task(
+          datacenter: @dc,
+          name: "[#{ds_name}] #{img_name}.vmdk",
+          spec: vmdk_spec
+        ).wait_for_completion
+
+        "#{img_name}.vmdk"
+    end
+
+    ############################################################################
+    # Create a VirtualDisk
+    # @param img_name [String] name of the image
+    # @param ds_name  [String] name of the datastore where the VD resides
+    ############################################################################
+    def delete_virtual_disk(img_name, ds_name)
+        @vdm.DeleteVirtualDisk_Task(
+          name: "[#{ds_name}] #{img_name}",
+          datacenter: @dc
+        ).wait_for_completion
     end
 end
 
