@@ -28,6 +28,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
   var OpenNebulaUser = require('opennebula/user');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     TEMPLATES
@@ -153,7 +154,9 @@ define(function(require) {
     'idInput': _idInput,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'updateFn': _updateFn,
-    'list': _list
+    'list': _list,
+    'clearLabelsFilter': _clearLabelsFilter,
+    'setLabelsFilter': _setLabelsFilter
   }
 
   return TabDatatable;
@@ -481,6 +484,13 @@ define(function(require) {
       });
     }
 
+    if (that.labelsColumn) {
+      var dataTable = that.dataTable;
+      var labelsColumn = that.labelsColumn;
+      LabelsUtils.insertLabelsMenu($('#li_' + that.tabId), dataTable, labelsColumn);
+      LabelsUtils.insertLabelsDropdown(that.tabId);
+    }
+
     if (that.postUpdateView) {
       that.postUpdateView();
     }
@@ -504,8 +514,10 @@ define(function(require) {
   }
 
   function _getElementData(id, resource_tag) {
+    // TODO If the element is not included in the visible rows of 
+    // the table, it will not be included in the fnGetNodes response
     var nodes = this.dataTable.fnGetNodes();
-    var tr = $(resource_tag + '_' + id, nodes).parents('tr')[0];
+    var tr = $('#' + resource_tag + '_' + id, nodes).closest('tr');
     return this.dataTable.fnGetData(tr);
   }
 
@@ -999,5 +1011,13 @@ define(function(require) {
       },
       error: Notifier.onError
     });
+  }
+
+  function _setLabelsFilter(regExp) {
+    LabelsUtils.setLabelsFilter(this.dataTable, this.labelsColumn, regExp);
+  }
+
+  function _clearLabelsFilter() {
+    LabelsUtils.clearLabelsFilter(this.dataTable, this.labelsColumn);
   }
 })

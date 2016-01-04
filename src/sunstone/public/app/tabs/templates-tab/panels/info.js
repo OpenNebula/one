@@ -71,7 +71,7 @@ define(function(require) {
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'prettyRegTime': prettyRegTime,
+      'prettyRegTime': prettyRegTime
     });
   }
 

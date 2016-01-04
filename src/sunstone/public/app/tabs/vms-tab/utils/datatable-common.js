@@ -20,9 +20,11 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
+  var TEMPLATE_ATTR = 'USER_TEMPLATE';
 
   var _columns = [
     Locale.tr("ID") ,
@@ -36,7 +38,8 @@ define(function(require) {
     Locale.tr("IPs"),
     Locale.tr("Start Time"),
     "",
-    Locale.tr("Hidden Template")
+    Locale.tr("Hidden Template"),
+    Locale.tr("Labels")
   ];
 
   return {
@@ -85,18 +88,19 @@ define(function(require) {
         'name="selected_items" '+
         'value="' + element.ID + '" '+
         'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
-       element.ID,
-       element.UNAME,
-       element.GNAME,
-       element.NAME,
-       state,
-       cpuMonitoring,
-       Humanize.size(memoryMonitoring),
-       OpenNebulaVM.hostnameStr(element),
-       OpenNebulaVM.ipsStr(element),
-       Humanize.prettyTime(element.STIME),
-       vncIcon,
-       TemplateUtils.templateToString(element)
+      element.ID,
+      element.UNAME,
+      element.GNAME,
+      element.NAME,
+      state,
+      cpuMonitoring,
+      Humanize.size(memoryMonitoring),
+      OpenNebulaVM.hostnameStr(element),
+      OpenNebulaVM.ipsStr(element),
+      Humanize.prettyTime(element.STIME),
+      vncIcon,
+      TemplateUtils.templateToString(element),
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 
@@ -106,6 +110,7 @@ define(function(require) {
                              vmId + '" name="selected_items" value="' +
                              vmId + '"/>',
        vmId,
+       "",
        "",
        "",
        "",

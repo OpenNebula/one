@@ -43,6 +43,7 @@ define(function(require) {
     "SecurityGroup.rename": _commonActions.singleAction('rename'),
     "SecurityGroup.update" : _commonActions.update(),
     "SecurityGroup.update_template" : _commonActions.updateTemplate(),
+    "SecurityGroup.append_template" : _commonActions.appendTemplate(),
     "SecurityGroup.update_dialog" : _commonActions.checkAndShowUpdate(),
     "SecurityGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 

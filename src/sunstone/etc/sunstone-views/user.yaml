@@ -64,6 +64,7 @@ tabs:
             - 7         # CPU
             #- 8         # Group ID
             #- 9         # Hidden User Data
+            #- 10        # Labels
         actions:
             User.refresh: true
             User.create_dialog: true
@@ -89,6 +90,7 @@ tabs:
             - 4         # VMs
             - 5         # Memory
             - 6         # CPU
+            #- 7         # Labels
         actions:
             Group.refresh: true
             Group.create_dialog: true
@@ -109,6 +111,7 @@ tabs:
             - 5         # Hosts
             - 6         # VNets
             - 7         # Datastores
+            #- 8         # Labels
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
@@ -159,6 +162,7 @@ tabs:
             #- 10      # Start Time
             - 11      # VNC
             #- 12      # Hidden Template
+            #- 13      # Labels
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -210,6 +214,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             - 5         # Registration time
+            #- 6         # Labels
         actions:
             Template.refresh: true
             Template.create_dialog: true
@@ -252,6 +257,7 @@ tabs:
             - 10        # Status
             - 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             Image.refresh: true
             Image.create_dialog: true
@@ -285,6 +291,7 @@ tabs:
             - 10        # Status
             #- 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             File.refresh: true
             File.create_dialog: true
@@ -311,6 +318,7 @@ tabs:
             - 3         # Hosts
             - 4         # VNets
             - 5         # Datastores
+            #- 6         # Labels
         actions:
             Cluster.refresh: true
             Cluster.create_dialog: true
@@ -339,6 +347,7 @@ tabs:
             #- 10        # IM MAD
             #- 11        # VM MAD
             #- 12        # Last monitored on
+            #- 13        # Labels
         actions:
             Host.refresh: true
             Host.create_dialog: true
@@ -364,6 +373,7 @@ tabs:
             #- 9         # DS
             #- 10        # Type
             #- 11        # Status
+            #- 12        # Labels
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
@@ -392,6 +402,7 @@ tabs:
             #- 7         # Bridge
             - 8         # Leases
             #- 9         # VLAN ID
+            #- 10         # Labels
         actions:
             Network.refresh: true
             Network.create_dialog: false
@@ -417,6 +428,7 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
+            #- 5         # Labels
         actions:
             SecurityGroup.refresh: true
             SecurityGroup.create_dialog: true
@@ -526,6 +538,7 @@ tabs:
             - 1         # ID
             - 2         # Name
             - 3         # Endpoint
+            #- 4         # Labels
         actions:
             Zone.refresh: true
             Zone.create_dialog: true

@@ -131,8 +131,15 @@ define(function(require) {
   }
 
   var _setupDataTable = function(tabName) {
-    if (SunstoneCfg['tabs'][tabName].dataTable) {
-      SunstoneCfg['tabs'][tabName].dataTable.initialize();
+    var dataTable = SunstoneCfg['tabs'][tabName].dataTable;
+    if (dataTable) {
+      dataTable.initialize();
+      if (dataTable.labelsColumn) {
+        $('#' + tabName + 'labels_buttons').html(
+          '<button href="#" data-dropdown="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button small secondary button dropdown radius">' +
+            '<i class="fa fa-tags"/></button>' +
+          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown f-dropdown" data-dropdown-content></ul>');
+      }
     }
   }
 
@@ -454,13 +461,13 @@ define(function(require) {
 
   var _setupTabs = function() {
     var topTabs = $(".left-content ul li.topTab");
-    var subTabs = $(".left-content ul li.subTab");
+    var subTabs = $(".left-content ul li.subTab > a");
 
     subTabs.on("click", function() {
-      if ($(this).hasClass('topTab')) {
+      if ($(this).closest('li').hasClass('topTab')) {
         return false;
       } else {
-        var tabName = $(this).attr('id').substring(3);
+        var tabName = $(this).closest('li').attr('id').substring(3);
         _showTab(tabName);
         return false;
       }
@@ -527,6 +534,7 @@ define(function(require) {
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
+    $('.tree', '#navigation').remove();
 
     var tab = $('#' + tabName);
     //show tab
@@ -534,6 +542,9 @@ define(function(require) {
 
     var dataTable = SunstoneCfg['tabs'][tabName]['dataTable'];
     if (dataTable) {
+      if (dataTable.clearLabelsFilter) {
+        dataTable.clearLabelsFilter();
+      }
       dataTable.recountCheckboxes();
     }
 
@@ -971,6 +982,12 @@ define(function(require) {
     }
   }
 
+  var _getResource = function(tabName) {
+    if (SunstoneCfg['tabs'][tabName]) {
+      return SunstoneCfg['tabs'][tabName].resource;
+    }
+  }
+
   var _getDialogInstance = function(dialogId) {
     var dialogInstance = SunstoneCfg['dialogInstances'][dialogId];
     if (dialogInstance == undefined) {
@@ -1011,6 +1028,7 @@ define(function(require) {
     "getAction": _getAction,
     "getButton": _getButton,
     "getDataTable": _getDataTable,
+    "getResource": _getResource,
     "getDialog": _getDialogInstance,
 
     "insertButtonsInTab": _insertButtonsInTab,

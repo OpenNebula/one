@@ -14,28 +14,23 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="row">
-  <div class="large-6 columns">
-    <table class="dataTable">
-      <thead>
-        <tr>
-          <th colspan="3">{{tr "Information"}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="key_td">{{tr "ID"}}</td>
-          <td class="value_td" colspan="2">{{element.ID}}</td>
-        </tr>
-        {{{renameTrHTML}}}
-        <tr>
-          <td class="key_td">{{tr "Register time"}}</td>
-          <td class="value_td">{{prettyRegTime}}</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
-    {{{labelsTableHTML}}}
-  </div>
-  <div class="large-6 columns">{{{permissionsTableHTML}}}</div>
-</div>
+<table class="dataTable">
+  <thead>
+    <tr>
+      <th colspan="2">{{tr "Labels"}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="value_td">
+        <input type="text" name="new_value" class="newLabel"/>
+      </td>
+      <td class="text-right">
+        <button type="button" class="button small secondary addLabel">{{tr "Add"}}</button>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="value_td">{{{labelsTreeHTML}}}</td>
+    </tr>
+  </tbody>
+</table>
