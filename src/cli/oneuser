@@ -40,7 +40,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     helper = OneUserHelper.new
 
     before_proc do
-        helper.set_client(options) if @comm_name != :login
+        helper.set_client(options) if ![:login, :key].include?(@comm_name)
     end
 
     ########################################################################
