@@ -52,6 +52,14 @@ require 'opennebula/oneflow_client'
 
 USER_AGENT = 'GATE'
 
+# Attrs that cannot be modified when updating a VM template
+# If this parameter is not defined in onegate-server.conf
+# this constant will be used
+RESTRICTED_ATTRS = [
+    'SCHED_REQUIREMENTS',
+    'SERVICE_ID',
+    'ROLE_NAME'
+]
 include OpenNebula
 
 begin
@@ -230,6 +238,24 @@ helpers do
         end
     end
 
+    # Attrs that cannot be modified when updating a VM template
+    def check_restricted_attrs(request)
+        body = request.body.read
+
+        body.split("\n").each{ |key_value| 
+            parts = key_value.split('=')
+            if parts[0] && get_restricted_attrs.include?(parts[0].upcase)
+                error_msg = "Attribute (#{parts[0]}) cannot be modified"
+                logger.error {error_msg}
+                halt 403, error_msg
+            end
+        }
+        request.body.rewind
+    end
+
+    def get_restricted_attrs
+        $conf[':restricted_attrs'] || RESTRICTED_ATTRS
+    end
     def check_permissions(resource, action)
         permissions = settings.config[:permissions]
         unless permissions && permissions[resource] && permissions[resource][action]
@@ -377,6 +403,7 @@ put '/vm' do
 
     source_vm = get_source_vm(request.env, client)
 
+    check_restricted_attrs(request)
     rc = source_vm.update(request.body.read, true)
     if OpenNebula.is_error?(rc)
         logger.error {"VMID:#{source_vm['ID']} vm.update error: #{rc.message}"}
@@ -455,6 +482,7 @@ put '/vms/:id' do
 
     requested_vm = get_requested_vm(params[:id].to_i, request.env, client)
 
+    check_restricted_attrs(request)
     rc = requested_vm.update(request.body.read, true)
     if OpenNebula.is_error?(rc)
         logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
