@@ -60,6 +60,14 @@ RESTRICTED_ATTRS = [
     'SERVICE_ID',
     'ROLE_NAME'
 ]
+
+# Actions that cannot be triggered on a VM
+# If this parameter is not defined in onegate-server.conf
+# this constant will be used
+RESTRICTED_ACTIONS = [
+    'reboot'
+]
+
 include OpenNebula
 
 begin
@@ -165,6 +173,7 @@ helpers do
             halt 400, rc.message
         end
 
+        check_restricted_actions(action_hash['perform'])
         rc = case action_hash['perform']
              when "deploy"       then vm.deploy(action_hash['params'])
              when "delete"       then vm.finalize
@@ -256,6 +265,20 @@ helpers do
     def get_restricted_attrs
         $conf[':restricted_attrs'] || RESTRICTED_ATTRS
     end
+
+    # Actions that cannot be performed on a VM
+    def check_restricted_actions(action)
+        if action && get_restricted_actions.include?(action.downcase)
+            error_msg = "Action (#{action}) is not allowed on this resource"
+            logger.error {error_msg}
+            halt 403, error_msg
+        end
+    end
+
+    def get_restricted_actions
+        $conf[':restricted_actions'] || RESTRICTED_ACTIONS
+    end
+
     def check_permissions(resource, action)
         permissions = settings.config[:permissions]
         unless permissions && permissions[resource] && permissions[resource][action]
