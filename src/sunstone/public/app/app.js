@@ -53,7 +53,7 @@ define(function(require) {
     _setupCloseDropdownsOnClick();
     _insertUserAndZoneSelector();
 
-    Config.initDefaultCost();
+    Config.initOnedConf();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);
