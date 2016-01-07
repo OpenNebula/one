@@ -63,6 +63,10 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj, PATH);
     },
+    "rename" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj, PATH);
+    },
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);
     }
