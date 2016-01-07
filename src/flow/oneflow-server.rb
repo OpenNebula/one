@@ -245,6 +245,8 @@ post '/service/:id/action' do
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify an OCTET")
             end
+        when 'rename'
+            service.rename(opts['name'])
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")
         end

@@ -508,6 +508,7 @@ tabs:
             Service.chown: true
             Service.chgrp: true
             Service.chmod: true
+            Service.rename: true
             Service.shutdown: true
             Service.recover: true
             Service.delete: true
