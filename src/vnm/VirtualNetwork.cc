@@ -399,23 +399,24 @@ string& VirtualNetwork::to_xml(string& xml) const
 {
     const vector<int> empty;
 
-    return to_xml_extended(xml,false, empty, empty);
+    return to_xml_extended(xml,false, empty, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets) const
+        const vector<int>& vnets, const vector<int>& vrs) const
 {
-    return to_xml_extended(xml,true, vms, vnets);
+    return to_xml_extended(xml,true, vms, vnets, vrs);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
-    const vector<int>& vms, const vector<int>& vnets) const
+    const vector<int>& vms, const vector<int>& vnets,
+    const vector<int>& vrs) const
 {
     ostringstream   os;
 
@@ -470,7 +471,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     os  << obj_template->to_xml(template_xml);
 
-    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets);
+    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
 
     os << "</VNET>";
 

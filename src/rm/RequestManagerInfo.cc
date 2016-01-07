@@ -166,12 +166,15 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
 {
     vector<int> vms;
     vector<int> vnets;
+    vector<int> vrs;
 
     string where_vnets;
     string where_vms;
+    string where_vrs;
 
     bool all_reservations;
     bool all_vms;
+    bool all_vrs;
 
     PoolObjectAuth perms;
 
@@ -185,6 +188,7 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     {
         all_reservations = true;
         all_vms = true;
+        all_vrs = true;
     }
     else
     {
@@ -193,6 +197,9 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
 
         all_vms = RequestManagerPoolInfoFilter::use_filter(att,
                 PoolObjectSQL::VM, false, false, false, "", where_vms);
+
+        all_vrs = RequestManagerPoolInfoFilter::use_filter(att,
+                PoolObjectSQL::VROUTER, false, false, false, "", where_vrs);
     }
 
     if ( all_reservations == true )
@@ -213,5 +220,14 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
         Nebula::instance().get_vmpool()->search(vms, where_vms);
     }
 
-    static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets);
+    if ( all_vrs == true )
+    {
+        vrs.push_back(-1);
+    }
+    else
+    {
+        Nebula::instance().get_vrouterpool()->search(vrs, where_vrs);
+    }
+
+    static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets, vrs);
 };

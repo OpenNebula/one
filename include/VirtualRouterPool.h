@@ -124,6 +124,17 @@ public:
         return VirtualRouter::bootstrap(_db);
     };
 
+    /**
+     *  Gets the IDs of objects matching the given SQL where string.
+     *    @param oids a vector that contains the IDs
+     *    @param where SQL clause
+     *    @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, VirtualRouter::table, where);
+    };
+
 private:
     /**
      *  Factory method to produce objects

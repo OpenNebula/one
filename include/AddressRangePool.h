@@ -341,10 +341,12 @@ public:
      *      A vector containing just -1 means all VMs.
      *    @param vnet_ids list of VNET the user can access reservation info from.
      *      A vector containing just -1 means all VNETs.
+     *    @param vrs list of VRouter the user can access VNET usage info from.
+     *      A vector containing just -1 means all VRouters.
      *    @return the string with the XML
      */
     string& to_xml(string& sstream, bool extended, const vector<int>& vms,
-        const vector<int>& vnets) const;
+        const vector<int>& vnets, const vector<int>& vrs) const;
 
 private:
     /**
