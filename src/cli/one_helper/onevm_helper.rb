@@ -170,16 +170,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         vm_nics.each do |nic|
-            if nic.has_key?("IP")
-                ips.push(nic["IP"])
-            end
-
-            if nic.has_key?("IP6_GLOBAL")
-                ips.push(nic["IP6_GLOBAL"])
-            end
-
-            if nic.has_key?("IP6_ULA")
-                ips.push(nic["IP6_ULA"])
+            ["IP", "IP6_GLOBAL", "IP6_ULA",
+             "VROUTER_IP", "VROUTER_IP6_GLOBAL", "VROUTER_IP6_ULA"].each do |attr|
+                if nic.has_key?(attr)
+                    ips.push(nic[attr])
+                end
             end
         end
 
@@ -735,37 +730,31 @@ in the frontend machine.
 
                 next if nic.has_key?("CLI_DONE")
 
-                if nic.has_key?("IP6_LINK")
-                    shown_ips << nic["IP6_LINK"]
+                ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL"].each do |attr|
+                    if nic.has_key?(attr)
+                        shown_ips << nic[attr]
 
-                    ip6_link = {"IP"           => nic.delete("IP6_LINK"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
+                        ipstr = {"IP"           => nic.delete(attr),
+                                 "CLI_DONE"     => true,
+                                 "DOUBLE_ENTRY" => true}
+                        vm_nics.insert(array_id+1,ipstr)
 
-                    array_id += 1
+                        array_id += 1
+                    end
                 end
 
-                if nic.has_key?("IP6_ULA")
-                    shown_ips << nic["IP6_ULA"]
+                ["VROUTER_IP", "VROUTER_IP6_LINK",
+                 "VROUTER_IP6_ULA", "VROUTER_IP6_GLOBAL"].each do |attr|
+                    if nic.has_key?(attr)
+                        shown_ips << nic[attr]
 
-                    ip6_link = {"IP"           => nic.delete("IP6_ULA"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
+                        ipstr = {"IP"           => nic.delete(attr) + " (VRouter)",
+                                 "CLI_DONE"     => true,
+                                 "DOUBLE_ENTRY" => true}
+                        vm_nics.insert(array_id+1,ipstr)
 
-                    array_id += 1
-                end
-
-                if nic.has_key?("IP6_GLOBAL")
-                    shown_ips << nic["IP6_GLOBAL"]
-
-                    ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
-
-                    array_id += 1
+                        array_id += 1
+                    end
                 end
 
                 shown_ips << nic["IP"] if nic.has_key?("IP")
