@@ -133,7 +133,8 @@ class EC2Driver
                     :opt => 'placement/availability_zone'
                 },
                 "EBS_OPTIMIZED" => {
-                    :opt => 'ebs_optimized'
+                    :opt => 'ebs_optimized',
+                    :proc => lambda {|str| str.downcase.eql? "true"}
                 }
             }
         },
