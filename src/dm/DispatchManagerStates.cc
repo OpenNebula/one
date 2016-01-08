@@ -273,7 +273,7 @@ void  DispatchManager::done_action(int vid)
 
 void  DispatchManager::resubmit_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine * vm;
 
     vm = vmpool->get(vid,true);
 
@@ -284,7 +284,6 @@ void  DispatchManager::resubmit_action(int vid)
 
     if (vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT)
     {
-
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vm->set_state(VirtualMachine::PENDING);
@@ -293,8 +292,6 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->unlock();
     }
-
-    return;
 }
 
 /* -------------------------------------------------------------------------- */

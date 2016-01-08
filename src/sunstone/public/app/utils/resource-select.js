@@ -22,7 +22,7 @@ define(function(require) {
   require('opennebula/group');
 
   var _insert = function(id, context, resource, init_val, empty_value,
-      extra_options, filter_att, filter_val, trigger_change_init_val, only_name) {
+      extra_options, filter_att, filter_val, trigger_change, only_name) {
 
     var Resource = require('opennebula/' + resource.toLowerCase());
     $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
@@ -81,9 +81,9 @@ define(function(require) {
 
         if (init_val) {
           $(id + " .resource_list_select", context).val(init_val);
-          if (trigger_change_init_val) {
-            $(id + " .resource_list_select", context).change();
-          }
+        }
+        if (trigger_change) {
+          $(id + " .resource_list_select", context).change();
         }
       },
       error: Notifier.onError

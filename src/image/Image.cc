@@ -811,6 +811,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     {
         type = Image::BLOCK;
     }
+    else if (s_disk_type == "ISCSI")
+    {
+        type = Image::ISCSI;
+    }
     else if (s_disk_type == "CDROM")
     {
         type = Image::CD_ROM;

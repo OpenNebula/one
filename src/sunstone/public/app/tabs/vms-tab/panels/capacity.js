@@ -78,9 +78,22 @@ define(function(require) {
     var resizeStateEnabled =
       (RESIZE_STATES.indexOf(parseInt(this.element.STATE)) > -1);
 
+    var cpuCost    = this.element.TEMPLATE.CPU_COST;
+    var memoryCost = this.element.TEMPLATE.MEMORY_COST;
+
+    if (cpuCost == undefined){
+      cpuCost = Config.defaultCost.cpuCost;
+    }
+
+    if (memoryCost == undefined){
+      memoryCost = Config.defaultCost.memoryCost;
+    }
+
     return TemplateInfo({
       'element': this.element,
-      'resizeStateEnabled': resizeStateEnabled
+      'resizeStateEnabled': resizeStateEnabled,
+      'cpuCost': cpuCost,
+      'memoryCost': memoryCost
     });
   }
 

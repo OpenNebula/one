@@ -1278,19 +1278,21 @@ public:
     static bool is_volatile(const VectorAttribute * disk);
 
     /**
-     *  Check if the template contains a volatile disk
-     */
-    static bool is_volatile(const Template * tmpl);
-
-    /**
      *  Check if the disk is persistent
      */
     static bool is_persistent(const VectorAttribute * disk);
 
     /**
-     *  Check if the themplate is for an imported VM
+     *  Check if the VM is imported
      */
     bool is_imported() const;
+
+    /**
+     * Checks if the current VM MAD supports the given action for imported VMs
+     * @param action VM action to check
+     * @return true if the current VM MAD supports the given action for imported VMs
+     */
+    bool is_imported_action_supported(History::VMAction action) const;
 
     /**
      *  Return the total disk SIZE that the VM instance needs in the system DS
@@ -1405,6 +1407,21 @@ public:
      */
     static void disk_extended_info(int uid,
                                   VirtualMachineTemplate *tmpl);
+    /**
+     *  Adds extra info to the volatile disks of the given template, ds inherited
+     *  attributes and TYPE
+     *    @param  tmpl the virtual machine template
+     *    @return true if there at least one volatile disk was found
+     */
+    bool volatile_disk_extended_info(Template *tmpl);
+
+    /**
+     *  Adds extra info to the volatile disks of the given VM
+     */
+    bool volatile_disk_extended_info()
+    {
+        return volatile_disk_extended_info(obj_template);
+    }
 
     // -------------------------------------------------------------------------
     // Hotplug related functions
@@ -1599,6 +1616,15 @@ public:
      */
     void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
             Template **vm_quotas);
+
+    /**
+     * Deletes all the disk snapshots for non-persistent disks and for persistent
+     * disks in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_disk_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas);
 
     /**
      *  Get information about the disk to take the snapshot from

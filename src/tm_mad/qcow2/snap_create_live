@@ -132,6 +132,10 @@ touch $SNAP_PATH
 FILENAME="/tmp/snapshot-$VMID-$DISK_ID-$SNAP_ID"
 echo "$DOC" > \$FILENAME
 
+if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+    trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+fi
+
 virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
     --xmlfile \$FILENAME
 

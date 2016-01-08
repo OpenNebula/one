@@ -41,6 +41,8 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'openssl'
+require 'VirtualMachineDriver'
 
 module VCenterDriver
 
@@ -143,16 +145,44 @@ class VIClient
     end
 
     ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def cluster
+       @cluster
+    end
+
+    ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def rp_confined?
+       !@one_host["TEMPLATE/VCENTER_RESOURCE_POOL"].nil?
+    end
+
+    ########################################################################
     # The associated resource pool for this connection
+    # @return [ResourcePool] an array of resource pools including the default
+    #    resource pool. If the connection is confined to a particular
+    #    resource pool, then return just that one
     ########################################################################
     def resource_pool
         rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
 
        if rp_name.nil?
-          @cluster.resourcePool
+          rp_array = @cluster.resourcePool.resourcePool
+          rp_array << @cluster.resourcePool
+          rp_array
        else
-          find_resource_pool(rp_name)
+          [find_resource_pool(rp_name)]
        end
+    end
+
+    ########################################################################
+    # Get the default resource pool of the connection. Only valid if
+    # the connection is not confined in a resource pool
+    # @return ResourcePool the default resource pool
+    ########################################################################
+    def default_resource_pool
+        @cluster.resourcePool
     end
 
     ########################################################################
@@ -203,7 +233,7 @@ class VIClient
         return vms.find do |v|
             begin
                 v.config && v.config.uuid == uuid
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
@@ -220,7 +250,7 @@ class VIClient
         return vms.find do |v|
             begin
                 v.name == vm_name
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
@@ -573,7 +603,7 @@ class VCenterHost < ::OpenNebula::Host
         @client  = client
         @cluster = client.cluster
 
-        @resource_pool = client.resource_pool
+        @resource_pools = client.resource_pool
     end
 
     ########################################################################
@@ -708,7 +738,8 @@ class VCenterHost < ::OpenNebula::Host
 
     def monitor_vms
         str_info = ""
-        @resource_pool.vm.each { |v|
+        @resource_pools.each{|rp|
+          rp.vm.each { |v|
             begin
                 name   = v.name
                 number = -1
@@ -724,7 +755,8 @@ class VCenterHost < ::OpenNebula::Host
                 str_info << "\nVM = ["
                 str_info << "ID=#{number},"
                 str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-                str_info << "VM_NAME=\"#{name}\","
+                str_info << "VM_NAME=\"#{name} - "\
+                            "#{v.runtime.host.parent.name}\","
 
                 if number == -1
                     vm_template_to_one =
@@ -737,6 +769,7 @@ class VCenterHost < ::OpenNebula::Host
                 STDERR.puts e.inspect
                 STDERR.puts e.backtrace
             end
+          }
         }
 
         return str_info
@@ -766,6 +799,9 @@ end
 
 class VCenterVm
     attr_reader :vm
+
+    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
+    VM_STATE        = VirtualMachineDriver::VM_STATE
 
     ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
@@ -1076,7 +1112,7 @@ class VCenterVm
         @summary = @vm.summary
         @state   = state_to_c(@summary.runtime.powerState)
 
-        if @state != 'a'
+        if @state != VM_STATE[:active]
             @used_cpu    = 0
             @used_memory = 0
 
@@ -1130,11 +1166,11 @@ class VCenterVm
           str_info << "GUEST_IP_ADDRESSES=\\\"" <<
               @guest_ip_addresses.to_s << "\\\" "
       end
-      str_info << "STATE="                      << @state                << " "
-      str_info << "CPU="                        << @used_cpu.to_s        << " "
-      str_info << "MEMORY="                     << @used_memory.to_s     << " "
-      str_info << "NETRX="                      << @netrx.to_s          << " "
-      str_info << "NETTX="                      << @nettx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
+      str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
+      str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
+      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s          << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
@@ -1252,13 +1288,13 @@ private
     def state_to_c(state)
         case state
             when 'poweredOn'
-                'a'
+                VM_STATE[:active]
             when 'suspended'
-                'p'
+                VM_STATE[:paused]
             when 'poweredOff'
-                'd'
+                VM_STATE[:deleted]
             else
-                '-'
+                VM_STATE[:unknown]
         end
     end
 
@@ -1394,9 +1430,15 @@ private
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
+        if connection.rp_confined?
+            rp = connection.resource_pool.first
+        else
+            rp = connection.default_resource_pool
+        end
+
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                           :diskMoveType => :moveChildMostDiskBacking,
-                          :pool         => connection.resource_pool)
+                          :pool         => rp)
 
         clone_parameters = {
             :location => relocate_spec,
@@ -1484,6 +1526,52 @@ private
                 context_text += context_element.name + "='" +
                                 context_element.text.gsub("'", "\\'") + "'\n"
             }
+
+            # OneGate
+            onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
+            if onegate_token_flag and onegate_token_flag.text == "YES"
+                # Create the OneGate token string
+                vmid_str  = xml.root.elements["/VM/ID"].text
+                stime_str = xml.root.elements["/VM/STIME"].text
+                str_to_encrypt = "#{vmid_str}:#{stime_str}"
+
+                user_id = xml.root.elements['//CREATED_BY'].text
+
+                if user_id.nil?
+                    STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
+                        " in the VM TEMPLATE"}
+                    return nil
+                end
+
+                user = OpenNebula::User.new_with_id(user_id,
+                                                    OpenNebula::Client.new)
+                rc   = user.info
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts {"VMID:#{vmid} user.info" \
+                        " error: #{rc.message}"}
+                    return nil
+                end
+
+                token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+                if token_password.nil?
+                    STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                        " in the USER:#{user_id} TEMPLATE"}
+                    return nil
+                end
+
+                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                cipher.encrypt
+                cipher.key = token_password
+                onegate_token = cipher.update(str_to_encrypt)
+                onegate_token << cipher.final
+
+                onegate_token_64 = Base64.encode64(onegate_token).chop
+
+                context_text += "ONEGATE_TOKEN='#{onegate_token_64}'\n"
+            end
+
             context_text = Base64.encode64(context_text.chop)
             config_array +=
                      [{:key=>"guestinfo.opennebula.context",

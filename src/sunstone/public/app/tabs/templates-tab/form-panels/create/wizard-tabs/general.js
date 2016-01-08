@@ -23,6 +23,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var CapacityInputs = require('./general/capacity-inputs');
   var WizardFields = require('utils/wizard-fields');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -35,17 +36,6 @@ define(function(require) {
    */
 
   var WIZARD_TAB_ID = require('./general/wizardTabId');
-  var LOGOS = [
-    {'path': "images/logos/arch.png",       'title': Locale.tr("Arch Linux")},
-    {'path': "images/logos/centos.png",     'title': Locale.tr("CentOS")},
-    {'path': "images/logos/debian.png",     'title': Locale.tr("Debian")},
-    {'path': "images/logos/fedora.png",     'title': Locale.tr("Fedora")},
-    {'path': "images/logos/linux.png",      'title': Locale.tr("Linux")},
-    {'path': "images/logos/redhat.png",     'title': Locale.tr("Redhat")},
-    {'path': "images/logos/ubuntu.png",     'title': Locale.tr("Ubuntu")},
-    {'path': "images/logos/windowsxp.png",  'title': Locale.tr("Windows XP/2003")},
-    {'path': "images/logos/windows8.png",   'title': Locale.tr("Windows 8")}
-  ]
 
   /*
     CONSTRUCTOR
@@ -73,7 +63,7 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'capacityInputsHTML': CapacityInputs.html(),
-      'logos': LOGOS
+      'logos': Config.vmLogos
     });
   }
 

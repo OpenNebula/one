@@ -1,33 +1,30 @@
 small_logo: images/opennebula-sunstone-v4.14-small.png
 provision_logo: images/one_small_logo.png
 enabled_tabs:
-    dashboard-tab: true
-    system-tab: false
-    users-tab: false
-    groups-tab: false
-    vdcs-tab: false
-    acls-tab: false
-    vresources-tab: true
-    vms-tab: true
-    templates-tab: true
-    images-tab: true
-    files-tab: true
-    infra-tab: true
-    clusters-tab: false
-    hosts-tab: false
-    datastores-tab: true
-    vnets-tab: true
-    secgroups-tab: true
-    marketplace-tab: true
-    oneflow-dashboard: true
-    oneflow-services: true
-    oneflow-templates: true
-    support-tab: false
-    doc-tab: false
-    community-tab: false
-    enterprise-tab: false
-    zones-tab: false
-    settings-tab: true
+    - dashboard-tab
+    #- system-tab
+    #- users-tab
+    #- groups-tab
+    #- vdcs-tab
+    #- acls-tab
+    - vresources-tab
+    - vms-tab
+    - templates-tab
+    - images-tab
+    - files-tab
+    - infra-tab
+    #- clusters-tab
+    #- hosts-tab
+    - datastores-tab
+    - vnets-tab
+    - secgroups-tab
+    #- zones-tab
+    - marketplace-tab
+    - oneflow-dashboard
+    - oneflow-services-tab
+    - oneflow-templates-tab
+    - settings-tab
+    #- support-tab
 autorefresh: true
 features:
     showback: true
@@ -67,6 +64,7 @@ tabs:
             - 7         # CPU
             #- 8         # Group ID
             #- 9         # Hidden User Data
+            #- 10        # Labels
         actions:
             User.refresh: true
             User.create_dialog: true
@@ -92,6 +90,7 @@ tabs:
             - 4         # VMs
             - 5         # Memory
             - 6         # CPU
+            #- 7         # Labels
         actions:
             Group.refresh: true
             Group.create_dialog: true
@@ -112,10 +111,12 @@ tabs:
             - 5         # Hosts
             - 6         # VNets
             - 7         # Datastores
+            #- 8         # Labels
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
             Vdc.update_dialog: true
+            Vdc.rename: true
             Vdc.delete: true
 
     acls-tab:
@@ -161,9 +162,11 @@ tabs:
             #- 10      # Start Time
             - 11      # VNC
             #- 12      # Hidden Template
+            #- 13      # Labels
         actions:
             VM.refresh: true
             VM.create_dialog: true
+            VM.rename: true
             VM.chown: false
             VM.chgrp: false
             VM.chmod: true
@@ -211,12 +214,14 @@ tabs:
             - 3         # Group
             - 4         # Name
             - 5         # Registration time
+            #- 6         # Labels
         actions:
             Template.refresh: true
             Template.create_dialog: true
             Template.import_dialog: false
             Template.update_dialog: true
             Template.instantiate_vms: true
+            Template.rename: true
             Template.chown: false
             Template.chgrp: false
             Template.chmod: true
@@ -252,9 +257,11 @@ tabs:
             - 10        # Status
             - 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.rename: true
             Image.chown: false
             Image.chgrp: false
             Image.chmod: true
@@ -284,9 +291,11 @@ tabs:
             - 10        # Status
             #- 11        # #VMs
             #- 12       # Target
+            #- 13       # Labels
         actions:
             File.refresh: true
             File.create_dialog: true
+            File.rename: true
             File.chown: false
             File.chgrp: false
             File.chmod: true
@@ -309,11 +318,13 @@ tabs:
             - 3         # Hosts
             - 4         # VNets
             - 5         # Datastores
+            #- 6         # Labels
         actions:
             Cluster.refresh: true
             Cluster.create_dialog: true
             Cluster.update_dialog: true
             Cluster.delete: true
+            Cluster.rename: true
     hosts-tab:
         panel_tabs:
             host_info_tab: true
@@ -336,10 +347,12 @@ tabs:
             #- 10        # IM MAD
             #- 11        # VM MAD
             #- 12        # Last monitored on
+            #- 13        # Labels
         actions:
             Host.refresh: true
             Host.create_dialog: true
             Host.addtocluster: true
+            Host.rename: true
             Host.enable: true
             Host.disable: true
             Host.delete: true
@@ -360,10 +373,12 @@ tabs:
             #- 9         # DS
             #- 10        # Type
             #- 11        # Status
+            #- 12        # Labels
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
             Datastore.addtocluster: false
+            Datastore.rename: true
             Datastore.chown: false
             Datastore.chgrp: false
             Datastore.chmod: true
@@ -387,12 +402,14 @@ tabs:
             #- 7         # Bridge
             - 8         # Leases
             #- 9         # VLAN ID
+            #- 10         # Labels
         actions:
             Network.refresh: true
             Network.create_dialog: false
             Network.import_dialog: false
             Network.update_dialog: true
             Network.addtocluster: false
+            Network.rename: true
             Network.chown: false
             Network.chgrp: false
             Network.chmod: true
@@ -411,10 +428,12 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
+            #- 5         # Labels
         actions:
             SecurityGroup.refresh: true
             SecurityGroup.create_dialog: true
             SecurityGroup.update_dialog: true
+            SecurityGroup.rename: true
             SecurityGroup.chown: true
             SecurityGroup.chgrp: true
             SecurityGroup.chmod: true
@@ -490,6 +509,7 @@ tabs:
             Service.chown: false
             Service.chgrp: false
             Service.chmod: true
+            Service.rename: true
             Service.shutdown: true
             Service.recover: true
             Service.delete: true
@@ -510,6 +530,7 @@ tabs:
             ServiceTemplate.chown: false
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
+            ServiceTemplate.rename: true
             ServiceTemplate.delete: true
     zones-tab:
         panel_tabs:
@@ -519,9 +540,11 @@ tabs:
             - 1         # ID
             - 2         # Name
             - 3         # Endpoint
+            #- 4         # Labels
         actions:
             Zone.refresh: true
             Zone.create_dialog: true
+            Zone.rename: true
             Zone.delete: true
     support-tab:
         panel_tabs:

@@ -27,42 +27,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
 
-  var _tabs;
-  if (Config.isTabEnabled(PROVISION_TAB_ID)) {
-    _tabs = [
-      require('tabs/provision-tab'),
-      require('tabs/users-tab'),
-      require('tabs/settings-tab')
-    ];
-  } else {
-    _tabs = [
-      require('tabs/dashboard-tab'),
-      require('tabs/system-tab'),
-      require('tabs/users-tab'),
-      require('tabs/groups-tab'),
-      require('tabs/vdcs-tab'),
-      require('tabs/acls-tab'),
-      require('tabs/vresources-tab'),
-      require('tabs/vms-tab'),
-      require('tabs/templates-tab'),
-      require('tabs/images-tab'),
-      require('tabs/files-tab'),
-      require('tabs/infra-tab'),
-      require('tabs/clusters-tab'),
-      require('tabs/hosts-tab'),
-      require('tabs/datastores-tab'),
-      require('tabs/vnets-tab'),
-      require('tabs/secgroups-tab'),
-      require('tabs/zones-tab'),
-      require('tabs/marketplace-tab'),
-      require('tabs/oneflow-dashboard'),
-      require('tabs/oneflow-services-tab'),
-      require('tabs/oneflow-templates-tab'),
-      require('tabs/settings-tab'),
-      require('tabs/support-tab')
-    ];
-  }
-
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
     require('utils/dialogs/confirm-with-select'),
@@ -70,10 +34,7 @@ define(function(require) {
   ]
 
   Sunstone.addDialogs(_commonDialogs);
-
-  $.each(_tabs, function(index, tab) {
-    Sunstone.addMainTab(tab);
-  });
+  Sunstone.addMainTabs();
 
   //$(window).load(function() {
   //   $('#loading').hide();
@@ -91,6 +52,8 @@ define(function(require) {
     _setupAccordion();
     _setupCloseDropdownsOnClick();
     _insertUserAndZoneSelector();
+
+    Config.initOnedConf();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);

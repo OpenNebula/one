@@ -63,7 +63,7 @@ define(function(require) {
    */
 
   function _html() {
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
 
@@ -71,12 +71,12 @@ define(function(require) {
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'prettyRegTime': prettyRegTime,
+      'prettyRegTime': prettyRegTime
     });
   }
 
   function _setup(context) {
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
   }
 });

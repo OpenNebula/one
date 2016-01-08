@@ -712,10 +712,12 @@ module OpenNebula
         # of the current disks. The VM capacity and NICs are also preserved
         #
         # @param name [String] Name for the new Template
+        # @param name [true,false,nil] Optional, true to make the saved images
+        # persistent, false make them non-persistent
         #
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
-        def save_as_template(name)
+        def save_as_template(name, persistent=nil)
             img_ids = []
             new_tid = nil
 
@@ -796,6 +798,10 @@ module OpenNebula
                         rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
 
                         raise if OpenNebula.is_error?(rc)
+
+                        if persistent == true
+                            OpenNebula::Image.new_with_id(rc.to_i, @client).persistent()
+                        end
 
                         img_ids << rc.to_i
 

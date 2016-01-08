@@ -74,11 +74,14 @@ define(function(require) {
     url += "host=" + proxy_host;
     url += "&port=" + proxy_port;
     url += "&token=" + token;
-    url += "&password=" + pw;
     url += "&encrypt=" + Config.vncWSS;
     url += "&title=" + vm_name;
 
-    $("#open_in_a_new_window").attr('href', url)
+    if (!Config.requestVNCPassword) {
+      url += "&password=" + pw;
+    }
+
+    $("#open_in_a_new_window").attr('href', url);
     _rfb.connect(proxy_host, proxy_port, pw, path);
   }
 

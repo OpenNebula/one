@@ -53,6 +53,7 @@ define(function(require) {
     "Zone.refresh" : _commonActions.refresh(),
     "Zone.delete" : _commonActions.del(),
     "Zone.update_template" : _commonActions.updateTemplate(),
+    "Zone.append_template" : _commonActions.appendTemplate(),
     "Zone.rename": _commonActions.singleAction('rename'),
 
     "Zone.show_to_update" : {

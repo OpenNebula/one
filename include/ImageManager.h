@@ -305,9 +305,12 @@ private:
      *
      *    @param img_data Image XML representation
      *    @param ds_data Datastore XML representation
+     *    @param extra_data additional XML formatted data for the driver
      *    @return the XML message
      */
-    static string * format_message(const string& img_data, const string& ds_data);
+    static string * format_message(const string& img_data,
+            const string& ds_data,
+            const string& extra_data);
 
     /**
      *  This function is executed periodically to monitor Datastores.

@@ -17,7 +17,7 @@
     "flot.tooltip": "0.8.4",
     "no-vnc": "0.5.1",
     "resumablejs": "git://github.com/23/resumable.js.git#420cd351c5",
-    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5#ff42bc7399",
+    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5#spice-html5-0.1.6",
     "require-handlebars-plugin": "0.11.2",
     "requirejs": "2.1.17",
     "almond": "0.3.1",

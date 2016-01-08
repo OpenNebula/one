@@ -44,6 +44,11 @@ private:
      *  Sets the defaults value for the template
      */
     void set_conf_default();
+
+    /**
+     *  Sets the defaults value for multiple attributes
+     */
+    void set_multiple_conf_default(){};
 };
 
 #endif /*SCHEDULER_TEMPLATE_H_*/

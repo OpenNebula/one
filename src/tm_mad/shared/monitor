@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to monitor the free and used space of a datastore
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../../datastore/libfs.sh
+
+# -------- Get datastore arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+DS_ID=$2
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE_LOCATION \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
+
+unset i
+
+BASE_PATH="${XPATH_ELEMENTS[i++]}/$2"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+
+# ------------ Compute datastore usage -------------
+
+LVM_VG_PREFIX="vg-one-"
+LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
+
+MONITOR_SCRIPT=$(cat <<EOF
+if [ ! -d $BASE_PATH ]; then
+    mkdir -p $BASE_PATH
+fi
+
+# If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore
+# we return the space of the lvm, no of the filesystem
+if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
+    LVM_SIZE=\$(sudo vgdisplay \
+                    --separator : \
+                    --units m \
+                    -o vg_size,vg_free \
+                    --nosuffix \
+                    --noheadings \
+                    -C \
+                    ${LVM_VG_PREFIX}${DS_ID} 2>/dev/null)
+fi
+
+if [ -n "\$LVM_SIZE" ]; then
+    LVM_TOTAL=\$(echo \$LVM_SIZE | cut -d: -f1 | sed 's/\..*//;s/^\s*//')
+    LVM_FREE=\$(echo \$LVM_SIZE | cut -d: -f2 | sed 's/\..*//;s/^\s*//')
+    LVM_USED=\$(( \$LVM_TOTAL - \$LVM_FREE ))
+
+    TOTAL_MB=\${LVM_TOTAL:-"0"}
+    FREE_MB=\${LVM_FREE:-"0"}
+    USED_MB=\${LVM_USED:-"0"}
+else
+    USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
+    TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
+    FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
+fi
+
+if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
+    msg="Empty value found"
+    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
+    exit 1
+fi
+
+echo "USED_MB=\$USED_MB"
+echo "FREE_MB=\$FREE_MB"
+echo "TOTAL_MB=\$TOTAL_MB"
+EOF
+)
+
+if [ -n "$BRIDGE_LIST" ]; then
+    HOST=`get_destination_host`
+    MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+else
+    MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+fi
+
+MONITOR_STATUS=$?
+
+if [ "$MONITOR_STATUS" = "0" ]; then
+    echo "$MONITOR_DATA" | tr ' ' '\n'
+    exit 0
+else
+    echo "$MONITOR_DATA"
+    exit $MONITOR_STATUS
+fi

@@ -23,7 +23,7 @@
             <th></th>
             <th>{{tr "ID"}}</th>
             <th>{{tr "Target"}}</th>
-            <th>{{tr "Image / Format-Size"}}</th>
+            <th>{{tr "Image / Size-Format"}}</th>
             <th>{{tr "Size"}}</th>
             <th>{{tr "Persistent"}}</th>
             <th>{{tr "Actions"}}
@@ -49,7 +49,7 @@
         <tbody>
           <tr>
             <td class="key_td">{{tr "Cost / MByte"}}</td>
-            <td class="value_td">{{valOrDefault element.TEMPLATE.DISK_COST '-'}}</td>
+            <td class="value_td">{{diskCost}}</td>
           </tr>
         </tbody>
       </table>

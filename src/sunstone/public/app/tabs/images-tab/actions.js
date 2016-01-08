@@ -36,6 +36,7 @@ define(function(require) {
     "Image.show" : _commonActions.show(),
     "Image.refresh" : _commonActions.refresh(),
     "Image.delete" : _commonActions.del(),
+    "Image.append_template" : _commonActions.appendTemplate(),
     "Image.update_template" : _commonActions.updateTemplate(),
     "Image.chown": _commonActions.multipleAction('chown'),
     "Image.chgrp": _commonActions.multipleAction('chgrp'),

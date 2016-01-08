@@ -450,6 +450,10 @@ define(function(require) {
         }
       });
     },
+    "append": function(params) {
+      var action_obj = {"template_raw" : params.data.extra_param, append : true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
+    },
     "update": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
@@ -583,7 +587,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VMMMAD, ['vcenter', 'ec2', 'az', 'sl']) == -1;
+      return $.inArray(history.VMMMAD, ['vcenter', 'az', 'sl']) == -1;
     } else {
       return false;
     }

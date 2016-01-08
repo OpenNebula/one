@@ -112,6 +112,37 @@ require.config({
     'spice-filexfer': '../bower_components/spice-html5/filexfer'
   },
   shim: {
+    /* Tabs */
+    'app': {
+      deps: [
+        'tabs/provision-tab',
+        'tabs/dashboard-tab',
+        'tabs/system-tab',
+        'tabs/users-tab',
+        'tabs/groups-tab',
+        'tabs/vdcs-tab',
+        'tabs/acls-tab',
+        'tabs/vresources-tab',
+        'tabs/vms-tab',
+        'tabs/templates-tab',
+        'tabs/images-tab',
+        'tabs/files-tab',
+        'tabs/infra-tab',
+        'tabs/clusters-tab',
+        'tabs/hosts-tab',
+        'tabs/datastores-tab',
+        'tabs/vnets-tab',
+        'tabs/secgroups-tab',
+        'tabs/zones-tab',
+        'tabs/marketplace-tab',
+        'tabs/oneflow-dashboard',
+        'tabs/oneflow-services-tab',
+        'tabs/oneflow-templates-tab',
+        'tabs/settings-tab',
+        'tabs/support-tab'
+      ]
+    },
+    
     /* jQuery */
     'jquery': {
       exports: '$'

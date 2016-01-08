@@ -26,6 +26,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -110,55 +111,74 @@ define(function(require) {
 
     $('select#ds_mad', dialog).change(function() {
       if ($(this).val() == "custom")
-          $('input[name="ds_tab_custom_ds_mad"]').parent().show();
+          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
       else
-          $('input[name="ds_tab_custom_ds_mad"]').parent().hide();
+          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
     });
 
     $('select#tm_mad', dialog).change(function() {
       if ($(this).val() == "custom")
-          $('input[name="ds_tab_custom_tm_mad"]').parent().show();
+          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
       else
-          $('input[name="ds_tab_custom_tm_mad"]').parent().hide();
+          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
     });
 
-    $('#presets').change(function() {
+    $('#presets', dialog).change(function() {
       _hideAll(dialog);
       var choice_str = $(this).val();
+
+      // Disable all required attributes except for those that come in the
+      // template.
+      $('input[required_active]', dialog).removeAttr('required')
+                                         .removeAttr('required_active');
+
       switch (choice_str)
       {
         case 'fs':
-          _selectFilesystem();
+          _selectFilesystem(dialog);
+          // _setRequiredFields(dialog, '');
           break;
         case 'vmware_vmfs':
-          _selectVmwareVmfs();
+          _selectVmwareVmfs(dialog);
+          _setRequiredFields(dialog, 'vmfs');
           break;
         case 'block_lvm':
-          _selectBlockLvm();
+          _selectBlockLvm(dialog);
+          _setRequiredFields(dialog, 'lvm');
           break;
         case 'fs_lvm':
-          _selectFsLvm();
+          _selectFsLvm(dialog);
+          // _setRequiredFields(dialog, '');
           break;
         case 'ceph':
-          _selectCeph();
+          _selectCeph(dialog);
+          _setRequiredFields(dialog, 'ceph');
           break;
         case 'gluster':
-          _selectGluster();
+          _selectGluster(dialog);
+          // _setRequiredFields(dialog, '');
           break;
         case 'dev':
-          _selectDevices();
+          _selectDevices(dialog);
+          _setRequiredFields(dialog, 'dev');
+          break;
+        case 'iscsi':
+          _selectISCSI(dialog);
+          _setRequiredFields(dialog, 'iscsi');
           break;
         case 'custom':
-          _selectCustom();
+          _selectCustom(dialog);
           break;
       }
     });
 
+    $('#presets', dialog).change();
+
     // Hide disk_type
-    $('select#disk_type').parent().hide();
+    $('select#disk_type', dialog).parent().hide();
 
     _hideAll(dialog);
-    _selectFilesystem();
+    _selectFilesystem(dialog);
   }
 
 
@@ -167,9 +187,9 @@ define(function(require) {
     var cluster_id      = $(".resource_list_select", $('#cluster_id', dialog)).val();
     var ds_type         = $('input[name=ds_type]:checked', dialog).val();
     var ds_mad          = $('#ds_mad', dialog).val();
-    ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]').val() : ds_mad;
+    ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]', dialog).val() : ds_mad;
     var tm_mad          = $('#tm_mad', dialog).val();
-    tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
+    tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]', dialog).val() : tm_mad;
     var type            = $('#disk_type', dialog).val();
 
     var safe_dirs       = $('#safe_dirs', dialog).val();
@@ -191,6 +211,10 @@ define(function(require) {
     var ceph_user       = $('#ceph_user', dialog).val();
     var rbd_format      = $('#rbd_format', dialog).val();
     var staging_dir     = $('#staging_dir', dialog).val();
+    var ceph_conf       = $('#ceph_conf', dialog).val();
+    var iscsi_host      = $('#iscsi_host', dialog).val();
+    var iscsi_user      = $('#iscsi_user', dialog).val();
+    var iscsi_usage     = $('#iscsi_usage', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -261,6 +285,18 @@ define(function(require) {
     if (staging_dir)
         ds_obj.datastore.staging_dir = staging_dir;
 
+    if (ceph_conf)
+        ds_obj.datastore.ceph_conf = ceph_conf;
+
+    if (iscsi_host)
+        ds_obj.datastore.iscsi_host = iscsi_host;
+
+    if (iscsi_user)
+        ds_obj.datastore.iscsi_user = iscsi_user;
+
+    if (iscsi_usage)
+        ds_obj.datastore.iscsi_usage = iscsi_usage;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -289,8 +325,8 @@ define(function(require) {
     // Hide all the options that depends on datastore type
     // and reset the selects
 
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').removeAttr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).removeAttr('disabled', 'disabled');
 
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().hide();
     $('label[for="ds_tmp_dir"],input#ds_tmp_dir', dialog).parent().hide();
@@ -303,15 +339,19 @@ define(function(require) {
     $('label[for="ceph_user"],input#ceph_user', dialog).parent().hide();
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
+    $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_host"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_user"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_usage"],input#ceph_conf', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
-    $('select#ds_mad').removeAttr('disabled');
-    $('select#tm_mad').removeAttr('disabled');
-    $('select#tm_mad').children('option').each(function() {
+    $('select#ds_mad', dialog).removeAttr('disabled');
+    $('select#tm_mad', dialog).removeAttr('disabled');
+    $('select#tm_mad', dialog).children('option').each(function() {
         $(this).removeAttr('disabled');
       });
-    $('select#disk_type').removeAttr('disabled');
-    $('select#disk_type').children('option').each(function() {
+    $('select#disk_type', dialog).removeAttr('disabled');
+    $('select#disk_type', dialog).children('option').each(function() {
         $(this).removeAttr('disabled');
       });
 
@@ -320,10 +360,10 @@ define(function(require) {
   }
 
   function _selectFilesystem(dialog) {
-    $('select#ds_mad').val('fs');
-    $('select#tm_mad').val('shared');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').children('option').each(function() {
+    $('select#ds_mad', dialog).val('fs');
+    $('select#tm_mad', dialog).val('shared');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).children('option').each(function() {
         var value_str = $(this).val();
         $(this).attr('disabled', 'disabled');
         if (value_str == "qcow2"  ||
@@ -332,106 +372,107 @@ define(function(require) {
           $(this).removeAttr('disabled');
         }
       });
-    $('select#disk_type').val('file');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('input#safe_dirs').removeAttr('disabled');
-    $('select#disk_type').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
-    $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
+    $('select#disk_type', dialog).val('file');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('select#disk_type', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
+    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
+    $('label[for="staging_dir"],input#staging_dir', dialog).parent().fadeIn();
   }
 
   function _selectVmwareVmfs(dialog) {
-    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
-    $('label[for="ds_tmp_dir"],input#ds_tmp_dir').parent().fadeIn();
-    $('select#ds_mad').val('vmfs');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('vmfs');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('select#disk_type').val('file');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('input#safe_dirs').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
+    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
+    $('label[for="ds_tmp_dir"],input#ds_tmp_dir', dialog).parent().fadeIn();
+    $('select#ds_mad', dialog).val('vmfs');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('vmfs');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('file');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectCeph(dialog) {
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('select#ds_mad').val('ceph');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('ceph');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
-    $('label[for="pool_name"],input#pool_name').parent().fadeIn();
-    $('label[for="ceph_host"],input#ceph_host').parent().fadeIn();
-    $('label[for="ceph_secret"],input#ceph_secret').parent().fadeIn();
-    $('label[for="ceph_user"],input#ceph_user').parent().fadeIn();
-    $('label[for="rbd_format"],input#rbd_format').parent().fadeIn();
-    $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('select#disk_type').val('RBD');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('input#safe_dirs').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+    $('select#ds_mad', dialog).val('ceph');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('ceph');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
+    $('label[for="pool_name"],input#pool_name', dialog).parent().fadeIn();
+    $('label[for="ceph_host"],input#ceph_host', dialog).parent().fadeIn();
+    $('label[for="ceph_secret"],input#ceph_secret', dialog).parent().fadeIn();
+    $('label[for="ceph_user"],input#ceph_user', dialog).parent().fadeIn();
+    $('label[for="rbd_format"],input#rbd_format', dialog).parent().fadeIn();
+    $('label[for="staging_dir"],input#staging_dir', dialog).parent().fadeIn();
+    $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('RBD');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectBlockLvm(dialog) {
-    $('select#ds_mad').val('lvm');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('lvm');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
-    $('label[for="vg_name"],input#vg_name').fadeIn();
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('select#disk_type').val('block');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('input#safe_dirs').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
+    $('select#ds_mad', dialog).val('lvm');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('lvm');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
+    $('label[for="vg_name"],input#vg_name', dialog).fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('block');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectFsLvm(dialog) {
-    $('select#ds_mad').val('fs');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('fs_lvm');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('select#disk_type').val('block');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('input#safe_dirs').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
+    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('fs_lvm');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('block');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectGluster(dialog) {
-    $('select#ds_mad').val('fs');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('shared');
-    $('select#tm_mad').children('option').each(function() {
+    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('shared');
+    $('select#tm_mad', dialog).children('option').each(function() {
         var value_str = $(this).val();
         $(this).attr('disabled', 'disabled');
         if (value_str == "shared"  ||
@@ -439,50 +480,92 @@ define(function(require) {
           $(this).removeAttr('disabled');
         }
       });
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('select#disk_type').val('gluster');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('label[for="gluster_host"],input#gluster_host').parent().fadeIn();
-    $('label[for="gluster_volume"],input#gluster_volume').parent().fadeIn();
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-    $('input#safe_dirs').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('select#disk_type', dialog).val('gluster');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="gluster_host"],input#gluster_host', dialog).parent().fadeIn();
+    $('label[for="gluster_volume"],input#gluster_volume', dialog).parent().fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectDevices(dialog) {
-    $('select#ds_mad').val('dev');
-    $('select#ds_mad').attr('disabled', 'disabled');
-    $('select#tm_mad').val('dev');
-    $('select#tm_mad').attr('disabled', 'disabled');
-    $('input#image_ds_type').attr('checked', 'true');
-    $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('select#disk_type').val('block');
-    $('select#disk_type').attr('disabled', 'disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().hide();
-    $('label[for="no_decompress"],input#no_decompress').parent().hide();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().hide();
-    $('input#safe_dirs').attr('disabled', 'disabled');
-    $('input#base_path').attr('disabled', 'disabled');
-    $('input#limit_mb').attr('disabled', 'disabled');
-    $('input#restricted_dirs').attr('disabled', 'disabled');
+    $('select#ds_mad', dialog).val('dev');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('dev');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('select#disk_type', dialog).val('block');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#base_path', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+  }
+
+  function _selectISCSI(dialog) {
+    $('select#ds_mad', dialog).val('iscsi');
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('iscsi');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().fadeIn();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().fadeIn();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('iscsi');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#base_path', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
   }
 
   function _selectCustom(dialog) {
     _hideAll(dialog);
-    $('select#ds_mad').val('fs');
-    $('select#tm_mad').val('shared');
-    $('input#safe_dirs').removeAttr('disabled');
-    $('select#disk_type').removeAttr('disabled');
-    $('input#base_path').removeAttr('disabled');
-    $('input#limit_mb').removeAttr('disabled');
-    $('input#restricted_dirs').removeAttr('disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
+    $('select#ds_mad', dialog).val('fs');
+    $('select#tm_mad', dialog).val('shared');
+    $('input#safe_dirs', dialog).removeAttr('disabled');
+    $('select#disk_type', dialog).removeAttr('disabled');
+    $('input#base_path', dialog).removeAttr('disabled');
+    $('input#limit_mb', dialog).removeAttr('disabled');
+    $('input#restricted_dirs', dialog).removeAttr('disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
+  }
+
+  function _setRequiredFields(dialog, mad) {
+    $.each(Config.dsMadConf,function(i,e){
+        if (e["NAME"] == mad) {
+          if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
+            var required_attrs = e["REQUIRED_ATTRS"].split(",");
+
+            if (required_attrs != undefined){
+              $.each(required_attrs, function(i,e){
+                $('input#' + e.toLowerCase(), dialog).attr('required', true)
+                                                     .attr('required_active', '');
+              });
+            }
+
+          }
+          return false;
+        }
+      }
+    );
   }
 });
+

@@ -200,7 +200,15 @@ define(function(require) {
           var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
           var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
 
-          if ((cpuCost != undefined || memoryCost != undefined) && Config.isFeatureEnabled("showback")) {
+          if (cpuCost == undefined){
+            cpuCost = Config.defaultCost.cpuCost;
+          }
+
+          if (memoryCost == undefined){
+            memoryCost = Config.defaultCost.memoryCost;
+          }
+
+          if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
             var cost = 0;
 
             var cpu    = template_json.VMTEMPLATE.TEMPLATE.CPU;

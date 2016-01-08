@@ -224,8 +224,10 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 {
     Nebula& nd = Nebula::instance();
 
-    ClusterPool*    clpool = nd.get_clpool();
-    Cluster*        cluster;
+    ClusterPool* clpool = nd.get_clpool();
+    Cluster*     cluster;
+
+    bool ds_migr;
 
     ds_id = -1;
 
@@ -267,7 +269,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
         }
     }
 
-    return get_ds_information(ds_id, cluster_id, tm_mad, att);
+    return get_ds_information(ds_id, cluster_id, tm_mad, att, ds_migr);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -276,7 +278,8 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     int& ds_cluster_id,
     string& tm_mad,
-    RequestAttributes& att)
+    RequestAttributes& att,
+    bool& ds_migr)
 {
     Nebula& nd = Nebula::instance();
 
@@ -311,6 +314,8 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     ds_cluster_id = ds->get_cluster_id();
 
     tm_mad = ds->get_tm_mad();
+
+    ds->get_template_attribute("DS_MIGRATE", ds_migr);
 
     ds->unlock();
 
@@ -536,11 +541,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_imported() && (
-        action == History::DELETE_RECREATE_ACTION ||
-        action == History::UNDEPLOY_ACTION ||
-        action == History::UNDEPLOY_HARD_ACTION ||
-        action == History::STOP_ACTION))
+    if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         oss << "Action \"" << action_st << "\" is not supported for imported VMs";
 
@@ -742,9 +743,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
         else //Get information from user selected system DS
         {
-            int ds_cluster_id;
+            int  ds_cluster_id;
+            bool ds_migr;
 
-            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
             {
                 return;
             }
@@ -836,7 +838,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Add a new history record and deploy the VM
+    // Add a new history record and update volatile DISK info
     // ------------------------------------------------------------------------
 
     if (add_history(vm,
@@ -853,6 +855,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         vm->unlock();
         return;
     }
+
+    vm->volatile_disk_extended_info();
+
+    // ------------------------------------------------------------------------
+    // deploy the VM
+    // ------------------------------------------------------------------------
 
     if (vm->is_imported())
     {
@@ -898,6 +906,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool auth = false;
 
     string error;
+
+    History::VMAction action;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
@@ -1000,7 +1010,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->is_imported())
+    if (live)
+    {
+        action = History::LIVE_MIGRATE_ACTION;
+    }
+    else
+    {
+        action = History::MIGRATE_ACTION;
+    }
+
+    if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         failure_response(ACTION,
                 request_error("Migration is not supported for imported VMs",""),
@@ -1086,19 +1105,24 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
+        bool ds_migr;
+
         if ( c_ds_id != ds_id && live )
         {
-            failure_response(ACTION,
-                    request_error(
-                            "A migration to a different system datastore "
-                            "cannot be performed live.",""),
-                    att);
-
+            failure_response(ACTION, request_error( "A migration to a different"
+                        " system datastore cannot be performed live.",""), att);
             return;
         }
 
-        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
         {
+            return;
+        }
+
+        if (!ds_migr)
+        {
+            failure_response(ACTION, request_error("System datastore migration"
+                    " not supported by TM driver",""), att);
             return;
         }
 
@@ -1134,7 +1158,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // ------------------------------------------------------------------------
-    // Add a new history record and migrate the VM
+    // Add a new history record and update volatile DISK attributes
     // ------------------------------------------------------------------------
 
     if ( (vm = get_vm(id, att)) == 0 )
@@ -1156,6 +1180,12 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
         return;
     }
+
+    vm->volatile_disk_extended_info();
+
+    // ------------------------------------------------------------------------
+    // Migrate the VM
+    // ------------------------------------------------------------------------
 
     if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
@@ -1550,11 +1580,11 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->get_permissions(vm_perms);
 
+    volatile_disk = vm->volatile_disk_extended_info(&tmpl);
+
     vm->unlock();
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
-
-    volatile_disk = VirtualMachine::is_volatile(&tmpl);
 
     VirtualMachineTemplate deltas(tmpl);
     VirtualMachine::disk_extended_info(att.uid, &deltas);
@@ -2339,7 +2369,6 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     Template ds_deltas;
     Template vm_deltas;
-    bool     do_vm_quota;
 
     int    rc;
     int    snap_id;
@@ -2370,8 +2399,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     string disk_size = disk->vector_value("SIZE");
     string ds_id     = disk->vector_value("DATASTORE_ID");
-    bool persistent  = VirtualMachine::is_persistent(disk);
     bool is_volatile = VirtualMachine::is_volatile(disk);
+    bool is_system   = VirtualMachine::disk_tm_target(disk) == "SYSTEM";
+    bool do_ds_quota = VirtualMachine::is_persistent(disk) || !is_system;
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2391,7 +2421,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     RequestAttributes vm_att_quota;
 
     //--------------------------- Persistent Images ----------------------------
-    if (persistent)
+    if (do_ds_quota)
     {
         PoolObjectAuth img_perms;
 
@@ -2428,9 +2458,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
 
     //--------------------- Account for System DS storage ----------------------
-    do_vm_quota = (VirtualMachine::disk_tm_target(disk) != "NONE");// self or system
-
-    if (do_vm_quota)
+    if (is_system)
     {
         if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
         {
@@ -2448,7 +2476,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
         if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
         {
-            if (persistent)
+            if (do_ds_quota)
             {
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
             }
@@ -2464,12 +2492,12 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
-        if (persistent)
+        if (do_ds_quota)
         {
             quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
         }
 
-        if (do_vm_quota)
+        if (is_system)
         {
             quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
         }

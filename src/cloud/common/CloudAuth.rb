@@ -23,6 +23,7 @@ class CloudAuth
         "sunstone"   => 'SunstoneCloudAuth' ,
         "ec2"        => 'EC2CloudAuth',
         "x509"       => 'X509CloudAuth',
+        "remote"     => 'RemoteCloudAuth',
         "opennebula" => 'OpenNebulaCloudAuth',
         "onegate"    => 'OneGateCloudAuth'
     }
@@ -142,17 +143,15 @@ class CloudAuth
         retrieve_from_userpool(xpath)
     end
 
-    # Gets the username associated with a password
-    # password:: _String_ the password
-    # [return] _Hash_ with the username
-    def get_username(password)
-        # Trying to match password with each
-        # of the pipe-separated DNs stored in USER/PASSWORD
+    # Selects the username that matches the driver and evaluates to true the 
+    # block passed to the function
+    # block:: { |user| true or false }
+    # [return] the username or nil
+    def select_username(password)
         @lock.synchronize do
             @user_pool.each_with_xpath(
                 "USER[contains(PASSWORD, \"#{password}\")]") do |user|
-                return user["NAME"] if user["AUTH_DRIVER"] == "x509" &&
-                    user["PASSWORD"].split('|').include?(password)
+                    return user["NAME"] if yield user, password
             end
         end
 

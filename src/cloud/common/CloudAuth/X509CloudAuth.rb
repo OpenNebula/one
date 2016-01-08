@@ -17,8 +17,19 @@
 require 'opennebula/x509_auth'
 
 module X509CloudAuth
+
+    # Gets the username associated with a password for x509 driver
+    # It matches the  password with each of the pipe-separated DNs stored
+    # in USER/PASSWORD
+    def get_username(password)
+      select_username(password) { |u, p|
+        u["AUTH_DRIVER"] == "x509" && u["PASSWORD"].split('|').include?(p)
+      }
+    end
+
     def do_auth(env, params={})
-        # For https, the web service should be set to include the user cert in the environment.
+        # For https, the web service should be set to include the user cert in
+        # the environment.
         cert_line   = env['HTTP_SSL_CLIENT_CERT']
         cert_line   = nil if cert_line == '(null)' # For Apache mod_ssl
         chain_index = 0

@@ -794,6 +794,11 @@ void LifeCycleManager::delete_action(int vid)
 
 void  LifeCycleManager::clean_action(int vid)
 {
+    Template *           vm_quotas = 0;
+    map<int, Template *> ds_quotas;
+
+    int vm_uid, vm_gid;
+
     VirtualMachine * vm;
 
     int image_id = -1;
@@ -824,7 +829,12 @@ void  LifeCycleManager::clean_action(int vid)
         break;
 
         default:
+            vm_uid = vm->get_uid();
+            vm_gid = vm->get_gid();
+
             clean_up_vm(vm, false, image_id);
+
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas, ds_quotas);
         break;
     }
 
@@ -832,7 +842,7 @@ void  LifeCycleManager::clean_action(int vid)
 
     if ( image_id != -1 )
     {
-        Image*     image = ipool->get(image_id, true);
+        Image* image = ipool->get(image_id, true);
 
         if ( image != 0 )
         {
@@ -842,6 +852,18 @@ void  LifeCycleManager::clean_action(int vid)
 
             image->unlock();
         }
+    }
+
+    if ( !ds_quotas.empty() )
+    {
+        Quotas::ds_del(ds_quotas);
+    }
+
+    if ( vm_quotas != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
     }
 }
 

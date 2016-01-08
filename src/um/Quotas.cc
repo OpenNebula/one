@@ -281,3 +281,43 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Quotas::ds_del(map<int, Template *>& ds_quotas)
+{
+    Nebula&     nd    = Nebula::instance();
+    ImagePool * ipool = nd.get_ipool();
+
+    map<int, Template *>::iterator it;
+
+    for (it = ds_quotas.begin(); it != ds_quotas.end(); it++)
+    {
+        int        image_id = it->first;
+        Template * tmpl     = it->second;
+
+        if ( tmpl == 0 )
+        {
+            continue;
+        }
+
+        Image* img = ipool->get(image_id, true);
+
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            quota_del(DATASTORE, img_uid, img_gid, tmpl);
+        }
+
+        delete tmpl;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

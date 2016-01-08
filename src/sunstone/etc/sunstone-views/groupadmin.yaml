@@ -1,8 +1,8 @@
 provision_logo: images/one_small_logo.png
 enabled_tabs:
-    provision-tab: true
-    users-tab: true
-    settings-tab: true
+    - provision-tab
+    - users-tab
+    - settings-tab
 features:
     showback: true
 tabs:
@@ -24,6 +24,7 @@ tabs:
         actions: &provisionactions
             Template.chmod: true
             Template.delete: true
+            VM.rename: true
             VM.resume: true
             VM.reboot: true
             VM.reboot_hard: true

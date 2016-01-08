@@ -99,11 +99,11 @@ define(function(require) {
         processedLeases.push({
           "col0HTML"  : col0HTML,
           "col1HTML"  : col1HTML,
-          "IP"        : (lease.IP ? lease.IP : "--"),
-          "MAC"       : (lease.MAC ? lease.MAC : "--"),
-          "IP6_LINK"  : (lease.IP6_LINK ? lease.IP6_LINK : "--"),
-          "IP6_ULA"   : (lease.IP6_ULA ? lease.IP6_ULA : "--"),
-          "IP6_GLOBAL": (lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--"),
+          "IP"        : lease.IP,
+          "MAC"       : lease.MAC,
+          "IP6_LINK"  : lease.IP6_LINK,
+          "IP6_ULA"   : lease.IP6_ULA,
+          "IP6_GLOBAL": lease.IP6_GLOBAL,
           "AR_ID"     : id
         });
       }
@@ -140,32 +140,20 @@ define(function(require) {
 
         return false;
       });
-
-      context.off("click", 'a.hold_lease');
-      context.on("click", 'a.hold_lease', function(){
-        var lease = $(this).parents('tr').attr('ip');
-        var obj = { ip: lease};
-        Sunstone.runAction('Network.hold',that.element.ID,obj);
-        // TODO: spinner is a global var set in sunstone.js
-        //Set spinner
-        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
-        return false;
-      });
     }
 
     if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
       context.off("click", 'a.release_lease');
       context.on("click", 'a.release_lease', function(){
         var lease = $(this).parents('tr').attr('ip');
-        if (lease == "undefined"){
+        if (lease == ""){
           lease = $(this).parents('tr').attr('mac');
         }
 
         var obj = { ip: lease};
         Sunstone.runAction('Network.release',that.element.ID,obj);
-        // TODO: spinner is a global var set in sunstone.js
         //Set spinner
-        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        $(this).parents('tr').html('<td class="key_td"><i class="fa fa-spinner fa-spin"></i></td><td class="value_td"></td>');
         return false;
       });
     }

@@ -433,7 +433,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header("WILD VIRTUAL MACHINES", false)
         puts
 
-        format = "%30s %36s %4s %10s"
+        format = "%-30.30s %36s %4s %10s"
         CLIHelper.print_header(format % ["NAME", "IMPORT_ID", "CPU", "MEMORY"],
                                true)
 

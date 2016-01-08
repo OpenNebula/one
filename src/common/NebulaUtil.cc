@@ -283,3 +283,26 @@ int one_util::regex_match(const char *pattern, const char *subject)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static bool not_space(int c)
+{
+    return std::isspace(c) == 0;
+};
+
+std::string one_util::trim(const std::string& str)
+{
+    std::string::const_iterator        wfirst;
+    std::string::const_reverse_iterator rwlast;
+
+    wfirst = find_if(str.begin(), str.end(), not_space);
+    rwlast = find_if(str.rbegin(),str.rend(),not_space);
+
+    std::string::const_iterator wlast(rwlast.base());
+
+	std::string tstr(wfirst, wlast);
+
+	return tstr;
+}

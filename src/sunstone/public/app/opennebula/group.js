@@ -60,6 +60,10 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
+    "append": function(params) {
+      var action_obj = {"template_raw" : params.data.extra_param, append : true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
+    },
     "set_quota" : function(params) {
       var action_obj = {quotas :  params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "set_quota", action_obj);

@@ -1059,6 +1059,10 @@ int VirtualMachine::parse_context(string& error_str)
 
         context_parsed->replace("ONEGATE_ENDPOINT", endpoint);
         context_parsed->replace("VMID", oid);
+
+        // The token_password is taken from the owner user's template.
+        // We store this original owner in case a chown operation is performed.
+        add_template_attribute("CREATED_BY", uid);
     }
 
     return rc;
@@ -1937,15 +1941,15 @@ int VirtualMachine::get_disk_images(string& error_str)
 
         disk = static_cast<VectorAttribute * >(disks[i]);
 
-        rc = ipool->acquire_disk(  oid,
-                                   disk,
-                                   i,
-                                   img_type,
-                                   dev_prefix,
-                                   uid,
-                                   image_id,
-                                   &snap,
-                                   error_str);
+        rc = ipool->acquire_disk(oid,
+                                 disk,
+                                 i,
+                                 img_type,
+                                 dev_prefix,
+                                 uid,
+                                 image_id,
+                                 &snap,
+                                 error_str);
         if (rc == 0 )
         {
             if (snap != 0)
@@ -2217,7 +2221,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
             imagem->release_image(vm_id, image_id, false);
 
             delete new_disk;
-            delete snap;
+            delete *snap;
 
             *snap    = 0;
             image_id = -1;
@@ -2381,29 +2385,6 @@ bool VirtualMachine::is_persistent(const VectorAttribute * disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_volatile(const Template * tmpl)
-{
-    vector<const Attribute*> disks;
-    const VectorAttribute *  disk;
-
-    int num_disks = tmpl->get("DISK", disks);
-
-    for (int i = 0 ; i < num_disks ; i++)
-    {
-        disk =static_cast<const VectorAttribute*>(disks[i]);
-
-        if (is_volatile(disk))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 bool VirtualMachine::is_imported() const
 {
     bool imported = false;
@@ -2411,6 +2392,21 @@ bool VirtualMachine::is_imported() const
     get_template_attribute("IMPORTED", imported);
 
     return imported;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_imported_action_supported(History::VMAction action) const
+{
+    if (!hasHistory())
+    {
+        return false;
+    }
+
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+
+    return vmm->is_imported_action_supported(get_vmm_mad(), action);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2444,7 +2440,7 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
         {
             size += disk_size;
         }
-        else if ( disk_tm_target(disk) != "NONE") // self or system
+        else if ( disk_tm_target(disk) == "SYSTEM")
         {
             size += disk_size;
 
@@ -3294,10 +3290,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
             return -1;
         }
 
-        // The token_password is taken from the owner user's template.
-        // We store this original owner in case a chown operation is performed.
-        add_template_attribute("CREATED_BY", uid);
-
         token_file.open(history->token_file.c_str(), ios::out);
 
         if (token_file.fail())
@@ -3685,6 +3677,40 @@ void VirtualMachine::disk_extended_info(int uid,
 
         ipool->disk_attribute(disk, i, uid);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::volatile_disk_extended_info(Template *tmpl)
+{
+    int                   num;
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+    DatastorePool *       ds_pool = Nebula::instance().get_dspool();
+
+    bool found = false;
+
+    num = tmpl->get("DISK",disks);
+
+    for(int i=0; i<num; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 || !is_volatile(disk) )
+        {
+            continue;
+        }
+
+        found = true;
+
+        if (hasHistory())
+        {
+            ds_pool->disk_attribute(get_ds_id(), disk);
+        }
+    }
+
+    return found;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4576,22 +4602,123 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         delete tmp;
     }
 
-    if ( is_persistent(disk) )
-    {
+	if (is_persistent(disk) || disk_tm_target(disk) != "SYSTEM")
+	{
         *ds_quotas = new Template();
 
         (*ds_quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
         (*ds_quotas)->add("SIZE", ssize);
         (*ds_quotas)->add("IMAGES",0 );
-    }
+	}
 
-    if (disk_tm_target(disk) != "NONE") // self or system
+    if (disk_tm_target(disk) == "SYSTEM")
     {
         *vm_quotas = new Template();
 
         delta_disk = new VectorAttribute("DISK");
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", ssize);
+
+        (*vm_quotas)->add("VMS", 0);
+        (*vm_quotas)->set(delta_disk);
+    }
+}
+
+//  +--------+-------------------------------------+
+//  |LN/CLONE|     PERSISTENT    |   NO PERSISTENT |
+//  |        |---------+---------+-----------------+
+//  | TARGET | created |  quota  | created | quota |
+//  +--------+---------+---------+-----------------+
+//  | SYSTEM | system  | VM + DS | system  | VM    |
+//  | SELF   | image   | DS      | image   | DS    |
+//  | NONE   | image   | DS      | image   | DS    |
+//  +----------------------------------------------+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas)
+{
+    vector<Attribute *> disks;
+    VectorAttribute *   disk;
+
+    map<int, Snapshots *>::iterator it;
+
+    int  disk_id;
+
+    long long system_disk = 0;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (disk->vector_value("DISK_ID", disk_id) != 0)
+        {
+            continue;
+        }
+
+        it = snapshots.find(disk_id);
+
+        if (it == snapshots.end())
+        {
+            continue;
+        }
+
+		if ( disk_tm_target(disk) != "SYSTEM" )
+		{
+			continue;
+		}
+
+        if (is_persistent(disk))
+        {
+            int image_id;
+
+            if ( disk->vector_value("IMAGE_ID", image_id) != 0 )
+            {
+                continue;
+            }
+
+            Template * d_ds = new Template();
+
+            d_ds->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
+            d_ds->add("SIZE", it->second->get_total_size());
+            d_ds->add("IMAGES", 0);
+
+            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+        }
+
+		system_disk += it->second->get_total_size();
+
+        it->second->clear();
+
+        Snapshots * tmp = it->second;
+
+        snapshots.erase(it);
+
+        delete tmp;
+
+        disk->remove("DISK_SNAPSHOT_ACTIVE");
+        disk->remove("DISK_SNAPSHOT_ID");
+        disk->remove("DISK_SNAPSHOT_TOTAL_SIZE");
+    }
+
+    if ( system_disk > 0 )
+    {
+        VectorAttribute * delta_disk;
+
+        *vm_quotas = new Template();
+
+        delta_disk = new VectorAttribute("DISK");
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", system_disk);
 
         (*vm_quotas)->add("VMS", 0);
         (*vm_quotas)->set(delta_disk);

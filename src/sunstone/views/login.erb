@@ -19,14 +19,14 @@
 
   <body>
 
-    <% if settings.config[:auth] == "x509" %>
+    <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
     <%= erb :_login_x509 %>
     <% else %>
     <%= erb :_login_standard %>
     <% end %>
 
     <div id="footer" style="overflow:visible;">
-      <a href="http://opennebula.org" target="_blank">OpenNebula 4.14.0</a>
+      <a href="http://opennebula.org" target="_blank">OpenNebula 4.14.1</a>
       by
       <a href="http://opennebula.systems" target="_blank">OpenNebula Systems</a>
       .

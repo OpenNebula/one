@@ -31,6 +31,7 @@
         },
         'system_config' : {
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
+            'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>'
         },
         'view' : view,
@@ -41,7 +42,8 @@
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
         'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>'),
-        'page_length' : '<%= session[:page_length] %>'
+        'page_length' : '<%= session[:page_length] %>',
+        'vm_logos' : <%= logos_conf.to_json %>
       };
     </script>
 
@@ -80,7 +82,7 @@
         </div>
       </div>
       <div id="footer" class="text-center large-10 columns right">
-        <a href="http://opennebula.org" target="_blank">OpenNebula 4.14.0</a> by <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
+        <a href="http://opennebula.org" target="_blank">OpenNebula 4.14.1</a> by <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
       </div>
       <div class="large-12 columns" id="dialogs"></div>
     </div>
@@ -89,7 +91,7 @@
     <% if $conf[:env] == 'dev' %>
       <script src="bower_components/requirejs/require.js" data-main="app/main"></script>
     <% else %>
-      <script src="dist/main.js"></script>
+      <script src="dist/main.js?v=<%= OpenNebula::VERSION %>"></script>
     <% end %>
   </body>
 </html>

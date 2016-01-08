@@ -32,6 +32,7 @@
         <option value="ceph">{{tr "Ceph"}}</option>
         <option value="gluster">{{tr "Gluster"}}</option>
         <option value="dev">{{tr "Devices"}}</option>
+        <option value="iscsi">{{tr "iSCSI"}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -68,6 +69,7 @@
             <option value="vmfs">{{tr "VMFS"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
+            <option value="iscsi">{{tr "iSCSI"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
@@ -86,6 +88,7 @@
             <option value="vmfs">{{tr "VMFS"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
+            <option value="iscsi">{{tr "iSCSI"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
@@ -104,6 +107,7 @@
         <option value="block">{{tr "Block"}}</option>
         <option value="RBD">{{tr "RBD"}}</option>
         <option value="gluster">{{tr "Gluster"}}</option>
+        <option value="iscsi">{{tr "iSCSI"}}</option>
       </select>
     </div>
   </div>
@@ -257,6 +261,42 @@
         </span>
       </label>
       <input type="text" name="rbd_format" id="rbd_format" />
+    </div>
+    <div class="medium-6 columns">
+      <label class="fs" for="ceph_conf">
+        {{tr "Ceph Conf File"}}
+        <span class="tip">
+          {{tr "Path to the ceph configuration file. Only necessary if not using the default configuration file."}}
+        </span>
+      </label>
+      <input type="text" name="ceph_conf" id="ceph_conf" />
+    </div>
+    <div class="medium-6 columns">
+      <label for="iscsi_host">
+        {{tr "iSCSI Host"}}
+        <span class="tip">
+          {{tr "The iSCSI Host. Example: 'host' or 'host:port' (if no port is specified, the default one is chosen)."}}
+        </span>
+      </label>
+      <input type="text" name="iscsi_host" id="iscsi_host" />
+    </div>
+    <div class="medium-6 columns">
+      <label for="iscsi_user">
+        {{tr "iSCSI User"}}
+        <span class="tip">
+          {{tr "The iSCSI User."}}
+        </span>
+      </label>
+      <input type="text" name="iscsi_user" id="iscsi_user" />
+    </div>
+    <div class="medium-6 columns">
+      <label for="iscsi_usage">
+        {{tr "iSCSI Usage"}}
+        <span class="tip">
+          {{tr "'Usage' of the registered secret that contains the CHAP Authentication string."}}
+        </span>
+      </label>
+      <input type="text" name="iscsi_usage" id="iscsi_usage" />
     </div>
   </div>
 </form>

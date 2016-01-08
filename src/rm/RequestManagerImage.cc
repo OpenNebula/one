@@ -68,13 +68,50 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
     bool    persistent_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int     rc;
 
+    int ds_id;
+    int ds_persistent_only;
+
+    Nebula&  nd = Nebula::instance();
+    DatastorePool * dspool = nd.get_dspool();
+
+    Datastore * ds;
     Image * image;
-    string  err_msg;
+    std::string  err_msg;
 
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
+
+    image = static_cast<Image *>(pool->get(id,true));
+
+    if ( image == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),id),
+                att);
+
+        return;
+    }
+
+    ds_id = image->get_ds_id();
+
+    image->unlock();
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+        failure_response(INTERNAL,
+                request_error("Datastore no longer exists.",
+                ""), att);
+
+        return;
+    }
+
+    ds_persistent_only = ds->is_persistent_only();
+
+    ds->unlock();
 
     image = static_cast<Image *>(pool->get(id,true));
 
@@ -101,6 +138,17 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
                 request_error("KERNEL, RAMDISK and CONTEXT files must be "
                 "non-persistent",""), att);
             image->unlock();
+        return;
+    }
+
+    /* Check if datastore allows the operation */
+    if ( ds_persistent_only && persistent_flag == false )
+    {
+        failure_response(INTERNAL,
+            request_error("This Datastore only accepts persistent images.",""),
+            att);
+
+        image->unlock();
         return;
     }
 

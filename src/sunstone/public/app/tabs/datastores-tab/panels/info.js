@@ -67,7 +67,7 @@ define(function(require) {
 
 
   function _html() {
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var templateTableHTML = TemplateTable.html(
                                       this.element.TEMPLATE, RESOURCE,
@@ -96,7 +96,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);

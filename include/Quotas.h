@@ -191,6 +191,14 @@ public:
         quota_del(DATASTORE, uid, gid, tmpl);
     }
 
+     /**
+      *  Delete a set of Datastore usage attributes from quota counters. Each
+      *  quota datastore is associate to a given image. NOTE: The templates
+      *  *ARE FREED* by this function
+      *    @param ds_quotas a map with image_id and a tmpl with usage attributes
+      */
+    static void ds_del(map<int, Template *>& ds_quotas);
+
     /**
      *  Delete usage from the given quota counters.
      *  for the given user and group

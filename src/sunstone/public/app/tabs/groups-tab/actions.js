@@ -40,6 +40,7 @@ define(function(require) {
     "Group.delete" : _commonActions.del(),
     "Group.update" : _commonActions.update(),
     "Group.update_template" : _commonActions.updateTemplate(),
+    "Group.append_template" : _commonActions.appendTemplate(),
     "Group.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Group.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 

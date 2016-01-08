@@ -196,9 +196,11 @@ define(function(require) {
 
       $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
 
-      $.each(role.elasticity_policies, function(i, pol){
-        pol.expression = TemplateUtils.htmlDecode(pol.expression);
-      });
+      if (role.elasticity_policies != undefined){
+        $.each(role.elasticity_policies, function(i, pol){
+          pol.expression = TemplateUtils.htmlDecode(pol.expression);
+        });
+      }
 
       role.user_inputs_values = tmp_json;
 

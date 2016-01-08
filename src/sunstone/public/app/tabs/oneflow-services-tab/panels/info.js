@@ -20,6 +20,7 @@ define(function(require) {
    */
 
   var Locale = require('utils/locale');
+  var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var OpenNebulaService = require('opennebula/service');
 
@@ -62,16 +63,19 @@ define(function(require) {
    */
 
   function _html() {
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     return TemplateHTML({
       'element': this.element,
+      'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'stateStr': OpenNebulaService.stateStr(this.element.TEMPLATE.BODY.state)
     });
   }
 
   function _setup(context) {
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
   }
 });

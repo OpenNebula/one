@@ -1808,6 +1808,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     disk->vector_value("IMAGE_ID", img_id);
 
     bool is_persistent = VirtualMachine::is_persistent(disk);
+    string target      = VirtualMachine::disk_tm_target(disk);
 
     vmpool->update(vm);
 
@@ -1824,7 +1825,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
             img->unlock();
 
-            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -1832,12 +1833,13 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     if ( vm_quotas != 0 )
     {
-        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
 
         delete vm_quotas;
     }
 
-    if(img_id != -1 && is_persistent && has_snaps)
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }
@@ -1943,6 +1945,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     disk->vector_value("IMAGE_ID", img_id);
 
     bool is_persistent = VirtualMachine::is_persistent(disk);
+    string target      = VirtualMachine::disk_tm_target(disk);
 
     vmpool->update(vm);
 
@@ -1959,7 +1962,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
             img->unlock();
 
-            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -1967,12 +1970,13 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     if ( vm_quotas != 0 )
     {
-        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
 
         delete vm_quotas;
     }
 
-    if(img_id != -1 && is_persistent && has_snaps)
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }

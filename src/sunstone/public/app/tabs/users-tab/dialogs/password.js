@@ -25,6 +25,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var UserCreation = require('tabs/users-tab/utils/user-creation');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -92,7 +93,9 @@ define(function(require) {
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
-      Sunstone.runAction('User.refresh');
+      if (Config.isTabEnabled("users-tab")){
+        Sunstone.runAction('User.refresh');
+      }
 
       return false;
     });

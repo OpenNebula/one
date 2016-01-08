@@ -170,13 +170,15 @@ class VmmAction
                     ssh  = @ssh_src
                 end
 
+                stdin = step[:stdin] || @xml_data.to_s
+
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
                                               @id,
                                               host,
                                               step[:action],
                                               :ssh_stream => ssh,
                                               :respond => false,
-                                              :stdin => step[:stdin])
+                                              :stdin => stdin)
             when :vnm
                 if step[:destination]
                     vnm = @vnm_dst
@@ -893,7 +895,8 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTCREATE action, takes a snapshot of a disk
     #
     def disk_snapshot_create(id, drv_message)
-        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_create])
+        snap_action  = prepare_snap_action(id, drv_message,
+                                           :disk_snapshot_create)
         action       = snap_action[:action]
         strategy     = snap_action[:strategy]
         drv_message  = snap_action[:drv_message]
@@ -903,7 +906,6 @@ class ExecDriver < VirtualMachineDriver
 
         # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
-        tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
 
         # Build the process
         case strategy
@@ -915,8 +917,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :tm,
                     :action     => :tm_snap_create_live,
-                    :parameters => tm_command_split,
-                    :no_fail    => true
+                    :parameters => tm_command_split
                 }
             ]
 
@@ -941,14 +942,7 @@ class ExecDriver < VirtualMachineDriver
                     :driver     => :vmm,
                     :action     => :attach_disk,
                     :parameters => [:deploy_id, :disk_target_path, target,
-                                    target_index, drv_message],
-                    :fail_actions => [
-                        {
-                            :driver     => :tm,
-                            :action     => :tm_snap_delete,
-                            :parameters => tm_rollback.split
-                        }
-                    ]
+                                    target_index, drv_message]
                 }
             ]
         when :suspend
@@ -980,14 +974,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :vmm,
                     :action     => :restore,
-                    :parameters => [:checkpoint_file, :host, :deploy_id],
-                    :fail_actions => [
-                        {
-                            :driver     => :tm,
-                            :action     => :tm_snap_delete,
-                            :parameters => tm_rollback.split
-                        }
-                    ]
+                    :parameters => [:checkpoint_file, :host, :deploy_id]
                 },
                 # network drivers (post)
                 {
@@ -1014,7 +1001,8 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTREVERT action, takes a snapshot of a disk
     #
     def disk_snapshot_revert(id, drv_message)
-        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_revert])
+        snap_action  = prepare_snap_action(id, drv_message,
+                                           :disk_snapshot_revert)
         action       = snap_action[:action]
         strategy     = @options[:snapshots_strategy]
         drv_message  = snap_action[:drv_message]
@@ -1120,7 +1108,8 @@ private
 
         # Make sure disk target has been defined
         target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target       = ensure_xpath(xml_data, id, action, target_xpath) || return
+        target       = ensure_xpath(xml_data, id, ACTION[action],
+                                    target_xpath) || return
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         # Always send ATTACH='YES' for the selected target in case it will end
@@ -1132,7 +1121,7 @@ private
         disk.add(attach)
 
         drv_message = Base64.encode64(xml_data.to_s)
-        action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
+        action = VmmAction.new(self, id, action, drv_message)
 
         # Determine the strategy
         vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
@@ -1163,7 +1152,11 @@ end
 #
 ################################################################################
 
-LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split rescue []
+if ENV['LIVE_DISK_SNAPSHOTS']
+    LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split
+else
+    LIVE_DISK_SNAPSHOTS = []
+end
 
 opts = GetoptLong.new(
     [ '--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT ],

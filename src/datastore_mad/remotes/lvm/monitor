@@ -62,7 +62,7 @@ fi
 MONITOR_SCRIPT=$(cat <<EOF
 set -e
 
-VG_OPTS="--units M -C --noheadings --nosuffix $VG_NAME"
+VG_OPTS="--units m -C --noheadings --nosuffix $VG_NAME"
 
 TOTAL_MB=\$($SUDO $VGDISPLAY -o vg_size \$VG_OPTS | $TR -d ' ')
 FREE_MB=\$($SUDO $VGDISPLAY -o vg_free \$VG_OPTS | $TR -d ' ')

@@ -38,6 +38,7 @@ SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
 
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
+LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
@@ -373,9 +374,18 @@ get '/' do
         return erb :login
     end
 
+    logos_conf = nil
+
+    begin
+        logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
+    rescue Exception => e
+        logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+        error 500, ""
+    end
+
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index
+    erb :index, :locals => {:logos_conf => logos_conf}
 end
 
 get '/login' do
@@ -496,6 +506,31 @@ get '/infrastructure' do
     infrastructure[:vcenter_customizations] = set.to_a
 
     [200, infrastructure.to_json]
+end
+
+get '/onedconf' do
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    rc = OpenNebula::System.new(serveradmin_client).get_configuration
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    onedconf_template = rc.to_hash()['TEMPLATE']
+
+    keys = [
+        :DEFAULT_COST,
+        :DS_MAD_CONF
+    ]
+
+    onedconf = {}
+    keys.each do |key|
+        onedconf[key] = onedconf_template[key.to_s]
+    end
+
+    [200, onedconf.to_json]
 end
 
 get '/vm/:id/log' do

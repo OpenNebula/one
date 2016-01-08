@@ -881,6 +881,11 @@ int DispatchManager::resubmit(
     ostringstream    oss;
     int              rc = 0;
 
+    Template *           vm_quotas = 0;
+    map<int, Template *> ds_quotas;
+
+    int vm_uid, vm_gid;
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -902,13 +907,18 @@ int DispatchManager::resubmit(
             rc = -2;
         break;
 
-        case VirtualMachine::INIT: // No need to do nothing here
+        case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         break;
 
-        case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
+            vm_uid = vm->get_uid();
+            vm_gid = vm->get_gid();
+
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas, ds_quotas);
+
+        case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
                 vm->set_action(History::DELETE_RECREATE_ACTION);
@@ -933,6 +943,18 @@ int DispatchManager::resubmit(
     }
 
     vm->unlock();
+
+    if ( !ds_quotas.empty() )
+    {
+        Quotas::ds_del(ds_quotas);
+    }
+
+    if ( vm_quotas != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
+    }
 
     return rc;
 }

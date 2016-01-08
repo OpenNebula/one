@@ -39,6 +39,7 @@ define(function(require) {
     "ServiceTemplate.chown": _commonActions.multipleAction('chown'),
     "ServiceTemplate.chgrp": _commonActions.multipleAction('chgrp'),
     "ServiceTemplate.chmod": _commonActions.singleAction('chmod'),
+    "ServiceTemplate.rename": _commonActions.singleAction('rename'),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
     "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),

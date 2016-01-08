@@ -92,7 +92,7 @@ define(function(require) {
                                       RESOURCE,
                                       Locale.tr("Attributes"));
 
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var cpuBars = CPUBars.html(this.element);
@@ -113,7 +113,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);

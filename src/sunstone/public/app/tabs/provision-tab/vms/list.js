@@ -341,6 +341,35 @@ define(function(require) {
 
           $(".provision_info_vm_name", context).text(data.NAME);
 
+          if (Config.isTabActionEnabled("provision-tab", 'VM.rename')) {
+            context.off("click", ".provision_info_vm_rename a");
+            context.on("click", ".provision_info_vm_rename a", function() {
+              var valueStr = $(".provision_info_vm_name", context).text();
+              $(".provision_info_vm_name", context).html('<input class="input_edit_value_rename" type="text" value="' + valueStr + '"/>');
+            });
+
+            context.off("change", ".input_edit_value_rename");
+            context.on("change", ".input_edit_value_rename", function() {
+              var valueStr = $(".input_edit_value_rename", context).val();
+              if (valueStr != "") {
+                OpenNebula.VM.rename({
+                  data : {
+                    id: vm_id,
+                    extra_param: {
+                      "name" : valueStr
+                    }
+                  },
+                  success: function(request, response){
+                    update_provision_vm_info(vm_id, context);
+                  },
+                  error: function(request, response){
+                    Notifier.onError(request, response);
+                  }
+                });
+              }
+            });
+          }
+
           $(".provision-pricing-table_vm_info", context).html(
               '<li class="text-left provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
@@ -474,7 +503,7 @@ define(function(require) {
             '<div class="row">'+
               '<div class="large-12 columns">'+
                 '<span style="font-size: 14px; line-height: 20px">'+
-                  Locale.tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+                  Locale.tr("This Virtual Machine will be saved in a new Template.")+
                 '<br>'+
                   Locale.tr("You can then create a new Virtual Machine using this Template.")+
                 '</span>'+
@@ -484,6 +513,27 @@ define(function(require) {
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<span style="font-size: 14px; line-height: 20px">'+
+                  Locale.tr("The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks.")+
+                '</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
+                  ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
+                '</label>'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
+                  ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
+                '</label>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -503,12 +553,15 @@ define(function(require) {
 
         var vm_id = context.attr("vm_id");
         var template_name = $('.provision_snapshot_name', context).val();
+        var persistent =
+          ($('input[name=provision_snapshot_radio]:checked').val() == "persistent");
 
         OpenNebula.VM.save_as_template({
           data : {
             id: vm_id,
             extra_param: {
-              name : template_name
+              name : template_name,
+              persistent : persistent
             }
           },
           timeout: false,
@@ -540,7 +593,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -559,7 +612,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -826,7 +879,11 @@ define(function(require) {
             url += "host=" + proxy_host;
             url += "&port=" + proxy_port;
             url += "&token=" + token;
-            url += "&password=" + pw;
+
+            if (!Config.requestVNCPassword) {
+              url += "&password=" + pw;
+            }
+
             url += "&encrypt=" + config['user_config']['vnc_wss'];
             url += "&title=" + vm_name;
 

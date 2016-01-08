@@ -16,13 +16,22 @@
 
 define(function(require) {
   require('jquery');
+  var OpenNebulaSystem = require('opennebula/system');
 
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
 
+  var _defaultCost = {
+    cpuCost    : 0,
+    memoryCost : 0,
+    diskCost   : 0
+  };
+
+  var _dsMadConf = {};
+
   var Config = {
     'isTabEnabled': function(tabName) {
-      var enabled = _config['view']['enabled_tabs'][tabName];
+      var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
       return enabled;
     },
 
@@ -52,8 +61,13 @@ define(function(require) {
 
     "isProvisionTabEnabled": function(tabName, panelTabName) {
       if (_config['view']['tabs'][tabName]) {
-        var enabled = _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
-        return enabled;
+        if (_config['view']['tabs'][tabName]['provision_tabs']) {
+          return _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
+        } else {
+          // if provision_tabs is not defined use panel_tabs.
+          // This attribute was used in before 4.14, provision_tabs was include in 4.14.2
+          return _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
+        }
       } else {
         return false;
       }
@@ -135,7 +149,39 @@ define(function(require) {
     'tableOrder': _config['user_config']['table_order'],
     'vncProxyPort': _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
-    'logo': (_config['view']["small_logo"] || "images/one_small_logo.png")
+    'requestVNCPassword': _config['system_config']['vnc_request_password'],
+    'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
+    'vmLogos': (_config['vm_logos']),
+    'enabledTabs': _config['view']['enabled_tabs'],
+    "defaultCost" : _defaultCost,
+    'dsMadConf' : _dsMadConf,
+    "initOnedConf" : function() {
+      OpenNebulaSystem.onedconf({
+        data : {},
+        timeout: true,
+        success: function (request, onedconf){
+          if (onedconf.DEFAULT_COST != undefined){
+            if (onedconf.DEFAULT_COST.CPU_COST != undefined){
+              _defaultCost.cpuCost = parseInt(onedconf.DEFAULT_COST.CPU_COST);
+            }
+            if (onedconf.DEFAULT_COST.MEMORY_COST != undefined){
+              _defaultCost.memoryCost = parseInt(onedconf.DEFAULT_COST.MEMORY_COST);
+            }
+            if (onedconf.DEFAULT_COST.DISK_COST != undefined){
+              _defaultCost.diskCost = parseInt(onedconf.DEFAULT_COST.DISK_COST);
+            }
+          }
+
+          if (onedconf.DS_MAD_CONF != undefined){
+            jQuery.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+          }
+        },
+        error: function(request, error_json){
+          console.error("There was an error requesting oned.conf: "+
+                        error_json.error.message);
+        }
+      });
+    }
   }
 
   return Config;

@@ -28,6 +28,7 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var OpenNebulaImage = require('opennebula/image');
   var OpenNebulaTemplate = require('opennebula/template');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -108,7 +109,7 @@ define(function(require) {
       var template_context = $("#market_import_file_template", context);
 
       $.each(that.element['files'], function(index, value){
-        var local_context = $("#market_import_file_"+index,  local_context);
+        var local_context = $("#market_import_file_"+index,  context);
 
         if ($(".market_image_result:not(.success)", local_context).length > 0) {
           img_obj = {
@@ -205,7 +206,7 @@ define(function(require) {
       if (that.element['opennebula_template'] && that.element['opennebula_template'] !== "CPU=1") {
         var vm_template;
         try {
-          vm_template = JSON.parse(that.element['opennebula_template']);
+          vm_template = JSON.parse( TemplateUtils.htmlDecode(that.element['opennebula_template']) );
         } catch (error) {
           $(".market_template_result", template_context).html(
             '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+

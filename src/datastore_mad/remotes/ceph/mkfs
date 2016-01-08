@@ -89,9 +89,6 @@ fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
-IMAGE_HASH=`generate_image_hash`
-TMP_DST="$STAGING_DIR/$IMAGE_HASH"
-
 IMAGE_NAME="one-${ID}"
 RBD_SOURCE="${POOL_NAME}/${IMAGE_NAME}"
 
@@ -104,28 +101,21 @@ fi
 
 # ------------ Create the image in the repository ------------
 
-MKFS_CMD=`mkfs_command $TMP_DST $FSTYPE $SIZE`
+MKFS_CMD=`mkfs_command /dev/rbd/${RBD_SOURCE} $FSTYPE $SIZE`
 
 if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
 REGISTER_CMD=$(cat <<EOF
-    set -e
     export PATH=/usr/sbin:/sbin:\$PATH
 
-    if [ "$FSTYPE" = "raw" ]; then
-        $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE}
-    else
-        # create and format
-        $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
-        $MKFS_CMD
+    $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
 
-        # create rbd
-        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
-
-        # remove original
-        $RM -f $TMP_DST
+    if [ "$FSTYPE" != "raw" ]; then
+        $SUDO $RBD map $RBD_SOURCE || exit \$?
+        $SUDO $MKFS_CMD
+        $SUDO $RBD unmap /dev/rbd/$RBD_SOURCE
     fi
 EOF
 )

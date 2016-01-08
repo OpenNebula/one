@@ -40,6 +40,7 @@ require 'CommandManager'
 require 'scripts_common'
 require 'rexml/document'
 require 'VirtualMachineDriver'
+require 'opennebula'
 
 # The main class for the EC2 driver
 class EC2Driver
@@ -132,7 +133,8 @@ class EC2Driver
                     :opt => 'placement/availability_zone'
                 },
                 "EBS_OPTIMIZED" => {
-                    :opt => 'ebs_optimized'
+                    :opt => 'ebs_optimized',
+                    :proc => lambda {|str| str.downcase.eql? "true"}
                 }
             }
         },
@@ -207,8 +209,9 @@ class EC2Driver
     ]
 
     # EC2 constructor, loads credentials and endpoint
-    def initialize(host)
-        @host = host
+    def initialize(host, host_id=nil)
+        @host    = host
+        @host_id = host_id
 
         public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
@@ -249,6 +252,29 @@ class EC2Driver
         opts = generate_options(:run, ec2_info, {
                 :min_count => 1,
                 :max_count => 1})
+
+        # The OpenNebula context will be only included if not USERDATA
+        #   is provided by the user
+        if !ec2_value(ec2_info, 'USERDATA')
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(xml_text, 'VM')
+
+            if xml.has_elements?('TEMPLATE/CONTEXT')
+                # Since there is only 1 level ',' will not be added
+                context_str = xml.template_like_str('TEMPLATE/CONTEXT')
+
+                if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
+                    # TODO use OneGate library
+                    token_str = generate_onegate_token(xml)
+                    if token_str
+                        context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                    end
+                end
+
+                userdata_key = EC2[:run][:args]["USERDATA"][:opt]
+                opts[userdata_key] = Base64.encode64(context_str)
+            end
+        end
 
         begin
             instance = AWS.ec2.instances.create(opts)
@@ -318,7 +344,10 @@ class EC2Driver
     # Get info (IP, and state) for a EC2 instance
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
-        puts parse_poll(i)
+        vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+        cw_mon_time = vm["LAST_POLL"] ? vm["LAST_POLL"].to_i : Time.now.to_i
+        do_cw = (Time.now.to_i - cw_mon_time) >= 360
+        puts parse_poll(i, vm, do_cw, cw_mon_time)
     end
 
     # Get the info of all the EC2 instances. An EC2 instance must include
@@ -349,16 +378,38 @@ class EC2Driver
         usedcpu    = 0
         usedmemory = 0
 
+        # Build an array of VMs and last_polls for monitoring
+        vpool      = OpenNebula::VirtualMachinePool.new(OpenNebula::Client.new,
+                                    OpenNebula::VirtualMachinePool::INFO_ALL_VM)
+        vpool.info
+        onevm_info = {}
+
+        # Get last cloudwatch monitoring time
+        host_obj    = OpenNebula::Host.new_with_id(@host_id,
+                                                  OpenNebula::Client.new)
+        host_obj.info
+        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
+
+        if !cw_mon_time
+            cw_mon_time = Time.now.to_i
+        else
+            cw_mon_time = cw_mon_time.to_i
+        end
+
+        do_cw = (Time.now.to_i - cw_mon_time) >= 360
+
+        vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
+
         begin
             AWS.ec2.instances.each do |i|
                 next if i.status != :pending && i.status != :running
 
-                poll_data=parse_poll(i)
+                one_id = i.tags['ONE_ID']
+
+                poll_data=parse_poll(i, onevm_info[i.instance_id],do_cw, cw_mon_time)
 
                 vm_template_to_one = vm_to_one(i)
                 vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-
-                one_id = i.tags['ONE_ID']
 
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
@@ -384,6 +435,12 @@ class EC2Driver
         host_info << "USEDCPU=#{usedcpu.round}\n"
         host_info << "FREEMEMORY=#{(totalmemory - usedmemory).round}\n"
         host_info << "FREECPU=#{(totalcpu - usedcpu).round}\n"
+
+        if do_cw
+            host_info << "CWMONTIME=#{Time.now.to_i}"
+        else
+            host_info << "CWMONTIME=#{cw_mon_time}"
+        end
 
         puts host_info
         puts vms_info
@@ -413,11 +470,11 @@ private
         # our desired host name
         all_ec2_elements.each { |element|
             cloud=element.elements["HOST"]
-            if cloud and cloud.text.upcase == host.upcase
+            if cloud && cloud.text.upcase == host.upcase
                 ec2 = element
             else
                 cloud=element.elements["CLOUD"]
-                if cloud and cloud.text.upcase == host.upcase
+                if cloud && cloud.text.upcase == host.upcase
                     ec2_deprecated = element
                 end
             end
@@ -441,12 +498,24 @@ private
     end
 
     # Retrieve the vm information from the EC2 instance
-    def parse_poll(instance)
+    def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
-            info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
-                    "#{POLL_ATTRIBUTE[:cpu]}=0 " \
-                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
+            onevm.info
+            if onevm && do_cw
+              cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
+                                                       onevm,
+                                                       cw_mon_time)
+            else
+              previous_cpu   = onevm["/VM/MONITORING/CPU"] ? onevm["/VM/MONITORING/CPU"] : 0
+              previous_netrx = onevm["/VM/MONITORING/NETRX"] ? onevm["/VM/MONITORING/NETRX"] : 0
+              previous_nettx = onevm["/VM/MONITORING/NETTX"] ? onevm["/VM/MONITORING/NETTX"] : 0
+
+              cloudwatch_str = "CPU=#{previous_cpu} "\
+                               "NETTX=#{previous_nettx} "\
+                               "NETRX=#{previous_netrx} "
+            end
+
+            info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
 
             state = ""
             if !instance.exists?
@@ -611,6 +680,126 @@ private
               " #{instance.id}, AMI #{instance.image_id}\"\n"
 
         str
+    end
+
+    # Extract monitoring information from Cloud Watch
+    # CPU, NETTX and NETRX
+    def cloudwatch_monitor_info(id, onevm, cw_mon_time)
+        cw=AWS::CloudWatch::Client.new
+
+        # CPU
+        begin
+            cpu = get_cloudwatch_metric(cw,
+                                        "CPUUtilization",
+                                        cw_mon_time,
+                                        ["Average"],
+                                         "Percent",
+                                         id)
+            if cpu[:datapoints].size != 0
+                cpu = cpu[:datapoints][-1][:average]
+            else
+                cpu = 0
+            end
+            cpu = cpu.to_f.round(2).to_s
+        rescue => e
+            STDERR.puts(e.message)
+        end
+
+        # NETTX
+        nettx = 0
+        begin
+            nettx_dp = get_cloudwatch_metric(cw,
+                                             "NetworkOut",
+                                             cw_mon_time,
+                                             ["Sum"],
+                                             "Bytes",
+                                             id)[:datapoints]
+            previous_nettx = onevm["/VM/MONITORING/NETTX"]
+            nettx = previous_nettx ? previous_nettx.to_i : 0
+
+            nettx_dp.each{|dp|
+                nettx += dp[:sum].to_i
+            }
+        rescue => e
+            STDERR.puts(e.message)
+        end
+
+        # NETRX
+        netrx = 0
+        begin
+            netrx_dp = get_cloudwatch_metric(cw,
+                                             "NetworkIn",
+                                             cw_mon_time,
+                                             ["Sum"],
+                                             "Bytes",
+                                             id)[:datapoints]
+            previous_netrx = onevm["/VM/MONITORING/NETRX"]
+            netrx = previous_netrx ? previous_netrx.to_i : 0
+
+            netrx_dp.each{|dp|
+                netrx += dp[:sum].to_i
+            }
+        rescue => e
+            STDERR.puts(e.message)
+        end
+
+        "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
+    end
+
+    # Get metric from AWS/EC2 namespace from the last poll
+    def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
+       options={:namespace=>"AWS/EC2",
+                :metric_name=>metric_name,
+                :start_time=> (Time.at(last_poll.to_i)-65).iso8601,
+                :end_time=> (Time.now-60).iso8601,
+                :period=>60,
+                :statistics=>statistics,
+                :unit=>units,
+                :dimensions=>[{:name=>"InstanceId", :value=>id}]}
+
+        cw.get_metric_statistics(options)
+    end
+
+    # TODO move this method to a OneGate library
+    def generate_onegate_token(xml)
+        # Create the OneGate token string
+        vmid_str  = xml["ID"]
+        stime_str = xml["STIME"]
+        str_to_encrypt = "#{vmid_str}:#{stime_str}"
+
+        user_id = xml['TEMPLATE/CREATED_BY']
+
+        if user_id.nil?
+            STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
+                " in the VM TEMPLATE"}
+            return nil
+        end
+
+        user = OpenNebula::User.new_with_id(user_id,
+                                            OpenNebula::Client.new)
+        rc   = user.info
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts {"VMID:#{vmid} user.info" \
+                " error: #{rc.message}"}
+            return nil
+        end
+
+        token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+        if token_password.nil?
+            STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                " in the USER:#{user_id} TEMPLATE"}
+            return nil
+        end
+
+        cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+        cipher.encrypt
+        cipher.key = token_password
+        onegate_token = cipher.update(str_to_encrypt)
+        onegate_token << cipher.final
+
+        onegate_token_64 = Base64.encode64(onegate_token).chop
     end
 end
 

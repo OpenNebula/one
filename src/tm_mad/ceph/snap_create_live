@@ -35,7 +35,6 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
-source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
@@ -91,6 +90,10 @@ fi
 
 SNAP_CREATE_CMD=$(cat <<EOF
     set -e
+
+    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+    fi
 
     RBD="${RBD}"
 

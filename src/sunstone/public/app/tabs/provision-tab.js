@@ -34,6 +34,8 @@ define(function(require) {
   var RangeSlider = require('utils/range-slider');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
+  var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -55,6 +57,7 @@ define(function(require) {
   var TemplateGroupInfo = require('hbs!./provision-tab/group/info');
 
   var TAB_ID = require('./provision-tab/tabId');
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   var povision_actions = {
     "Provision.User.create" : {
@@ -141,13 +144,12 @@ define(function(require) {
 
       switch (parts[1]) {
         case "text":
-          text_attrs.push(attrs)
-          break;
+        case "text64":
         case "password":
           text_attrs.push(attrs)
           break;
       }
-    })
+    });
 
     if (text_attrs.length > 0) {
       context.html(
@@ -172,18 +174,32 @@ define(function(require) {
 
 
       $.each(text_attrs, function(index, custom_attr){
+        var input;
+
+        switch (custom_attr.type) {
+          case "text":
+            input = '<textarea type="text" rows="1" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "text64":
+            input = '<textarea type="text" rows="1" text64="true" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "password":
+            input = '<input type="password" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+        }
+
         $(".provision_custom_attributes", context).append(
           '<br>'+
           '<div class="row">'+
             '<div class="large-10 large-centered columns">'+
               '<label style="font-size: 16px">' +
                 '<i class="fa fa-asterisk" style="color:#0099c3"/> '+
-                custom_attr.description +
-                '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                TemplateUtils.htmlDecode(custom_attr.description) +
+                input +
               '</label>'+
             '</div>'+
           '</div>');
-      })
+      });
     } else {
       context.html("");
     }
@@ -246,20 +262,37 @@ define(function(require) {
 
       var capacity = template_json.VMTEMPLATE.TEMPLATE;
       var cost = 0;
-      if ((capacity.CPU_COST || capacity.MEMORY_COST || capacity.DISK_COST) && Config.isFeatureEnabled("showback")) {
+
+      var cpuCost    = capacity.CPU_COST;
+      var memoryCost = capacity.MEMORY_COST;
+      var diskCost   = capacity.DISK_COST;
+
+      if (cpuCost == undefined){
+        cpuCost = Config.defaultCost.cpuCost;
+      }
+
+      if (memoryCost == undefined){
+        memoryCost = Config.defaultCost.memoryCost;
+      }
+
+      if (diskCost == undefined){
+        diskCost = Config.defaultCost.diskCost;
+      }
+
+      if ((cpuCost != 0 || memoryCost != 0 || diskCost != 0) && Config.isFeatureEnabled("showback")) {
         $(".provision_create_service_cost_div", context).show();
 
-        if (capacity.CPU && capacity.CPU_COST) {
-          cost += capacity.CPU * capacity.CPU_COST
-          $(".cost_value", context).data("CPU_COST", capacity.CPU_COST);
+        if (capacity.CPU) {
+          cost += capacity.CPU * cpuCost;
+          $(".cost_value", context).data("CPU_COST", cpuCost);
         }
 
-        if (capacity.MEMORY && capacity.MEMORY_COST) {
-          cost += capacity.MEMORY * capacity.MEMORY_COST
-          $(".cost_value", context).data("MEMORY_COST", capacity.MEMORY_COST);
+        if (capacity.MEMORY) {
+          cost += capacity.MEMORY * memoryCost;
+          $(".cost_value", context).data("MEMORY_COST", memoryCost);
         }
 
-        if (capacity.DISK_COST) {
+        if (diskCost != 0) {
           var template_disk = capacity.DISK;
           var disks = [];
           if ($.isArray(template_disk)) {
@@ -268,15 +301,15 @@ define(function(require) {
             disks = [template_disk];
           }
 
-          $(".cost_value", context).data("DISK_COST", capacity.DISK_COST);
+          $(".cost_value", context).data("DISK_COST", diskCost);
 
           $.each(disks, function(i,disk){
             if (disk.SIZE) {
-              cost += capacity.DISK_COST * disk.SIZE;
+              cost += diskCost * disk.SIZE;
             }
 
             if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {
-              cost += capacity.DISK_COST * disk.DISK_SNAPSHOT_TOTAL_SIZE;
+              cost += diskCost * disk.DISK_SNAPSHOT_TOTAL_SIZE;
             }
           });
         }
@@ -386,17 +419,29 @@ define(function(require) {
       '<br>');
 
     var cost = 0;
-    if ((capacity.CPU_COST || capacity.MEMORY_COST) && Config.isFeatureEnabled("showback")) {
+
+    var cpuCost    = capacity.CPU_COST;
+    var memoryCost = capacity.MEMORY_COST;
+
+    if (cpuCost == undefined){
+      cpuCost = Config.defaultCost.cpuCost;
+    }
+
+    if (memoryCost == undefined){
+      memoryCost = Config.defaultCost.memoryCost;
+    }
+
+    if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
       $(".provision_create_template_cost_div").show();
 
-      if (capacity.CPU && capacity.CPU_COST) {
-        cost += capacity.CPU * capacity.CPU_COST
-        $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+      if (capacity.CPU) {
+        cost += capacity.CPU * cpuCost;
+        $(".cost_value").data("CPU_COST", cpuCost);
       }
 
-      if (capacity.MEMORY && capacity.MEMORY_COST) {
-        cost += capacity.MEMORY * capacity.MEMORY_COST
-        $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+      if (capacity.MEMORY) {
+        cost += capacity.MEMORY * memoryCost;
+        $(".cost_value").data("MEMORY_COST", memoryCost);
       }
 
       $(".cost_value").html(cost.toFixed(2));
@@ -1163,7 +1208,9 @@ define(function(require) {
           "aoColumns": [
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_system_templates")
@@ -1171,6 +1218,8 @@ define(function(require) {
           "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             appendTemplateCard(aData, "provision_system_templates");
             return nRow;
+          },
+          "fnDrawCallback": function(oSettings) {
           }
         });
 
@@ -1186,7 +1235,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_vdc_templates")
@@ -1209,7 +1259,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_saved_templates")
@@ -1221,10 +1272,28 @@ define(function(require) {
         });
 
 
-        $('#provision_create_template_search').on('input',function(){
+        $('#provision_create_system_template_search').on('input',function(){
           provision_system_templates_datatable.fnFilter( $(this).val() );
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_vdc_template_search').on('input',function(){
           provision_vdc_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_saved_template_search').on('input',function(){
+          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('[href="#provision_system_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
+        })
+
+        $('[href="#provision_saved_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
+        })
+
+        $('[href="#provision_vdc_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
         })
 
         $("#provision_create_template_refresh_button").click(function(){
@@ -1341,7 +1410,12 @@ define(function(require) {
                 missing_attr = true;
               } else {
                 $(this).parent("label").css("color", "#777");
-                user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+
+                if ($(this).attr('text64') == "true"){
+                  user_inputs_values[$(this).attr("attr_name")] = btoa($(this).val());
+                } else {
+                  user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+                }
               }
             })
           }
@@ -1503,8 +1577,7 @@ define(function(require) {
                     network_attrs.push(attrs)
                     break;
                   case "text":
-                    text_attrs.push(attrs)
-                    break;
+                  case "text64":
                   case "password":
                     text_attrs.push(attrs)
                     break;
@@ -1650,9 +1723,11 @@ define(function(require) {
 
             var role_template = $(this).data("opennebula");
 
-            $.each(role_template.elasticity_policies, function(i, pol){
-                pol.expression = htmlDecode(pol.expression);
-            });
+            if (role_template.elasticity_policies != undefined){
+              $.each(role_template.elasticity_policies, function(i, pol){
+                  pol.expression = TemplateUtils.htmlDecode(pol.expression);
+              });
+            }
 
             roles.push($.extend(role_template, {
               "cardinality": $(".cardinality_value", $(this)).text(),

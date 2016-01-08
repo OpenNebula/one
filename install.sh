@@ -285,6 +285,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
+          $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -294,6 +295,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
+          $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -419,6 +421,7 @@ INSTALL_FILES=(
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
+    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
@@ -427,6 +430,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
+    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -672,9 +676,11 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/migrate \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
+                    src/vmm_mad/remotes/kvm/restore.ceph \
                     src/vmm_mad/remotes/kvm/reboot \
                     src/vmm_mad/remotes/kvm/reset \
                     src/vmm_mad/remotes/kvm/save \
+                    src/vmm_mad/remotes/kvm/save.ceph \
                     src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
@@ -973,6 +979,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
 #   - DEV TM, $VAR_LOCATION/tm/dev
+#   - ISCSI TM, $VAR_LOCATION/tm/iscsi
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -992,6 +999,7 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_create_live \
                  src/tm_mad/shared/snap_delete \
                  src/tm_mad/shared/snap_revert \
+                 src/tm_mad/shared/monitor \
                  src/tm_mad/shared/cpds"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
@@ -1040,6 +1048,7 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_create_live \
               src/tm_mad/ssh/snap_delete \
               src/tm_mad/ssh/snap_revert \
+              src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -1102,7 +1111,11 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/snap_delete \
                  src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/failmigrate \
-                 src/tm_mad/ceph/delete"
+                 src/tm_mad/ceph/delete \
+                 src/tm_mad/ceph/context \
+                 src/tm_mad/ceph/mkimage \
+                 src/tm_mad/ceph/monitor \
+                 src/tm_mad/ceph/mkswap"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
@@ -1117,6 +1130,20 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/snap_revert \
                  src/tm_mad/dev/failmigrate \
                  src/tm_mad/dev/delete"
+
+TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
+                 src/tm_mad/iscsi/ln \
+                 src/tm_mad/iscsi/mv \
+                 src/tm_mad/iscsi/mvds \
+                 src/tm_mad/iscsi/cpds \
+                 src/tm_mad/iscsi/premigrate \
+                 src/tm_mad/iscsi/postmigrate \
+                 src/tm_mad/iscsi/snap_create \
+                 src/tm_mad/iscsi/snap_create_live \
+                 src/tm_mad/iscsi/snap_delete \
+                 src/tm_mad/iscsi/snap_revert \
+                 src/tm_mad/iscsi/failmigrate \
+                 src/tm_mad/iscsi/delete"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
@@ -1193,6 +1220,16 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/snap_revert \
                          src/datastore_mad/remotes/dev/snap_flatten \
                          src/datastore_mad/remotes/dev/clone"
+
+DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
+                         src/datastore_mad/remotes/iscsi/mkfs \
+                         src/datastore_mad/remotes/iscsi/stat \
+                         src/datastore_mad/remotes/iscsi/rm \
+                         src/datastore_mad/remotes/iscsi/monitor \
+                         src/datastore_mad/remotes/iscsi/snap_delete \
+                         src/datastore_mad/remotes/iscsi/snap_revert \
+                         src/datastore_mad/remotes/iscsi/snap_flatten \
+                         src/datastore_mad/remotes/iscsi/clone"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -1565,7 +1602,8 @@ SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
-                    src/sunstone/etc/sunstone-views.yaml"
+                    src/sunstone/etc/sunstone-views.yaml \
+                    src/sunstone/etc/sunstone-logos.yaml"
 
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
@@ -1649,7 +1687,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/opennebula-sunstone-big.png \
                         src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0.png \
-                        src/sunstone/public/images/opennebula-sunstone-v4.0-small.png \
+                        src/sunstone/public/images/opennebula-sunstone-v4.14-small.png \
                         src/sunstone/public/images/one_small_logo.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/panel_short.png \

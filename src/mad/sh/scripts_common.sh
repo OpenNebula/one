@@ -18,43 +18,43 @@ export LANG=C
 
 # Paths for utilities
 export PATH=/bin:/sbin:/usr/bin:$PATH
-AWK=awk
-BASH=bash
-CUT=cut
-CEPH=ceph
-DATE=date
-DD=dd
-DF=df
-DU=du
-GREP=grep
-ISCSIADM=iscsiadm
-LVCREATE=lvcreate
-LVREMOVE=lvremove
-LVRENAME=lvrename
-LVS=lvs
-LN=ln
-MD5SUM=md5sum
-MKFS=mkfs
-MKISOFS=genisoimage
-MKSWAP=mkswap
-QEMU_IMG=qemu-img
-RADOS=rados
-RBD=rbd
-READLINK=readlink
-RM=rm
-SCP=scp
-SED=sed
-SSH=ssh
-SUDO=sudo
-SYNC=sync
-TAR=tar
-TGTADM=tgtadm
-TGTADMIN=tgt-admin
-TGTSETUPLUN=tgt-setup-lun-one
-TR=tr
-VGDISPLAY=vgdisplay
-VMKFSTOOLS=vmkfstools
-WGET=wget
+AWK=${AWK:-awk}
+BASH=${BASH:-bash}
+CUT=${CUT:-cut}
+CEPH=${CEPH:-ceph}
+DATE=${DATE:-date}
+DD=${DD:-dd}
+DF=${DF:-df}
+DU=${DU:-du}
+GREP=${GREP:-grep}
+ISCSIADM=${ISCSIADM:-iscsiadm}
+LVCREATE=${LVCREATE:-lvcreate}
+LVREMOVE=${LVREMOVE:-lvremove}
+LVRENAME=${LVRENAME:-lvrename}
+LVS=${LVS:-lvs}
+LN=${LN:-ln}
+MD5SUM=${MD5SUM:-md5sum}
+MKFS=${MKFS:-mkfs}
+MKISOFS=${MKISOFS:-genisoimage}
+MKSWAP=${MKSWAP:-mkswap}
+QEMU_IMG=${QMEMU_IMG:-qemu-img}
+RADOS=${RADOS:-rados}
+RBD=${RBD:-rbd}
+READLINK=${READLINK:-readlink}
+RM=${RM:-rm}
+SCP=${SCP:-scp}
+SED=${SED:-sed}
+SSH=${SSH:-ssh}
+SUDO=${SUDO:-sudo}
+SYNC=${SYNC:-sync}
+TAR=${TAR:-tar}
+TGTADM=${TGTADM:-tgtadm}
+TGTADMIN=${TGTADMIN:-tgt-admin}
+TGTSETUPLUN=${TGTSETUPLUN:-tgt-setup-lun-one}
+TR=${TR:-tr}
+VGDISPLAY=${VGDISPLAY:-vgdisplay}
+VMKFSTOOLS=${VMKFSTOOLS:-vmkfstools}
+WGET=${WGET:-wget}
 
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
@@ -453,7 +453,7 @@ fi
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $? -ne 0 ]; then
+    if [ $SSH_EXEC_RC -ne 0 ]; then
         error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
 
         exit $SSH_EXEC_RC
@@ -592,4 +592,37 @@ function iqn_get_host {
     LV_NAME=$(iqn_get_lv_name "$IQN")
     VG_NAME=$(iqn_get_vg_name "$IQN")
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
+}
+
+# ------------------------------------------------------------------------------
+# VMM helpers
+# ------------------------------------------------------------------------------
+
+# This function builds the XML necessary for attach-disk operations
+# that require declaration of host sources
+#   @param $1 - Space separated list of hosts
+#   @return The XML via STDOUT
+function get_source_xml {
+    for host in $1 ; do
+        BCK_IFS=$IFS
+        IFS=':'
+
+        unset k HOST_PARTS SOURCE_HOST
+
+        for part in $host ; do
+            HOST_PARTS[k++]="$part"
+        done
+
+        SOURCE_HOST="$SOURCE_HOST<host name='${HOST_PARTS[0]}'"
+
+        if [ -n "${HOST_PARTS[1]}" ]; then
+            SOURCE_HOST="$SOURCE_HOST port='${HOST_PARTS[1]}'"
+        fi
+
+        SOURCE_HOST="$SOURCE_HOST/>"
+
+        IFS=$BCK_IFS
+    done
+
+    echo "$SOURCE_HOST"
 }

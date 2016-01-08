@@ -140,7 +140,8 @@ class OpenNebula::LdapAuth
                     [nil, nil]
                 end
             end
-        rescue
+        rescue Exception => e
+            STDERR.puts e.message
             [nil, nil]
         end
     end
@@ -148,7 +149,7 @@ class OpenNebula::LdapAuth
     def is_in_group?(user, group)
         result=@ldap.search(
                     :base   => group,
-                    :attributes => @options[:group_field],
+                    :attributes => [@options[:group_field]],
                     :filter => "(#{@options[:group_field]}=#{user.first})")
 
         if result && result.first
