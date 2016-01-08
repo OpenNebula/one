@@ -27,6 +27,8 @@ define(function(require) {
     diskCost   : 0
   };
 
+  var _dsMadConf = {};
+
   var Config = {
     'isTabEnabled': function(tabName) {
       var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
@@ -62,7 +64,7 @@ define(function(require) {
         if (_config['view']['tabs'][tabName]['provision_tabs']) {
           return _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
         } else {
-          // if provision_tabs is not defined use panel_tabs. 
+          // if provision_tabs is not defined use panel_tabs.
           // This attribute was used in before 4.14, provision_tabs was include in 4.14.2
           return _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
         }
@@ -152,7 +154,8 @@ define(function(require) {
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
     "defaultCost" : _defaultCost,
-    "initDefaultCost" : function() {
+    'dsMadConf' : _dsMadConf,
+    "initOnedConf" : function() {
       OpenNebulaSystem.onedconf({
         data : {},
         timeout: true,
@@ -167,6 +170,10 @@ define(function(require) {
             if (onedconf.DEFAULT_COST.DISK_COST != undefined){
               _defaultCost.diskCost = parseInt(onedconf.DEFAULT_COST.DISK_COST);
             }
+          }
+
+          if (onedconf.DS_MAD_CONF != undefined){
+            jQuery.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
           }
         },
         error: function(request, error_json){

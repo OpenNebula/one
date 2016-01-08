@@ -48,6 +48,8 @@ private:
 
     static const int GLUSTER_DEFAULT_PORT;
 
+    static const int ISCSI_DEFAULT_PORT;
+
     int deployment_description(
         const VirtualMachine *  vm,
         const string&           file_name) const

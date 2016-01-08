@@ -109,6 +109,7 @@ void Datastore::disk_attribute(
     ostringstream oss;
     string st;
     string inherit_val;
+    string current_val;
 
     vector<string>::const_iterator it;
 
@@ -142,9 +143,10 @@ void Datastore::disk_attribute(
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
+        current_val = disk->vector_value((*it).c_str());
         get_template_attribute((*it).c_str(), inherit_val);
 
-        if (!inherit_val.empty())
+        if ( current_val.empty() && !inherit_val.empty() )
         {
             disk->replace(*it, inherit_val);
         }
@@ -209,24 +211,81 @@ static int check_tm_target_type(string& tm_tt)
 
 /* -------------------------------------------------------------------------- */
 
+int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::vector <std::string> vrequired_attrs;
+
+    int    rc;
+    std::string required_attrs, required_attr, value;
+
+    std::ostringstream oss;
+
+    if ( type == SYSTEM_DS ) //No ds_mad for SYSTEM_DS
+    {
+        return 0;
+    }
+
+    rc = Nebula::instance().get_ds_conf_attribute(mad, vatt);
+
+    if ( rc != 0 )
+    {
+        goto error_conf;
+    }
+
+    rc = vatt->vector_value("REQUIRED_ATTRS", required_attrs);
+
+    if ( rc == -1 ) //No required attributes
+    {
+        return 0;
+    }
+
+    vrequired_attrs = one_util::split(required_attrs, ',');
+
+    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
+         it != vrequired_attrs.end(); it++ )
+    {
+        required_attr = *it;
+
+        required_attr = one_util::trim(required_attr);
+        one_util::toupper(required_attr);
+
+        get_template_attribute(required_attr.c_str(), value);
+
+        if ( value.empty() )
+        {
+            goto error_required;
+        }
+    }
+
+    return 0;
+
+error_conf:
+    oss << "DS_MAD named \"" << mad << "\" is not defined in oned.conf";
+    goto error_common;
+
+error_required:
+    oss << "Datastore template is missing the \"" << required_attr
+        << "\" attribute or it's empty.";
+
+error_common:
+    error_str = oss.str();
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 {
     const VectorAttribute* vatt;
 
-    int    rc;
     string st;
 
     ostringstream oss;
 
-    rc = Nebula::instance().get_tm_conf_attribute(tm_mad, vatt);
-
-    if (rc != 0)
+    if ( Nebula::instance().get_tm_conf_attribute(tm_mad, vatt) != 0 )
     {
-        oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
-
-        error_str = oss.str();
-
-        return -1;
+        goto error_conf;
     }
 
     if (type == SYSTEM_DS)
@@ -290,12 +349,16 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
     return 0;
 
+error_conf:
+    oss << "TM_MAD named \"" << tm_mad << "\" is not defined in oned.conf";
+    goto error_common;
+
 error:
     oss << "Attribute shared, ln_target or clone_target in TM_MAD_CONF for "
         << tm_mad << " is missing or has wrong value in oned.conf";
 
+error_common:
     error_str = oss.str();
-
     return -1;
 }
 
@@ -321,6 +384,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 //Valid disk types for Image DS
                 case Image::FILE:
                 case Image::BLOCK:
+                case Image::ISCSI:
                 case Image::RBD:
                 case Image::GLUSTER:
                 case Image::SHEEPDOG:
@@ -350,6 +414,7 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
                 case Image::GLUSTER:
                 case Image::SHEEPDOG:
                 case Image::BLOCK:
+                case Image::ISCSI:
                 case Image::CD_ROM:
                 case Image::RBD_CDROM:
                 case Image::SHEEPDOG_CDROM:
@@ -414,6 +479,11 @@ int Datastore::insert(SqlDB *db, string& error_str)
     else if ( ds_mad.empty() == true )
     {
         goto error_ds;
+    }
+
+    if (set_ds_mad(ds_mad, error_str) != 0)
+    {
+        goto error_common;
     }
 
     get_template_attribute("TM_MAD", tm_mad);
@@ -701,12 +771,12 @@ int Datastore::post_update_template(string& error_str)
 
     DatastoreType   old_ds_type   = type;
     Image::DiskType old_disk_type = disk_type;
+    string          old_tm_mad    = tm_mad;
+    string          old_ds_mad    = ds_mad;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
-
-    old_ds_type = type;
 
     get_template_attribute("TYPE", s_ds_type);
 
@@ -809,6 +879,20 @@ int Datastore::post_update_template(string& error_str)
     }
 
     /* ---------------------------------------------------------------------- */
+    /* Verify that the template has the required attributees                  */
+    /* ---------------------------------------------------------------------- */
+
+    if ( set_ds_mad(ds_mad, error_str) !=  0 )
+    {
+        type      = old_ds_type;
+        disk_type = old_disk_type;
+        tm_mad    = old_tm_mad;
+        ds_mad    = old_ds_mad;
+
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
     /* Set the BASE_PATH of the Datastore (class & template)                  */
     /* ---------------------------------------------------------------------- */
 
@@ -868,3 +952,27 @@ bool Datastore::get_avail_mb(long long &avail)
 
     return check;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+bool Datastore::is_persistent_only()
+{
+    int rc;
+    bool persistent_only = false;
+
+    const VectorAttribute* vatt;
+
+    rc = Nebula::instance().get_ds_conf_attribute(ds_mad, vatt);
+
+    if ( rc != 0 )
+    {
+        // No DS_MAD_CONF is available for this DS_MAD.
+        // Assuming this DS is not PERSISTENT_ONLY
+        return false;
+    }
+
+    vatt->vector_value("PERSISTENT_ONLY", persistent_only);
+
+    return persistent_only;
+};

@@ -26,9 +26,11 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var OpenNebulaDatastore = require('opennebula/datastore');
   var ResourceSelect = require('utils/resource-select');
   var CustomTagsTable = require('utils/custom-tags-table');
   var BrowserInfo = require('utils/browser-info');
+  var Config = require('sunstone-config');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -97,10 +99,10 @@ define(function(require) {
     var filter_val = ["1", "2"];
 
     ResourceSelect.insert('div#img_datastore', context, "Datastore",
-                        ds_id, false, null, filter_att, filter_val);
+                        ds_id, false, null, filter_att, filter_val, true);
 
     ResourceSelect.insert('div#img_datastore_raw', context, "Datastore",
-                        ds_id_raw, false, null, filter_att, filter_val);
+                        ds_id_raw, false, null, filter_att, filter_val, true);
 
     return false;
   }
@@ -120,6 +122,43 @@ define(function(require) {
         $('#path_image', context).click();
 
       }
+    });
+
+    $('#img_datastore', context).off('change', '.resource_list_select');
+    $('#img_datastore', context).on('change', '.resource_list_select', function() {
+      var ds_id = $(this).val();
+      OpenNebulaDatastore.show({
+        data : {
+          id: ds_id
+        },
+        timeout: true,
+        success: function(request, ds){
+          var mad = ds["DATASTORE"]["DS_MAD"];
+          var pers_forced = false;
+
+          // Set the persistency
+          $.each(Config.dsMadConf,function(i,e){
+              if (e["NAME"] == mad && !$.isEmptyObject(e["PERSISTENT_ONLY"])) {
+                if (e["PERSISTENT_ONLY"] != undefined &&
+                    e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
+                    $('#img_persistent', context).prop('disabled', true);
+                    $('#img_persistent', context).prop('checked', true);
+                    pers_forced = true;
+                    return false;
+                }
+              }
+            }
+          );
+
+          if (!pers_forced) {
+            $('#img_persistent', context).prop('disabled', false);
+          }
+
+        },
+        error: function(request, error_json, container){
+          Notifier.onError(request, error_json, container);
+        }
+      });
     });
 
     $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
