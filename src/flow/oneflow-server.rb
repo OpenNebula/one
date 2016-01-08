@@ -245,6 +245,8 @@ post '/service/:id/action' do
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify an OCTET")
             end
+        when 'rename'
+            service.rename(opts['name'])
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")
         end
@@ -472,24 +474,24 @@ post '/service_template/:id/action' do
             args << opts['owner_id'].to_i
             args << (opts['group_id'].to_i || -1)
 
-            service_template.chown(*args)
             status 204
+            service_template.chown(*args)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a UID")
         end
     when 'chgrp'
         if opts && opts['group_id']
-            service_template.chown(-1, opts['group_id'].to_i)
             status 204
+            service_template.chown(-1, opts['group_id'].to_i)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a GID")
         end
     when 'chmod'
         if opts && opts['octet']
-            service_template.chmod_octet(opts['octet'])
             status 204
+            service_template.chmod_octet(opts['octet'])
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify an OCTET")
@@ -506,6 +508,9 @@ post '/service_template/:id/action' do
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to provide a template")
         end
+    when 'rename'
+        status 204
+        service_template.rename(opts['name'])
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end

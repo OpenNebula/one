@@ -25,6 +25,7 @@ define(function(require) {
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -33,6 +34,8 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 10;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -44,6 +47,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -67,7 +71,8 @@ define(function(require) {
       Locale.tr("Memory"),
       Locale.tr("CPU"),
       Locale.tr("Group ID"),
-      Locale.tr("Hidden User Data")
+      Locale.tr("Hidden User Data"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -141,7 +146,8 @@ define(function(require) {
       memory,
       cpu,
       element.GID,
-      hidden_template
+      hidden_template,
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

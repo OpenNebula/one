@@ -42,6 +42,7 @@ define(function(require) {
   CommonActions.prototype.checkAndShowUpdate = _checkAndShowUpdate;
   CommonActions.prototype.update = _update;
   CommonActions.prototype.updateTemplate = _updateTemplate;
+  CommonActions.prototype.appendTemplate = _appendTemplate;
 
   return CommonActions;
 
@@ -221,6 +222,18 @@ define(function(require) {
     return {
       type: "single",
       call: that.openNebulaResource.update,
+      callback: function(request) {
+        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
+      },
+      error: Notifier.onError
+    }
+  }
+
+  function _appendTemplate() {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource.append,
       callback: function(request) {
         Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
       },

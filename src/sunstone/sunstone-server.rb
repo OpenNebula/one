@@ -518,9 +518,17 @@ get '/onedconf' do
         error 500, ""
     end
 
-    onedconf = {
-        :DEFAULT_COST => rc.to_hash()['TEMPLATE']['DEFAULT_COST']
-    }
+    onedconf_template = rc.to_hash()['TEMPLATE']
+
+    keys = [
+        :DEFAULT_COST,
+        :DS_MAD_CONF
+    ]
+
+    onedconf = {}
+    keys.each do |key|
+        onedconf[key] = onedconf_template[key.to_s]
+    end
 
     [200, onedconf.to_json]
 end

@@ -42,6 +42,7 @@ define(function(require) {
     "Datastore.chmod": _commonActions.singleAction('chmod'),
     "Datastore.update" : _commonActions.updateTemplate(),
     "Datastore.update_template" : _commonActions.updateTemplate(),
+    "Datastore.append_template" : _commonActions.appendTemplate(),
     "Datastore.rename": _commonActions.singleAction('rename'),
     "Datastore.enable": _commonActions.multipleAction('enable'),
     "Datastore.disable": _commonActions.multipleAction('disable'),

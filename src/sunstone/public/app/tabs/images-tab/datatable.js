@@ -25,6 +25,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Notifier = require('utils/notifier');
   var OpenNebulaImage = require('opennebula/image');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -33,6 +34,8 @@ define(function(require) {
   var RESOURCE = "Image"
   var XML_ROOT = "IMAGE"
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 13;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -44,6 +47,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -70,6 +74,7 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("#VMS"),
       Locale.tr("Target"),
+      Locale.tr("Labels")
     ]
 
     this.selectOptions = {
@@ -125,7 +130,8 @@ define(function(require) {
       parseInt(element.PERSISTENT) ? "yes" : "no",
       OpenNebulaImage.stateStr(element.STATE),
       element.RUNNING_VMS,
-      element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--'
+      element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--',
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

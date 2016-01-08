@@ -36,6 +36,7 @@ define(function(require) {
     "File.refresh" : _commonActions.refresh(),
     "File.delete" : _commonActions.del(),
     "File.update_template" : _commonActions.updateTemplate(),
+    "File.append_template" : _commonActions.appendTemplate(),
     "File.chown": _commonActions.multipleAction('chown'),
     "File.chgrp": _commonActions.multipleAction('chgrp'),
     "File.chmod": _commonActions.singleAction('chmod'),

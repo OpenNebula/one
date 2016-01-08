@@ -53,7 +53,11 @@ module OpenNebulaJSON
         end
 
         def update_json(params=Hash.new)
-            update(params['template_raw'])
+            if !params['append'].nil?
+                update(params['template_raw'], params['append'])
+            else
+                update(params['template_raw'])
+            end
         end
 
         def set_quota(params=Hash.new)

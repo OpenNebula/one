@@ -193,57 +193,13 @@ public:
      *  Returns the value of LOG->DEBUG_LEVEL in oned.conf file
      *      @return the debug level, to instantiate Log'ers
      */
-    Log::MessageType get_debug_level() const
-    {
-        Log::MessageType            clevel = Log::ERROR;
-        vector<const Attribute *>   logs;
-        int                         rc;
-        int                         log_level_int;
-
-        rc = nebula_configuration->get("LOG", logs);
-
-        if ( rc != 0 )
-        {
-            string value;
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
-            value = log->vector_value("DEBUG_LEVEL");
-
-            log_level_int = atoi(value.c_str());
-
-            if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
-            {
-                clevel = static_cast<Log::MessageType>(log_level_int);
-            }
-        }
-
-        return clevel;
-    }
+    Log::MessageType get_debug_level() const;
 
     /**
      *  Returns the value of LOG->SYSTEM in oned.conf file
      *      @return the logging system CERR, FILE_TS or SYSLOG
      */
-    NebulaLog::LogType get_log_system() const
-    {
-        vector<const Attribute *> logs;
-        int                       rc;
-        NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
-
-        rc = nebula_configuration->get("LOG", logs);
-
-        if ( rc != 0 )
-        {
-            string value;
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
-
-            value      = log->vector_value("SYSTEM");
-            log_system = NebulaLog::str_to_type(value);
-        }
-
-        return log_system;
-    };
+    NebulaLog::LogType get_log_system() const;
 
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
@@ -301,28 +257,7 @@ public:
      *
      *
      */
-    int get_ds_location(int cluster_id, string& dsloc)
-    {
-        if ( cluster_id != -1 )
-        {
-            Cluster * cluster = clpool->get(cluster_id, true);
-
-            if ( cluster == 0 )
-            {
-                return -1;
-            }
-
-            cluster->get_ds_location(dsloc);
-
-            cluster->unlock();
-        }
-        else
-        {
-            get_configuration_attribute("DATASTORE_LOCATION", dsloc);
-        }
-
-        return 0;
-    }
+    int get_ds_location(int cluster_id, string& dsloc);
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
@@ -344,21 +279,7 @@ public:
      *     /var/log/one/$VM_ID.log
      *  @return the log location for the VM.
      */
-    string get_vm_log_filename(int oid)
-    {
-        ostringstream oss;
-
-        if (nebula_location == "/")
-        {
-            oss << log_location << oid << ".log";
-        }
-        else
-        {
-            oss << vms_location << oid << "/vm.log";
-        }
-
-        return oss.str();
-    };
+    string get_vm_log_filename(int oid);
 
     /**
      *  Returns the name of the host running oned
@@ -413,7 +334,10 @@ public:
     /**
      *  Initialize the database
      */
-    void bootstrap_db();
+    void bootstrap_db()
+    {
+        start(true);
+    }
 
     // --------------------------------------------------------------
     // Federation
@@ -498,35 +422,18 @@ public:
     };
 
     /**
+     *  Gets a DS configuration attribute
+     */
+    int get_ds_conf_attribute(
+        const std::string& ds_name,
+        const VectorAttribute* &value) const;
+
+    /**
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(
         const string& tm_name,
-        const VectorAttribute* &value) const
-    {
-        vector<const Attribute*>::const_iterator it;
-        vector<const Attribute*> values;
-
-        nebula_configuration->Template::get("TM_MAD_CONF", values);
-
-        for (it = values.begin(); it != values.end(); it ++)
-        {
-            value = dynamic_cast<const VectorAttribute*>(*it);
-
-            if (value == 0)
-            {
-                continue;
-            }
-
-            if (value->vector_value("NAME") == tm_name)
-            {
-                return 0;
-            }
-        }
-
-        value = 0;
-        return -1;
-    };
+        const VectorAttribute* &value) const;
 
     /**
      *  Gets an XML document with all of the configuration attributes
