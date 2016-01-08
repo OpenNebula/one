@@ -26,7 +26,6 @@ define(function(require) {
   var XML_ROOT = "VROUTER";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -45,25 +44,6 @@ define(function(require) {
     "VirtualRouter.update_template" : _commonActions.updateTemplate(),
     "VirtualRouter.update_dialog" : _commonActions.checkAndShowUpdate(),
     "VirtualRouter.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
-
-    "VirtualRouter.clone_dialog" : {
-      type: "custom",
-      call: function(){
-        Sunstone.getDialog(CLONE_DIALOG_ID).show();
-      }
-    },
-
-    "VirtualRouter.clone" : {
-      type: "single",
-      call: OpenNebulaResource.clone,
-      callback: function(request, response) {
-        Sunstone.getDialog(CLONE_DIALOG_ID).hide();
-        Sunstone.getDialog(CLONE_DIALOG_ID).reset();
-        Sunstone.runAction('VirtualRouter.refresh');
-      },
-      error: Notifier.onError,
-      notify: true
-    }
   };
 
   return _actions;

@@ -47,7 +47,6 @@ module OpenNebulaJSON
                  when "update"      then self.update(action_hash['params'])
                  when "chown"       then self.chown(action_hash['params'])
                  when "chmod"       then self.chmod_json(action_hash['params'])
-                 when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
@@ -78,10 +77,6 @@ module OpenNebulaJSON
                     (params['other_m']||-1),
                     (params['other_a']||-1))
             end
-        end
-
-        def clone(params=Hash.new)
-            super(params['name'])
         end
 
         def rename(params=Hash.new)

@@ -445,7 +445,6 @@ tabs:
             VirtualRouter.chown: true
             VirtualRouter.chgrp: true
             VirtualRouter.chmod: true
-            VirtualRouter.clone_dialog: true
             VirtualRouter.delete: true
     marketplace-tab:
         panel_tabs:

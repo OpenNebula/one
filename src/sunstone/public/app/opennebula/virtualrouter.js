@@ -48,11 +48,6 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
-    "clone" : function(params) {
-      var name = params.data.extra_param ? params.data.extra_param : "";
-      var action_obj = {"name" : name};
-      OpenNebulaAction.simple_action(params, RESOURCE, "clone", action_obj);
-    },
     "rename" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);

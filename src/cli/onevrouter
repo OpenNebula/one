@@ -95,25 +95,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-# TODO: implement or remove
-=begin
-    clone_desc = <<-EOT.unindent
-        Creates a new Virtual Router from an existing one
-    EOT
-
-    command :clone, clone_desc, :vrouterid, :name do
-        helper.perform_action(args[0],options,"cloned") do |t|
-            res = t.clone(args[1])
-
-            if !OpenNebula.is_error?(res)
-                puts "ID: #{res}"
-            else
-                puts res.message
-            end
-        end
-    end
-=end
-
     delete_desc = <<-EOT.unindent
         Deletes the given Virtual Router
     EOT

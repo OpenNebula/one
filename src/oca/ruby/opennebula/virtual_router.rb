@@ -30,8 +30,6 @@ module OpenNebula
             :delete      => "vrouter.delete",
             :chown       => "vrouter.chown",
             :chmod       => "vrouter.chmod",
-# TODO: remove or implement
-#            :clone       => "vrouter.clone",
             :rename      => "vrouter.rename"
         }
 
@@ -125,21 +123,7 @@ module OpenNebula
             super(VIRTUAL_ROUTER_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
-=begin
-        # Clones this VirtualRouter into a new one
-        #
-        # @param [String] name for the new VirtualRouter.
-        #
-        # @return [Integer, OpenNebula::Error] The new VirtualRouter ID in case
-        #   of success, Error otherwise
-        def clone(name)
-            return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VIRTUAL_ROUTER_METHODS[:clone], @pe_id, name)
-
-            return rc
-        end
-=end
         # Renames this VirtualRouter
         #
         # @param name [String] New name for the VirtualRouter.
