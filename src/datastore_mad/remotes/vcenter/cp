@@ -37,7 +37,7 @@ drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc))
+drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
 

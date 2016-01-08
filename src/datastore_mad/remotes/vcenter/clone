@@ -38,7 +38,7 @@ drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc))
+drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
 hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
