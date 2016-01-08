@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
@@ -15,15 +15,5 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-# FAILMIGRATE SOURCE DST remote_system_dir vmid dsid template
-#  - SOURCE is the host where the VM is running
-#  - DST is the host where the VM failed to be migrated
-#  - remote_system_dir is the path for the VM home in the system datastore
-#  - vmid is the id of the VM
-#  - dsid is the target datastore
-#  - template is the template of the VM in XML and base64 encoded
-
-# To access the vm_template you can use the xpath.rb utility. Check the
-# datastore drivers for an example.
 
 exit 0

@@ -33,17 +33,28 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-drv_action = ARGV[0]
-id         = ARGV[1]
+drv_action_enc = ARGV[0]
+id             = ARGV[1]
 
-drv_action = REXML::Document.new(Base64.decode64(drv_action)).root.elements
+drv_action =OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc))
 
-ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"].text
-hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"].text
-adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"].text
-disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"].text
-size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"].text
-img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"].text
+ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
+disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
+size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
+img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"]
+
+if ds_name.nil? ||
+   hostname.nil? ||
+   adapter_type.nil? ||
+   disk_type.nil? ||
+   size.nil? ||
+   img_name.nil?
+    STDERR.puts "Not enough information to create the image."
+    exit -1
+end
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)

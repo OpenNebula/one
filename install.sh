@@ -285,6 +285,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
+          $VAR_LOCATION/remotes/tm/vcenter \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -421,6 +422,7 @@ INSTALL_FILES=(
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
+    TM_VCENTER_FILES:$VAR_LOCATION/remotes/tm/vcenter
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
@@ -1127,6 +1129,20 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/snap_revert \
                  src/tm_mad/dev/failmigrate \
                  src/tm_mad/dev/delete"
+
+TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
+                 src/tm_mad/vcenter/ln \
+                 src/tm_mad/vcenter/mv \
+                 src/tm_mad/vcenter/mvds \
+                 src/tm_mad/vcenter/cpds \
+                 src/tm_mad/vcenter/premigrate \
+                 src/tm_mad/vcenter/postmigrate \
+                 src/tm_mad/vcenter/snap_create \
+                 src/tm_mad/vcenter/snap_create_live \
+                 src/tm_mad/vcenter/snap_delete \
+                 src/tm_mad/vcenter/snap_revert \
+                 src/tm_mad/vcenter/failmigrate \
+                 src/tm_mad/vcenter/delete"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore

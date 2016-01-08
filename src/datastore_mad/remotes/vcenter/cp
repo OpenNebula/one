@@ -31,14 +31,21 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-drv_action = ARGV[0]
-id         = ARGV[1]
-
 require 'vcenter_driver'
 
-drv_action = REXML::Document.new(Base64.decode64(drv_action)).root.elements
+drv_action_enc = ARGV[0]
+id             = ARGV[1]
 
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"].text
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc))
+
+img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+
+if img_path.nil?
+    STDERR.puts "Not enough information to register the image,"\
+                " missing image path."
+    exit -1
+end
 
 # No upload to datastore is supported, cp is a dummy operation to 
 # reference an already existing imge

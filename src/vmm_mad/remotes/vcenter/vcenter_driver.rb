@@ -540,6 +540,14 @@ class VIClient
         return host.first.id
     end
 
+    def self.find_ds_name(ds_id)
+        ds = OpenNebula::Datastore.new_with_id(ds_id)
+        rc = ds.info
+        raise "Could not find datastore #{ds_id}" if OpenNebula.is_error?(rc)
+
+        return ds.name
+    end
+
     ############################################################################
     # Initialize an OpenNebula connection with the default ONE_AUTH
     ############################################################################
@@ -679,7 +687,7 @@ class VIClient
     end
 
     ############################################################################
-    # Create a VirtualDisk
+    # Delete a VirtualDisk
     # @param img_name [String] name of the image
     # @param ds_name  [String] name of the datastore where the VD resides
     ############################################################################

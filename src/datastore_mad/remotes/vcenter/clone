@@ -34,14 +34,21 @@ $: << File.dirname(__FILE__)
 require 'vcenter_driver'
 require 'digest'
 
-drv_action = ARGV[0]
-id         = ARGV[1]
+drv_action_enc = ARGV[0]
+id             = ARGV[1]
 
-drv_action = REXML::Document.new(Base64.decode64(drv_action)).root.elements
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc))
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"].text
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"].text
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"].text
+ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+
+if ds_name.nil? || hostname.nil? || img_path.nil?
+    STDERR.puts "Not enough information to clone the image, missing datastore"\
+                " name or vcenter cluster name or image path."
+    exit -1
+end
 
 # Generate target path
 str_for_target_path = Time.now.to_s + id.to_s

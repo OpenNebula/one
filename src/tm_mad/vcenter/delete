@@ -16,9 +16,11 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used retrieve the file size of a disk 
-###############################################################################
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
@@ -33,29 +35,18 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-drv_action = ARGV[0]
-id         = ARGV[1]
-
-drv_action =OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc))
-
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-
-if ds_name.nil? ||
-   hostname.nil? ||
-   img_path.nil?
-    STDERR.puts "Not enough information to stat the image."
-    exit -1
-end
+hostname, img_path = ARGV[0].split(":")
+vmid               = ARGV[1]
+dsid               = ARGV[2]
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
+    ds_name      = VCenterDriver::VIClient.find_ds_name(dsid)
 
-    puts vi_client.stat(ds_name, img_path)
+    vi_client.delete_virtual_disk(img_path, ds_name)
 rescue Exception => e
-    STDERR.puts "Error calculating image #{img_path} size. Reason: #{e.message}"
+    STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
+                " Reason: #{e.message}"
     exit -1
 end

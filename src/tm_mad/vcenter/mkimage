@@ -16,9 +16,13 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used retrieve the file size of a disk 
-###############################################################################
+# mkimage size format host:remote_system_ds/disk.i vmid dsid
+#   - size in MB of the image
+#   - format for the image
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
@@ -33,29 +37,37 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-drv_action = ARGV[0]
-id         = ARGV[1]
+size               = ARGV[0]
+fstype             = ARGV[1]
+hostname, img_path = ARGV[2].split(":")
+vmid               = ARGV[3]
+dsid               = ARGV[4]
 
-drv_action =OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc))
-
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-
-if ds_name.nil? ||
-   hostname.nil? ||
-   img_path.nil?
-    STDERR.puts "Not enough information to stat the image."
+begin
+    disk_id  = img_path.split(".")[1]
+    vm       = OpenNebula::VirtualMachine.new_with_id(vmid, 
+                                                      OpenNebula::Client.new)
+    vm.info
+    adapter_type = vm["VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/ADAPTER_TYPE"]
+    disk_type    = vm["VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/DISK_TYPE"]
+rescue Exception => e
+    STDERR.puts "Error getting attributes from VM template #{vmid}."\
+                " Reason: #{e.message}"
     exit -1
 end
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
+    ds_name      = VCenterDriver::VIClient.find_ds_name(dsid)
 
-    puts vi_client.stat(ds_name, img_path)
+    puts vi_client.create_virtual_disk(img_name,
+                                       ds_name,
+                                       size,
+                                       adapter_type,
+                                       disk_type)
 rescue Exception => e
-    STDERR.puts "Error calculating image #{img_path} size. Reason: #{e.message}"
+    STDERR.puts "Error creating virtual disk in #{ds_name}."\
+                " Reason: #{e.message}"
     exit -1
 end
