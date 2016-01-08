@@ -22,14 +22,9 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var VNetUtils = require('tabs/vnets-tab/utils/common');
 
-
   var Vis = require('vis');
 
   var TemplateDashboard = require('hbs!./vnets-topology-tab/html');
-
-  var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
-
-  var VNETS_CREATE_FORM_PANEL_ID = require('tabs/vnets-tab/form-panels/create/formPanelId');
 
   var _network;
   var _vnetList;
@@ -146,12 +141,17 @@ define(function(require) {
       if (vnet.PARENT_NETWORK_ID.length > 0){
         group = "reservation";
 
-        edges.push({from: "vnet"+vnet.PARENT_NETWORK_ID, to: vnetNodeId});
+        edges.push({
+          from: "vnet"+vnet.PARENT_NETWORK_ID,
+          to: vnetNodeId,
+          dashes: true,
+          color: "#0098c3"
+        });
       }
 
       nodes.push({
         id: vnetNodeId,
-        label: "VNet "+vnet.NAME,
+        label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
         group: group});
 
       // VRouter nodes
@@ -281,19 +281,57 @@ define(function(require) {
       groups: {
         vnet: {
           shape: 'box',
-          color: '#cfcfcf'
+          color: {
+            border: "#007a9c",
+            background: "#0098c3",
+            hover: "#007a9c",
+            highlight: "#007a9c"
+          },
+          font: {
+            color: "#fff"
+          }
         },
         reservation: {
           shape: 'box',
-          color: '#cfcfcf'
+          color: {
+            border: "#007a9c",
+            background: "#0098c3",
+            hover: "#007a9c",
+            highlight: "#007a9c"
+          },
+          font: {
+            color: "#fff"
+          }
         },
         vr: {
           shape: 'circle',
-          color: '#999'
+          color: {
+            border: "#43AC6A",
+            background: "#fff",
+            hover: {
+              border: "#43AC6A",
+              background: "#f7f7f7"
+            },
+            highlight: {
+              border: "#43AC6A",
+              background: "#f7f7f7"
+            }
+          }
         },
         vm: {
           shape: 'circle',
-          color: '#cfcfcf'
+          color: {
+            border: "#007a9c",
+            background: "#fff",
+            hover: {
+              border: "#007a9c",
+              background: "#f7f7f7"
+            },
+            highlight: {
+              border: "#007a9c",
+              background: "#f7f7f7"
+            }
+          }
         },
         vmCluster: {
           shape: 'circle',
