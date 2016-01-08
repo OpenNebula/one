@@ -473,6 +473,7 @@ void Nebula::start(bool bootstrap_only)
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
+        vector<const Attribute *> vrouter_hooks;
         vector<const Attribute *> vnet_hooks;
         vector<const Attribute *> user_hooks;
         vector<const Attribute *> group_hooks;
@@ -492,14 +493,14 @@ void Nebula::start(bool bootstrap_only)
         docpool = new DocumentPool(db);
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
-        vrouterpool = new VirtualRouterPool(db);
 
-        nebula_configuration->get("VM_HOOK", vm_hooks);
-        nebula_configuration->get("HOST_HOOK",  host_hooks);
-        nebula_configuration->get("VNET_HOOK",  vnet_hooks);
-        nebula_configuration->get("USER_HOOK",  user_hooks);
-        nebula_configuration->get("GROUP_HOOK", group_hooks);
-        nebula_configuration->get("IMAGE_HOOK", image_hooks);
+        nebula_configuration->get("VM_HOOK",        vm_hooks);
+        nebula_configuration->get("HOST_HOOK",      host_hooks);
+        nebula_configuration->get("VROUTER_HOOK",   vrouter_hooks);
+        nebula_configuration->get("VNET_HOOK",      vnet_hooks);
+        nebula_configuration->get("USER_HOOK",      user_hooks);
+        nebula_configuration->get("GROUP_HOOK",     group_hooks);
+        nebula_configuration->get("IMAGE_HOOK",     image_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
@@ -564,6 +565,10 @@ void Nebula::start(bool bootstrap_only)
                               hook_location,
                               remotes_location,
                               host_expiration);
+
+        vrouterpool = new VirtualRouterPool(db,
+                                            vrouter_hooks,
+                                            remotes_location);
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);
