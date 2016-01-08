@@ -83,10 +83,7 @@ define(function(require) {
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["LANG"];
-    delete strippedTemplate["TABLE_ORDER"];
-    delete strippedTemplate["DEFAULT_VIEW"];
-    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
+    delete strippedTemplate["SUNSTONE"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -94,6 +91,7 @@ define(function(require) {
 
     return TemplateInfo({
       'element': this.element,
+      'sunstone_template': this.element.TEMPLATE.SUNSTONE||{},
       'groupTrHTML': groupTrHTML,
       'secondaryGroups': secondaryGroups,
       'templateTableHTML': templateTableHTML
@@ -107,24 +105,15 @@ define(function(require) {
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["LANG"];
-    delete strippedTemplate["TABLE_ORDER"];
-    delete strippedTemplate["DEFAULT_VIEW"];
-    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
+    delete strippedTemplate["SUNSTONE"];
 
     var hiddenValues = {};
 
     if (this.element.TEMPLATE.SSH_PUBLIC_KEY != undefined) {
       hiddenValues.SSH_PUBLIC_KEY = this.element.TEMPLATE.SSH_PUBLIC_KEY;
     }
-    if (this.element.TEMPLATE.LANG != undefined) {
-      hiddenValues.LANG = this.element.TEMPLATE.LANG;
-    }
-    if (this.element.TEMPLATE.TABLE_ORDER != undefined) {
-      hiddenValues.TABLE_ORDER = this.element.TEMPLATE.TABLE_ORDER;
-    }
-    if (this.element.TEMPLATE.DEFAULT_VIEW != undefined) {
-      hiddenValues.DEFAULT_VIEW = this.element.TEMPLATE.DEFAULT_VIEW;
+    if (this.element.TEMPLATE.SUNSTONE != undefined) {
+      hiddenValues.SUNSTONE = this.element.TEMPLATE.SUNSTONE;
     }
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
@@ -182,15 +171,20 @@ define(function(require) {
          '<option value="desc">' + Locale.tr("descending") + '</option>' +
        '</select>');
 
-      if (that.element.TEMPLATE.TABLE_ORDER) {
-        $('#table_order_select', context).val(that.element.TEMPLATE.TABLE_ORDER);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.TABLE_ORDER) {
+        $('#table_order_select', context).val(that.element.TEMPLATE.SUNSTONE.TABLE_ORDER);
       }
     });
 
     context.off("change", "#table_order_select")
     context.on("change", "#table_order_select", function() {
-      var template_str = 'TABLE_ORDER = "'+$(this).val()+'"';
+      var sunstone_template = {};
+      if (that.element.TEMPLATE.SUNSTONE) {
+        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
+      }
 
+      sunstone_template.TABLE_ORDER = $(this).val();
+      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
       Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
@@ -201,15 +195,20 @@ define(function(require) {
          Locale.language_options +
        '</select>');
 
-      if (that.element.TEMPLATE.LANG) {
-        $('#language_select', context).val(that.element.TEMPLATE.LANG);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.LANG) {
+        $('#language_select', context).val(that.element.TEMPLATE.SUNSTONE.LANG);
       }
     });
 
     context.off("change", "#language_select")
     context.on("change", "#language_select", function() {
-      var template_str = 'LANG = "'+$(this).val()+'"';
+      var sunstone_template = {};
+      if (that.element.TEMPLATE.SUNSTONE) {
+        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
+      }
 
+      sunstone_template.LANG = $(this).val();
+      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
       Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
@@ -225,15 +224,20 @@ define(function(require) {
          options +
        '</select>');
 
-      if (that.element.TEMPLATE.DEFAULT_VIEW) {
-        $('#view_select', context).val(that.element.TEMPLATE.DEFAULT_VIEW);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.DEFAULT_VIEW) {
+        $('#view_select', context).val(that.element.TEMPLATE.SUNSTONE.DEFAULT_VIEW);
       }
     });
 
     context.off("change", "#view_select")
     context.on("change", "#view_select", function() {
-      var template_str = 'DEFAULT_VIEW = "'+$(this).val()+'"';
+      var sunstone_template = {};
+      if (that.element.TEMPLATE.SUNSTONE) {
+        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
+      }
 
+      sunstone_template.DEFAULT_VIEW = $(this).val();
+      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
       Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
