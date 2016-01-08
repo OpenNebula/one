@@ -27,6 +27,7 @@ source_files=[
     'VirtualMachinePoolXML.cc',
     'VirtualMachineXML.cc',
     'ClusterPoolXML.cc',
+    'UserPoolXML.cc',
     'DatastorePoolXML.cc',
     'DatastoreXML.cc']
 

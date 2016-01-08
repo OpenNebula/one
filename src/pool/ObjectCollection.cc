@@ -27,11 +27,13 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
    ostringstream oss;
 
    vector<string>::iterator it;
+   vector<string> ids;
 
    ObjectXML oxml(node);
 
    oss << "/" << collection_name << "/ID";
-   vector<string> ids = oxml[oss.str().c_str()];
+
+   oxml.xpaths(ids, oss.str().c_str());
 
    for (it = ids.begin(); it != ids.end(); it++)
    {

@@ -20,13 +20,12 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
-
-using namespace std;
 
 /**
  *  This class represents a generic Object supported by a xml document.
@@ -43,7 +42,7 @@ public:
     /**
      *  Constructs an object using a XML document
      */
-    ObjectXML(const string &xml_doc);
+    ObjectXML(const std::string &xml_doc);
 
     /**
      *  Constructs an object using a XML Node. The node is copied to the new
@@ -54,11 +53,25 @@ public:
     virtual ~ObjectXML();
 
     /**
-     *  Access Object elements using Xpath
+     *  Gets elements using Xpath expression.
      *    @param xpath_expr the Xpath of the element
      *    @return a vector with the elements
      */
-    vector<string> operator[] (const char * xpath_expr);
+    void xpaths(std::vector<std::string>& values, const char * xpath_expr);
+
+    /* ---------------------------------------------------------------------- */
+    /*  Gets elements, type wrappers. See __xpaths definition for full        */
+    /*  description of these methods.                                         */
+    /* ---------------------------------------------------------------------- */
+    inline void xpaths(std::vector<int>& values, const char * xpath_expr)
+    {
+       __xpaths<int>(values, xpath_expr);
+    };
+
+    inline void xpaths(std::vector<float>& values, const char * xpath_expr)
+    {
+       __xpaths<float>(values, xpath_expr);
+    };
 
     /**
      *  Gets and sets a xpath attribute, if the attribute is not found a default
@@ -69,76 +82,41 @@ public:
      *
      *    @return -1 if default was set
      */
-    int xpath(string& value, const char * xpath_expr, const char * def);
+    int xpath(std::string& value, const char * xpath_expr, const char * def);
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(int& value, const char * xpath_expr, const int& def);
+    /* ---------------------------------------------------------------------- */
+    /*  Gets xpath attribute, type wrappers. See __xpath definition for full  */
+    /*  description of these methods.                                         */
+    /* ---------------------------------------------------------------------- */
+    inline int xpath(int& v, const char * x, const int& d)
+    {
+        return __xpath<int>(v, x, d);
+    }
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(float& value, const char * xpath_expr, const float& def);
+    inline int xpath(float& v, const char * x, const float& d)
+    {
+        return __xpath<float>(v, x, d);
+    }
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(unsigned int& value, const char * xpath_expr,
-              const unsigned int& def);
+    inline int xpath(unsigned int& v, const char * x, const unsigned int& d)
+    {
+        return __xpath<unsigned int>(v, x, d);
+    }
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(long long& value, const char * xpath_expr,
-              const long long& def);
+    inline int xpath(long long& v, const char * x, const long long& d)
+    {
+        return __xpath<long long>(v, x, d);
+    }
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(unsigned long long& value, const char * xpath_expr,
-              const unsigned long long& def);
+    inline int xpath(unsigned long long& v, const char * x, const unsigned long long& d)
+    {
+        return __xpath<unsigned long long>(v, x, d);
+    }
 
-    /**
-     *  Gets and sets a xpath attribute, if the attribute is not found a default
-     *  is used
-     *    @param value to set
-     *    @param xpath_expr of the xml element
-     *    @param def default value if the element is not found
-     *
-     *    @return -1 if default was set
-     */
-    int xpath(time_t& value, const char * xpath_expr, const time_t& def);
+    inline int xpath(time_t& v, const char * x, const time_t& d)
+    {
+        return __xpath<time_t>(v, x, d);
+    }
 
     /**
      *  Gets the value of an element from an xml string
@@ -148,7 +126,7 @@ public:
      *
      *    @return -1 if the element was not found
      */
-    static int xpath_value(string& value, const char *xml, const char *xpath);
+    static int xpath_value(std::string& value, const char *xml, const char *xpath);
 
     /**
      *  Search the Object for a given attribute in a set of object specific
@@ -158,7 +136,7 @@ public:
      *
      *    @return -1 if the element was not found
      */
-    virtual int search(const char *name, string& value);
+    virtual int search(const char *name, std::string& value);
 
     /**
      *  Search the Object for a given attribute in a set of object specific
@@ -179,7 +157,7 @@ public:
      *    returned as pointers to the object nodes.
      *    @return the number of nodes found
      */
-    int get_nodes(const char * xpath_expr, vector<xmlNodePtr>& content);
+    int get_nodes(const char * xpath_expr, std::vector<xmlNodePtr>& content);
 
     /**
      * Adds a copy of the node as a child of the node in the xpath expression.
@@ -197,9 +175,9 @@ public:
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
-    void free_nodes(vector<xmlNodePtr>& content)
+    void free_nodes(std::vector<xmlNodePtr>& content)
     {
-        vector<xmlNodePtr>::iterator it;
+        std::vector<xmlNodePtr>::iterator it;
 
         for (it = content.begin(); it < content.end(); it++)
         {
@@ -212,7 +190,7 @@ public:
      *   XML resources are freed
      *   @param xml_doc the new xml document
      */
-    int update_from_str(const string &xml_doc);
+    int update_from_str(const std::string &xml_doc);
 
     /**
      *   Updates the object representation with a new XML document. Previous
@@ -227,7 +205,7 @@ public:
      *  @param xml_doc string to parse
      *  @return 0 if the xml validates
      */
-    static int validate_xml(const string &xml_doc);
+    static int validate_xml(const std::string &xml_doc);
 
     /**
      * Renames the nodes given in the xpath expression
@@ -250,7 +228,7 @@ public:
      *    calling function
      *    @return 0 on success
      */
-    int eval_bool(const string& expr, bool& result, char **errmsg);
+    int eval_bool(const std::string& expr, bool& result, char **errmsg);
 
     /**
      *  Evaluates a rank expression on the given host.
@@ -260,19 +238,19 @@ public:
      *    calling function
      *    @return 0 on success
      */
-    int eval_arith(const string& expr, int& result, char **errmsg);
+    int eval_arith(const std::string& expr, int& result, char **errmsg);
 
     /**
      *  Function to write the Object in an output stream
      */
-    friend ostream& operator<<(ostream& os, ObjectXML& oxml)
+    friend std::ostream& operator<<(std::ostream& os, ObjectXML& oxml)
     {
         xmlChar * mem;
         int       size;
 
         xmlDocDumpMemory(oxml.xml,&mem,&size);
 
-        string str(reinterpret_cast<char *>(mem));
+        std::string str(reinterpret_cast<char *>(mem));
         os << str;
 
         xmlFree(mem);
@@ -305,7 +283,7 @@ private:
     /**
      *  Parse a XML documents and initializes XPath contexts
      */
-    void xml_parse(const string &xml_doc);
+    void xml_parse(const std::string &xml_doc);
 
     /**
      *  Search the Object for a given attribute in a set of object specific
@@ -313,7 +291,105 @@ private:
      *  @param name of the attribute
      *  @results vector of attributes that matches the query
      */
-    void search(const char* name, vector<string>& results);
+    void search(const char* name, std::vector<std::string>& results);
+
+    /**
+     *  Gets a xpath attribute, if the attribute is not found a default is used.
+     *  This function only returns the first element
+     *    @param value of the element
+     *    @param xpath_expr of the xml element
+     *    @param def default value if the element is not found
+     *
+     *    @return -1 if default was set
+     */
+    template<typename T>
+    int __xpath(T& value, const char * xpath_expr, const T& def)
+    {
+        std::vector<std::string> values;
+
+        xpaths(values, xpath_expr);
+
+        if (values.empty() == true)
+        {
+            value = def;
+            return -1;
+        }
+
+        std::istringstream iss(values[0]);
+
+        iss >> std::dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+            return -1;
+        }
+
+        return 0;
+    }
+
+    /**
+     *  Gets elements by xpath.
+     *    @param values vector with the element values.
+     *    @param expr of the xml element
+     */
+    template<typename T>
+    void __xpaths(std::vector<T>& values, const char * expr)
+    {
+        xmlXPathObjectPtr obj;
+
+        xmlNodePtr cur;
+        xmlChar *  str_ptr;
+
+        obj=xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
+
+        if (obj == 0)
+        {
+            return;
+        }
+
+        switch (obj->type)
+        {
+            case XPATH_NUMBER:
+                values.push_back(static_cast<T>(obj->floatval));
+                break;
+
+            case XPATH_NODESET:
+                for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
+                {
+                    cur = obj->nodesetval->nodeTab[i];
+
+                    if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+                    {
+                        continue;
+                    }
+
+                    str_ptr = xmlNodeGetContent(cur);
+
+                    if (str_ptr != 0)
+                    {
+                        std::istringstream iss(reinterpret_cast<char *>(str_ptr));
+                        T val;
+
+                        iss >> std::dec >> val;
+
+                        if (!iss.fail())
+                        {
+                            values.push_back(val);
+                        }
+
+                        xmlFree(str_ptr);
+                    }
+                }
+                break;
+
+            default:
+                break;
+
+        }
+
+        xmlXPathFreeObject(obj);
+    };
 };
 
 #endif /*OBJECT_XML_H_*/

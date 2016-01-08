@@ -53,8 +53,11 @@ void HostXML::init_attributes()
     public_cloud = (one_util::toupper(public_cloud_st) == "YES");
 
     //-------------------- HostShare Datastores ------------------------------
-    vector<string> ds_ids  = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
-    vector<string> ds_free = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
+    vector<string> ds_ids;
+    vector<string> ds_free;
+
+    xpaths(ds_ids, "/HOST/HOST_SHARE/DATASTORES/DS/ID");
+    xpaths(ds_free,"/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB");
 
     int id;
     long long disk;
@@ -99,7 +102,9 @@ int HostXML::search(const char *name, int& value)
         istringstream  iss;
         int id;
 
-        vector<string> results = (*this)["/HOST/VMS/ID"];
+        vector<string> results;
+
+        xpaths(results, "/HOST/VMS/ID");
 
         for (it=results.begin(); it!=results.end(); it++)
         {
