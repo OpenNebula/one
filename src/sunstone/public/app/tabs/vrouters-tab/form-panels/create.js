@@ -98,7 +98,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    NicsSection.insert({}, $(".nicsContext", context));
+    NicsSection.insert({}, $(".nicsContext", context), {floatingIP: true});
 
     this.templatesTable.initialize();
 
@@ -129,7 +129,7 @@ define(function(require) {
       $('#vm_name', context).val("vr-"+$(this).val()+"-%i");
     });
 
-    Tips.setup();
+    Tips.setup(context);
 
     return false;
   }
@@ -139,16 +139,8 @@ define(function(require) {
 
     var nics = NicsSection.retrieve($(".nicsContext", context));
     if (nics.length > 0) {
-      // TODO: Instead of a global checkbox, each vnet should have
-      // its own checkbox to choose floating IP or not
-      $.each(nics, function(){
-        this["FLOATING_IP"] = virtual_router_json["FLOATING_IP"];
-      });
-
       virtual_router_json.NIC = nics;
     }
-
-    delete virtual_router_json["FLOATING_IP"];
 
     var tmplId = this.templatesTable.retrieveResourceTableSelect();
 
