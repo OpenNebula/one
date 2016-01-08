@@ -1162,7 +1162,6 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/snap_revert \
                  src/tm_mad/iscsi/failmigrate \
                  src/tm_mad/iscsi/delete"
->>>>>>> master
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
