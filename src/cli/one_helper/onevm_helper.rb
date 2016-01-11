@@ -512,6 +512,8 @@ in the frontend machine.
             OpenNebulaHelper.time_to_str(vm['/VM/ETIME'])]
         value=vm['DEPLOY_ID']
         puts str % ["DEPLOY ID", value=="" ? "-" : value]
+        value=vm['TEMPLATE/VROUTER_ID']
+        puts str % ["VIRTUAL ROUTER ID", value] if value
 
         puts
 
