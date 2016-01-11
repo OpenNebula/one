@@ -129,11 +129,6 @@ define(function(require) {
       _hideAll(dialog);
       var choice_str = $(this).val();
 
-      // Disable all required attributes except for those that come in the
-      // template.
-      $('input[required_active]', dialog).removeAttr('required')
-                                         .removeAttr('required_active');
-
       switch (choice_str)
       {
         case 'fs':
@@ -543,6 +538,11 @@ define(function(require) {
   }
 
   function _setRequiredFields(dialog, mad) {
+    // Disable all required attributes except for those that come in the
+    // template.
+    $('input[required_active]', dialog).removeAttr('required')
+                                       .removeAttr('required_active');
+                                       
     $.each(Config.dsMadConf, function(i, e){
         if (e["NAME"] == mad) {
           if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
