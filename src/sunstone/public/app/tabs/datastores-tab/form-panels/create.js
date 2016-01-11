@@ -340,9 +340,9 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_host"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_user"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_usage"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
