@@ -173,7 +173,7 @@ define(function(require) {
           }
 
           if (onedconf.DS_MAD_CONF != undefined){
-            jQuery.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+            $.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
           }
         },
         error: function(request, error_json){
