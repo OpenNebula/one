@@ -63,21 +63,23 @@ define(function(require) {
    */
 
   function _html() {
-    var adminViews = _processViews(
-      this.element.TEMPLATE.GROUP_ADMIN_VIEWS,
-      this.element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW);
+    var adminViews = [];
+    var userViews = [];
 
-    var userViews = _processViews(
-      this.element.TEMPLATE.SUNSTONE_VIEWS,
-      this.element.TEMPLATE.DEFAULT_VIEW);
+    var sunstone_template = this.element.TEMPLATE.SUNSTONE;
+    if (sunstone_template) {
+      adminViews = _processViews(
+        sunstone_template.GROUP_ADMIN_VIEWS,
+        sunstone_template.GROUP_ADMIN_DEFAULT_VIEW);
+
+      userViews = _processViews(
+        sunstone_template.VIEWS,
+        sunstone_template.DEFAULT_VIEW);
+    }
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["GROUP_ADMIN_VIEWS"];
-    delete strippedTemplate["SUNSTONE_VIEWS"];
-    delete strippedTemplate["GROUP_ADMIN_DEFAULT_VIEW"];
-    delete strippedTemplate["DEFAULT_VIEW"];
-    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
+    delete strippedTemplate["SUNSTONE"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -99,10 +101,7 @@ define(function(require) {
     // Template update
     // TODO: simplify interface?
     var hiddenKeys = [
-      "GROUP_ADMIN_VIEWS",
-      "SUNSTONE_VIEWS",
-      "GROUP_ADMIN_DEFAULT_VIEW",
-      "DEFAULT_VIEW",
+      "SUNSTONE",
       "TABLE_DEFAULT_PAGE_LENGTH"];
 
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
