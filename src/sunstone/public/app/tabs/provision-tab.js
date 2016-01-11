@@ -380,7 +380,8 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
+      (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO")) ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -449,7 +450,8 @@ define(function(require) {
       $(".provision_create_template_cost_div").hide();
     }
 
-    if (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO")) {
+    if (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO"))) {
       provision_instance_type_accordion_id += 1;
 
       var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
