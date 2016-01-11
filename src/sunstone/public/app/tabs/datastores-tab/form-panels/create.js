@@ -549,18 +549,12 @@ define(function(require) {
   }
 
   function _setRequiredFields(dialog, mad) {
-    $.each(Config.dsMadConf,function(i,e){
+    $.each(Config.dsMadConf, function(i, e){
         if (e["NAME"] == mad) {
           if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
-            var required_attrs = e["REQUIRED_ATTRS"].split(",");
-
-            if (required_attrs != undefined){
-              $.each(required_attrs, function(i,e){
-                $('input#' + e.toLowerCase(), dialog).attr('required', true)
-                                                     .attr('required_active', '');
-              });
-            }
-
+            $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
+              $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+            });
           }
           return false;
         }
