@@ -215,6 +215,8 @@ class EC2Driver
 
         public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
+        @state_change_timeout = public_cloud_ec2_conf['state_wait_timeout_seconds'].to_i
+
         @instance_types = public_cloud_ec2_conf['instance_types']
 
         regions = public_cloud_ec2_conf['regions']
