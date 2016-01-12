@@ -297,6 +297,11 @@ class EC2Driver
 
         if ec2_value(ec2_info, 'ELASTICIP')
             begin
+                start_time = Time.now
+                while instance.status == :pending
+                    break if Time.now - start_time > @state_change_timeout
+                    sleep 5
+                end
                 instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
             rescue => e
                 STDERR.puts(e.message)
