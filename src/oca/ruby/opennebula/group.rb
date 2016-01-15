@@ -164,7 +164,7 @@ module OpenNebula
             end
 
             if sunstone_attrs.length > 0
-                rc = self.update("SUNSTONE=[#{sunstone_attrs.join(',\n')}]", true)
+                rc = self.update("SUNSTONE=[#{sunstone_attrs.join(",\n")}]", true)
                 if OpenNebula.is_error?(rc)
                     self.delete
                     error_msg =  "Error updating group template: #{rc.message}"
