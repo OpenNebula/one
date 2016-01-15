@@ -183,8 +183,8 @@ define(function(require) {
     });
 
     if (this.action == "create") {
-      $("input#group_view_cloud").attr('checked','checked').change();
-      $("input#group_admin_view_groupadmin").attr('checked','checked').change();
+      $("input#group_view_cloud").prop('checked', true).change();
+      $("input#group_admin_view_groupadmin").prop('checked', true).change();
 
       _generateViewsSelect(context, "admin", "groupadmin");
       _generateViewsSelect(context, "user", "cloud");
@@ -314,7 +314,7 @@ define(function(require) {
       var views = views_str.split(",");
       $.each(views, function(){
         $('input[id^="group_view"][value="'+this.trim()+'"]',
-          context).attr('checked','checked').change();
+          context).prop('checked', true).change();
       });
     }
 
@@ -334,7 +334,7 @@ define(function(require) {
       var views = views_str.split(",");
       $.each(views, function(){
         $('input[id^="group_admin_view"][value="'+this.trim()+'"]',
-          context).attr('checked','checked').change();
+          context).prop('checked', true).change();
       });
     }
 
