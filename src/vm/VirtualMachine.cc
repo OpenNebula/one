@@ -144,15 +144,17 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"GATEWAY", "GATEWAY"},
         {"DNS", "DNS"},
         {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
-        {"MTU", "GUEST_MTU"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 8;
+        {"MTU", "GUEST_MTU"},
+        {"VROUTER_IP", "VROUTER_IP"}};
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 9;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
         {"GATEWAY6", "GATEWAY6"},
-        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"}};
+        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"},
+        {"VROUTER_IP6", "VROUTER_IP6_GLOBAL"}};
 
-const int VirtualMachine::NUM_NETWORK6_CONTEXT = 3;
+const int VirtualMachine::NUM_NETWORK6_CONTEXT = 4;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
