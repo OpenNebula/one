@@ -52,7 +52,7 @@ module VCenterDriver
 # For the VCenter driver each OpenNebula host represents a VCenter cluster
 ################################################################################
 class VIClient
-    attr_reader :vim, :one, :root, :cluster, :user, :pass, :host
+    attr_reader :vim, :one, :root, :cluster, :user, :pass, :host, :dc
 
     def get_entities(folder, type, entities=[])
         return nil if folder == []
@@ -1728,6 +1728,176 @@ private
         vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
+    end
+
+    ############################################################################
+    # Attach disk to a VM
+    # @params adapter_type[String] type of bus where the disk will be plugged
+    # @params disk_type[String] vmdk type
+    # @params size_kb[String] size in kb of the disk
+    ############################################################################
+    def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+        
+        # Find datastore within datacenter
+        ds=connection.dc.datastoreFolder.childEntity.select{|ds| 
+                                                         ds.name == ds_name}[0]
+
+        controller, new_number = find_free_controller(vm)
+
+        vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
+              :datastore => ds,
+              :diskMode => 'persistent',
+              :fileName => "[#{ds_name}] #{img_name}"
+        )
+
+        device = RbVmomi::VIM::VirtualDisk(
+          :backing => vmdk_backing,
+          :capacityInKB => size_kb,
+          :controllerKey => controller.key,
+          :key => -1,
+          :unitNumber => new_number
+        )
+
+        device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+          :device => device,
+          :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+        )
+
+        vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
+          deviceChange: [device_config_spec]
+        )
+
+        vm.ReconfigVM_Task(spec: vm_config_spec).wait_for_completion
+    end
+
+    def self.find_free_controller(vm)
+        free_scsi_controllers = Array.new
+        available_controller  = nil
+        scsi_schema           = Hash.new
+
+        vm.config.hardware.device.each{ |dev|
+          if dev.is_a? RbVmomi::VIM::VirtualSCSIController
+            if scsi_schema[dev.controllerKey].nil?
+              scsi_schema[dev.key] = Hash.new
+              scsi_schema[dev.key][:lower] = Array.new
+            end
+            scsi_schema[dev.key][:device] = dev
+          end
+
+          next if dev.class != RbVmomi::VIM::VirtualDisk
+
+          if scsi_schema[dev.controllerKey].nil?
+            scsi_schema[dev.controllerKey]         = Hash.new
+            scsi_schema[dev.controllerKey][:lower] = Array.new
+          end
+
+          scsi_schema[dev.controllerKey][:lower] << dev
+        }
+
+        scsi_schema.keys.each{|controller|
+          if scsi_schema[controller][:lower].length < 15
+            free_scsi_controllers << scsi_schema[controller][:device].deviceInfo.label
+          end
+        }
+
+        available_controller_label = free_scsi_controllers.length > 0 ? free_scsi_controllers[0] : add_new_scsi(vm, scsi_schema)
+
+       # Get the controller resource from the label
+        controller = nil
+
+        vm.config.hardware.device.each { |device|
+          (controller = device ; break) if device.deviceInfo.label == available_controller_label
+        }
+
+        new_unit_number = find_new_unit_number(scsi_schema, controller)
+
+        return controller, new_unit_number
+    end
+
+
+    def self.find_new_unit_number(scsi_schema, controller)
+        used_numbers      =  Array.new
+        available_numbers =  Array.new
+
+        scsi_schema.keys.each { |c|
+          next if controller.key != scsi_schema[c][:device].key
+          used_numbers << scsi_schema[c][:device].scsiCtlrUnitNumber
+          scsi_schema[c][:lower].each { |disk|
+            used_numbers << disk.unitNumber
+          }
+        }
+
+        15.times{ |scsi_id|
+          available_numbers << scsi_id if used_numbers.grep(scsi_id).length <= 0
+        }
+
+        return available_numbers.sort[0]
+    end
+
+    def self.add_new_scsi(vm, scsi_schema)
+        controller = nil
+
+        if scsi_schema.keys.length < 4
+          scsi_key    = scsi_schema.keys.sort[-1] + 1
+          scsi_number = scsi_tree[scsi_tree.keys.sort[-1]][:device].busNumber + 1
+
+          controller_device = RbVmomi::VIM::VirtualLsiLogicController(
+            :key => scsi_key,
+            :busNumber => scsi_number,
+            :sharedBus => :noSharing
+          )
+
+          device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+            :device => controller_device,
+            :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+          )
+
+          vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
+            :deviceChange => [device_config_spec]
+          )
+
+          vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
+
+        else
+          raise "Cannot add a new controller, maximum is 4."
+        end
+
+        vm.config.hardware.device.each { |device|
+          if device.class == RbVmomi::VIM::VirtualLsiLogicController &&
+             device.key == scsi_key
+               controller = device.deviceInfo.label
+          end
+        }
+
+        return controller
+    end
+
+    ############################################################################
+    # Detach all disks from a VM
+    ############################################################################
+    def self.detach_disk(hostname, deploy_id, ds_name, img_path)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        ds_and_img_name = "[#{ds_name}] #{img_path}"
+
+        disk  = vm.config.hardware.device.select { |d| is_disk?(d) && 
+                                 d.backing.fileName == ds_and_img_name }
+
+        raise "Disk #{img_path} not found." if disk.nil?
+
+        spec = { :deviceChange => [{
+                  :operation => :remove,
+                  :device => disk[0]
+               }]}
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
     ############################################################################
