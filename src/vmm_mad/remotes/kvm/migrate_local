@@ -23,5 +23,5 @@ dest_host=$2
 src_host=$3
 
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
-    migrate --live $deploy_id $QEMU_PROTOCOL://$dest_host/system
+    migrate --live $deploy_id $QEMU_PROTOCOL://$dest_host/system tcp:$dest_host$DEST_HOST_APPEND
 

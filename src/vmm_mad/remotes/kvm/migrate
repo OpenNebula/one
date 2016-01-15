@@ -22,5 +22,5 @@ source $(dirname $0)/../../scripts_common.sh
 deploy_id=$1
 dest_host=$2
 
-exec_and_log "virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system" \
+exec_and_log "virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system tcp:$dest_host$DEST_HOST_APPEND" \
     "Could not migrate $deploy_id to $dest_host"
