@@ -136,21 +136,21 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var sunstone_template = templateJSON.SUNSTONE;
-    if (sunstone_template && 
-        sunstone_template["CAPACITY_SELECT"] &&
-        sunstone_template["CAPACITY_SELECT"].toUpperCase() == "NO") {
-      $("#sunstone_capacity_select", context).attr("checked", "checked");
+    if (sunstone_template) {
+      if (sunstone_template["CAPACITY_SELECT"] &&
+          sunstone_template["CAPACITY_SELECT"].toUpperCase() == "NO") {
+        $("#sunstone_capacity_select", context).attr("checked", "checked");
+      }
+
+      delete sunstone_template["CAPACITY_SELECT"];
+
+      if (sunstone_template["NETWORK_SELECT"] &&
+          sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
+        $("#sunstone_network_select", context).attr("checked", "checked");
+      }
+
+      delete sunstone_template["NETWORK_SELECT"];
     }
-
-    delete sunstone_template["CAPACITY_SELECT"];
-
-    if (sunstone_template && 
-        sunstone_template["NETWORK_SELECT"] &&
-        sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
-      $("#sunstone_network_select", context).attr("checked", "checked");
-    }
-
-    delete sunstone_template["NETWORK_SELECT"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter' &&
       templateJSON["KEEP_DISKS_ON_DONE"] &&
