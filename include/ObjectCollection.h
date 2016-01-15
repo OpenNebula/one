@@ -80,9 +80,17 @@ public:
     /**
      *  Returns a copy of the IDs set
      */
-    set<int> get_collection_copy()
+    set<int> get_collection_copy() const
     {
         return set<int> (collection_set);
+    };
+
+    /**
+     *  Returns a reference to the IDs set
+     */
+    const set<int>& get_collection() const
+    {
+        return collection_set;
     };
 
     /**

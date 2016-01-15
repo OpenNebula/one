@@ -38,10 +38,7 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    int add_vmid(int vmid)
-    {
-        return vms.add_collection_id(vmid);
-    }
+    int add_vmid(int vmid);
 
     // ------------------------------------------------------------------------
     // Template Contents

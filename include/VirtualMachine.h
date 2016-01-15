@@ -1318,6 +1318,8 @@ public:
      */
     const VectorAttribute* get_disk(int disk_id) const;
 
+    const VectorAttribute* get_nic(int nic_id) const;
+
     // ------------------------------------------------------------------------
     // Virtual Router related functions
     // ------------------------------------------------------------------------
@@ -1346,6 +1348,8 @@ public:
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
     int  generate_context(string &files, int &disk_id, string& token_password);
+
+    int replace_context_attribute(const string& name, const string& value);
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1710,7 +1714,6 @@ public:
      * Deletes all SNAPSHOT attributes
      */
     void delete_snapshots();
-
 
 private:
 

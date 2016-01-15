@@ -3402,6 +3402,34 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::replace_context_attribute(const string& name, const string& value)
+{
+    vector<Attribute *> array_context;
+    VectorAttribute *   context;
+    int                 num;
+
+    num = obj_template->get("CONTEXT", array_context);
+
+    if ( num != 1 )
+    {
+        return -1;
+    }
+
+    context = dynamic_cast<VectorAttribute *>(array_context[0]);
+
+    if ( context == 0 )
+    {
+        return -1;
+    }
+
+    context->replace(name, value);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 {
     int num_disks;
@@ -3426,6 +3454,39 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
         if ( tdisk_id == disk_id )
         {
             return disk;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const VectorAttribute* VirtualMachine::get_nic(int nic_id) const
+{
+    int num_nics;
+    int tnic_id;
+
+    vector<const Attribute  *> nics;
+    const VectorAttribute *    nic;
+
+    num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<const VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        nic->vector_value("NIC_ID", tnic_id);
+
+        if ( tnic_id == nic_id )
+        {
+            return nic;
         }
     }
 
