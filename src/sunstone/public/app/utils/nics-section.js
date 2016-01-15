@@ -30,7 +30,8 @@ define(function(require) {
   }
 
   function _insert(template_json, context) {
-    if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO") {
+    if (!(template_json.VMTEMPLATE.TEMPLATE.SUNSTONE &&
+          template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SELECT == "NO")) {
       var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
       var nics = []
       if ($.isArray(template_nic))

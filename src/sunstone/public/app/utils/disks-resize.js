@@ -154,10 +154,12 @@ define(function(require){
     $(".diskContainer", context).each(function(){
       if ($(this).data("template_disk")) {
         disk = $(this).data("template_disk");
-        original_size = $(this).data("original_size");
-        size = $("#SIZE", this).val();
-        if (size) {
-          disk['SIZE'] = Math.ceil(size * 1024);
+
+        if ($("#SIZE", this).is(':enabled')) {
+          size = $("#SIZE", this).val();
+          if (size) {
+            disk['SIZE'] = Math.ceil(size * 1024);
+          }
         }
       }
 

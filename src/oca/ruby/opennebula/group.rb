@@ -139,31 +139,38 @@ module OpenNebula
                 return OpenNebula::Error.new(error_msg)
             end
 
-            str = ""
+            sunstone_attrs = []
 
             # Add Sunstone views for the group
             if group_hash[:views]
-                str += "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
+                sunstone_attrs << "VIEWS=\"#{group_hash[:views].join(",")}\""
             end
 
             if group_hash[:default_view]
-                str += "DEFAULT_VIEW=\"#{group_hash[:default_view]}\"\n"
+                sunstone_attrs << "DEFAULT_VIEW=\"#{group_hash[:default_view]}\""
             end
 
             # And the admin views
             if group_hash[:admin_views]
-                str += "GROUP_ADMIN_VIEWS=\"#{group_hash[:admin_views].join(",")}\"\n"
+                sunstone_attrs << "GROUP_ADMIN_VIEWS=\"#{group_hash[:admin_views].join(",")}\""
             else
-                str += "GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n"
+                sunstone_attrs << "GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}"
             end
 
             if group_hash[:default_admin_view]
-                str += "GROUP_ADMIN_DEFAULT_VIEW=\"#{group_hash[:default_admin_view]}\"\n"
+                sunstone_attrs << "GROUP_ADMIN_DEFAULT_VIEW=\"#{group_hash[:default_admin_view]}\""
             else
-                str += "GROUP_ADMIN_DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}"
+                sunstone_attrs << "GROUP_ADMIN_DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}"
             end
 
-            self.update(str, true)
+            if sunstone_attrs.length > 0
+                rc = self.update("SUNSTONE=[#{sunstone_attrs.join(',\n')}]", true)
+                if OpenNebula.is_error?(rc)
+                    self.delete
+                    error_msg =  "Error updating group template: #{rc.message}"
+                    return OpenNebula::Error.new(error_msg)
+                end
+            end
 
             return 0
         end

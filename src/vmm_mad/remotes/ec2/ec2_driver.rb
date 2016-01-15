@@ -215,6 +215,8 @@ class EC2Driver
 
         public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
+        @state_change_timeout = public_cloud_ec2_conf['state_wait_timeout_seconds'].to_i
+
         @instance_types = public_cloud_ec2_conf['instance_types']
 
         regions = public_cloud_ec2_conf['regions']
@@ -297,6 +299,11 @@ class EC2Driver
 
         if ec2_value(ec2_info, 'ELASTICIP')
             begin
+                start_time = Time.now
+                while instance.status == :pending
+                    break if Time.now - start_time > @state_change_timeout
+                    sleep 5
+                end
                 instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
             rescue => e
                 STDERR.puts(e.message)
