@@ -119,7 +119,7 @@ EOT
         table
     end
 
-    def get_user_inputs(template)
+    def self.get_user_inputs(template)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
         return "" if !user_inputs
