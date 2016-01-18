@@ -29,20 +29,155 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     bool   on_hold = false; //Optional XML-RPC argument
     string str_uattrs;      //Optional XML-RPC argument
 
+    if ( paramList.size() > 3 )
+    {
+        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+
+        str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
+    }
+
+    // TODO: if Template has VROUTER = YES, do not allow to instantiate here
+
+    int vid = instantiate(att, id, name, on_hold, str_uattrs, 0);
+
+    if (vid != -1)
+    {
+        success_response(vid, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterInstantiate::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int    vrid       = xmlrpc_c::value_int(paramList.getInt(1));
+    int    n_vms      = xmlrpc_c::value_int(paramList.getInt(2));
+    int    tmpl_id    = xmlrpc_c::value_int(paramList.getInt(3));
+    string name       = xmlrpc_c::value_string(paramList.getString(4));
+    bool   on_hold    = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+    string str_uattrs = xmlrpc_c::value_string(paramList.getString(6));
+
+    Nebula& nd = Nebula::instance();
+    VirtualRouterPool*  vrpool = nd.get_vrouterpool();
+    VirtualRouter *     vr;
+    DispatchManager*    dm = nd.get_dm();
+
+    PoolObjectAuth      vr_perms;
+    Template*           extra_attrs;
+    bool                has_vmids;
+    string              errorstr;
+
+    vector<int>             vms;
+    vector<int>::iterator   vmid;
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the Virtual Router NICs                                            */
+    /* ---------------------------------------------------------------------- */
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                att);
+
+        return;
+    }
+
+    vr->get_permissions(vr_perms);
+
+    extra_attrs = vr->get_nics();
+
+    has_vmids = vr->has_vmids();
+
+    vr->unlock();
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    if (has_vmids)
+    {
+        failure_response(ACTION,
+                request_error("Virtual Router already has VMs. Cannot instantiate new ones", ""),
+                att);
+
+        return;
+    }
+
+    for (int i=0; i<n_vms; i++)
+    {
+        int vid = instantiate(att, tmpl_id, name, true, str_uattrs, extra_attrs);
+
+        if (vid == -1)
+        {
+            return;
+        }
+
+        vms.push_back(vid);
+    }
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr != 0)
+    {
+        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+        {
+            vr->add_vmid(*vmid);
+        }
+
+        vrpool->update(vr);
+
+        vr->unlock();
+    }
+
+    // VMs are created on hold to wait for all the vr->add_vmid calls, that
+    // update each VM context with other VM IPs
+    if (!on_hold)
+    {
+        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+        {
+            dm->release(*vmid, errorstr);
+        }
+    }
+
+    success_response(vrid, att);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
+                                string name, bool on_hold, string str_uattrs,
+                                Template* extra_attrs)
+{
     int  rc;
     int  vid;
 
     ostringstream sid;
 
     PoolObjectAuth perms;
-    PoolObjectAuth vr_perms;
 
     Nebula& nd = Nebula::instance();
 
     VirtualMachinePool* vmpool  = nd.get_vmpool();
     VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
-    VirtualRouterPool*  vrpool  = nd.get_vrouterpool();
-    VirtualRouter *     vr;
 
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate * extended_tmpl = 0;
@@ -51,17 +186,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     string error_str;
     string aname;
-    bool   has_vrouter_id;
-    int    vrid;
 
     string tmpl_name;
-
-    if ( paramList.size() > 3 )
-    {
-        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
-
-        str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
-    }
 
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
@@ -75,7 +201,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 get_error(object_name(auth_object),id),
                 att);
 
-        return;
+        return -1;
     }
 
     tmpl_name = rtmpl->get_name();
@@ -94,7 +220,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         {
             failure_response(INTERNAL, error_str, att);
             delete tmpl;
-            return;
+            return -1;
         }
 
         if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
@@ -110,7 +236,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                         att);
 
                 delete tmpl;
-                return;
+                return -1;
             }
         }
 
@@ -120,7 +246,19 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         {
             failure_response(INTERNAL, error_str, att);
             delete tmpl;
-            return;
+            return -1;
+        }
+    }
+
+    if (extra_attrs != 0)
+    {
+        rc = tmpl->merge(extra_attrs, error_str);
+
+        if ( rc != 0 )
+        {
+            failure_response(INTERNAL, error_str, att);
+            delete tmpl;
+            return -1;
         }
     }
 
@@ -141,48 +279,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* If it is a Virtual Router, get the NICs                                */
-    /* ---------------------------------------------------------------------- */
-
-    has_vrouter_id = tmpl->get("VROUTER_ID", vrid);
-
-    if ( has_vrouter_id )
-    {
-        vr = vrpool->get(vrid, true);
-
-        if (vr == 0)
-        {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                    att);
-
-            delete tmpl;
-            return;
-        }
-
-        vr->get_permissions(vr_perms);
-
-        tmpl->erase("NIC");
-        rc = tmpl->merge(vr->get_nics(), error_str);
-
-        vr->unlock();
-
-        if ( rc != 0 )
-        {
-            failure_response(INTERNAL, error_str, att);
-            delete tmpl;
-            return;
-        }
-    }
-
     //--------------------------------------------------------------------------
 
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.group_ids);
 
-        ar.add_auth(auth_op, perms); //USE TEMPLATE
+        ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
 
         if (!str_uattrs.empty())
         {
@@ -196,11 +299,6 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
-        if (has_vrouter_id)
-        {
-            ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-        }
-
         if (UserPool::authorize(ar) == -1)
         {
             failure_response(AUTHORIZATION,
@@ -208,7 +306,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                     att);
 
             delete tmpl;
-            return;
+            return -1;
         }
 
         extended_tmpl = new VirtualMachineTemplate(*tmpl);
@@ -219,7 +317,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         {
             delete tmpl;
             delete extended_tmpl;
-            return;
+            return -1;
         }
     }
 
@@ -239,26 +337,12 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         delete extended_tmpl;
 
-        return;
+        return -1;
     }
 
     delete extended_tmpl;
 
-    if ( has_vrouter_id )
-    {
-        vr = vrpool->get(vrid, true);
-
-        if (vr != 0)
-        {
-            vr->add_vmid(vid);
-
-            vrpool->update(vr);
-
-            vr->unlock();
-        }
-    }
-
-    success_response(vid, att);
+    return vid;
 }
 
 /* -------------------------------------------------------------------------- */

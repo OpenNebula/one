@@ -46,6 +46,26 @@ protected:
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
+
+
+    /**
+     * Instantiates the VM Template, checking permissions, quotas, etc
+     * @param att the specific request attributes
+     * @param id VM Template ID
+     * @param name Name for the new VM. Can be empty
+     * @param on_hold True to start the VM on HOLD state
+     * @param str_uattrs Template supplied by user to merge with the original
+     * contents. Can be empty
+     * @param extra_attrs Template to be merged. It should contain internal
+     * configuration, and it won't be authenticated or checked for restricted
+     * attributes. Can be 0
+     *
+     * @return VMID on success, -1 on failure. On failure, failure_response is set,
+     * but for success the calling method needs to set success_response
+     */
+    int instantiate(RequestAttributes& att, int id,
+                    string name, bool on_hold, string str_uattrs,
+                    Template* extra_attrs);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -66,6 +86,28 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterInstantiate : public RequestManagerVMTemplate
+{
+public:
+    VirtualRouterInstantiate():
+        RequestManagerVMTemplate("VirtualRouterInstantiate",
+                                 "Instantiates a new virtual machine associated to a virtual router",
+                                 "A:siiisbs")
+    {
+        auth_op = AuthRequest::USE;
+    };
+
+    ~VirtualRouterInstantiate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
 };
 
 /* -------------------------------------------------------------------------- */

@@ -574,3 +574,11 @@ int VirtualRouter::add_vmid(int vmid)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualRouter::has_vmids() const
+{
+    return vms.get_collection_size() > 0;
+}
