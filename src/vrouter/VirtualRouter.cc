@@ -127,9 +127,40 @@ int VirtualRouter::drop(SqlDB * db)
     if ( rc == 0 )
     {
         release_network_leases();
+
+        shutdown_vms();
     }
 
     return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualRouter::shutdown_vms()
+{
+    DispatchManager *   dm = Nebula::instance().get_dm();
+    set<int>::iterator  it;
+    string              error;
+    int                 rc;
+    int                 result = 0;
+
+    for (it = vms.get_collection().begin(); it != vms.get_collection().end(); it++)
+    {
+        rc = dm->shutdown(*it, true, error);
+
+        if (rc != 0)
+        {
+            result = -1;
+
+            if (rc == -2)
+            {
+                dm->finalize(*it, error);
+            }
+        }
+    }
+
+    return result;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -414,7 +445,7 @@ void vrouter_prefix(VectorAttribute* nic, const string& attr)
 
 /* -------------------------------------------------------------------------- */
 
-Template * VirtualRouter::get_nics() const
+Template * VirtualRouter::get_vm_template() const
 {
     Template * tmpl = new Template();
 
@@ -453,6 +484,8 @@ Template * VirtualRouter::get_nics() const
 
         tmpl->set(nic);
     }
+
+    tmpl->replace("VROUTER_ID", oid);
 
     return tmpl;
 }

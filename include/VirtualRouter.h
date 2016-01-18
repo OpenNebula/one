@@ -64,7 +64,7 @@ public:
                 *(static_cast<Template *>(obj_template)));
     };
 
-    Template * get_nics() const;
+    Template * get_vm_template() const;
 
 private:
     // -------------------------------------------------------------------------
@@ -184,6 +184,13 @@ private:
      * @return 0 on success, -1 otherwise
      */
     int release_network_leases(VectorAttribute const * nic);
+
+    /**
+     * Tries to shutdown, or delete, all this Virtual Router's VMs
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int shutdown_vms();
 };
 
 #endif /*VIRTUAL_ROUTER_H_*/

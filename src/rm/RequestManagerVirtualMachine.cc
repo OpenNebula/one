@@ -553,6 +553,18 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(action))
+    {
+        oss << "Action \"" << action_st << "\" is not supported for Virtual Router VMs";
+
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
     vm->unlock();
 
     switch (action)
@@ -1023,6 +1035,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         failure_response(ACTION,
                 request_error("Migration is not supported for imported VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(action))
+    {
+        failure_response(ACTION,
+                request_error("Migration is not supported for Virtual Router VMs",""),
                 att);
 
         vm->unlock();
@@ -1537,7 +1559,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     VirtualMachineTemplate tmpl;
     PoolObjectAuth         vm_perms;
 
-    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine *     vm;
 
     int    rc;
@@ -1568,19 +1589,24 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    vm = vmpool->get(id, true);
-
-    if (vm == 0)
+    if ((vm = get_vm(id, att)) == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VM),id),
-                att);
         return;
     }
 
     vm->get_permissions(vm_perms);
 
     volatile_disk = vm->volatile_disk_extended_info(&tmpl);
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::DISK_ATTACH_ACTION))
+    {
+        failure_response(ACTION,
+                request_error("Action is not supported for Virtual Router VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
 
     vm->unlock();
 
@@ -1636,6 +1662,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+    VirtualMachine *    vm;
 
     int rc;
     string error_str;
@@ -1651,6 +1678,23 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     {
         return;
     }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_DETACH_ACTION))
+    {
+        failure_response(ACTION,
+                request_error("Action is not supported for Virtual Router VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    vm->unlock();
 
     rc = dm->detach(id, disk_id, error_str);
 
@@ -2116,7 +2160,6 @@ void VirtualMachineAttachNic::request_execute(
     VirtualMachineTemplate tmpl;
 
     PoolObjectAuth       vm_perms;
-    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine *     vm;
 
     int    rc;
@@ -2146,17 +2189,22 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
-    vm = vmpool->get(id, true);
-
-    if (vm == 0)
+    if ((vm = get_vm(id, att)) == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VM),id),
-                att);
         return;
     }
 
     vm->get_permissions(vm_perms);
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_ATTACH_ACTION))
+    {
+        failure_response(ACTION,
+                request_error("Action is not supported for Virtual Router VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
 
     vm->unlock();
 
@@ -2211,6 +2259,7 @@ void VirtualMachineDetachNic::request_execute(
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+    VirtualMachine *    vm;
 
     int rc;
     string error_str;
@@ -2226,6 +2275,23 @@ void VirtualMachineDetachNic::request_execute(
     {
         return;
     }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_DETACH_ACTION))
+    {
+        failure_response(ACTION,
+                request_error("Action is not supported for Virtual Router VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    vm->unlock();
 
     rc = dm->detach_nic(id, nic_id, error_str);
 

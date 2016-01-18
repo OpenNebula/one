@@ -89,7 +89,7 @@ void VirtualRouterInstantiate::request_execute(
 
     vr->get_permissions(vr_perms);
 
-    extra_attrs = vr->get_nics();
+    extra_attrs = vr->get_vm_template();
 
     has_vmids = vr->has_vmids();
 
