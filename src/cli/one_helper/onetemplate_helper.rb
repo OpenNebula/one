@@ -51,14 +51,6 @@ EOT
                         "information, such as the SIZE for each DISK"
     }
 
-    VROUTER={
-        :name => "vrouter",
-        :large => "--vrouter vrid",
-        :format => Integer,
-        :description => "Creates a VM associated to the given Virtual Router. "+
-                        "The NIC elements defined in the Virtual Router will be used"
-    }
-
     def self.rname
         "VMTEMPLATE"
     end

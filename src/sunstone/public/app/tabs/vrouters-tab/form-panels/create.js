@@ -163,41 +163,32 @@ define(function(require) {
         timeout: true,
         success: function (request, response) {
 
-          // TODO: close form panel only on instantiate success
-          Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
-          Sunstone.hideFormPanel(TAB_ID);
-
-          var extra_msg = "";
-          if (n_times > 1) {
-            extra_msg = n_times + " times";
-          }
-
-          Notifier.notifySubmit("Template.instantiate", tmplId, extra_msg);
-
-          var extra_info = {
-            'hold': hold
-          };
+          //TODO: add support for vm_name.replace(/%i/gi, i), or remove tooltip
 
           var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
-          tmpl["VROUTER_ID"] = response.VROUTER.ID;
 
-          extra_info['template'] = tmpl;
+          var extra_info = {
+            'n_vms': n_times,
+            'template_id': tmplId,
+            'vm_name': vm_name,
+            'hold': hold,
+            'template': tmpl
+          };
 
-          for (var i = 0; i < n_times; i++) {
-            extra_info['vm_name'] = vm_name.replace(/%i/gi, i);
+          OpenNebulaVirtualRouter.instantiate({
+            data:{
+              id: response.VROUTER.ID,
+              extra_param: extra_info
+            },
+            timeout: true,
+            success: function(request, response){
+              OpenNebulaAction.clear_cache("VM");
 
-            OpenNebulaTemplate.instantiate({
-              data:{
-                id: tmplId,
-                extra_param: extra_info
-              },
-              timeout: true,
-              success: function(request, response){
-                OpenNebulaAction.clear_cache("VM");
-              },
-              error: Notifier.onError
-            });
-          }
+              Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
+              Sunstone.hideFormPanel(TAB_ID);
+            },
+            error: Notifier.onError
+          });
         },
         error: function(request, response) {
           Sunstone.hideFormPanelLoading(TAB_ID);

@@ -29,6 +29,7 @@ $: << RUBY_LIB_LOCATION+"/cli"
 
 require 'command_parser'
 require 'one_helper/onevrouter_helper'
+require 'one_helper/onetemplate_helper'
 require 'one_helper/onevm_helper'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
@@ -92,6 +93,70 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 STDERR.puts e.messsage
                 exit -1
             end
+        end
+    end
+
+    instantiate_desc = <<-EOT.unindent
+        Creates a new VM instance from the given Template. This VM can be
+        managed with the 'onevm' command.
+
+        The NIC elements defined in the Virtual Router will be used. The
+        source Template can be modified adding or replacing attributes with
+        the optional file argument, or with the options.
+    EOT
+
+    instantiate_options = [
+        OneTemplateHelper::VM_NAME,
+        OneTemplateHelper::MULTIPLE,
+        OneVMHelper::HOLD
+    ]
+
+    command :instantiate, instantiate_desc, :vrouterid, :templateid, [:file, nil],
+            :options=>instantiate_options+OpenNebulaHelper::TEMPLATE_OPTIONS do
+        exit_code=0
+
+        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You cannot use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
+        number = options[:multiple] || 1
+        user_inputs = nil
+
+        helper.perform_action(args[0], options, "instantiated") do |vr|
+            name = options[:name] || ""
+
+            t = OpenNebula::Template.new_with_id(args[1], helper.client)
+
+            on_hold = options[:hold] != nil
+
+            extra_template = ""
+            rc = t.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            if args[2]
+                extra_template = File.read(args[2])
+            else
+                res = OpenNebulaHelper.create_template(options, t)
+
+                if res.first != 0
+                    STDERR.puts res.last
+                    next -1
+                end
+
+                extra_template = res.last
+            end
+
+            user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash) unless user_inputs
+
+            extra_template << "\n" << user_inputs
+
+            vr.instantiate(number, args[1], name, on_hold, extra_template)
         end
     end
 
@@ -177,7 +242,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Virtual Router
     EOT
 
-    command :show, show_desc, :secgroupid, :options=>OpenNebulaHelper::XML do
+    command :show, show_desc, :vrouterid,
+            :options=>[OpenNebulaHelper::XML, OneVMHelper::ALL_TEMPLATE] do
         helper.show_resource(args[0],options)
     end
 

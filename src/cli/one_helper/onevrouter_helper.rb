@@ -17,6 +17,13 @@
 require 'one_helper'
 
 class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
+
+    ALL_TEMPLATE = {
+        :name       => "all",
+        :large      => "--all",
+        :description => "Show all template data"
+    }
+
     def self.rname
         "VROUTER"
     end
@@ -180,7 +187,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
         while obj.has_elements?("/VROUTER/TEMPLATE/NIC")
             obj.delete_element("/VROUTER/TEMPLATE/NIC")
-        end
+        end if !options[:all]
 
         puts
 

@@ -55,8 +55,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OneTemplateHelper::VM_NAME,
         OneTemplateHelper::MULTIPLE,
         OneTemplateHelper::USERDATA,
-        OneVMHelper::HOLD,
-        OneTemplateHelper::VROUTER,
+        OneVMHelper::HOLD
     ]
 
     ########################################################################
@@ -223,10 +222,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash) unless user_inputs
 
                 extra_template << "\n" << user_inputs
-
-                if !options[:vrouter].nil?
-                    extra_template << "\n" << "VROUTER_ID = \"#{options[:vrouter]}\""
-                end
 
                 res = t.instantiate(name, on_hold, extra_template)
 

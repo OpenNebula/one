@@ -25,6 +25,10 @@ define(function(require) {
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
+    "instantiate" : function(params) {
+      var action_obj = params.data.extra_param ? params.data.extra_param : {};
+      OpenNebulaAction.simple_action(params, RESOURCE, "instantiate", action_obj);
+    },
     "del" : function(params) {
       OpenNebulaAction.del(params, RESOURCE);
     },

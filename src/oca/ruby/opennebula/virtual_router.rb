@@ -25,6 +25,7 @@ module OpenNebula
 
         VIRTUAL_ROUTER_METHODS = {
             :allocate    => "vrouter.allocate",
+            :instantiate => "vrouter.instantiate",
             :info        => "vrouter.info",
             :update      => "vrouter.update",
             :delete      => "vrouter.delete",
@@ -77,6 +78,26 @@ module OpenNebula
         def allocate(description)
             super(VIRTUAL_ROUTER_METHODS[:allocate], description)
         end
+
+        # Creates VM instances from a VM Template. New VMs will be associated
+        # to this Virtual Router, and its Virtual Networks
+        #
+        # @para n_vms [Integer] Number of VMs to instantiate
+        # @para template_id [Integer] VM Template id to instantiate
+        # @param name [String] Name for the VM instances. If it is an empty
+        #   string OpenNebula will set a default name
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        # @param template [String] User provided Template to merge with the
+        #   one being instantiated
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def instantiate(n_vms, template_id, name="", hold=false, template="")
+            return call(VIRTUAL_ROUTER_METHODS[:instantiate], @pe_id,
+                        n_vms.to_i, template_id.to_i, name, hold, template)
+        end
+
 
         # Deletes the VirtualRouter
         def delete()
