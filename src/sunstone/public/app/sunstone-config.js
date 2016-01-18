@@ -28,6 +28,8 @@ define(function(require) {
   };
 
   var _dsMadConf = {};
+  var _imMadConf = {};
+  var _vmMadConf = {};
 
   var Config = {
     'isTabEnabled': function(tabName) {
@@ -155,6 +157,8 @@ define(function(require) {
     'enabledTabs': _config['view']['enabled_tabs'],
     "defaultCost" : _defaultCost,
     'dsMadConf' : _dsMadConf,
+    'imMadConf' : _imMadConf,
+    'vmMadConf' : _vmMadConf,
     "initOnedConf" : function() {
       OpenNebulaSystem.onedconf({
         data : {},
@@ -174,6 +178,14 @@ define(function(require) {
 
           if (onedconf.DS_MAD_CONF != undefined){
             $.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+          }
+
+          if (onedconf.IM_MAD != undefined){
+            $.extend(true, _imMadConf, onedconf.IM_MAD);
+          }
+
+          if (onedconf.VM_MAD != undefined){
+            $.extend(true, _vmMadConf, onedconf.VM_MAD);
           }
         },
         error: function(request, error_json){

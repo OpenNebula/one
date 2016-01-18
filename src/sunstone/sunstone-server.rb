@@ -527,7 +527,9 @@ get '/onedconf' do
 
     keys = [
         :DEFAULT_COST,
-        :DS_MAD_CONF
+        :DS_MAD_CONF,
+        :VM_MAD,
+        :IM_MAD
     ]
 
     onedconf = {}
