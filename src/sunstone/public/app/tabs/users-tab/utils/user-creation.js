@@ -17,6 +17,7 @@
 define(function(require) {
 
   var TemplateHTML = require('hbs!./user-creation/html');
+  var Config = require('sunstone-config');
 
   /**
    * @param {string} idPrefix
@@ -46,6 +47,12 @@ define(function(require) {
     if (this.options.auth_driver == undefined){
       this.options.auth_driver = true;
     }
+
+    if (Config.authMadConf !== undefined && Config.authMadConf['AUTHN'] !== undefined) {
+      this.authMadNameList = Config.authMadConf['AUTHN'].split(',');
+    } else {
+      this.authMadNameList = []
+    }
   }
 
   UserCreation.prototype.constructor = UserCreation;
@@ -60,7 +67,8 @@ define(function(require) {
 
   function _html(){
     return TemplateHTML({
-      'idPrefix': this.idPrefix
+      'idPrefix': this.idPrefix,
+      'authMadNameList': this.authMadNameList
     });
   }
 

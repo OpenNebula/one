@@ -30,6 +30,7 @@ define(function(require) {
   var _dsMadConf = {};
   var _imMadConf = {};
   var _vmMadConf = {};
+  var _authMadConf = {};
 
   var Config = {
     'isTabEnabled': function(tabName) {
@@ -159,6 +160,7 @@ define(function(require) {
     'dsMadConf' : _dsMadConf,
     'imMadConf' : _imMadConf,
     'vmMadConf' : _vmMadConf,
+    'authMadConf' : _authMadConf,
     "initOnedConf" : function() {
       OpenNebulaSystem.onedconf({
         data : {},
@@ -186,6 +188,10 @@ define(function(require) {
 
           if (onedconf.VM_MAD != undefined){
             $.extend(true, _vmMadConf, onedconf.VM_MAD);
+          }
+
+          if (onedconf.AUTH_MAD != undefined){
+            $.extend(true, _authMadConf, onedconf.AUTH_MAD);
           }
         },
         error: function(request, error_json){
