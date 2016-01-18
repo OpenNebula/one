@@ -936,9 +936,9 @@ class VCenterVm
     # Deploys a VM
     #  @xml_text XML repsentation of the VM
     ############################################################################
-    def self.deploy(xml_text, lcm_state, deploy_id, hostname)
+    def self.deploy(xml_text, lcm_state, deploy_id, hostname, datastore = nil)
         if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-            return clone_vm(xml_text, hostname)
+            return clone_vm(xml_text, hostname, datastore)
         else
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
@@ -1549,9 +1549,22 @@ private
             rp = connection.default_resource_pool
         end
 
+        if datastore
+            ds=connection.dc.datastoreFolder.childEntity.select{|ds| 
+                                                        ds.name == datastore}[0]
+            raise "Cannot find datastore #{datastore}" if !ds
+        end
+
+        relocate_spec_params = {
+            :diskMoveType => :moveChildMostDiskBacking,
+            :pool         => rp
+        }
+
+        relocate_spec_params[:datastore] = ds if datastore
+
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
-                          :diskMoveType => :moveChildMostDiskBacking,
-                          :pool         => rp)
+                          :datastore    => ds,
+)
 
         clone_parameters = {
             :location => relocate_spec,

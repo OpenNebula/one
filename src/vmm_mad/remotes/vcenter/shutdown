@@ -34,11 +34,18 @@ deploy_id = ARGV[0]
 host      = ARGV[1]
 vm_id     = ARGV[-2]
 
-vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
-vm.info
 
-lcm_state   = vm.lcm_state_str
-keep_disks  = vm.keep_disks?
+drv_action_enc = STDIN.read.gsub("\n","")
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'VM')
+
+lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
+lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
+
+keep_disks  =!drv_action['/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
+              drv_action['/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
 
 begin
     VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state, keep_disks)
