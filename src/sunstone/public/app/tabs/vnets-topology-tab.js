@@ -131,6 +131,10 @@ define(function(require) {
       var vnet = element.VNET;
       var vnetId = vnet.ID;
 
+      if (vnet.PARENT_NETWORK_ID.length > 0){
+        vnetId = vnet.PARENT_NETWORK_ID;
+      }
+
       // VNet node
       // ----------------
 
@@ -138,21 +142,13 @@ define(function(require) {
 
       var group = "vnet";
 
-      if (vnet.PARENT_NETWORK_ID.length > 0){
-        group = "reservation";
-
-        edges.push({
-          from: "vnet"+vnet.PARENT_NETWORK_ID,
-          to: vnetNodeId,
-          dashes: true,
-          color: "#0098c3"
-        });
+      if (!nodeIndex[vnetNodeId]){
+        nodeIndex[vnetNodeId] = true;
+        nodes.push({
+          id: vnetNodeId,
+          label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
+          group: group});
       }
-
-      nodes.push({
-        id: vnetNodeId,
-        label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
-        group: group});
 
       // VRouter nodes
       // ----------------
@@ -280,18 +276,6 @@ define(function(require) {
     var options = {
       groups: {
         vnet: {
-          shape: 'box',
-          color: {
-            border: "#007a9c",
-            background: "#0098c3",
-            hover: "#007a9c",
-            highlight: "#007a9c"
-          },
-          font: {
-            color: "#fff"
-          }
-        },
-        reservation: {
           shape: 'box',
           color: {
             border: "#007a9c",
