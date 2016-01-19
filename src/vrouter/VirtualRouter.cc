@@ -453,6 +453,8 @@ Template * VirtualRouter::get_vm_template() const
     bool                  floating;
     vector<Attribute  * > nics;
     VectorAttribute *     nic;
+    int                   keepalived_id;
+    string                st;
 
     num_nics = obj_template->get("NIC",nics);
 
@@ -486,6 +488,20 @@ Template * VirtualRouter::get_vm_template() const
     }
 
     tmpl->replace("VROUTER_ID", oid);
+
+    if (!obj_template->get("KEEPALIVED_ID", keepalived_id))
+    {
+        keepalived_id = (oid & 0xFF);
+    }
+
+    tmpl->replace("VROUTER_KEEPALIVED_ID", keepalived_id);
+
+    obj_template->get("KEEPALIVED_PASSWORD", st);
+
+    if (!st.empty())
+    {
+        tmpl->replace("VROUTER_KEEPALIVED_PASSWORD", st);
+    }
 
     return tmpl;
 }

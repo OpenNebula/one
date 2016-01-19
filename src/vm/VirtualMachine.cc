@@ -157,6 +157,12 @@ const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
 
 const int VirtualMachine::NUM_NETWORK6_CONTEXT = 4;
 
+const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
+        "VROUTER_ID",
+        "VROUTER_KEEPALIVED_ID",
+        "VROUTER_KEEPALIVED_PASSWORD"};
+const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -845,14 +851,17 @@ int VirtualMachine::parse_vrouter(string& error_str)
 {
     string st;
 
-    user_obj_template->get("VROUTER_ID", st);
-
-    if (!st.empty())
+    for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
     {
-        obj_template->replace("VROUTER_ID", st);
-    }
+        user_obj_template->get(VROUTER_ATTRIBUTES[i], st);
 
-    user_obj_template->erase("VROUTER_ID");
+        if (!st.empty())
+        {
+            obj_template->replace(VROUTER_ATTRIBUTES[i], st);
+        }
+
+        user_obj_template->erase(VROUTER_ATTRIBUTES[i]);
+    }
 
     return 0;
 }
@@ -907,6 +916,7 @@ int VirtualMachine::parse_context(string& error_str)
     string   parsed;
     string   files_ds;
     string   files_ds_parsed;
+    string   st;
 
     ostringstream oss_parsed;
 
@@ -1096,6 +1106,20 @@ int VirtualMachine::parse_context(string& error_str)
         // The token_password is taken from the owner user's template.
         // We store this original owner in case a chown operation is performed.
         add_template_attribute("CREATED_BY", uid);
+    }
+
+    // -------------------------------------------------------------------------
+    // Virtual Router attributes
+    // -------------------------------------------------------------------------
+
+    for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
+    {
+        obj_template->get(VROUTER_ATTRIBUTES[i], st);
+
+        if (!st.empty())
+        {
+            context_parsed->replace(VROUTER_ATTRIBUTES[i], st);
+        }
     }
 
     return rc;

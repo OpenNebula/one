@@ -1989,6 +1989,13 @@ private:
     int parse_vrouter(string& error_str);
 
     /**
+     * Known Virtual Router attributes, to be moved from the user template
+     * to the template
+     */
+    static const char* VROUTER_ATTRIBUTES[];
+    static const int   NUM_VROUTER_ATTRIBUTES;
+
+    /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
      *
