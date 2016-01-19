@@ -676,15 +676,15 @@ class VIClient
     ############################################################################
     def create_virtual_disk(img_name, ds_name, size, adapter_type, disk_type)
         vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
-            adapterType: adapter_type,
-            capacityKb: size.to_i*1024,
-            diskType: disk_type
+            :adapterType => adapter_type,
+            :capacityKb  => size.to_i*1024,
+            :diskType    => disk_type
         )
 
         @vdm.CreateVirtualDisk_Task(
-          datacenter: @dc,
-          name: "[#{ds_name}] #{img_name}.vmdk",
-          spec: vmdk_spec
+          :datacenter => @dc,
+          :name       => "[#{ds_name}] #{img_name}.vmdk",
+          :spec       => vmdk_spec
         ).wait_for_completion
 
         "#{img_name}.vmdk"

@@ -281,6 +281,14 @@ define(function(require) {
     if (target)
         img_json["TARGET"] = target;
 
+    var adapter_type = $('#adapter_type', context).val();
+    if (adapter_type)
+        img_json["ADAPTER_TYPE"] = adapter_type;
+
+    var disk_type = $('#disk_type', context).val();
+    if (disk_type)
+        img_json["DISK_TYPE"] = disk_type;
+
     switch ($('#src_path_select input:checked', context).val()){
     case "path":
       path = $('#img_path', context).val();

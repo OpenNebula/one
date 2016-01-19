@@ -127,6 +127,26 @@
         </label>
         <input type="text" name="img_fstype" id="img_fstype" />
       </div>
+      <div class="medium-6 columns">
+        <label for="adapter_type">
+          {{tr "Adapter type"}}
+          <span class="tip">
+            {{tr "Adapter type for the image. Only for vCenter images"}}
+            {{tr "Types of adapters used by virtual disks to plug into VMs. Values (careful with the case): lsiLogic, ide, busLogic."}}
+          </span>
+        </label>
+        <input type="text" name="adapter_type" id="adapter_type" />
+      </div>
+      <div class="medium-6 columns">
+        <label for="disk_type">
+          {{tr "Disk type"}}
+          <span class="tip">
+            {{tr "Parameter to instruct vCenter on the type of disk to be create"}}
+            {{tr "The type of disk has implications on performance and occupied space. Values (careful with the case): delta,eagerZeroedThick,flatMonolithic,preallocated,raw,rdm,rdmp,seSparse,sparse2Gb,sparseMonolithic,thick,thick2Gb,thin."}}
+          </span>
+        </label>
+        <input type="text" name="adapter_type" id="disk_type" />
+      </div>
     </div>
   </fieldset>
   {{#advancedSection (tr "Advanced Options") }}
