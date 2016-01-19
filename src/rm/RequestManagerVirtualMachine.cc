@@ -555,14 +555,47 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm->is_vrouter() && !vm->is_vrouter_action_supported(action))
     {
-        oss << "Action \"" << action_st << "\" is not supported for Virtual Router VMs";
+        bool failure = true;
 
-        failure_response(ACTION,
-                request_error(oss.str(),""),
-                att);
+        // Just in case, we check if the VRouter does not exist for a delete
+        // operation.
+        if (action == History::DELETE_ACTION ||
+            action == History::SHUTDOWN_ACTION ||
+            action == History::SHUTDOWN_HARD_ACTION)
+        {
+            int vrid = vm->get_vrouter_id();
 
-        vm->unlock();
-        return;
+            vm->unlock();
+
+            VirtualRouterPool*  vrpool = Nebula::instance().get_vrouterpool();
+            VirtualRouter *     vrouter = vrpool->get(vrid, true);
+
+            if (vrouter == 0)
+            {
+                failure = false;
+            }
+            else
+            {
+                vrouter->unlock();
+            }
+
+            if ((vm = get_vm(id, att)) == 0)
+            {
+                return;
+            }
+        }
+
+        if (failure)
+        {
+            oss << "Action \"" << action_st << "\" is not supported for Virtual Router VMs";
+
+            failure_response(ACTION,
+                    request_error(oss.str(),""),
+                    att);
+
+            vm->unlock();
+            return;
+        }
     }
 
     vm->unlock();
