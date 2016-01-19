@@ -27,6 +27,7 @@ define(function(require) {
   var PASSWORD_DIALOG_ID = require('./dialogs/password/dialogId');
   var AUTH_DRIVER_DIALOG_ID = require('./dialogs/auth-driver/dialogId');
   var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
+  var GROUPS_DIALOG_ID = require('./dialogs/groups/dialogId');
 
   var RESOURCE = "User";
   var XML_ROOT = "USER";
@@ -43,6 +44,18 @@ define(function(require) {
     "User.chgrp": _commonActions.multipleAction('chgrp'),
     "User.addgroup": _commonActions.multipleAction('addgroup'),
     "User.delgroup": _commonActions.multipleAction('delgroup'),
+    "User.groups_dialog" : _commonActions.checkAndShow("groups"),
+
+    "User.groups" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.getDialog(GROUPS_DIALOG_ID).setParams({element: response[XML_ROOT]});
+        Sunstone.getDialog(GROUPS_DIALOG_ID).reset();
+        Sunstone.getDialog(GROUPS_DIALOG_ID).show();
+      },
+      error: Notifier.onError
+    },
 
     "User.update_password" : {
       type: "custom",

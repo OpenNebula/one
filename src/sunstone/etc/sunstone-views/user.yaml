@@ -70,6 +70,7 @@ tabs:
             User.create_dialog: true
             User.update_password: true
             User.quotas_dialog: true
+            User.groups_dialog: true
             User.chgrp: true
             User.addgroup: true
             User.delgroup: true
