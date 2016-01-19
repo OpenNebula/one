@@ -62,6 +62,6 @@ begin
                                          img_path,
                                          size_kb)
 rescue Exception => e
-    STDERR.puts "Error attach image #{img_path} size. Reason: #{e.message}"
+    STDERR.puts "Error attach image #{img_path}. Reason: #{e.message}"
     exit -1
 end

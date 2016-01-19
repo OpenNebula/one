@@ -42,13 +42,15 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc),
 
 deploy_id     = drv_action["/VM/DEPLOY_ID"]
 lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
+datastore     = drv_action["/VM/USER_TEMPLATE/VCENTER_DATASTORE"]
 lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 
 begin
     puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
                                          lcm_state,
                                          deploy_id,
-                                         host)
+                                         host,
+                                         datastore)
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
                 "due to \"#{e.message}\""

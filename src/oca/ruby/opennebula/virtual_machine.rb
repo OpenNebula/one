@@ -316,6 +316,19 @@ module OpenNebula
         def deploy(host_id, enforce=false, ds_id=-1)
             enforce ||= false
             ds_id ||= -1
+
+            self.info
+
+            # Add dsid as VM template parameter for vcenter
+            if ds_id!=-1 &&
+               !self["/VM/USER_TEMPLATE/PUBLIC_CLOUD/TYPE"].nil? &&
+               self["/VM/USER_TEMPLATE/PUBLIC_CLOUD/TYPE"].downcase == "vcenter"
+                ds = OpenNebula::Datastore.new_with_id(ds_id, @client)
+                rc = ds.info
+                return rc if OpenNebula.is_error?(rc)
+               self.update("VCENTER_DATASTORE=#{ds['/DATASTORE/NAME']}", true)
+            end
+
             return call(VM_METHODS[:deploy],
                         @pe_id,
                         host_id.to_i,

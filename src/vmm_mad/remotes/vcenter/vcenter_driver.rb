@@ -639,8 +639,10 @@ class VIClient
         total_mb = (ds.summary.capacity.to_i / 1024) / 1024
         free_mb = (ds.summary.freeSpace.to_i / 1024) / 1024
         used_mb = total_mb - free_mb
+        ds_type = ds.summary.type
 
-        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
+        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}\n"\
+        "VCENTER_DS_TYPE=#{ds_type}"
     end
 
     ############################################################################
@@ -656,6 +658,8 @@ class VIClient
                       :destName => "[#{target_ds}] #{target_path}"}
 
         @vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+
+        target_path
     end
 
     ############################################################################
@@ -968,8 +972,11 @@ class VCenterVm
     # Cancels a VM
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
+    #  @param lcm_state state of the VM
+    #  @param keep_disks keep or not VM disks in datastore
+    #  @param disks VM attached disks
     ############################################################################
-    def self.cancel(deploy_id, hostname, lcm_state, keep_disks)
+    def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state)
@@ -984,7 +991,11 @@ class VCenterVm
                     end
                 rescue
                 end
-                detach_all_disks(vm) if keep_disks
+                if keep_disks
+                    detach_all_disks(vm)
+                else
+                    detach_attached_disks(vm, disks, hostname)
+                end
                 vm.Destroy_Task.wait_for_completion
             else
                 raise "LCM_STATE #{lcm_state} not supported for cancel"
@@ -1055,8 +1066,11 @@ class VCenterVm
     # Shutdown a VM
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
+    #  @param lcm_state state of the VM
+    #  @param keep_disks keep or not VM disks in datastore
+    #  @param disks VM attached disks
     ############################################################################
-    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks)
+    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks, disks)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
@@ -1069,7 +1083,12 @@ class VCenterVm
                 rescue
                 end
                 vm.PowerOffVM_Task.wait_for_completion
-                detach_all_disks(vm) if keep_disks
+                if keep_disks
+                    detach_all_disks(vm)
+                else
+                    detach_attached_disks(vm, disks, hostname)
+                end
+                exit -1
                 vm.Destroy_Task.wait_for_completion
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
@@ -1495,7 +1514,7 @@ private
     ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
     ########################################################################
-    def self.clone_vm(xml_text, hostname)
+    def self.clone_vm(xml_text, hostname, datastore)
 
         xml = REXML::Document.new xml_text
         pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
@@ -1539,7 +1558,7 @@ private
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        context = xml.root.elements["//TEMPLATE/CONTEXT"]
+        context     = xml.root.elements["//TEMPLATE/CONTEXT"]
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
@@ -1563,8 +1582,7 @@ private
         relocate_spec_params[:datastore] = ds if datastore
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
-                          :datastore    => ds,
-)
+                                                         relocate_spec_params)
 
         clone_parameters = {
             :location => relocate_spec,
@@ -1745,8 +1763,10 @@ private
 
     ############################################################################
     # Attach disk to a VM
-    # @params adapter_type[String] type of bus where the disk will be plugged
-    # @params disk_type[String] vmdk type
+    # @params hostname[String] vcenter cluster name in opennebula as host
+    # @params deploy_id[String] deploy id of the vm
+    # @params ds_name[String] name of the datastore
+    # @params img_name[String] path of the image
     # @params size_kb[String] size in kb of the disk
     ############################################################################
     def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb)
@@ -1763,28 +1783,28 @@ private
 
         vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
               :datastore => ds,
-              :diskMode => 'persistent',
-              :fileName => "[#{ds_name}] #{img_name}"
+              :diskMode  => 'persistent',
+              :fileName  => "[#{ds_name}] #{img_name}"
         )
 
         device = RbVmomi::VIM::VirtualDisk(
-          :backing => vmdk_backing,
-          :capacityInKB => size_kb,
+          :backing       => vmdk_backing,
+          :capacityInKB  => size_kb,
           :controllerKey => controller.key,
-          :key => -1,
-          :unitNumber => new_number
+          :key           => -1,
+          :unitNumber    => new_number
         )
 
         device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
-          :device => device,
+          :device    => device,
           :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
         )
 
         vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
-          deviceChange: [device_config_spec]
+          :deviceChange => [device_config_spec]
         )
 
-        vm.ReconfigVM_Task(spec: vm_config_spec).wait_for_completion
+        vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
     end
 
     def self.find_free_controller(vm)
@@ -1890,7 +1910,12 @@ private
     end
 
     ############################################################################
-    # Detach all disks from a VM
+    # Detach a specific disk from a VM
+    # Attach disk to a VM
+    # @params hostname[String] vcenter cluster name in opennebula as host
+    # @params deploy_id[String] deploy id of the vm
+    # @params ds_name[String] name of the datastore
+    # @params img_path[String] path of the image
     ############################################################################
     def self.detach_disk(hostname, deploy_id, ds_name, img_path)
         hid         = VIClient::translate_hostname(hostname)
@@ -1915,6 +1940,7 @@ private
 
     ############################################################################
     # Detach all disks from a VM
+    # @params vm[VCenterVm] vCenter VM
     ############################################################################
     def self.detach_all_disks(vm)
         disks  = vm.config.hardware.device.select { |d| is_disk?(d) }
@@ -1927,6 +1953,28 @@ private
             spec[:deviceChange] <<  {
                 :operation => :remove,
                 :device => disk
+            }
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    ############################################################################
+    # Detach attached disks from a VM
+    ############################################################################
+    def self.detach_attached_disks(vm, disks, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        spec = { :deviceChange => [] }
+
+        disks.each{ |disk|
+          ds_and_img_name = "[#{disk['DATASTORE']}] #{disk['SOURCE']}"
+          vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) && 
+                                    d.backing.fileName == ds_and_img_name }[0]
+           spec[:deviceChange] <<  {
+                :operation => :remove,
+                :device => vcenter_disk
             }
         }
 
