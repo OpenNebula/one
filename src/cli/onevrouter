@@ -75,6 +75,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
+    set :format, :templateid, OpenNebulaHelper.rname_to_id_desc("VMTEMPLATE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "VMTEMPLATE")
+    end
+
     ########################################################################
     # Commands
     ########################################################################
