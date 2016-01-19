@@ -36,7 +36,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-9 columns">
+  <div class="large-12 columns">
     <table class="dataTable">
       <thead>
         <tr>
@@ -44,6 +44,7 @@
           <th>{{tr "Floating IP"}}</th>
           <th>{{tr "Floating IPv6 ULA"}}</th>
           <th>{{tr "Floating IPv6 Global"}}</th>
+          <th>{{tr "Management Interface"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -53,6 +54,7 @@
           <td>{{valOrDefault IP "--"}}</td>
           <td>{{valOrDefault IP6_ULA "--"}}</td>
           <td>{{valOrDefault IP6_GLOBAL "--"}}</td>
+          <td>{{valOrDefault VROUTER_MANAGEMENT "--"}}</td>
         </tr>
         {{/each}}
       </tbody>

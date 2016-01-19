@@ -179,6 +179,19 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
+                column :MANAGEMENT, "", :left, :size=>10 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        if !d["VROUTER_MANAGEMENT"].nil?
+                            d["VROUTER_MANAGEMENT"]
+                        else
+                            "NO"
+                        end
+                    end
+                end
+
+
                 column :IP, "",:left, :donottruncate, :size=>15 do |d|
                     d["IP"]
                 end

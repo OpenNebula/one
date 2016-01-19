@@ -36,8 +36,10 @@ define(function(require) {
    * @param  {object} context       JQuery selector
    * @param  {object} options       Options
    *                                - hide_add_button {bool}
-   *                                - floatingIPs {bool}: true to show the
+   *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
    */
   function _insert(template_json, context, options) {
     if (options == undefined){
@@ -88,6 +90,16 @@ define(function(require) {
       if (nic) {
         if ($("input.floating_ip", $(this)).prop("checked")){
           nic["FLOATING_IP"] = "YES";
+
+          var ip4 = $("input.manual_ip4", $(this)).val();
+
+          if (ip4 != ""){
+            nic["IP"] = ip4;
+          }
+        }
+
+        if ($("input.management", $(this)).prop("checked")){
+          nic["VROUTER_MANAGEMENT"] = "YES";
         }
 
         nics.push(nic);
@@ -103,8 +115,10 @@ define(function(require) {
    *                                - nic {object}
    *                                - vnet_attr {object}
    *                                - hide_add_button {bool}
-   *                                - floatingIPs {bool}: true to show the
+   *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
    */
   function _generate_provision_network_table(context, options) {
     context.off();
@@ -252,13 +266,40 @@ define(function(require) {
 
       if (options.floatingIP){
         html +=
-          '<br/>' +
+          '<div class="row noclick">' +
+            '<div class="small-12 columns">' +
+              '<label class="inline" style="color: #777; font-size: 16px">' +
+                '<input type="checkbox" class="floating_ip" />' +
+                Locale.tr("Floating IP") + " " +
+                '<span class="tip">' +
+                  Locale.tr("If checked, each Virtual Machine will have a floating IP added to its network interface.") +
+                '</span>' +
+              '</label>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row noclick">' +
+            '<div class="small-5 columns">' +
+              '<label class="right inline" style="color: #777; font-size: 16px">' +
+                Locale.tr("Force IPv4:") + " " +
+                '<span class="tip">' +
+                  Locale.tr("Optionally, you can force the IP assigned to the floating IP.") +
+                '</span>' +
+              '</label>' +
+            '</div>' +
+            '<div class="small-7 columns">' +
+              '<input type="text" class="manual_ip4" />' +
+            '</div>' +
+          '</div>';
+      }
+
+      if (options.management){
+        html +=
           '<div class="noclick">' +
             '<label style="color: #777; font-size: 16px">' +
-              '<input type="checkbox" class="floating_ip" />' +
-              Locale.tr("Floating IP") +
+              '<input type="checkbox" class="management" />' +
+              Locale.tr("Management Interface") + " " +
               '<span class="tip">' +
-                Locale.tr("If checked, each Virtual Machine will have a floating IP added to its network interface.") +
+                Locale.tr("If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded.") +
               '</span>' +
             '</label>' +
           '</div>';
@@ -271,6 +312,8 @@ define(function(require) {
       Tips.setup($(".selected_network", dd_context));
 
       $('a', dd_context).first().trigger("click");
+
+      $("input.floating_ip", dd_context).change();
     })
 
     dd_context.on("click", ".provision_remove_nic" , function() {
@@ -280,6 +323,10 @@ define(function(require) {
 
     dd_context.on("click", ".noclick" , function(event) {
       event.stopPropagation();
+    });
+
+    dd_context.on("change", "input.floating_ip" , function() {
+      $(".manual_ip4", dd_context).prop("disabled", !$(this).is(":checked"));
     });
 
     if (!options.nic && !options.vnet_attr) {

@@ -98,7 +98,9 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    NicsSection.insert({}, $(".nicsContext", context), {floatingIP: true});
+    NicsSection.insert({},
+      $(".nicsContext", context),
+      {floatingIP: true, management: true});
 
     this.templatesTable.initialize();
 
