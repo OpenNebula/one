@@ -1343,10 +1343,13 @@ hr {
 .labels-tree {
   font: inherit;
   list-style-type: none;
-  padding-bottom: 1em;
   padding-right: 1em;
   margin-left: 0;
   margin-bottom: 0;
+
+  & > li:last-child {
+    padding-bottom: 1em;
+  }
 
   .fa-angle-down, .fa-angle-right {
     padding: 3px;
