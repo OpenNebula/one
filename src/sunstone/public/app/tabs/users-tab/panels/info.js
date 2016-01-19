@@ -69,17 +69,6 @@ define(function(require) {
   function _html() {
     var groupTrHTML = TemplateChgrpTr({'element': this.element});
 
-    // TODO
-    //$(".resource-info-header", $("#users-tab")).html(this.element.NAME);
-
-    var secondaryGroups;
-
-    if (typeof this.element.GROUPS.ID == "object") {
-      secondaryGroups = this.element.GROUPS.ID.join(",");
-    } else {
-      secondaryGroups = "-";
-    }
-
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SSH_PUBLIC_KEY"];
@@ -93,7 +82,6 @@ define(function(require) {
       'element': this.element,
       'sunstone_template': this.element.TEMPLATE.SUNSTONE||{},
       'groupTrHTML': groupTrHTML,
-      'secondaryGroups': secondaryGroups,
       'templateTableHTML': templateTableHTML
     });
   }
