@@ -20,19 +20,20 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
+  var GroupsTable = require('tabs/groups-tab/datatable');
+  var Sunstone = require('sunstone');
+
+  /*
+    TEMPLATES
+   */
+
   var TemplateHTML = require('hbs!./groups/html');
-  //var Sunstone = require('sunstone');
-  //var DatastoreTable = require('tabs/datastores-tab/datatable')
-  //var Notifier = require('utils/notifier');
-  //var OpenNebulaImage = require('opennebula/image');
-  //var OpenNebulaDatastore = require('opennebula/datastore');
 
   /*
     CONSTANTS
    */
 
   var DIALOG_ID = require('./groups/dialogId');
-  //var IMAGES_TAB_ID = require('tabs/images-tab/tabId')
 
   /*
     CONSTRUCTOR
@@ -40,15 +41,6 @@ define(function(require) {
 
   function Dialog() {
     this.dialogId = DIALOG_ID;
-
-    //this.datastoreTable = new DatastoreTable('image_clone', {
-    //  'select': true,
-    //  'selectOptions': {
-    //    'filter_fn': function(ds) {
-    //      return ds.TYPE == OpenNebulaDatastore.TYPES.IMAGE_DS;
-    //    }
-    //  }
-    //});
 
     BaseDialog.call(this);
   };
@@ -68,57 +60,45 @@ define(function(require) {
    */
 
   function _html() {
+    this.groupsTable = new GroupsTable('user_groups', {
+        info: false,
+        select: true,
+        selectOptions: {'multiple_choice': true}
+      });
+
     return TemplateHTML({
       'dialogId': this.dialogId,
-      //'datastoreTableSelectHTML': this.datastoreTable.dataTableHTML
+      'groupsTableHTML': this.groupsTable.dataTableHTML
     });
   }
 
   function _setup(dialog) {
     var that = this;
-    // TODO: Show DS with the same ds mad only
-//    that.datastoreTable.initialize();
-//
-//    $('#image_clone_advanced_toggle', dialog).click(function() {
-//      $('#image_clone_advanced', dialog).toggle();
-//      return false;
-//    });
-//
-//    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
-//      var name = $('input[name="image_clone_name"]', this).val();
-//      var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
-//
-//      if (!name || !sel_elems.length)
-//        Notifier.notifyError('A name or prefix is needed!');
-//
-//      var extra_info = {};
-//
-//      var targeDS = that.datastoreTable.retrieveResourceTableSelect();
-//      if (targeDS) {
-//        extra_info['target_ds'] = targeDS;
-//      }
-//
-//      if (sel_elems.length > 1) {
-//        for (var i = 0; i < sel_elems.length; i++) {
-//          //If we are cloning several images we
-//          //use the name as prefix
-//          extra_info['name'] = name + OpenNebulaImage.getName(sel_elems[i]);
-//          Sunstone.runAction('Image.clone', sel_elems[i], extra_info);
-//        }
-//      } else {
-//        extra_info['name'] = name;
-//        Sunstone.runAction('Image.clone', sel_elems[0], extra_info)
-//      }
-//
-//      Sunstone.getDialog(DIALOG_ID).hide();
-//      Sunstone.getDialog(DIALOG_ID).reset();
-//      setTimeout(function() {
-//        Sunstone.runAction('Image.refresh');
-//      }, 1500);
-//      return false;
-//    });
+    that.groupsTable.initialize();
 
-    return false;
+    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
+      var selectedGroupsList = that.groupsTable.retrieveResourceTableSelect();
+
+      $.each(selectedGroupsList, function(index, groupId) {
+        if ($.inArray(groupId, that.originalGroupIds) === -1) {
+          Sunstone.runAction('User.addgroup', [that.element.ID], groupId);
+        }
+      });
+
+      $.each(that.originalGroupIds, function(index, groupId) {
+        if ($.inArray(groupId, selectedGroupsList) === -1) {
+          Sunstone.runAction('User.delgroup', [that.element.ID], groupId);
+        }
+      });
+
+      Sunstone.getDialog(DIALOG_ID).hide();
+      Sunstone.getDialog(DIALOG_ID).reset();
+      setTimeout(function() {
+        Sunstone.runAction('User.refresh');
+      }, 1500);
+
+      return false;
+    });
   }
 
 
@@ -128,26 +108,19 @@ define(function(require) {
    */
   function _setParams(params) {
     this.element = params.element;
+
+    if (this.element.GROUPS !== undefined && this.element.GROUPS !== undefined) {
+      this.originalGroupIds = this.element.GROUPS.ID;
+    } else {
+      this.originalGroupIds = [];
+    }
   }
 
   function _onShow(dialog) {
-//    var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
-//    //show different text depending on how many elements are selected
-//    if (sel_elems.length > 1) {
-//      $('.clone_one', dialog).hide();
-//      $('.clone_several', dialog).show();
-//      $('input[name="image_clone_name"]', dialog).val('Copy of ');
-//    } else {
-//      $('.clone_one', dialog).show();
-//      $('.clone_several', dialog).hide();
-//      $('input[name="image_clone_name"]', dialog).val('Copy of ' + OpenNebulaImage.getName(sel_elems[0]));
-//    };
-//
-//    $('#image_clone_advanced', dialog).hide();
-//    this.datastoreTable.resetResourceTableSelect();
-//
-//    $("input[name='image_clone_name']", dialog).focus();
+    this.groupsTable.refreshResourceTableSelect();
 
-    return false;
+    if (this.originalGroupIds !== undefined) {
+      this.groupsTable.selectResourceTableSelect({ids: this.originalGroupIds});
+    }
   }
 });
