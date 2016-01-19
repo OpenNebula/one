@@ -109,7 +109,7 @@ define(function(require) {
   function _setParams(params) {
     this.element = params.element;
 
-    if (this.element.GROUPS !== undefined && this.element.GROUPS !== undefined) {
+    if (this.element.GROUPS !== undefined && this.element.GROUPS.ID !== undefined) {
       if ($.isArray(this.element.GROUPS.ID)) {
         this.originalGroupIds = this.element.GROUPS.ID;
       } else {
