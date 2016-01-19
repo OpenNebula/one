@@ -110,7 +110,11 @@ define(function(require) {
     this.element = params.element;
 
     if (this.element.GROUPS !== undefined && this.element.GROUPS !== undefined) {
-      this.originalGroupIds = this.element.GROUPS.ID;
+      if ($.isArray(this.element.GROUPS.ID)) {
+        this.originalGroupIds = this.element.GROUPS.ID;
+      } else {
+        this.originalGroupIds = [this.element.GROUPS.ID];
+      }
     } else {
       this.originalGroupIds = [];
     }
@@ -119,7 +123,7 @@ define(function(require) {
   function _onShow(dialog) {
     this.groupsTable.refreshResourceTableSelect();
 
-    if (this.originalGroupIds !== undefined) {
+    if (this.originalGroupIds !== undefined && this.originalGroupIds.length > 0) {
       this.groupsTable.selectResourceTableSelect({ids: this.originalGroupIds});
     }
   }
