@@ -28,6 +28,7 @@ define(function(require) {
 
   var _network;
   var _vnetList;
+  var _vnetLevel;
 
   var _buttons = {
     "NetworkTopology.refresh" : {
@@ -35,10 +36,16 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
-    "NetworkTopology.toggleVMs" : {
+    "NetworkTopology.collapseVMs" : {
       type: "action",
       layout: "main",
-      text:  Locale.tr("Toggle VMs"),
+      text:  Locale.tr("Collapse VMs"),
+      alwaysActive: true
+    },
+    "NetworkTopology.openVMs" : {
+      type: "action",
+      layout: "main",
+      text:  Locale.tr("Open VMs"),
       alwaysActive: true
     }
   };
@@ -48,9 +55,13 @@ define(function(require) {
       type: "custom",
       call: _refresh
     },
-    "NetworkTopology.toggleVMs" : {
+    "NetworkTopology.collapseVMs" : {
       type: "custom",
-      call: _toggleVMs
+      call: _collapseVMs
+    },
+    "NetworkTopology.openVMs" : {
+      type: "custom",
+      call: _openVMs
     }
   };
 
@@ -120,6 +131,7 @@ define(function(require) {
 
   function _doTopology(vnetList){
     _vnetList = vnetList;
+    _vnetLevel = {};
 
     var nodes = [];
     var edges = [];
@@ -127,27 +139,32 @@ define(function(require) {
     // Aux object to keep track of duplicated nodes (vms/vr attached to 2 vnets)
     var nodeIndex = {};
 
+    var level = 0;
+
     $.each(vnetList, function(i,element){
       var vnet = element.VNET;
       var vnetId = vnet.ID;
+
+      // VNet node
+      // ----------------
 
       if (vnet.PARENT_NETWORK_ID.length > 0){
         vnetId = vnet.PARENT_NETWORK_ID;
       }
 
-      // VNet node
-      // ----------------
-
       var vnetNodeId = "vnet"+vnetId;
 
-      var group = "vnet";
-
       if (!nodeIndex[vnetNodeId]){
+        level += 2;
+
+        _vnetLevel[vnetId] = level;
+
         nodeIndex[vnetNodeId] = true;
         nodes.push({
           id: vnetNodeId,
+          level: level,
           label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
-          group: group});
+          group: "vnet"});
       }
 
       // VRouter nodes
@@ -170,6 +187,7 @@ define(function(require) {
           nodeIndex[nodeId] = true;
           nodes.push({
             id: nodeId,
+            level: level+1,
             label: "VR "+vr,
             group: "vr"});
         }
@@ -206,6 +224,7 @@ define(function(require) {
               nodeIndex[nodeId] = true;
               nodes.push({
                 id: nodeId,
+                level: level+1,
                 label: "VM "+lease.VM,
                 group: "vm",
                 vnet: vnetId});
@@ -235,6 +254,7 @@ define(function(require) {
               nodeIndex[nodeId] = true;
               nodes.push({
                 id: nodeId,
+                level: level+1,
                 label: "VR "+vr,
                 group: "vr"});
             }
@@ -277,6 +297,14 @@ define(function(require) {
       groups: {
         vnet: {
           shape: 'box',
+          value: 2,
+          scaling: {
+            label: {
+              enabled: true,
+              max: 40
+            },
+            max: 30
+          },
           color: {
             border: "#007a9c",
             background: "#0098c3",
@@ -327,7 +355,8 @@ define(function(require) {
         font: {
           align: 'middle'
         },
-        color: '#cfcfcf'
+        color: '#cfcfcf',
+        length: 300
       },
 
       interaction: {
@@ -380,12 +409,16 @@ define(function(require) {
     });
   }
 
-  function _toggleVMs(){
+  function _collapseVMs(){
 
     // Clusters all VMs for each vnet, except those attached to more than one vnet
     $.each(_vnetList, function(i,element){
       var vnet = element.VNET;
       var vnetId = vnet.ID;
+
+      if (vnet.PARENT_NETWORK_ID.length > 0){
+        vnetId = vnet.PARENT_NETWORK_ID;
+      }
 
       var clusterOptionsByData = {
         joinCondition:function(childOptions) {
@@ -395,6 +428,7 @@ define(function(require) {
         },
         clusterNodeProperties: {
           id:"vmCluster"+vnetId,
+          level: _vnetLevel[vnetId]+1,
           label: "VMs",
           group: "vmCluster"
         },
@@ -405,6 +439,23 @@ define(function(require) {
 
       _network.cluster(clusterOptionsByData);
     });
+
+    _network.stabilize();
   }
 
+  function _openVMs(){
+
+    // Opens all VMs Clusters
+    $.each(_vnetList, function(i,element){
+      var vnet = element.VNET;
+      var clusterId = "vmCluster"+vnet.ID;
+
+      try{
+        _network.openCluster(clusterId);
+      }catch(err){
+      }
+    });
+
+    _network.stabilize();
+  }
 });
