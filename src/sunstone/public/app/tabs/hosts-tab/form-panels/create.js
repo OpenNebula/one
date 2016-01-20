@@ -267,7 +267,12 @@ define(function(require) {
     var cluster_id = $("#host_cluster_id .resource_list_select", context).val();
     if (!cluster_id) cluster_id = "-1";
 
-    ResourceSelect.insert('#host_cluster_id', context, "Cluster", cluster_id, false);
+    ResourceSelect.insert({
+        context: $('#host_cluster_id', context),
+        resourceName: 'Cluster',
+        initValue: cluster_id,
+        includeDefaultCluster: true
+      });
 
     $("#host_type_mad", context).change();
 
