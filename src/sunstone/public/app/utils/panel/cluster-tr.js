@@ -48,7 +48,12 @@ define(function(require) {
     context.off("click", "#div_edit_chg_cluster_link");
     context.on("click", "#div_edit_chg_cluster_link", function() {
       var tr_context = $(this).parents("tr");
-      ResourceSelect.insert(".value_td_cluster", context, "Cluster", clusterId, false);
+      ResourceSelect.insert({
+          context: $('.value_td_cluster', context),
+          resourceName: 'Cluster',
+          initValue: clusterId,
+          includeDefaultCluster: true
+        });
     });
 
     context.off("change", ".value_td_cluster .resource_list_select");
