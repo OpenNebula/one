@@ -110,7 +110,11 @@ define(function(require) {
     // Chgrp
     context.off("click", "#div_edit_chg_group_link");
     context.on("click", "#div_edit_chg_group_link", function() {
-      ResourceSelect.insert("#value_td_group", context, "Group", that.element.GID, false);
+      ResourceSelect.insert({
+        context: $('#value_td_group', context),
+        resourceName: 'Group',
+        initValue: that.element.GID
+      });
     });
 
     context.off("change", "#value_td_group .resource_list_select");
