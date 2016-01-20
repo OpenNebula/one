@@ -273,18 +273,35 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    ResourceSelect.insert('div#applies_to_user', context, "User", null, true);
-    ResourceSelect.insert('div#applies_to_group', context, "Group", null, true);
+    ResourceSelect.insert({
+        context: $('#applies_to_user', context),
+        resourceName: 'User',
+        emptyValue: true
+      });
 
-    ResourceSelect.insert('div#belonging_to', context, "Group", null, true);
-    ResourceSelect.insert('#in_cluster',context, "Cluster", null, true);
+    ResourceSelect.insert({
+        context: $('#applies_to_group', context),
+        resourceName: 'Group',
+        emptyValue: true
+      });
 
-    // TODO BUG: doesn't work if the cluster.list callback is not finished yet
-    // Delete cluster -1 option
-    $('#in_cluster select option[value="-1"]',context).remove();
+    ResourceSelect.insert({
+        context: $('#belonging_to', context),
+        resourceName: 'Group',
+        emptyValue: true
+      });
 
-    ResourceSelect.insert('div#zones_applies', context, "Zone", "*", false,
-                        '<option value="*">'+Locale.tr("All")+'</option>');
+    ResourceSelect.insert({
+        context: $('#in_cluster', context),
+        resourceName: 'Cluster',
+        emptyValue: true
+      });
 
+    ResourceSelect.insert({
+        context: $('#zones_applies', context),
+        resourceName: 'Zone',
+        initValue: '*',
+        extraOptions: '<option value="*">' + Locale.tr("All") + '</option>'
+      });
   }
 });
