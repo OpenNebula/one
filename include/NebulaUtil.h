@@ -174,6 +174,29 @@ namespace one_util
      * @return trimed string
      */
     std::string trim(const std::string& str);
+
+    /**
+     * Returns a copy of st with the all occurrences of "find" substituted
+     * for "replacement"
+     * @param st string input
+     * @param find string to search for
+     * @param replacement string to replace occurrences with
+     * @return a string copy
+     */
+    std::string gsub(const std::string& st,
+                     const char *find, const char *replacement);
+
+
+    /**
+     * Returns a copy of st with the all occurrences of "find" substituted
+     * for "replacement"
+     * @param st string input
+     * @param find string to search for
+     * @param replacement string to replace occurrences with
+     * @return a string copy
+     */
+    std::string gsub(const std::string& st,
+                     const char *find, const std::string& replacement);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

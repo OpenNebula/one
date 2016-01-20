@@ -165,8 +165,6 @@ define(function(require) {
         timeout: true,
         success: function (request, response) {
 
-          //TODO: add support for vm_name.replace(/%i/gi, i), or remove tooltip
-
           var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
 
           var extra_info = {

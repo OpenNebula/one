@@ -68,6 +68,8 @@ void VirtualRouterInstantiate::request_execute(
     Template*           extra_attrs;
     bool                has_vmids;
     string              errorstr;
+    string              vr_name;
+    ostringstream       oss;
 
     vector<int>             vms;
     vector<int>::iterator   vmid;
@@ -92,6 +94,8 @@ void VirtualRouterInstantiate::request_execute(
     extra_attrs = vr->get_vm_template();
 
     has_vmids = vr->has_vmids();
+
+    vr_name = vr->get_name();
 
     vr->unlock();
 
@@ -120,9 +124,21 @@ void VirtualRouterInstantiate::request_execute(
         return;
     }
 
+    if (name.empty())
+    {
+        oss.str("");
+        oss << "vr-" << vr_name << "-%i";
+        name = oss.str();
+    }
+
     for (int i=0; i<n_vms; i++)
     {
-        int vid = instantiate(att, tmpl_id, name, true, str_uattrs, extra_attrs);
+        oss.str("");
+        oss << i;
+
+        string tmp_name = one_util::gsub(name, "%i", oss.str());
+
+        int vid = instantiate(att, tmpl_id, tmp_name, true, str_uattrs, extra_attrs);
 
         if (vid == -1)
         {
