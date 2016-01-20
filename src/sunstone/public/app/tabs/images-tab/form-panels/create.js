@@ -94,15 +94,23 @@ define(function(require) {
     var ds_id = $('#img_datastore .resource_list_select', context).val();
     var ds_id_raw = $('#img_datastore_raw .resource_list_select', context).val();
 
-    // Filter out DS with type system (1) or file (2)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["1", "2"];
+    ResourceSelect.insert({
+        context: $('#img_datastore', context),
+        resourceName: 'Datastore',
+        initValue: ds_id,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.IMAGE_DS,
+        triggerChange: true
+      });
 
-    ResourceSelect.insert('div#img_datastore', context, "Datastore",
-                        ds_id, false, null, filter_att, filter_val, true);
-
-    ResourceSelect.insert('div#img_datastore_raw', context, "Datastore",
-                        ds_id_raw, false, null, filter_att, filter_val, true);
+    ResourceSelect.insert({
+        context: $('#img_datastore_raw', context),
+        resourceName: 'Datastore',
+        initValue: ds_id_raw,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.IMAGE_DS,
+        triggerChange: true
+      });
 
     return false;
   }
