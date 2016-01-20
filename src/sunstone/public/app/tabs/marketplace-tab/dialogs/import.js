@@ -26,6 +26,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var ResourceSelect = require('utils/resource-select');
+  var OpenNebulaDatastore = require('opennebula/datastore');
   var OpenNebulaImage = require('opennebula/image');
   var OpenNebulaTemplate = require('opennebula/template');
   var TemplateUtils = require('utils/template-utils');
@@ -76,12 +77,12 @@ define(function(require) {
       ContentHTML({'element': this.element})
     );
 
-    // Filter out DS with type system (1) or file (2)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["1", "2"];
-
-    ResourceSelect.insert('div#market_img_datastore', context, "Datastore",
-                        null, false, null, filter_att, filter_val);
+    ResourceSelect.insert({
+        context: $('#market_img_datastore', context),
+        resourceName: 'Datastore',
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.IMAGE_DS
+      });
 
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
