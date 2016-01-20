@@ -23,7 +23,6 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
-  var ResourceSelect = require('utils/resource-select');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var Accounting = require('utils/accounting');
