@@ -93,10 +93,6 @@ define(function(require) {
     var ds_id = $('#file_datastore .resource_list_select', context).val();
     var ds_id_raw = $('#file_datastore_raw .resource_list_select', context).val();
 
-    // Filter out DS with type image (0) or system (1)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["0", "1"];
-
     ResourceSelect.insert({
         context: $('#file_datastore', context),
         resourceName: 'Datastore',
