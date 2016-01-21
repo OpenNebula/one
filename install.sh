@@ -1239,7 +1239,8 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
 ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/import_slave.rb \
             src/onedb/onedb.rb \
-            src/onedb/onedb_backend.rb"
+            src/onedb/onedb_backend.rb \
+            src/onedb/sqlite2mysql.rb"
 
 ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/2.9.80_to_2.9.85.rb \
