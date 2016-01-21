@@ -356,4 +356,24 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    ###########################################################################
+    # Migrate SQLite to MySQL
+    ###########################################################################
+    sqlite2mysql_desc = <<-EOT.unindent
+        Migrates a SQLite OpenNebula Database to MySQL
+    EOT
+
+    command :sqlite2mysql , sqlite2mysql_desc, :options=>[BACKUP, FORCE] do
+        begin
+            options[:backend] = :sqlite
+            sqlite = OneDB.new(options)
+
+            options[:backend] = :mysql
+            mysql = OneDB.new(options)
+
+            mysql.sqlite2mysql(options, sqlite)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
 end
