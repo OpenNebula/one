@@ -1,5 +1,6 @@
 @import "../bower_components/fontawesome/css/font-awesome.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
+@import "../bower_components/vis/dist/vis.min.css";
 @import "settings";
 @import "foundation";
 
@@ -1325,4 +1326,14 @@ hr {
 
 .custom_tags td {
   vertical-align: top; 
-}  
+}
+
+// Overwrite vis.js tooltip css
+div.vis-network-tooltip {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: condensed;
+
+  background-color: #ffffff;
+}
