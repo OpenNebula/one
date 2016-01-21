@@ -641,8 +641,7 @@ class VIClient
         used_mb = total_mb - free_mb
         ds_type = ds.summary.type
 
-        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}\n"\
-        "VCENTER_DS_TYPE=#{ds_type}"
+        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
     end
 
     ############################################################################
