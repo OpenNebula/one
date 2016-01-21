@@ -31,7 +31,6 @@ define(function(require) {
   var _vrList;
   var _indexedVRs;
   var _vrouterVMs;
-  var _vrouterTables;
   var _vnetLevel;
 
   var _buttons = {
@@ -164,7 +163,6 @@ define(function(require) {
 
     _indexedVRs = {};
     _vrouterVMs = {};
-    _vrouterTables = {};
 
     $.each(_vrList, function(i, element){
       var vr = element.VROUTER;
@@ -236,7 +234,7 @@ define(function(require) {
           nodes.push({
             id: nodeId,
             level: level+1,
-            title: '<div class="vrpopup"></div>',
+            title: '',
             label: "VR "+vr,
             group: "vr"});
         }
@@ -343,6 +341,17 @@ define(function(require) {
           */
         }
       }
+    });
+
+    // Fill VR nodes tooltips
+    $.each(nodes, function(i, node){
+      var parts = node.id.split("vr");
+
+      if (parts.length == 1){
+        return true;
+      }
+
+      node.title = _tableVR(parts[1]);
     });
 
     // create a network
@@ -485,24 +494,9 @@ define(function(require) {
         }
       }
     });
-
-    _network.on("showPopup", function (params) {
-      var parts = params.split("vr");
-
-      if (parts.lenght == 1){
-        return;
-      }
-
-      $(".vis-network-tooltip").html( _tableVR(parts[1]) );
-    });
   }
 
   function _tableVR(vrid){
-
-    if (_vrouterTables[vrid] != undefined){
-      return _vrouterTables[vrid];
-    }
-
     var vr = _indexedVRs[vrid];
     var vms = [];
 
@@ -554,8 +548,6 @@ define(function(require) {
           trs.join("")+
         "</tbody>"+
       "</table>";
-
-    _vrouterTables[vrid] = html;
 
     return html;
   }
