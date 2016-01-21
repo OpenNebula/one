@@ -532,6 +532,7 @@ tabs:
             ServiceTemplate.chgrp: true
             ServiceTemplate.chmod: true
             ServiceTemplate.rename: true
+            ServiceTemplate.clone: true
             ServiceTemplate.delete: true
     zones-tab:
         panel_tabs:

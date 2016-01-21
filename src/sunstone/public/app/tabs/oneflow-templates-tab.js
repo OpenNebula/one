@@ -25,6 +25,7 @@ define(function(require) {
   var RESOURCE = "ServiceTemplate";
 
   var _dialogs = [
+    require('./oneflow-templates-tab/dialogs/clone')
   ];
 
   var _panels = [
