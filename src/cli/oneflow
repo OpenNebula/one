@@ -650,6 +650,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         }
     end
 
+    rename_desc = <<-EOT.unindent
+        Renames the Service 
+    EOT
+
+    command :rename, rename_desc, :service_id, :name do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        params = Hash.new
+        params['name'] = args[1]
+
+        json_action = Service.build_json_action('rename', params)
+
+        response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_action)
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            response.code.to_i
+        end
+    end
+
     action_desc = <<-EOT.unindent
         Perform an action on all the Virtual Machines of a given role.
         Actions supported: #{Role::SCHEDULE_ACTIONS.join(",")}
