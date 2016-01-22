@@ -430,6 +430,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    rename_desc = <<-EOT.unindent
+        Renames the Service Template
+    EOT
+
+    command :rename, rename_desc, :templateid, :name do
+        client = Service::Client.new(
+                    :username   => options[:username],
+                    :password   => options[:password],
+                    :url        => options[:server],
+                    :user_agent => USER_AGENT)
+
+        params = Hash.new
+        params['name'] = args[1]
+
+        json_action = Service.build_json_action('rename', params)
+
+        response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_action)
+
+        if CloudClient::is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            response.code.to_i
+        end
+    end
+
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.
