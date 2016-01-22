@@ -527,21 +527,19 @@ is preserved.
         sqlite_v = sqlite.backend.read_db_version
         mysql_v  = @backend.read_db_version
 
-        if !options[:force]
-            match = true
-            match = false if sqlite_v[:version] != mysql_v[:version]
-            match = false if sqlite_v[:local_version] != mysql_v[:local_version]
+        match = true
+        match = false if sqlite_v[:version] != mysql_v[:version]
+        match = false if sqlite_v[:local_version] != mysql_v[:local_version]
 
-            if !match
-                err_msg =  "SQLite version: #{sqlite_v[:version]}\n"
-                err_msg << "SQLite local version: #{sqlite_v[:local_version]}\n"
-                err_msg << "MySQL version: #{mysql_v[:version]}\n"
-                err_msg << "MySQL local version: #{mysql_v[:local_version]}\n"
-                err_msg << "The MySQL and SQLite versions do not match. Please run "
-                err_msg << "'onedb -i' in order to bootstrap a blank OpenNebula DB."
+        if !match
+            err_msg =  "SQLite version: #{sqlite_v[:version]}\n"
+            err_msg << "SQLite local version: #{sqlite_v[:local_version]}\n"
+            err_msg << "MySQL version: #{mysql_v[:version]}\n"
+            err_msg << "MySQL local version: #{mysql_v[:local_version]}\n"
+            err_msg << "The MySQL and SQLite versions do not match. Please run "
+            err_msg << "'onedb -i' in order to bootstrap a blank OpenNebula DB."
 
-                raise err_msg
-            end
+            raise err_msg
         end
 
         backup(options[:backup], options)
