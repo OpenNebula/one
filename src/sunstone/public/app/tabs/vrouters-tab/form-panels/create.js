@@ -187,7 +187,13 @@ define(function(require) {
               Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
               Sunstone.hideFormPanel(TAB_ID);
             },
-            error: Notifier.onError
+            error: function(request, response) {
+              Sunstone.hideFormPanelLoading(TAB_ID);
+
+              Notifier.notifyError(Locale.tr(
+                "Failed to create VMs. Virtual Router may need to be deleted manually."));
+              Notifier.onError(request, response);
+            }
           });
         },
         error: function(request, response) {

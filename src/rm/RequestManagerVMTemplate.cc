@@ -142,6 +142,13 @@ void VirtualRouterInstantiate::request_execute(
 
         if (vid == -1)
         {
+            string tmp_error;
+
+            for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+            {
+                dm->finalize(*vmid, tmp_error);
+            }
+
             return;
         }
 
