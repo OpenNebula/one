@@ -635,7 +635,7 @@ class VIClient
                                                         :modification => true)
             spec.matchPattern=[]
 
-            search_params = {'datastorePath' => "[#{ds.name}] .", 
+            search_params = {'datastorePath' => "[#{ds.name}]", 
                              'searchSpec'    => spec}
 
             # Perform search task and return results
@@ -643,7 +643,11 @@ class VIClient
             search_task.wait_for_completion
 
             search_task.info.result.each { |image|
-                folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
+                folderpath = ""
+                if image[-1] == "]"
+                    folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
+                end
+
                 image = image.file[0]
 
                 # Skip not relevant files
@@ -659,8 +663,8 @@ class VIClient
                         :path        => image_path,
                         :type        => image.class.to_s,
                         :dsid        => ds_id,
-                        :one         => "NAME=#{image_name}\n"\
-                                        "PATH=#{image_path}\n"\
+                        :one         => "NAME=\"#{image_name}\"\n"\
+                                        "PATH=\"#{image_path}\"\n"\
                                         "PERSISTENT=\"YES\"\n"\
                     }
 
@@ -1892,6 +1896,23 @@ private
             nic_spec = {:deviceChange => nic_array}
         end
 
+        # DISK section, build the reconfig hash
+
+        disks     = xml.root.get_elements("//TEMPLATE/DISK")
+        disk_spec = {}
+
+        if !disks.nil?
+            disk_array = []
+            disks.each{|disk|
+               ds_name    = disk.elements["DATASTORE"].text
+               img_name   = disk.elements["SOURCE"].text
+
+               disk_array += attach_disk("", "", ds_name, img_name, 0, vm, connection)[:deviceChange]
+            }
+
+            disk_spec = {:deviceChange => disk_array}
+        end
+
         # Capacity section
 
         cpu           = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
@@ -1900,7 +1921,7 @@ private
                          :memoryMB => memory }
 
         # Perform the VM reconfiguration
-        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec)
+        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec).merge(disk_spec)
         spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
@@ -1917,12 +1938,18 @@ private
     # @params ds_name[String] name of the datastore
     # @params img_name[String] path of the image
     # @params size_kb[String] size in kb of the disk
+    # @params vm[RbVmomi::VIM::VirtualMachine] VM if called from instance
+    # @params connection[ViClient::conneciton] connection if called from instance
     ############################################################################
-    def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb)
-        hid         = VIClient::translate_hostname(hostname)
-        connection  = VIClient.new(hid)
+    def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb, vm=nil, connection=nil)
+        only_return = true
+        if !vm
+            hid         = VIClient::translate_hostname(hostname)
+            connection  = VIClient.new(hid)
 
-        vm          = connection.find_vm_template(deploy_id)
+            vm          = connection.find_vm_template(deploy_id)
+            only_return = false
+        end
         
         # Find datastore within datacenter
         ds=connection.dc.datastoreFolder.childEntity.select{|ds| 
@@ -1952,6 +1979,8 @@ private
         vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
           :deviceChange => [device_config_spec]
         )
+
+        return vm_config_spec if only_return
 
         vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
     end
