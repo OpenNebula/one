@@ -512,9 +512,19 @@ post '/service_template/:id/action' do
         status 204
         service_template.rename(opts['name'])
     when 'clone'
-        status 204
-        service_template.clone(opts['name'])
-        # TODO return id of the new template
+        rc = service_template.clone(opts['name'])
+        if OpenNebula.is_error?(rc)
+            error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        end
+
+        new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
+        new_stemplate.info
+        if OpenNebula.is_error?(new_stemplate)
+            error CloudServer::HTTP_ERROR_CODE[new_stemplate.errno], new_stemplate.message
+        end
+
+        status 201
+        body new_stemplate.to_json
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end
