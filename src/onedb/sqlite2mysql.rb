@@ -11,21 +11,22 @@ module Sqlite2MySQL
             records = sqlite_db[table].count
             puts "> #{table} (#{records} records)"
 
-            i=0
-            sqlite_db[table].each do |row|
-                @db[table].insert(row)
+            @db.transaction do
+                i=0
+                sqlite_db[table].each do |row|
+                    @db[table].insert(row)
 
-                i+=1
-                if i % PROGRESS == 0
-                    if i < PROGRESS+1
-                        print "  #{i}"
-                    else
-                        print "...#{i}"
+                    i+=1
+                    if i % PROGRESS == 0
+                        if i < PROGRESS+1
+                            print "  #{i}"
+                        else
+                            print "...#{i}"
+                        end
                     end
                 end
+                puts if i > PROGRESS-1
             end
-
-            puts if i > PROGRESS-1
         end
 
         puts "\nMigration successful."
