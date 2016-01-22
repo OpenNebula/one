@@ -334,7 +334,7 @@ class VIClient
     # Builds a hash with the Datacenter / Virtual Machines for this VCenter
     # @param one_client [OpenNebula::Client] Use this client instead of @one
     # @return [Hash] in the form
-    #   { dc_name [String] => }
+    #   { dc_name [String] => VMs [Array] of VM Templates} 
     ########################################################################
     def running_vms(one_client=nil)
         running_vms = {}
@@ -529,6 +529,156 @@ class VIClient
         }
 
         return vcenter_networks
+    end
+
+
+    ########################################################################
+    # Builds a hash with the Datacenter / Datastores for this VCenter
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
+    # @return [Hash] in the form
+    #   { dc_name [String] => Datastore [Array] of DS templates}
+    ########################################################################
+    def vcenter_datastores(one_client=nil)
+        ds_templates = {}
+
+        dspool = OpenNebula::DatastorePool.new(
+            (one_client||@one))
+        rc = dspool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        hpool = OpenNebula::HostPool.new(
+            (one_client||@one))
+        rc = hpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+
+            one_tmp = []
+
+            dc.datastoreFolder.childEntity.each { |ds|
+                ds.host.each{|host| 
+                    cluster_name = host.key.parent.name
+
+                    if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
+                       hpool["HOST[NAME=\"#{cluster_name}\"]"]
+                         one_tmp << {
+                             :name     => "#{ds.name}",
+                             :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                             :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                             :cluster  => cluster_name,
+                             :one  => "NAME=#{ds.name}\n"\
+                                      "DS_MAD=vcenter\n"\
+                                      "TM_MAD=vcenter\n"\
+                                      "VCENTER_CLUSTER=#{cluster_name}\n"
+                         }
+                     end
+                }
+            }
+
+            ds_templates[dc.name] = one_tmp
+        }
+
+        return ds_templates
+    end
+
+   #############################################################################
+    # Builds a hash with the Images for a particular datastore
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
+    # @return [Array] of image templates
+    ############################################################################
+    def vcenter_images(ds_name, one_client=nil)
+        img_types = ["FloppyImageFileInfo", 
+                     "IsoImageFileInfo", 
+                     "VmDiskFileInfo"]
+
+        img_templates = []
+
+        ipool = OpenNebula::ImagePool.new((one_client||@one))
+        rc = ipool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        dspool = OpenNebula::DatastorePool.new((one_client||@one))
+        rc = dspool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        ds_id = dspool["DATASTORE[NAME=\"#{ds_name}\"]/ID"]
+
+        if !ds_id
+            raise "Datastore not found in OpenNebula. Please import"\
+                  " it first and try again"
+        end
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+
+            # Find datastore within datacenter
+            ds=dc.datastoreFolder.childEntity.select{|ds| 
+                                                     ds.name == ds_name}[0]
+
+            # Create Search Spec
+            spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
+            spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
+            spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
+                                                        :fileSize => true,
+                                                        :fileType => true,
+                                                        :modification => true)
+            spec.matchPattern=[]
+
+            search_params = {'datastorePath' => "[#{ds.name}] .", 
+                             'searchSpec'    => spec}
+
+            # Perform search task and return results
+            search_task=ds.browser.SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            search_task.info.result.each { |image|
+                folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
+                image = image.file[0]
+
+                # Skip not relevant files
+                next if !img_types.include? image.class.to_s
+
+                image_path = folderpath + image.path
+
+                image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
+
+                if !ipool["IMAGE[NAME=\"#{image_name}\"]"]
+                    img_templates << {
+                        :name        => "#{image_name}",
+                        :path        => image_path,
+                        :type        => image.class.to_s,
+                        :dsid        => ds_id,
+                        :one         => "NAME=#{image_name}\n"\
+                                        "PATH=#{image_path}\n"\
+                                        "PERSISTENT=\"YES\"\n"\
+                    }
+
+                    if image.class.to_s == "VmDiskFileInfo"
+                        img_templates[-1][:one] += "TYPE=\"OS\"\n"
+                    else
+                        img_templates[-1][:one] += "TYPE=\"CDROM\"\n"
+                    end
+
+                    if image.class.to_s == "VmDiskFileInfo" && 
+                       !image.diskType.nil?
+                        img_templates[-1][:one] += "DISK_TYPE=#{image.diskType}\n"
+                    end
+                end
+            }
+        }
+
+        return img_templates
     end
 
     def self.translate_hostname(hostname)

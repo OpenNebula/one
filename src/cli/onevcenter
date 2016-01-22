@@ -368,4 +368,148 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         exit 0
     end
+
+    datastores_desc = <<-EOT.unindent
+        Import vCenter Datastores into OpenNebula
+    EOT
+
+    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS ] do
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " Datastores:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for Datastores..."
+
+            rs = vc.vcenter_datastores
+
+            STDOUT.print "done!\n"
+
+            rs.each {|dc, tmps|
+                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+
+                if tmps.empty?
+                    STDOUT.print "    No new Datastores found in #{dc}...\n\n"
+                    next
+                end
+
+                tmps.each{ |d|
+                    STDOUT.print "\n  * Datastore found:\n"\
+                                 "      - Name      : #{d[:name]}\n"\
+                                 "      - Total MB  : #{d[:total_mb]}\n"\
+                                 "      - Free  MB  : #{d[:free_mb]}\n"\
+                                 "      - Cluster   : #{d[:cluster]}\n"\
+                                 "    Import this Datastore [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    one_d = ::OpenNebula::Datastore.new(
+                                ::OpenNebula::Datastore.build_xml, vc.one)
+
+                    rc = one_d.allocate(d[:one])
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating datastore: #{rc.message}\n"\
+                                    "    One datastore can exist only once, and "\
+                                    "can be used in any vCenter Cluster that "\
+                                    "has access to it. Also, no spaces allowed "\
+                                    "in datastore name (rename it in vCenter "\
+                                    "and try again)"
+                    else
+                        STDOUT.puts "    OpenNebula datastore #{one_d.id} created!\n"
+                    end
+                }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+    end
+
+    images_desc = <<-EOT.unindent
+        Import vCenter Images into OpenNebula
+    EOT
+
+    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS ] do
+        ds_name = args[0]
+
+        if !ds_name
+            STDERR.puts "Datastore name needed to import images from"
+            exit -1
+        end
+
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " Datastores:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for Images..."
+
+            images = vc.vcenter_images(ds_name)
+
+            STDOUT.print "done!\n"
+
+            images.each{ |i|
+                    STDOUT.print "\n  * Image found:\n"\
+                                 "      - Name      : #{i[:name]}\n"\
+                                 "      - Path      : #{i[:path]}\n"\
+                                 "      - Type      : #{i[:type]}\n"\
+                                 "    Import this Image [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    one_i = ::OpenNebula::Image.new(
+                                ::OpenNebula::Image.build_xml, vc.one)
+
+                    rc = one_i.allocate(i[:one], i[:dsid].to_i)
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating image: #{rc.message}\n"
+                    else
+                        STDOUT.puts "    OpenNebula image #{one_i.id} created!\n"
+                    end
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+    end
 end
