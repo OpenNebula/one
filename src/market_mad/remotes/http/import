@@ -70,8 +70,8 @@ PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
 # -------- Copy source to public folder an generarte App data ------------
 
 APPNAME=`generate_image_hash`
-DST_PATH="${PUBLIC_DIR}/${APPNAME}"
-SOURCE="${BASE_URL}/${APPNAME}"
+DST_PATH="${PUBLIC_DIR%/}/${APPNAME}"
+SOURCE="${BASE_URL%/}/${APPNAME}"
 
 if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
@@ -88,17 +88,14 @@ else
     exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
 
     if [ "${DISPOSE}" = "YES" ]; then
-    #TODO This should call a ds operation
+        #TODO This should call a ds operation
         exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
     fi
 fi
 
-RESPONSE=$(cat << EOF
+cat << EOF
 SOURCE="$SOURCE"
 MD5="$MD5"
 SIZE="$SIZE"
 FORMAT="$FORMAT"
 EOF
-)
-
-echo "$RESPONSE"
