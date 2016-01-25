@@ -3484,6 +3484,22 @@ int VirtualMachine::replace_context_attribute(const string& name, const string& 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::get_created_by_uid() const
+{
+    int created_by_uid;
+
+    if (obj_template->get("CREATED_BY", created_by_uid))
+    {
+        return created_by_uid;
+    }
+
+    return get_uid();
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 {
     int num_disks;

@@ -1324,8 +1324,6 @@ public:
      */
     const VectorAttribute* get_disk(int disk_id) const;
 
-    const VectorAttribute* get_context_disk() const;
-
     const VectorAttribute* get_nic(int nic_id) const;
 
     // ------------------------------------------------------------------------
@@ -1365,6 +1363,14 @@ public:
     int  generate_context(string &files, int &disk_id, const string& token_password);
 
     int replace_context_attribute(const string& name, const string& value);
+
+    const VectorAttribute* get_context_disk() const;
+
+    /**
+     * Returns the CREATED_BY template attribute, or the uid if it does not exist
+     * @return uid
+     */
+    int get_created_by_uid() const;
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)

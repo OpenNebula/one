@@ -1928,6 +1928,7 @@ void VirtualMachineManager::update_context_action(
     string  prolog_cmd;
     string  epilog_cmd;
     string  disk_path;
+    string  token_password;
 
     const VectorAttribute * disk;
     int disk_id;
@@ -1937,6 +1938,24 @@ void VirtualMachineManager::update_context_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1971,7 +1990,7 @@ void VirtualMachineManager::update_context_action(
 
     rc = tm->prolog_context_command(
                 vm,
-                "",     // TODO token_password
+                token_password,
                 vm_tm_mad,
                 opennebula_hostname,
                 os,
@@ -2539,6 +2558,7 @@ void VirtualMachineManager::attach_nic_action(
     string  prolog_cmd;
     string  epilog_cmd;
     string  disk_path;
+    string  token_password;
 
     const VectorAttribute * disk;
     int disk_id;
@@ -2548,6 +2568,24 @@ void VirtualMachineManager::attach_nic_action(
     TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -2578,7 +2616,7 @@ void VirtualMachineManager::attach_nic_action(
 
         rc = tm->prolog_context_command(
                     vm,
-                    "",     // TODO token_password
+                    token_password,
                     vm_tm_mad,
                     opennebula_hostname,
                     os,
