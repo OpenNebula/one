@@ -64,7 +64,7 @@ secret_access_key = xpath(xml, 'MARKETPLACE/TEMPLATE/SECRET_ACCESS_KEY')
 bucket            = xpath(xml, 'MARKETPLACE/TEMPLATE/BUCKET')
 region            = xpath(xml, 'MARKETPLACE/TEMPLATE/REGION')
 
-name   = "marketplaceapp-#{id}"
+name   = "marketapp-#{id}"
 source = "s3://#{bucket}/#{name}"
 
 # Upload
