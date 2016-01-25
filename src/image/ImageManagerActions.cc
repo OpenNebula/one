@@ -17,10 +17,10 @@
 #include "ImageManager.h"
 #include "NebulaLog.h"
 #include "ImagePool.h"
+#include "MarketPlacePool.h"
 #include "SyncRequest.h"
 #include "Template.h"
 #include "Nebula.h"
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -717,11 +717,18 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
 
     ostringstream oss;
     Image *       img;
+    MarketPlace * market;
 
     string        path;
     string        img_tmpl;
     string *      drv_msg;
+    string        extra_data = "";
 
+    int market_id;
+    bool rc;
+
+    Nebula&  nd = Nebula::instance();
+    MarketPlacePool * marketpool = nd.get_marketpool();
 
     if ( imd == 0 )
     {
@@ -738,7 +745,40 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
+    // Check if FROM_MARKET_ID is defined. If it is, release image, get XML
+    // of the MARKET_ID and get image again.
+
+    rc = img->get_template_attribute("FROM_MARKET_ID", market_id);
+
+    if ( rc )
+    {
+        img->unlock();
+
+        // Get the market
+        market = marketpool->get(market_id, true);
+
+        if (market == 0)
+        {
+            oss << "Could not find market '" << market_id << "'.";
+            error = oss.str();
+            return -1;
+        }
+
+        market->to_xml(extra_data);
+
+        market->unlock();
+
+        // Get the image again
+        img = ipool->get(iid,true);
+
+        if (img == 0)
+        {
+            error = "Image deleted during copy operation";
+            return -1;
+        }
+    }
+
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, extra_data);
     path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH
