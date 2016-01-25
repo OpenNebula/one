@@ -937,6 +937,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
+        case VirtualMachine::HOTPLUG_CONTEXT:
+        case VirtualMachine::HOTPLUG_CONTEXT_FAILURE:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
 
@@ -1284,6 +1286,18 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
             }
         break;
 
+        case VirtualMachine::HOTPLUG_CONTEXT:
+        case VirtualMachine::HOTPLUG_CONTEXT_FAILURE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::UPDATE_CONTEXT_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::UPDATE_CONTEXT_FAILURE;
+            }
+        break;
+
         //This is for all snapshot actions (create, delete & revert)
         case VirtualMachine::HOTPLUG_SNAPSHOT:
             lcm_action = LifeCycleManager::SNAPSHOT_CREATE_FAILURE;
@@ -1494,6 +1508,18 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
             tm->trigger(TransferManager::EPILOG_STOP,vid);
+            break;
+
+        case VirtualMachine::HOTPLUG_CONTEXT:
+            vmm->trigger(VirtualMachineManager::UPDATE_CONTEXT, vid);
+            break;
+
+        case VirtualMachine::HOTPLUG_CONTEXT_FAILURE:
+            vm->set_state(VirtualMachine::HOTPLUG_CONTEXT);
+
+            vmpool->update(vm);
+
+            vmm->trigger(VirtualMachineManager::UPDATE_CONTEXT, vid);
             break;
 
         case VirtualMachine::LCM_INIT:

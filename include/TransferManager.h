@@ -124,6 +124,26 @@ public:
             ostringstream&          error);
 
     /**
+     * Inserts a context command in the xfs stream
+     *
+     * @param vm The VM
+     * @param token_password Owner user's token password
+     * @param system_tm_mad The Transfer Manager for the system datastore
+     * @param opennebula_hostname The front-end hostname
+     * @param xfr Stream where the transfer command will be written
+     * @param error Error reason, if any
+     *
+     * @return 0 on success
+     */
+    int prolog_context_command(
+            VirtualMachine *        vm,
+            const string&           token_password,
+            string&                 system_tm_mad,
+            string&                 opennebula_hostname,
+            ostream&                xfr,
+            ostringstream&          error);
+
+    /**
      * Inserts a transfer command in the xfs stream
      *
      * @param vm The VM

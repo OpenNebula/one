@@ -191,6 +191,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_NIC_FAILURE";
         break;
 
+    case UPDATE_CONTEXT_SUCCESS:
+        aname = "UPDATE_CONTEXT_SUCCESS";
+        break;
+
+    case UPDATE_CONTEXT_FAILURE:
+        aname = "UPDATE_CONTEXT_FAILURE";
+        break;
+
     case CLEANUP_SUCCESS:
         aname = "CLEANUP_SUCCESS";
         break;
@@ -423,6 +431,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "DETACH_NIC_FAILURE")
     {
         detach_nic_failure_action(vid);
+    }
+    else if (action == "UPDATE_CONTEXT_SUCCESS")
+    {
+        update_context_success_action(vid);
+    }
+    else if (action == "UPDATE_CONTEXT_FAILURE")
+    {
+        update_context_failure_action(vid);
     }
     else if (action == "CLEANUP_SUCCESS")
     {

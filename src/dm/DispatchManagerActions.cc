@@ -1443,6 +1443,7 @@ int DispatchManager::attach_nic(
     int uid;
     int oid;
     int rc;
+    string tmp_error;
 
     set<int> vm_sgs;
 
@@ -1579,6 +1580,8 @@ int DispatchManager::attach_nic(
 
     vm->set_attach_nic(nic, sg_rules);
 
+    vm->update_context(tmp_error);
+
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {
         time_t the_time = time(0);
@@ -1631,6 +1634,7 @@ int DispatchManager::detach_nic(
     string&  error_str)
 {
     ostringstream oss;
+    string        tmp_error;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1682,6 +1686,8 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
+    vm->update_context(tmp_error);
+
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
@@ -1724,6 +1730,8 @@ int DispatchManager::detach_nic(
     }
     else
     {
+        vmpool->update(vm);
+
         vm->unlock();
 
         vmpool->delete_attach_nic(vid);

@@ -607,6 +607,50 @@ static string prolog_os_transfer_commands(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int TransferManager::prolog_context_command(
+        VirtualMachine *        vm,
+        const string&           token_password,
+        string&                 vm_tm_mad,
+        string&                 opennebula_hostname,
+        ostream&                xfr,
+        ostringstream&          os)
+{
+    string  files;
+    int     context_result;
+    int     disk_id;
+
+    context_result = vm->generate_context(files, disk_id, token_password);
+
+    if ( context_result == -1 )
+    {
+        return -1;
+    }
+
+    if ( context_result )
+    {
+        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
+        xfr << "CONTEXT "
+            << vm_tm_mad << " "
+            << vm->get_context_file() << " ";
+
+        if (!files.empty())
+        {
+            xfr << files << " ";
+        }
+
+        xfr << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_oid() << " "
+            << vm->get_ds_id()
+            << endl;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::prolog_action(int vid)
 {
     ofstream      xfr;
@@ -628,9 +672,6 @@ void TransferManager::prolog_action(int vid)
 
     vector<const Attribute *> attrs;
     int                       num;
-    int                       disk_id;
-
-    int  context_result;
 
     string token_password;
 
@@ -771,30 +812,16 @@ void TransferManager::prolog_action(int vid)
     // Generate context file
     // -------------------------------------------------------------------------
 
-    context_result = vm->generate_context(files, disk_id, token_password);
+    rc = prolog_context_command( vm,
+                                 token_password,
+                                 vm_tm_mad,
+                                 opennebula_hostname,
+                                 xfr,
+                                 os);
 
-    if ( context_result == -1 )
+    if ( rc == -1 )
     {
         goto error_context;
-    }
-
-    if ( context_result )
-    {
-        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
-        xfr << "CONTEXT "
-            << vm_tm_mad << " "
-            << vm->get_context_file() << " ";
-
-        if (!files.empty())
-        {
-            xfr << files << " ";
-        }
-
-        xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << vm->get_ds_id()
-            << endl;
     }
 
     xfr.close();

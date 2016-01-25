@@ -1136,6 +1136,16 @@ error_cleanup:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::update_context(string& error_str)
+{
+    // TODO: context update may need to be limited to network attributes,
+    // but for now the full context is parsed again
+    return parse_context(error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_pci(string& error_str)
 {
     VectorAttribute *               pci;
@@ -3308,7 +3318,7 @@ bool VirtualMachine::is_vrouter_action_supported(History::VMAction action)
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::generate_context(string &files, int &disk_id,
-        string& token_password)
+        const string& token_password)
 {
     ofstream file;
     string   files_ds;
@@ -3502,6 +3512,32 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const VectorAttribute* VirtualMachine::get_context_disk() const
+{
+    vector<const Attribute *> array_context;
+    const VectorAttribute *   context;
+    int                       num;
+
+    num = obj_template->get("CONTEXT", array_context);
+
+    if ( num != 1 )
+    {
+        return 0;
+    }
+
+    context = dynamic_cast<const VectorAttribute *>(array_context[0]);
+
+    if ( context == 0 )
+    {
+        return 0;
+    }
+
+    return context;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -166,7 +166,9 @@ public:
         DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
         DISK_SNAPSHOT        = 57,
         DISK_SNAPSHOT_REVERT = 58,
-        DISK_SNAPSHOT_DELETE = 59
+        DISK_SNAPSHOT_DELETE = 59,
+        HOTPLUG_CONTEXT         = 60,
+        HOTPLUG_CONTEXT_FAILURE = 61
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -231,6 +233,8 @@ public:
         else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
         else if ( st == "DISK_SNAPSHOT_REVERT") { state = DISK_SNAPSHOT_REVERT; }
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
+        else if ( st == "HOTPLUG_CONTEXT") { state = HOTPLUG_CONTEXT; }
+        else if ( st == "HOTPLUG_CONTEXT_FAILURE") { state = HOTPLUG_CONTEXT_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -298,6 +302,8 @@ public:
             case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
             case DISK_SNAPSHOT_REVERT: st = "DISK_SNAPSHOT_REVERT"; break;
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
+            case HOTPLUG_CONTEXT: st = "HOTPLUG_CONTEXT"; break;
+            case HOTPLUG_CONTEXT_FAILURE: st = "HOTPLUG_CONTEXT_FAILURE"; break;
         }
 
         return st;
@@ -1318,6 +1324,8 @@ public:
      */
     const VectorAttribute* get_disk(int disk_id) const;
 
+    const VectorAttribute* get_context_disk() const;
+
     const VectorAttribute* get_nic(int nic_id) const;
 
     // ------------------------------------------------------------------------
@@ -1354,7 +1362,7 @@ public:
      *    @param  token_password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, string& token_password);
+    int  generate_context(string &files, int &disk_id, const string& token_password);
 
     int replace_context_attribute(const string& name, const string& value);
 
@@ -1604,6 +1612,13 @@ public:
      *    @return 0 if the nic_id was found, -1 otherwise
      */
     int set_attach_nic(int nic_id);
+
+    /**
+     *  Updates the network part of the context
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int update_context(string& error_str);
 
     // ------------------------------------------------------------------------
     // Snapshot related functions
