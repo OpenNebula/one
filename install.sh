@@ -428,6 +428,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
+    MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -1221,10 +1222,14 @@ MARKETPLACE_DRIVER_ONE_SCRIPTS="src/market_mad/remotes/one/import \
             src/market_mad/remotes/one/delete \
             src/market_mad/remotes/one/monitor"
 
+MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
+            src/market_mad/remotes/s3/delete \
+            src/market_mad/remotes/s3/monitor \
+            src/market_mad/remotes/s3/S3.rb"
+
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
-
 
 ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/import_slave.rb \

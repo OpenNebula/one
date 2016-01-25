@@ -1,0 +1,132 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to import a file into the marketplace. The source file
+# is an opaque representation of an OpenNebula object, like a image file or a
+# tar.gz with several vm template or flow disk images
+###############################################################################
+
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+end
+
+UTILS_PATH = File.join(File.dirname(__FILE__), '../../datastore')
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+$: << File.dirname(__FILE__)
+
+require 'base64'
+require 'rexml/document'
+require 'getoptlong'
+require 'aws-sdk'
+require 'open3'
+require 'pp'
+
+require 'S3'
+
+def xpath(xml, xpath)
+    xml.elements[xpath].text.to_s rescue nil
+end
+
+xml = REXML::Document.new(Base64::decode64(ARGV[0])).root
+
+import_source = xpath(xml, 'IMPORT_SOURCE')
+format        = xpath(xml, 'FORMAT')
+dispose       = xpath(xml, 'DISPOSE')
+size          = xpath(xml, 'SIZE')
+md5           = xpath(xml, 'MD5')
+
+id = xpath(xml, 'MARKETPLACEAPP/ID')
+
+access_key_id     = xpath(xml, 'MARKETPLACE/TEMPLATE/ACCESS_KEY_ID')
+secret_access_key = xpath(xml, 'MARKETPLACE/TEMPLATE/SECRET_ACCESS_KEY')
+bucket            = xpath(xml, 'MARKETPLACE/TEMPLATE/BUCKET')
+region            = xpath(xml, 'MARKETPLACE/TEMPLATE/REGION')
+
+name   = "marketplaceapp-#{id}"
+source = "s3://#{bucket}/#{name}"
+
+# Upload
+
+READ_LENGTH = 10*1024*1024 # Read in chunks of 10MB
+
+s3 = S3.new(
+    :name              => name,
+    :md5               => md5,
+    :bucket            => bucket,
+    :region            => region,
+    :access_key_id     => access_key_id,
+    :secret_access_key => secret_access_key
+)
+
+if s3.exists?
+    STDERR.puts "Object '#{name}' already exists."
+    exit 1
+end
+
+cmd = "#{UTILS_PATH}/downloader.sh #{import_source} -"
+
+Open3.popen3(cmd) do |_, o, _, _|
+    body = o.read(READ_LENGTH)
+
+    if o.eof?
+        s3.put_object(body)
+    else
+        s3.create_multipart_upload
+
+        begin
+            s3.upload_part(body)
+
+            until o.eof?
+                body = o.read(READ_LENGTH)
+                s3.upload_part(body)
+            end
+
+            s3.complete_multipart_upload
+        rescue Exception => e
+            STDERR.puts(e.message)
+            STDERR.puts(e.backtrace)
+
+            resp = s3.abort_multipart_upload
+            STDERR.puts(resp.inspect)
+
+            exit 1
+        end
+    end
+end
+
+# Result
+
+marketplaceapp = {
+    :source => source,
+    :md5    => md5,
+    :size   => size,
+    :format => format
+}
+
+marketplaceapp.each do |k,v|
+    puts "#{k.upcase}=\"#{v}\""
+end
+
+exit 0
