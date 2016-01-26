@@ -398,52 +398,24 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-        bool market_check;
 
         app = apppool->get(app_id, true);
 
-        if ( app_id == 0 )
+        if ( app == 0 )
         {
             failure_response(INTERNAL,
-                             "Cannot find appliance referenced by FROM_APP",
+                             "Cannot find appliance referenced by FROM_APP.",
                              att);
             delete tmpl;
             return;
         }
 
-        rc = app->to_template(tmpl, error_str);
+        app->to_template(tmpl);
 
-        app->get_template_attribute("SIZE", size_str);
-
-        market_check = app->get_template_attribute("MARKETPLACE_ID", market_id);
+        size_mb   = app->get_size();
+        market_id = app->get_market_id();
 
         app->unlock();
-
-        if ( rc == -1 )
-        {
-            failure_response(INTERNAL, allocate_error(error_str), att);
-
-            delete tmpl;
-            return;
-        }
-
-        if ( !market_check )
-        {
-            error_str = "The appliance has no MARKETPLACE_ID";
-            failure_response(INTERNAL, allocate_error(error_str), att);
-
-            delete tmpl;
-            return;
-        }
-
-        if ( size_str.empty() )
-        {
-            error_str = "The appliance has no SIZE";
-            failure_response(INTERNAL, allocate_error(error_str), att);
-
-            delete tmpl;
-            return;
-        }
 
         market = marketpool->get(market_id, true);
 
@@ -466,24 +438,26 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         if ( rc == -1 )
         {
             failure_response(INTERNAL,
-                             request_error("Cannot determine Image SIZE", size_str),
+                             request_error("Cannot determine Image SIZE",
+                                           size_str),
+                             att);
+            delete tmpl;
+            return;
+        }
+
+        iss.str(size_str);
+        iss >> size_mb;
+
+        if ( iss.fail() )
+        {
+            failure_response(INTERNAL,
+                             request_error("Cannot parse SIZE", size_str),
                              att);
             delete tmpl;
             return;
         }
     }
 
-    iss.str(size_str);
-    iss >> size_mb;
-
-    if ( iss.fail() )
-    {
-        failure_response(INTERNAL,
-                         request_error("Cannot parse SIZE", size_str),
-                         att);
-        delete tmpl;
-        return;
-    }
 
     if (ds_check && (size_mb > avail))
     {

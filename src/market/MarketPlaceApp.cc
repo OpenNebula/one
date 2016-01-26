@@ -411,34 +411,12 @@ int MarketPlaceApp::enable(bool enable, string& error_str)
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
-int MarketPlaceApp::to_template(Template * tmpl, std::string& error_str)
+void MarketPlaceApp::to_template(Template * tmpl)
 {
-    bool rc;
-
-    string app_path;
-    string app_format;
-    string app_md5;
-    string app_name;
-
-    int market_id;
-
-    get_template_attribute("SOURCE", app_path);
-    get_template_attribute("FORMAT", app_format);
-    get_template_attribute("MD5",    app_md5);
-    get_template_attribute("NAME",   app_name);
-
-    if ( app_path.empty() )
-    {
-        error_str = "The appliance has no SOURCE";
-        return -1;
-    }
-
-    tmpl->replace("PATH", app_path);
-    tmpl->replace("FORMAT", app_format);
-    tmpl->replace("MD5", app_format);
-    tmpl->replace("FROM_APP_NAME", app_name);
-
-    return 0;
+    tmpl->replace("FROM_APP_NAME", get_name());
+    tmpl->replace("PATH", get_source());
+    tmpl->replace("FORMAT", get_format());
+    tmpl->replace("MD5", get_md5());
 }
 
 /* --------------------------------------------------------------------------- */

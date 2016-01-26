@@ -121,10 +121,8 @@ public:
      *  Copies the special attributes of the App to the template
      *    @param tmp The template object
      *    @param error_str Returns the error reason, if any
-     *
-     *    @return 0 on success, -1 otherwise
      */
-    int to_template(Template * tmpl, std::string& error_str);
+    void to_template(Template * tmpl);
 
     /**
      * Enable or disable the app. A disabled app cannot be exported
@@ -181,6 +179,22 @@ public:
     {
         return source;
     }
+
+    const string& get_md5()
+    {
+        return md5;
+    }
+
+    long long get_size()
+    {
+        return size_mb;
+    }
+
+    const string& get_format()
+    {
+        return format;
+    }
+
 
     MarketPlaceAppState get_state()
     {
