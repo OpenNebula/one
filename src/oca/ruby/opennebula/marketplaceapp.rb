@@ -189,9 +189,8 @@ module OpenNebula
                 tmpl << "PATH="   << self['SOURCE'] << "\n"
                 tmpl << "FORMAT=" << self['FORMAT'] << "\n"
                 tmpl << "MD5="    << self['MD5'] << "\n"
-                tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
-                tmpl << "FROM_APP_NAME=\""  << self['NAME'] << "\"\n"
-                tmpl << "FROM_MARKET_ID=\"" << self['MARKETPLACE_ID'] << "\"\n"
+                tmpl << "FROM_APP=\""      << self['ID'] << "\"\n"
+                tmpl << "FROM_APP_NAME=\"" << self['NAME'] << "\"\n"
 
                 image = Image.new(Image.build_xml, one)
                 rc    = image.allocate(tmpl, options[:dsid])
