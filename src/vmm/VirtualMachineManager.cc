@@ -2378,7 +2378,7 @@ void VirtualMachineManager::attach_nic_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
-    ostringstream os, error_os;
+    ostringstream os;
 
     string  vm_tmpl;
     string* drv_msg;
@@ -2441,15 +2441,11 @@ void VirtualMachineManager::attach_nic_action(
     {
         vm_tm_mad = vm->get_tm_mad();
 
-        opennebula_hostname = nd.get_nebula_hostname();
-
         rc = tm->prolog_context_command(
                     vm,
                     token_password,
                     vm_tm_mad,
-                    opennebula_hostname,
-                    os,
-                    error_os);
+                    os);
 
         prolog_cmd = os.str();
 
@@ -2509,7 +2505,7 @@ error_driver:
 
 error_no_tm_command:
     os.str("");
-    os << "Cannot set context disk to update it for VM: " << error_os.str();
+    os << "Cannot set context disk to update it for VM " << vm->get_oid();
     goto error_common;
 
 error_common:
@@ -2535,7 +2531,6 @@ void VirtualMachineManager::detach_nic_action(
     ostringstream os;
     string        vm_tmpl;
     string *      drv_msg;
-    string        opennebula_hostname;
     string        error_str;
 
     // Get the VM from the pool

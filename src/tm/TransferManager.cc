@@ -611,9 +611,7 @@ int TransferManager::prolog_context_command(
         VirtualMachine *        vm,
         const string&           token_password,
         string&                 vm_tm_mad,
-        string&                 opennebula_hostname,
-        ostream&                xfr,
-        ostringstream&          os)
+        ostream&                xfr)
 {
     string  files;
     int     context_result;
@@ -815,9 +813,7 @@ void TransferManager::prolog_action(int vid)
     rc = prolog_context_command( vm,
                                  token_password,
                                  vm_tm_mad,
-                                 opennebula_hostname,
-                                 xfr,
-                                 os);
+                                 xfr);
 
     if ( rc == -1 )
     {
@@ -1013,9 +1009,11 @@ void TransferManager::prolog_resume_action(int vid)
     const VectorAttribute * disk;
     string tm_mad;
     string vm_tm_mad;
+    string token_password;
 
     int ds_id;
     int disk_id;
+    int rc;
 
     vector<const Attribute *> attrs;
     int                       num;
@@ -1028,6 +1026,24 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1107,6 +1123,20 @@ void TransferManager::prolog_resume_action(int vid)
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
+    // -------------------------------------------------------------------------
+    // Generate context file
+    // -------------------------------------------------------------------------
+
+    rc = prolog_context_command( vm,
+                                 token_password,
+                                 vm_tm_mad,
+                                 xfr);
+
+    if ( rc == -1 )
+    {
+        goto error_context;
+    }
+
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -1127,6 +1157,12 @@ error_drivers:
 error_file:
     os.str("");
     os << "prolog_resume, could not open file: " << xfr_name;
+    goto error_common;
+
+error_context:
+    os << "prolog_resume, could not write context file for VM " << vid;
+
+    xfr.close();
     goto error_common;
 
 error_common:
