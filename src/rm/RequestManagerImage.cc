@@ -444,6 +444,7 @@ void ImageClone::request_execute(
                          disk_type,
                          ds_data,
                          Datastore::IMAGE_DS,
+                         "",
                          clone_id,
                          &new_id,
                          error_str);

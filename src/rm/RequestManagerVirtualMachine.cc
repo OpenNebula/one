@@ -1403,6 +1403,7 @@ void VirtualMachineDiskSaveas::request_execute(
                          ds_disk_type,
                          ds_data,
                          Datastore::IMAGE_DS,
+                         "",
                          -1,
                          &iid,
                          error);

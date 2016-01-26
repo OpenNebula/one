@@ -65,6 +65,7 @@ public:
      *    @param ds_type disk type for the image
      *    @param ds_data the datastore data
      *    @param ds_type the datastore type
+     *    @param extra_data extra data that will be sent to the driver
      *    @param source_img_id If the new Image is a clone, this must be the
      *      source Image ID. Otherwise, it must be set to -1
      *    @param oid the id assigned to the Image
@@ -85,6 +86,7 @@ public:
         Image::DiskType          disk_type,
         const string&            ds_data,
         Datastore::DatastoreType ds_type,
+        const string&            extra_data,
         int                      source_img_id,
         int *                    oid,
         string&                  error_str);

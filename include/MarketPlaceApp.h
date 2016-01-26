@@ -118,6 +118,15 @@ public:
     int from_template64(const std::string &xml_str, std::string& error_str);
 
     /**
+     *  Copies the special attributes of the App to the template
+     *    @param tmp The template object
+     *    @param error_str Returns the error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int to_template(Template * tmpl, std::string& error_str);
+
+    /**
      * Enable or disable the app. A disabled app cannot be exported
      * @param enable true to enable
      * @param error_str Returns the error reason, if any

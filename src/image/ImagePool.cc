@@ -89,6 +89,7 @@ int ImagePool::allocate (
         Image::DiskType          disk_type,
         const string&            ds_data,
         Datastore::DatastoreType ds_type,
+        const string&            extra_data,
         int                      cloning_id,
         int *                    oid,
         string&                  error_str)

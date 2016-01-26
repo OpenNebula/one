@@ -398,12 +398,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-
-        string app_path;
-        string app_format;
-        string app_md5;
-        string app_name;
-
         bool market_check;
 
         app = apppool->get(app_id, true);
@@ -417,39 +411,43 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        app->get_template_attribute("SOURCE", app_path);
-        app->get_template_attribute("FORMAT", app_format);
-        app->get_template_attribute("MD5",    app_md5);
-        app->get_template_attribute("NAME",   app_name);
-        app->get_template_attribute("SIZE",   size_str);
+        rc = app->to_template(tmpl, error_str);
+
+        app->get_template_attribute("SIZE", size_str);
 
         market_check = app->get_template_attribute("MARKETPLACE_ID", market_id);
 
         app->unlock();
 
-        if ( app_path.empty() )
+        if ( rc == -1 )
         {
-            failure_response(INTERNAL, "The appliance has no SOURCE", att);
+            failure_response(INTERNAL, allocate_error(error_str), att);
+
             delete tmpl;
             return;
         }
 
         if ( !market_check )
         {
-            failure_response(INTERNAL, "The appliance has no MARKETPLACE_ID",
-                             att);
+            error_str = "The appliance has no MARKETPLACE_ID";
+            failure_response(INTERNAL, allocate_error(error_str), att);
+
             delete tmpl;
             return;
         }
 
-        tmpl->replace("PATH", app_path);
-        tmpl->replace("FORMAT", app_format);
-        tmpl->replace("MD5", app_format);
-        tmpl->replace("FROM_APP_NAME", app_name);
+        if ( size_str.empty() )
+        {
+            error_str = "The appliance has no SIZE";
+            failure_response(INTERNAL, allocate_error(error_str), att);
+
+            delete tmpl;
+            return;
+        }
 
         market = marketpool->get(market_id, true);
 
-        if (market == 0)
+        if ( market == 0 )
         {
             failure_response(INTERNAL, "Could not get the appliance's market.",
                              att);
@@ -565,6 +563,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          ds_disk_type,
                          ds_data,
                          ds_type,
+                         extra_data,
                          -1,
                          &id,
                          error_str);
