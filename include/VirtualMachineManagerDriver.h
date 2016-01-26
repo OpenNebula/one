@@ -315,18 +315,6 @@ private:
     }
 
     /**
-     *  Sends an update-context request to the MAD: "UPDATECONTEXT ID XML_DRV_MSG"
-     *    @param oid the virtual machine id.
-     *    @param drv_msg xml data for the mad operation
-     */
-    void update_context (
-        const int     oid,
-        const string& drv_msg) const
-    {
-        write_drv("UPDATECONTEXT", oid, drv_msg);
-    }
-
-    /**
      *  Sends an attach NIC request to the MAD: "ATTACHNIC ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
      *    @param drv_msg xml data for the mad operation

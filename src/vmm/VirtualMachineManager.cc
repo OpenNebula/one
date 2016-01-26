@@ -207,10 +207,6 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "DISK_SNAPSHOT_REVERT";
         break;
 
-    case UPDATE_CONTEXT:
-        aname = "UPDATE_CONTEXT";
-        break;
-
     default:
         delete vid;
         return;
@@ -333,10 +329,6 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "DISK_SNAPSHOT_REVERT")
     {
         disk_snapshot_revert_action(vid);
-    }
-    else if (action == "UPDATE_CONTEXT")
-    {
-        update_context_action(vid);
     }
     else if (action == ACTION_TIMER)
     {
@@ -1904,169 +1896,6 @@ error_common:
     LifeCycleManager *  lcm = ne.get_lcm();
 
     lcm->trigger(LifeCycleManager::DETACH_FAILURE, vid);
-
-    vm->log("VMM", Log::ERROR, os);
-    vm->unlock();
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManager::update_context_action(
-    int vid)
-{
-    VirtualMachine *                    vm;
-    const VirtualMachineManagerDriver * vmd;
-
-    ostringstream os, error_os;
-
-    string  vm_tmpl;
-    string* drv_msg;
-    string  vm_tm_mad;
-    string  opennebula_hostname;
-    string  prolog_cmd;
-    string  epilog_cmd;
-    string  disk_path;
-    string  token_password;
-
-    const VectorAttribute * disk;
-    int disk_id;
-    int rc;
-
-    Nebula& nd           = Nebula::instance();
-    TransferManager * tm = nd.get_tm();
-
-    // Get the VM from the pool
-    vm = vmpool->get(vid,true);
-
-    if (vm == 0)
-    {
-        return;
-    }
-
-    int uid = vm->get_created_by_uid();
-    vm->unlock();
-
-    User * user = Nebula::instance().get_upool()->get(uid, true);
-
-    if (user != 0)
-    {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
-    }
-
-    vm = vmpool->get(vid,true);
-
-    if (vm == 0)
-    {
-        return;
-    }
-
-    if (!vm->hasHistory())
-    {
-        goto error_history;
-    }
-
-    // Get the driver for this VM
-
-    vmd = get(vm->get_vmm_mad());
-
-    if ( vmd == 0 )
-    {
-        goto error_driver;
-    }
-
-    disk = vm->get_context_disk();
-
-    if ( disk == 0 )
-    {
-        goto error_disk;
-    }
-
-    vm_tm_mad = vm->get_tm_mad();
-
-    opennebula_hostname = nd.get_nebula_hostname();
-
-    rc = tm->prolog_context_command(
-                vm,
-                token_password,
-                vm_tm_mad,
-                opennebula_hostname,
-                os,
-                error_os);
-
-    prolog_cmd = os.str();
-
-    if ( prolog_cmd.empty() || rc != 0 )
-    {
-        goto error_no_tm_command;
-    }
-
-    os.str("");
-
-    tm->epilog_transfer_command(vm, disk, os);
-
-    epilog_cmd = os.str();
-
-    os.str("");
-
-    disk->vector_value("DISK_ID", disk_id);
-
-    os << vm->get_remote_system_dir() << "/disk." << disk_id;
-
-    disk_path = os.str();
-
-    // Invoke driver method
-    drv_msg = format_message(
-        vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
-        "",
-        vm->get_deploy_id(),
-        "",
-        "",
-        "",
-        prolog_cmd,
-        epilog_cmd,
-        disk_path,
-        vm->to_xml(vm_tmpl),
-        vm->get_ds_id());
-
-
-    vmd->update_context(vid, *drv_msg);
-
-    delete drv_msg;
-
-    vm->unlock();
-
-    return;
-
-error_disk:
-    os.str("");
-    os << "update_context_action, could not find context disk";
-    goto error_common;
-
-error_history:
-    os.str("");
-    os << "update_context_action, VM has no history";
-    goto error_common;
-
-error_driver:
-    os.str("");
-    os << "update_context_action, error getting driver " << vm->get_vmm_mad();
-    goto error_common;
-
-error_no_tm_command:
-    os.str("");
-    os << "Cannot set context disk to update it for VM: " << error_os.str();
-    goto error_common;
-
-error_common:
-    Nebula              &ne = Nebula::instance();
-    LifeCycleManager *  lcm = ne.get_lcm();
-
-    lcm->trigger(LifeCycleManager::UPDATE_CONTEXT_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();

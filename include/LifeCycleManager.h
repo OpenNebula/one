@@ -74,8 +74,6 @@ public:
         ATTACH_NIC_FAILURE,/**< Sent by the VMM when an attach nic action fails    */
         DETACH_NIC_SUCCESS,/**< Sent by the VMM when a detach nic action succeeds  */
         DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
-        UPDATE_CONTEXT_SUCCESS,/**< Sent by the VMM when an update context action succeeds */
-        UPDATE_CONTEXT_FAILURE,/**< Sent by the VMM when an update context action fails    */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         SAVEAS_SUCCESS,        /**< Sent by the VMM when saveas succeeds      */
@@ -272,10 +270,6 @@ private:
     void detach_nic_success_action(int vid);
 
     void detach_nic_failure_action(int vid);
-
-    void update_context_success_action(int vid);
-
-    void update_context_failure_action(int vid);
 
     void cleanup_callback_action(int vid);
 

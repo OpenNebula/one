@@ -524,25 +524,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             lcm->trigger(LifeCycleManager::DETACH_NIC_FAILURE, id);
         }
     }
-    else if ( action == "UPDATECONTEXT" )
-    {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
-        if ( result == "SUCCESS" )
-        {
-            vm->log("VMM", Log::INFO, "VM CONTEXT Successfully updated.");
-
-            lcm->trigger(LifeCycleManager::UPDATE_CONTEXT_SUCCESS, id);
-        }
-        else
-        {
-            log_error(vm, os, is, "Error updating VM CONTEXT");
-            vmpool->update(vm);
-
-            lcm->trigger(LifeCycleManager::UPDATE_CONTEXT_FAILURE, id);
-        }
-    }
     else if ( action == "SNAPSHOTCREATE" )
     {
         Nebula           &ne  = Nebula::instance();

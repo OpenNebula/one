@@ -1615,64 +1615,6 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::update_context_success_action(int vid)
-{
-    VirtualMachine * vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_CONTEXT ||
-         vm->get_lcm_state() == VirtualMachine::HOTPLUG_CONTEXT_FAILURE ) //recover success
-    {
-        vm->set_state(VirtualMachine::RUNNING);
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"update_context_success_action, VM in a wrong state");
-    }
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LifeCycleManager::update_context_failure_action(int vid)
-{
-    VirtualMachine *  vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_CONTEXT ||
-         vm->get_lcm_state() == VirtualMachine::HOTPLUG_CONTEXT_FAILURE ) //recover failure
-    {
-        vm->set_state(VirtualMachine::HOTPLUG_CONTEXT_FAILURE);
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"update_context_failure_action, VM in a wrong state");
-    }
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void LifeCycleManager::saveas_success_action(int vid)
 {
     int image_id;

@@ -68,8 +68,7 @@ public:
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
         DISK_SNAPSHOT_CREATE,
-        DISK_SNAPSHOT_REVERT,
-        UPDATE_CONTEXT
+        DISK_SNAPSHOT_REVERT
     };
 
     /**
@@ -373,13 +372,6 @@ private:
      *    @param vid the id of the VM.
      */
     void detach_action(
-        int vid);
-
-    /**
-     * Updates the context cdrom
-     *    @param vid the id of the VM.
-     */
-    void update_context_action(
         int vid);
 
     /**

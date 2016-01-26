@@ -166,9 +166,7 @@ public:
         DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
         DISK_SNAPSHOT        = 57,
         DISK_SNAPSHOT_REVERT = 58,
-        DISK_SNAPSHOT_DELETE = 59,
-        HOTPLUG_CONTEXT         = 60,
-        HOTPLUG_CONTEXT_FAILURE = 61
+        DISK_SNAPSHOT_DELETE = 59
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -233,8 +231,6 @@ public:
         else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
         else if ( st == "DISK_SNAPSHOT_REVERT") { state = DISK_SNAPSHOT_REVERT; }
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
-        else if ( st == "HOTPLUG_CONTEXT") { state = HOTPLUG_CONTEXT; }
-        else if ( st == "HOTPLUG_CONTEXT_FAILURE") { state = HOTPLUG_CONTEXT_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -302,8 +298,6 @@ public:
             case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
             case DISK_SNAPSHOT_REVERT: st = "DISK_SNAPSHOT_REVERT"; break;
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
-            case HOTPLUG_CONTEXT: st = "HOTPLUG_CONTEXT"; break;
-            case HOTPLUG_CONTEXT_FAILURE: st = "HOTPLUG_CONTEXT_FAILURE"; break;
         }
 
         return st;
