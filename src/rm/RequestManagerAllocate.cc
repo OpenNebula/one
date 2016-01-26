@@ -18,6 +18,8 @@
 
 #include "Nebula.h"
 #include "PoolObjectSQL.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -318,15 +320,25 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
     ImageManager *  imagem = nd.get_imagem();
 
+    MarketPlacePool *     marketpool = nd.get_marketpool();
+    MarketPlaceAppPool *  apppool    = nd.get_apppool();
+
     ImageTemplate * tmpl;
     Template        img_usage;
 
     Datastore *     ds;
     Image::DiskType ds_disk_type;
 
+    MarketPlaceApp *  app;
+    MarketPlace *     market;
+    int               app_id;
+    int               market_id;
+
     long long       avail;
 
     bool ds_check;
+
+    string extra_data = "";
 
     // ------------------------- Parse image template --------------------------
 
@@ -382,15 +394,85 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     // --------------- Get the SIZE for the Image, (DS driver) -----------------
 
-    rc = imagem->stat_image(tmpl, ds_data, size_str);
-
-    if ( rc == -1 )
+    if ( tmpl->get("FROM_APP", app_id ) )
     {
-        failure_response(INTERNAL,
-                         request_error("Cannot determine Image SIZE", size_str),
-                         att);
-        delete tmpl;
-        return;
+        // This image comes from a MarketPlaceApp. Get the Market info and
+        // the size.
+
+        string app_path;
+        string app_format;
+        string app_md5;
+        string app_name;
+
+        bool market_check;
+
+        app = apppool->get(app_id, true);
+
+        if ( app_id == 0 )
+        {
+            failure_response(INTERNAL,
+                             "Cannot find appliance referenced by FROM_APP",
+                             att);
+            delete tmpl;
+            return;
+        }
+
+        app->get_template_attribute("SOURCE", app_path);
+        app->get_template_attribute("FORMAT", app_format);
+        app->get_template_attribute("MD5",    app_md5);
+        app->get_template_attribute("NAME",   app_name);
+        app->get_template_attribute("SIZE",   size_str);
+
+        market_check = app->get_template_attribute("MARKETPLACE_ID", market_id);
+
+        app->unlock();
+
+        if ( app_path.empty() )
+        {
+            failure_response(INTERNAL, "The appliance has no SOURCE", att);
+            delete tmpl;
+            return;
+        }
+
+        if ( !market_check )
+        {
+            failure_response(INTERNAL, "The appliance has no MARKETPLACE_ID",
+                             att);
+            delete tmpl;
+            return;
+        }
+
+        tmpl->replace("PATH", app_path);
+        tmpl->replace("FORMAT", app_format);
+        tmpl->replace("MD5", app_format);
+        tmpl->replace("FROM_APP_NAME", app_name);
+
+        market = marketpool->get(market_id, true);
+
+        if (market == 0)
+        {
+            failure_response(INTERNAL, "Could not get the appliance's market.",
+                             att);
+            delete tmpl;
+            return;
+        }
+
+        market->to_xml(extra_data);
+
+        market->unlock();
+    }
+    else
+    {
+        rc = imagem->stat_image(tmpl, ds_data, size_str);
+
+        if ( rc == -1 )
+        {
+            failure_response(INTERNAL,
+                             request_error("Cannot determine Image SIZE", size_str),
+                             att);
+            delete tmpl;
+            return;
+        }
     }
 
     iss.str(size_str);
