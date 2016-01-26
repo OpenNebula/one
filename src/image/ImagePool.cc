@@ -103,6 +103,8 @@ int ImagePool::allocate (
     string          type;
     ostringstream   oss;
 
+    int rc;
+
     img = new Image(uid, gid, uname, gname, umask, img_template);
 
     // -------------------------------------------------------------------------
@@ -169,7 +171,9 @@ int ImagePool::allocate (
     {
         if (cloning_id == -1)
         {
-            if ( imagem->register_image(*oid, ds_data, error_str) == -1 )
+            rc = imagem->register_image(*oid, ds_data, extra_data, error_str);
+
+            if ( rc == -1 )
             {
                 img = get(*oid, true);
 
@@ -188,7 +192,13 @@ int ImagePool::allocate (
         }
         else
         {
-            if (imagem->clone_image(*oid, cloning_id, ds_data, error_str) == -1)
+            rc = imagem->clone_image(*oid,
+                                     cloning_id,
+                                     ds_data,
+                                     extra_data,
+                                     error_str);
+
+            if (rc == -1)
             {
                 img = get(*oid, true);
 

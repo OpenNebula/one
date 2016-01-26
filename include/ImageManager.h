@@ -133,11 +133,15 @@ public:
      *  Adds a new image to the repository copying or creating it as needed
      *    @param img pointer to the image
      *    @param ds_data data of the associated datastore in XML format
+     *    @param extra_data data to be sent to the driver
      *    @param error Error reason
      *
      *    @return 0 on success
      */
-    int register_image(int iid, const string& ds_data, string& error);
+    int register_image(int iid,
+                       const string& ds_data,
+                       const string& extra_data,
+                       string& error);
 
     /**
      * Checks if an image is ready to be cloned
@@ -163,12 +167,14 @@ public:
      *    @param new_id of the new image
      *    @param cloning_id of the image to be cloned
      *    @param ds_data data of the associated datastore in XML format
+     *    @param extra_data data to be sent to the driver
      *    @param error describing the error
      *    @return 0 on success
      */
     int clone_image(int new_id,
                     int cloning_id,
                     const string& ds_data,
+                    const string& extra_data,
                     string& error);
     /**
      *  Deletes an image from the repository and the DB. The Datastore image list

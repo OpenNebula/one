@@ -658,6 +658,7 @@ int ImageManager::set_clone_state(int new_id, int cloning_id, std::string& error
 int ImageManager::clone_image(int   new_id,
                               int   cloning_id,
                               const string& ds_data,
+                              const string& extra_data,
                               string& error)
 {
     const ImageManagerDriver* imd = get();
@@ -692,7 +693,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, extra_data);
 
     imd->clone(img->get_oid(), *drv_msg);
 
@@ -711,7 +712,10 @@ int ImageManager::clone_image(int   new_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::register_image(int iid, const string& ds_data, string& error)
+int ImageManager::register_image(int iid,
+                                 const string& ds_data,
+                                 const string& extra_data,
+                                 string& error)
 {
     const ImageManagerDriver* imd = get();
 
@@ -738,7 +742,7 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, extra_data);
     path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH
