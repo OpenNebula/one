@@ -26,12 +26,20 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
+
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "Image.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Image.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Image.import_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
+      }
+    },    
     "Image.list" : _commonActions.list(),
     "Image.show" : _commonActions.show(),
     "Image.refresh" : _commonActions.refresh(),

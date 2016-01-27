@@ -497,8 +497,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     one_i = ::OpenNebula::Image.new(
                                 ::OpenNebula::Image.build_xml, vc.one)
 
-                    puts i[:one]
-
                     rc = one_i.allocate(i[:one], i[:dsid].to_i)
 
                     if ::OpenNebula.is_error?(rc)

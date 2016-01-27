@@ -38,7 +38,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./images-tab/form-panels/create')
+    require('./images-tab/form-panels/create'),
+    require('./images-tab/form-panels/import')
   ];
 
   var Tab = {

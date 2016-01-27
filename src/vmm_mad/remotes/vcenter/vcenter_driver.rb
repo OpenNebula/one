@@ -661,6 +661,7 @@ class VIClient
                     img_templates << {
                         :name        => "#{image_name}",
                         :path        => image_path,
+                        :size        => (image.fileSize / 1024).to_s,
                         :type        => image.class.to_s,
                         :dsid        => ds_id,
                         :one         => "NAME=\"#{image_name}\"\n"\

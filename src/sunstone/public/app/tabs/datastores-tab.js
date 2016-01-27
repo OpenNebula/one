@@ -27,7 +27,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./datastores-tab/form-panels/create')
+    require('./datastores-tab/form-panels/create'),
+    require('./datastores-tab/form-panels/import')
   ];
 
   var _panels = [

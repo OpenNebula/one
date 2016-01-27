@@ -27,6 +27,13 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
+    "Image.import_dialog" : {
+      type: "create_dialog",
+      layout: "create",
+      text:  Locale.tr("Import"),
+      icon: '<i class="fa fa-download">',
+      alwaysActive: true
+    },
     "Image.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),
