@@ -38,7 +38,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     // TODO: if Template has VROUTER = YES, do not allow to instantiate here
 
-    int vid = instantiate(att, id, name, on_hold, str_uattrs, 0);
+    int vid = instantiate(this, att, id, name, on_hold, str_uattrs, 0);
 
     if (vid != -1)
     {
@@ -49,146 +49,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualRouterInstantiate::request_execute(
-        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
-{
-    int    vrid       = xmlrpc_c::value_int(paramList.getInt(1));
-    int    n_vms      = xmlrpc_c::value_int(paramList.getInt(2));
-    int    tmpl_id    = xmlrpc_c::value_int(paramList.getInt(3));
-    string name       = xmlrpc_c::value_string(paramList.getString(4));
-    bool   on_hold    = xmlrpc_c::value_boolean(paramList.getBoolean(5));
-    string str_uattrs = xmlrpc_c::value_string(paramList.getString(6));
-
-    Nebula& nd = Nebula::instance();
-    VirtualRouterPool*  vrpool = nd.get_vrouterpool();
-    VirtualRouter *     vr;
-    DispatchManager*    dm = nd.get_dm();
-
-    PoolObjectAuth      vr_perms;
-    Template*           extra_attrs;
-    bool                has_vmids;
-    string              errorstr;
-    string              vr_name;
-    ostringstream       oss;
-
-    vector<int>             vms;
-    vector<int>::iterator   vmid;
-
-    /* ---------------------------------------------------------------------- */
-    /* Get the Virtual Router NICs                                            */
-    /* ---------------------------------------------------------------------- */
-
-    vr = vrpool->get(vrid, true);
-
-    if (vr == 0)
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
-        return;
-    }
-
-    vr->get_permissions(vr_perms);
-
-    extra_attrs = vr->get_vm_template();
-
-    has_vmids = vr->has_vmids();
-
-    vr_name = vr->get_name();
-
-    vr->unlock();
-
-    if ( att.uid != 0 )
-    {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
-            return;
-        }
-    }
-
-    if (has_vmids)
-    {
-        failure_response(ACTION,
-                request_error("Virtual Router already has VMs. Cannot instantiate new ones", ""),
-                att);
-
-        return;
-    }
-
-    if (name.empty())
-    {
-        oss.str("");
-        oss << "vr-" << vr_name << "-%i";
-        name = oss.str();
-    }
-
-    for (int i=0; i<n_vms; i++)
-    {
-        oss.str("");
-        oss << i;
-
-        string tmp_name = one_util::gsub(name, "%i", oss.str());
-
-        int vid = instantiate(att, tmpl_id, tmp_name, true, str_uattrs, extra_attrs);
-
-        if (vid == -1)
-        {
-            string tmp_error;
-
-            for (vmid = vms.begin(); vmid != vms.end(); vmid++)
-            {
-                dm->finalize(*vmid, tmp_error);
-            }
-
-            return;
-        }
-
-        vms.push_back(vid);
-    }
-
-    vr = vrpool->get(vrid, true);
-
-    if (vr != 0)
-    {
-        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
-        {
-            vr->add_vmid(*vmid);
-        }
-
-        vrpool->update(vr);
-
-        vr->unlock();
-    }
-
-    // VMs are created on hold to wait for all the vr->add_vmid calls, that
-    // update each VM context with other VM IPs
-    if (!on_hold)
-    {
-        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
-        {
-            dm->release(*vmid, errorstr);
-        }
-    }
-
-    success_response(vrid, att);
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
-                                string name, bool on_hold, string str_uattrs,
-                                Template* extra_attrs)
+int VMTemplateInstantiate::instantiate(Request * req, RequestAttributes& att,
+    int id, string name, bool on_hold, string str_uattrs, Template* extra_attrs)
 {
     int  rc;
     int  vid;
@@ -200,7 +62,7 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
     Nebula& nd = Nebula::instance();
 
     VirtualMachinePool* vmpool  = nd.get_vmpool();
-    VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
+    VMTemplatePool *    tpool   = nd.get_tpool();
 
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate * extended_tmpl = 0;
@@ -220,8 +82,8 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
     if ( rtmpl == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
+        req->failure_response(Request::NO_EXISTS,
+                req->get_error(Request::object_name(PoolObjectSQL::TEMPLATE),id),
                 att);
 
         return -1;
@@ -241,7 +103,7 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, error_str, att);
+            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
             return -1;
         }
@@ -254,8 +116,8 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
                 oss << "User Template includes a restricted attribute "<< aname;
 
-                failure_response(AUTHORIZATION,
-                        authorization_error(oss.str(), att),
+                req->failure_response(Request::AUTHORIZATION,
+                        req->authorization_error(oss.str(), att),
                         att);
 
                 delete tmpl;
@@ -267,7 +129,7 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, error_str, att);
+            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
             return -1;
         }
@@ -279,7 +141,7 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, error_str, att);
+            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
             return -1;
         }
@@ -317,15 +179,15 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
             tmpl->to_xml(tmpl_str);
 
             // CREATE TEMPLATE
-            ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+            ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE, tmpl_str);
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
+            req->failure_response(Request::AUTHORIZATION,
+                    req->authorization_error(ar.message, att),
                     att);
 
             delete tmpl;
@@ -336,7 +198,7 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
         VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
 
-        if ( quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att) == false )
+        if ( req->quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att) == false )
         {
             delete tmpl;
             delete extended_tmpl;
@@ -349,13 +211,13 @@ int RequestManagerVMTemplate::instantiate(RequestAttributes& att, int id,
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL,
-                allocate_error(PoolObjectSQL::VM,error_str),
+        req->failure_response(Request::INTERNAL,
+                req->allocate_error(PoolObjectSQL::VM,error_str),
                 att);
 
         if (extended_tmpl != 0)
         {
-            quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
+            req->quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
         }
 
         delete extended_tmpl;

@@ -40,6 +40,7 @@
 #include "RequestManagerGroup.h"
 #include "RequestManagerVdc.h"
 #include "RequestManagerDatastore.h"
+#include "RequestManagerVirtualRouter.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"

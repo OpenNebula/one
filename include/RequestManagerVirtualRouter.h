@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef REQUEST_MANAGER_VM_TEMPLATE_H
-#define REQUEST_MANAGER_VM_TEMPLATE_H
+#ifndef REQUEST_MANAGER_VIRTUAL_ROUTER_H
+#define REQUEST_MANAGER_VIRTUAL_ROUTER_H
 
 #include "Request.h"
 #include "Nebula.h"
@@ -26,21 +26,21 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerVMTemplate: public Request
+class RequestManagerVirtualRouter: public Request
 {
 protected:
-    RequestManagerVMTemplate(const string& method_name,
+    RequestManagerVirtualRouter(const string& method_name,
                              const string& help,
                              const string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_tpool();
+        pool        = nd.get_vrouterpool();
 
-        auth_object = PoolObjectSQL::TEMPLATE;
+        auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~RequestManagerVMTemplate(){};
+    ~RequestManagerVirtualRouter(){};
 
     /* -------------------------------------------------------------------- */
 
@@ -51,41 +51,22 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VMTemplateInstantiate : public RequestManagerVMTemplate
+class VirtualRouterInstantiate : public RequestManagerVirtualRouter
 {
 public:
-    VMTemplateInstantiate():
-        RequestManagerVMTemplate("TemplateInstantiate",
-                                 "Instantiates a new virtual machine using a template",
-                                 "A:sisbs")
+    VirtualRouterInstantiate():
+        RequestManagerVirtualRouter("VirtualRouterInstantiate",
+                                 "Instantiates a new virtual machine associated to a virtual router",
+                                 "A:siiisbs")
     {
-        auth_op = AuthRequest::USE;
+        auth_op = AuthRequest::MANAGE;
     };
 
-    ~VMTemplateInstantiate(){};
+    ~VirtualRouterInstantiate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    /**
-     * Instantiates the VM Template, checking permissions, quotas, etc
-     * @param req Calling Request object
-     * @param att the specific request attributes
-     * @param id VM Template ID
-     * @param name Name for the new VM. Can be empty
-     * @param on_hold True to start the VM on HOLD state
-     * @param str_uattrs Template supplied by user to merge with the original
-     * contents. Can be empty
-     * @param extra_attrs Template to be merged. It should contain internal
-     * configuration, and it won't be authenticated or checked for restricted
-     * attributes. Can be 0
-     *
-     * @return VMID on success, -1 on failure. On failure, failure_response is set,
-     * but for success the calling method needs to set success_response
-     */
-    static int instantiate(Request* req, RequestAttributes& att, int id,
-                    string name, bool on_hold, string str_uattrs,
-                    Template* extra_attrs);
 };
 
 /* -------------------------------------------------------------------------- */

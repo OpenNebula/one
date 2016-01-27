@@ -168,82 +168,6 @@ protected:
     /* -------------------------------------------------------------------- */
 
     /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool basic_authorization(int oid, RequestAttributes& att)
-    {
-        return basic_authorization(oid, auth_op, att);
-    };
-
-    /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param op operation of the request.
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool basic_authorization(int oid, AuthRequest::Operation op,
-                             RequestAttributes& att);
-
-    /**
-     *  Performs a basic quota check for this request using the uid/gid
-     *  from the request. Usage counters are updated for the user/group.
-     *  On case of error, the failure_response return values are set
-     *
-     *    @param tmpl describing the object
-     *    @param object type of the object
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool quota_authorization(
-            Template *          tmpl,
-            Quotas::QuotaType   qtype,
-            RequestAttributes&  att);
-
-    /**
-     *  Performs a basic quota check for this request using the uid/gid
-     *  from the request. Usage counters are updated for the user/group.
-     *  On case of error, the failure_response return values is not set, instead
-     *  the error reason is returned in error_str
-     *
-     *    @param tmpl describing the object
-     *    @param object type of the object
-     *    @param att the specific request attributes
-     *
-     *    @param error_str Error reason, if any
-     *    @return true if the user is authorized.
-     */
-    bool quota_authorization(
-            Template *          tmpl,
-            Quotas::QuotaType   qtype,
-            RequestAttributes&  att,
-            string&             error_str);
-
-    /**
-     *  Performs rollback on usage counters for a previous  quota check operation
-     *  for the request.
-     *    @param tmpl describing the object
-     *    @param att the specific request attributes
-     */
-    void quota_rollback(Template *         tmpl,
-                        Quotas::QuotaType  qtype,
-                        RequestAttributes& att);
-
-    /**
      *  Actual Execution method for the request. Must be implemented by the
      *  XML-RPC requests
      *    @param _paramlist of the XML-RPC call (complete list)
@@ -251,6 +175,82 @@ protected:
      */
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att) = 0;
+
+    /**
+     * Locks the requested object, gets information, and unlocks it
+     *
+     * @param pool object pool
+     * @param id of the object
+     * @param type of the object
+     * @param att the specific request attributes
+     *
+     * @param perms returns the object's permissions
+     * @param name returns the object's name
+     * @param throw_error send error response to client if object not found
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int get_info (PoolSQL *                 pool,
+                  int                       id,
+                  PoolObjectSQL::ObjectType type,
+                  RequestAttributes&        att,
+                  PoolObjectAuth&           perms,
+                  string&                   name,
+                  bool                      throw_error);
+
+    /**
+     * Logs the method result, including the output data or error message
+     *
+     * @param att the specific request attributes
+     */
+    virtual void log_result(
+            const RequestAttributes&    att);
+
+    /**
+     * Formats and adds a xmlrpc_c::value to oss.
+     *
+     * @param v value to format
+     * @param oss stream to write v
+     */
+    virtual void log_xmlrpc_value(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss);
+
+private:
+
+    /**
+     * Logs the method invocation, including the arguments
+     *
+     * @param att the specific request attributes
+     * @param paramList list of XML parameters
+     */
+    void log_method_invoked(
+            const RequestAttributes&    att,
+            const xmlrpc_c::paramList&  paramList);
+
+    /* ------------- Functions to manage user and group quotas -------------- */
+
+    bool user_quota_authorization(Template * tmpl,
+                                  Quotas::QuotaType  qtype,
+                                  RequestAttributes& att,
+                                  string& error_str);
+
+    bool group_quota_authorization(Template * tmpl,
+                                   Quotas::QuotaType  qtype,
+                                   RequestAttributes& att,
+                                   string& error_str);
+
+    void user_quota_rollback(Template * tmpl,
+                             Quotas::QuotaType  qtype,
+                             RequestAttributes& att);
+
+    void group_quota_rollback(Template * tmpl,
+                              Quotas::QuotaType  qtype,
+                              RequestAttributes& att);
+
+public:
+
+    /* -------------------- Responses and errors ---------------------------- */
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -340,77 +340,84 @@ protected:
      */
     string allocate_error (PoolObjectSQL::ObjectType obj, const string& error);
 
-    /**
-     * Locks the requested object, gets information, and unlocks it
-     *
-     * @param pool object pool
-     * @param id of the object
-     * @param type of the object
-     * @param att the specific request attributes
-     *
-     * @param perms returns the object's permissions
-     * @param name returns the object's name
-     * @param throw_error send error response to client if object not found
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int get_info (PoolSQL *                 pool,
-                  int                       id,
-                  PoolObjectSQL::ObjectType type,
-                  RequestAttributes&        att,
-                  PoolObjectAuth&           perms,
-                  string&                   name,
-                  bool                      throw_error);
+    /* -------------------- Authorization ----------------------------------- */
 
     /**
-     * Logs the method result, including the output data or error message
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param att the specific request attributes
      *
-     * @param att the specific request attributes
+     *    @return true if the user is authorized.
      */
-    virtual void log_result(
-            const RequestAttributes&    att);
+    bool basic_authorization(int oid, RequestAttributes& att)
+    {
+        return basic_authorization(oid, auth_op, att);
+    };
 
     /**
-     * Formats and adds a xmlrpc_c::value to oss.
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param op operation of the request.
+     *    @param att the specific request attributes
      *
-     * @param v value to format
-     * @param oss stream to write v
+     *    @return true if the user is authorized.
      */
-    virtual void log_xmlrpc_value(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss);
-
-private:
-
-    /**
-     * Logs the method invocation, including the arguments
-     *
-     * @param att the specific request attributes
-     * @param paramList list of XML parameters
-     */
-    void log_method_invoked(
-            const RequestAttributes&    att,
-            const xmlrpc_c::paramList&  paramList);
-
-    /* ------------- Functions to manage user and group quotas -------------- */
-
-    bool user_quota_authorization(Template * tmpl,
-                                  Quotas::QuotaType  qtype,
-                                  RequestAttributes& att,
-                                  string& error_str);
-
-    bool group_quota_authorization(Template * tmpl,
-                                   Quotas::QuotaType  qtype,
-                                   RequestAttributes& att,
-                                   string& error_str);
-
-    void user_quota_rollback(Template * tmpl,
-                             Quotas::QuotaType  qtype,
+    bool basic_authorization(int oid, AuthRequest::Operation op,
                              RequestAttributes& att);
 
-    void group_quota_rollback(Template * tmpl,
-                              Quotas::QuotaType  qtype,
-                              RequestAttributes& att);
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request. Usage counters are updated for the user/group.
+     *  On case of error, the failure_response return values are set
+     *
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(
+            Template *          tmpl,
+            Quotas::QuotaType   qtype,
+            RequestAttributes&  att);
+
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request. Usage counters are updated for the user/group.
+     *  On case of error, the failure_response return values is not set, instead
+     *  the error reason is returned in error_str
+     *
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @param error_str Error reason, if any
+     *    @return true if the user is authorized.
+     */
+    bool quota_authorization(
+            Template *          tmpl,
+            Quotas::QuotaType   qtype,
+            RequestAttributes&  att,
+            string&             error_str);
+
+    /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    void quota_rollback(Template *         tmpl,
+                        Quotas::QuotaType  qtype,
+                        RequestAttributes& att);
+
 };
 
 /* -------------------------------------------------------------------------- */
