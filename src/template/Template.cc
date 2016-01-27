@@ -389,6 +389,30 @@ int Template::get(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool Template::get(
+    const string& name,
+    VectorAttribute*& vatt)
+{
+    vector<Attribute *> array_attr;
+    int                 num;
+
+    num = get(name, array_attr);
+
+    if ( num < 1 )
+    {
+        vatt = 0;
+        return false;
+    }
+
+    vatt = dynamic_cast<VectorAttribute *>(array_attr[0]);
+
+    return ( vatt != 0 );
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Template::get(
         const string& name,
         string& value) const

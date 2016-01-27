@@ -956,7 +956,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
-            vm->clear_attach_nic();
+            vm->attach_nic_success();
+            vm->detach_nic_success();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);

@@ -1111,7 +1111,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_attach_nic(int vid)
+void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 {
     VirtualMachine *  vm;
     VectorAttribute * nic;
@@ -1127,7 +1127,15 @@ void VirtualMachinePool::delete_attach_nic(int vid)
         return;
     }
 
-    nic  = vm->delete_attach_nic();
+    if (attach)
+    {
+        nic  = vm->attach_nic_failure();
+    }
+    else
+    {
+        nic = vm->detach_nic_success();
+    }
+
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     oid  = vm->get_oid();
@@ -1146,4 +1154,20 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
         VirtualMachine::release_network_leases(nic, oid);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::attach_nic_failure(int vid)
+{
+    delete_hotplug_nic(vid, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::detach_nic_success(int vid)
+{
+    delete_hotplug_nic(vid, false);
 }

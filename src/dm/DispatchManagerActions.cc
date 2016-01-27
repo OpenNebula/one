@@ -1580,8 +1580,6 @@ int DispatchManager::attach_nic(
 
     vm->set_attach_nic(nic, sg_rules);
 
-    vm->update_context(tmp_error);
-
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {
         time_t the_time = time(0);
@@ -1615,7 +1613,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
     }
 
     vmpool->update(vm);
@@ -1674,7 +1672,7 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    if ( vm->set_attach_nic(nic_id) == -1 )
+    if ( vm->set_detach_nic(nic_id) == -1 )
     {
         oss << "Could not detach NIC with NIC_ID " << nic_id
             << ", it does not exist.";
@@ -1685,8 +1683,6 @@ int DispatchManager::detach_nic(
         vm->unlock();
         return -1;
     }
-
-    vm->update_context(tmp_error);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -1734,7 +1730,7 @@ int DispatchManager::detach_nic(
 
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->detach_nic_success(vid);
 
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }
