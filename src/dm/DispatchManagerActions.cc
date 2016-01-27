@@ -1528,8 +1528,6 @@ int DispatchManager::attach_nic(
 
     if ( vm == 0 )
     {
-        delete nic;
-
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
@@ -1540,6 +1538,8 @@ int DispatchManager::attach_nic(
                 delete *it;
             }
         }
+
+        delete nic;
 
         oss << "Could not attach a new NIC to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
