@@ -59,6 +59,11 @@ region            = xpath(xml, 'MARKETPLACE/TEMPLATE/REGION')
 
 name = File.basename(source)
 
+if name.empty?
+    STDERR.puts "Empty SOURCE."
+    exit 1
+end
+
 s3 = S3.new(
     :name              => name,
     :bucket            => bucket,
