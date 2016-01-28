@@ -40,6 +40,7 @@
     <table class="dataTable">
       <thead>
         <tr>
+          <th>{{tr "ID"}}</th>
           <th>{{tr "Network"}}</th>
           <th>{{tr "Floating IP"}}</th>
           <th>{{tr "Floating IPv6 ULA"}}</th>
@@ -50,6 +51,7 @@
       <tbody>
         {{#each nics}}
         <tr>
+          <td>{{NIC_ID}}</td>
           <td>{{NETWORK}}</td>
           <td>{{valOrDefault IP "--"}}</td>
           <td>{{valOrDefault IP6_ULA "--"}}</td>

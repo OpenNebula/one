@@ -171,6 +171,14 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
             }
 
             CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>3 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NIC_ID"]
+                    end
+                end
+
                 column :NETWORK, "", :left, :size=>20 do |d|
                     if d["DOUBLE_ENTRY"]
                         ""
