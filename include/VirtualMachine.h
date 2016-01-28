@@ -1356,8 +1356,6 @@ public:
      */
     int  generate_context(string &files, int &disk_id, const string& token_password);
 
-    int replace_context_attribute(const string& name, const string& value);
-
     const VectorAttribute* get_context_disk() const;
 
     /**

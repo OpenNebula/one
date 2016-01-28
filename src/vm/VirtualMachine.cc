@@ -3630,34 +3630,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::replace_context_attribute(const string& name, const string& value)
-{
-    vector<Attribute *> array_context;
-    VectorAttribute *   context;
-    int                 num;
-
-    num = obj_template->get("CONTEXT", array_context);
-
-    if ( num != 1 )
-    {
-        return -1;
-    }
-
-    context = dynamic_cast<VectorAttribute *>(array_context[0]);
-
-    if ( context == 0 )
-    {
-        return -1;
-    }
-
-    context->replace(name, value);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::get_created_by_uid() const
 {
     int created_by_uid;

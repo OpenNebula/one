@@ -144,8 +144,8 @@ void VirtualRouterInstantiate::request_execute(
         vr->unlock();
     }
 
-    // VMs are created on hold to wait for all the vr->add_vmid calls, that
-    // update each VM context with other VM IPs
+    // VMs are created on hold to wait for all of them to be created
+    // successfully, to avoid the rollback dm->finalize call on prolog
     if (!on_hold)
     {
         for (vmid = vms.begin(); vmid != vms.end(); vmid++)
