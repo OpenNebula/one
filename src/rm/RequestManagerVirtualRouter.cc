@@ -249,7 +249,7 @@ void VirtualRouterAttachNic::request_execute(
         return;
     }
 
-    nic = vr->set_attach_nic(&tmpl, error_str);
+    nic = vr->attach_nic(&tmpl, error_str);
 
     set<int> vms = vr->get_vms();
 
@@ -290,6 +290,111 @@ void VirtualRouterAttachNic::request_execute(
     }
 
     delete nic;
+
+    success_response(vrid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterDetachNic::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    VirtualRouterPool*  vrpool = static_cast<VirtualRouterPool*>(pool);
+    VirtualRouter *     vr;
+    PoolObjectAuth      vr_perms;
+
+    int    rc;
+
+    int vrid    = xmlrpc_c::value_int(paramList.getInt(1));
+    int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                att);
+
+        return;
+    }
+
+    vr->get_permissions(vr_perms);
+
+    vr->unlock();
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Detach the NIC from the Virtual Router
+    // -------------------------------------------------------------------------
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                att);
+
+        return;
+    }
+
+    rc = vr->detach_nic(nic_id);
+
+    set<int> vms = vr->get_vms();
+
+    vrpool->update(vr);
+
+    vr->unlock();
+
+    if (rc != 0)
+    {
+        ostringstream oss;
+
+        oss << "Could not detach NIC with NIC_ID " << nic_id
+            << ", it does not exist.";
+
+        failure_response(Request::ACTION,
+                request_error(oss.str(), ""),
+                att);
+
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Detach NIC from each VM
+    // -------------------------------------------------------------------------
+
+    for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
+    {
+        rc = VirtualMachineDetachNic::detach(this, att, *vmid, nic_id);
+
+        if (rc == -1)
+        {
+            // TODO: manage individual error, do rollback?
+            return;
+        }
+    }
 
     success_response(vrid, att);
 }

@@ -540,7 +540,7 @@ set<int> VirtualRouter::get_vms() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * VirtualRouter::set_attach_nic(
+VectorAttribute * VirtualRouter::attach_nic(
         VirtualMachineTemplate * tmpl, string& error_str)
 {
     VirtualNetworkPool *        vnpool;
@@ -603,4 +603,46 @@ VectorAttribute * VirtualRouter::set_attach_nic(
     prepare_nic_vm(nic);
 
     return nic;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouter::detach_nic(int nic_id)
+{
+    VectorAttribute * nic = get_nic(nic_id);
+
+    if (nic == 0)
+    {
+        return -1;
+    }
+
+    obj_template->remove(nic);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute* VirtualRouter::get_nic(int nic_id) const
+{
+    int tnic_id;
+
+    vector<VectorAttribute  *> nics;
+    vector<VectorAttribute *>::iterator nic_it;
+
+    obj_template->get("NIC", nics);
+
+    for(nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
+    {
+        (*nic_it)->vector_value("NIC_ID", tnic_id);
+
+        if ( tnic_id == nic_id )
+        {
+            return (*nic_it);
+        }
+    }
+
+    return 0;
 }

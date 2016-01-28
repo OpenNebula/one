@@ -472,7 +472,7 @@ void RequestManager::register_xml_methods()
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
     xmlrpc_c::methodPtr vrouter_attachnic(new VirtualRouterAttachNic());
-    //xmlrpc_c::methodPtr vrouter_detachnic(new VirtualRouterDetachNic());
+    xmlrpc_c::methodPtr vrouter_detachnic(new VirtualRouterDetachNic());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -908,6 +908,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
     RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
     RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
+    RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 

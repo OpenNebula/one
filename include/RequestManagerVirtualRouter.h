@@ -90,6 +90,27 @@ public:
 
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterDetachNic : public RequestManagerVirtualRouter
+{
+public:
+    VirtualRouterDetachNic():
+        RequestManagerVirtualRouter("VirtualRouterDetachNic",
+                                 "Detaches a NIC from a virtual router, and its virtual machines",
+                                 "A:sii")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
+    ~VirtualRouterDetachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -83,8 +83,16 @@ public:
      *
      * @return 0 on failure, the NIC to attach to each VM on success
      */
-    VectorAttribute * set_attach_nic(
+    VectorAttribute * attach_nic(
             VirtualMachineTemplate * tmpl, string& error_str);
+
+    /**
+     * Deletes the NIC from the virtual router template.
+     *
+     * @param nic_id of the NIC
+     * @return 0 if the nic_id was found, -1 otherwise
+     */
+    int detach_nic(int nic_id);
 
 private:
     // -------------------------------------------------------------------------
@@ -204,6 +212,17 @@ private:
      * @return 0 on success, -1 otherwise
      */
     int release_network_leases(VectorAttribute const * nic);
+
+    /**
+     * Returns the nic with the giver nic_id, or 0
+     * @param nic_id
+     * @return nic if found, 0 if not found
+     */
+    VectorAttribute* get_nic(int nic_id) const;
+
+    // -------------------------------------------------------------------------
+    // VM Management
+    // -------------------------------------------------------------------------
 
     /**
      * Tries to shutdown, or delete, all this Virtual Router's VMs

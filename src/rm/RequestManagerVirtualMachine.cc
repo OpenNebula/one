@@ -2318,6 +2318,10 @@ int VirtualMachineAttachNic::attach(Request* req, RequestAttributes& att,
         return -1;
     }
 
+    // -------------------------------------------------------------------------
+    // Perform the attach
+    // -------------------------------------------------------------------------
+
     rc = dm->attach_nic(id, &tmpl, error_str);
 
     if ( rc != 0 )
@@ -2341,24 +2345,15 @@ void VirtualMachineDetachNic::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
-    VirtualMachine *    vm;
-
-    int rc;
-    string error_str;
+    VirtualMachine * vm;
+    int              rc;
 
     int id      = xmlrpc_c::value_int(paramList.getInt(1));
     int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
 
     // -------------------------------------------------------------------------
-    // Authorize the operation
+    // Check if the VM is a Virtual Router
     // -------------------------------------------------------------------------
-
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
-    {
-        return;
-    }
 
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -2367,7 +2362,7 @@ void VirtualMachineDetachNic::request_execute(
 
     if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_DETACH_ACTION))
     {
-        failure_response(ACTION,
+        failure_response(Request::ACTION,
                 request_error("Action is not supported for Virtual Router VMs",""),
                 att);
 
@@ -2377,20 +2372,84 @@ void VirtualMachineDetachNic::request_execute(
 
     vm->unlock();
 
+    // -------------------------------------------------------------------------
+    // Perform the detach
+    // -------------------------------------------------------------------------
+
+    rc = detach(this, att, id, nic_id);
+
+    if (rc == 0)
+    {
+        success_response(id, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDetachNic::detach(
+        Request* req, RequestAttributes& att, int id, int nic_id)
+{
+    Nebula&             nd      = Nebula::instance();
+    DispatchManager *   dm      = nd.get_dm();
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+
+    PoolObjectAuth      vm_perms;
+    VirtualMachine *    vm;
+
+    int    rc;
+    string error_str;
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+
+    vm = vmpool->get(id, true);
+
+    if ( vm == 0 )
+    {
+        req->failure_response(Request::NO_EXISTS,
+                req->get_error(object_name(PoolObjectSQL::VM),id), att);
+
+        return -1;
+    }
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            req->failure_response(Request::AUTHORIZATION,
+                    req->authorization_error(ar.message, att),
+                    att);
+
+            return -1;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Perform the detach
+    // -------------------------------------------------------------------------
+
     rc = dm->detach_nic(id, nic_id, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-                request_error(error_str, ""),
+        req->failure_response(Request::ACTION,
+                req->request_error(error_str, ""),
                 att);
-    }
-    else
-    {
-        success_response(id, att);
+
+        return -1;
     }
 
-    return;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

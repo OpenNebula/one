@@ -275,6 +275,8 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+    static int detach(Request* req, RequestAttributes& att, int id, int nic_id);
 };
 
 /* -------------------------------------------------------------------------- */
