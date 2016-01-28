@@ -351,7 +351,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
-    xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -469,6 +468,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+
+    // Virtual Router Methods
+    xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
+    xmlrpc_c::methodPtr vrouter_attachnic(new VirtualRouterAttachNic());
+    //xmlrpc_c::methodPtr vrouter_detachnic(new VirtualRouterDetachNic());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -903,6 +907,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vrouter.chmod", vrouter_chmod);
     RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
     RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
+    RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 

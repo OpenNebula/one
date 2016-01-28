@@ -182,7 +182,8 @@ int VirtualRouter::get_network_leases(string& estr)
     {
         nic = static_cast<VectorAttribute * >(nics[i]);
 
-        rc = vnpool->vrouter_nic_attribute(nic, uid, oid, estr);
+        rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER,
+                nic, i, uid, oid, estr);
 
         if (rc == -1)
         {
@@ -445,12 +446,31 @@ void vrouter_prefix(VectorAttribute* nic, const string& attr)
 
 /* -------------------------------------------------------------------------- */
 
+void prepare_nic_vm(VectorAttribute* nic)
+{
+    bool floating = false;
+    nic->vector_value("FLOATING_IP", floating);
+
+    if (floating)
+    {
+        nic->remove("MAC");
+
+        vrouter_prefix(nic, "IP");
+        vrouter_prefix(nic, "IP6_LINK");
+        vrouter_prefix(nic, "IP6_ULA");
+        vrouter_prefix(nic, "IP6_GLOBAL");
+
+        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 Template * VirtualRouter::get_vm_template() const
 {
     Template * tmpl = new Template();
 
     int                   num_nics;
-    bool                  floating;
     vector<Attribute  * > nics;
     VectorAttribute *     nic;
     int                   keepalived_id;
@@ -469,20 +489,7 @@ Template * VirtualRouter::get_vm_template() const
 
         nic = nic->clone();
 
-        floating = false;
-        nic->vector_value("FLOATING_IP", floating);
-
-        if (floating)
-        {
-            nic->remove("MAC");
-
-            vrouter_prefix(nic, "IP");
-            vrouter_prefix(nic, "IP6_LINK");
-            vrouter_prefix(nic, "IP6_ULA");
-            vrouter_prefix(nic, "IP6_GLOBAL");
-
-            // TODO: remove all other attrs, such as AR, BRIDGE, etc?
-        }
+        prepare_nic_vm(nic);
 
         tmpl->set(nic);
     }
@@ -514,11 +521,11 @@ int VirtualRouter::add_vmid(int vmid)
     VirtualMachine*         vm;
     VirtualMachinePool*     vmpool = Nebula::instance().get_vmpool();
 
-    int                     num_nics;
     int                     nic_id;
     bool                    floating;
-    vector<Attribute  * >   nics;
-    VectorAttribute *       nic;
+    vector<const VectorAttribute* >   nics;
+    vector<const VectorAttribute* >::iterator nic_it;
+
     const VectorAttribute * vm_nic;
     set<int>::iterator      it;
     string                  ipstr;
@@ -531,22 +538,16 @@ int VirtualRouter::add_vmid(int vmid)
         return rc;
     }
 
-    num_nics = obj_template->get("NIC",nics);
+    obj_template->get("NIC",nics);
 
-    for(nic_id = 0; nic_id < num_nics; nic_id++)
+    for (nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
     {
         vector<string> ip_vector;
         vector<string> ip6_vector;
 
-        nic = static_cast<VectorAttribute * >(nics[nic_id]);
-
-        if (nic == 0)
-        {
-            continue;
-        }
-
         floating = false;
-        nic->vector_value("FLOATING_IP", floating);
+        (*nic_it)->vector_value("FLOATING_IP", floating);
+        (*nic_it)->vector_value("NIC_ID", nic_id);
 
         if (floating)
         {
@@ -630,4 +631,80 @@ int VirtualRouter::add_vmid(int vmid)
 bool VirtualRouter::has_vmids() const
 {
     return vms.get_collection_size() > 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+set<int> VirtualRouter::get_vms() const
+{
+    return vms.get_collection_copy();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualRouter::set_attach_nic(
+        VirtualMachineTemplate * tmpl, string& error_str)
+{
+    VirtualNetworkPool *        vnpool;
+    vector<VectorAttribute *>   nics;
+
+    vector<VectorAttribute *>::const_iterator it;
+    VectorAttribute *           nic;
+
+    int rc;
+    int nic_id;
+
+    vnpool = Nebula::instance().get_vnpool();
+
+    // -------------------------------------------------------------------------
+    // Get the highest NIC_ID
+    // -------------------------------------------------------------------------
+
+    int max_nic_id = -1;
+
+    obj_template->get("NIC", nics);
+
+    for(it = nics.begin(); it != nics.end(); it++)
+    {
+        (*it)->vector_value("NIC_ID", nic_id);
+
+        if ( nic_id > max_nic_id )
+        {
+            max_nic_id = nic_id;
+        }
+    }
+
+    nic_id = max_nic_id+1;
+
+    // -------------------------------------------------------------------------
+    // Get the new NIC attribute from the template
+    // -------------------------------------------------------------------------
+
+    nics.clear();
+
+    if ( tmpl->get("NIC", nics) != 1 )
+    {
+        error_str = "The template must contain one NIC attribute";
+        return 0;
+    }
+
+    nic = nics[0];
+
+    rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER,
+                        nic, nic_id, uid, oid, error_str);
+
+    if (rc == -1)
+    {
+        return 0;
+    }
+
+    obj_template->set(nic->clone());
+
+    nic = nic->clone();
+
+    prepare_nic_vm(nic);
+
+    return nic;
 }

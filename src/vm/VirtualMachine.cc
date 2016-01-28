@@ -2681,7 +2681,8 @@ int VirtualMachine::set_up_attach_nic(
 
     set<int> nic_sgs;
 
-    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
+    int rc = vnpool->nic_attribute(PoolObjectSQL::VM,
+                        new_nic, max_nic_id+1, uid, vm_id, error_str);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
@@ -3202,7 +3203,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
         merge_nic_defaults(nic);
 
-        rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
+        rc = vnpool->nic_attribute(PoolObjectSQL::VM, nic, i, uid, oid, estr);
 
         if (rc == -1)
         {

@@ -20,6 +20,7 @@
 #include "PoolObjectSQL.h"
 #include "Template.h"
 #include "ObjectCollection.h"
+#include "VirtualMachineTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -41,6 +42,11 @@ public:
     int add_vmid(int vmid);
 
     bool has_vmids() const;
+
+    /**
+     *  Returns a copy of the VM IDs set
+     */
+    set<int> get_vms() const;
 
     // ------------------------------------------------------------------------
     // Template Contents
@@ -65,6 +71,20 @@ public:
     };
 
     Template * get_vm_template() const;
+
+    // ------------------------------------------------------------------------
+    // Attach and detach NIC
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adds a new NIC to the virtual router template.
+     * @param tmpl Template, should contain only one NIC
+     * @param error_str error reason, if any
+     *
+     * @return 0 on failure, the NIC to attach to each VM on success
+     */
+    VectorAttribute * set_attach_nic(
+            VirtualMachineTemplate * tmpl, string& error_str);
 
 private:
     // -------------------------------------------------------------------------

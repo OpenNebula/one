@@ -234,6 +234,50 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    nic_attach_desc = <<-EOT.unindent
+        Attaches a NIC to a VirtualRouter, and each one of its VMs. When using
+        --file add only one NIC instance.
+    EOT
+
+    command :"nic-attach", nic_attach_desc, :vrouterid,
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, OneVMHelper::IP] do
+
+        if options[:file].nil? and options[:network].nil?
+            STDERR.puts "Provide a template file or a network:"
+            STDERR.puts "\t--file    <file>"
+            STDERR.puts "\t--network <network>"
+            exit -1
+        end
+
+        if options[:file]
+            template = File.read(options[:file])
+        else
+            network_id = options[:network]
+            ip = options[:ip]
+            if ip
+                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
+            else
+                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+            end
+        end
+
+        helper.perform_action(args[0],options,"Attach NIC") do |vr|
+            vr.nic_attach(template)
+        end
+    end
+
+    nic_detach_desc = <<-EOT.unindent
+        Detaches a NIC from a VirtualRouter, and each one of its VMs
+    EOT
+
+    command :"nic-detach", nic_detach_desc, :vrouterid, :nicid do
+        nicid = args[1].to_i
+
+        helper.perform_action(args[0],options,"Detach NIC") do |vr|
+            vr.nic_detach(nicid)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists the Virtual Routers in the pool
     EOT

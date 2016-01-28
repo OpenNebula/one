@@ -84,6 +84,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    IP={
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--ip ip",
+        :format => String,
+        :description => "IP address for the new NIC"
+    }
+
     FILE = {
         :name   => "file",
         :short  => "-f file",

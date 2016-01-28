@@ -2187,19 +2187,35 @@ void VirtualMachineAttachNic::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
+    VirtualMachine *        vm;
+    VirtualMachineTemplate  tmpl;
 
-    VirtualMachineTemplate tmpl;
-
-    PoolObjectAuth       vm_perms;
-    VirtualMachine *     vm;
-
-    int    rc;
-    string error_str;
+    string  error_str;
+    int     rc;
 
     int     id       = xmlrpc_c::value_int(paramList.getInt(1));
     string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    // -------------------------------------------------------------------------
+    // Check if the VM is a Virtual Router
+    // -------------------------------------------------------------------------
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_ATTACH_ACTION))
+    {
+        failure_response(Request::ACTION,
+                request_error("Action is not supported for Virtual Router VMs",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    vm->unlock();
 
     // -------------------------------------------------------------------------
     // Parse NIC template
@@ -2209,37 +2225,73 @@ void VirtualMachineAttachNic::request_execute(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, error_str, att);
+        failure_response(Request::INTERNAL, error_str, att);
         return;
     }
+
+    // -------------------------------------------------------------------------
+    // Perform the attach
+    // -------------------------------------------------------------------------
+
+    rc = attach(this, att, id, tmpl);
+
+    if (rc == 0)
+    {
+        success_response(id, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineAttachNic::attach(Request* req, RequestAttributes& att,
+        int id, VirtualMachineTemplate& tmpl)
+{
+    Nebula&             nd      = Nebula::instance();
+    DispatchManager *   dm      = nd.get_dm();
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+
+    PoolObjectAuth       vm_perms;
+    VirtualMachine *     vm;
+
+    int    rc;
+    string error_str;
 
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
-    {
-        return;
-    }
+    vm = vmpool->get(id, true);
 
-    if ((vm = get_vm(id, att)) == 0)
+    if ( vm == 0 )
     {
-        return;
+        req->failure_response(Request::NO_EXISTS,
+                req->get_error(object_name(PoolObjectSQL::VM),id), att);
+
+        return -1;
     }
 
     vm->get_permissions(vm_perms);
 
-    if (vm->is_vrouter() && !vm->is_vrouter_action_supported(History::NIC_ATTACH_ACTION))
-    {
-        failure_response(ACTION,
-                request_error("Action is not supported for Virtual Router VMs",""),
-                att);
-
-        vm->unlock();
-        return;
-    }
-
     vm->unlock();
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+        VirtualMachine::set_auth_request(att.uid, ar, &tmpl);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            req->failure_response(Request::AUTHORIZATION,
+                    req->authorization_error(ar.message, att),
+                    att);
+
+            return -1;
+        }
+    }
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
@@ -2253,34 +2305,33 @@ void VirtualMachineAttachNic::request_execute(
 
             oss << "NIC includes a restricted attribute " << aname;
 
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
+            req->failure_response(Request::AUTHORIZATION,
+                    req->authorization_error(oss.str(), att),
                     att);
-            return;
+
+            return -1;
         }
     }
 
-    if ( quota_authorization(&tmpl, Quotas::NETWORK, att_quota) == false )
+    if ( req->quota_authorization(&tmpl, Quotas::NETWORK, att_quota) == false )
     {
-        return;
+        return -1;
     }
 
     rc = dm->attach_nic(id, &tmpl, error_str);
 
     if ( rc != 0 )
     {
-        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+        req->quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
 
-        failure_response(ACTION,
-                request_error(error_str, ""),
+        req->failure_response(Request::ACTION,
+                req->request_error(error_str, ""),
                 att);
-    }
-    else
-    {
-        success_response(id, att);
+
+        return -1;
     }
 
-    return;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

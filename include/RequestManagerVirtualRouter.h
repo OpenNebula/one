@@ -69,6 +69,27 @@ public:
 
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterAttachNic : public RequestManagerVirtualRouter
+{
+public:
+    VirtualRouterAttachNic():
+        RequestManagerVirtualRouter("VirtualRouterAttachNic",
+                                 "Attaches a new NIC to the virtual router, and its virtual machines",
+                                 "A:sis")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
+    ~VirtualRouterAttachNic(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

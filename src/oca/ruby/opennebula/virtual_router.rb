@@ -31,7 +31,9 @@ module OpenNebula
             :delete      => "vrouter.delete",
             :chown       => "vrouter.chown",
             :chmod       => "vrouter.chmod",
-            :rename      => "vrouter.rename"
+            :rename      => "vrouter.rename",
+            :attachnic   => "vrouter.attachnic",
+            :detachnic   => "vrouter.detachnic",
         }
 
         # Creates a VirtualRouter description with just its identifier
@@ -153,6 +155,24 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VIRTUAL_ROUTER_METHODS[:rename], @pe_id, name)
+        end
+
+        # Attaches a NIC to this VirtualRouter, and each one of its VMs
+        #
+        # @param nic_template [String] Template containing a NIC element
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def nic_attach(nic_template)
+            return call(VIRTUAL_ROUTER_METHODS[:attachnic], @pe_id, nic_template)
+        end
+
+        # Detaches a NIC from this VirtualRouter, and each one of its VMs
+        #
+        # @param nic_id [Integer] Id of the NIC to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def nic_detach(nic_id)
+            return call(VIRTUAL_ROUTER_METHODS[:detachnic], @pe_id, nic_id)
         end
 
         #######################################################################

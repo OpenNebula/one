@@ -16,6 +16,7 @@
 
 #include "RequestManagerVirtualRouter.h"
 #include "RequestManagerVMTemplate.h"
+#include "RequestManagerVirtualMachine.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 
@@ -152,6 +153,143 @@ void VirtualRouterInstantiate::request_execute(
             dm->release(*vmid, errorstr);
         }
     }
+
+    success_response(vrid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouterAttachNic::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    VirtualRouterPool*  vrpool = static_cast<VirtualRouterPool*>(pool);
+    VirtualRouter *     vr;
+    VectorAttribute*    nic;
+
+    VirtualMachineTemplate  tmpl;
+    PoolObjectAuth          vr_perms;
+
+    int    rc;
+    string error_str;
+
+    int    vrid     = xmlrpc_c::value_int(paramList.getInt(1));
+    string str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    // -------------------------------------------------------------------------
+    // Parse NIC template
+    // -------------------------------------------------------------------------
+
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, error_str, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation & check quotas
+    // -------------------------------------------------------------------------
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr == 0)
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                att);
+
+        return;
+    }
+
+    vr->get_permissions(vr_perms);
+
+    vr->unlock();
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
+
+        VirtualMachine::set_auth_request(att.uid, ar, &tmpl); // USE VNET
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    RequestAttributes att_quota(vr_perms.uid, vr_perms.gid, att);
+
+    if ( quota_authorization(&tmpl, Quotas::NETWORK, att_quota) == false )
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Attach NIC to the Virtual Router
+    // -------------------------------------------------------------------------
+
+    vr = vrpool->get(vrid, true);
+
+    if (vr == 0)
+    {
+        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+
+        failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
+                att);
+
+        return;
+    }
+
+    nic = vr->set_attach_nic(&tmpl, error_str);
+
+    set<int> vms = vr->get_vms();
+
+    vrpool->update(vr);
+
+    vr->unlock();
+
+    if (nic == 0)
+    {
+        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Attach NIC to each VM
+    // -------------------------------------------------------------------------
+
+    for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
+    {
+        VirtualMachineTemplate tmpl;
+
+        tmpl.set(nic->clone());
+
+        rc = VirtualMachineAttachNic::attach(this, att, *vmid, tmpl);
+
+        if (rc == -1)
+        {
+            // TODO: manage individual attach error, do rollback?
+
+            delete nic;
+            return;
+        }
+    }
+
+    delete nic;
 
     success_response(vrid, att);
 }

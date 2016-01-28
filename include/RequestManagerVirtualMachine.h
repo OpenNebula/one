@@ -255,6 +255,9 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+    static int attach(Request* req, RequestAttributes& att, int id,
+                    VirtualMachineTemplate& tmpl);
 };
 
 /* -------------------------------------------------------------------------- */

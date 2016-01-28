@@ -1477,19 +1477,6 @@ int DispatchManager::attach_nic(
         return -1;
     }
 
-    if (vm->is_vrouter())
-    {
-        oss << "Could not add a new NIC to VM " << vid
-            << ", it is associated to the Virtual Router "
-            << vm->get_vrouter_id() << ".";
-        error_str = oss.str();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-
-        vm->unlock();
-        return -1;
-    }
-
     nic = vm->get_attach_nic_info(tmpl, max_nic_id, error_str);
 
     if ( nic == 0 )
@@ -1651,19 +1638,6 @@ int DispatchManager::detach_nic(
     {
         oss << "Could not detach NIC from VM " << vid << ", wrong state "
             << vm->state_str() << ".";
-        error_str = oss.str();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-
-        vm->unlock();
-        return -1;
-    }
-
-    if (vm->is_vrouter())
-    {
-        oss << "Could not detach NIC from VM " << vid
-            << ", it is associated to the Virtual Router "
-            << vm->get_vrouter_id() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);

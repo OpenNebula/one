@@ -312,6 +312,24 @@ public:
         VectorAttribute*& vatt);
 
     /**
+     *  Gets all the Vector Attributes with the given name
+     *    @param name the attribute name.
+     *    @return the number of elements in the vector
+     */
+    virtual int get(
+        const string& name,
+        vector<const VectorAttribute*>& values) const;
+
+    /**
+     *  Gets all the Vector Attributes with the given name, non-const version
+     *    @param name the attribute name.
+     *    @return the number of elements in the vector
+     */
+    virtual int get(
+        const string& name,
+        vector<VectorAttribute*>& values);
+
+    /**
      *  Gets the value of a Single attributes (string) with the given name.
      *    @param name the attribute name.
      *    @param value the attribute value, a string, "" if the attribute is not

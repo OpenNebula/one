@@ -409,6 +409,63 @@ bool Template::get(
     return ( vatt != 0 );
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Template::get(
+    const string& name,
+    vector<const VectorAttribute*>& values) const
+{
+    multimap<string, Attribute *>::const_iterator       i;
+    pair<multimap<string, Attribute *>::const_iterator,
+    multimap<string, Attribute *>::const_iterator>      index;
+    const VectorAttribute *                             vatt;
+
+    index = attributes.equal_range(name);
+
+    for ( i = index.first ; i != index.second ; i++ )
+    {
+        vatt = dynamic_cast<const VectorAttribute * >(i->second);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        values.push_back(vatt);
+    }
+
+    return values.size();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Template::get(
+    const string& name,
+    vector<VectorAttribute*>& values)
+{
+    multimap<string, Attribute *>::iterator       i;
+    pair<multimap<string, Attribute *>::iterator,
+    multimap<string, Attribute *>::iterator>      index;
+    VectorAttribute *                             vatt;
+
+    index = attributes.equal_range(name);
+
+    for ( i = index.first ; i != index.second ; i++ )
+    {
+        vatt = dynamic_cast<VectorAttribute * >(i->second);
+
+        if ( vatt == 0 )
+        {
+            continue;
+        }
+
+        values.push_back(vatt);
+    }
+
+    return values.size();
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
