@@ -117,6 +117,27 @@ function unarchive
     fi
 }
 
+function s3_request
+{
+    FROM="$1"
+
+    OBJECT=$(basename $FROM)
+    BUCKET=$(basename $(dirname $FROM))
+
+    DATE="`date +'%a, %d %b %Y %H:%M:%S %z'`"
+    AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
+
+    SIGNED_AUTH_STRING=`echo -en "$AUTH_STRING" | \
+                        openssl sha1 -hmac ${S3_SECRET_ACCESS_KEY} -binary | \
+                        base64`
+
+    echo " -H \"Date: ${DATE}\"" \
+         " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
+         " https://${BUCKET}.s3.amazonaws.com/${OBJECT}"
+}
+
+
+
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -186,6 +207,15 @@ ssh://*)
 
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
+s3://*)
+    if [ -z "$S3_ACCESS_KEY_ID" -o -z "$S3_SECRET_ACCESS_KEY" ]; then
+        echo "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are required" >&2
+        exit -1
+    fi
+
+    curl_args="$(s3_request $FROM)"
+    command="curl $curl_args"
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
@@ -198,7 +228,7 @@ esac
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-$command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
+eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
 if [ "$?" != "0" ]; then
     echo "Error copying" >&2
