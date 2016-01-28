@@ -322,7 +322,24 @@ int ImagePool::acquire_disk(int               vm_id,
 
     *snap = 0;
 
-    if (!(source = disk->vector_value("IMAGE")).empty())
+    if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    {
+        iid = get_disk_id(source);
+
+        if ( iid == -1)
+        {
+            error_str = "Wrong ID set in IMAGE_ID";
+            return -1;
+        }
+
+        img = imagem->acquire_image(vm_id, iid, error_str);
+
+        if ( img == 0 )
+        {
+            return -1;
+        }
+    }
+    else if (!(source = disk->vector_value("IMAGE")).empty())
     {
         int uiid = get_disk_uid(disk,uid);
 
@@ -345,23 +362,6 @@ int ImagePool::acquire_disk(int               vm_id,
         }
 
         iid = img->get_oid();
-    }
-    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
-    {
-        iid = get_disk_id(source);
-
-        if ( iid == -1)
-        {
-            error_str = "Wrong ID set in IMAGE_ID";
-            return -1;
-        }
-
-        img = imagem->acquire_image(vm_id, iid, error_str);
-
-        if ( img == 0 )
-        {
-            return -1;
-        }
     }
     else //Not using the image repository (volatile DISK)
     {

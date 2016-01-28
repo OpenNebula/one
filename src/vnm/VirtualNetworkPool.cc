@@ -253,13 +253,13 @@ int VirtualNetworkPool::nic_attribute(
 
     nic->replace("NIC_ID", nic_id);
 
-    if (!(network = nic->vector_value("NETWORK")).empty())
-    {
-        vnet = get_nic_by_name (nic, network, uid, error);
-    }
-    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    if (!(network = nic->vector_value("NETWORK_ID")).empty())
     {
         vnet = get_nic_by_id(network, error);
+    }
+    else if (!(network = nic->vector_value("NETWORK")).empty())
+    {
+        vnet = get_nic_by_name (nic, network, uid, error);
     }
     else //Not using a pre-defined network
     {
