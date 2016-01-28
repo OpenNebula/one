@@ -136,8 +136,6 @@ function s3_request
          " https://${BUCKET}.s3.amazonaws.com/${OBJECT}"
 }
 
-
-
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -200,8 +198,8 @@ http://*|https://*)
 ssh://*)
     # pseudo-url for ssh transfers ssh://user@host:path
     # -l to limit the bw
-    ssh_src=$(echo $FROM | grep -Po '(?<=ssh://).+')
-    ssh_arg=(${ssh_src//:/ })
+    ssh_src=${FROM#ssh://}
+    ssh_arg=(${ssh_src/:/ })
 
     rmt_cmd="'cat ${ssh_arg[1]}'"
 
