@@ -687,8 +687,8 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/snapshot_revert \
                     src/vmm_mad/remotes/kvm/snapshot_delete \
                     src/vmm_mad/remotes/kvm/shutdown \
-                    src/vmm_mad/remotes/kvm/cdrom_exec \
-                    src/vmm_mad/remotes/kvm/cdrom_change"
+                    src/vmm_mad/remotes/kvm/reconfigure \
+                    src/vmm_mad/remotes/kvm/prereconfigure"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen

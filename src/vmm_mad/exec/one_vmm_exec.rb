@@ -861,7 +861,7 @@ class ExecDriver < VirtualMachineDriver
             },
             {
                 :driver     => :vmm,
-                :action     => :cdrom_eject,
+                :action     => :prereconfigure,
                 :parameters => [:deploy_id, target_device]
             },
             {
@@ -871,7 +871,7 @@ class ExecDriver < VirtualMachineDriver
             },
             {
                 :driver     => :vmm,
-                :action     => :cdrom_change,
+                :action     => :reconfigure,
                 :parameters => [:deploy_id, target_device, target_path]
             }
         ]
