@@ -122,7 +122,7 @@ public:
      *    @param tmp The template object
      *    @param error_str Returns the error reason, if any
      */
-    void to_template(Template * tmpl);
+    void to_template(Template * tmpl) const;
 
     /**
      * Enable or disable the app. A disabled app cannot be exported
@@ -175,28 +175,28 @@ public:
         return origin_id;
     };
 
-    const string& get_source()
+    const string& get_source() const
     {
         return source;
     }
 
-    const string& get_md5()
+    const string& get_md5() const
     {
         return md5;
     }
 
-    long long get_size()
+    long long get_size() const
     {
         return size_mb;
     }
 
-    const string& get_format()
+    const string& get_format() const
     {
         return format;
     }
 
 
-    MarketPlaceAppState get_state()
+    MarketPlaceAppState get_state() const
     {
         return state;
     }

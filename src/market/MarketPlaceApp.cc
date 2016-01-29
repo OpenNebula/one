@@ -411,7 +411,7 @@ int MarketPlaceApp::enable(bool enable, string& error_str)
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
-void MarketPlaceApp::to_template(Template * tmpl)
+void MarketPlaceApp::to_template(Template * tmpl) const
 {
     tmpl->replace("FROM_APP_NAME", get_name());
     tmpl->replace("PATH", get_source());
