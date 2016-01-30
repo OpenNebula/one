@@ -34,42 +34,40 @@ void VirtualRouterInstantiate::request_execute(
     string str_uattrs = xmlrpc_c::value_string(paramList.getString(6));
 
     Nebula& nd = Nebula::instance();
+
     VirtualRouterPool*  vrpool = nd.get_vrouterpool();
     VirtualRouter *     vr;
     DispatchManager*    dm = nd.get_dm();
 
-    PoolObjectAuth      vr_perms;
-    Template*           extra_attrs;
-    bool                has_vmids;
-    string              errorstr;
-    string              vr_name;
-    ostringstream       oss;
+    PoolObjectAuth vr_perms;
+    Template*      extra_attrs;
+    bool           has_vmids;
+    string         error;
+    string         vr_name, tmp_name;
+    ostringstream  oss;
 
-    vector<int>             vms;
-    vector<int>::iterator   vmid;
+    vector<int>           vms;
+    vector<int>::iterator vmid;
+
+    int vid;
 
     /* ---------------------------------------------------------------------- */
     /* Get the Virtual Router NICs                                            */
     /* ---------------------------------------------------------------------- */
-
     vr = vrpool->get(vrid, true);
 
     if (vr == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
+        att.resp_id = vrid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     vr->get_permissions(vr_perms);
 
     extra_attrs = vr->get_vm_template();
-
-    has_vmids = vr->has_vmids();
-
-    vr_name = vr->get_name();
+    has_vmids   = vr->has_vmids();
+    vr_name     = vr->get_name();
 
     vr->unlock();
 
@@ -81,47 +79,40 @@ void VirtualRouterInstantiate::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
 
     if (has_vmids)
     {
-        failure_response(ACTION,
-                request_error("Virtual Router already has VMs. Cannot instantiate new ones", ""),
-                att);
-
+        att.resp_msg = "Virtual Router already has VMs. Cannot instantiate new ones";
+        failure_response(ACTION, att);
         return;
     }
 
     if (name.empty())
     {
-        oss.str("");
-        oss << "vr-" << vr_name << "-%i";
-        name = oss.str();
+        name = "vr-" + vr_name + "-%i";
     }
 
-    for (int i=0; i<n_vms; i++)
+    for (int i=0; i<n_vms; oss.str(""), i++)
     {
-        oss.str("");
         oss << i;
 
-        string tmp_name = one_util::gsub(name, "%i", oss.str());
+        tmp_name = one_util::gsub(name, "%i", oss.str());
 
-        int vid = VMTemplateInstantiate::instantiate(
-                this, att, tmpl_id, tmp_name, true, str_uattrs, extra_attrs);
+        ErrorCode ec = VMTemplateInstantiate::instantiate(tmpl_id, tmp_name,
+                true, str_uattrs, extra_attrs, vid, att);
 
-        if (vid == -1)
+        if (ec != SUCCESS)
         {
-            string tmp_error;
+            failure_response(ec, att);
 
             for (vmid = vms.begin(); vmid != vms.end(); vmid++)
             {
-                dm->finalize(*vmid, tmp_error);
+                dm->finalize(*vmid, att.resp_msg);
             }
 
             return;
@@ -150,7 +141,7 @@ void VirtualRouterInstantiate::request_execute(
     {
         for (vmid = vms.begin(); vmid != vms.end(); vmid++)
         {
-            dm->release(*vmid, errorstr);
+            dm->release(*vmid, att.resp_msg);
         }
     }
 
@@ -171,7 +162,6 @@ void VirtualRouterAttachNic::request_execute(
     PoolObjectAuth          vr_perms;
 
     int    rc;
-    string error_str;
 
     int    vrid     = xmlrpc_c::value_int(paramList.getInt(1));
     string str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
@@ -179,27 +169,23 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Parse NIC template
     // -------------------------------------------------------------------------
-
-    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, error_str, att);
+        failure_response(INTERNAL, att);
         return;
     }
 
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-
     vr = vrpool->get(vrid, true);
 
     if (vr == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
+        att.resp_id = vrid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -217,10 +203,8 @@ void VirtualRouterAttachNic::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
@@ -235,21 +219,18 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Attach NIC to the Virtual Router
     // -------------------------------------------------------------------------
-
     vr = vrpool->get(vrid, true);
 
     if (vr == 0)
     {
         quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
 
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
+        att.resp_id = vrid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    nic = vr->attach_nic(&tmpl, error_str);
+    nic = vr->attach_nic(&tmpl, att.resp_msg);
 
     set<int> vms = vr->get_vms();
 
@@ -261,28 +242,24 @@ void VirtualRouterAttachNic::request_execute(
     {
         quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
 
-        failure_response(ACTION,
-                request_error(error_str, ""),
-                att);
-
+        failure_response(ACTION, att);
         return;
     }
 
     // -------------------------------------------------------------------------
     // Attach NIC to each VM
     // -------------------------------------------------------------------------
-
     for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
     {
         VirtualMachineTemplate tmpl;
 
         tmpl.set(nic->clone());
 
-        rc = VirtualMachineAttachNic::attach(this, att, *vmid, tmpl);
+        ErrorCode ec = VirtualMachineAttachNic::attach(*vmid, tmpl, att);
 
-        if (rc == -1)
+        if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {
-            // TODO: manage individual attach error, do rollback?
+            failure_response(ACTION, att);
 
             delete nic;
             return;
@@ -304,7 +281,7 @@ void VirtualRouterDetachNic::request_execute(
     VirtualRouter *     vr;
     PoolObjectAuth      vr_perms;
 
-    int    rc;
+    int rc;
 
     int vrid    = xmlrpc_c::value_int(paramList.getInt(1));
     int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
@@ -312,15 +289,12 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-
     vr = vrpool->get(vrid, true);
 
     if (vr == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
+        att.resp_id = vrid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -336,10 +310,8 @@ void VirtualRouterDetachNic::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
@@ -347,15 +319,12 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Detach the NIC from the Virtual Router
     // -------------------------------------------------------------------------
-
     vr = vrpool->get(vrid, true);
 
     if (vr == 0)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                att);
-
+        att.resp_id = vrid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -371,12 +340,10 @@ void VirtualRouterDetachNic::request_execute(
     {
         ostringstream oss;
 
-        oss << "Could not detach NIC with NIC_ID " << nic_id
-            << ", it does not exist.";
+        oss << "NIC with NIC_ID " << nic_id << " does not exist.";
 
-        failure_response(Request::ACTION,
-                request_error(oss.str(), ""),
-                att);
+        att.resp_msg = oss.str();
+        failure_response(Request::ACTION, att);
 
         return;
     }
@@ -384,14 +351,13 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Detach NIC from each VM
     // -------------------------------------------------------------------------
-
     for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
     {
-        rc = VirtualMachineDetachNic::detach(this, att, *vmid, nic_id);
+        ErrorCode ec = VirtualMachineDetachNic::detach(*vmid, nic_id, att);
 
-        if (rc == -1)
+        if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {
-            // TODO: manage individual error, do rollback?
+            failure_response(Request::ACTION, att);
             return;
         }
     }
@@ -401,3 +367,4 @@ void VirtualRouterDetachNic::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+

@@ -38,22 +38,29 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     // TODO: if Template has VROUTER = YES, do not allow to instantiate here
 
-    int vid = instantiate(this, att, id, name, on_hold, str_uattrs, 0);
+    int vid;
+    ErrorCode ec;
 
-    if (vid != -1)
+    ec = instantiate(id, name, on_hold, str_uattrs, 0, vid, att);
+
+    if ( ec == SUCCESS )
     {
         success_response(vid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMTemplateInstantiate::instantiate(Request * req, RequestAttributes& att,
-    int id, string name, bool on_hold, string str_uattrs, Template* extra_attrs)
+Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
+        bool on_hold, string str_uattrs, Template* extra_attrs, int& vid,
+        RequestAttributes& att)
 {
-    int  rc;
-    int  vid;
+    int rc;
 
     ostringstream sid;
 
@@ -69,24 +76,18 @@ int VMTemplateInstantiate::instantiate(Request * req, RequestAttributes& att,
     VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
 
-    string error_str;
     string aname;
-
     string tmpl_name;
 
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
     /* ---------------------------------------------------------------------- */
-
     rtmpl = tpool->get(id,true);
 
     if ( rtmpl == 0 )
     {
-        req->failure_response(Request::NO_EXISTS,
-                req->get_error(Request::object_name(PoolObjectSQL::TEMPLATE),id),
-                att);
-
-        return -1;
+        att.resp_id = id;
+        return NO_EXISTS;
     }
 
     tmpl_name = rtmpl->get_name();
@@ -99,51 +100,42 @@ int VMTemplateInstantiate::instantiate(Request * req, RequestAttributes& att,
     // Parse & merge user attributes (check if the request user is not oneadmin)
     if (!str_uattrs.empty())
     {
-        rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+        rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
 
         if ( rc != 0 )
         {
-            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
-            return -1;
+            return INTERNAL;
         }
 
         if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
         {
             if (uattrs.check(aname))
             {
-                ostringstream oss;
-
-                oss << "User Template includes a restricted attribute "<< aname;
-
-                req->failure_response(Request::AUTHORIZATION,
-                        req->authorization_error(oss.str(), att),
-                        att);
+                att.resp_msg ="User Template includes a restricted attribute " + aname;
 
                 delete tmpl;
-                return -1;
+                return AUTHORIZATION;
             }
         }
 
-        rc = tmpl->merge(&uattrs, error_str);
+        rc = tmpl->merge(&uattrs, att.resp_msg);
 
         if ( rc != 0 )
         {
-            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
-            return -1;
+            return INTERNAL;
         }
     }
 
     if (extra_attrs != 0)
     {
-        rc = tmpl->merge(extra_attrs, error_str);
+        rc = tmpl->merge(extra_attrs, att.resp_msg);
 
         if ( rc != 0 )
         {
-            req->failure_response(Request::INTERNAL, error_str, att);
             delete tmpl;
-            return -1;
+            return INTERNAL;
         }
     }
 
@@ -186,48 +178,43 @@ int VMTemplateInstantiate::instantiate(Request * req, RequestAttributes& att,
 
         if (UserPool::authorize(ar) == -1)
         {
-            req->failure_response(Request::AUTHORIZATION,
-                    req->authorization_error(ar.message, att),
-                    att);
+            att.resp_msg = ar.message;
 
             delete tmpl;
-            return -1;
+            return AUTHORIZATION;
         }
 
         extended_tmpl = new VirtualMachineTemplate(*tmpl);
 
         VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
 
-        if ( req->quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att) == false )
+        if (quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att,
+                    att.resp_msg) == false)
         {
             delete tmpl;
             delete extended_tmpl;
-            return -1;
+            return AUTHORIZATION;
         }
     }
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            tmpl, &vid, error_str, on_hold);
+            tmpl, &vid, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
-        req->failure_response(Request::INTERNAL,
-                req->allocate_error(PoolObjectSQL::VM,error_str),
-                att);
-
         if (extended_tmpl != 0)
         {
-            req->quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
+            quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
         }
 
         delete extended_tmpl;
 
-        return -1;
+        return ALLOCATE;
     }
 
     delete extended_tmpl;
 
-    return vid;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */

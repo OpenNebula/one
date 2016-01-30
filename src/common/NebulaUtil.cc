@@ -311,31 +311,24 @@ std::string one_util::trim(const std::string& str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string one_util::gsub(const string& st,
-        const char *find, const string& replacement)
+std::string one_util::gsub(const std::string& st, const std::string& sfind,
+    const std::string& srepl)
 {
-    return gsub(st, find, replacement.c_str());
-}
+    std::string result = st;
 
-/* -------------------------------------------------------------------------- */
+    std::string::size_type pos = 0;
 
-string one_util::gsub(const string& st,
-        const char *find, const char *replacement)
-{
-    string result = st;
+    size_t srepl_len = srepl.length();
+    size_t sfind_len = sfind.length();
 
-    string::size_type pos = 0;
-    size_t find_len = strlen(find);
-    size_t replacement_len = strlen(replacement);
-
-    pos = result.find(find, pos);
+    pos = result.find(sfind, pos);
 
     while(pos != std::string::npos)
     {
-        result.replace(pos, find_len, replacement);
-        pos += replacement_len;
+        result.replace(pos, sfind_len , srepl);
+        pos += srepl_len;
 
-        pos = result.find(find, pos);
+        pos = result.find(sfind, pos);
     }
 
     return result;

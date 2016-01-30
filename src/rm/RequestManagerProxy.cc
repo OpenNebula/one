@@ -61,7 +61,8 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
     }
     catch(exception const& e)
     {
-        failure_response(INTERNAL, request_error("Could not connect to the federation master oned", ""), att);
+        att.resp_msg = "Could not connect to the federation master oned";
+        failure_response(INTERNAL, att);
     }
 }
 

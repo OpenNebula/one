@@ -69,8 +69,6 @@ public:
 
     /**
      * Instantiates the VM Template, checking permissions, quotas, etc
-     * @param req Calling Request object
-     * @param att the specific request attributes
      * @param id VM Template ID
      * @param name Name for the new VM. Can be empty
      * @param on_hold True to start the VM on HOLD state
@@ -79,13 +77,13 @@ public:
      * @param extra_attrs Template to be merged. It should contain internal
      * configuration, and it won't be authenticated or checked for restricted
      * attributes. Can be 0
+     * @param vmid on success of the new VM
+     * @param att the specific request attributes
      *
-     * @return VMID on success, -1 on failure. On failure, failure_response is set,
-     * but for success the calling method needs to set success_response
+     * @return ErroCode for the request.
      */
-    static int instantiate(Request* req, RequestAttributes& att, int id,
-                    string name, bool on_hold, string str_uattrs,
-                    Template* extra_attrs);
+    static ErrorCode instantiate(int id, string name, bool on_hold,
+            string str_uattrs, Template* extra_attrs, int& vid, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

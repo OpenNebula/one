@@ -18,8 +18,8 @@
 
 using namespace std;
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
@@ -61,18 +61,16 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
         zone = AclRule::INDIVIDUAL_ID | Nebula::instance().get_zone_id();
     }
 
-    string error_msg;
-
     if ( basic_authorization(-1, att) == false )
     {
         return;
     }
 
-    int rc = aclm->add_rule(user, resource, rights, zone, error_msg);
+    int rc = aclm->add_rule(user, resource, rights, zone, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, request_error(error_msg, ""), att);
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -81,8 +79,8 @@ void AclAddRule::request_execute(xmlrpc_c::paramList const& paramList,
     return;
 }
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
@@ -95,11 +93,11 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    int rc = aclm->del_rule(oid, error_msg);
+    int rc = aclm->del_rule(oid, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, request_error(error_msg, ""), att);
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -108,8 +106,8 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList,
     return;
 }
 
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void AclInfo::request_execute(xmlrpc_c::paramList const& paramList,
                               RequestAttributes& att)
@@ -126,7 +124,8 @@ void AclInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, request_error("Internal Error",""), att);
+        att.resp_msg = "Internal Database error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -135,4 +134,3 @@ void AclInfo::request_execute(xmlrpc_c::paramList const& paramList,
     return;
 }
 
-/* ------------------------------------------------------------------------- */

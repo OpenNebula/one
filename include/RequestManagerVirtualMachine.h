@@ -253,11 +253,16 @@ public:
 
     ~VirtualMachineAttachNic(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
 
-    static int attach(Request* req, RequestAttributes& att, int id,
-                    VirtualMachineTemplate& tmpl);
+    /**
+     * Process a NIC attahment request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param tmpl with the new NIC description
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    static ErrorCode attach(int id, VirtualMachineTemplate& tmpl, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -276,7 +281,14 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 
-    static int detach(Request* req, RequestAttributes& att, int id, int nic_id);
+    /**
+     * Process a NIC detach request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param nic_id id of the NIC
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    static ErrorCode detach(int id, int nic_id, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

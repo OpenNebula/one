@@ -50,9 +50,8 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -90,10 +89,8 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( vm_tmpl == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
-
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -119,9 +116,8 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             delete extended_tmpl;
             return;
@@ -132,9 +128,8 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( vm_tmpl == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
 
         delete extended_tmpl;
         return;

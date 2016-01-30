@@ -31,15 +31,14 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     int    rc;
     string old_name;
-    string error_str;
 
     PoolObjectAuth  operms;
     PoolObjectSQL * object;
 
     if (test_and_set_rename(oid) == false)
     {
-        failure_response(INTERNAL,
-            request_error("Object is being renamed", ""), att);
+        att.resp_msg = "Object is being renamed";
+        failure_response(INTERNAL, att);
 
         return;
     }
@@ -70,9 +69,8 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             clear_rename(oid);
             return;
         }
@@ -89,13 +87,13 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
         object->unlock();
 
-        oss << PoolObjectSQL::type_to_str(auth_object)
-            << " cannot be renamed to " << new_name
-            << " because it collides with "
-            << PoolObjectSQL::type_to_str(auth_object) << " "
+        oss << object_name(auth_object) << " cannot be renamed to " << new_name
+            << " because it collides with " << object_name(auth_object) << " "
             << id;
 
-        failure_response(ACTION, request_error(oss.str(), ""), att);
+        att.resp_msg = oss.str();
+
+        failure_response(ACTION, att);
 
         clear_rename(oid);
         return;
@@ -107,19 +105,18 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                         get_error(object_name(auth_object), oid),
-                         att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
 
         clear_rename(oid);
         return;
     }
 
-    if ( object->set_name(new_name, error_str) != 0 )
+    if ( object->set_name(new_name, att.resp_msg) != 0 )
     {
         object->unlock();
 
-        failure_response(ACTION, request_error(error_str, ""), att);
+        failure_response(ACTION, att);
 
         clear_rename(oid);
         return;
