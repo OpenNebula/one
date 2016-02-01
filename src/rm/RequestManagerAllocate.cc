@@ -754,3 +754,43 @@ int VirtualRouterAllocate::pool_allocate(
     return vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         tmpl, &id, att.resp_msg);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualRouterAllocate::allocate_authorization(
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    if ( att.uid == 0 )
+    {
+        return true;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+    string      tmpl_str;
+
+    // ------------------ Authorize create operation ------------------------
+
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl->to_xml(tmpl_str));
+
+    VirtualRouter::set_auth_request(att.uid, ar, tmpl);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        return false;
+    }
+
+    // -------------------------- Check Quotas  ----------------------------
+
+    if (quota_authorization(tmpl, Quotas::VIRTUALROUTER, att, att.resp_msg) == false)
+    {
+        return AUTHORIZATION;
+    }
+
+    return true;
+}

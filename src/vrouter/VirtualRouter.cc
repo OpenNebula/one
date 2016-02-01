@@ -129,6 +129,8 @@ int VirtualRouter::drop(SqlDB * db)
         release_network_leases();
 
         shutdown_vms();
+
+        Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template);
     }
 
     return rc;
@@ -610,6 +612,8 @@ VectorAttribute * VirtualRouter::attach_nic(
 
 int VirtualRouter::detach_nic(int nic_id)
 {
+    Template tmpl;
+
     VectorAttribute * nic = get_nic(nic_id);
 
     if (nic == 0)
@@ -618,6 +622,13 @@ int VirtualRouter::detach_nic(int nic_id)
     }
 
     obj_template->remove(nic);
+
+    release_network_leases(nic);
+
+    // Update quotas
+    tmpl.set(nic);
+
+    Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, &tmpl);
 
     return 0;
 }
@@ -645,4 +656,26 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouter::set_auth_request(int uid,
+                                     AuthRequest& ar,
+                                     Template *tmpl)
+{
+    vector<VectorAttribute* > nics;
+    vector<VectorAttribute* >::const_iterator nics_it;
+
+    Nebula& nd = Nebula::instance();
+
+    VirtualNetworkPool * vnpool = nd.get_vnpool();
+
+    tmpl->get("NIC", nics);
+
+    for (nics_it = nics.begin(); nics_it != nics.end(); nics_it++)
+    {
+        vnpool->authorize_nic(PoolObjectSQL::VROUTER, *nics_it, uid, &ar);
+    }
 }

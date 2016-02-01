@@ -3991,7 +3991,7 @@ void VirtualMachine::set_auth_request(int uid,
             continue;
         }
 
-        vnpool->authorize_nic(vector,uid,&ar);
+        vnpool->authorize_nic(PoolObjectSQL::VM, vector, uid, &ar);
 
         get_security_groups(vector, sgroups);
 

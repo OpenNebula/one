@@ -125,7 +125,11 @@ public:
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
      */
-    void authorize_nic(VectorAttribute * nic, int uid, AuthRequest * ar);
+    void authorize_nic(
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute *           nic,
+            int                         uid,
+            AuthRequest *               ar);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool

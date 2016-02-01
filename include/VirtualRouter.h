@@ -21,6 +21,7 @@
 #include "Template.h"
 #include "ObjectCollection.h"
 #include "VirtualMachineTemplate.h"
+#include "AuthRequest.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -93,6 +94,21 @@ public:
      * @return 0 if the nic_id was found, -1 otherwise
      */
     int detach_nic(int nic_id);
+
+    // ------------------------------------------------------------------------
+    // Authorization related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Sets an authorization request for a Virtual Router template based on
+     *  the networks used
+     *    @param  uid for template owner
+     *    @param  ar the AuthRequest object
+     *    @param  tmpl the virtual router template
+     */
+    static void set_auth_request(int uid,
+                                 AuthRequest& ar,
+                                 Template *tmpl);
 
 private:
     // -------------------------------------------------------------------------

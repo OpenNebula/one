@@ -301,9 +301,11 @@ int VirtualNetworkPool::nic_attribute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
-                                       int uid,
-                                       AuthRequest * ar)
+void VirtualNetworkPool::authorize_nic(
+        PoolObjectSQL::ObjectType   ot,
+        VectorAttribute *           nic,
+        int                         uid,
+        AuthRequest *               ar)
 {
     string           network;
     VirtualNetwork * vnet = 0;
@@ -337,5 +339,12 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
 
     vnet->unlock();
 
-    ar->add_auth(AuthRequest::USE, perm);
+    if (ot == PoolObjectSQL::VM)
+    {
+        ar->add_auth(AuthRequest::USE, perm);
+    }
+    else // (ot == PoolObjectSQL::VROUTER)
+    {
+        ar->add_auth(AuthRequest::MANAGE, perm);
+    }
 }

@@ -199,7 +199,7 @@ void VirtualRouterAttachNic::request_execute(
 
         ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
 
-        VirtualMachine::set_auth_request(att.uid, ar, &tmpl); // USE VNET
+        VirtualRouter::set_auth_request(att.uid, ar, &tmpl); // USE VNET
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -211,7 +211,7 @@ void VirtualRouterAttachNic::request_execute(
 
     RequestAttributes att_quota(vr_perms.uid, vr_perms.gid, att);
 
-    if ( quota_authorization(&tmpl, Quotas::NETWORK, att_quota) == false )
+    if ( quota_authorization(&tmpl, Quotas::VIRTUALROUTER, att_quota) == false )
     {
         return;
     }
@@ -223,7 +223,7 @@ void VirtualRouterAttachNic::request_execute(
 
     if (vr == 0)
     {
-        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+        quota_rollback(&tmpl, Quotas::VIRTUALROUTER, att_quota);
 
         att.resp_id = vrid;
         failure_response(NO_EXISTS, att);
@@ -240,7 +240,7 @@ void VirtualRouterAttachNic::request_execute(
 
     if (nic == 0)
     {
-        quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
+        quota_rollback(&tmpl, Quotas::VIRTUALROUTER, att_quota);
 
         failure_response(ACTION, att);
         return;

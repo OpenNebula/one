@@ -27,13 +27,15 @@ const int QuotaNetwork::NUM_NET_METRICS  = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
+bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
+        Quotas& default_quotas, string& error)
 {
     vector<Attribute*> nics;
     VectorAttribute *  nic;
 
     string net_id;
     int num;
+    bool uses_lease;
 
     map<string, float> net_request;
 
@@ -52,7 +54,14 @@ bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
 
         net_id = nic->vector_value("NETWORK_ID");
 
-        if ( !net_id.empty() )
+        uses_lease = true;
+
+        if ( otype == PoolObjectSQL::VROUTER )
+        {
+            nic->vector_value("FLOATING_IP", uses_lease);
+        }
+
+        if ( !net_id.empty() && uses_lease )
         {
             if ( !check_quota(net_id, net_request, default_quotas, error) )
             {
@@ -67,7 +76,7 @@ bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void QuotaNetwork::del(Template * tmpl)
+void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
 {
 
     vector<Attribute*> nics;
@@ -75,6 +84,7 @@ void QuotaNetwork::del(Template * tmpl)
 
     string net_id;
     int num;
+    bool uses_lease;
 
     map<string, float> net_request;
 
@@ -93,7 +103,17 @@ void QuotaNetwork::del(Template * tmpl)
 
         net_id = nic->vector_value("NETWORK_ID");
 
-        del_quota(net_id, net_request);
+        uses_lease = true;
+
+        if ( otype == PoolObjectSQL::VROUTER )
+        {
+            nic->vector_value("FLOATING_IP", uses_lease);
+        }
+
+        if (uses_lease)
+        {
+            del_quota(net_id, net_request);
+        }
     }
 }
 

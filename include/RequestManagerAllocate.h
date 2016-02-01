@@ -601,6 +601,10 @@ public:
                       Template * tmpl,
                       int& id,
                       RequestAttributes& att);
+
+    bool allocate_authorization(Template *          obj_template,
+                                RequestAttributes&  att,
+                                PoolObjectAuth *    cluster_perms);
 };
 
 /* -------------------------------------------------------------------------- */
