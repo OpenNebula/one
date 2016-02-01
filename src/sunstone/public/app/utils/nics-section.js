@@ -36,6 +36,7 @@ define(function(require) {
    * @param  {object} context       JQuery selector
    * @param  {object} options       Options
    *                                - hide_add_button {bool}
+   *                                - click_add_button {bool}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
    *                                - management {bool}: true to show the
@@ -114,7 +115,6 @@ define(function(require) {
    * @param  {object} options       Options
    *                                - nic {object}
    *                                - vnet_attr {object}
-   *                                - hide_add_button {bool}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
    *                                - management {bool}: true to show the
@@ -340,7 +340,11 @@ define(function(require) {
    * @param  {object} context       JQuery selector
    * @param  {object} options       Options
    *                                - hide_add_button {bool}
-   *                                - floatingIP {bool}
+   *                                - click_add_button {bool}
+   *                                - floatingIP {bool}: true to show the
+   *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
    */
   function _generate_provision_network_accordion(context, options) {
     context.off();
@@ -373,7 +377,11 @@ define(function(require) {
 
     $(".provision_add_network_interface", context).on("click", function() {
       _generate_provision_network_table($(".accordion", context), options);
-    })
+    });
+
+    if (options.click_add_button == true){
+      $(".provision_add_network_interface", context).click();
+    }
 
     $(document).foundation();
   }

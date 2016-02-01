@@ -46,17 +46,32 @@
           <th>{{tr "Floating IPv6 ULA"}}</th>
           <th>{{tr "Floating IPv6 Global"}}</th>
           <th>{{tr "Management Interface"}}</th>
+          <th>{{tr "Actions"}}</th>
+          <th>
+            {{#isTabActionEnabled "vrouters-tab" "VirtualRouter.attachnic"}}
+            <button class="attach_nic button tiny success right radius" >
+              {{tr "Attach nic"}}
+            </button>
+            {{/isTabActionEnabled}}
+          </th>
         </tr>
       </thead>
       <tbody>
         {{#each nics}}
         <tr>
-          <td>{{NIC_ID}}</td>
+          <td class="nic_id" nic_id="{{NIC_ID}}">{{NIC_ID}}</td>
           <td>{{NETWORK}}</td>
           <td>{{valOrDefault IP "--"}}</td>
           <td>{{valOrDefault IP6_ULA "--"}}</td>
           <td>{{valOrDefault IP6_GLOBAL "--"}}</td>
           <td>{{valOrDefault VROUTER_MANAGEMENT "--"}}</td>
+          <td>
+            {{#isTabActionEnabled "vrouters-tab" "VirtualRouter.detachnic"}}
+            <a href="VirtualRouter.detachnic" class="detachnic" ><i class="fa fa-times"/>
+              {{tr "Detach"}}
+            </a>
+            {{/isTabActionEnabled}}
+          </td>
         </tr>
         {{/each}}
       </tbody>

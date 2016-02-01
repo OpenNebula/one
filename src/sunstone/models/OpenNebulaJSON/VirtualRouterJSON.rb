@@ -49,6 +49,8 @@ module OpenNebulaJSON
                  when "chown"       then self.chown(action_hash['params'])
                  when "chmod"       then self.chmod_json(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "attachnic"   then self.nic_attach(action_hash['params'])
+                 when "detachnic"   then self.nic_detach(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -102,6 +104,16 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def nic_attach(params=Hash.new)
+            template_json = params['nic_template']
+            template = template_to_str(template_json)
+            super(template)
+        end
+
+        def nic_detach(params=Hash.new)
+            super(params['nic_id'].to_i)
         end
     end
 end

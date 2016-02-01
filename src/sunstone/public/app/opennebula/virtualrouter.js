@@ -56,6 +56,14 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);
     },
+    "attachnic" : function(params) {
+      var action_obj = {"nic_template": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "attachnic", action_obj);
+    },
+    "detachnic" : function(params) {
+      var action_obj = {"nic_id": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "detachnic", action_obj);
+    },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }

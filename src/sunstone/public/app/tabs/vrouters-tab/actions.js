@@ -40,6 +40,8 @@ define(function(require) {
     "VirtualRouter.chgrp": _commonActions.multipleAction('chgrp'),
     "VirtualRouter.chmod": _commonActions.singleAction('chmod'),
     "VirtualRouter.rename": _commonActions.singleAction('rename'),
+    "VirtualRouter.attachnic": _commonActions.singleAction('attachnic'),
+    "VirtualRouter.detachnic": _commonActions.singleAction('detachnic'),
     "VirtualRouter.update" : _commonActions.update(),
     "VirtualRouter.update_template" : _commonActions.updateTemplate(),
     "VirtualRouter.update_dialog" : _commonActions.checkAndShowUpdate(),

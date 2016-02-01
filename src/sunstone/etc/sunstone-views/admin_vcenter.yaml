@@ -446,6 +446,8 @@ tabs:
             VirtualRouter.chgrp: true
             VirtualRouter.chmod: true
             VirtualRouter.delete: true
+            VirtualRouter.attachnic: true
+            VirtualRouter.detachnic: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true
