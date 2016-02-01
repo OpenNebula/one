@@ -310,7 +310,11 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
     PoolObjectAuth   perm;
     string           error;
 
-    if (!(network = nic->vector_value("NETWORK")).empty())
+    if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    {
+        vnet = get_nic_by_id(network, error);
+    }
+    else if (!(network = nic->vector_value("NETWORK")).empty())
     {
         vnet = get_nic_by_name (nic, network, uid, error);
 
@@ -318,10 +322,6 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
         {
             nic->replace("NETWORK_ID", vnet->get_oid());
         }
-    }
-    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
-    {
-        vnet = get_nic_by_id(network, error);
     }
     else //Not using a pre-defined network
     {

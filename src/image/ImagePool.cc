@@ -494,22 +494,22 @@ void ImagePool::disk_attribute(
     Nebula&         nd      = Nebula::instance();
     DatastorePool * ds_pool = nd.get_dspool();
 
-    if (!(source = disk->vector_value("IMAGE")).empty())
-    {
-        int uiid = get_disk_uid(disk,uid);
-
-        if ( uiid != -1)
-        {
-            img = get(source, uiid, true);
-        }
-    }
-    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {
         int iid = get_disk_id(source);
 
         if ( iid != -1)
         {
             img = get(iid, true);
+        }
+    }
+    else if (!(source = disk->vector_value("IMAGE")).empty())
+    {
+        int uiid = get_disk_uid(disk,uid);
+
+        if ( uiid != -1)
+        {
+            img = get(source, uiid, true);
         }
     }
 
