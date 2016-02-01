@@ -2385,7 +2385,6 @@ void VirtualMachineManager::attach_nic_action(
     string  vm_tm_mad;
     string  opennebula_hostname;
     string  prolog_cmd;
-    string  epilog_cmd;
     string  disk_path;
     string  token_password;
 
@@ -2456,12 +2455,6 @@ void VirtualMachineManager::attach_nic_action(
 
         os.str("");
 
-        tm->epilog_transfer_command(vm, disk, os);
-
-        epilog_cmd = os.str();
-
-        os.str("");
-
         disk->vector_value("DISK_ID", disk_id);
 
         os << vm->get_remote_system_dir() << "/disk." << disk_id;
@@ -2480,7 +2473,7 @@ void VirtualMachineManager::attach_nic_action(
         "",
         "",
         prolog_cmd,
-        epilog_cmd,
+        "",
         disk_path,
         vm->to_xml(vm_tmpl),
         vm->get_ds_id());
