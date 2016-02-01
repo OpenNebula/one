@@ -408,7 +408,7 @@ public:
      */
     static string local_db_version()
     {
-        return "4.90.0";
+        return "4.13.85";
     }
 
     /**
