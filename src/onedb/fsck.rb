@@ -729,6 +729,7 @@ EOT
         counters[:host]  = {}
         counters[:image] = {}
         counters[:vnet]  = {}
+        counters[:vrouter]  = {}
 
         # Initialize all the host counters to 0
         @db.fetch("SELECT oid, name FROM host_pool") do |row|
@@ -782,6 +783,15 @@ EOT
             counters[:vnet][row[:oid]] = {
                 :ar_leases      => ar_leases,
                 :no_ar_leases   => {}
+            }
+        end
+
+        log_time()
+
+        # Initialize all the vrouter counters to 0
+        @db.fetch("SELECT oid FROM vrouter_pool") do |row|
+            counters[:vrouter][row[:oid]] = {
+                :vms   => Set.new
             }
         end
 
@@ -860,6 +870,21 @@ EOT
                             end
                         end
                     end
+                end
+            end
+
+            # See if it's part of a Virtual Router
+            vrouter_e = vm_doc.root.at_xpath("TEMPLATE/VROUTER_ID")
+
+            if !vrouter_e.nil?
+                vr_id = vrouter_e.text.to_i
+                counters_vrouter = counters[:vrouter][vr_id]
+
+                if counters_vrouter.nil?
+                    log_error("VM #{row[:oid]} is part of VRouter #{vr_id}, but "<<
+                        "it does not exist", false)
+                else
+                    counters_vrouter[:vms].add(row[:oid])
                 end
             end
 
@@ -975,6 +1000,7 @@ EOT
         ########################################################################
         # Virtual Routers
         #
+        # VROUTER/VMS/ID
         ########################################################################
 
         vrouters_fix = {}
@@ -1042,6 +1068,43 @@ EOT
                         end
                     end
                 end
+            end
+
+            # re-do list of VM IDs
+            error = false
+
+            counters_vrouter = counters[:vrouter][row[:oid]]
+
+            vms_elem = vrouter_doc.root.at_xpath("VMS").remove
+
+            vms_new_elem = vrouter_doc.create_element("VMS")
+            vrouter_doc.root.add_child(vms_new_elem)
+
+            counters_vrouter[:vms].each do |id|
+                id_elem = vms_elem.at_xpath("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    log_error(
+                        "VM #{id} is missing from VRouter #{row[:oid]} VM id list")
+
+                    error = true
+                else
+                    id_elem.remove
+                end
+
+                vms_new_elem.add_child(vrouter_doc.create_element("ID")).content = id.to_s
+            end
+
+            vms_elem.xpath("ID").each do |id_elem|
+                log_error(
+                    "VM #{id_elem.text} is in VRouter #{row[:oid]} VM id list, "<<
+                    "but it should not")
+
+                error = true
+            end
+
+            if (error)
+                vrouters_fix[row[:oid]] = vrouter_doc.root.to_s
             end
         end
 
