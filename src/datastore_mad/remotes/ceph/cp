@@ -139,7 +139,7 @@ fi
 REGISTER_CMD=$(cat <<EOF
     set -e
 
-    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
+    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}')
 
     if [ "\$FORMAT" != "raw" ]; then
         $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
