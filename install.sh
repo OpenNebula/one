@@ -1160,6 +1160,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
+                             src/datastore_mad/remotes/url.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \

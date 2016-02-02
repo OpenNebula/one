@@ -16,6 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -136,6 +146,49 @@ function s3_request
          " https://${BUCKET}.s3.amazonaws.com/${OBJECT}"
 }
 
+function get_rbd_cmd
+{
+    local i j URL_ELEMENTS
+
+    FROM="$1"
+
+    URL_RB="$DRIVER_PATH/url.rb"
+
+    while IFS= read -r -d '' element; do
+        URL_ELEMENTS[i++]="$element"
+    done < <($URL_RB    $FROM \
+                        USER \
+                        HOST \
+                        SOURCE \
+                        PARAM_DS \
+                        PARAM_CEPH_USER \
+                        PARAM_CEPH_CONF)
+
+    USER="${URL_ELEMENTS[j++]}"
+    DST_HOST="${URL_ELEMENTS[j++]}"
+    SOURCE="${URL_ELEMENTS[j++]}"
+    DS="${URL_ELEMENTS[j++]}"
+    CEPH_USER="${URL_ELEMENTS[j++]}"
+    CEPH_CONF="${URL_ELEMENTS[j++]}"
+
+    # Remove leading '/'
+    SOURCE="${SOURCE#/}"
+
+    if [ -n "$USER" ]; then
+        DST_HOST="$USER@$DST_HOST"
+    fi
+
+    if [ -n "$CEPH_USER" ]; then
+        RBD="$RBD --id ${CEPH_USER}"
+    fi
+
+    if [ -n "$CEPH_CONF" ]; then
+        RBD="$RBD --conf ${CEPH_CONF}"
+    fi
+
+    echo "ssh $DST_HOST $RBD export $SOURCE -"
+}
+
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -214,6 +267,9 @@ s3://*)
     curl_args="$(s3_request $FROM)"
     command="curl $curl_args"
     ;;
+rbd://*)
+    command="$(get_rbd_cmd $FROM)"
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
@@ -228,7 +284,7 @@ decompressor=$(get_decompressor "$file_type")
 
 eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
-if [ "$?" != "0" ]; then
+if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
     echo "Error copying" >&2
     exit -1
 fi
