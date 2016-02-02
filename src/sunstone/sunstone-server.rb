@@ -588,17 +588,6 @@ get '/vm/showback' do
 end
 
 ##############################################################################
-# Marketplace
-##############################################################################
-get '/marketplace' do
-    @SunstoneServer.get_appliance_pool
-end
-
-get '/marketplace/:id' do
-    @SunstoneServer.get_appliance(params[:id])
-end
-
-##############################################################################
 # GET Pool information
 ##############################################################################
 get '/:pool' do

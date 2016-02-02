@@ -20,7 +20,6 @@ enabled_tabs:
     #- secgroups-tab
     - vrouters-tab
     - zones-tab
-    #- marketplace-tab
     - oneflow-dashboard
     - oneflow-services-tab
     - oneflow-templates-tab
@@ -462,21 +461,6 @@ tabs:
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
-    marketplace-tab:
-        panel_tabs:
-            marketplace_info_tab: true
-        table_columns:
-            - 0         # Checkbox
-            #- 1         # ID
-            - 2         # Name
-            - 3         # Publisher
-            - 4         # Hypervisor
-            - 5         # Arch
-            - 6         # Format
-            #- 7         # Tags
-        actions:
-            Marketplace.refresh: true
-            Marketplace.import: true
     oneflow-dashboard:
         panel_tabs:
         table_columns:
