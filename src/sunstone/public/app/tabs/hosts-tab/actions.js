@@ -39,6 +39,7 @@ define(function(require) {
     "Host.refresh" : _commonActions.refresh(),
     "Host.delete" : _commonActions.del(),
     "Host.update_template" : _commonActions.updateTemplate(),
+    "Host.append_template" : _commonActions.appendTemplate(),
     "Host.enable": _commonActions.multipleAction('enable'),
     "Host.disable": _commonActions.multipleAction('disable'),
     "Host.rename": _commonActions.singleAction('rename'),

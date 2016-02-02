@@ -105,6 +105,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
 
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
+
             obj.update(str, options[:append])
         end
     end

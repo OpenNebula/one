@@ -26,6 +26,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -94,8 +95,19 @@ define(function(require) {
     var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
     if (!cluster_id_raw) cluster_id_raw = "-1";
 
-    ResourceSelect.insert('div#cluster_id', dialog, "Cluster", cluster_id, false);
-    ResourceSelect.insert('div#datastore_cluster_raw', dialog, "Cluster", cluster_id_raw, false);
+    ResourceSelect.insert({
+        context: $('#cluster_id', dialog),
+        resourceName: 'Cluster',
+        initValue: cluster_id,
+        includeDefaultCluster: true
+      });
+
+    ResourceSelect.insert({
+        context: $('#datastore_cluster_raw', dialog),
+        resourceName: 'Cluster',
+        initValue: cluster_id_raw,
+        includeDefaultCluster: true
+      });
 
     return false;
   }
@@ -109,10 +121,12 @@ define(function(require) {
       'input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
 
     $('select#ds_mad', dialog).change(function() {
-      if ($(this).val() == "custom")
+      if ($(this).val() == "custom") {
           $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
-      else
-          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
+      } else {
+        _setRequiredFields(dialog, $(this).val());
+        $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
+      }
     });
 
     $('select#tm_mad', dialog).change(function() {
@@ -125,6 +139,7 @@ define(function(require) {
     $('#presets', dialog).change(function() {
       _hideAll(dialog);
       var choice_str = $(this).val();
+
       switch (choice_str)
       {
         case 'fs':
@@ -148,11 +163,16 @@ define(function(require) {
         case 'dev':
           _selectDevices(dialog);
           break;
+        case 'iscsi':
+          _selectISCSI(dialog);
+          break;
         case 'custom':
           _selectCustom(dialog);
           break;
       }
     });
+
+    $('#presets', dialog).change();
 
     // Hide disk_type
     $('select#disk_type', dialog).parent().hide();
@@ -192,6 +212,9 @@ define(function(require) {
     var rbd_format      = $('#rbd_format', dialog).val();
     var staging_dir     = $('#staging_dir', dialog).val();
     var ceph_conf       = $('#ceph_conf', dialog).val();
+    var iscsi_host      = $('#iscsi_host', dialog).val();
+    var iscsi_user      = $('#iscsi_user', dialog).val();
+    var iscsi_usage     = $('#iscsi_usage', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -265,6 +288,15 @@ define(function(require) {
     if (ceph_conf)
         ds_obj.datastore.ceph_conf = ceph_conf;
 
+    if (iscsi_host)
+        ds_obj.datastore.iscsi_host = iscsi_host;
+
+    if (iscsi_user)
+        ds_obj.datastore.iscsi_user = iscsi_user;
+
+    if (iscsi_usage)
+        ds_obj.datastore.iscsi_usage = iscsi_usage;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -308,6 +340,9 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
@@ -325,7 +360,7 @@ define(function(require) {
   }
 
   function _selectFilesystem(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#tm_mad', dialog).val('shared');
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).children('option').each(function() {
@@ -354,7 +389,7 @@ define(function(require) {
   function _selectVmwareVmfs(dialog) {
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
     $('label[for="ds_tmp_dir"],input#ds_tmp_dir', dialog).parent().fadeIn();
-    $('select#ds_mad', dialog).val('vmfs');
+    $('select#ds_mad', dialog).val('vmfs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('vmfs');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -372,7 +407,7 @@ define(function(require) {
   function _selectCeph(dialog) {
     $('input#image_ds_type', dialog).click();
     $('input#file_ds_type', dialog).attr('disabled', 'disabled');
-    $('select#ds_mad', dialog).val('ceph');
+    $('select#ds_mad', dialog).val('ceph').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('ceph');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -396,7 +431,7 @@ define(function(require) {
   }
 
   function _selectBlockLvm(dialog) {
-    $('select#ds_mad', dialog).val('lvm');
+    $('select#ds_mad', dialog).val('lvm').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -416,7 +451,7 @@ define(function(require) {
   }
 
   function _selectFsLvm(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('fs_lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -434,7 +469,7 @@ define(function(require) {
   }
 
   function _selectGluster(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('shared');
     $('select#tm_mad', dialog).children('option').each(function() {
@@ -461,7 +496,7 @@ define(function(require) {
   }
 
   function _selectDevices(dialog) {
-    $('select#ds_mad', dialog).val('dev');
+    $('select#ds_mad', dialog).val('dev').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('dev');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -478,9 +513,30 @@ define(function(require) {
     $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
   }
 
+  function _selectISCSI(dialog) {
+    $('select#ds_mad', dialog).val('iscsi').change();
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('iscsi');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().fadeIn();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().fadeIn();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().fadeIn();
+    $('select#disk_type', dialog).val('iscsi');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#base_path', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+  }
+
   function _selectCustom(dialog) {
     _hideAll(dialog);
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#tm_mad', dialog).val('shared');
     $('input#safe_dirs', dialog).removeAttr('disabled');
     $('select#disk_type', dialog).removeAttr('disabled');
@@ -491,4 +547,24 @@ define(function(require) {
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
     $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
   }
+
+  function _setRequiredFields(dialog, mad) {
+    // Disable all required attributes except for those that come in the
+    // template.
+    $('[required_active]', dialog).removeAttr('required')
+                                       .removeAttr('required_active');
+
+    $.each(Config.dsMadConf, function(i, e){
+        if (e["NAME"] == mad) {
+          if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
+            $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
+              $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+            });
+          }
+          return false;
+        }
+      }
+    );
+  }
 });
+

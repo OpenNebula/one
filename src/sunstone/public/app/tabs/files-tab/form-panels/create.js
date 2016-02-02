@@ -28,6 +28,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
   var BrowserInfo = require('utils/browser-info');
+  var OpenNebulaDatastore = require('opennebula/datastore');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -92,15 +93,21 @@ define(function(require) {
     var ds_id = $('#file_datastore .resource_list_select', context).val();
     var ds_id_raw = $('#file_datastore_raw .resource_list_select', context).val();
 
-    // Filter out DS with type image (0) or system (1)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["0", "1"];
+    ResourceSelect.insert({
+        context: $('#file_datastore', context),
+        resourceName: 'Datastore',
+        initValue: ds_id,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.FILE_DS
+      });
 
-    ResourceSelect.insert('div#file_datastore', context, "Datastore",
-                        ds_id, false, null, filter_att, filter_val);
-
-    ResourceSelect.insert('div#file_datastore_raw', context, "Datastore",
-                        ds_id_raw, false, null, filter_att, filter_val);
+    ResourceSelect.insert({
+        context: $('#file_datastore_raw', context),
+        resourceName: 'Datastore',
+        initValue: ds_id_raw,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.FILE_DS
+      });
 
     return false;
   }

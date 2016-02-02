@@ -23,7 +23,6 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
-  var ResourceSelect = require('utils/resource-select');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var Accounting = require('utils/accounting');
@@ -35,6 +34,7 @@ define(function(require) {
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -56,6 +56,7 @@ define(function(require) {
   var TemplateGroupInfo = require('hbs!./provision-tab/group/info');
 
   var TAB_ID = require('./provision-tab/tabId');
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   var povision_actions = {
     "Provision.User.create" : {
@@ -142,13 +143,12 @@ define(function(require) {
 
       switch (parts[1]) {
         case "text":
-          text_attrs.push(attrs)
-          break;
+        case "text64":
         case "password":
           text_attrs.push(attrs)
           break;
       }
-    })
+    });
 
     if (text_attrs.length > 0) {
       context.html(
@@ -173,18 +173,32 @@ define(function(require) {
 
 
       $.each(text_attrs, function(index, custom_attr){
+        var input;
+
+        switch (custom_attr.type) {
+          case "text":
+            input = '<textarea type="text" rows="1" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "text64":
+            input = '<textarea type="text" rows="1" text64="true" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "password":
+            input = '<input type="password" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+        }
+
         $(".provision_custom_attributes", context).append(
           '<br>'+
           '<div class="row">'+
             '<div class="large-10 large-centered columns">'+
               '<label style="font-size: 16px">' +
                 '<i class="fa fa-asterisk" style="color:#0099c3"/> '+
-                custom_attr.description +
-                '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                TemplateUtils.htmlDecode(custom_attr.description) +
+                input +
               '</label>'+
             '</div>'+
           '</div>');
-      })
+      });
     } else {
       context.html("");
     }
@@ -365,7 +379,8 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
+      (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO")) ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -434,7 +449,8 @@ define(function(require) {
       $(".provision_create_template_cost_div").hide();
     }
 
-    if (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO")) {
+    if (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO"))) {
       provision_instance_type_accordion_id += 1;
 
       var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
@@ -1193,7 +1209,9 @@ define(function(require) {
           "aoColumns": [
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_system_templates")
@@ -1201,6 +1219,8 @@ define(function(require) {
           "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             appendTemplateCard(aData, "provision_system_templates");
             return nRow;
+          },
+          "fnDrawCallback": function(oSettings) {
           }
         });
 
@@ -1216,7 +1236,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_vdc_templates")
@@ -1239,7 +1260,8 @@ define(function(require) {
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             initializeTemplateCards(this, "provision_saved_templates")
@@ -1251,10 +1273,28 @@ define(function(require) {
         });
 
 
-        $('#provision_create_template_search').on('input',function(){
+        $('#provision_create_system_template_search').on('input',function(){
           provision_system_templates_datatable.fnFilter( $(this).val() );
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_vdc_template_search').on('input',function(){
           provision_vdc_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('#provision_create_saved_template_search').on('input',function(){
+          provision_saved_templates_datatable.fnFilter( $(this).val() );
+        })
+
+        $('[href="#provision_system_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
+        })
+
+        $('[href="#provision_saved_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
+        })
+
+        $('[href="#provision_vdc_templates_selector"]').on('click', function() {
+          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
         })
 
         $("#provision_create_template_refresh_button").click(function(){
@@ -1371,7 +1411,12 @@ define(function(require) {
                 missing_attr = true;
               } else {
                 $(this).parent("label").css("color", "#777");
-                user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+
+                if ($(this).attr('text64') == "true"){
+                  user_inputs_values[$(this).attr("attr_name")] = btoa($(this).val());
+                } else {
+                  user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+                }
               }
             })
           }
@@ -1533,8 +1578,7 @@ define(function(require) {
                     network_attrs.push(attrs)
                     break;
                   case "text":
-                    text_attrs.push(attrs)
-                    break;
+                  case "text64":
                   case "password":
                     text_attrs.push(attrs)
                     break;

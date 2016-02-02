@@ -20,6 +20,7 @@ define(function(require) {
    */
 
   var Locale = require('utils/locale');
+  var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateUtils = require('utils/template-utils');
 
@@ -64,6 +65,7 @@ define(function(require) {
   function _html() {
     var that = this;
 
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     var customAttrs = [];
@@ -102,12 +104,14 @@ define(function(require) {
 
     return TemplateHTML({
       'element': this.element,
+      'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'customAttrs': customAttrs
     });
   }
 
   function _setup(context) {
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
   }
 });

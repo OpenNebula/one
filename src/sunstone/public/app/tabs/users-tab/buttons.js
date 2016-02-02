@@ -42,6 +42,11 @@ define(function(require) {
       layout: "main_buttons",
       text : Locale.tr("Quotas")
     },
+    "User.groups_dialog" : {
+      type : "action",
+      layout: "main_buttons",
+      text : Locale.tr("Groups")
+    },
     "User.chgrp" : {
       type: "confirm_with_select",
       text: Locale.tr("Change group"),

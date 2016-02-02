@@ -111,13 +111,20 @@ define(function(require) {
 
         case "acct_owner_group":
           $("#acct_owner_select", context).show();
-          ResourceSelect.insert("#acct_owner_select", context, "Group");
+          ResourceSelect.insert({
+              context: $('#acct_owner_select', context),
+              resourceName: 'Group'
+            });
           break;
 
         case "acct_owner_user":
           $("#acct_owner_select", context).show();
-          ResourceSelect.insert("#acct_owner_select", context, "User", -1, false,
-              '<option value="-1">'+Locale.tr("<< me >>")+'</option>');
+          ResourceSelect.insert({
+              context: $('#acct_owner_select', context),
+              resourceName: 'User',
+              initValue: -1,
+              extraOptions: '<option value="-1">' + Locale.tr("<< me >>") + '</option>'
+            });
           break;
         }
       });

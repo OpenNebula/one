@@ -22,10 +22,12 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
+  var LabelsUtils = require('utils/labels/utils');
 
   var TemplateTemplatesList = require('hbs!./list');
 
   var _accordionId = 0;
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   return {
     'generate': generate_provision_templates_list,
@@ -90,6 +92,9 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
+            LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
+            var context = $('.labels-dropdown', datatable.closest('.content'));
+            LabelsUtils.insertLabelsMenu(context, datatable, TEMPLATE_LABELS_COLUMN, "VMTEMPLATE.TEMPLATE.LABELS");
           }
         },
         error: Notifier.onError
@@ -213,17 +218,14 @@ define(function(require) {
       }
     })
 
-    ResourceSelect.insert(
-      ".provision_list_templates_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
+    ResourceSelect.insert({
+        context: $('.provision_list_templates_filter', context),
+        resourceName: 'User',
+        initValue: (opts.filter_expression ? opts.filter_expression : "-2"),
+        extraOptions: '<option value="-2">' + Locale.tr("ALL") + '</option>',
+        triggerChange: true,
+        onlyName: true
+      });
 
     context.on("click", ".provision_templates_list_filter_button", function(){
       $(".provision_list_templates_filter", context).fadeIn();
@@ -241,7 +243,7 @@ define(function(require) {
             '<div class="row">'+
             '<div class="large-9 columns">'+
               '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("Handle with care! This action will inmediately destroy the template")+
+                Locale.tr("Handle with care! This action will immediately destroy the template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated.") +
               '</span>'+

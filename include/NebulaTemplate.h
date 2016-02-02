@@ -133,12 +133,17 @@ protected:
     /**
      *  Defaults for the configuration file
      */
-    map<string, Attribute*> conf_default;
+    multimap<string, Attribute*> conf_default;
 
     /**
      *  Sets the defaults value for the template
      */
     virtual void set_conf_default() = 0;
+
+    /**
+     *  Sets the defaults value for multiple attributes
+     */
+    virtual void set_multiple_conf_default() = 0;
 };
 
 // -----------------------------------------------------------------------------
@@ -176,6 +181,39 @@ private:
      *  Sets the defaults value for the template
      */
     void set_conf_default();
+
+    /**
+     *  Sets the defaults value for multiple attributes
+     */
+    void set_multiple_conf_default();
+
+    /**
+     *  register the multiple configuration attributes and clean the
+     *  conf_default hash
+     */
+    void register_multiple_conf_default(const std::string& conf_section);
+
+    /**
+     *  Sets a default single attribute value
+     */
+    void set_conf_single(const std::string& attr, const std::string& value);
+
+    /**
+     *  Sets a the defaults for a DS
+     */
+    void set_conf_ds(const std::string& name,
+                     const std::string& required_attrs,
+                     const std::string& persistent_only);
+
+    /**
+     *  Sets a the defaults for a TM
+     */
+    void set_conf_tm(const std::string& name,
+                     const std::string& ln_target,
+                     const std::string& clone_target,
+                     const std::string& shared,
+                     const std::string& ds_migrate);
+
 };
 
 

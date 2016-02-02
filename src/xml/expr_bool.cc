@@ -84,6 +84,8 @@
 #include "expr_bool.h"
 #include "ObjectXML.h"
 
+using namespace std;
+
 #define YYERROR_VERBOSE
 #define expr_bool__lex expr_lex
 

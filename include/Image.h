@@ -76,16 +76,17 @@ public:
      */
     enum DiskType
     {
-        FILE          = 0, /** < File-based disk */
-        CD_ROM        = 1, /** < An ISO9660 disk */
-        BLOCK         = 2, /** < Block-device disk */
-        RBD           = 3, /** < CEPH RBD disk */
-        RBD_CDROM     = 4, /** < CEPH RBD CDROM disk */
-        GLUSTER       = 5, /** < Gluster Block Device */
-        GLUSTER_CDROM = 6, /** < Gluster CDROM Device Device */
-        SHEEPDOG      = 7, /** < Sheepdog Block Device */
+        FILE           = 0, /** < File-based disk */
+        CD_ROM         = 1, /** < An ISO9660 disk */
+        BLOCK          = 2, /** < Block-device disk */
+        RBD            = 3, /** < CEPH RBD disk */
+        RBD_CDROM      = 4, /** < CEPH RBD CDROM disk */
+        GLUSTER        = 5, /** < Gluster Block Device */
+        GLUSTER_CDROM  = 6, /** < Gluster CDROM Device Device */
+        SHEEPDOG       = 7, /** < Sheepdog Block Device */
         SHEEPDOG_CDROM = 8, /** < Sheepdog CDROM Device Device */
-        NONE          = 255 /** < No disk type, error situation */
+        ISCSI          = 9, /** < iSCSI Volume (Devices Datastore) */
+        NONE           = 255 /** < No disk type, error situation */
     };
 
     /**
@@ -106,6 +107,7 @@ public:
             case GLUSTER_CDROM:  return "GLUSTER_CDROM" ; break;
             case SHEEPDOG:       return "SHEEPDOG" ; break;
             case SHEEPDOG_CDROM: return "SHEEPDOG_CDROM" ; break;
+            case ISCSI:          return "ISCSI" ; break;
             default:             return "";
         }
     };

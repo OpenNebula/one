@@ -27,6 +27,11 @@ define(function(require) {
     diskCost   : 0
   };
 
+  var _dsMadConf = {};
+  var _imMadConf = {};
+  var _vmMadConf = {};
+  var _authMadConf = {};
+
   var Config = {
     'isTabEnabled': function(tabName) {
       var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
@@ -62,7 +67,7 @@ define(function(require) {
         if (_config['view']['tabs'][tabName]['provision_tabs']) {
           return _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
         } else {
-          // if provision_tabs is not defined use panel_tabs. 
+          // if provision_tabs is not defined use panel_tabs.
           // This attribute was used in before 4.14, provision_tabs was include in 4.14.2
           return _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
         }
@@ -152,7 +157,11 @@ define(function(require) {
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
     "defaultCost" : _defaultCost,
-    "initDefaultCost" : function() {
+    'dsMadConf' : _dsMadConf,
+    'imMadConf' : _imMadConf,
+    'vmMadConf' : _vmMadConf,
+    'authMadConf' : _authMadConf,
+    "initOnedConf" : function() {
       OpenNebulaSystem.onedconf({
         data : {},
         timeout: true,
@@ -167,6 +176,22 @@ define(function(require) {
             if (onedconf.DEFAULT_COST.DISK_COST != undefined){
               _defaultCost.diskCost = parseInt(onedconf.DEFAULT_COST.DISK_COST);
             }
+          }
+
+          if (onedconf.DS_MAD_CONF != undefined){
+            $.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+          }
+
+          if (onedconf.IM_MAD != undefined){
+            $.extend(true, _imMadConf, onedconf.IM_MAD);
+          }
+
+          if (onedconf.VM_MAD != undefined){
+            $.extend(true, _vmMadConf, onedconf.VM_MAD);
+          }
+
+          if (onedconf.AUTH_MAD != undefined){
+            $.extend(true, _authMadConf, onedconf.AUTH_MAD);
           }
         },
         error: function(request, error_json){

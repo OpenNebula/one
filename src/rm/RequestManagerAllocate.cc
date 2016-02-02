@@ -293,6 +293,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     string ds_name;
     string ds_data;
 
+    bool   ds_persistent_only;
+
     Datastore::DatastoreType ds_type;
 
     int    rc, id;
@@ -325,6 +327,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     long long       avail;
 
     bool ds_check;
+    bool persistent_attr;
 
     string extra_data = "";
 
@@ -369,9 +372,10 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     ds->get_permissions(ds_perms);
 
-    ds_name      = ds->get_name();
-    ds_disk_type = ds->get_disk_type();
-    ds_check     = ds->get_avail_mb(avail);
+    ds_name            = ds->get_name();
+    ds_disk_type       = ds->get_disk_type();
+    ds_check           = ds->get_avail_mb(avail);
+    ds_persistent_only = ds->is_persistent_only();
 
     ds->to_xml(ds_data);
 
@@ -504,6 +508,21 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
     }
+
+    // ------------------------- Check persistent only -------------------------
+
+    tmpl->get("PERSISTENT", persistent_attr);
+
+    if ( ds_persistent_only && persistent_attr == false )
+    {
+        att.resp_msg = "This Datastore only accepts persistent images.";
+        failure_response(ALLOCATE, att);
+
+        delete tmpl;
+        return;
+    }
+
+    // ------------------------- Allocate --------------------------------------
 
     rc = ipool->allocate(att.uid,
                          att.gid,

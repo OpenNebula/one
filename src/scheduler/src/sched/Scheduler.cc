@@ -321,6 +321,7 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
 
     hpool  = new HostPoolXML(client);
+    upool  = new UserPoolXML(client);
     clpool = new ClusterPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
 
@@ -430,8 +431,6 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the datastores
     //--------------------------------------------------------------------------
 
-    // TODO: Avoid two ds pool info calls to oned
-
     rc = dspool->set_up();
 
     if ( rc != 0 )
@@ -440,6 +439,17 @@ int Scheduler::set_up_pools()
     }
 
     rc = img_dspool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the hosts ids
+    //--------------------------------------------------------------------------
+
+    rc = upool->set_up();
 
     if ( rc != 0 )
     {
@@ -499,6 +509,8 @@ int Scheduler::set_up_pools()
  *    2. Meets user/policy requirements
  *    3. Have enough capacity to host the VM
  *
+ *  @param acl pool
+ *  @param users the user pool
  *  @param vm the virtual machine
  *  @param vm_memory vm requirement
  *  @param vm_cpu vm requirement
@@ -511,9 +523,9 @@ int Scheduler::set_up_pools()
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
-    vector<Attribute *>& vpci, HostXML * host, int &n_auth, int& n_error,
-    int &n_fits, int &n_matched, string &error)
+static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm,
+    int vmem, int vcpu, vector<Attribute *>& vpci, HostXML * host, int &n_auth,
+    int& n_error, int &n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -544,10 +556,17 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
         hperms.cid      = host->get_cid();
         hperms.obj_type = PoolObjectSQL::HOST;
 
-        // Only include the VM group ID
+        UserXML * user = upool->get(vm->get_uid());
 
-        set<int> gids;
-        gids.insert(vm->get_gid());
+        if (user == 0)
+        {
+            error = "User does not exists.";
+            return false;
+        }
+
+        const vector<int> vgids = user->get_gids();
+
+        set<int> gids(vgids.begin(), vgids.end());
 
         if ( !acls->authorize(vm->get_uid(), gids, hperms, AuthRequest::MANAGE))
         {
@@ -614,6 +633,8 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *    1. Meet user/policy requirements
  *    2. Have enough capacity to host the VM
  *
+ *  @param acl pool
+ *  @param users the user pool
  *  @param vm the virtual machine
  *  @param vdisk vm requirement
  *  @param ds to evaluate vm assgiment
@@ -624,9 +645,9 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdisk,
-    DatastoreXML * ds, int& n_auth, int& n_error, int& n_fits, int &n_matched,
-    string &error)
+static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
+    VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds, int& n_auth,
+    int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Check if user is authorized
@@ -637,10 +658,17 @@ static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdis
 
         ds->get_permissions(dsperms);
 
-        // Only include the VM group ID
+        UserXML * user = upool->get(vm->get_uid());
 
-        set<int> gids;
-        gids.insert(vm->get_gid());
+        if (user == 0)
+        {
+            error = "User does not exists.";
+            return false;
+        }
+
+        const vector<int> vgids = user->get_gids();
+
+        set<int> gids(vgids.begin(), vgids.end());
 
         if ( !acls->authorize(vm->get_uid(), gids, dsperms, AuthRequest::USE))
         {
@@ -740,6 +768,7 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
+    const map<int, ObjectXML*> users       = upool->get_objects();
 
     double total_match_time = 0;
     double total_rank_time = 0;
@@ -790,8 +819,8 @@ void Scheduler::match_schedule()
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            if (match_host(acls, vm, vm_memory, vm_cpu, vm_pci, host, n_auth,
-                    n_error, n_fits, n_matched, m_error))
+            if (match_host(acls, upool, vm, vm_memory, vm_cpu, vm_pci, host,
+                    n_auth, n_error, n_fits, n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
 
@@ -894,8 +923,8 @@ void Scheduler::match_schedule()
         {
             ds = static_cast<DatastoreXML *>(h_it->second);
 
-            if (match_system_ds(acls, vm, vm_disk, ds, n_auth, n_error, n_fits,
-                        n_matched, m_error))
+            if (match_system_ds(acls, upool, vm, vm_disk, ds, n_auth, n_error,
+                        n_fits, n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 

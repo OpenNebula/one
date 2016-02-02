@@ -36,14 +36,6 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Nebula::bootstrap_db()
-{
-    start(true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Nebula::start(bool bootstrap_only)
 {
     int             rc;
@@ -1008,4 +1000,179 @@ error_mad:
     NebulaLog::log("ONE", Log::ERROR, "Could not load driver");
     throw runtime_error("Could not load an OpenNebula driver");
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Log::MessageType Nebula::get_debug_level() const
+{
+    Log::MessageType            clevel = Log::ERROR;
+    vector<const Attribute *>   logs;
+    int                         rc;
+    int                         log_level_int;
+
+    rc = nebula_configuration->get("LOG", logs);
+
+    if ( rc != 0 )
+    {
+        string value;
+        const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                      (logs[0]);
+        value = log->vector_value("DEBUG_LEVEL");
+
+        log_level_int = atoi(value.c_str());
+
+        if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
+        {
+            clevel = static_cast<Log::MessageType>(log_level_int);
+        }
+    }
+
+    return clevel;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+NebulaLog::LogType Nebula::get_log_system() const
+{
+    vector<const Attribute *> logs;
+    int                       rc;
+    NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
+
+    rc = nebula_configuration->get("LOG", logs);
+
+    if ( rc != 0 )
+    {
+        string value;
+        const VectorAttribute * log = static_cast<const VectorAttribute *>
+                                                      (logs[0]);
+
+        value      = log->vector_value("SYSTEM");
+        log_system = NebulaLog::str_to_type(value);
+    }
+
+    return log_system;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Nebula::get_ds_location(int cluster_id, string& dsloc)
+{
+    if ( cluster_id != -1 )
+    {
+        Cluster * cluster = clpool->get(cluster_id, true);
+
+        if ( cluster == 0 )
+        {
+            return -1;
+        }
+
+        cluster->get_ds_location(dsloc);
+
+        cluster->unlock();
+    }
+    else
+    {
+        get_configuration_attribute("DATASTORE_LOCATION", dsloc);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Nebula::get_vm_log_filename(int oid)
+{
+    ostringstream oss;
+
+    if (nebula_location == "/")
+    {
+        oss << log_location << oid << ".log";
+    }
+    else
+    {
+        oss << vms_location << oid << "/vm.log";
+    }
+
+    return oss.str();
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Nebula::get_ds_conf_attribute(
+    const std::string& ds_name,
+    const VectorAttribute* &value) const
+{
+    std::vector<const Attribute*>::const_iterator it;
+    std::vector<const Attribute*> values;
+    std::string template_ds_name;
+    std::string ds_name_upper;
+
+    nebula_configuration->Template::get("DS_MAD_CONF", values);
+
+    for (it = values.begin(); it != values.end(); it ++)
+    {
+        value = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (value == 0)
+        {
+            continue;
+        }
+
+        template_ds_name = value->vector_value("NAME");
+        ds_name_upper = ds_name;
+
+        one_util::toupper(ds_name_upper);
+        one_util::toupper(template_ds_name);
+
+        if ( template_ds_name == ds_name_upper)
+        {
+            return 0;
+        }
+    }
+
+    value = 0;
+    return -1;
+};
+
+int Nebula::get_tm_conf_attribute(
+    const string& tm_name,
+    const VectorAttribute* &value) const
+{
+    vector<const Attribute*>::const_iterator it;
+    vector<const Attribute*> values;
+    std::string template_tm_name;
+    std::string tm_name_upper;
+
+    nebula_configuration->Template::get("TM_MAD_CONF", values);
+
+    for (it = values.begin(); it != values.end(); it ++)
+    {
+        value = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (value == 0)
+        {
+            continue;
+        }
+
+        template_tm_name = value->vector_value("NAME");
+        tm_name_upper = tm_name;
+
+        one_util::toupper(tm_name_upper);
+        one_util::toupper(template_tm_name);
+
+        if ( tm_name_upper == template_tm_name)
+        {
+            return 0;
+        }
+    }
+
+    value = 0;
+    return -1;
+};
 

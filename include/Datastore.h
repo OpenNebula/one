@@ -224,6 +224,12 @@ public:
     };
 
     /**
+     * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
+     * @return true if persistent only
+     */
+    bool is_persistent_only();
+
+    /**
      * Enable or disable the DS. Only for System DS.
      * @param enable true to enable
      * @param error_str Returns the error reason, if any
@@ -373,6 +379,17 @@ private:
         return new DatastoreTemplate;
     }
 
+    /**
+     *  Verify the proper definition of the DS_MAD by checking the attributes
+     *  related to the DS defined in DS_MAD_CONF specified in the Datastore
+     *  template
+     */
+    int set_ds_mad(string &ds_mad, string &error_str);
+
+    /**
+     *  Verify the proper definition of the TM_MAD by checking the attributes
+     *  related to the TM defined in TM_MAD_CONF
+     */
     int set_tm_mad(string &tm_mad, string &error_str);
 
     /**

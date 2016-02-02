@@ -111,7 +111,11 @@ define(function(require) {
     if (button.custom_select) {
       $('div#confirm_select', dialog).html(button.custom_select);
     } else {
-      ResourceSelect.insert('#confirm_select', dialog, button.select, null, true);
+      ResourceSelect.insert({
+          context: $('#confirm_select', dialog),
+          resourceName: button.select,
+          emptyValue: true
+        });
     }
 
     $('#confirm_with_select_tip', dialog).text(tip);

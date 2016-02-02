@@ -85,6 +85,10 @@ define(function(require) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.simple_action(params, RESOURCE, "recover", null, PATH);
     },
+    "rename" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj, PATH);
+    },
     "stateStr" : function(stateId) {
       return STATES_STR[stateId];
     },

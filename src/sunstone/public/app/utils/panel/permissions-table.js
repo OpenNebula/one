@@ -85,8 +85,11 @@ define(function(require) {
     if (Config.isTabActionEnabled(tabName, resourceType + '.chown')) {
       context.off("click", "#div_edit_chg_owner_link");
       context.on("click", "#div_edit_chg_owner_link", function() {
-          var tr_context = $(this).parents("tr");
-          ResourceSelect.insert("#value_td_owner", context, "User", element.UID, false);
+          ResourceSelect.insert({
+              context: $('#value_td_owner', context),
+              resourceName: 'User',
+              initValue: element.UID
+            });
         });
 
       context.off("change", "#value_td_owner .resource_list_select");
@@ -101,7 +104,11 @@ define(function(require) {
     if (Config.isTabActionEnabled(tabName, resourceType + '.chgrp')) {
       context.off("click", "#div_edit_chg_group_link");
       context.on("click", "#div_edit_chg_group_link", function() {
-          ResourceSelect.insert("#value_td_group", context, "Group", element.GID, false);
+          ResourceSelect.insert({
+              context: $('#value_td_group', context),
+              resourceName: 'Group',
+              initValue: element.GID
+            });
         });
 
       context.off("change", "#value_td_group .resource_list_select");

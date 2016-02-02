@@ -21,8 +21,13 @@ define(function(require) {
 
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
+  var Sunstone = require('sunstone');
+  var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var Tree = require('utils/labels/tree');
+  var Notifier = require('utils/notifier');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -31,6 +36,8 @@ define(function(require) {
   var RESOURCE = "Template";
   var XML_ROOT = "VMTEMPLATE";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 6;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -42,6 +49,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -60,7 +68,8 @@ define(function(require) {
       Locale.tr("Owner") ,
       Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("Registration time")
+      Locale.tr("Registration time"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -72,12 +81,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following Templates:")
     };
 
+    this.labels = [];
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -96,7 +109,14 @@ define(function(require) {
         element.UNAME,
         element.GNAME,
         element.NAME,
-        Humanize.prettyTime(element.REGTIME)
+        Humanize.prettyTime(element.REGTIME),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
+  }
+
+  function _preUpdateView() {
+  }
+
+  function _postUpdateView() {
   }
 });

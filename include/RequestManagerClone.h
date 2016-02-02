@@ -127,7 +127,9 @@ public:
             RequestAttributes&          att)
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc = docpool->get(source_id, true);
+        Document * doc         = docpool->get(source_id, true);
+
+        doc->unlock();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
             att.umask, doc->get_document_type(), tmpl, &id, att.resp_msg);

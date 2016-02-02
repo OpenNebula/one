@@ -51,6 +51,11 @@ define(function(require) {
       layout: "user_select",
       tip: Locale.tr("Select the new group")+":"
     },
+    "ServiceTemplate.clone_dialog" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Clone")
+    },
     "ServiceTemplate.delete" : {
       type: "confirm",
       text: Locale.tr("Delete"),

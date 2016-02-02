@@ -239,17 +239,14 @@ define(function(require) {
       }
     })
 
-    ResourceSelect.insert(
-      ".provision_list_flows_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
+    ResourceSelect.insert({
+        context: $('.provision_list_flows_filter', context),
+        resourceName: 'User',
+        initValue: (opts.filter_expression ? opts.filter_expression : "-2"),
+        extraOptions: '<option value="-2">' + Locale.tr("ALL") + '</option>',
+        triggerChange: true,
+        onlyName: true
+      });
 
     context.on("click", ".provision_flows_list_filter_button", function(){
       $(".provision_list_flows_filter", context).fadeIn();
@@ -512,7 +509,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Service")+
+              Locale.tr("Be careful, this action will immediately destroy your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -531,7 +528,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately shutdown your Service")+
+              Locale.tr("Be careful, this action will immediately shutdown your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+

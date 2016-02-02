@@ -37,6 +37,7 @@ define(function(require) {
     "Cluster.refresh" : _commonActions.refresh(),
     "Cluster.delete" : _commonActions.del(),
     "Cluster.update_template" : _commonActions.updateTemplate(),
+    "Cluster.append_template" : _commonActions.appendTemplate(),
     "Cluster.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Cluster.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "Cluster.rename": _commonActions.singleAction('rename'),

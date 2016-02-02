@@ -67,6 +67,7 @@ define(function(require) {
     "Service.chown": _commonActions.multipleAction('chown'),
     "Service.chgrp": _commonActions.multipleAction('chgrp'),
     "Service.chmod": _commonActions.singleAction('chmod'),
+    "Service.rename": _commonActions.singleAction('rename'),
     "Service.shutdown":    _commonActions.multipleAction('shutdown'),
     "Service.recover":    _commonActions.multipleAction('recover'),
 

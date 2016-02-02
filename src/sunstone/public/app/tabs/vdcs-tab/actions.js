@@ -38,6 +38,7 @@ define(function(require) {
     "Vdc.delete" : _commonActions.del(),
     "Vdc.update" : _commonActions.update(),
     "Vdc.update_template" : _commonActions.updateTemplate(),
+    "Vdc.append_template" : _commonActions.appendTemplate(),
     "Vdc.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Vdc.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "Vdc.rename": _commonActions.singleAction('rename'),

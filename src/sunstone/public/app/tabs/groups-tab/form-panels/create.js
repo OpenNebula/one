@@ -184,8 +184,8 @@ define(function(require) {
     });
 
     if (this.action == "create") {
-      $("input#group_view_cloud").attr('checked','checked').change();
-      $("input#group_admin_view_groupadmin").attr('checked','checked').change();
+      $("input#group_view_cloud").prop('checked', true).change();
+      $("input#group_admin_view_groupadmin").prop('checked', true).change();
 
       _generateViewsSelect(context, "admin", "groupadmin");
       _generateViewsSelect(context, "user", "cloud");
@@ -256,30 +256,32 @@ define(function(require) {
     } else if (this.action == "update") {
       var template_json = this.element.TEMPLATE;
 
-      delete template_json["SUNSTONE_VIEWS"];
-      delete template_json["DEFAULT_VIEW"];
-      delete template_json["GROUP_ADMIN_VIEWS"];
-      delete template_json["GROUP_ADMIN_DEFAULT_VIEW"];
+      delete template_json['SUNSTONE'];
 
+      var sunstone_template = {};
       if (views.length != 0){
-        template_json["SUNSTONE_VIEWS"] = views.join(",");
+        sunstone_template["VIEWS"] = views.join(",");
       }
 
       if (default_view != undefined){
-        template_json["DEFAULT_VIEW"] = default_view;
+        sunstone_template["DEFAULT_VIEW"] = default_view;
       }
 
       if (admin_views.length != 0){
-        template_json["GROUP_ADMIN_VIEWS"] = admin_views.join(",");
+        sunstone_template["GROUP_ADMIN_VIEWS"] = admin_views.join(",");
       }
 
       if (default_admin_view != undefined){
-        template_json["GROUP_ADMIN_DEFAULT_VIEW"] = default_admin_view;
+        sunstone_template["GROUP_ADMIN_DEFAULT_VIEW"] = default_admin_view;
+      }
+
+      if (!$.isEmptyObject(sunstone_template)) {
+        template_json['SUNSTONE'] = sunstone_template;
       }
 
       var template_str = TemplateUtils.templateToString(template_json);
 
-      Sunstone.runAction("Group.update",this.resourceId, template_str);
+      Sunstone.runAction("Group.update", this.resourceId, template_str);
       return false;
     }
   }
@@ -306,40 +308,41 @@ define(function(require) {
 
     $('input[id^="group_view"]', context).removeAttr('checked');
 
-    if (element.TEMPLATE.SUNSTONE_VIEWS){
-      views_str = element.TEMPLATE.SUNSTONE_VIEWS;
+    var sunstone_template = element.TEMPLATE.SUNSTONE;
+    if (sunstone_template && sunstone_template.VIEWS){
+      views_str = sunstone_template.VIEWS;
 
       var views = views_str.split(",");
       $.each(views, function(){
         $('input[id^="group_view"][value="'+this.trim()+'"]',
-          context).attr('checked','checked').change();
+          context).prop('checked', true).change();
       });
     }
 
     $('input[id^="group_default_view"]', context).removeAttr('checked');
 
-    if (element.TEMPLATE.DEFAULT_VIEW){
-      $('#user_view_default', context).val(element.TEMPLATE.DEFAULT_VIEW.trim()).change();
+    if (sunstone_template && sunstone_template.DEFAULT_VIEW){
+      $('#user_view_default', context).val(sunstone_template.DEFAULT_VIEW.trim()).change();
     } else {
       $('#user_view_default', context).val("").change();
     }
 
     $('input[id^="group_admin_view"]', context).removeAttr('checked');
 
-    if (element.TEMPLATE.GROUP_ADMIN_VIEWS){
-      views_str = element.TEMPLATE.GROUP_ADMIN_VIEWS;
+    if (sunstone_template && sunstone_template.GROUP_ADMIN_VIEWS){
+      views_str = sunstone_template.GROUP_ADMIN_VIEWS;
 
       var views = views_str.split(",");
       $.each(views, function(){
         $('input[id^="group_admin_view"][value="'+this.trim()+'"]',
-          context).attr('checked','checked').change();
+          context).prop('checked', true).change();
       });
     }
 
     $('input[id^="group_default_admin_view"]', context).removeAttr('checked');
 
-    if (element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW){
-      $('#admin_view_default', context).val(element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW.trim()).change();
+    if (sunstone_template && sunstone_template.GROUP_ADMIN_DEFAULT_VIEW){
+      $('#admin_view_default', context).val(sunstone_template.GROUP_ADMIN_DEFAULT_VIEW.trim()).change();
     } else {
       $('#admin_view_default', context).val("").change();
     }

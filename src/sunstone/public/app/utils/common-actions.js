@@ -39,9 +39,11 @@ define(function(require) {
   CommonActions.prototype.create = _create;
   CommonActions.prototype.showCreate = _showCreate;
   CommonActions.prototype.showUpdate = _showUpdate;
+  CommonActions.prototype.checkAndShow = _checkAndShow;
   CommonActions.prototype.checkAndShowUpdate = _checkAndShowUpdate;
   CommonActions.prototype.update = _update;
   CommonActions.prototype.updateTemplate = _updateTemplate;
+  CommonActions.prototype.appendTemplate = _appendTemplate;
 
   return CommonActions;
 
@@ -186,17 +188,22 @@ define(function(require) {
 
   function _checkAndShowUpdate() {
     var that = this;
+    return _checkAndShow("show_to_update");
+  }
+
+  function _checkAndShow(action) {
+    var that = this;
     return {
-      type: "single",
+      type: 'single',
       call: function() {
-        var selected_nodes = Sunstone.getDataTable(that.tabId).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) resource to update.");
+        var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
+        if (selectedNodes.length != 1) {
+          Notifier.notifyMessage('Please select one (and just one) resource to update.');
           return false;
         }
 
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction(that.resourceStr + ".show_to_update", resource_id);
+        var resourceId = '' + selectedNodes[0];
+        Sunstone.runAction(that.resourceStr + '.' + action, resourceId);
       }
     }
   }
@@ -221,6 +228,18 @@ define(function(require) {
     return {
       type: "single",
       call: that.openNebulaResource.update,
+      callback: function(request) {
+        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
+      },
+      error: Notifier.onError
+    }
+  }
+
+  function _appendTemplate() {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource.append,
       callback: function(request) {
         Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
       },

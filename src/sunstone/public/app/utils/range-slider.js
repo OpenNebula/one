@@ -58,7 +58,7 @@ define(function(require) {
       }
     });
 
-    if (opts.startValue) {
+    if (opts.startValue != undefined) {
       slider.foundation('slider', 'set_value', opts.startValue);
       input.val(opts.startValue);
     }

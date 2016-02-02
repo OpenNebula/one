@@ -13,7 +13,6 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
 <form id="provision_create_vm" class="hidden section_content">
   <div class="row">
     <div class="large-10 large-centered columns">
@@ -51,27 +50,38 @@
                     <a href="#provision_saved_templates_selector">{{tr "Saved"}}</a>
                   </dd>
                 </dl>
-                <div class="row">
-                  <div class="large-12 large-centered columns">
-                    <h3 class="subheader text-right">
-                      <input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_template_search"/>
-                    </h3>
-                    <br></div>
-                </div>
                 <div class="tabs-content">
                   <div class="content active" id="provision_system_templates_selector">
+                    <div class="row">
+                      <div class="large-12 columns">
+                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
+                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
+                        <ul id="provisionSystemLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
+                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_system_template_search"/>
+                      </div>
+                    </div>
                     <table id="provision_system_templates_table">
                       <thead class="hidden">
                         <tr>
                           <th>{{tr "ID"}}</th>
                           <th>{{tr "Name"}}</th>
                           <th>{{tr "Saved"}}</th>
+                          <th>{{tr "Shared"}}</th>
+                          <th>{{tr "Labels"}}</th>
                         </tr>
                       </thead>
                       <tbody class="hidden"></tbody>
                     </table>
                   </div>
                   <div class="content" id="provision_vdc_templates_selector">
+                    <div class="row">
+                      <div class="large-12 columns">
+                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
+                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
+                        <ul id="provisionVdcLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
+                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_vdc_template_search"/>
+                      </div>
+                    </div>
                     <table id="provision_vdc_templates_table">
                       <thead class="hidden">
                         <tr>
@@ -79,12 +89,21 @@
                           <th>{{tr "Name"}}</th>
                           <th>{{tr "Saved"}}</th>
                           <th>{{tr "Shared"}}</th>
+                          <th>{{tr "Labels"}}</th>
                         </tr>
                       </thead>
                       <tbody class="hidden"></tbody>
                     </table>
                   </div>
                   <div class="content" id="provision_saved_templates_selector">
+                    <div class="row">
+                      <div class="large-12 columns">
+                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
+                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
+                        <ul id="provisionSavedLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
+                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_saved_template_search"/>
+                      </div>
+                    </div>
                     <table id="provision_saved_templates_table">
                       <thead class="hidden">
                         <tr>
@@ -92,6 +111,7 @@
                           <th>{{tr "Name"}}</th>
                           <th>{{tr "Saved"}}</th>
                           <th>{{tr "Shared"}}</th>
+                          <th>{{tr "Labels"}}</th>
                         </tr>
                       </thead>
                       <tbody class="hidden"></tbody>

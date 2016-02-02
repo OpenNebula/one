@@ -26,11 +26,13 @@ define(function(require) {
   var _dialogs = [
     require('./users-tab/dialogs/password'),
     require('./users-tab/dialogs/auth-driver'),
-    require('./users-tab/dialogs/quotas')
+    require('./users-tab/dialogs/quotas'),
+    require('./users-tab/dialogs/groups')
   ];
 
   var _panels = [
     require('./users-tab/panels/info'),
+    require('./users-tab/panels/groups'),
     require('./users-tab/panels/quotas'),
     require('./users-tab/panels/accounting'),
     require('./users-tab/panels/showback')

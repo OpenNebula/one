@@ -329,6 +329,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
 
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
+
             obj.update(str, options[:append])
         end
     end
@@ -364,6 +367,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             str = OpenNebulaHelper.update_template_helper(false, args[0], obj,
                 args[2], "AR_POOL", false)
+
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
 
             obj.update_ar(str)
         end

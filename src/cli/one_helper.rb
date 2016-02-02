@@ -665,11 +665,11 @@ EOT
             end
         end
 
-        private
-
         def retrieve_resource(id)
             factory(id)
         end
+
+        private
 
         def pool_to_array(pool)
             if !pool.instance_of?(Hash)

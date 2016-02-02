@@ -35,12 +35,12 @@
   <div class="large-12 columns">
     <label for="driver">{{tr "Authentication"}}</label>
     <select name="driver" id="{{idPrefix}}_driver">
-      <option value="core" selected="selected">{{tr "Core"}}</option>
-      <option value="ssh">{{tr "SSH"}}</option>
-      <option value="x509">{{tr "x509"}}</option>
-      <option value="ldap">{{tr "LDAP"}}</option>
-      <option value="public">{{tr "Public"}}</option>
-      <option value="custom">{{tr "Custom"}}</option>
+      <option value="core" selected="selected">{{tr "core"}}</option>
+      <option value="public">{{tr "public"}}</option>
+      {{#each authMadNameList}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+      <option value="custom">{{tr "custom"}}</option>
     </select>
     <div>
       <input type="text" id="{{idPrefix}}_custom_auth" name="custom_auth" />

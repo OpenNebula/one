@@ -20,6 +20,8 @@ require 'onedb_backend'
 LOG_TIME = false
 
 class OneDB
+    attr_accessor :backend
+
     def initialize(ops)
         if ops[:backend] == :sqlite
             begin
@@ -517,6 +519,38 @@ is preserved.
         else
             raise "File was not found: #{file}"
         end
+    end
+
+    def sqlite2mysql(options, sqlite)
+        one_not_running()
+
+        sqlite_v = sqlite.backend.read_db_version
+        mysql_v  = @backend.read_db_version
+
+        match = true
+        match = false if sqlite_v[:version] != mysql_v[:version]
+        match = false if sqlite_v[:local_version] != mysql_v[:local_version]
+
+        if !match
+            err_msg =  "SQLite version: #{sqlite_v[:version]}\n"
+            err_msg << "SQLite local version: #{sqlite_v[:local_version]}\n"
+            err_msg << "MySQL version: #{mysql_v[:version]}\n"
+            err_msg << "MySQL local version: #{mysql_v[:local_version]}\n"
+            err_msg << "The MySQL and SQLite versions do not match. Please run "
+            err_msg << "'onedb -i' in order to bootstrap a blank OpenNebula DB."
+
+            raise err_msg
+        end
+
+        backup(options[:backup], options)
+
+        file = "#{RUBY_LIB_LOCATION}/onedb/sqlite2mysql.rb"
+        load(file)
+        @backend.extend Sqlite2MySQL
+
+        @backend.convert(sqlite.backend.db)
+
+        return 0
     end
 
     private
