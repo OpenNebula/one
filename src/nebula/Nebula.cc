@@ -496,7 +496,6 @@ void Nebula::start(bool bootstrap_only)
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
 
-        vrouterpool = new VirtualRouterPool(db);
         marketpool  = new MarketPlacePool(db);
         apppool     = new MarketPlaceAppPool(db);
 

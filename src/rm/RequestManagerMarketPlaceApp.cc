@@ -27,7 +27,6 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
     int  rc;
 
     MarketPlaceApp * app;
-	std::string  err_msg;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -38,15 +37,16 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( app == 0 )
     {
-        failure_response(NO_EXISTS,get_error(object_name(auth_object),id),att);
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = app->enable(enable_flag, err_msg);
+    rc = app->enable(enable_flag, att.resp_msg);
 
     if ( rc != 0  )
     {
-        failure_response(INTERNAL, request_error(err_msg,""), att);
+        failure_response(INTERNAL, att);
 
         app->unlock();
         return;

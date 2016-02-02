@@ -47,8 +47,8 @@ source_files=[
     'RequestManagerVdc.cc',
     'RequestManagerDatastore.cc',
     'RequestManagerLock.cc',
-    'RequestManagerMarketPlaceApp.cc'
-    'RequestManagerVirtualRouter.cc',
+    'RequestManagerMarketPlaceApp.cc',
+    'RequestManagerVirtualRouter.cc'
 ]
 
 # Build library

@@ -434,9 +434,9 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         if ( iss.fail() )
         {
-            failure_response(INTERNAL,
-                             request_error("Cannot parse SIZE", size_str),
-                             att);
+            att.resp_msg = "Cannot parse image SIZE: " + size_str;
+            failure_response(INTERNAL, att);
+
             delete tmpl;
             return;
         }
@@ -856,14 +856,13 @@ int MarketPlaceAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
-        string&                     error_str,
         RequestAttributes&          att)
 {
     MarketPlacePool *     mppool = static_cast<MarketPlacePool *>(pool);
     MarketPlaceTemplate * ttmpl  = static_cast<MarketPlaceTemplate *>(tmpl);
 
     return mppool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        ttmpl, &id, error_str);
+        ttmpl, &id, att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */

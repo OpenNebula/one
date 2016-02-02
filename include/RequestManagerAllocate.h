@@ -636,7 +636,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template *                 tmpl,
                       int&                       id,
-                      string&                    error_str,
                       RequestAttributes&         att);
 };
 
