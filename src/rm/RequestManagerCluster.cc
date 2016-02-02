@@ -38,7 +38,6 @@ void RequestManagerCluster::add_generic(
     Clusterable *   cluster_obj = 0;
     PoolObjectSQL * object = 0;
 
-
     PoolObjectAuth c_perms;
     PoolObjectAuth obj_perms;
 
@@ -82,9 +81,8 @@ void RequestManagerCluster::add_generic(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             return;
         }
@@ -95,10 +93,9 @@ void RequestManagerCluster::add_generic(
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(type), object_id),
-                att);
-
+        att.resp_obj = type;
+        att.resp_id  = object_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -127,9 +124,9 @@ void RequestManagerCluster::add_generic(
 
         if ( cluster == 0 )
         {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(PoolObjectSQL::CLUSTER),cluster_id),
-                    att);
+            att.resp_obj = PoolObjectSQL::CLUSTER;
+            att.resp_id  = cluster_id;
+            failure_response(NO_EXISTS, att);
 
             // Rollback
             get(object_id, true, &object, &cluster_obj);
@@ -146,13 +143,11 @@ void RequestManagerCluster::add_generic(
             return;
         }
 
-        if ( add_object(cluster, object_id, ds_type, err_msg) < 0 )
+        if ( add_object(cluster, object_id, ds_type, att.resp_msg) < 0 )
         {
             cluster->unlock();
 
-            failure_response(INTERNAL,
-                    request_error("Cannot add object to cluster", err_msg),
-                    att);
+            failure_response(INTERNAL, att);
 
             // Rollback
             get(object_id, true, &object, &cluster_obj);
@@ -189,14 +184,11 @@ void RequestManagerCluster::add_generic(
             return;
         }
 
-        if ( del_object(cluster, object_id, err_msg) < 0 )
+        if ( del_object(cluster, object_id, att.resp_msg) < 0 )
         {
             cluster->unlock();
 
-            failure_response(INTERNAL,
-                    request_error("Cannot remove object from cluster", err_msg),
-                    att);
-
+            failure_response(INTERNAL, att);
             return;
         }
 

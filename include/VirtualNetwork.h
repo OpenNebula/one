@@ -409,10 +409,12 @@ public:
      *  A vector containing just -1 means all VMs.
      *  @param vnet_ids list of VNET the user can access reservation info from.
      *  A vector containing just -1 means all VNETs.
+     *  @param vrs list of VRouter the user can access reservation info from.
+     *  A vector containing just -1 means all VRouters.
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets) const;
+        const vector<int>& vnets, const vector<int>& vrs) const;
 
     /**
      *  Gets a string based attribute (single) from an address range. If the
@@ -527,7 +529,8 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, bool extended,
-        const vector<int>& vm_ids, const vector<int>& vnet_oids) const;
+        const vector<int>& vm_ids, const vector<int>& vnet_oids,
+        const vector<int>& vr_ids) const;
 
     /**
      *  Rebuilds the object from an xml formatted string

@@ -262,13 +262,27 @@ define(function(require) {
           });
         }
 
+        function ipTr(attr){
+          var v = "--";
+
+          if (nic[attr] != undefined){
+            v = nic[attr];
+
+            if (nic["VROUTER_"+attr] != undefined){
+              v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+            }
+          }
+
+          return v;
+        }
+
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : nic.NETWORK,
-          IP : (nic.IP ? nic.IP : "--"),
+          IP : ipTr("IP"),
           MAC : nic.MAC,
-          IP6_ULA : (nic.IP6_ULA ? nic.IP6_ULA : "--"),
-          IP6_GLOBAL : (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--"),
+          IP6_ULA : ipTr("IP6_ULA"),
+          IP6_GLOBAL : ipTr("IP6_GLOBAL"),
           ACTIONS : actions,
           SECURITY_GROUP_RULES : secgroups
         });
@@ -287,10 +301,10 @@ define(function(require) {
         },
         {"data": "NIC_ID",     "defaultContent": ""},
         {"data": "NETWORK",    "defaultContent": ""},
-        {"data": "IP",         "defaultContent": ""},
+        {"data": "IP",         "defaultContent": "", "class": "nowrap"},
         {"data": "MAC",        "defaultContent": ""},
-        {"data": "IP6_ULA",    "defaultContent": ""},
-        {"data": "IP6_GLOBAL", "defaultContent": ""},
+        {"data": "IP6_ULA",    "defaultContent": "", "class": "nowrap"},
+        {"data": "IP6_GLOBAL", "defaultContent": "", "class": "nowrap"},
         {"data": "ACTIONS",    "defaultContent": "", "orderable": false},
         {"defaultContent": "", "orderable": false}
       ],

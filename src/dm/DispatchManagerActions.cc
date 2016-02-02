@@ -1443,6 +1443,7 @@ int DispatchManager::attach_nic(
     int uid;
     int oid;
     int rc;
+    string tmp_error;
 
     set<int> vm_sgs;
 
@@ -1468,19 +1469,6 @@ int DispatchManager::attach_nic(
     {
         oss << "Could not add a new NIC to VM " << vid << ", wrong state "
             << vm->state_str() << ".";
-        error_str = oss.str();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-
-        vm->unlock();
-        return -1;
-    }
-
-    if (vm->is_vrouter())
-    {
-        oss << "Could not add a new NIC to VM " << vid
-            << ", it is associated to the Virtual Router "
-            << vm->get_vrouter_id() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1527,8 +1515,6 @@ int DispatchManager::attach_nic(
 
     if ( vm == 0 )
     {
-        delete nic;
-
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
@@ -1539,6 +1525,8 @@ int DispatchManager::attach_nic(
                 delete *it;
             }
         }
+
+        delete nic;
 
         oss << "Could not attach a new NIC to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
@@ -1612,7 +1600,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
     }
 
     vmpool->update(vm);
@@ -1631,6 +1619,7 @@ int DispatchManager::detach_nic(
     string&  error_str)
 {
     ostringstream oss;
+    string        tmp_error;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1657,20 +1646,7 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    if (vm->is_vrouter())
-    {
-        oss << "Could not detach NIC from VM " << vid
-            << ", it is associated to the Virtual Router "
-            << vm->get_vrouter_id() << ".";
-        error_str = oss.str();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-
-        vm->unlock();
-        return -1;
-    }
-
-    if ( vm->set_attach_nic(nic_id) == -1 )
+    if ( vm->set_detach_nic(nic_id) == -1 )
     {
         oss << "Could not detach NIC with NIC_ID " << nic_id
             << ", it does not exist.";
@@ -1724,9 +1700,11 @@ int DispatchManager::detach_nic(
     }
     else
     {
+        vmpool->update(vm);
+
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->detach_nic_success(vid);
 
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }

@@ -28,8 +28,6 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
     bool    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int     rc;
 
-    string err_msg;
-
     Nebula&          nd     = Nebula::instance();
     ImageManager *   imagem = nd.get_imagem();
 
@@ -38,20 +36,20 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = imagem->enable_image(id,enable_flag, err_msg);
+    rc = imagem->enable_image(id,enable_flag, att.resp_msg);
 
     if( rc < 0 )
     {
         if (enable_flag == true)
         {
-            err_msg = "Could not enable image: " + err_msg;
+            att.resp_msg = "Could not enable image: " + att.resp_msg;
         }
         else
         {
-            err_msg = "Could not disable image: " + err_msg;
+            att.resp_msg = "Could not disable image: " + att.resp_msg;
         }
 
-        failure_response(INTERNAL, request_error(err_msg,""), att);
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -69,7 +67,6 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
     int     rc;
 
     Image * image;
-    string  err_msg;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -80,9 +77,8 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( image == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
 
         return;
     }
@@ -97,27 +93,26 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
-            failure_response(ACTION,
-                request_error("KERNEL, RAMDISK and CONTEXT files must be "
-                "non-persistent",""), att);
+            att.resp_msg = "KERNEL, RAMDISK and CONTEXT must be non-persistent";
+            failure_response(ACTION, att);
             image->unlock();
         return;
     }
 
-    rc = image->persistent(persistent_flag, err_msg);
+    rc = image->persistent(persistent_flag, att.resp_msg);
 
     if ( rc != 0  )
     {
         if (persistent_flag == true)
         {
-            err_msg = "Could not make image persistent: " + err_msg;
+            att.resp_msg = "Could not make image persistent: " + att.resp_msg;
         }
         else
         {
-            err_msg = "Could not make image non-persistent: " + err_msg;
+            att.resp_msg = "Could not make image non-persistent: " + att.resp_msg;
         }
 
-        failure_response(INTERNAL,request_error(err_msg,""), att);
+        failure_response(INTERNAL, att);
 
         image->unlock();
         return;
@@ -143,7 +138,6 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
     Image::ImageType itype;
 
     Image * image;
-    string  err_msg;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -154,10 +148,8 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( image == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -168,14 +160,12 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
-            if ((itype != Image::OS) &&
-                (itype != Image::DATABLOCK)&&
-                (itype != Image::CDROM) )
+            if ((itype != Image::OS) && (itype != Image::DATABLOCK)&&
+                (itype != Image::CDROM))
             {
-                failure_response(ACTION,
-                    request_error("Cannot change image type to an incompatible"
-                        " type for the current datastore.",""),
-                    att);
+                att.resp_msg = "Cannot change image type to an incompatible type"
+                    " for the current datastore.";
+                failure_response(ACTION, att);
 
                 image->unlock();
                 return;
@@ -189,10 +179,9 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                 (itype != Image::RAMDISK)&&
                 (itype != Image::CONTEXT) )
             {
-                failure_response(ACTION,
-                    request_error("Cannot change image type to an incompatible"
-                        " type for the current datastore.",""),
-                    att);
+                att.resp_msg = "Cannot change image type to an incompatible type"
+                    " for the current datastore.";
+                failure_response(ACTION, att);
 
                 image->unlock();
                 return;
@@ -200,11 +189,11 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         break;
     }
 
-    rc = image->set_type(type, err_msg);
+    rc = image->set_type(type, att.resp_msg);
 
     if ( rc != 0  )
     {
-        failure_response(INTERNAL,request_error(err_msg,""), att);
+        failure_response(INTERNAL, att);
 
         image->unlock();
         return;
@@ -229,7 +218,7 @@ void ImageClone::request_execute(
 
     long long       avail, size;
     int             rc, new_id, ds_id_orig, ds_id = -1;
-    string          error_str, ds_name, ds_data, ds_mad;
+    string          ds_name, ds_data, ds_mad;
     bool            ds_check;
 
     Image::DiskType disk_type;
@@ -256,10 +245,8 @@ void ImageClone::request_execute(
 
     if ( img == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object), clone_id),
-                att);
-
+        att.resp_id = clone_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -273,9 +260,8 @@ void ImageClone::request_execute(
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
-            failure_response(ACTION,
-                allocate_error("KERNEL, RAMDISK and CONTEXT files cannot be "
-                    "cloned."), att);
+            att.resp_msg = "KERNEL, RAMDISK and CONTEXT cannot be cloned.";
+            failure_response(ACTION, att);
             img->unlock();
         return;
     }
@@ -284,8 +270,8 @@ void ImageClone::request_execute(
 
     if (snaps.size () > 0)
     {
-        failure_response(ACTION,
-                request_error("Cannot clone images with snapshots",""), att);
+        att.resp_msg = "Cannot clone images with snapshots";
+        failure_response(ACTION, att);
         img->unlock();
         return;
     }
@@ -311,9 +297,9 @@ void ImageClone::request_execute(
 
     if ( ds == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
-                att);
+        att.resp_obj = PoolObjectSQL::DATASTORE;
+        att.resp_id  = ds_id;
+        failure_response(NO_EXISTS, att);
 
         delete tmpl;
         return;
@@ -321,8 +307,8 @@ void ImageClone::request_execute(
 
     if ( ds->get_type() != Datastore::IMAGE_DS )
     {
-        failure_response(ACTION,
-            request_error("Clone only supported for IMAGE_DS Datastores",""),att);
+        att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
+        failure_response(ACTION, att);
 
         ds->unlock();
 
@@ -348,8 +334,9 @@ void ImageClone::request_execute(
 
         if (ds == 0)
         {
-            failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::DATASTORE),ds_id_orig),att);
+            att.resp_obj = PoolObjectSQL::DATASTORE;
+            att.resp_id  = ds_id_orig;
+            failure_response(NO_EXISTS, att);
 
             delete tmpl;
             return;
@@ -357,8 +344,8 @@ void ImageClone::request_execute(
 
         if (ds->get_type() != Datastore::IMAGE_DS)
         {
-            failure_response(ACTION, request_error(
-                "Clone only supported for IMAGE_DS Datastores",""), att);
+            att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
+            failure_response(ACTION, att);
 
             ds->unlock();
 
@@ -368,8 +355,8 @@ void ImageClone::request_execute(
 
         if (ds->get_ds_mad() != ds_mad)
         {
-            failure_response(ACTION, request_error(
-                "Clone only supported to same DS_MAD Datastores",""), att);
+            att.resp_msg = "Clone only supported to same DS_MAD Datastores";
+            failure_response(ACTION, att);
 
             ds->unlock();
 
@@ -389,8 +376,8 @@ void ImageClone::request_execute(
 
     if (ds_check && (size > avail))
     {
-        failure_response(ACTION,
-            request_error("Not enough space in datastore",""), att);
+        att.resp_msg = "Not enough space in datastore";
+        failure_response(ACTION, att);
 
         delete tmpl;
         return;
@@ -416,9 +403,8 @@ void ImageClone::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             delete tmpl;
             return;
@@ -447,12 +433,12 @@ void ImageClone::request_execute(
                          "",
                          clone_id,
                          &new_id,
-                         error_str);
+                         att.resp_msg);
     if ( rc < 0 )
     {
         quota_rollback(&img_usage, Quotas::DATASTORE, att);
 
-        failure_response(INTERNAL, allocate_error(error_str), att);
+        failure_response(ALLOCATE, att);
         return;
     }
 
@@ -487,12 +473,11 @@ void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    string err_msg;
-    int    rc = imagem->delete_snapshot(id, snap_id, err_msg);
+    int rc = imagem->delete_snapshot(id, snap_id, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(ACTION, request_error(err_msg, ""), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -516,12 +501,11 @@ void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    string err_msg;
-    int    rc = imagem->revert_snapshot(id, snap_id, err_msg);
+    int rc = imagem->revert_snapshot(id, snap_id, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(ACTION, request_error(err_msg, ""), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -545,12 +529,11 @@ void ImageSnapshotFlatten::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    string err_msg;
-    int    rc = imagem->flatten_snapshot(id, snap_id, err_msg);
+    int rc = imagem->flatten_snapshot(id, snap_id, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(ACTION, request_error(err_msg, ""), att);
+        failure_response(ACTION, att);
         return;
     }
 

@@ -64,7 +64,6 @@ void RequestManagerUpdateTemplate::request_execute(
         RequestAttributes& att)
 {
     int    rc;
-    string error_str;
 
     int    oid  = xmlrpc_c::value_int(paramList.getInt(1));
     string tmpl = xmlrpc_c::value_string(paramList.getString(2));
@@ -85,10 +84,8 @@ void RequestManagerUpdateTemplate::request_execute(
 
     if ( update_type < 0 || update_type > 1 )
     {
-        failure_response(XML_RPC_API,
-                request_error("Wrong update type",error_str),
-                att);
-
+        att.resp_msg = "Wrong update type";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -97,27 +94,24 @@ void RequestManagerUpdateTemplate::request_execute(
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
-
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     if (update_type == 0)
     {
-        rc = replace_template(object, tmpl, att, error_str);
+        rc = replace_template(object, tmpl, att, att.resp_msg);
     }
     else //if (update_type == 1)
     {
-        rc = append_template(object, tmpl, att, error_str);
+        rc = append_template(object, tmpl, att, att.resp_msg);
     }
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,
-                request_error("Cannot update template",error_str),
-                att);
+        att.resp_msg = "Cannot update template. " + att.resp_msg;
+        failure_response(INTERNAL, att);
         object->unlock();
 
         return;

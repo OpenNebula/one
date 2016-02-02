@@ -51,14 +51,6 @@ EOT
                         "information, such as the SIZE for each DISK"
     }
 
-    VROUTER={
-        :name => "vrouter",
-        :large => "--vrouter vrid",
-        :format => Integer,
-        :description => "Creates a VM associated to the given Virtual Router. "+
-                        "The NIC elements defined in the Virtual Router will be used"
-    }
-
     def self.rname
         "VMTEMPLATE"
     end
@@ -119,7 +111,7 @@ EOT
         table
     end
 
-    def get_user_inputs(template)
+    def self.get_user_inputs(template)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
         return "" if !user_inputs

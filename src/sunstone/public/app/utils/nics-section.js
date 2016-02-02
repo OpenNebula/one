@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
   var Notifier = require('utils/notifier');
   var OpenNebula = require('opennebula');
 
@@ -29,7 +30,23 @@ define(function(require) {
     'generate_provision_network_table': _generate_provision_network_table
   }
 
-  function _insert(template_json, context) {
+  /**
+   * Inserts the section into the context container
+   * @param  {Object} template_json VM Template
+   * @param  {object} context       JQuery selector
+   * @param  {object} options       Options
+   *                                - hide_add_button {bool}
+   *                                - click_add_button {bool}
+   *                                - floatingIP {bool}: true to show the
+   *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
+   */
+  function _insert(template_json, context, options) {
+    if (options == undefined){
+      options = {};
+    }
+
     try {
       if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO") {
         var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
@@ -40,17 +57,20 @@ define(function(require) {
             nics = [template_nic]
 
         _generate_provision_network_accordion(
-          $(".provision_network_selector", context));
+          $(".provision_network_selector", context), options);
 
         $.each(nics, function(index, nic) {
+          var opt = $.extend({}, options);
+          opt.nic = nic;
+
           _generate_provision_network_table(
             $(".provision_nic_accordion", context),
-            nic);
+            opt);
         })
       }
     } catch(err) {
       _generate_provision_network_accordion(
-        $(".provision_network_selector", context));
+        $(".provision_network_selector", context), options);
     }
   }
 
@@ -69,6 +89,20 @@ define(function(require) {
       }
 
       if (nic) {
+        if ($("input.floating_ip", $(this)).prop("checked")){
+          nic["FLOATING_IP"] = "YES";
+
+          var ip4 = $("input.manual_ip4", $(this)).val();
+
+          if (ip4 != ""){
+            nic["IP"] = ip4;
+          }
+        }
+
+        if ($("input.management", $(this)).prop("checked")){
+          nic["VROUTER_MANAGEMENT"] = "YES";
+        }
+
         nics.push(nic);
       }
     });
@@ -76,14 +110,28 @@ define(function(require) {
     return nics
   }
 
-  function _generate_provision_network_table(context, nic, vnet_attr) {
+  /**
+   * @param  {object} context       JQuery selector
+   * @param  {object} options       Options
+   *                                - nic {object}
+   *                                - vnet_attr {object}
+   *                                - floatingIP {bool}: true to show the
+   *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
+   */
+  function _generate_provision_network_table(context, options) {
     context.off();
     var nic_span;
 
-    if (nic) {
-      nic_span = '<span class="selected_network" template_nic=\'' + JSON.stringify(nic) + '\'>' +
+    if (options == undefined){
+      options = {};
+    }
+
+    if (options.nic) {
+      nic_span = '<span class="selected_network" template_nic=\'' + JSON.stringify(options.nic) + '\'>' +
           '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
-          '<span style="color: #777;">' + (nic.NETWORK || nic.NETWORK_ID) + "</span>" +
+          '<span style="color: #777;">' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
         '</span>' +
         '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">' +
           '<i class="fa fa-times"/>' +
@@ -91,9 +139,9 @@ define(function(require) {
         '<span class="has-tip right" style="cursor: pointer; margin-right:10px">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
-    } else if (vnet_attr) {
-      nic_span = '<span style="color: #777; font-size: 16px">' + vnet_attr.description + "</span><br>" +
-        '<span class="selected_network only-not-active" attr_name=\'' + vnet_attr.name + '\' style="color: #777;">' +
+    } else if (options.vnet_attr) {
+      nic_span = '<span style="color: #777; font-size: 16px">' + options.vnet_attr.description + "</span><br>" +
+        '<span class="selected_network only-not-active" attr_name=\'' + options.vnet_attr.name + '\' style="color: #777;">' +
           '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
           '<span class="button radius small">' + Locale.tr("Select a Network") + "</span>" +
         '</span>' +
@@ -212,14 +260,60 @@ define(function(require) {
     })
 
     dd_context.on("click", ".provision-pricing-table.more-than-one" , function() {
-      $(".selected_network", dd_context).html(
-          '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
-          '<span style="color: #777;">' + $(this).attr("opennebula_name") + "</span>");
+      var html = 
+        '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span style="color: #777;">' + $(this).attr("opennebula_name") + "</span>";
 
+      if (options.floatingIP){
+        html +=
+          '<div class="row noclick">' +
+            '<div class="small-12 columns">' +
+              '<label class="inline" style="color: #777; font-size: 16px">' +
+                '<input type="checkbox" class="floating_ip" />' +
+                Locale.tr("Floating IP") + " " +
+                '<span class="tip">' +
+                  Locale.tr("If checked, each Virtual Machine will have a floating IP added to its network interface.") +
+                '</span>' +
+              '</label>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row noclick">' +
+            '<div class="small-5 columns">' +
+              '<label class="right inline" style="color: #777; font-size: 16px">' +
+                Locale.tr("Force IPv4:") + " " +
+                '<span class="tip">' +
+                  Locale.tr("Optionally, you can force the IP assigned to the floating IP.") +
+                '</span>' +
+              '</label>' +
+            '</div>' +
+            '<div class="small-7 columns">' +
+              '<input type="text" class="manual_ip4" />' +
+            '</div>' +
+          '</div>';
+      }
+
+      if (options.management){
+        html +=
+          '<div class="noclick">' +
+            '<label style="color: #777; font-size: 16px">' +
+              '<input type="checkbox" class="management" />' +
+              Locale.tr("Management Interface") + " " +
+              '<span class="tip">' +
+                Locale.tr("If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded.") +
+              '</span>' +
+            '</label>' +
+          '</div>';
+      }
+
+      $(".selected_network", dd_context).html(html);
       $(".selected_network", dd_context).attr("opennebula_id", $(this).attr("opennebula_id"))
       $(".selected_network", dd_context).removeAttr("template_nic")
 
+      Tips.setup($(".selected_network", dd_context));
+
       $('a', dd_context).first().trigger("click");
+
+      $("input.floating_ip", dd_context).change();
     })
 
     dd_context.on("click", ".provision_remove_nic" , function() {
@@ -227,14 +321,32 @@ define(function(require) {
       return false;
     });
 
-    if (!nic && !vnet_attr) {
+    dd_context.on("click", ".noclick" , function(event) {
+      event.stopPropagation();
+    });
+
+    dd_context.on("change", "input.floating_ip" , function() {
+      $(".manual_ip4", dd_context).prop("disabled", !$(this).is(":checked"));
+    });
+
+    if (!options.nic && !options.vnet_attr) {
       $('a', dd_context).trigger("click");
     }
 
     update_provision_networks_datatable(provision_networks_datatable);
   }
 
-  function _generate_provision_network_accordion(context, hide_add_button) {
+  /**
+   * @param  {object} context       JQuery selector
+   * @param  {object} options       Options
+   *                                - hide_add_button {bool}
+   *                                - click_add_button {bool}
+   *                                - floatingIP {bool}: true to show the
+   *                                floating IP checkbox
+   *                                - management {bool}: true to show the
+   *                                management checkbox
+   */
+  function _generate_provision_network_accordion(context, options) {
     context.off();
     context.html(
       '<br>' +
@@ -254,7 +366,7 @@ define(function(require) {
           '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_' + provision_nic_accordion_id + '">' +
           '</dl>' +
           '<br>' +
-          '<a class="button radius secondary provision_add_network_interface" style="width:inherit; padding: 1rem; color: #555; ' + (hide_add_button ? 'display:none;' : '') + '">' +
+          '<a class="button radius secondary provision_add_network_interface" style="width:inherit; padding: 1rem; color: #555; ' + (options.hide_add_button ? 'display:none;' : '') + '">' +
             Locale.tr("Add another Network Interface") +
           '</a>' +
         '</div>' +
@@ -264,8 +376,12 @@ define(function(require) {
     provision_nic_accordion_id += 1;
 
     $(".provision_add_network_interface", context).on("click", function() {
-      _generate_provision_network_table($(".accordion", context));
-    })
+      _generate_provision_network_table($(".accordion", context), options);
+    });
+
+    if (options.click_add_button == true){
+      $(".provision_add_network_interface", context).click();
+    }
 
     $(document).foundation();
   }

@@ -41,6 +41,7 @@
 #include "RequestManagerVdc.h"
 #include "RequestManagerDatastore.h"
 #include "RequestManagerMarketPlaceApp.h"
+#include "RequestManagerVirtualRouter.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -468,6 +469,11 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+
+    // Virtual Router Methods
+    xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
+    xmlrpc_c::methodPtr vrouter_attachnic(new VirtualRouterAttachNic());
+    xmlrpc_c::methodPtr vrouter_detachnic(new VirtualRouterDetachNic());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -901,6 +907,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vrouter.chown", vrouter_chown);
     RequestManagerRegistry.addMethod("one.vrouter.chmod", vrouter_chmod);
     RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
+    RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
+    RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
+    RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
 
     RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
 

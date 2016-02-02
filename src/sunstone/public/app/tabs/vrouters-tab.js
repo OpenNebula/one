@@ -24,7 +24,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableVirtualRouters";
 
   var _dialogs = [
-    require('./vrouters-tab/dialogs/clone')
+    require('./vrouters-tab/dialogs/attach-nic')
   ];
 
   var _panels = [

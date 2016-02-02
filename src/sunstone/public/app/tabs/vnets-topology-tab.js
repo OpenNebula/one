@@ -22,17 +22,16 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var VNetUtils = require('tabs/vnets-tab/utils/common');
 
-
   var Vis = require('vis');
 
   var TemplateDashboard = require('hbs!./vnets-topology-tab/html');
 
-  var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
-
-  var VNETS_CREATE_FORM_PANEL_ID = require('tabs/vnets-tab/form-panels/create/formPanelId');
-
   var _network;
   var _vnetList;
+  var _vrList;
+  var _indexedVRs;
+  var _vrouterVMs;
+  var _vnetLevel;
 
   var _buttons = {
     "NetworkTopology.refresh" : {
@@ -40,10 +39,22 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
-    "NetworkTopology.toggleVMs" : {
+    "NetworkTopology.fit" : {
       type: "action",
       layout: "main",
-      text:  Locale.tr("Toggle VMs"),
+      text: '<i class="fa fa-arrows-alt"/>',
+      alwaysActive: true
+    },
+    "NetworkTopology.collapseVMs" : {
+      type: "action",
+      layout: "main",
+      text:  Locale.tr("Collapse VMs"),
+      alwaysActive: true
+    },
+    "NetworkTopology.openVMs" : {
+      type: "action",
+      layout: "main",
+      text:  Locale.tr("Open VMs"),
       alwaysActive: true
     }
   };
@@ -53,9 +64,17 @@ define(function(require) {
       type: "custom",
       call: _refresh
     },
-    "NetworkTopology.toggleVMs" : {
+    "NetworkTopology.fit" : {
       type: "custom",
-      call: _toggleVMs
+      call: _fit
+    },
+    "NetworkTopology.collapseVMs" : {
+      type: "custom",
+      call: _collapseVMs
+    },
+    "NetworkTopology.openVMs" : {
+      type: "custom",
+      call: _openVMs
     }
   };
 
@@ -84,47 +103,55 @@ define(function(require) {
 
   function _refresh() {
 
-    OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, item_list) {
+    OpenNebula.VirtualRouter.list({
+      error: Notifier.onError,
+      success: function(request, item_list) {
+        _vrList = item_list;
 
-        // TODO: naive way to request all the individual networks info. It might
-        // be better to use promises, or a Network.list with an 'extended' option
+        OpenNebula.Network.list({
+          timeout: true,
+          success: function (request, item_list) {
 
-        var vnetList = [];
+            // TODO: naive way to request all the individual networks info. It might
+            // be better to use promises, or a Network.list with an 'extended' option
 
-        var i = 0;
+            var vnetList = [];
 
-        function _getVNet(index){
-          var vnetId = item_list[index].VNET.ID;
+            var i = 0;
 
-          OpenNebula.Network.show({
-            data : {
-              id: vnetId
-            },
-            timeout:true,
-            success: function(request,info){
-              vnetList.push(info);
+            function _getVNet(index){
+              var vnetId = item_list[index].VNET.ID;
 
-              i += 1;
-              if (i == item_list.length){
-                _doTopology(vnetList);
-              } else {
-                _getVNet(i);
-              }
-            },
-            error: Notifier.onError
-          });
-        }
+              OpenNebula.Network.show({
+                data : {
+                  id: vnetId
+                },
+                timeout:true,
+                success: function(request,info){
+                  vnetList.push(info);
 
-        _getVNet(i);
-      },
-      error: Notifier.onError
+                  i += 1;
+                  if (i == item_list.length){
+                    _vnetList = vnetList;
+                    _doTopology();
+                  } else {
+                    _getVNet(i);
+                  }
+                },
+                error: Notifier.onError
+              });
+            }
+
+            _getVNet(i);
+          },
+          error: Notifier.onError
+        });
+      }
     });
   }
 
-  function _doTopology(vnetList){
-    _vnetList = vnetList;
+  function _doTopology(){
+    _vnetLevel = {};
 
     var nodes = [];
     var edges = [];
@@ -132,27 +159,59 @@ define(function(require) {
     // Aux object to keep track of duplicated nodes (vms/vr attached to 2 vnets)
     var nodeIndex = {};
 
-    $.each(vnetList, function(i,element){
+    var level = 0;
+
+    _indexedVRs = {};
+    _vrouterVMs = {};
+
+    $.each(_vrList, function(i, element){
+      var vr = element.VROUTER;
+      _indexedVRs[vr.ID] = vr;
+
+      var vms = [];
+
+      if (vr.VMS.ID != undefined){
+        vms = vr.VMS.ID;
+
+        if (!$.isArray(vms)){
+          vms = [vms];
+        }
+      }
+
+      $.each(vms, function(n, vm){
+        _vrouterVMs[vm] = {
+          vmid: vm,
+          vrid: vr.ID,
+          leases: {}
+        };
+      });
+    });
+
+    $.each(_vnetList, function(i,element){
       var vnet = element.VNET;
       var vnetId = vnet.ID;
 
       // VNet node
       // ----------------
 
-      var vnetNodeId = "vnet"+vnetId;
-
-      var group = "vnet";
-
       if (vnet.PARENT_NETWORK_ID.length > 0){
-        group = "reservation";
-
-        edges.push({from: "vnet"+vnet.PARENT_NETWORK_ID, to: vnetNodeId});
+        vnetId = vnet.PARENT_NETWORK_ID;
       }
 
-      nodes.push({
-        id: vnetNodeId,
-        label: "VNet "+vnet.NAME,
-        group: group});
+      var vnetNodeId = "vnet"+vnetId;
+
+      if (!nodeIndex[vnetNodeId]){
+        level += 2;
+
+        _vnetLevel[vnetId] = level;
+
+        nodeIndex[vnetNodeId] = true;
+        nodes.push({
+          id: vnetNodeId,
+          level: level,
+          label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
+          group: "vnet"});
+      }
 
       // VRouter nodes
       // ----------------
@@ -174,6 +233,8 @@ define(function(require) {
           nodeIndex[nodeId] = true;
           nodes.push({
             id: nodeId,
+            level: level+1,
+            title: '',
             label: "VR "+vr,
             group: "vr"});
         }
@@ -183,8 +244,6 @@ define(function(require) {
 
       // VM nodes
       // ----------------
-
-      var vms = [];
 
       var arList = VNetUtils.getARList(vnet);
 
@@ -204,12 +263,38 @@ define(function(require) {
           var lease = leases[j];
 
           if (lease.VM != undefined) { //used by a VM
+
             var nodeId = "vm"+lease.VM;
+
+            var edgeLabel = undefined;
+
+            if (lease.IP != undefined){
+              edgeLabel = lease.IP;
+            } else if (lease.IP6_GLOBAL != undefined){
+              edgeLabel = lease.IP6_GLOBAL;
+            } else if (lease.IP6_ULA != undefined){
+              edgeLabel = lease.IP6_ULA;
+            } else if (lease.IP6_LINK != undefined){
+              edgeLabel = lease.IP6_LINK;
+            }
+
+            // Skip VRouter VMs
+            var vrouterVMobj = _vrouterVMs[lease.VM];
+            if (vrouterVMobj != undefined){
+              if (vrouterVMobj.leases[vnetId] == undefined){
+                vrouterVMobj.leases[vnetId] = [];
+              }
+
+              vrouterVMobj.leases[vnetId].push(edgeLabel);
+
+              continue;
+            }
 
             if (!nodeIndex[nodeId]){
               nodeIndex[nodeId] = true;
               nodes.push({
                 id: nodeId,
+                level: level+1,
                 label: "VM "+lease.VM,
                 group: "vm",
                 vnet: vnetId});
@@ -219,19 +304,8 @@ define(function(require) {
               // So it doesn't matter if we don't store the rest of VNet IDs
             }
 
-            var label = undefined;
+            edges.push({from: vnetNodeId, to: nodeId, label: edgeLabel});
 
-            if (lease.IP != undefined){
-              label = lease.IP;
-            } else if (lease.IP6_GLOBAL != undefined){
-              label = lease.IP6_GLOBAL;
-            } else if (lease.IP6_ULA != undefined){
-              label = lease.IP6_ULA;
-            } else if (lease.IP6_LINK != undefined){
-              label = lease.IP6_LINK;
-            }
-
-            edges.push({from: vnetNodeId, to: nodeId, label: label});
           } else if (lease.VROUTER != undefined){
             var nodeId = "vr"+lease.VROUTER;
 
@@ -239,6 +313,7 @@ define(function(require) {
               nodeIndex[nodeId] = true;
               nodes.push({
                 id: nodeId,
+                level: level+1,
                 label: "VR "+vr,
                 group: "vr"});
             }
@@ -268,6 +343,17 @@ define(function(require) {
       }
     });
 
+    // Fill VR nodes tooltips
+    $.each(nodes, function(i, node){
+      var parts = node.id.split("vr");
+
+      if (parts.length == 1){
+        return true;
+      }
+
+      node.title = _tableVR(parts[1]);
+    });
+
     // create a network
     var container = document.getElementById('visgraph');
 
@@ -281,23 +367,74 @@ define(function(require) {
       groups: {
         vnet: {
           shape: 'box',
-          color: '#cfcfcf'
-        },
-        reservation: {
-          shape: 'box',
-          color: '#cfcfcf'
+          value: 2,
+          scaling: {
+            label: {
+              enabled: true,
+              max: 40
+            },
+            max: 30
+          },
+          color: {
+            border: "#007a9c",
+            background: "#0098c3",
+            hover: "#007a9c",
+            highlight: "#007a9c"
+          },
+          font: {
+            color: "#fff"
+          }
         },
         vr: {
           shape: 'circle',
-          color: '#999'
+          borderWidth: 2,
+          color: {
+            border: "#43AC6A",
+            background: "#fff",
+            hover: {
+              border: "#43AC6A",
+              background: "#f7f7f7"
+            },
+            highlight: {
+              border: "#43AC6A",
+              background: "#f7f7f7"
+            }
+          }
         },
         vm: {
           shape: 'circle',
-          color: '#cfcfcf'
+          borderWidth: 2,
+          color: {
+            border: "#007a9c",
+            background: "#fff",
+            hover: {
+              border: "#007a9c",
+              background: "#f7f7f7"
+            },
+            highlight: {
+              border: "#007a9c",
+              background: "#f7f7f7"
+            }
+          }
         },
         vmCluster: {
           shape: 'circle',
-          color: '#cfcfcf'
+          borderWidth: 2,
+          shapeProperties: {
+            borderDashes: [5,5]
+          },
+          color: {
+            border: "#007a9c",
+            background: "#f7f7f7",
+            hover: {
+              border: "#007a9c",
+              background: "#c6c6c6"
+            },
+            highlight: {
+              border: "#007a9c",
+              background: "#f7f7f7"
+            }
+          }
         }
       },
 
@@ -305,7 +442,8 @@ define(function(require) {
         font: {
           align: 'middle'
         },
-        color: '#cfcfcf'
+        color: '#cfcfcf',
+        length: 300
       },
 
       interaction: {
@@ -358,12 +496,72 @@ define(function(require) {
     });
   }
 
-  function _toggleVMs(){
+  function _tableVR(vrid){
+    var vr = _indexedVRs[vrid];
+    var vms = [];
+
+    if (vr.VMS.ID != undefined){
+      vms = vr.VMS.ID;
+
+      if (!$.isArray(vms)){
+        vms = [vms];
+      }
+    }
+
+    var headers = undefined;
+    var trs = [];
+
+    $.each(vms, function(i, vmid){
+      var vm = _vrouterVMs[vmid];
+
+      if (vm == undefined){
+        return true; // continue
+      }
+
+      if (headers == undefined){
+        headers =
+          "<thead>"+
+            "<th>"+Locale.tr("VM")+"</th>";
+
+        $.each(vm.leases, function(vnetId,ip){
+          headers += "<th>"+Locale.tr("VNet")+" " +vnetId+"</th>";
+        });
+
+        headers += "</thead>";
+      }
+
+      var tr = "<tr><td>"+vmid+"</td>";
+
+      $.each(vm.leases, function(vnetId,ips){
+        tr += "<td>" + ips.join("</br>") + "</td>";
+      });
+
+      tr += "</tr>";
+
+      trs.push(tr);
+    });
+
+    var html =
+      "<table class='dataTable'>"+
+        headers+
+        "<tbody>"+
+          trs.join("")+
+        "</tbody>"+
+      "</table>";
+
+    return html;
+  }
+
+  function _collapseVMs(){
 
     // Clusters all VMs for each vnet, except those attached to more than one vnet
     $.each(_vnetList, function(i,element){
       var vnet = element.VNET;
       var vnetId = vnet.ID;
+
+      if (vnet.PARENT_NETWORK_ID.length > 0){
+        vnetId = vnet.PARENT_NETWORK_ID;
+      }
 
       var clusterOptionsByData = {
         joinCondition:function(childOptions) {
@@ -373,6 +571,7 @@ define(function(require) {
         },
         clusterNodeProperties: {
           id:"vmCluster"+vnetId,
+          level: _vnetLevel[vnetId]+1,
           label: "VMs",
           group: "vmCluster"
         },
@@ -383,6 +582,27 @@ define(function(require) {
 
       _network.cluster(clusterOptionsByData);
     });
+
+    _network.stabilize();
   }
 
+  function _openVMs(){
+
+    // Opens all VMs Clusters
+    $.each(_vnetList, function(i,element){
+      var vnet = element.VNET;
+      var clusterId = "vmCluster"+vnet.ID;
+
+      try{
+        _network.openCluster(clusterId);
+      }catch(err){
+      }
+    });
+
+    _network.stabilize();
+  }
+
+  function _fit(){
+    _network.fit();
+  }
 });

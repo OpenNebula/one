@@ -27,7 +27,14 @@ class VirtualRouterPool : public PoolSQL
 {
 public:
 
-    VirtualRouterPool(SqlDB * db) : PoolSQL(db, VirtualRouter::table, true, true){};
+    VirtualRouterPool(
+            SqlDB *                     db,
+            vector<const Attribute *>   hook_mads,
+            const string&               remotes_location)
+                : PoolSQL(db, VirtualRouter::table, true, true)
+    {
+        register_hooks(hook_mads, remotes_location);
+    };
 
     ~VirtualRouterPool(){};
 
@@ -110,6 +117,17 @@ public:
     static int bootstrap(SqlDB *_db)
     {
         return VirtualRouter::bootstrap(_db);
+    };
+
+    /**
+     *  Gets the IDs of objects matching the given SQL where string.
+     *    @param oids a vector that contains the IDs
+     *    @param where SQL clause
+     *    @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, VirtualRouter::table, where);
     };
 
 private:

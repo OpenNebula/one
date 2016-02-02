@@ -21,11 +21,11 @@ define(function(require) {
 
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
+  var Config = require('sunstone-config');
+  var Sunstone = require('sunstone');
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
-  var Sunstone = require('sunstone');
-  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -41,6 +41,9 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "VirtualRouter";
   var XML_ROOT = "VROUTER";
+
+  var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
     CONSTRUCTOR
@@ -96,17 +99,43 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $("a.vmid", context).on("click", function(){
-      // TODO: this should be checked internally in showElement,
-      // but it won't work because of bug #4198
-
-      if (Config.isTabEnabled("vms-tab")){
-        Sunstone.showElement("vms-tab", "VM.show", $(this).text());
-      }
-    });
+    var that = this;
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+
+    if (Config.isTabActionEnabled(TAB_ID, "VirtualRouter.attachnic")) {
+      context.off('click', '.attach_nic');
+      context.on('click', '.attach_nic', function() {
+        var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
+        dialog.setElement(that.element);
+        dialog.show();
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled(TAB_ID, "VirtualRouter.detachnic")) {
+      context.off('click', '.detachnic');
+      context.on('click', '.detachnic', function() {
+        var nic_id = $(".nic_id", $(this).parents('tr')).attr('nic_id');
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will detach the nic inmediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('VirtualRouter.detachnic', that.element.ID, nic_id);
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
+        return false;
+      });
+    }
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);

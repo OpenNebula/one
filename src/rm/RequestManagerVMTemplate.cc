@@ -29,33 +29,6 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     bool   on_hold = false; //Optional XML-RPC argument
     string str_uattrs;      //Optional XML-RPC argument
 
-    int  rc;
-    int  vid;
-
-    ostringstream sid;
-
-    PoolObjectAuth perms;
-    PoolObjectAuth vr_perms;
-
-    Nebula& nd = Nebula::instance();
-
-    VirtualMachinePool* vmpool  = nd.get_vmpool();
-    VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
-    VirtualRouterPool*  vrpool  = nd.get_vrouterpool();
-    VirtualRouter *     vr;
-
-    VirtualMachineTemplate * tmpl;
-    VirtualMachineTemplate * extended_tmpl = 0;
-    VirtualMachineTemplate   uattrs;
-    VMTemplate *             rtmpl;
-
-    string error_str;
-    string aname;
-    bool   has_vrouter_id;
-    int    vrid;
-
-    string tmpl_name;
-
     if ( paramList.size() > 3 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
@@ -63,19 +36,58 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
 
+    // TODO: if Template has VROUTER = YES, do not allow to instantiate here
+
+    int vid;
+    ErrorCode ec;
+
+    ec = instantiate(id, name, on_hold, str_uattrs, 0, vid, att);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(vid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
+        bool on_hold, string str_uattrs, Template* extra_attrs, int& vid,
+        RequestAttributes& att)
+{
+    int rc;
+
+    ostringstream sid;
+
+    PoolObjectAuth perms;
+
+    Nebula& nd = Nebula::instance();
+
+    VirtualMachinePool* vmpool  = nd.get_vmpool();
+    VMTemplatePool *    tpool   = nd.get_tpool();
+
+    VirtualMachineTemplate * tmpl;
+    VirtualMachineTemplate * extended_tmpl = 0;
+    VirtualMachineTemplate   uattrs;
+    VMTemplate *             rtmpl;
+
+    string aname;
+    string tmpl_name;
+
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
     /* ---------------------------------------------------------------------- */
-
     rtmpl = tpool->get(id,true);
 
     if ( rtmpl == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
-        return;
+        att.resp_id = id;
+        return NO_EXISTS;
     }
 
     tmpl_name = rtmpl->get_name();
@@ -88,39 +100,42 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     // Parse & merge user attributes (check if the request user is not oneadmin)
     if (!str_uattrs.empty())
     {
-        rc = uattrs.parse_str_or_xml(str_uattrs, error_str);
+        rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, error_str, att);
             delete tmpl;
-            return;
+            return INTERNAL;
         }
 
         if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
         {
             if (uattrs.check(aname))
             {
-                ostringstream oss;
-
-                oss << "User Template includes a restricted attribute "<< aname;
-
-                failure_response(AUTHORIZATION,
-                        authorization_error(oss.str(), att),
-                        att);
+                att.resp_msg ="User Template includes a restricted attribute " + aname;
 
                 delete tmpl;
-                return;
+                return AUTHORIZATION;
             }
         }
 
-        rc = tmpl->merge(&uattrs, error_str);
+        rc = tmpl->merge(&uattrs, att.resp_msg);
 
         if ( rc != 0 )
         {
-            failure_response(INTERNAL, error_str, att);
             delete tmpl;
-            return;
+            return INTERNAL;
+        }
+    }
+
+    if (extra_attrs != 0)
+    {
+        rc = tmpl->merge(extra_attrs, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            delete tmpl;
+            return INTERNAL;
         }
     }
 
@@ -141,48 +156,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* If it is a Virtual Router, get the NICs                                */
-    /* ---------------------------------------------------------------------- */
-
-    has_vrouter_id = tmpl->get("VROUTER_ID", vrid);
-
-    if ( has_vrouter_id )
-    {
-        vr = vrpool->get(vrid, true);
-
-        if (vr == 0)
-        {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(PoolObjectSQL::VROUTER),vrid),
-                    att);
-
-            delete tmpl;
-            return;
-        }
-
-        vr->get_permissions(vr_perms);
-
-        tmpl->erase("NIC");
-        rc = tmpl->merge(vr->get_nics(), error_str);
-
-        vr->unlock();
-
-        if ( rc != 0 )
-        {
-            failure_response(INTERNAL, error_str, att);
-            delete tmpl;
-            return;
-        }
-    }
-
     //--------------------------------------------------------------------------
 
     if ( att.uid != 0 )
     {
         AuthRequest ar(att.uid, att.group_ids);
 
-        ar.add_auth(auth_op, perms); //USE TEMPLATE
+        ar.add_auth(AuthRequest::USE, perms); //USE TEMPLATE
 
         if (!str_uattrs.empty())
         {
@@ -191,47 +171,37 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             tmpl->to_xml(tmpl_str);
 
             // CREATE TEMPLATE
-            ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+            ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE, tmpl_str);
         }
 
         VirtualMachine::set_auth_request(att.uid, ar, tmpl);
 
-        if (has_vrouter_id)
-        {
-            ar.add_auth(AuthRequest::MANAGE, vr_perms); // MANAGE VROUTER
-        }
-
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
+            att.resp_msg = ar.message;
 
             delete tmpl;
-            return;
+            return AUTHORIZATION;
         }
 
         extended_tmpl = new VirtualMachineTemplate(*tmpl);
 
         VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
 
-        if ( quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att) == false )
+        if (quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att,
+                    att.resp_msg) == false)
         {
             delete tmpl;
             delete extended_tmpl;
-            return;
+            return AUTHORIZATION;
         }
     }
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            tmpl, &vid, error_str, on_hold);
+            tmpl, &vid, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL,
-                allocate_error(PoolObjectSQL::VM,error_str),
-                att);
-
         if (extended_tmpl != 0)
         {
             quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
@@ -239,26 +209,12 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         delete extended_tmpl;
 
-        return;
+        return ALLOCATE;
     }
 
     delete extended_tmpl;
 
-    if ( has_vrouter_id )
-    {
-        vr = vrpool->get(vrid, true);
-
-        if (vr != 0)
-        {
-            vr->add_vmid(vid);
-
-            vrpool->update(vr);
-
-            vr->unlock();
-        }
-    }
-
-    success_response(vid, att);
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */

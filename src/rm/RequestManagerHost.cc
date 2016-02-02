@@ -30,8 +30,6 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    string error_str;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
@@ -41,9 +39,8 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( host  == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
 
         return;
     }
@@ -85,7 +82,8 @@ void HostMonitoring::request_execute(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 

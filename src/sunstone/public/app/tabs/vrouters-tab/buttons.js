@@ -41,11 +41,6 @@ define(function(require) {
       select: "Group",
       tip: Locale.tr("Select the new group")+":"
     },
-    "VirtualRouter.clone_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Clone")
-    },
     "VirtualRouter.delete" : {
       type: "confirm",
       layout: "del",

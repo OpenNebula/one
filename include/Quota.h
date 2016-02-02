@@ -49,7 +49,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
+    //virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -69,7 +69,7 @@ public:
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */
-    virtual void del(Template* tmpl) = 0;
+    //virtual void del(Template* tmpl) = 0;
 
     /**
      * Returns the name that identifies the quota in a template

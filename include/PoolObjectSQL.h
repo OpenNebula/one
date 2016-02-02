@@ -49,6 +49,7 @@ public:
      */
     enum ObjectType
     {
+        NONE           = 0x0000000000000000LL,
         VM             = 0x0000001000000000LL,
         HOST           = 0x0000002000000000LL,
         NET            = 0x0000004000000000LL,

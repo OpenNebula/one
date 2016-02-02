@@ -98,7 +98,9 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    NicsSection.insert({}, $(".nicsContext", context));
+    NicsSection.insert({},
+      $(".nicsContext", context),
+      {floatingIP: true, management: true});
 
     this.templatesTable.initialize();
 
@@ -129,7 +131,7 @@ define(function(require) {
       $('#vm_name', context).val("vr-"+$(this).val()+"-%i");
     });
 
-    Tips.setup();
+    Tips.setup(context);
 
     return false;
   }
@@ -139,16 +141,8 @@ define(function(require) {
 
     var nics = NicsSection.retrieve($(".nicsContext", context));
     if (nics.length > 0) {
-      // TODO: Instead of a global checkbox, each vnet should have
-      // its own checkbox to choose floating IP or not
-      $.each(nics, function(){
-        this["FLOATING_IP"] = virtual_router_json["FLOATING_IP"];
-      });
-
       virtual_router_json.NIC = nics;
     }
-
-    delete virtual_router_json["FLOATING_IP"];
 
     var tmplId = this.templatesTable.retrieveResourceTableSelect();
 
@@ -171,41 +165,36 @@ define(function(require) {
         timeout: true,
         success: function (request, response) {
 
-          // TODO: close form panel only on instantiate success
-          Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
-          Sunstone.hideFormPanel(TAB_ID);
-
-          var extra_msg = "";
-          if (n_times > 1) {
-            extra_msg = n_times + " times";
-          }
-
-          Notifier.notifySubmit("Template.instantiate", tmplId, extra_msg);
+          var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
 
           var extra_info = {
-            'hold': hold
+            'n_vms': n_times,
+            'template_id': tmplId,
+            'vm_name': vm_name,
+            'hold': hold,
+            'template': tmpl
           };
 
-          var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
-          tmpl["VROUTER_ID"] = response.VROUTER.ID;
+          OpenNebulaVirtualRouter.instantiate({
+            data:{
+              id: response.VROUTER.ID,
+              extra_param: extra_info
+            },
+            timeout: true,
+            success: function(request, response){
+              OpenNebulaAction.clear_cache("VM");
 
-          extra_info['template'] = tmpl;
+              Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
+              Sunstone.hideFormPanel(TAB_ID);
+            },
+            error: function(request, response) {
+              Sunstone.hideFormPanelLoading(TAB_ID);
 
-          for (var i = 0; i < n_times; i++) {
-            extra_info['vm_name'] = vm_name.replace(/%i/gi, i);
-
-            OpenNebulaTemplate.instantiate({
-              data:{
-                id: tmplId,
-                extra_param: extra_info
-              },
-              timeout: true,
-              success: function(request, response){
-                OpenNebulaAction.clear_cache("VM");
-              },
-              error: Notifier.onError
-            });
-          }
+              Notifier.notifyError(Locale.tr(
+                "Failed to create VMs. Virtual Router may need to be deleted manually."));
+              Notifier.onError(request, response);
+            }
+          });
         },
         error: function(request, response) {
           Sunstone.hideFormPanelLoading(TAB_ID);

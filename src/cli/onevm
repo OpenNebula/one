@@ -63,14 +63,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Overrides the DEV_PREFIX of the image"
     }
 
-    IP={
-        :name => "ip",
-        :short => "-i ip",
-        :large => "--ip ip",
-        :format => String,
-        :description => "IP address for the new NIC"
-    }
-
     CACHE={
         :name => "cache",
         :large => "--cache cache_mode",
@@ -666,7 +658,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
-            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, OneVMHelper::IP] do
 
         if options[:file].nil? and options[:network].nil?
             STDERR.puts "Provide a template file or a network:"

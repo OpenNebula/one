@@ -688,7 +688,9 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/snapshot_create \
                     src/vmm_mad/remotes/kvm/snapshot_revert \
                     src/vmm_mad/remotes/kvm/snapshot_delete \
-                    src/vmm_mad/remotes/kvm/shutdown"
+                    src/vmm_mad/remotes/kvm/shutdown \
+                    src/vmm_mad/remotes/kvm/reconfigure \
+                    src/vmm_mad/remotes/kvm/prereconfigure"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
@@ -1277,7 +1279,8 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.9.80_to_4.10.3.rb \
                             src/onedb/local/4.10.3_to_4.11.80.rb \
                             src/onedb/local/4.11.80_to_4.13.80.rb \
-                            src/onedb/local/4.13.80_to_4.13.85.rb"
+                            src/onedb/local/4.13.80_to_4.13.85.rb \
+                            src/onedb/local/4.13.85_to_4.90.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"

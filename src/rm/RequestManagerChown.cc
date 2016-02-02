@@ -37,15 +37,12 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     PoolObjectSQL *   object;
     Quotas::QuotaType qtype;
 
-    string error_str;
-
     object = pool->get(oid,true);
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                         get_error(object_name(auth_object), oid),
-                         att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return 0;
     }
 
@@ -70,7 +67,6 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         unsigned int  total = vn->get_size();
 
         ostringstream oss;
-        string  tmp_error;
 
         int parent = vn->get_parent();
 
@@ -86,7 +82,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             oss << " NIC = [ NETWORK_ID = " << parent << " ]" << endl;
         }
 
-        tmpl->parse_str_or_xml(oss.str(), error_str);
+        tmpl->parse_str_or_xml(oss.str(), att.resp_msg);
 
         qtype = Quotas::NETWORK;
     }
@@ -120,11 +116,9 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
 
-    if ( quota_authorization(tmpl, qtype, att_new, error_str) == false )
+    if ( quota_authorization(tmpl, qtype, att_new, att.resp_msg) == false )
     {
-        failure_response(AUTHORIZATION,
-                request_error(error_str, ""),
-                att);
+        failure_response(AUTHORIZATION, att);
 
         delete tmpl;
         return 0;
@@ -138,11 +132,10 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     {
         quota_rollback(tmpl, qtype, att_new);
 
-        quota_authorization(tmpl, qtype, att_old, error_str);
+        quota_authorization(tmpl, qtype, att_old, att.resp_msg);
 
-        failure_response(NO_EXISTS,
-                         get_error(object_name(auth_object), oid),
-                         att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
     }
 
     delete tmpl;
@@ -164,10 +157,8 @@ int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes&
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                         get_error(object_name(auth_object), oid),
-                         att);
-
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return -1;
     }
 
@@ -182,12 +173,12 @@ int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes&
         obj_oid = object->get_oid();
         object->unlock();
 
-        oss << PoolObjectSQL::type_to_str(PoolObjectSQL::USER)
-            << " [" << noid << "] already owns "
-            << PoolObjectSQL::type_to_str(auth_object) << " ["
-            << obj_oid << "] with NAME " << name;
+        oss << object_name(PoolObjectSQL::USER) << " ["<<noid<<"] already owns "
+            << object_name(auth_object) << " ["<<obj_oid<<"] with NAME " << name;
 
-        failure_response(INTERNAL, request_error(oss.str(), ""), att);
+        att.resp_msg = oss.str();
+
+        failure_response(INTERNAL, att);
         return -1;
     }
 
@@ -268,9 +259,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             return;
         }
@@ -300,9 +290,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS,
-                             get_error(object_name(auth_object), oid),
-                             att);
+            att.resp_id = oid;
+            failure_response(NO_EXISTS, att);
         }
     }
 
@@ -363,7 +352,8 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( ngid < 0 )
     {
-        failure_response(XML_RPC_API,request_error("Wrong group ID",""), att);
+        att.resp_msg = "Wrong group ID";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -385,14 +375,16 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     {
         ostringstream oss;
 
-        oss << PoolObjectSQL::type_to_str(PoolObjectSQL::USER)
-            << " [" << UserPool::ONEADMIN_ID << "] " << UserPool::oneadmin_name
+        oss << object_name(PoolObjectSQL::USER) << " ["
+            << UserPool::ONEADMIN_ID << "] " << UserPool::oneadmin_name
             << " cannot be moved outside of the "
-            << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP)
+            << object_name(PoolObjectSQL::GROUP)
             << " [" << GroupPool::ONEADMIN_ID << "] "
             << GroupPool::ONEADMIN_NAME;
 
-        failure_response(INTERNAL, request_error(oss.str(), ""), att);
+        att.resp_msg = oss.str();
+
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -405,9 +397,8 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             return;
         }
@@ -419,9 +410,10 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( user == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER),oid),
-                att);
+        att.resp_obj = PoolObjectSQL::USER;
+        att.resp_id  = oid;
+        failure_response(NO_EXISTS, att);
+
         return;
     }
 
@@ -456,9 +448,11 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if( group == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::GROUP),ngid),
-                att);//TODO Rollback
+        //TODO Rollback
+        att.resp_obj = PoolObjectSQL::GROUP;
+        att.resp_id  = ngid;
+        failure_response(NO_EXISTS, att);
+
         return;
     }
 

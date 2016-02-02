@@ -964,7 +964,7 @@ EOT
         end
     end
 
-    def self.create_template(options)
+    def self.create_template(options, template_obj=nil)
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
@@ -1020,6 +1020,17 @@ EOT
 
         context=create_context(options)
         template<<context if context
+
+        if options[:userdata] && !template_obj.nil?
+            if template_obj.has_elements?('TEMPLATE/EC2')
+                template_obj.add_element(
+                    'TEMPLATE/EC2',
+                    'USERDATA' => options[:userdata])
+
+                template << template_obj.template_like_str(
+                    'TEMPLATE', false, 'EC2')
+            end
+        end
 
         [0, template]
     end

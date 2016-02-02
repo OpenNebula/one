@@ -25,6 +25,10 @@ define(function(require) {
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
+    "instantiate" : function(params) {
+      var action_obj = params.data.extra_param ? params.data.extra_param : {};
+      OpenNebulaAction.simple_action(params, RESOURCE, "instantiate", action_obj);
+    },
     "del" : function(params) {
       OpenNebulaAction.del(params, RESOURCE);
     },
@@ -48,14 +52,17 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
-    "clone" : function(params) {
-      var name = params.data.extra_param ? params.data.extra_param : "";
-      var action_obj = {"name" : name};
-      OpenNebulaAction.simple_action(params, RESOURCE, "clone", action_obj);
-    },
     "rename" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);
+    },
+    "attachnic" : function(params) {
+      var action_obj = {"nic_template": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "attachnic", action_obj);
+    },
+    "detachnic" : function(params) {
+      var action_obj = {"nic_id": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "detachnic", action_obj);
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);

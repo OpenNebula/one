@@ -150,7 +150,7 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
         break;
 
         case NETWORK:
-            network_quota.del(tmpl);
+            network_quota.del(PoolObjectSQL::VM, tmpl);
         break;
 
         case IMAGE:
@@ -162,9 +162,13 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
         break;
 
         case VIRTUALMACHINE:
-            network_quota.del(tmpl);
+            network_quota.del(PoolObjectSQL::VM, tmpl);
             vm_quota.del(tmpl);
             image_quota.del(tmpl);
+        break;
+
+        case VIRTUALROUTER:
+            network_quota.del(PoolObjectSQL::VROUTER, tmpl);
         break;
     }
 }
@@ -183,7 +187,7 @@ bool Quotas::quota_check(QuotaType  type,
             return datastore_quota.check(tmpl, default_quotas, error_str);
 
         case NETWORK:
-            return network_quota.check(tmpl, default_quotas, error_str);
+            return network_quota.check(PoolObjectSQL::VM, tmpl, default_quotas, error_str);
 
         case IMAGE:
             return image_quota.check(tmpl, default_quotas, error_str);
@@ -192,25 +196,30 @@ bool Quotas::quota_check(QuotaType  type,
             return vm_quota.check(tmpl, default_quotas, error_str);
 
         case VIRTUALMACHINE:
-            if ( network_quota.check(tmpl, default_quotas, error_str) == false )
+            if ( network_quota.check(PoolObjectSQL::VM,
+                    tmpl, default_quotas, error_str) == false )
             {
                 return false;
             }
 
             if ( vm_quota.check(tmpl, default_quotas, error_str) == false )
             {
-                network_quota.del(tmpl);
+                network_quota.del(PoolObjectSQL::VM, tmpl);
                 return false;
             }
 
             if ( image_quota.check(tmpl, default_quotas, error_str) == false )
             {
-                network_quota.del(tmpl);
+                network_quota.del(PoolObjectSQL::VM, tmpl);
                 vm_quota.del(tmpl);
                 return false;
             }
 
             return true;
+
+        case VIRTUALROUTER:
+            return network_quota.check(PoolObjectSQL::VROUTER,
+                    tmpl, default_quotas, error_str);
     }
 
     return false;
@@ -231,6 +240,7 @@ bool Quotas::quota_update(QuotaType  type,
         case NETWORK:
         case IMAGE:
         case VIRTUALMACHINE:
+        case VIRTUALROUTER:
             error_str = "Cannot update quota. Not implemented";
             return false;
 

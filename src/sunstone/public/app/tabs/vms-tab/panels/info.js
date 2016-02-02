@@ -25,6 +25,8 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
   var OpenNebulaVM = require('opennebula/vm');
+  var Sunstone = require('sunstone');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -73,7 +75,7 @@ define(function(require) {
     var lcmStateStr = OpenNebulaVM.lcmStateStr(this.element.LCM_STATE);
     var hostname = OpenNebulaVM.hostnameStr(this.element);
 
-    var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "-" : this.element.DEPLOY_ID);
+    var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
     var templateTableHTML = TemplateTable.html(this.element.USER_TEMPLATE, RESOURCE, Locale.tr("Attributes"));
 
@@ -109,6 +111,15 @@ define(function(require) {
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+    $("a.vrid", context).on("click", function(){
+      // TODO: this should be checked internally in showElement,
+      // but it won't work because of bug #4198
+
+      if (Config.isTabEnabled("vrouters-tab")){
+        Sunstone.showElement("vrouters-tab", "VirtualRouter.show", $(this).text());
+      }
+    });
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;

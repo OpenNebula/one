@@ -20,18 +20,18 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./clone/html');
+  var TemplateHTML = require('hbs!./attach-nic/html');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
+  var NicsSection = require('utils/nics-section');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./clone/dialogId');
-  var TAB_ID = require('../tabId');
+  var DIALOG_ID = require('./attach-nic/dialogId');
+  var TAB_ID = require('../tabId')
 
   /*
     CONSTRUCTOR
@@ -49,6 +49,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
+  Dialog.prototype.setElement = _setElement;
 
   return Dialog;
 
@@ -65,26 +66,23 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    context.foundation('abide', 'reflow');
-    context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
-    context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
+    NicsSection.insert({},
+      $(".nicsContext", context),
+      {floatingIP: true, management: true, 
+        hide_add_button:true,
+        click_add_button:true
+      });
 
-    context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-    }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      var name = $('input', this).val();
-      var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
+    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+      var templateJSON = NicsSection.retrieve($(".nicsContext", context));
+      var obj = {
+        "NIC": templateJSON
+      };
 
-      if (sel_elems.length > 1){
-        for (var i=0; i< sel_elems.length; i++)
-          //use name as prefix if several items selected
-          Sunstone.runAction('VirtualRouter.clone',
-            sel_elems[i],
-            name + OpenNebulaVirtualRouter.getName(sel_elems[i]));
-      } else {
-        Sunstone.runAction('VirtualRouter.clone',sel_elems[0],name);
-      }
+      Sunstone.runAction('VirtualRouter.attachnic', that.element.ID, obj);
 
+      Sunstone.getDialog(DIALOG_ID).hide();
+      Sunstone.getDialog(DIALOG_ID).reset();
       return false;
     });
 
@@ -92,22 +90,11 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
-
-    //show different text depending on how many elements are selected
-    if (sel_elems.length > 1) {
-      $('.clone_one', context).hide();
-      $('.clone_several', context).show();
-      $('input',context).val('Copy of ');
-    } else {
-      $('.clone_one', context).show();
-      $('.clone_several', context).hide();
-
-      $('input',context).val('Copy of ' + OpenNebulaVirtualRouter.getName(sel_elems[0]));
-    }
-
-    $("input[name='name']",context).focus();
-
+    $("#vr_id", context).val(this.element.ID);
     return false;
+  }
+
+  function _setElement(element) {
+    this.element = element;
   }
 });

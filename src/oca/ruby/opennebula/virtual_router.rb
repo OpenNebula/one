@@ -25,14 +25,15 @@ module OpenNebula
 
         VIRTUAL_ROUTER_METHODS = {
             :allocate    => "vrouter.allocate",
+            :instantiate => "vrouter.instantiate",
             :info        => "vrouter.info",
             :update      => "vrouter.update",
             :delete      => "vrouter.delete",
             :chown       => "vrouter.chown",
             :chmod       => "vrouter.chmod",
-# TODO: remove or implement
-#            :clone       => "vrouter.clone",
-            :rename      => "vrouter.rename"
+            :rename      => "vrouter.rename",
+            :attachnic   => "vrouter.attachnic",
+            :detachnic   => "vrouter.detachnic",
         }
 
         # Creates a VirtualRouter description with just its identifier
@@ -80,6 +81,26 @@ module OpenNebula
             super(VIRTUAL_ROUTER_METHODS[:allocate], description)
         end
 
+        # Creates VM instances from a VM Template. New VMs will be associated
+        # to this Virtual Router, and its Virtual Networks
+        #
+        # @para n_vms [Integer] Number of VMs to instantiate
+        # @para template_id [Integer] VM Template id to instantiate
+        # @param name [String] Name for the VM instances. If it is an empty
+        #   string OpenNebula will set a default name
+        # @param hold [true,false] false to create the VM in pending state,
+        #   true to create it on hold
+        # @param template [String] User provided Template to merge with the
+        #   one being instantiated
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def instantiate(n_vms, template_id, name="", hold=false, template="")
+            return call(VIRTUAL_ROUTER_METHODS[:instantiate], @pe_id,
+                        n_vms.to_i, template_id.to_i, name, hold, template)
+        end
+
+
         # Deletes the VirtualRouter
         def delete()
             super(VIRTUAL_ROUTER_METHODS[:delete])
@@ -125,21 +146,7 @@ module OpenNebula
             super(VIRTUAL_ROUTER_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
-=begin
-        # Clones this VirtualRouter into a new one
-        #
-        # @param [String] name for the new VirtualRouter.
-        #
-        # @return [Integer, OpenNebula::Error] The new VirtualRouter ID in case
-        #   of success, Error otherwise
-        def clone(name)
-            return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VIRTUAL_ROUTER_METHODS[:clone], @pe_id, name)
-
-            return rc
-        end
-=end
         # Renames this VirtualRouter
         #
         # @param name [String] New name for the VirtualRouter.
@@ -148,6 +155,24 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VIRTUAL_ROUTER_METHODS[:rename], @pe_id, name)
+        end
+
+        # Attaches a NIC to this VirtualRouter, and each one of its VMs
+        #
+        # @param nic_template [String] Template containing a NIC element
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def nic_attach(nic_template)
+            return call(VIRTUAL_ROUTER_METHODS[:attachnic], @pe_id, nic_template)
+        end
+
+        # Detaches a NIC from this VirtualRouter, and each one of its VMs
+        #
+        # @param nic_id [Integer] Id of the NIC to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def nic_detach(nic_id)
+            return call(VIRTUAL_ROUTER_METHODS[:detachnic], @pe_id, nic_id)
         end
 
         #######################################################################

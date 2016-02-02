@@ -44,16 +44,38 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
+                 when "instantiate" then self.instantiate(action_hash['params'])
                  when "update"      then self.update(action_hash['params'])
                  when "chown"       then self.chown(action_hash['params'])
                  when "chmod"       then self.chmod_json(action_hash['params'])
-                 when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "attachnic"   then self.nic_attach(action_hash['params'])
+                 when "detachnic"   then self.nic_detach(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
                      OpenNebula::Error.new(error_msg)
                  end
+        end
+
+        def instantiate(params=Hash.new)
+            if params['template']
+                select_capacity = self['TEMPLATE/SUNSTONE_CAPACITY_SELECT']
+                if (select_capacity && select_capacity.upcase == "NO")
+                    params['template'].delete("CPU")
+                    params['template'].delete("MEMORY")
+                end
+
+                select_network = self['TEMPLATE/SUNSTONE_NETWORK_SELECT']
+                if (select_network && select_network.upcase == "NO")
+                    params['template'].delete("NIC")
+                end
+
+                template = template_to_str(params['template'])
+                super(params['n_vms'], params['template_id'], params['vm_name'], params['hold'], template)
+            else
+                super(params['n_vms'], params['template_id'], params['vm_name'], params['hold'])
+            end
         end
 
         def update(params=Hash.new)
@@ -80,12 +102,18 @@ module OpenNebulaJSON
             end
         end
 
-        def clone(params=Hash.new)
+        def rename(params=Hash.new)
             super(params['name'])
         end
 
-        def rename(params=Hash.new)
-            super(params['name'])
+        def nic_attach(params=Hash.new)
+            template_json = params['nic_template']
+            template = template_to_str(template_json)
+            super(template)
+        end
+
+        def nic_detach(params=Hash.new)
+            super(params['nic_id'].to_i)
         end
     end
 end

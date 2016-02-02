@@ -124,6 +124,22 @@ public:
             ostringstream&          error);
 
     /**
+     * Inserts a context command in the xfs stream
+     *
+     * @param vm The VM
+     * @param token_password Owner user's token password
+     * @param system_tm_mad The Transfer Manager for the system datastore
+     * @param xfr Stream where the transfer command will be written
+     *
+     * @return 0 on success
+     */
+    int prolog_context_command(
+            VirtualMachine *        vm,
+            const string&           token_password,
+            string&                 system_tm_mad,
+            ostream&                xfr);
+
+    /**
      * Inserts a transfer command in the xfs stream
      *
      * @param vm The VM

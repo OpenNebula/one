@@ -113,35 +113,23 @@ public:
      *            -2 not using the pool
      */
     int nic_attribute(
-            VectorAttribute*    nic,
-            int                 nic_id,
-            int                 uid,
-            int                 vid,
-            string&             error_str);
-
-    /**
-     *  Generates a NIC attribute for VRouters using the VirtualNetwork
-     *  metadata
-     *    @param nic the nic attribute to be generated
-     *    @param uid of the VM owner
-     *    @param vrid of the VRouter requesting the lease
-     *    @param error_str string describing the error
-     *    @return 0 on success,
-     *            -1 error,
-     *            -2 not using the pool
-     */
-    int vrouter_nic_attribute(
-            VectorAttribute *   nic,
-            int                 uid,
-            int                 vrid,
-            string&             error_str);
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute*            nic,
+            int                         nic_id,
+            int                         uid,
+            int                         vid,
+            string&                     error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
      */
-    void authorize_nic(VectorAttribute * nic, int uid, AuthRequest * ar);
+    void authorize_nic(
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute *           nic,
+            int                         uid,
+            AuthRequest *               ar);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool

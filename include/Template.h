@@ -302,6 +302,34 @@ public:
         vector<Attribute*>& values);
 
     /**
+     *  Gets the first VectorAttribute with the given name
+     *    @param name the attribute name.
+     *    @param vatt stores the first vector attribute found, or 0
+     *    @return true if a vector attribute was found
+     */
+    virtual bool get(
+        const string& name,
+        VectorAttribute*& vatt);
+
+    /**
+     *  Gets all the Vector Attributes with the given name
+     *    @param name the attribute name.
+     *    @return the number of elements in the vector
+     */
+    virtual int get(
+        const string& name,
+        vector<const VectorAttribute*>& values) const;
+
+    /**
+     *  Gets all the Vector Attributes with the given name, non-const version
+     *    @param name the attribute name.
+     *    @return the number of elements in the vector
+     */
+    virtual int get(
+        const string& name,
+        vector<VectorAttribute*>& values);
+
+    /**
      *  Gets the value of a Single attributes (string) with the given name.
      *    @param name the attribute name.
      *    @param value the attribute value, a string, "" if the attribute is not

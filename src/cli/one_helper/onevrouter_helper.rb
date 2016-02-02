@@ -17,6 +17,13 @@
 require 'one_helper'
 
 class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
+
+    ALL_TEMPLATE = {
+        :name       => "all",
+        :large      => "--all",
+        :description => "Show all template data"
+    }
+
     def self.rname
         "VROUTER"
     end
@@ -164,6 +171,14 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
             }
 
             CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>3 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["NIC_ID"]
+                    end
+                end
+
                 column :NETWORK, "", :left, :size=>20 do |d|
                     if d["DOUBLE_ENTRY"]
                         ""
@@ -171,6 +186,19 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                         d["NETWORK"]
                     end
                 end
+
+                column :MANAGEMENT, "", :left, :size=>10 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        if !d["VROUTER_MANAGEMENT"].nil?
+                            d["VROUTER_MANAGEMENT"]
+                        else
+                            "NO"
+                        end
+                    end
+                end
+
 
                 column :IP, "",:left, :donottruncate, :size=>15 do |d|
                     d["IP"]
@@ -180,7 +208,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
         while obj.has_elements?("/VROUTER/TEMPLATE/NIC")
             obj.delete_element("/VROUTER/TEMPLATE/NIC")
-        end
+        end if !options[:all]
 
         puts
 

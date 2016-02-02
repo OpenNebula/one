@@ -20,7 +20,7 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="name" >
-            {{tr "Name"}}:
+            {{tr "Name"}}
           </label>
           <input type="text" wizard_field="NAME" required name="name" id="name"/>
         </div>
@@ -36,13 +36,18 @@
       </div>
       <div class="row">
         <div class="medium-6 columns">
-          <label for="floating_ip">
-            <input type="checkbox" wizard_field="FLOATING_IP" value="YES" name="floating_ip" id="floating_ip" />
-            {{tr "Floating IPs"}}
-            <span class="tip">
-              {{tr "If checked, each Virtual Machine will have a floating IP added to its network interface."}}
-            </span>
+          <label for="keepalived_id" >
+            {{tr "Keepalived ID"}}
+            <span class="tip">{{tr "Optional. Sets keepalived configuration parameter 'virtual_router_id'"}}</span>
           </label>
+          <input type="text" wizard_field="KEEPALIVED_ID" name="keepalived_id" id="keepalived_id"/>
+        </div>
+        <div class="medium-6 columns">
+          <label for="keepalived_password" >
+            {{tr "Keepalived password"}}
+            <span class="tip">{{tr "Optional. Sets keepalived configuration parameter 'authentication/auth_pass'"}}</span>
+          </label>
+          <input type="text" wizard_field="KEEPALIVED_PASSWORD" name="keepalived_password" id="keepalived_password"/>
         </div>
       </div>
     </div>

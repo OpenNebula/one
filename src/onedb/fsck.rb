@@ -31,7 +31,7 @@ require 'nokogiri'
 
 module OneDBFsck
     VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.85"
+    LOCAL_VERSION = "4.90.0"
 
     def check_db_version()
         db_version = read_db_version()
@@ -59,9 +59,10 @@ EOT
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
 
-    VM_BIN  = 0x0000001000000000
-    NET_BIN = 0x0000004000000000
-    HOLD    = 0xFFFFFFFF
+    VM_BIN      = 0x0000001000000000
+    NET_BIN     = 0x0000004000000000
+    VROUTER_BIN = 0x0004000000000000
+    HOLD        = 0xFFFFFFFF
 
     def fsck
 
@@ -825,7 +826,7 @@ EOT
 
                         if ar_id_e.nil?
                             if !counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)].nil?
-                                log_error("VNet has more than one VM with the same MAC address (#{mac}). "<<
+                                log_error("VNet #{net_id} has more than one lease with the same MAC address (#{mac}). "<<
                                     "FSCK can't handle this, and consistency is not guaranteed", false)
                             end
 
@@ -836,7 +837,8 @@ EOT
                                 :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
                                 :mac        => mac,
                                 :vm         => row[:oid],
-                                :vnet       => nil
+                                :vnet       => nil,
+                                :vrouter    => nil
                             }
                         else
                             ar_id = ar_id_e.text.to_i
@@ -852,7 +854,8 @@ EOT
                                     :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
                                     :mac        => mac,
                                     :vm         => row[:oid],
-                                    :vnet       => nil
+                                    :vnet       => nil,
+                                    :vrouter    => nil
                                 }
                             end
                         end
@@ -964,6 +967,87 @@ EOT
         @db.transaction do
             history_fix.each do |row|
                 @db[:history].where({:vid => row[:vid], :seq => row[:seq]}).update(row)
+            end
+        end
+
+        log_time()
+
+        ########################################################################
+        # Virtual Routers
+        #
+        ########################################################################
+
+        vrouters_fix = {}
+
+        # Aggregate information of the RUNNING vms
+        @db.fetch("SELECT oid,body FROM vrouter_pool") do |row|
+            vrouter_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            # VNets used by this Virtual Router
+            vrouter_doc.root.xpath("TEMPLATE/NIC").each do |nic|
+                net_id = nil
+                nic.xpath("NETWORK_ID").each do |nid|
+                    net_id = nid.text.to_i
+                end
+
+                floating = false
+
+                nic.xpath("FLOATING_IP").each do |floating_e|
+                    floating = (floating_e.text.upcase == "YES")
+                end
+
+                if !net_id.nil? && floating
+                    if counters[:vnet][net_id].nil?
+                        log_error("VRouter #{row[:oid]} is using VNet #{net_id}, "<<
+                            "but it does not exist", false)
+                    else
+                        mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
+
+                        ar_id_e = nic.at_xpath('AR_ID')
+
+                        if ar_id_e.nil?
+                            if !counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)].nil?
+                                log_error("VNet #{net_id} has more than one lease with the same MAC address (#{mac}). "<<
+                                    "FSCK can't handle this, and consistency is not guaranteed", false)
+                            end
+
+                            counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)] = {
+                                :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
+                                :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
+                                :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
+                                :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                :mac        => mac,
+                                :vm         => nil,
+                                :vnet       => nil,
+                                :vrouter    => row[:oid],
+                            }
+                        else
+                            ar_id = ar_id_e.text.to_i
+
+                            if counters[:vnet][net_id][:ar_leases][ar_id].nil?
+                                log_error("VRouter #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
+                                    "but the AR does not exist", false)
+                            else
+                                counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
+                                    :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
+                                    :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
+                                    :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
+                                    :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                    :mac        => mac,
+                                    :vm         => nil,
+                                    :vnet       => nil,
+                                    :vrouter    => row[:oid],
+                                }
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        @db.transaction do
+            vrouters_fix.each do |id, body|
+                @db[:vrouter_pool].where(:oid => id).update(:body => body)
             end
         end
 
@@ -1278,7 +1362,8 @@ EOT
                             :ip6_ula    => nil,
                             :mac        => nil,
                             :vm         => nil,
-                            :vnet       => row[:oid]
+                            :vnet       => row[:oid],
+                            :vrouter    => nil
                         }
 
                         #MAC
@@ -1389,7 +1474,8 @@ EOT
                         :ip6_ula    => nil,
                         :mac        => nil,
                         :vm         => nil,
-                        :vnet       => nil
+                        :vnet       => nil,
+                        :vrouter    => nil
                     }
 
                     # MAC
@@ -1432,9 +1518,12 @@ EOT
                     if (binary_magic & VM_BIN != 0)
                         lease[:vm] = lease_oid
                         lease_obj = "VM"
-                    else # binary_magic & NET_BIN != 0
+                    elsif (binary_magic & NET_BIN != 0)
                         lease[:vnet] = lease_oid
                         lease_obj = "VNet"
+                    else #(binary_magic & VROUTER_BIN != 0) 
+                        lease[:vrouter] = lease_oid
+                        lease_obj = "VRouter"
                     end
 
                     counter_lease = counter_ar[mac]
@@ -1457,8 +1546,9 @@ EOT
                         if counter_lease != lease
 
                             # Things that can be fixed
-                            if (counter_lease[:vm] != lease[:vm] ||
-                                counter_lease[:vnet] != lease[:vnet])
+                            if (counter_lease[:vm]      != lease[:vm] ||
+                                counter_lease[:vnet]    != lease[:vnet] ||
+                                counter_lease[:vrouter] != lease[:vrouter])
 
                                 new_lease_obj = ""
                                 new_lease_oid = 0
@@ -1470,11 +1560,17 @@ EOT
 
                                     new_binary_magic = (VM_BIN |
                                         (new_lease_oid & 0xFFFFFFFF))
-                                else
+                                elsif !counter_lease[:vnet].nil?
                                     new_lease_obj = "VNet"
                                     new_lease_oid = counter_lease[:vnet].to_i
 
                                     new_binary_magic = (NET_BIN |
+                                        (new_lease_oid & 0xFFFFFFFF))
+                                else #if !counter_lease[:vrouter].nil?
+                                    new_lease_obj = "VRouter"
+                                    new_lease_oid = counter_lease[:vrouter].to_i
+
+                                    new_binary_magic = (VROUTER_BIN |
                                         (new_lease_oid & 0xFFFFFFFF))
                                 end
 
@@ -1527,11 +1623,17 @@ EOT
 
                         new_binary_magic = (VM_BIN |
                             (new_lease_oid & 0xFFFFFFFF))
-                    else
+                    elsif !counter_lease[:vnet].nil?
                         new_lease_obj = "VNet"
                         new_lease_oid = counter_lease[:vnet].to_i
 
                         new_binary_magic = (NET_BIN |
+                            (new_lease_oid & 0xFFFFFFFF))
+                    else #if !counter_lease[:vrouter].nil?
+                        new_lease_obj = "VRouter"
+                        new_lease_oid = counter_lease[:vrouter].to_i
+
+                        new_binary_magic = (VROUTER_BIN |
                             (new_lease_oid & 0xFFFFFFFF))
                     end
 
@@ -1798,6 +1900,31 @@ EOT
             }
         end
 
+
+        @db.fetch("SELECT body FROM vrouter_pool WHERE #{where_filter}") do |vrouter_row|
+            vrouter_doc = Nokogiri::XML(vrouter_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            # VNet quotas
+            vrouter_doc.root.xpath("TEMPLATE/NIC").each { |nic|
+                net_id = nil
+                nic.xpath("NETWORK_ID").each do |nid|
+                    net_id = nid.text
+                end
+
+                floating = false
+
+                nic.xpath("FLOATING_IP").each do |floating_e|
+                    floating = (floating_e.text.upcase == "YES")
+                end
+
+                if !net_id.nil? && floating
+                    vnet_usage[net_id] = 0 if vnet_usage[net_id].nil?
+
+                    vnet_usage[net_id] += 1
+                end
+            }
+
+        end
 
         # VM quotas
 

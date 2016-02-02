@@ -144,15 +144,24 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"GATEWAY", "GATEWAY"},
         {"DNS", "DNS"},
         {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
-        {"MTU", "GUEST_MTU"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 8;
+        {"MTU", "GUEST_MTU"},
+        {"VROUTER_IP", "VROUTER_IP"},
+        {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT"}};
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 10;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
         {"GATEWAY6", "GATEWAY6"},
-        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"}};
+        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"},
+        {"VROUTER_IP6", "VROUTER_IP6_GLOBAL"}};
 
-const int VirtualMachine::NUM_NETWORK6_CONTEXT = 3;
+const int VirtualMachine::NUM_NETWORK6_CONTEXT = 4;
+
+const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
+        "VROUTER_ID",
+        "VROUTER_KEEPALIVED_ID",
+        "VROUTER_KEEPALIVED_PASSWORD"};
+const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -842,14 +851,17 @@ int VirtualMachine::parse_vrouter(string& error_str)
 {
     string st;
 
-    user_obj_template->get("VROUTER_ID", st);
-
-    if (!st.empty())
+    for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
     {
-        obj_template->replace("VROUTER_ID", st);
-    }
+        user_obj_template->get(VROUTER_ATTRIBUTES[i], st);
 
-    user_obj_template->erase("VROUTER_ID");
+        if (!st.empty())
+        {
+            obj_template->replace(VROUTER_ATTRIBUTES[i], st);
+        }
+
+        user_obj_template->erase(VROUTER_ATTRIBUTES[i]);
+    }
 
     return 0;
 }
@@ -892,6 +904,23 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
+static void clear_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, int nic_id)
+{
+    ostringstream att_name;
+
+    for (int i=0; i < num_vars; i++)
+    {
+        att_name.str("");
+
+        att_name << "ETH" << nic_id << "_" << vars[i][0];
+
+        context->remove(att_name.str());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_context(string& error_str)
 {
     int rc, num;
@@ -904,6 +933,7 @@ int VirtualMachine::parse_context(string& error_str)
     string   parsed;
     string   files_ds;
     string   files_ds_parsed;
+    string   st;
 
     ostringstream oss_parsed;
 
@@ -1095,6 +1125,20 @@ int VirtualMachine::parse_context(string& error_str)
         add_template_attribute("CREATED_BY", uid);
     }
 
+    // -------------------------------------------------------------------------
+    // Virtual Router attributes
+    // -------------------------------------------------------------------------
+
+    for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
+    {
+        obj_template->get(VROUTER_ATTRIBUTES[i], st);
+
+        if (!st.empty())
+        {
+            context_parsed->replace(VROUTER_ATTRIBUTES[i], st);
+        }
+    }
+
     return rc;
 
 error_cleanup:
@@ -1104,6 +1148,51 @@ error_cleanup:
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::reparse_context()
+{
+    int rc;
+
+    VectorAttribute * context;
+    VectorAttribute * context_parsed;
+
+    string * str;
+    string   parsed;
+    string   error_str;
+
+    obj_template->get("CONTEXT", context);
+
+    // -------------------------------------------------------------------------
+    // Parse CONTEXT variables & free vector attributes
+    // -------------------------------------------------------------------------
+
+    str = context->marshall();
+
+    if (str == 0)
+    {
+        return -1;
+    }
+
+    rc = parse_template_attribute(*str, parsed, error_str);
+
+    delete str;
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    context_parsed = new VectorAttribute("CONTEXT");
+    context_parsed->unmarshall(parsed);
+
+    obj_template->erase("CONTEXT");
+    obj_template->set(context_parsed);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2592,7 +2681,8 @@ int VirtualMachine::set_up_attach_nic(
 
     set<int> nic_sgs;
 
-    int rc = vnpool->nic_attribute(new_nic, max_nic_id+1, uid, vm_id, error_str);
+    int rc = vnpool->nic_attribute(PoolObjectSQL::VM,
+                        new_nic, max_nic_id+1, uid, vm_id, error_str);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
@@ -2614,7 +2704,7 @@ int VirtualMachine::set_up_attach_nic(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::clear_attach_nic()
+VectorAttribute* VirtualMachine::get_attach_nic()
 {
     int                  num_nics;
     vector<Attribute  *> nics;
@@ -2633,34 +2723,7 @@ void VirtualMachine::clear_attach_nic()
 
         if ( nic->vector_value("ATTACH") == "YES" )
         {
-            nic->remove("ATTACH");
-            return;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::delete_attach_nic()
-{
-    vector<Attribute  *> nics;
-    VectorAttribute *    nic;
-
-    int num_nics = obj_template->get("NIC", nics);
-
-    for(int i=0; i<num_nics; i++)
-    {
-        nic = dynamic_cast<VectorAttribute * >(nics[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        if ( nic->vector_value("ATTACH") == "YES" )
-        {
-            return static_cast<VectorAttribute * >(obj_template->remove(nic));
+            return nic;
         }
     }
 
@@ -2670,10 +2733,116 @@ VectorAttribute * VirtualMachine::delete_attach_nic()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::attach_nic_success()
+{
+    VectorAttribute * nic = get_attach_nic();
+
+    if (nic != 0)
+    {
+        nic->remove("ATTACH");
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::attach_nic_failure()
+{
+    VectorAttribute *    nic;
+    VectorAttribute *    context = 0;
+    int                  nic_id;
+
+    nic = get_attach_nic();
+
+    if (nic == 0)
+    {
+        return 0;
+    }
+
+    obj_template->remove(nic);
+
+    obj_template->get("CONTEXT", context);
+
+    if (context != 0)
+    {
+        nic->vector_value("NIC_ID", nic_id);
+
+        clear_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,  context, nic_id);
+        clear_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, context, nic_id);
+    }
+
+    return nic;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::detach_nic_failure()
+{
+    VectorAttribute *    nic;
+    VectorAttribute *    context = 0;
+    bool                 net_context;
+
+    nic = get_attach_nic();
+
+    if (nic == 0)
+    {
+        return;
+    }
+
+    nic->remove("ATTACH");
+
+    obj_template->get("CONTEXT", context);
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    context->vector_value("NETWORK", net_context);
+
+    if (net_context)
+    {
+        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
+                context, nic);
+
+        if (!nic->vector_value("IP6_GLOBAL").empty())
+        {
+            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
+                    context, nic);
+        }
+
+        reparse_context();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * VirtualMachine::detach_nic_success()
+{
+    VectorAttribute * nic = get_attach_nic();
+
+    if (nic == 0)
+    {
+        return 0;
+    }
+
+    obj_template->remove(nic);
+
+    return nic;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::set_attach_nic(
         VectorAttribute *       new_nic,
         vector<VectorAttribute*> &rules)
 {
+    VectorAttribute *   context = 0;
+    bool                net_context;
+
     vector<VectorAttribute*>::iterator it;
 
     new_nic->replace("ATTACH", "YES");
@@ -2684,22 +2853,48 @@ void VirtualMachine::set_attach_nic(
     {
         obj_template->set(*it);
     }
+
+    obj_template->get("CONTEXT", context);
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    context->vector_value("NETWORK", net_context);
+
+    if (net_context)
+    {
+        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
+                context, new_nic);
+
+        if (!new_nic->vector_value("IP6_GLOBAL").empty())
+        {
+            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
+                    context, new_nic);
+        }
+
+        reparse_context();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_attach_nic(int nic_id)
+int VirtualMachine::set_detach_nic(int nic_id)
 {
     int num_nics;
     int n_id;
 
     vector<Attribute  *> nics;
     VectorAttribute *    nic;
+    VectorAttribute *    context = 0;
+
+    bool found = false;
 
     num_nics = obj_template->get("NIC", nics);
 
-    for(int i=0; i<num_nics; i++)
+    for(int i=0; !found && i<num_nics; i++)
     {
         nic = dynamic_cast<VectorAttribute * >(nics[i]);
 
@@ -2713,11 +2908,27 @@ int VirtualMachine::set_attach_nic(int nic_id)
         if ( n_id == nic_id )
         {
             nic->replace("ATTACH", "YES");
-            return 0;
+            found = true;
         }
     }
 
-    return -1;
+    if (!found)
+    {
+        return -1;
+    }
+
+    obj_template->get("CONTEXT", context);
+
+    if (context != 0)
+    {
+        clear_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,
+                            context, nic_id);
+
+        clear_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
+                            context, nic_id);
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2992,7 +3203,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
         merge_nic_defaults(nic);
 
-        rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
+        rc = vnpool->nic_attribute(PoolObjectSQL::VM, nic, i, uid, oid, estr);
 
         if (rc == -1)
         {
@@ -3261,8 +3472,27 @@ bool VirtualMachine::is_vrouter()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachine::is_vrouter_action_supported(History::VMAction action)
+{
+    return (action == History::MIGRATE_ACTION ||
+            action == History::LIVE_MIGRATE_ACTION ||
+            action == History::HOLD_ACTION ||
+            action == History::RELEASE_ACTION ||
+            action == History::RESUME_ACTION ||
+            action == History::BOOT_ACTION ||
+            action == History::REBOOT_ACTION ||
+            action == History::REBOOT_HARD_ACTION ||
+            action == History::RESCHED_ACTION ||
+            action == History::UNRESCHED_ACTION ||
+            action == History::DISK_SNAPSHOT_CREATE_ACTION ||
+            action == History::DISK_SNAPSHOT_DELETE_ACTION);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::generate_context(string &files, int &disk_id,
-        string& token_password)
+        const string& token_password)
 {
     ofstream file;
     string   files_ds;
@@ -3400,6 +3630,22 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::get_created_by_uid() const
+{
+    int created_by_uid;
+
+    if (obj_template->get("CREATED_BY", created_by_uid))
+    {
+        return created_by_uid;
+    }
+
+    return get_uid();
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 {
     int num_disks;
@@ -3424,6 +3670,65 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
         if ( tdisk_id == disk_id )
         {
             return disk;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const VectorAttribute* VirtualMachine::get_context_disk() const
+{
+    vector<const Attribute *> array_context;
+    const VectorAttribute *   context;
+    int                       num;
+
+    num = obj_template->get("CONTEXT", array_context);
+
+    if ( num != 1 )
+    {
+        return 0;
+    }
+
+    context = dynamic_cast<const VectorAttribute *>(array_context[0]);
+
+    if ( context == 0 )
+    {
+        return 0;
+    }
+
+    return context;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const VectorAttribute* VirtualMachine::get_nic(int nic_id) const
+{
+    int num_nics;
+    int tnic_id;
+
+    vector<const Attribute  *> nics;
+    const VectorAttribute *    nic;
+
+    num_nics = obj_template->get("NIC", nics);
+
+    for(int i=0; i<num_nics; i++)
+    {
+        nic = dynamic_cast<const VectorAttribute * >(nics[i]);
+
+        if ( nic == 0 )
+        {
+            continue;
+        }
+
+        nic->vector_value("NIC_ID", tnic_id);
+
+        if ( tnic_id == nic_id )
+        {
+            return nic;
         }
     }
 
@@ -3686,7 +3991,7 @@ void VirtualMachine::set_auth_request(int uid,
             continue;
         }
 
-        vnpool->authorize_nic(vector,uid,&ar);
+        vnpool->authorize_nic(PoolObjectSQL::VM, vector, uid, &ar);
 
         get_security_groups(vector, sgroups);
 

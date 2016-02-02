@@ -1543,13 +1543,12 @@ define(function(require) {
 
               if (network_attrs.length > 0) {
                 NicsSection.generate_provision_network_accordion(
-                  $(".provision_network_selector", context), true);
+                  $(".provision_network_selector", context), {hide_add_button:true});
 
                 $.each(network_attrs, function(index, vnet_attr){
                   NicsSection.generate_provision_network_table(
                     $(".provision_nic_accordion", context),
-                    null,
-                    vnet_attr);
+                    {vnet_attr: vnet_attr});
                 });
               }
 

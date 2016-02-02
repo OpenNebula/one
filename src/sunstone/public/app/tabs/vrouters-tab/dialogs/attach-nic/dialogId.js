@@ -14,6 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require){
-  return 'cloneVirtualRouterDialog';
+define(function(require) {
+  return 'attachNICVirtualRouterDialog';
 });

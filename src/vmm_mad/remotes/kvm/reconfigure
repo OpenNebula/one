@@ -1,7 +1,7 @@
-# SConstruct for src/rm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,40 +16,15 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+source $(dirname $0)/kvmrc
+source $(dirname $0)/../../scripts_common.sh
 
-lib_name='nebula_rm'
+DOMAIN=$1
+TARGET_DEVICE=$2
+ISO_PATH=$3
 
-#Sources to generate the library
-source_files=[
-    'Request.cc',
-    'RequestManager.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfoFilter.cc',
-    'RequestManagerDelete.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerVirtualNetwork.cc',
-    'RequestManagerVirtualMachine.cc',
-    'RequestManagerVMTemplate.cc',
-    'RequestManagerUpdateTemplate.cc',
-    'RequestManagerUser.cc',
-    'RequestManagerGroup.cc',
-    'RequestManagerHost.cc',
-    'RequestManagerImage.cc',
-    'RequestManagerChown.cc',
-    'RequestManagerAcl.cc',
-    'RequestManagerChmod.cc',
-    'RequestManagerCluster.cc',
-    'RequestManagerClone.cc',
-    'RequestManagerSystem.cc',
-    'RequestManagerRename.cc',
-    'RequestManagerProxy.cc',
-    'RequestManagerVdc.cc',
-    'RequestManagerDatastore.cc',
-    'RequestManagerLock.cc',
-    'RequestManagerMarketPlaceApp.cc'
-    'RequestManagerVirtualRouter.cc',
-]
+CMD="virsh --connect $LIBVIRT_URI \
+     change-media $DOMAIN $TARGET_DEVICE $ISO_PATH --insert"
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+exec_and_log "$CMD" "Could not insert CDROM $ISO_PATH to $TARGET_DEVICE"
+

@@ -18,6 +18,7 @@
 #define QUOTA_NETWORK_H_
 
 #include "Quota.h"
+#include "PoolObjectSQL.h"
 
 /**
  *  DataStore Quotas, defined as:
@@ -47,18 +48,21 @@ public:
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
+     *    @param otype object type, VM or VRouter
      *    @param tmpl template for the resource
      *    @param default_quotas Quotas that contain the default limits
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& error);
+    bool check(PoolObjectSQL::ObjectType otype, Template* tmpl,
+            Quotas& default_quotas, string& error);
 
     /**
      *  Decrement usage counters when deallocating image
+     *    @param otype object type, VM or VRouter
      *    @param tmpl template for the resource
      */
-    void del(Template* tmpl);
+    void del(PoolObjectSQL::ObjectType otype, Template* tmpl);
 
 protected:
 

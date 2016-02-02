@@ -20,6 +20,8 @@
 #include "PoolObjectSQL.h"
 #include "Template.h"
 #include "ObjectCollection.h"
+#include "VirtualMachineTemplate.h"
+#include "AuthRequest.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -38,10 +40,14 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    int add_vmid(int vmid)
-    {
-        return vms.add_collection_id(vmid);
-    }
+    int add_vmid(int vmid);
+
+    bool has_vmids() const;
+
+    /**
+     *  Returns a copy of the VM IDs set
+     */
+    set<int> get_vms() const;
 
     // ------------------------------------------------------------------------
     // Template Contents
@@ -65,7 +71,44 @@ public:
                 *(static_cast<Template *>(obj_template)));
     };
 
-    Template * get_nics() const;
+    Template * get_vm_template() const;
+
+    // ------------------------------------------------------------------------
+    // Attach and detach NIC
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adds a new NIC to the virtual router template.
+     * @param tmpl Template, should contain only one NIC
+     * @param error_str error reason, if any
+     *
+     * @return 0 on failure, the NIC to attach to each VM on success
+     */
+    VectorAttribute * attach_nic(
+            VirtualMachineTemplate * tmpl, string& error_str);
+
+    /**
+     * Deletes the NIC from the virtual router template.
+     *
+     * @param nic_id of the NIC
+     * @return 0 if the nic_id was found, -1 otherwise
+     */
+    int detach_nic(int nic_id);
+
+    // ------------------------------------------------------------------------
+    // Authorization related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Sets an authorization request for a Virtual Router template based on
+     *  the networks used
+     *    @param  uid for template owner
+     *    @param  ar the AuthRequest object
+     *    @param  tmpl the virtual router template
+     */
+    static void set_auth_request(int uid,
+                                 AuthRequest& ar,
+                                 Template *tmpl);
 
 private:
     // -------------------------------------------------------------------------
@@ -185,6 +228,24 @@ private:
      * @return 0 on success, -1 otherwise
      */
     int release_network_leases(VectorAttribute const * nic);
+
+    /**
+     * Returns the nic with the giver nic_id, or 0
+     * @param nic_id
+     * @return nic if found, 0 if not found
+     */
+    VectorAttribute* get_nic(int nic_id) const;
+
+    // -------------------------------------------------------------------------
+    // VM Management
+    // -------------------------------------------------------------------------
+
+    /**
+     * Tries to shutdown, or delete, all this Virtual Router's VMs
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int shutdown_vms();
 };
 
 #endif /*VIRTUAL_ROUTER_H_*/
