@@ -248,3 +248,12 @@ int VMTemplate::from_xml(const string& xml)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+bool VMTemplate::is_vrouter()
+{
+    bool vr;
+
+    get_template_attribute("VROUTER", vr);
+
+    return vr;
+}

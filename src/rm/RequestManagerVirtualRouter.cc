@@ -38,6 +38,7 @@ void VirtualRouterInstantiate::request_execute(
     VirtualRouterPool*  vrpool = nd.get_vrouterpool();
     VirtualRouter *     vr;
     DispatchManager*    dm = nd.get_dm();
+    VMTemplatePool*     tpool = nd.get_tpool();
 
     PoolObjectAuth vr_perms;
     Template*      extra_attrs;
@@ -88,6 +89,27 @@ void VirtualRouterInstantiate::request_execute(
     if (has_vmids)
     {
         att.resp_msg = "Virtual Router already has VMs. Cannot instantiate new ones";
+        failure_response(ACTION, att);
+        return;
+    }
+
+    VMTemplate * tmpl = tpool->get(tmpl_id,true);
+
+    if ( tmpl == 0 )
+    {
+        att.resp_id = tmpl_id;
+        att.resp_obj = PoolObjectSQL::TEMPLATE;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    bool is_vrouter = tmpl->is_vrouter();
+
+    tmpl->unlock();
+
+    if (!is_vrouter)
+    {
+        att.resp_msg = "Only Templates with VROUTER=YES are allowed";
         failure_response(ACTION, att);
         return;
     }

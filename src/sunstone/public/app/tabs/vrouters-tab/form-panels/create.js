@@ -63,7 +63,15 @@ define(function(require) {
       }
     };
 
-    this.templatesTable = new TemplatesTable('vr_create', {'select': true});
+    this.templatesTable = new TemplatesTable(
+        'vr_create',
+        { 'select': true,
+          'selectOptions': {
+            'filter_fn': function(tmpl){
+              return (tmpl.TEMPLATE.VROUTER != undefined && tmpl.TEMPLATE.VROUTER.toUpperCase() == "YES");
+            }
+          }
+        });
 
     BaseFormPanel.call(this);
   }

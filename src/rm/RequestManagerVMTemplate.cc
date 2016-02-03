@@ -36,7 +36,25 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
 
-    // TODO: if Template has VROUTER = YES, do not allow to instantiate here
+    VMTemplate * tmpl = static_cast<VMTemplatePool* > (pool)->get(id,true);
+
+    if ( tmpl == 0 )
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    bool is_vrouter = tmpl->is_vrouter();
+
+    tmpl->unlock();
+
+    if (is_vrouter)
+    {
+        att.resp_msg = "Templates with VROUTER=YES cannot be instantiated as stand-alone VMs";
+        failure_response(ACTION, att);
+        return;
+    }
 
     int vid;
     ErrorCode ec;
