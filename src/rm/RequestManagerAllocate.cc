@@ -891,7 +891,6 @@ int MarketPlaceAppAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
-        string&                     error_str,
         RequestAttributes&          att)
 {
     MarketPlaceAppPool *     appool = static_cast<MarketPlaceAppPool *>(pool);
@@ -903,7 +902,7 @@ int MarketPlaceAppAllocate::pool_allocate(
 
     if ( mp == 0 )
     {
-        error_str = "Cannot find associated MARKETPLACE";
+        att.resp_msg = "Cannot find associated MARKETPLACE";
         return -1;
     }
 
@@ -915,7 +914,7 @@ int MarketPlaceAppAllocate::pool_allocate(
     mp->unlock();
 
     int rc = appool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        ttmpl, mp_id, mp_name, mp_data, &id, error_str);
+        ttmpl, mp_id, mp_name, mp_data, &id, att.resp_msg);
 
 	if (rc < 0)
 	{

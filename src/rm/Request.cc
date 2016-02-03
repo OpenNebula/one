@@ -59,6 +59,10 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "VDC";
         case PoolObjectSQL::VROUTER:
             return "virtual router";
+        case PoolObjectSQL::MARKETPLACE:
+            return "marketplace";
+        case PoolObjectSQL::MARKETPLACEAPP:
+            return "marketplaceapp";
         default:
             return "-";
       }
