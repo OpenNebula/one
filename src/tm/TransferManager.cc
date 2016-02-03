@@ -684,7 +684,7 @@ void TransferManager::prolog_action(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
+    int uid = vm->get_created_by_uid();
     vm->unlock();
 
     User * user = Nebula::instance().get_upool()->get(uid, true);
