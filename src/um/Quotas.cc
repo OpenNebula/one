@@ -150,7 +150,7 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
         break;
 
         case NETWORK:
-            network_quota.del(PoolObjectSQL::VM, tmpl);
+            network_quota.del(tmpl);
         break;
 
         case IMAGE:
@@ -162,13 +162,14 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
         break;
 
         case VIRTUALMACHINE:
-            network_quota.del(PoolObjectSQL::VM, tmpl);
+            network_quota.del(tmpl);
             vm_quota.del(tmpl);
             image_quota.del(tmpl);
         break;
 
         case VIRTUALROUTER:
-            network_quota.del(PoolObjectSQL::VROUTER, tmpl);
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            vr_net_quota.del(tmpl);
         break;
     }
 }
@@ -187,7 +188,7 @@ bool Quotas::quota_check(QuotaType  type,
             return datastore_quota.check(tmpl, default_quotas, error_str);
 
         case NETWORK:
-            return network_quota.check(PoolObjectSQL::VM, tmpl, default_quotas, error_str);
+            return network_quota.check(tmpl, default_quotas, error_str);
 
         case IMAGE:
             return image_quota.check(tmpl, default_quotas, error_str);
@@ -196,21 +197,20 @@ bool Quotas::quota_check(QuotaType  type,
             return vm_quota.check(tmpl, default_quotas, error_str);
 
         case VIRTUALMACHINE:
-            if ( network_quota.check(PoolObjectSQL::VM,
-                    tmpl, default_quotas, error_str) == false )
+            if ( network_quota.check(tmpl, default_quotas, error_str) == false )
             {
                 return false;
             }
 
             if ( vm_quota.check(tmpl, default_quotas, error_str) == false )
             {
-                network_quota.del(PoolObjectSQL::VM, tmpl);
+                network_quota.del(tmpl);
                 return false;
             }
 
             if ( image_quota.check(tmpl, default_quotas, error_str) == false )
             {
-                network_quota.del(PoolObjectSQL::VM, tmpl);
+                network_quota.del(tmpl);
                 vm_quota.del(tmpl);
                 return false;
             }
@@ -218,8 +218,8 @@ bool Quotas::quota_check(QuotaType  type,
             return true;
 
         case VIRTUALROUTER:
-            return network_quota.check(PoolObjectSQL::VROUTER,
-                    tmpl, default_quotas, error_str);
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            return vr_net_quota.check(tmpl, default_quotas, error_str);
     }
 
     return false;
