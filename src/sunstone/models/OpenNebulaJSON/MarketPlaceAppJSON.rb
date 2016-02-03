@@ -17,17 +17,22 @@
 require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
-    class MarketPlaceJSON < OpenNebula::MarketPlace
+    class MarketPlaceAppJSON < OpenNebula::MarketPlaceApp
         include JSONUtils
 
         def create(template_json)
-            mp_hash = parse_json(template_json, 'marketplace')
+            mp_hash = parse_json(template_json, 'marketplaceapp')
             if OpenNebula.is_error?(mp_hash)
                 return mp_hash
             end
 
-            if mp_hash['marketplace_raw']
-                template = mp_hash['marketplace_raw']
+            mp_id = parse_json(template_json, 'mp_id')
+            if OpenNebula.is_error?(mp_id)
+                return mp_id
+            end
+
+            if mp_hash['marketplaceapp_raw']
+                template = mp_hash['marketplaceapp_raw']
             else
                 template = template_to_str(mp_hash)
             end
@@ -46,6 +51,8 @@ module OpenNebulaJSON
                  when "chown"         then self.chown(action_hash['params'])
                  when "chmod"         then self.chmod_octet(action_hash['params'])
                  when "rename"        then self.rename(action_hash['params'])
+                 when "disable"       then self.disable
+                 when "enable"        then self.enable
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
