@@ -15,7 +15,62 @@
 /* -------------------------------------------------------------------------- */
 
 #include "MarketPlacePool.h"
+#include "User.h"
 #include "Nebula.h"
+
+/* -------------------------------------------------------------------------- */
+
+MarketPlacePool::MarketPlacePool(SqlDB * db)
+    :PoolSQL(db, MarketPlace::table, true, true)
+{
+    //lastOID is set in PoolSQL::init_cb
+    if (get_lastOID() == -1)
+    {
+        // Build the default default security group
+        string default_market =
+            "NAME=\"OpenNebula Public\"\n"
+            "MARKET_MAD=one\n"
+            "DESCRIPTION=\"OpenNebula Systems MarketPlace\"";
+
+        Nebula& nd         = Nebula::instance();
+        UserPool * upool   = nd.get_upool();
+        User *    oneadmin = upool->get(0, false);
+
+        string error;
+
+        MarketPlaceTemplate * default_tmpl = new MarketPlaceTemplate;
+        char * error_parse;
+
+        default_tmpl->parse(default_market, &error_parse);
+
+        MarketPlace * marketplace = new MarketPlace(
+                oneadmin->get_uid(),
+                oneadmin->get_gid(),
+                oneadmin->get_uname(),
+                oneadmin->get_gname(),
+                oneadmin->get_umask(),
+                default_tmpl);
+
+        marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
+
+        if (PoolSQL::allocate(marketplace, error) < 0)
+        {
+            ostringstream oss;
+            oss << "Error trying to create default "
+                << "OpenNebula Systems MarketPlace: " << error;
+            NebulaLog::log("MKP", Log::ERROR, oss);
+
+            throw runtime_error(oss.str());
+        }
+
+        // The first 100 IDs are reserved for system MarketPlaces.
+        // Regular ones start from ID 100
+
+        set_update_lastOID(99);
+    }
+
+    return;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

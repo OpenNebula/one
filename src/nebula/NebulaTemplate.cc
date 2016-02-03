@@ -156,8 +156,9 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #******
 */
 
+    set_conf_market("one",  "");
     set_conf_market("http", "BASE_URL,PUBLIC_DIR");
-    set_conf_market("s3", "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
+    set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
 
     register_multiple_conf_default("MARKET_MAD_CONF");
 }

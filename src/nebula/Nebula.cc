@@ -488,9 +488,6 @@ void Nebula::start(bool bootstrap_only)
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
 
-        marketpool  = new MarketPlacePool(db);
-        apppool     = new MarketPlaceAppPool(db);
-
         nebula_configuration->get("VM_HOOK",        vm_hooks);
         nebula_configuration->get("HOST_HOOK",      host_hooks);
         nebula_configuration->get("VROUTER_HOOK",   vrouter_hooks);
@@ -608,6 +605,9 @@ void Nebula::start(bool bootstrap_only)
         default_group_quota.select();
 
         secgrouppool = new SecurityGroupPool(db);
+
+        marketpool  = new MarketPlacePool(db);
+        apppool     = new MarketPlaceAppPool(db);
     }
     catch (exception&)
     {

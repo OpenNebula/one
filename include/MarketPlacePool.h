@@ -27,7 +27,7 @@ class MarketPlaceApp;
 class MarketPlacePool : public PoolSQL
 {
 public:
-    MarketPlacePool(SqlDB * db):PoolSQL(db, MarketPlace::table, true, true){};
+    MarketPlacePool(SqlDB * db);
 
     ~MarketPlacePool(){};
 
