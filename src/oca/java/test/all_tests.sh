@@ -73,4 +73,7 @@ let RC=RC+$?
 ./test.sh SecurityGroupTest
 let RC=RC+$?
 
+./test.sh VirtualRouterTest
+let RC=RC+$?
+
 exit $RC

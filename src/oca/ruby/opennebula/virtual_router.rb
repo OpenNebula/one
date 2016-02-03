@@ -87,7 +87,7 @@ module OpenNebula
         # @para n_vms [Integer] Number of VMs to instantiate
         # @para template_id [Integer] VM Template id to instantiate
         # @param name [String] Name for the VM instances. If it is an empty
-        #   string OpenNebula will set a default name
+        #   string OpenNebula will set a default name. Wildcard %i can be used.
         # @param hold [true,false] false to create the VM in pending state,
         #   true to create it on hold
         # @param template [String] User provided Template to merge with the
