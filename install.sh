@@ -227,7 +227,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
-          $LIB_LOCATION/ruby/cloud/marketplace \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/ruby/onedb/shared \
