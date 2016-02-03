@@ -1356,7 +1356,7 @@ public:
      */
     int  generate_context(string &files, int &disk_id, const string& token_password);
 
-    const VectorAttribute* get_context_disk() const;
+    const VectorAttribute* get_context() const;
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist

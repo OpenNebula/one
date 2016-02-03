@@ -2434,17 +2434,13 @@ void VirtualMachineManager::attach_nic_action(
         goto error_driver;
     }
 
-    disk = vm->get_context_disk();
+    disk = vm->get_context();
 
     if ( disk != 0 )
     {
         vm_tm_mad = vm->get_tm_mad();
 
-        rc = tm->prolog_context_command(
-                    vm,
-                    token_password,
-                    vm_tm_mad,
-                    os);
+        rc = tm->prolog_context_command(vm, token_password, vm_tm_mad, os);
 
         prolog_cmd = os.str();
 

@@ -3679,7 +3679,7 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const VectorAttribute* VirtualMachine::get_context_disk() const
+const VectorAttribute* VirtualMachine::get_context() const
 {
     vector<const Attribute *> array_context;
     const VectorAttribute *   context;
