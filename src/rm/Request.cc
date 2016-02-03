@@ -599,7 +599,7 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
         obname = object_name(att.resp_obj);
     }
 
-    oss << "[" << method_name << "]";
+    oss << "[" << method_name << "] ";
 
     switch(ec)
     {
@@ -607,7 +607,7 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
             return;
 
         case AUTHORIZATION:
-            oss << " User [" << att.uid << "] ";
+            oss << "User [" << att.uid << "] ";
 
             if (att.resp_msg.empty())
             {
@@ -620,7 +620,7 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
             break;
 
         case AUTHENTICATION:
-            oss << " User couldn't be authenticated, aborting call.";
+            oss << "User couldn't be authenticated, aborting call.";
             break;
 
         case ACTION:
@@ -630,7 +630,7 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
             break;
 
         case NO_EXISTS:
-            oss << " Error getting " << obname;
+            oss << "Error getting " << obname;
 
             if ( att.resp_id != -1 )
             {
