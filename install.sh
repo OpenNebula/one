@@ -298,6 +298,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
+          $VAR_LOCATION/remotes/market/s3 \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
