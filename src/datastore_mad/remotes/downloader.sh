@@ -127,7 +127,24 @@ function unarchive
     fi
 }
 
-function s3_request
+function s3_env
+{
+    XPATH="$DRIVER_PATH/xpath.rb -b $DRV_ACTION"
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <($XPATH     /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ACCESS_KEY_ID \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/SECRET_ACCESS_KEY \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ENDPOINT)
+
+    S3_ACCESS_KEY_ID="${XPATH_ELEMENTS[j++]}"
+    S3_SECRET_ACCESS_KEY="${XPATH_ELEMENTS[j++]}"
+    S3_ENDPOINT="${XPATH_ELEMENTS[j++]}"
+}
+
+function s3_curl_args
 {
     FROM="$1"
 
@@ -262,12 +279,17 @@ ssh://*)
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
 s3://*)
+
+    # Read s3 environment
+    s3_env
+
     if [ -z "$S3_ACCESS_KEY_ID" -o -z "$S3_SECRET_ACCESS_KEY" ]; then
         echo "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are required" >&2
         exit -1
     fi
 
-    curl_args="$(s3_request $FROM)"
+    curl_args="$(s3_curl_args $FROM)"
+
     command="curl $GLOBAL_CURL_ARGS $curl_args"
     ;;
 rbd://*)
