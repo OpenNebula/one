@@ -14,34 +14,40 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-# This class is a generic wrapper to the s3 upload and delete facilities.
+require 'aws-sdk'
+
+# This class is a generic wrapper to the s3 gem.
 # It can either handle simple or multipart uploads, but the logic to decide
 # which uploader to use is not included in this class.
 class S3
+    attr_accessor :name, :client
+
     def initialize(h)
-        @name = h[:name]
+        @client = Aws::S3::Client.new(h)
+    end
 
-        @config = {
-            :bucket            => h[:bucket],
-            :md5               => h[:md5],
-            :region            => h[:region],
-            :access_key_id     => h[:access_key_id],
-            :secret_access_key => h[:secret_access_key]
-        }
+    def bucket=(bucket)
+        @bucket = bucket
 
-        @client = Aws::S3::Client.new({
-            :region            => @config[:region],
-            :access_key_id     => @config[:access_key_id],
-            :secret_access_key => @config[:secret_access_key]
-        })
-
-        @parts = []
-        @part_number = 1
+        # Implicit creation of the bucket
+        begin
+            @client.head_bucket({
+                :bucket => @bucket
+            })
+        rescue Aws::S3::Errors::NotFound
+            puts "create"
+            @client.create_bucket({
+                :bucket => @bucket
+            })
+        end
     end
 
     def create_multipart_upload
+        @parts = []
+        @part_number = 1
+
         resp = @client.create_multipart_upload({
-            :bucket => @config[:bucket],
+            :bucket => @bucket,
             :key    => @name
         })
 
@@ -50,7 +56,7 @@ class S3
 
     def complete_multipart_upload
         @client.complete_multipart_upload({
-          :bucket           => @config[:bucket],
+          :bucket           => @bucket,
           :key              => @name,
           :upload_id        => @upload_id,
           :multipart_upload => {:parts => @parts}
@@ -61,7 +67,7 @@ class S3
         @client.abort_multipart_upload({
             :upload_id   => @upload_id,
             :key         => @name,
-            :bucket      => @config[:bucket]
+            :bucket      => @bucket
         })
     end
 
@@ -71,7 +77,7 @@ class S3
             :upload_id   => @upload_id,
             :part_number => @part_number,
             :key         => @name,
-            :bucket      => @config[:bucket]
+            :bucket      => @bucket
         })
 
         @parts << {
@@ -85,14 +91,14 @@ class S3
     def put_object(body)
         @client.put_object({
             :body   => body,
-            :bucket => @config[:bucket],
+            :bucket => @bucket,
             :key    => @name
         })
     end
 
     def delete_object
         @client.delete_object({
-            :bucket => @config[:bucket],
+            :bucket => @bucket,
             :key    => @name
         })
     end
@@ -100,7 +106,7 @@ class S3
     def exists?
         begin
             !!@client.head_object({
-                :bucket => @config[:bucket],
+                :bucket => @bucket,
                 :key    => @name
             })
         rescue Aws::S3::Errors::NotFound
@@ -110,7 +116,7 @@ class S3
 
     def get_bucket_size
         resp = @client.list_objects({
-            bucket: @config[:bucket]
+            bucket: @bucket
         })
 
         size = 0

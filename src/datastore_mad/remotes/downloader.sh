@@ -131,10 +131,11 @@ function s3_request
 {
     FROM="$1"
 
+    ENDPOINT=${S3_ENDPOINT:-https://s3.amazonaws.com}
     OBJECT=$(basename $FROM)
     BUCKET=$(basename $(dirname $FROM))
 
-    DATE="`date +'%a, %d %b %Y %H:%M:%S %z'`"
+    DATE="`date -u +'%a, %d %b %Y %H:%M:%S GMT'`"
     AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
 
     SIGNED_AUTH_STRING=`echo -en "$AUTH_STRING" | \
@@ -143,7 +144,7 @@ function s3_request
 
     echo " -H \"Date: ${DATE}\"" \
          " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
-         " https://${BUCKET}.s3.amazonaws.com/${OBJECT}"
+         " ${ENDPOINT}/${BUCKET}/${OBJECT}"
 }
 
 function get_rbd_cmd
@@ -234,13 +235,15 @@ TO="$2"
 # File used by the hasher function to store the resulting hash
 export HASH_FILE="/tmp/downloader.hash.$$"
 
+GLOBAL_CURL_ARGS="--fail -sS -k -L"
+
 case "$FROM" in
 http://*|https://*)
     # -k  so it does not check the certificate
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    curl_args="-sS -k -L $FROM"
+    curl_args="$GLOBAL_CURL_ARGS $FROM"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
@@ -265,7 +268,7 @@ s3://*)
     fi
 
     curl_args="$(s3_request $FROM)"
-    command="curl $curl_args"
+    command="curl $GLOBAL_CURL_ARGS $curl_args"
     ;;
 rbd://*)
     command="$(get_rbd_cmd $FROM)"
