@@ -68,11 +68,6 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :TYPE, "Marketplace type", :left, :size=>4 do |d|
-                type = MarketPlace::MARKETPLACE_TYPES[d["TYPE"].to_i]
-                MarketPlace::SHORT_MARKETPLACE_TYPES[type]
-            end
-
             column :MAD, "Marketplace driver", :left, :size=>7 do |d|
                 d["MARKET_MAD"]
             end
