@@ -184,6 +184,12 @@ private:
     }
 
     /**
+     *  Verify the proper definition of the Market by checking the
+     *  attributes of the MARKET_MAD_CONF parameter
+     */
+    int set_market_mad(string &tm_mad, string &error_str);
+
+    /**
      * Child classes can process the new template set with replace_template or
      * append_template with this method
      *    @param error string describing the error if any

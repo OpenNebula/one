@@ -460,6 +460,13 @@ public:
         const VectorAttribute* &value) const;
 
     /**
+     *  Gets a Market configuration attribute
+     */
+    int get_market_conf_attribute(
+        const string& tm_name,
+        const VectorAttribute* &value) const;
+
+    /**
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
@@ -747,6 +754,24 @@ private:
     // ---------------------------------------------------------------
 
     friend void nebula_signal_handler (int sig);
+
+    // ---------------------------------------------------------------
+    // Helper functions
+    // ---------------------------------------------------------------
+
+    /**
+     *  Gets a Generic configuration attribute
+     *  @param key String that identifies the configuration parameter group name
+     *  @param name Name of the specific configuration parameter
+     *  @param value Value of the specific configuration parameter
+     *  @return a reference to the generated string
+     */
+
+    int get_conf_attribute(
+        const std::string& key,
+        const std::string& name,
+        const VectorAttribute* &value) const;
+
 };
 
 #endif /*NEBULA_H_*/

@@ -214,6 +214,11 @@ private:
                      const std::string& shared,
                      const std::string& ds_migrate);
 
+    /**
+     *  Sets a the defaults for a Market
+     */
+    void set_conf_market(const std::string& name,
+                         const std::string& required_attrs);
 };
 
 

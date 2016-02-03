@@ -18,6 +18,7 @@
 #include "MarketPlace.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Nebula.h"
 
 /* ************************************************************************ */
 /* MarketPlace:: Database Definition                                        */
@@ -72,6 +73,68 @@ MarketPlace::~MarketPlace()
 /* MartketPlace :: Database Access Functions                                   */
 /* *************************************************************************** */
 
+/* -------------------------------------------------------------------------- */
+
+int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::vector <std::string> vrequired_attrs;
+
+    int    rc;
+    std::string required_attrs, required_attr, value;
+
+    std::ostringstream oss;
+
+    rc = Nebula::instance().get_market_conf_attribute(mad, vatt);
+
+    if ( rc != 0 )
+    {
+        goto error_conf;
+    }
+
+    rc = vatt->vector_value("REQUIRED_ATTRS", required_attrs);
+
+    if ( rc == -1 ) //No required attributes
+    {
+        return 0;
+    }
+
+    vrequired_attrs = one_util::split(required_attrs, ',');
+
+    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
+         it != vrequired_attrs.end(); it++ )
+    {
+        required_attr = *it;
+
+        required_attr = one_util::trim(required_attr);
+        one_util::toupper(required_attr);
+
+        get_template_attribute(required_attr.c_str(), value);
+
+        if ( value.empty() )
+        {
+            goto error_required;
+        }
+    }
+
+    return 0;
+
+error_conf:
+    oss << "MARKET_MAD_CONF named \"" << mad << "\" is not defined in oned.conf";
+    goto error_common;
+
+error_required:
+    oss << "MarketPlace template is missing the \"" << required_attr
+        << "\" attribute or it's empty.";
+
+error_common:
+    error_str = oss.str();
+    return -1;
+}
+
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
 int MarketPlace::insert(SqlDB *db, string& error_str)
 {
     std::ostringstream oss;
@@ -88,6 +151,11 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
     if ( market_mad.empty() == true )
     {
         goto error_mad;
+    }
+
+    if (set_market_mad(market_mad, error_str) != 0)
+    {
+        goto error_common;
     }
 
     //--------------------------------------------------------------------------

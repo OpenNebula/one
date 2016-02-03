@@ -132,19 +132,34 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #******
 */
 
-        set_conf_ds("dev",    "DISK_TYPE",            "YES");
-        set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
-        set_conf_ds("dummy",  "",                     "NO");
-        set_conf_ds("fs",     "",                     "NO");
-        set_conf_ds("lvm",    "DISK_TYPE",            "NO");
-        set_conf_ds("shared", "",                     "NO");
-        set_conf_ds("ssh",    "",                     "NO");
-        set_conf_ds("vmfs",   "BRIDGE_LIST",          "NO");
-        set_conf_ds("ceph",
-                    "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
-                    "NO");
+    set_conf_ds("dev",    "DISK_TYPE",            "YES");
+    set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
+    set_conf_ds("dummy",  "",                     "NO");
+    set_conf_ds("fs",     "",                     "NO");
+    set_conf_ds("lvm",    "DISK_TYPE",            "NO");
+    set_conf_ds("shared", "",                     "NO");
+    set_conf_ds("ssh",    "",                     "NO");
+    set_conf_ds("vmfs",   "BRIDGE_LIST",          "NO");
+    set_conf_ds("ceph",
+                "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
+                "NO");
 
-        register_multiple_conf_default("DS_MAD_CONF");
+    register_multiple_conf_default("DS_MAD_CONF");
+
+
+/*
+#*******************************************************************************
+# Marketplace Manager Configuration
+#*******************************************************************************
+# http
+# s3
+#******
+*/
+
+    set_conf_market("http", "BASE_URL,PUBLIC_DIR");
+    set_conf_market("s3", "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
+
+    register_multiple_conf_default("MARKET_MAD_CONF");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -272,6 +287,22 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
     vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
 
     vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_market(const std::string& name,
+                                         const std::string& required_attrs)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+
+    vattribute = new VectorAttribute("MARKET_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));
 }
 

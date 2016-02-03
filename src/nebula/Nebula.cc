@@ -1104,16 +1104,17 @@ string Nebula::get_vm_log_filename(int oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Nebula::get_ds_conf_attribute(
-    const std::string& ds_name,
+int Nebula::get_conf_attribute(
+    const std::string& key,
+    const std::string& name,
     const VectorAttribute* &value) const
 {
     std::vector<const Attribute*>::const_iterator it;
     std::vector<const Attribute*> values;
-    std::string template_ds_name;
-    std::string ds_name_upper;
+    std::string template_name;
+    std::string name_upper;
 
-    nebula_configuration->Template::get("DS_MAD_CONF", values);
+    nebula_configuration->Template::get(key, values);
 
     for (it = values.begin(); it != values.end(); it ++)
     {
@@ -1124,13 +1125,13 @@ int Nebula::get_ds_conf_attribute(
             continue;
         }
 
-        template_ds_name = value->vector_value("NAME");
-        ds_name_upper = ds_name;
+        template_name = value->vector_value("NAME");
+        name_upper    = name;
 
-        one_util::toupper(ds_name_upper);
-        one_util::toupper(template_ds_name);
+        one_util::toupper(name_upper);
+        one_util::toupper(template_name);
 
-        if ( template_ds_name == ds_name_upper)
+        if ( template_name == name_upper)
         {
             return 0;
         }
@@ -1138,41 +1139,25 @@ int Nebula::get_ds_conf_attribute(
 
     value = 0;
     return -1;
+};
+
+int Nebula::get_ds_conf_attribute(
+    const std::string& name,
+    const VectorAttribute* &value) const
+{
+    return get_conf_attribute("DS_MAD_CONF", name, value);
 };
 
 int Nebula::get_tm_conf_attribute(
-    const string& tm_name,
+    const std::string& name,
     const VectorAttribute* &value) const
 {
-    vector<const Attribute*>::const_iterator it;
-    vector<const Attribute*> values;
-    std::string template_tm_name;
-    std::string tm_name_upper;
-
-    nebula_configuration->Template::get("TM_MAD_CONF", values);
-
-    for (it = values.begin(); it != values.end(); it ++)
-    {
-        value = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (value == 0)
-        {
-            continue;
-        }
-
-        template_tm_name = value->vector_value("NAME");
-        tm_name_upper = tm_name;
-
-        one_util::toupper(tm_name_upper);
-        one_util::toupper(template_tm_name);
-
-        if ( tm_name_upper == template_tm_name)
-        {
-            return 0;
-        }
-    }
-
-    value = 0;
-    return -1;
+    return get_conf_attribute("TM_MAD_CONF", name, value);
 };
 
+int Nebula::get_market_conf_attribute(
+    const std::string& name,
+    const VectorAttribute* &value) const
+{
+    return get_conf_attribute("MARKET_MAD_CONF", name, value);
+};
