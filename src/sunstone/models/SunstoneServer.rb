@@ -62,7 +62,7 @@ class SunstoneServer < CloudServer
             when "security_group"   then SecurityGroupPoolJSON.new(client, user_flag)
             when "vdc"              then VdcPoolJSON.new(client)
             when "vrouter"          then VirtualRouterPoolJSON.new(client, user_flag)
-            when "marketplace"      then MarketPlacePoolJSON.new(client, user_flag)
+            when "marketplace"      then MarketPlacePoolJSON.new(client)
             when "marketplaceapp"   then MarketPlaceAppPoolJSON.new(client, user_flag)
             else
                 error = Error.new("Error: #{kind} resource not supported")
