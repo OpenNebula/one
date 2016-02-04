@@ -257,6 +257,15 @@ class VIClient
     end
 
     ########################################################################
+    # Searches the associated datacenter for a particular datastore
+    # @param ds_name [String] name of the datastore
+    # @returns a RbVmomi::VIM::VirtualMachine or nil if not found
+    ########################################################################
+    def get_datastore(ds_name)
+        ds = @dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+    end
+
+    ########################################################################
     # Builds a hash with the DataCenter / ClusterComputeResource hierarchy
     # for this VCenter.
     # @return [Hash] in the form
@@ -762,7 +771,7 @@ class VIClient
         img_name = File.basename img_str
 
         # Find datastore within datacenter
-        ds=@dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+        ds = get_datastore(ds_name)
 
         # Create Search Spec
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
@@ -789,7 +798,7 @@ class VIClient
     ############################################################################
     def monitor_ds(ds_name)
         # Find datastore within datacenter
-        ds=@dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+        ds = get_datastore(ds_name)
 
         total_mb = (ds.summary.capacity.to_i / 1024) / 1024
         free_mb = (ds.summary.freeSpace.to_i / 1024) / 1024

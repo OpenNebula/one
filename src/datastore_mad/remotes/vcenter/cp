@@ -31,7 +31,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'opennebula'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -40,6 +40,13 @@ drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+md5      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
+sha1     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
+nodecomp = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
+limit_bw = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
+hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+
 
 if img_path.nil?
     STDERR.puts "Not enough information to register the image,"\
@@ -47,7 +54,28 @@ if img_path.nil?
     exit -1
 end
 
-# No upload to datastore is supported, cp is a dummy operation to 
-# reference an already existing imge
+if img_path.start_with? "vcenter://"
+    # No upload to datastore is supported, cp is a dummy operation to 
+    # reference an already existing image
 
-puts img_path
+    puts img_path.sub("vcenter://","")
+else
+    downloader_args = " "
+    downloader_args += "--md5 #{md5} " if md5
+    downloader_args += "--sha1 #{sha1} " if sha1
+    downloader_args += "--nodecomp " if nodecomp
+    downloader_args += "--limit #{limit_bw} " if nodecomp
+    # Copy to stdout
+    downloader_args += img_path + " - "
+
+    # Generate target path
+    str_for_target_path = Time.now.to_s + id.to_s
+    target_path = Digest::MD5.hexdigest(str_for_target_path) + ".vmdk"
+
+    uploader_args = hostname + " " + ds_name + " " + target_path
+
+    cmd = "#{File.dirname(__FILE__)}/../downloader.sh #{downloader_args} |"\
+          "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
+
+    system(cmd)
+end

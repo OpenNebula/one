@@ -16,10 +16,6 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used retrieve the file size of a disk 
-###############################################################################
-
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -33,37 +29,42 @@ $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-drv_action_enc = ARGV[0]
-id             = ARGV[1]
+hostname    = ARGV[0]
+ds_name     = ARGV[1]
+target_path = ARGV[2]
 
-drv_action =OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+def in_silence
+    begin
+      orig_stderr = $stderr.clone
+      orig_stdout = $stdout.clone
+      $stderr.reopen File.new('/dev/null', 'w')
+      $stdout.reopen File.new('/dev/null', 'w')
+      retval = yield
+    rescue Exception => e
+      $stdout.reopen orig_stdout
+      $stderr.reopen orig_stderr
+      raise e
+    ensure
+      $stdout.reopen orig_stdout
+      $stderr.reopen orig_stderr
+    end
+   retval
+end
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+begin
+    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client    = VCenterDriver::VIClient.new host_id
 
-if ds_name.nil? ||
-   hostname.nil? ||
-   img_path.nil?
-    STDERR.puts "Not enough information to stat the image."
+    ds = vi_client.get_datastore(ds_name)
+
+    # Setting "." as the source will read from the stdin
+    in_silence do
+        ds.upload(target_path, ".")
+    end
+
+    puts target_path
+rescue Exception => e
+    STDERR.puts "Cannot upload image to datastore #{ds_name} on #{hostname}."\
+                "Reason: #{e.message}"
     exit -1
 end
-
-if img_path.start_with? "vcenter://"
-    begin
-        host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-        vi_client    = VCenterDriver::VIClient.new host_id
-
-        puts vi_client.stat(ds_name, img_path)
-    rescue Exception => e
-        STDERR.puts "Error calculating image #{img_path} size."\
-                    " Reason: #{e.message}"
-        exit -1
-    end
-else
-    cmd = "#{File.dirname(__FILE__)}/../fs/stat #{drv_action_enc}"
-    system(cmd)
-end
-
-
