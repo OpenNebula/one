@@ -446,8 +446,8 @@ class SunstoneServer < CloudServer
             when "security_group"   then SecurityGroupJSON.new_with_id(id, @client)
             when "vdc"              then VdcJSON.new_with_id(id, @client)
             when "vrouter"          then VirtualRouterJSON.new_with_id(id, @client)
-            when "marketplace"      then MarketPlaceJSON.new(id, @client)
-            when "marketplaceapp"   then MarketPlaceAppJSON.new(id, @client)
+            when "marketplace"      then MarketPlaceJSON.new_with_id(id, @client)
+            when "marketplaceapp"   then MarketPlaceAppJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error
