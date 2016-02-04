@@ -28,7 +28,6 @@ define(function(require) {
       Group           = require('./opennebula/group'),
       Host            = require('./opennebula/host'),
       Image           = require('./opennebula/image'),
-      Marketplace     = require('./opennebula/marketplace'),
       Network         = require('./opennebula/network'),
       Role            = require('./opennebula/role'),
       securitygroup   = require('./opennebula/securitygroup'),
@@ -41,6 +40,8 @@ define(function(require) {
       Vm              = require('./opennebula/vm'),
       Zone            = require('./opennebula/zone'),
       VirtualRouter   = require('./opennebula/virtualrouter');
+      MarketPlace     = require('./opennebula/marketplace');
+      MarketPlaceApp  = require('./opennebula/marketplaceapp');
 
   if (typeof(csrftoken) != "undefined") {
     $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
@@ -78,7 +79,6 @@ define(function(require) {
     'Host': Host,
     'Image': Image,
     'File': Image,
-    'Marketplace': Marketplace,
     'Network': Network,
     'Role': Role,
     'SecurityGroup': securitygroup,
@@ -90,7 +90,9 @@ define(function(require) {
     'Vdc': Vdc,
     'VM': Vm,
     'Zone': Zone,
-    'VirtualRouter': VirtualRouter
+    'VirtualRouter': VirtualRouter,
+    'MarketPlace': MarketPlace,
+    'MarketPlaceApp': MarketPlaceApp
   };
 
   return OpenNebula;

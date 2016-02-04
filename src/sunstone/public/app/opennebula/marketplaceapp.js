@@ -18,10 +18,48 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
   var Locale = require('utils/locale');
 
-  var RESOURCE = "MARKETPLACE";
+  var RESOURCE = "MARKETPLACEAPP";
 
-  var MarketPlace = {
+  var STATES_STR = [
+    Locale.tr("INIT"),
+    Locale.tr("READY"),
+    Locale.tr("LOCKED"),
+    Locale.tr("ERROR"),
+    Locale.tr("DISABLED")
+  ];
+
+  var TYPES_STR = [
+    Locale.tr("UNKNOWN"),
+    Locale.tr("IMAGE"),
+    Locale.tr("VMTEMPLATE"),
+    Locale.tr("SERVICE_TEMPLATE")
+  ];
+
+  var STATES = {
+    INIT : 0,
+    READY : 1,
+    LOCKED : 2,
+    ERROR : 3,
+    DISABLED : 4
+  };
+
+  var TYPES = {
+    UNKNOWN : 0,
+    IMAGE : 1,
+    VMTEMPLATE : 2,
+    SERVICE_TEMPLATE : 3
+  };
+
+  var MarketPlaceApp = {
     "resource": RESOURCE,
+    "stateStr": function(stateId) {
+      return STATES_STR[stateId];
+    },
+    "STATES": STATES,
+    "typeStr": function(typeId) {
+      return TYPES_STR[typeId];
+    },
+    "TYPES": TYPES,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
@@ -59,10 +97,16 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);
     },
+    "enable": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "enable");
+    },
+    "disable": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "disable");
+    },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }
   }
 
-  return MarketPlace;
+  return MarketPlaceApp;
 })
