@@ -518,6 +518,70 @@ Template * VirtualRouter::get_vm_template() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualRouter::replace_template(const string& tmpl_str, bool keep_restricted, string& error)
+{
+    Template * new_tmpl = get_new_template();
+    string     new_str;
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    new_tmpl->erase("NIC");
+
+    vector<const Attribute*> nics;
+    get_template_attribute("NIC", nics);
+
+    for (vector<const Attribute*>::iterator it = nics.begin(); it != nics.end(); it++)
+    {
+        new_tmpl->set((*it)->clone());
+    }
+
+    new_tmpl->to_xml(new_str);
+    delete new_tmpl;
+
+    return PoolObjectSQL::replace_template(new_str, keep_restricted, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted, string& error)
+{
+    Template * new_tmpl = get_new_template();
+    string     new_str;
+
+    if ( new_tmpl == 0 )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        delete new_tmpl;
+        return -1;
+    }
+
+    new_tmpl->erase("NIC");
+
+    new_tmpl->to_xml(new_str);
+    delete new_tmpl;
+
+    return PoolObjectSQL::append_template(new_str, keep_restricted, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualRouter::add_vmid(int vmid)
 {
     return vms.add_collection_id(vmid);

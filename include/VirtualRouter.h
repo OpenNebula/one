@@ -73,6 +73,28 @@ public:
 
     Template * get_vm_template() const;
 
+    /**
+     *  Replace template for this object. Object should be updated
+     *  after calling this method
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+
+    /**
+     *  Append new attributes to this object's template. Object should be updated
+     *  after calling this method
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+
     // ------------------------------------------------------------------------
     // Attach and detach NIC
     // ------------------------------------------------------------------------
