@@ -147,7 +147,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         #-----------------------------------------------------------------------
         # Only IMAGE type is supported
         # when "VMTEMPLATE"
-        # when "FLOW"
+        # when "SERVICE_TEMPLATE"
         #-----------------------------------------------------------------------
         else
             failure(:import, id, "Type #{apptype} not supported")

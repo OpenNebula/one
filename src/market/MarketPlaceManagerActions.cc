@@ -104,7 +104,7 @@ int MarketPlaceManager::import_app(
 			break;
 
         case MarketPlaceApp::VMTEMPLATE:
-        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::SERVICE_TEMPLATE:
         case MarketPlaceApp::UNKNOWN:
             err = "Marketplace app type not supported.";
             return -1;
@@ -144,7 +144,7 @@ void MarketPlaceManager::release_app_resources(int appid)
             return;
 
         case MarketPlaceApp::VMTEMPLATE:
-        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::SERVICE_TEMPLATE:
         case MarketPlaceApp::UNKNOWN:
             return;
     }
@@ -204,7 +204,7 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
             break;
 
         case MarketPlaceApp::VMTEMPLATE:
-        case MarketPlaceApp::FLOW:
+        case MarketPlaceApp::SERVICE_TEMPLATE:
         case MarketPlaceApp::UNKNOWN:
             return -1;
     }

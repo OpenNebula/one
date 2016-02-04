@@ -43,13 +43,13 @@ module OpenNebula
             "DISABLED"  => "dis"
         }
 
-        MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE FLOW}
+        MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE SERVICE_TEMPLATE}
 
         SHORT_MARKETPLACEAPP_TYPES = {
-            "UNKNOWN"   => "unk",
-            "IMAGE"     => "img",
-            "VMTEMPLATE"=> "tpl",
-            "FLOW"      => "flo"
+            "UNKNOWN"           => "unk",
+            "IMAGE"             => "img",
+            "VMTEMPLATE"        => "tpl",
+            "SERVICE_TEMPLATE"  => "srv"
         }
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.

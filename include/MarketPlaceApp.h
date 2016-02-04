@@ -63,10 +63,10 @@ public:
      */
     enum MarketPlaceAppType
     {
-		UNKNOWN    = 0, /** < Unknown types     */
-        IMAGE      = 1, /** < Image MarketPlace App*/
-        VMTEMPLATE = 2, /** < VM Template MarketPlace App*/
-        FLOW       = 3  /** < Flow MarketPlace App*/
+		UNKNOWN          = 0, /** < Unknown types     */
+        IMAGE            = 1, /** < Image MarketPlace App*/
+        VMTEMPLATE       = 2, /** < VM Template MarketPlace App*/
+        SERVICE_TEMPLATE = 3  /** < Service Template MarketPlace App*/
     };
 
     /**
@@ -78,10 +78,10 @@ public:
     {
         switch (ob)
         {
-            case IMAGE:      return "IMAGE"; break;
-            case VMTEMPLATE: return "VMTEMPLATE"; break;
-            case FLOW:       return "FLOW"; break;
-            default:         return "";
+            case IMAGE:            return "IMAGE"; break;
+            case VMTEMPLATE:       return "VMTEMPLATE"; break;
+            case SERVICE_TEMPLATE: return "SERVICE_TEMPLATE"; break;
+            default:               return "";
         }
     };
 

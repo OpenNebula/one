@@ -372,9 +372,9 @@ MarketPlaceApp::MarketPlaceAppType MarketPlaceApp::str_to_type(string& str_type)
     {
         return VMTEMPLATE;
     }
-    else if ( str_type == "FLOW" )
+    else if ( str_type == "SERVICE_TEMPLATE" )
     {
-        return FLOW;
+        return SERVICE_TEMPLATE;
     }
 
     return UNKNOWN;
