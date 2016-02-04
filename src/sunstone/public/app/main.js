@@ -142,6 +142,7 @@ require.config({
         'tabs/oneflow-dashboard',
         'tabs/oneflow-services-tab',
         'tabs/oneflow-templates-tab',
+        'tabs/marketplaces-tab',
         'tabs/settings-tab',
         'tabs/support-tab'
       ]
