@@ -247,84 +247,81 @@ public:
     string vector_value(const char *name) const;
 
     /**
-     *  Returns the string value
-     *    @param name of the attribute
-     *    @param value of the value
+     * Returns the value of the given element of the VectorAttribute
      *
-     *    @return 0 if the attribute was found, -1 otherwise
+     * @param name of the attribute
+     * @param value, not set if the element is not found of has invalid type
+     *
+     * @return 0 on success, -1 otherwise
      */
+    template<typename T>
+    int vector_value(const char *name, T& value) const
+    {
+        map<string,string>::const_iterator it;
+
+        it = attribute_value.find(name);
+
+        if ( it == attribute_value.end() )
+        {
+            return -1;
+        }
+
+        if ( it->second.empty() )
+        {
+            return -1;
+        }
+
+        istringstream iss(it->second);
+        iss >> value;
+
+        if (iss.fail() || !iss.eof())
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
     int vector_value(const char *name, string& value) const;
 
-    /**
-     *  Returns the boolean value
-     *    @param name of the attribute
-     *    @param value Bool value ("YES" is true)
-     *
-     *    @return 0 on success, -1 otherwise
-     */
     int vector_value(const char *name, bool& value) const;
 
     /**
      * Returns the integer value
      *
      * @param name Name of the attribute
-     * @param value Integer value
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int vector_value(const char *name, int& value) const;
-
-    /**
-     * Returns the unsigned integer value
-     *
-     * @param name Name of the attribute
-     * @param value Integer value
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int vector_value(const char *name, unsigned int& value) const;
-
-    /**
-     * Returns the long long value
-     *
-     * @param name Name of the attribute
-     * @param value Long long value
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int vector_value(const char *name, long long& value) const;
-
-    /**
-     * Returns the float value
-     *
-     * @param name Name of the attribute
-     * @param value Float value
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    int vector_value(const char *name, float& value) const;
-
-    /**
-     * Returns the integer value
-     *
-     * @param name Name of the attribute
      * @param value Integer value, if an error occurred the string returned is
-     * empty and value set to -1;
+     * empty and value is not set
      *
      * @return the value in string form on success, "" otherwise
      */
-    string vector_value_str(const char *name, int& value) const;
+    template<typename T>
+    string vector_value_str(const char *name, T& value) const
+    {
+        map<string,string>::const_iterator it;
 
-    /**
-     * Returns the float value
-     *
-     * @param name Name of the attribute
-     * @param value Float value, if an error occurred the string returned is
-     * empty and value set to -1;
-     *
-     * @return the value in string form on success, "" otherwise
-     */
-    string vector_value_str(const char *name, float& value) const;
+        it = attribute_value.find(name);
+
+        if ( it == attribute_value.end() )
+        {
+            return  "";
+        }
+
+        if ( it->second.empty() )
+        {
+            return "";
+        }
+
+        istringstream iss(it->second);
+        iss >> value;
+
+        if (iss.fail() || !iss.eof())
+        {
+            return "";
+        }
+
+        return it->second;
+    }
 
     /**
      *  Marshall the attribute in a single string. The string MUST be freed
@@ -375,12 +372,8 @@ public:
     /**
      *  Replace the value of the given vector attribute
      */
-    void replace(const string& name, const string& value);
-
-    /**
-     *  Replace the value of the given vector attribute
-     */
-    void replace(const string& name, int value)
+    template<typename T>
+    void replace(const string& name, T value)
     {
         ostringstream oss;
 
@@ -389,58 +382,19 @@ public:
         replace(name, oss.str());
     }
 
-    /**
-     *  Replace the value of the given vector attribute
-     */
-    void replace(const string& name, unsigned int value)
-    {
-        ostringstream oss;
-
-        oss << value;
-
-        replace(name, oss.str());
-    }
-
-    /**
-     *  Replace the value of the given vector attribute
-     */
-    void replace(const string& name, long long value)
-    {
-        ostringstream oss;
-
-        oss << value;
-
-        replace(name, oss.str());
-    }
-
-    /**
-     *  Replace the value of the given vector attribute
-     */
-    void replace(const string& name, const char* value)
-    {
-        string svalue(value);
-
-        replace(name, svalue);
-    }
-
-    /**
-     *  Replace the value of the given vector attribute
-     */
     void replace(const string& name, bool value)
     {
-        string b_value;
-
         if (value == true)
         {
-            b_value = "YES";
+            replace(name, "YES");
         }
         else
         {
-            b_value = "NO";
+            replace(name, "NO");
         }
-
-        replace(name, b_value);
     }
+
+    void replace(const string& name, const string& value);
 
     /**
      * Removes given the vector attribute

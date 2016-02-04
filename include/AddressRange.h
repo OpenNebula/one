@@ -346,7 +346,7 @@ public:
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs);
 
 private:
     /* ---------------------------------------------------------------------- */

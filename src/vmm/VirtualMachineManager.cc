@@ -34,7 +34,7 @@ VirtualMachineManager::VirtualMachineManager(
     time_t                          _poll_period,
     bool                            _do_vm_poll,
     int                             _vm_limit,
-    vector<const Attribute*>&       _mads):
+    vector<const VectorAttribute*>&       _mads):
         MadManager(_mads),
         timer_period(_timer_period),
         poll_period(_poll_period),

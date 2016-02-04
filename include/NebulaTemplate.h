@@ -26,98 +26,12 @@
 class NebulaTemplate : public Template
 {
 public:
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
-
     NebulaTemplate(const string& etc_location, const char * _conf_name)
     {
         conf_file = etc_location + _conf_name;
     }
 
     virtual ~NebulaTemplate(){};
-
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
-
-    int get(const char * name, vector<const Attribute*>& values) const
-    {
-        string _name(name);
-
-        return Template::get(_name,values);
-    };
-
-    void get(const char * name, string& values) const
-    {
-        string _name(name);
-
-        Template::get(_name,values);
-    };
-
-    void get(const char * name, int& values) const
-    {
-        string _name(name);
-
-        Template::get(_name,values);
-    };
-
-    void get(const char *name, unsigned int& values) const
-    {
-        int ival;
-
-        NebulaTemplate::get(name, ival);
-
-        values = static_cast<unsigned int>(ival);
-    };
-
-    void get(const char * name, time_t& values) const
-    {
-        const SingleAttribute *   sattr;
-        vector<const Attribute *> attr;
-
-        string _name(name);
-
-        if ( Template::get(_name,attr) == 0 )
-        {
-            values = 0;
-            return;
-        }
-
-        sattr = dynamic_cast<const SingleAttribute *>(attr[0]);
-
-        if ( sattr != 0 )
-        {
-            istringstream   is;
-
-            is.str(sattr->value());
-            is >> values;
-        }
-        else
-            values = 0;
-    };
-
-    void get(const char *name, float& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    };
-
-    void get(const char *name, bool& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    };
-
-    void get(const char *name, long long& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    }
-
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
 
     /**
      *  Parse and loads the configuration in the template

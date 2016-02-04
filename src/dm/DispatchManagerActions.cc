@@ -92,7 +92,7 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     vm->get_requirements(cpu, mem, disk, pci);
 
@@ -772,7 +772,7 @@ int DispatchManager::finalize(
     Host * host;
     ostringstream oss;
 
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     VirtualMachine::VmState state;
     bool is_public_host = false;

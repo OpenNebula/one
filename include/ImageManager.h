@@ -37,7 +37,7 @@ public:
                  time_t                    _monitor_period,
                  ImagePool *               _ipool,
                  DatastorePool *           _dspool,
-                 vector<const Attribute*>& _mads):
+                 vector<const VectorAttribute*>& _mads):
             MadManager(_mads),
             timer_period(_timer_period),
             monitor_period(_monitor_period),

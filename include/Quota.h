@@ -50,7 +50,7 @@ public:
      *
      *    @return 0 on success -1 otherwise
      */
-    virtual int set(vector<Attribute*> * quotas, string& error) = 0;
+    virtual int set(vector<VectorAttribute*> * quotas, string& error) = 0;
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -98,7 +98,7 @@ class QuotaDecorator : public QuotaInterface
         return quota->del(tmpl);
     }
 
-    virtual int set(vector<Attribute*> * quotas, string& error)
+    virtual int set(vector<VectorAttribute*> * quotas, string& error)
     {
         return quota->set(quotas, error);
     }
@@ -142,7 +142,7 @@ public:
      *
      *    @return 0 on success -1 otherwise
      */
-    int set(vector<Attribute*> * quotas, string& error);
+    int set(vector<VectorAttribute*> * quotas, string& error);
 
     /**
      *  Check if a resource update in usage counters will exceed the

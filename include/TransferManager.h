@@ -32,9 +32,9 @@ class TransferManager : public MadManager, public ActionListener
 public:
 
     TransferManager(
-        VirtualMachinePool *        _vmpool,
-        HostPool *                  _hpool,
-        vector<const Attribute*>&   _mads):
+        VirtualMachinePool * _vmpool,
+        HostPool *           _hpool,
+        vector<const VectorAttribute*>& _mads):
             MadManager(_mads),
             vmpool(_vmpool),
             hpool(_hpool)

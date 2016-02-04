@@ -385,7 +385,7 @@ bool RequestManagerVirtualMachine::check_host(
     string capacity_error;
 
     int cpu, mem, disk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     vm->get_requirements(cpu, mem, disk, pci);
 
@@ -1875,7 +1875,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         int dcpu_host = (int) (dcpu * 100);//now in 100%
         int dmem_host = dmemory * 1024;    //now in Kilobytes
 
-        vector<Attribute *> empty_pci;
+        vector<VectorAttribute *> empty_pci;
 
         host = hpool->get(hid, true);
 

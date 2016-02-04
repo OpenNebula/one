@@ -170,24 +170,18 @@ int VirtualRouter::shutdown_vms()
 
 int VirtualRouter::get_network_leases(string& estr)
 {
-    int                   num_nics, rc;
-    vector<Attribute  * > nics;
+    vector<VectorAttribute  *> nics;
     VirtualNetworkPool *  vnpool;
-    VectorAttribute *     nic;
 
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    num_nics = obj_template->get("NIC",nics);
+    int num_nics = obj_template->get("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
-        nic = static_cast<VectorAttribute * >(nics[i]);
-
-        rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER,
-                nic, i, uid, oid, estr);
-
-        if (rc == -1)
+        if (vnpool->nic_attribute(PoolObjectSQL::VROUTER, nics[i], i, uid, oid,
+                estr) == -1)
         {
             return -1;
         }
@@ -368,26 +362,20 @@ int VirtualRouter::from_xml(const string& xml)
 
 void VirtualRouter::release_network_leases()
 {
-    string                        vnid;
-    string                        ip;
-    int                           num_nics;
-    vector<Attribute const  * >   nics;
+    vector<VectorAttribute const *> nics;
 
-    num_nics = get_template_attribute("NIC",nics);
+    int num_nics = get_template_attribute("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
-        VectorAttribute const *  nic =
-            dynamic_cast<VectorAttribute const * >(nics[i]);
-
-        release_network_leases(nic);
+        release_network_leases(nics[i]);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::release_network_leases(VectorAttribute const * nic)
+int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
     VirtualNetwork*     vn;
@@ -472,24 +460,17 @@ Template * VirtualRouter::get_vm_template() const
 {
     Template * tmpl = new Template();
 
-    int                   num_nics;
-    vector<Attribute  * > nics;
-    VectorAttribute *     nic;
-    int                   keepalived_id;
-    string                st;
+    vector<const VectorAttribute  *> nics;
+    VectorAttribute * nic;
 
-    num_nics = obj_template->get("NIC",nics);
+    int    keepalived_id;
+    string st;
+
+    int num_nics = obj_template->get("NIC",nics);
 
     for(int i=0; i<num_nics; i++)
     {
-        nic = static_cast<VectorAttribute * >(nics[i]);
-
-        if (nic == 0)
-        {
-            continue;
-        }
-
-        nic = nic->clone();
+        nic = nics[i]->clone();
 
         prepare_nic_vm(nic);
 
@@ -518,7 +499,8 @@ Template * VirtualRouter::get_vm_template() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::replace_template(const string& tmpl_str, bool keep_restricted, string& error)
+int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
+		string& error)
 {
     Template * new_tmpl = get_new_template();
     string     new_str;
@@ -537,10 +519,12 @@ int VirtualRouter::replace_template(const string& tmpl_str, bool keep_restricted
 
     new_tmpl->erase("NIC");
 
-    vector<const Attribute*> nics;
+    vector<const VectorAttribute*> nics;
+	vector<const VectorAttribute*>::const_iterator it;
+
     get_template_attribute("NIC", nics);
 
-    for (vector<const Attribute*>::iterator it = nics.begin(); it != nics.end(); it++)
+    for (it = nics.begin(); it != nics.end(); it++)
     {
         new_tmpl->set((*it)->clone());
     }
@@ -554,7 +538,8 @@ int VirtualRouter::replace_template(const string& tmpl_str, bool keep_restricted
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted, string& error)
+int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
+	   	string& error)
 {
     Template * new_tmpl = get_new_template();
     string     new_str;

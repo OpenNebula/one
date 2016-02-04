@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -142,8 +142,7 @@ void get_image_attribute(VirtualMachine * vm,
     int         iid = -1;
 
     int num;
-    vector<const Attribute *> attrs;
-    const VectorAttribute *   disk;
+    vector<const VectorAttribute *> disks;
 
     attr_value.clear();
 
@@ -156,20 +155,13 @@ void get_image_attribute(VirtualMachine * vm,
     // Check that the image is in the template, so
     // are sure that we can access the image template
     // ----------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disks);
 
     for (int i=0; i < num ;i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
+        if ( disks[i]->vector_value(img_name.c_str()) == img_value )
         {
-            continue;
-        }
-
-        if ( disk->vector_value(img_name.c_str()) == img_value )
-        {
-            string        iid_str = disk->vector_value("IMAGE_ID");
+            string        iid_str = disks[i]->vector_value("IMAGE_ID");
             istringstream iss(iid_str);
 
             iss >> iid;
@@ -204,7 +196,7 @@ void get_image_attribute(VirtualMachine * vm,
     }
     else
     {
-        img->get_template_attribute(attr_name.c_str(),attr_value);
+        img->get_template_attribute(attr_name.c_str(), attr_value);
     }
 
     img->unlock();
@@ -226,8 +218,7 @@ void get_network_attribute(VirtualMachine * vm,
     int                  ar_id, vnet_id = -1;
 
     int num;
-    vector<const Attribute *> attrs;
-    const VectorAttribute *   net;
+    vector<const VectorAttribute *> nets;
 
     attr_value.clear();
 
@@ -241,25 +232,18 @@ void get_network_attribute(VirtualMachine * vm,
     // Check that the network is in the template, so
     // are sure that we can access its template
     // ----------------------------------------------
-    num = vm->get_template_attribute("NIC",attrs);
+    num = vm->get_template_attribute("NIC", nets);
 
     for (int i=0; i < num ;i++)
     {
-        net = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( net == 0 )
+        if ( nets[i]->vector_value(net_name.c_str()) == net_value )
         {
-            continue;
-        }
-
-        if ( net->vector_value(net_name.c_str()) == net_value )
-        {
-            if (net->vector_value("NETWORK_ID", vnet_id) != 0)
+            if (nets[i]->vector_value("NETWORK_ID", vnet_id) != 0)
             {
                 vnet_id = -1;
             }
 
-            if (net->vector_value("AR_ID", ar_id) != 0)
+            if (nets[i]->vector_value("AR_ID", ar_id) != 0)
             {
                 vnet_id = -1;
             }
@@ -390,7 +374,7 @@ void insert_vector(VirtualMachine * vm,
                    const string&    vval)
 
 {
-    vector<const Attribute*> values;
+    vector<const VectorAttribute*> values;
     const VectorAttribute *  vattr = 0;
 
     int    num;
@@ -436,14 +420,14 @@ void insert_vector(VirtualMachine * vm,
     }
     else
     {
-        if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
+        if ( ( num = vm->get_template_attribute(name.c_str(), values) ) <= 0 )
         {
             return;
         }
 
         if ( vvar.empty() )
         {
-            vattr = dynamic_cast<const VectorAttribute *>(values[0]);
+            vattr = values[0];
         }
         else
         {
@@ -451,9 +435,7 @@ void insert_vector(VirtualMachine * vm,
 
             for (int i=0 ; i < num ; i++)
             {
-                tmp = dynamic_cast<const VectorAttribute *>(values[i]);
-
-                if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
+                if (tmp->vector_value(vvar.c_str()) == vval)
                 {
                     vattr = tmp;
                     break;
@@ -472,7 +454,7 @@ void insert_vector(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 
 
-#line 475 "vm_var_syntax.cc" /* yacc.c:339  */
+#line 458 "vm_var_syntax.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -521,17 +503,19 @@ extern int vm_var__debug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE YYSTYPE;
+
 union YYSTYPE
 {
-#line 427 "vm_var_syntax.y" /* yacc.c:355  */
+#line 410 "vm_var_syntax.y" /* yacc.c:355  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 533 "vm_var_syntax.cc" /* yacc.c:355  */
+#line 516 "vm_var_syntax.cc" /* yacc.c:355  */
 };
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -558,7 +542,7 @@ int vm_var__parse (mem_collector * mc, VirtualMachine * vm, ostringstream *  par
 
 /* Copy the second part of user declarations.  */
 
-#line 561 "vm_var_syntax.cc" /* yacc.c:358  */
+#line 546 "vm_var_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -858,7 +842,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   451,   451,   452,   455,   459,   472,   487
+       0,   434,   434,   435,   438,   442,   455,   470
 };
 #endif
 
@@ -1738,15 +1722,15 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 456 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 439 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         (*parsed) << (yyvsp[0].val_str);
     }
-#line 1745 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1730 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 460 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 443 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-1].val_str));
 
@@ -1759,11 +1743,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1762 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1747 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 473 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 456 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-4].val_str));
         string vname((yyvsp[-2].val_str));
@@ -1778,11 +1762,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1781 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1766 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 488 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 471 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-8].val_str));
         string vname((yyvsp[-6].val_str));
@@ -1800,11 +1784,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1803 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1788 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1807 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1792 "vm_var_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2039,7 +2023,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 506 "vm_var_syntax.y" /* yacc.c:1906  */
+#line 489 "vm_var_syntax.y" /* yacc.c:1906  */
 
 
 extern "C" void vm_var__error(

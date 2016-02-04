@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    MadManager(vector<const Attribute *>& _mads);
+    MadManager(vector<const VectorAttribute *>& _mads);
 
     virtual ~MadManager();
 
@@ -72,7 +72,7 @@ protected:
      *  Vector containing Mad configuration for this Manager, as described in
      *  the nebula location
      */
-    vector<const Attribute *> mad_conf;
+    vector<const VectorAttribute *> mad_conf;
 
     /**
      *  This function initialize the communication pipes to register new MADs

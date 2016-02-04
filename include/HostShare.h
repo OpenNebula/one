@@ -79,7 +79,7 @@ public:
      *    @param devs list of requested devices by the VM.
      *    @return true if all the devices are available.
      */
-    bool test(const vector<Attribute *> &devs) const;
+    bool test(const vector<VectorAttribute *> &devs) const;
 
     /**
      *  Assign the requested devices to the given VM. The assigned devices will
@@ -89,18 +89,18 @@ public:
      *    assigned devices.
      *    @param vmid of the VM
      */
-    void add(vector<Attribute *> &devs, int vmid);
+    void add(vector<VectorAttribute *> &devs, int vmid);
 
     /**
      *  Remove the VM assignment from the PCI device list
      */
-    void del(const vector<Attribute *> &devs);
+    void del(const vector<VectorAttribute *> &devs);
 
     /**
      *  Updates the PCI list with monitor data, it will create or
      *  remove PCIDevices as needed.
      */
-    void set_monitorization(vector<Attribute*> &pci_att);
+    void set_monitorization(vector<VectorAttribute*> &pci_att);
 
     /**
      *  Prints the PCI device list to an output stream. This function is used
@@ -122,7 +122,7 @@ private:
     /**
      *  Sets the internal class structures from the template
      */
-    int init();
+    void init();
 
     /**
      *  Internal structure to represent PCI devices for fast look up and
@@ -171,7 +171,7 @@ public:
      *    @param pci_devs requested by the VM
      */
     void add(int vmid, long long cpu, long long mem, long long disk,
-        vector<Attribute *> pci_devs)
+        vector<VectorAttribute *> pci_devs)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
@@ -202,7 +202,8 @@ public:
      *    @param disk requested by the VM
      *    @param pci_devs requested by the VM
      */
-    void del(long long cpu, long long mem, long long disk, vector<Attribute *> pci_devs)
+    void del(long long cpu, long long mem, long long disk,
+            vector<VectorAttribute *> pci_devs)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;
@@ -225,7 +226,7 @@ public:
      *    configured
      */
     bool test(long long cpu, long long mem, long long disk,
-              vector<Attribute *>& pci_devs, string& error) const
+              vector<VectorAttribute *>& pci_devs, string& error) const
     {
         bool pci_fits = pci.test(pci_devs);
 
@@ -257,7 +258,7 @@ public:
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(vector<Attribute *>& pci_devs, string& error) const
+    bool test(vector<VectorAttribute *>& pci_devs, string& error) const
     {
         bool fits = pci.test(pci_devs);
 
@@ -282,9 +283,9 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    void set_ds_monitorization(const vector<Attribute*> &ds_att);
+    void set_ds_monitorization(const vector<VectorAttribute*> &ds_att);
 
-    void set_pci_monitorization(vector<Attribute*> &pci_att)
+    void set_pci_monitorization(vector<VectorAttribute*> &pci_att)
     {
         pci.set_monitorization(pci_att);
     }

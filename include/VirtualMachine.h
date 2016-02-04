@@ -463,17 +463,12 @@ public:
      */
     void set_kernel(const string& kernel)
     {
-        vector<Attribute *> os_attr;
-        VectorAttribute *   os;
+        VectorAttribute * os = obj_template->get("OS");
 
-        int num = obj_template->get("OS", os_attr);
-
-        if ( num == 0 )
+        if ( os == 0 )
         {
             return;
         }
-
-        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
 
         os->replace("KERNEL", kernel);
     };
@@ -485,17 +480,12 @@ public:
      */
     void set_initrd(const string& initrd)
     {
-        vector<Attribute *> os_attr;
-        VectorAttribute *   os;
+        VectorAttribute * os = obj_template->get("OS");
 
-        int num = obj_template->get("OS", os_attr);
-
-        if ( num == 0 )
+        if ( os == 0 )
         {
             return;
         }
-
-        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
 
         os->replace("INITRD", initrd);
     };
@@ -1225,7 +1215,7 @@ public:
      *    @param pci_dev
      */
     void get_requirements (int& cpu, int& memory, int& disk,
-            vector<Attribute *>& pci_dev);
+            vector<VectorAttribute *>& pci_dev);
 
     /**
      *  Checks if the resize parameters are valid
@@ -1356,7 +1346,10 @@ public:
      */
     int  generate_context(string &files, int &disk_id, const string& token_password);
 
-    const VectorAttribute* get_context() const;
+    const VectorAttribute* get_context() const
+    {
+        return obj_template->get("CONTEXT");
+    }
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist

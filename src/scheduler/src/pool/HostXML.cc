@@ -133,7 +133,7 @@ int HostXML::search(const char *name, int& value)
 /* -------------------------------------------------------------------------- */
 
 bool HostXML::test_capacity(long long cpu, long long mem,
-    vector<Attribute *>& p, string & error)
+    vector<VectorAttribute *>& p, string & error)
 {
     bool pci_fits = pci.test(p);
     bool fits     = ((max_cpu  - cpu_usage ) >= cpu) &&

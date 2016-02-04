@@ -402,33 +402,8 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_configuration_attribute(
-        const char * name,
-        string& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (long long version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        long long& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (time_t version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        time_t& value) const
+    template<typename T>
+    void get_configuration_attribute(const string& name, T& value) const
     {
         nebula_configuration->get(name, value);
     };

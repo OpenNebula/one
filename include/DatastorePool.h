@@ -26,7 +26,7 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db, const vector<const Attribute *>& _inherit_attrs);
+    DatastorePool(SqlDB * db, const vector<const SingleAttribute *>& _inherit_attrs);
 
     ~DatastorePool(){};
 

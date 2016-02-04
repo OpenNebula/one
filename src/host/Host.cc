@@ -182,13 +182,11 @@ int Host::extract_ds_info(
             Template        &tmpl,
             map<int, const VectorAttribute*> &ds)
 {
-    char *    error_msg;
-    int       rc;
+    char * error_msg;
+    int    rc;
 
-    const VectorAttribute *  vatt;
-    vector<const Attribute*> ds_att;
-
-    vector<const Attribute*>::const_iterator it;
+    vector<const VectorAttribute*> ds_att;
+    vector<const VectorAttribute*>::const_iterator it;
 
     // -------------------------------------------------------------------------
     // Parse Template
@@ -223,18 +221,11 @@ int Host::extract_ds_info(
     {
         int dsid;
 
-        vatt = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (vatt == 0)
-        {
-            continue;
-        }
-
-        rc = vatt->vector_value("ID", dsid);
+        rc = (*it)->vector_value("ID", dsid);
 
         if (rc == 0 && dsid != -1)
         {
-            ds.insert(make_pair(dsid, vatt));
+            ds.insert(make_pair(dsid, *it));
         }
     }
 
@@ -256,8 +247,8 @@ int Host::update_info(Template        &tmpl,
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
     vector<Attribute*>           ds_att;
-    vector<Attribute*>           pci_att;
-    vector<Attribute*>           local_ds_att;
+    vector<VectorAttribute*>     pci_att;
+    vector<VectorAttribute*>     local_ds_att;
 
     int   rc;
     int   vmid;

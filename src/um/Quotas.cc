@@ -21,7 +21,7 @@
 
 int Quotas::set(Template *tmpl, string& error)
 {
-    vector<Attribute *> vquotas;
+    vector<VectorAttribute *> vquotas;
 
     if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
     {

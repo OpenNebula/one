@@ -53,7 +53,7 @@ string UserPool::oneadmin_name;
 
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time,
-                   vector<const Attribute *> hook_mads,
+                   vector<const VectorAttribute *> hook_mads,
                    const string&             remotes_location,
                    bool                      is_federation_slave):
                        PoolSQL(db, User::table, !is_federation_slave, true)

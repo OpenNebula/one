@@ -103,7 +103,7 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    vector<Attribute *> ars;
+    vector<VectorAttribute *> ars;
     ostringstream       ose;
 
     string sg_str;
@@ -726,19 +726,11 @@ void VirtualNetwork::process_security_rule(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
+int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
-    for (vector<Attribute *>::iterator it=var.begin(); it!=var.end(); it++)
+    for (vector<VectorAttribute *>::iterator it=var.begin(); it!=var.end(); it++)
     {
-        VectorAttribute * oar = dynamic_cast<VectorAttribute *>(*it);
-
-        if (oar == 0)
-        {
-            error_msg = "Invalid format for address range";
-            return -1;
-        }
-
-        VectorAttribute * ar = oar->clone();
+        VectorAttribute * ar = (*it)->clone();
 
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
@@ -754,18 +746,11 @@ int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
 
 int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
-    vector<Attribute *> var;
+    const VectorAttribute * ar = ars_tmpl->get("AR");
 
-    if (ars_tmpl->get("AR", var) <= 0)
+    if ( ar == 0 )
     {
-        return 0;
-    }
-
-    const VectorAttribute * ar = dynamic_cast<const VectorAttribute *>(var[0]);
-
-    if (ar == 0)
-    {
-        error_msg = "Wrong AR definition";
+        error_msg = "Wrong AR definition. AR vector attribute is missing.";
         return -1;
     }
 
@@ -788,12 +773,11 @@ int VirtualNetwork::update_ar(
         bool                    keep_restricted,
         string&                 error_msg)
 {
-    vector<Attribute *> tmp_ars;
+    vector<VectorAttribute *> tmp_ars;
 
     if(ars_tmpl->get("AR", tmp_ars) == 0)
     {
         error_msg = "Wrong AR definition. AR vector attribute is missing.";
-
         return -1;
     }
 
@@ -816,16 +800,7 @@ int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
 int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {
-    vector<const Attribute *> vleases;
-    const VectorAttribute *   lease = 0;
-
-    if (leases_template->get("LEASES", vleases) <= 0)
-    {
-        error_msg = "Empty lease description.";
-        return -1;
-    }
-
-   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+    const VectorAttribute * lease = leases_template->get("LEASES");
 
     if ( lease == 0 )
     {
@@ -883,17 +858,7 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
 int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {
-
-    vector<const Attribute *> vleases;
-    const VectorAttribute *   lease = 0;
-
-    if (leases_template->get("LEASES", vleases) <= 0)
-    {
-        error_msg = "Empty lease description.";
-        return -1;
-    }
-
-   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+    const VectorAttribute * lease = leases_template->get("LEASES");
 
     if ( lease == 0 )
     {
@@ -905,7 +870,6 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
     string  ip  = lease->vector_value("IP");
     string  mac = lease->vector_value("MAC");
-
 
     if (ip.empty() && mac.empty())
     {

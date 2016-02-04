@@ -852,11 +852,9 @@ void PoolSQL::oid_filter(int     start_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::register_hooks(vector<const Attribute *> hook_mads,
-                             const string&             remotes_location)
+void PoolSQL::register_hooks(vector<const VectorAttribute *> hook_mads,
+                             const string&                   remotes_location)
 {
-    const VectorAttribute * vattr;
-
     string name;
     string on;
     string cmd;
@@ -864,14 +862,12 @@ void PoolSQL::register_hooks(vector<const Attribute *> hook_mads,
 
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
-        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+        name = hook_mads[i]->vector_value("NAME");
+        on   = hook_mads[i]->vector_value("ON");
+        cmd  = hook_mads[i]->vector_value("COMMAND");
+        arg  = hook_mads[i]->vector_value("ARGUMENTS");
 
-        name = vattr->vector_value("NAME");
-        on   = vattr->vector_value("ON");
-        cmd  = vattr->vector_value("COMMAND");
-        arg  = vattr->vector_value("ARGUMENTS");
-
-        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+        one_util::toupper(on);
 
         if ( on.empty() || cmd.empty() )
         {

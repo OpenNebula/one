@@ -33,10 +33,10 @@ class VirtualMachinePool : public PoolSQL
 public:
 
     VirtualMachinePool(SqlDB *                      db,
-                       vector<const Attribute *>    hook_mads,
+                       vector<const VectorAttribute *> hook_mads,
                        const string&                hook_location,
                        const string&                remotes_location,
-                       vector<const Attribute *>&   restricted_attrs,
+                       vector<const SingleAttribute *>& restricted_attrs,
                        time_t                       expire_time,
                        bool                         on_hold,
                        float                        default_cpu_cost,
@@ -359,14 +359,20 @@ public:
      *
      * @param vid VM id
      */
-    void attach_nic_failure(int vid);
+    void attach_nic_failure(int vid)
+    {
+        delete_hotplug_nic(vid, true);
+    }
 
     /**
      * Deletes the NIC that was in the process of being detached
      *
      * @param vid VM id
      */
-    void detach_nic_success(int vid);
+    void detach_nic_success(int vid)
+    {
+        delete_hotplug_nic(vid, false);
+    }
 
     /**
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs

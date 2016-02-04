@@ -35,7 +35,7 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         time_t thetime = time(0);
         int    cpu,mem,disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -212,7 +212,7 @@ void  LifeCycleManager::migrate_action(int vid)
     VirtualMachine *    vm;
 
     int    cpu, mem, disk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     time_t the_time = time(0);
 
@@ -365,7 +365,7 @@ void  LifeCycleManager::live_migrate_action(int vid)
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
         int cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         //----------------------------------------------------
         //                   MIGRATE STATE
@@ -873,7 +873,7 @@ void  LifeCycleManager::clean_action(int vid)
 void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& image_id)
 {
     int    cpu, mem, disk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
     time_t the_time = time(0);
 
     VirtualMachine::LcmState state = vm->get_lcm_state();

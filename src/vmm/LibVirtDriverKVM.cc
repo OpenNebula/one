@@ -89,16 +89,17 @@ int LibVirtDriver::deployment_description_kvm(
         const VirtualMachine *  vm,
         const string&           file_name) const
 {
-    ofstream                    file;
+    ofstream  file;
 
-    int                         num;
-    vector<const Attribute *>   attrs;
+    int       num;
 
     string  vcpu;
     float   cpu;
     int     memory;
 
     string  emulator_path = "";
+
+    const VectorAttribute * os;
 
     string  kernel     = "";
     string  initrd     = "";
@@ -111,7 +112,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<string> boots;
 
-    const VectorAttribute * disk;
+    vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
     string  type            = "";
@@ -158,7 +159,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  default_driver_discard  = "";
     bool    readonly;
 
-    const VectorAttribute * nic;
+    vector<const VectorAttribute *> nic;
 
     string  mac        = "";
     string  bridge     = "";
@@ -181,7 +182,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * input;
 
-    const VectorAttribute * pci;
+    vector<const VectorAttribute *> pci;
 
     string  domain          = "";
     /* bus is already defined for disks */
@@ -204,7 +205,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     string hyperv_options = "";
 
-    const VectorAttribute * raw;
+    vector<const VectorAttribute *> raw;
     string default_raw;
     string data;
 
@@ -273,27 +274,18 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t<os>" << endl;
 
-    num = vm->get_template_attribute("OS",attrs);
+    os = vm->get_template_attribute("OS");
 
-    // Get values & defaults
-
-    if ( num > 0 )
+    if( os != 0 )
     {
-        const VectorAttribute * os;
-
-        os = dynamic_cast<const VectorAttribute *>(attrs[0]);
-
-        if( os != 0 )
-        {
-            kernel     = os->vector_value("KERNEL");
-            initrd     = os->vector_value("INITRD");
-            boot       = os->vector_value("BOOT");
-            root       = os->vector_value("ROOT");
-            kernel_cmd = os->vector_value("KERNEL_CMD");
-            bootloader = os->vector_value("BOOTLOADER");
-            arch       = os->vector_value("ARCH");
-            machine    = os->vector_value("MACHINE");
-        }
+        kernel     = os->vector_value("KERNEL");
+        initrd     = os->vector_value("INITRD");
+        boot       = os->vector_value("BOOT");
+        root       = os->vector_value("ROOT");
+        kernel_cmd = os->vector_value("KERNEL_CMD");
+        bootloader = os->vector_value("BOOTLOADER");
+        arch       = os->vector_value("ARCH");
+        machine    = os->vector_value("MACHINE");
     }
 
     if ( arch.empty() )
@@ -390,8 +382,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t</os>" << endl;
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // DEVICES SECTION
     // ------------------------------------------------------------------------
@@ -434,48 +424,36 @@ int LibVirtDriver::deployment_description_kvm(
 
     // ------------------------------------------------------------------------
 
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0; i < num ;i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        type            = disk[i]->vector_value("TYPE");
+        disk_type       = disk[i]->vector_value("DISK_TYPE");
+        target          = disk[i]->vector_value("TARGET");
+        ro              = disk[i]->vector_value("READONLY");
+        driver          = disk[i]->vector_value("DRIVER");
+        cache           = disk[i]->vector_value("CACHE");
+        disk_io         = disk[i]->vector_value("IO");
+        discard         = disk[i]->vector_value("DISCARD");
+        source          = disk[i]->vector_value("SOURCE");
+        clone           = disk[i]->vector_value("CLONE");
 
-        if ( disk == 0 )
-        {
-            continue;
-        }
+        ceph_host       = disk[i]->vector_value("CEPH_HOST");
+        ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
+        ceph_user       = disk[i]->vector_value("CEPH_USER");
+        pool_name       = disk[i]->vector_value("POOL_NAME");
 
-        type            = disk->vector_value("TYPE");
-        disk_type       = disk->vector_value("DISK_TYPE");
-        target          = disk->vector_value("TARGET");
-        ro              = disk->vector_value("READONLY");
-        driver          = disk->vector_value("DRIVER");
-        cache           = disk->vector_value("CACHE");
-        disk_io         = disk->vector_value("IO");
-        discard         = disk->vector_value("DISCARD");
-        source          = disk->vector_value("SOURCE");
-        clone           = disk->vector_value("CLONE");
+        gluster_host    = disk[i]->vector_value("GLUSTER_HOST");
+        gluster_volume  = disk[i]->vector_value("GLUSTER_VOLUME");
 
-        ceph_host       = disk->vector_value("CEPH_HOST");
-        ceph_secret     = disk->vector_value("CEPH_SECRET");
-        ceph_user       = disk->vector_value("CEPH_USER");
-        pool_name       = disk->vector_value("POOL_NAME");
-
-        iscsi_host      = disk->vector_value("ISCSI_HOST");
-        iscsi_user      = disk->vector_value("ISCSI_USER");
-        iscsi_usage     = disk->vector_value("ISCSI_USAGE");
-        iscsi_iqn       = disk->vector_value("ISCSI_IQN");
-
-        gluster_host    = disk->vector_value("GLUSTER_HOST");
-        gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
-
-        sheepdog_host   = disk->vector_value("SHEEPDOG_HOST");
-        total_bytes_sec = disk->vector_value("TOTAL_BYTES_SEC");
-        read_bytes_sec  = disk->vector_value("READ_BYTES_SEC");
-        write_bytes_sec = disk->vector_value("WRITE_BYTES_SEC");
-        total_iops_sec  = disk->vector_value("TOTAL_IOPS_SEC");
-        read_iops_sec   = disk->vector_value("READ_IOPS_SEC");
-        write_iops_sec  = disk->vector_value("WRITE_IOPS_SEC");
+        sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
+        total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
+        read_bytes_sec  = disk[i]->vector_value("READ_BYTES_SEC");
+        write_bytes_sec = disk[i]->vector_value("WRITE_BYTES_SEC");
+        total_iops_sec  = disk[i]->vector_value("TOTAL_IOPS_SEC");
+        read_iops_sec   = disk[i]->vector_value("READ_IOPS_SEC");
+        write_iops_sec  = disk[i]->vector_value("WRITE_IOPS_SEC");
 
         if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
         {
@@ -507,7 +485,7 @@ int LibVirtDriver::deployment_description_kvm(
             write_iops_sec = default_write_iops_sec;
         }
 
-        disk->vector_value_str("DISK_ID", disk_id);
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
         {
@@ -772,15 +750,13 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t</disk>" << endl;
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Context Device
     // ------------------------------------------------------------------------
+    context = vm->get_template_attribute("CONTEXT");
 
-    if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
+    if ( context != 0 )
     {
-        context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
         driver  = context->vector_value("DRIVER");
 
@@ -807,35 +783,25 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Network interfaces
     // ------------------------------------------------------------------------
-
     get_default("NIC", "FILTER", default_filter);
 
     get_default("NIC", "MODEL", default_model);
 
-    num = vm->get_template_attribute("NIC", attrs);
+    num = vm->get_template_attribute("NIC", nic);
 
     for(int i=0; i<num; i++)
     {
-        nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        bridge     = nic->vector_value("BRIDGE");
-        bridge_ovs = nic->vector_value("BRIDGE_OVS");
-        mac        = nic->vector_value("MAC");
-        target     = nic->vector_value("TARGET");
-        script     = nic->vector_value("SCRIPT");
-        model      = nic->vector_value("MODEL");
-        ip         = nic->vector_value("IP");
-        filter     = nic->vector_value("FILTER");
+        bridge     = nic[i]->vector_value("BRIDGE");
+        bridge_ovs = nic[i]->vector_value("BRIDGE_OVS");
+        mac        = nic[i]->vector_value("MAC");
+        target     = nic[i]->vector_value("TARGET");
+        script     = nic[i]->vector_value("SCRIPT");
+        model      = nic[i]->vector_value("MODEL");
+        ip         = nic[i]->vector_value("IP");
+        filter     = nic[i]->vector_value("FILTER");
 
         if ( bridge.empty() )
         {
@@ -917,120 +883,99 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t</interface>" << endl;
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Graphics
     // ------------------------------------------------------------------------
+    graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+    if ( graphics != 0 )
     {
-        graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        type   = graphics->vector_value("TYPE");
+        listen = graphics->vector_value("LISTEN");
+        port   = graphics->vector_value("PORT");
+        passwd = graphics->vector_value("PASSWD");
+        keymap = graphics->vector_value("KEYMAP");
 
-        if ( graphics != 0 )
+        one_util::tolower(type);
+
+        if ( type == "vnc" || type == "spice" )
         {
-            type   = graphics->vector_value("TYPE");
-            listen = graphics->vector_value("LISTEN");
-            port   = graphics->vector_value("PORT");
-            passwd = graphics->vector_value("PASSWD");
-            keymap = graphics->vector_value("KEYMAP");
+            file << "\t\t<graphics type='" << type << "'";
 
-            one_util::tolower(type);
-
-            if ( type == "vnc" || type == "spice" )
+            if ( !listen.empty() )
             {
-                file << "\t\t<graphics type='" << type << "'";
-
-                if ( !listen.empty() )
-                {
-                    file << " listen='" << listen << "'";
-                }
-
-                if ( !port.empty() )
-                {
-                    file << " port='" << port << "'";
-                }
-
-                if ( !passwd.empty() )
-                {
-                    file << " passwd='" << passwd << "'";
-                }
-
-                if ( !keymap.empty() )
-                {
-                    file << " keymap='" << keymap << "'";
-                }
-
-                file << "/>" << endl;
-
-                if ( type == "spice" )
-                {
-                    get_default("SPICE_OPTIONS", spice_options);
-
-                    if ( spice_options != "" )
-                    {
-                        file << "\t\t" << spice_options << endl;
-                    }
-                }
+                file << " listen='" << listen << "'";
             }
-            else
+
+            if ( !port.empty() )
             {
-                vm->log("VMM", Log::WARNING,
-                        "Graphics not supported or undefined, ignored.");
+                file << " port='" << port << "'";
+            }
+
+            if ( !passwd.empty() )
+            {
+                file << " passwd='" << passwd << "'";
+            }
+
+            if ( !keymap.empty() )
+            {
+                file << " keymap='" << keymap << "'";
+            }
+
+            file << "/>" << endl;
+
+            if ( type == "spice" )
+            {
+                get_default("SPICE_OPTIONS", spice_options);
+
+                if ( spice_options != "" )
+                {
+                    file << "\t\t" << spice_options << endl;
+                }
             }
         }
+        else
+        {
+            vm->log("VMM", Log::WARNING,
+                    "Graphics not supported or undefined, ignored.");
+        }
     }
-
-    attrs.clear();
 
     // ------------------------------------------------------------------------
     // Input
     // ------------------------------------------------------------------------
+    input = vm->get_template_attribute("INPUT");
 
-    if ( vm->get_template_attribute("INPUT",attrs) > 0 )
+    if ( input != 0 )
     {
-        input = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        type = input->vector_value("TYPE");
+        bus  = input->vector_value("BUS");
 
-        if ( input != 0 )
+        if ( !type.empty() )
         {
-            type = input->vector_value("TYPE");
-            bus  = input->vector_value("BUS");
+            file << "\t\t<input type='" << type << "'";
 
-            if ( !type.empty() )
+            if ( !bus.empty() )
             {
-                file << "\t\t<input type='" << type << "'";
-
-                if ( !bus.empty() )
-                {
-                    file << " bus='" << bus << "'";
-                }
-
-                file << "/>" << endl;
+                file << " bus='" << bus << "'";
             }
+
+            file << "/>" << endl;
         }
     }
-
-    attrs.clear();
 
     // ------------------------------------------------------------------------
     // PCI Passthrough
     // ------------------------------------------------------------------------
 
-    num = vm->get_template_attribute("PCI",attrs);
+    num = vm->get_template_attribute("PCI", pci);
 
     for (int i=0; i < num ;i++)
     {
-        pci = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( pci == 0 )
-        {
-            continue;
-        }
-
-        domain  = pci->vector_value("DOMAIN");
-        bus     = pci->vector_value("BUS");
-        slot    = pci->vector_value("SLOT");
-        func    = pci->vector_value("FUNCTION");
+        domain  = pci[i]->vector_value("DOMAIN");
+        bus     = pci[i]->vector_value("BUS");
+        slot    = pci[i]->vector_value("SLOT");
+        func    = pci[i]->vector_value("FUNCTION");
 
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
@@ -1054,28 +999,20 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t\t</hostdev>" << endl;
     }
 
-    attrs.clear();
-
     file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
     // Features
     // ------------------------------------------------------------------------
+    features = vm->get_template_attribute("FEATURES");
 
-    num = vm->get_template_attribute("FEATURES",attrs);
-
-    if ( num > 0 )
+    if ( features != 0 )
     {
-        features = dynamic_cast<const VectorAttribute *>(attrs[0]);
-
-        if ( features != 0 )
-        {
-            pae_found       = features->vector_value("PAE", pae);
-            acpi_found      = features->vector_value("ACPI", acpi);
-            apic_found      = features->vector_value("APIC", apic);
-            hyperv_found    = features->vector_value("HYPERV", hyperv);
-            localtime_found = features->vector_value("LOCALTIME", localtime);
-        }
+        pae_found       = features->vector_value("PAE", pae);
+        acpi_found      = features->vector_value("ACPI", acpi);
+        apic_found      = features->vector_value("APIC", apic);
+        hyperv_found    = features->vector_value("HYPERV", hyperv);
+        localtime_found = features->vector_value("LOCALTIME", localtime);
     }
 
     if ( pae_found != 0 )
@@ -1139,30 +1076,20 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t<clock offset='localtime'/>" << endl;
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Raw KVM attributes
     // ------------------------------------------------------------------------
-
-    num = vm->get_template_attribute("RAW",attrs);
+    num = vm->get_template_attribute("RAW", raw);
 
     for(int i=0; i<num;i++)
     {
-        raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( raw == 0 )
-        {
-            continue;
-        }
-
-        type = raw->vector_value("TYPE");
+        type = raw[i]->vector_value("TYPE");
 
         one_util::toupper(type);
 
         if ( type == "KVM" )
         {
-            data = raw->vector_value("DATA");
+            data = raw[i]->vector_value("DATA");
             file << "\t" << data << endl;
         }
     }
@@ -1177,7 +1104,6 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Metadata used by drivers
     // ------------------------------------------------------------------------
-
     file << "\t<metadata>" << endl;
     file << "\t\t<system_datastore>" << vm->get_remote_system_dir() <<
         "</system_datastore>" << endl;

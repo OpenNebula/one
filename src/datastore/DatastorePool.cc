@@ -40,20 +40,18 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 
 DatastorePool::DatastorePool(
         SqlDB * db,
-        const vector<const Attribute *>& _inherit_attrs) :
+        const vector<const SingleAttribute *>& _inherit_attrs) :
     PoolSQL(db, Datastore::table, true, true)
 
 {
     ostringstream oss;
     string        error_str;
 
-    vector<const Attribute *>::const_iterator it;
+    vector<const SingleAttribute *>::const_iterator it;
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
-        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
-
-        inherit_attrs.push_back(sattr->value());
+        inherit_attrs.push_back((*it)->value());
     }
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb

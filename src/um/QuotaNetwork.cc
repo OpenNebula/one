@@ -30,8 +30,7 @@ const int QuotaNetwork::NUM_NET_METRICS  = 1;
 bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
         Quotas& default_quotas, string& error)
 {
-    vector<Attribute*> nics;
-    VectorAttribute *  nic;
+    vector<VectorAttribute*> nic;
 
     string net_id;
     int num;
@@ -41,24 +40,17 @@ bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
 
     net_request.insert(make_pair("LEASES",1));
 
-    num = tmpl->get("NIC", nics);
+    num = tmpl->get("NIC", nic);
 
     for (int i = 0 ; i < num ; i++)
     {
-        nic = dynamic_cast<VectorAttribute *>(nics[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        net_id = nic->vector_value("NETWORK_ID");
+        net_id = nic[i]->vector_value("NETWORK_ID");
 
         uses_lease = true;
 
         if ( otype == PoolObjectSQL::VROUTER )
         {
-            nic->vector_value("FLOATING_IP", uses_lease);
+            nic[i]->vector_value("FLOATING_IP", uses_lease);
         }
 
         if ( !net_id.empty() && uses_lease )
@@ -79,8 +71,7 @@ bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
 void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
 {
 
-    vector<Attribute*> nics;
-    VectorAttribute *  nic;
+    vector<VectorAttribute *> nic;
 
     string net_id;
     int num;
@@ -90,24 +81,17 @@ void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
 
     net_request.insert(make_pair("LEASES",1));
 
-    num = tmpl->get("NIC", nics);
+    num = tmpl->get("NIC", nic);
 
     for (int i = 0 ; i < num ; i++)
     {
-        nic = dynamic_cast<VectorAttribute *>(nics[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        net_id = nic->vector_value("NETWORK_ID");
+        net_id = nic[i]->vector_value("NETWORK_ID");
 
         uses_lease = true;
 
         if ( otype == PoolObjectSQL::VROUTER )
         {
-            nic->vector_value("FLOATING_IP", uses_lease);
+            nic[i]->vector_value("FLOATING_IP", uses_lease);
         }
 
         if (uses_lease)

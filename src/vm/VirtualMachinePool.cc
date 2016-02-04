@@ -46,10 +46,10 @@ const char * VirtualMachinePool::import_db_bootstrap =
 
 VirtualMachinePool::VirtualMachinePool(
         SqlDB *                     db,
-        vector<const Attribute *>   hook_mads,
+        vector<const VectorAttribute *>   hook_mads,
         const string&               hook_location,
         const string&               remotes_location,
-        vector<const Attribute *>&  restricted_attrs,
+        vector<const SingleAttribute *>&  restricted_attrs,
         time_t                      expire_time,
         bool                        on_hold,
         float                       default_cpu_cost,
@@ -57,7 +57,6 @@ VirtualMachinePool::VirtualMachinePool(
         float                       default_disk_cost)
     : PoolSQL(db, VirtualMachine::table, true, false)
 {
-    const VectorAttribute * vattr;
 
     string name;
     string on;
@@ -78,15 +77,15 @@ VirtualMachinePool::VirtualMachinePool(
 
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
-        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+        const VectorAttribute * vattr = hook_mads[i];
 
-        name = vattr->vector_value("NAME");
-        on   = vattr->vector_value("ON");
-        cmd  = vattr->vector_value("COMMAND");
-        arg  = vattr->vector_value("ARGUMENTS");
-        vattr->vector_value("REMOTE", remote);
+        name = hook_mads[i]->vector_value("NAME");
+        on   = hook_mads[i]->vector_value("ON");
+        cmd  = hook_mads[i]->vector_value("COMMAND");
+        arg  = hook_mads[i]->vector_value("ARGUMENTS");
+        hook_mads[i]->vector_value("REMOTE", remote);
 
-        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+        one_util::toupper(on);
 
         if ( on.empty() || cmd.empty() )
         {
@@ -1159,15 +1158,3 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::attach_nic_failure(int vid)
-{
-    delete_hotplug_nic(vid, true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachinePool::detach_nic_success(int vid)
-{
-    delete_hotplug_nic(vid, false);
-}

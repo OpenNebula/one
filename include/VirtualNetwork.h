@@ -83,7 +83,7 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_var(vector<Attribute *> &var, string& error_msg);
+    int add_var(vector<VectorAttribute *> &var, string& error_msg);
 
     /**
      * Removes an address range from the VNET

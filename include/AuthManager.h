@@ -41,7 +41,7 @@ public:
 
     AuthManager(
         time_t                    timer,
-        vector<const Attribute*>& _mads):
+        vector<const VectorAttribute*>& _mads):
             MadManager(_mads), timer_period(timer)
     {
         am.addListener(this);

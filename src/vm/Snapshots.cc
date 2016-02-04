@@ -83,20 +83,18 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
 
 void Snapshots::init()
 {
-    vector<Attribute *> vsnap;
+    vector<VectorAttribute *> snap;
 
     int  id;
     bool current;
 
-    int num_snap = snapshot_template.get("SNAPSHOT", vsnap);
+    int num_snap = snapshot_template.get("SNAPSHOT", snap);
 
     for (int i=0; i < num_snap; i++)
     {
-        VectorAttribute * snap = static_cast<VectorAttribute *>(vsnap[i]);
+        snap[i]->vector_value("ID", id);
 
-        snap->vector_value("ID", id);
-
-        snap->vector_value("ACTIVE", current);
+        snap[i]->vector_value("ACTIVE", current);
 
         if (current)
         {
@@ -108,7 +106,7 @@ void Snapshots::init()
             next_snapshot = id + 1;
         }
 
-        snapshot_pool.insert(pair<int, VectorAttribute *>(id, snap));
+        snapshot_pool.insert(pair<int, VectorAttribute *>(id, snap[i]));
     }
 
     int did;

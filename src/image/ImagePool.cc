@@ -34,14 +34,14 @@ string ImagePool::_default_cdrom_dev_prefix;
 /* -------------------------------------------------------------------------- */
 
 ImagePool::ImagePool(
-        SqlDB *                             db,
-        const string&                       __default_type,
-        const string&                       __default_dev_prefix,
-        const string&                       __default_cdrom_dev_prefix,
-        vector<const Attribute *>&          restricted_attrs,
-        vector<const Attribute *>           hook_mads,
-        const string&                       remotes_location,
-        const vector<const Attribute *>&    _inherit_attrs)
+        SqlDB *                          db,
+        const string&                    __default_type,
+        const string&                    __default_dev_prefix,
+        const string&                    __default_cdrom_dev_prefix,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const VectorAttribute *>& hook_mads,
+        const string&                    remotes_location,
+        const vector<const SingleAttribute *>& _inherit_attrs)
     :PoolSQL(db, Image::table, true, true)
 {
     // Init static defaults
@@ -51,13 +51,11 @@ ImagePool::ImagePool(
     _default_cdrom_dev_prefix = __default_cdrom_dev_prefix;
 
     // Init inherit attributes
-    vector<const Attribute *>::const_iterator it;
+    vector<const SingleAttribute *>::const_iterator it;
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
-        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
-
-        inherit_attrs.push_back(sattr->value());
+        inherit_attrs.push_back((*it)->value());
     }
 
     // Set default type

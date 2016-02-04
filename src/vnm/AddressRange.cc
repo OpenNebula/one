@@ -1502,8 +1502,7 @@ bool AddressRange::check(string& rs_attr) const
     return false;
 };
 
-void AddressRange::set_restricted_attributes(
-    vector<const Attribute *>& rattrs)
+void AddressRange::set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
 {
     if (restricted_set)
     {
@@ -1514,8 +1513,7 @@ void AddressRange::set_restricted_attributes(
 
     for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
     {
-        const SingleAttribute * sattr = static_cast<const SingleAttribute *>(rattrs[i]);
-        string attr_s = sattr->value();
+        string attr_s = rattrs[i]->value();
 
         restricted_attributes.insert(one_util::toupper(attr_s));
     }

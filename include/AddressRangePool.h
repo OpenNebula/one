@@ -82,7 +82,7 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<Attribute *> ars, bool keep_restricted, string& error_msg);
+    int update_ar(vector<VectorAttribute *> ars, bool keep_restricted, string& error_msg);
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it

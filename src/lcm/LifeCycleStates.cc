@@ -38,7 +38,7 @@ void  LifeCycleManager::save_success_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -157,7 +157,7 @@ void  LifeCycleManager::save_failure_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -261,7 +261,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         int    cpu,mem,disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -335,7 +335,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -797,7 +797,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 void  LifeCycleManager::epilog_success_action(int vid)
 {
     VirtualMachine *    vm;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     time_t the_time = time(0);
     int    cpu,mem,disk;

@@ -383,7 +383,7 @@ public:
      *    @return 0 on success
      */
     void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<Attribute *> pci)
+            vector<VectorAttribute *> pci)
     {
         if ( vm_collection.add_collection_id(vm_id) == 0 )
         {
@@ -410,7 +410,7 @@ public:
      *    @return 0 on success
      */
     void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
-            vector<Attribute *> pci)
+            vector<VectorAttribute *> pci)
     {
         if ( vm_collection.del_collection_id(vm_id) == 0 )
         {
@@ -449,7 +449,7 @@ public:
      *    @return true if the share can host the VM
      */
     bool test_capacity(long long cpu, long long mem, long long disk,
-                       vector<Attribute *> &pci, string& error) const
+                       vector<VectorAttribute *> &pci, string& error) const
     {
         return host_share.test(cpu, mem, disk, pci, error);
     }
@@ -461,7 +461,7 @@ public:
      *    @param error Returns the error reason, if any
      *    @return true if the share can host the VM
      */
-    bool test_capacity(vector<Attribute *> &pci, string& error) const
+    bool test_capacity(vector<VectorAttribute *> &pci, string& error) const
     {
         return host_share.test(pci, error);
     }

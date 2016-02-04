@@ -37,11 +37,9 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db,
-                     vector<const Attribute *> hook_mads,
-                     const string&             remotes_location,
-                     bool                      is_federation_slave)
-    :PoolSQL(db, Group::table, !is_federation_slave, true)
+GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+    const string& remotes_location, bool is_federation_slave) :
+        PoolSQL(db, Group::table, !is_federation_slave, true)
 {
     ostringstream oss;
     string        error_str;

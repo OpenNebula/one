@@ -157,23 +157,16 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Init federation configuration
     // -----------------------------------------------------------
-
-    vector<const Attribute *> atts;
-
     federation_enabled  = false;
     federation_master   = false;
     zone_id             = 0;
     master_oned         = "";
 
-    rc = nebula_configuration->get("FEDERATION", atts);
+    const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
-    if (rc != 0)
+    if (vatt != 0)
     {
-        const VectorAttribute * vatt = static_cast<const VectorAttribute *>
-                                          (atts[0]);
-
-        string mode;
-        mode = vatt->vector_value("MODE");
+        string mode = vatt->vector_value("MODE");
         one_util::toupper(mode);
 
         if (mode == "STANDALONE")
@@ -225,10 +218,7 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     try
     {
-        vector<const Attribute *> dbs;
-        int  rc;
-
-        bool   db_is_sqlite = true;
+        bool db_is_sqlite = true;
 
         string server  = "localhost";
         string port_str;
@@ -237,20 +227,17 @@ void Nebula::start(bool bootstrap_only)
         string passwd  = "oneadmin";
         string db_name = "opennebula";
 
-        rc = nebula_configuration->get("DB", dbs);
+        const VectorAttribute * _db = nebula_configuration->get("DB");
 
-        if ( rc != 0 )
+        if ( _db != 0 )
         {
-            string value;
-            const  VectorAttribute * db = static_cast<const VectorAttribute *>
-                                              (dbs[0]);
-            value = db->vector_value("BACKEND");
+            string value = _db->vector_value("BACKEND");
 
             if (value == "mysql")
             {
                 db_is_sqlite = false;
 
-                value = db->vector_value("SERVER");
+                value = _db->vector_value("SERVER");
                 if (!value.empty())
                 {
                     server = value;
@@ -258,7 +245,7 @@ void Nebula::start(bool bootstrap_only)
 
                 istringstream   is;
 
-                port_str = db->vector_value("PORT");
+                port_str = _db->vector_value("PORT");
 
                 is.str(port_str);
                 is >> port;
@@ -268,19 +255,19 @@ void Nebula::start(bool bootstrap_only)
                     port = 0;
                 }
 
-                value = db->vector_value("USER");
+                value = _db->vector_value("USER");
                 if (!value.empty())
                 {
                     user = value;
                 }
 
-                value = db->vector_value("PASSWD");
+                value = _db->vector_value("PASSWD");
                 if (!value.empty())
                 {
                     passwd = value;
                 }
 
-                value = db->vector_value("DB_NAME");
+                value = _db->vector_value("DB_NAME");
                 if (!value.empty())
                 {
                     db_name = value;
@@ -290,15 +277,11 @@ void Nebula::start(bool bootstrap_only)
 
         if ( db_is_sqlite )
         {
-            string  db_name = var_location + "one.db";
-
-            db = new SqliteDB(db_name);
+            db = new SqliteDB(var_location + "one.db");
         }
         else
         {
-            ostringstream   oss;
-
-            db = new MySqlDB(server,port,user,passwd,db_name);
+            db = new MySqlDB(server, port, user, passwd, db_name);
         }
 
         // ---------------------------------------------------------------------
@@ -465,36 +448,36 @@ void Nebula::start(bool bootstrap_only)
         float   mem_cost;
         float   disk_cost;
 
-        vector<const Attribute *> vm_hooks;
-        vector<const Attribute *> host_hooks;
-        vector<const Attribute *> vrouter_hooks;
-        vector<const Attribute *> vnet_hooks;
-        vector<const Attribute *> user_hooks;
-        vector<const Attribute *> group_hooks;
-        vector<const Attribute *> image_hooks;
+        vector<const VectorAttribute *> vm_hooks;
+        vector<const VectorAttribute *> host_hooks;
+        vector<const VectorAttribute *> vrouter_hooks;
+        vector<const VectorAttribute *> vnet_hooks;
+        vector<const VectorAttribute *> user_hooks;
+        vector<const VectorAttribute *> group_hooks;
+        vector<const VectorAttribute *> image_hooks;
 
-        vector<const Attribute *> vm_restricted_attrs;
-        vector<const Attribute *> img_restricted_attrs;
-        vector<const Attribute *> vnet_restricted_attrs;
+        vector<const SingleAttribute *> vm_restricted_attrs;
+        vector<const SingleAttribute *> img_restricted_attrs;
+        vector<const SingleAttribute *> vnet_restricted_attrs;
 
-        vector<const Attribute *> inherit_image_attrs;
-        vector<const Attribute *> inherit_datastore_attrs;
-        vector<const Attribute *> inherit_vnet_attrs;
+        vector<const SingleAttribute *> inherit_image_attrs;
+        vector<const SingleAttribute *> inherit_datastore_attrs;
+        vector<const SingleAttribute *> inherit_vnet_attrs;
 
-        vector<const Attribute *> default_cost;
+        vector<const VectorAttribute *> default_cost;
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
 
-        nebula_configuration->get("VM_HOOK",        vm_hooks);
-        nebula_configuration->get("HOST_HOOK",      host_hooks);
-        nebula_configuration->get("VROUTER_HOOK",   vrouter_hooks);
-        nebula_configuration->get("VNET_HOOK",      vnet_hooks);
-        nebula_configuration->get("USER_HOOK",      user_hooks);
-        nebula_configuration->get("GROUP_HOOK",     group_hooks);
-        nebula_configuration->get("IMAGE_HOOK",     image_hooks);
+        nebula_configuration->get("VM_HOOK",      vm_hooks);
+        nebula_configuration->get("HOST_HOOK",    host_hooks);
+        nebula_configuration->get("VROUTER_HOOK", vrouter_hooks);
+        nebula_configuration->get("VNET_HOOK",    vnet_hooks);
+        nebula_configuration->get("USER_HOOK",    user_hooks);
+        nebula_configuration->get("GROUP_HOOK",   group_hooks);
+        nebula_configuration->get("IMAGE_HOOK",   image_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
@@ -618,7 +601,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Virtual Machine Manager ----
     try
     {
-        vector<const Attribute *> vmm_mads;
+        vector<const VectorAttribute *> vmm_mads;
         int    vm_limit;
 
         bool   do_poll;
@@ -671,7 +654,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Information Manager ----
     try
     {
-        vector<const Attribute *>   im_mads;
+        vector<const VectorAttribute *> im_mads;
 
         int host_limit;
         int monitor_threads;
@@ -706,7 +689,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Transfer Manager ----
     try
     {
-        vector<const Attribute *> tm_mads;
+        vector<const VectorAttribute *> tm_mads;
 
         nebula_configuration->get("TM_MAD", tm_mads);
 
@@ -744,7 +727,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Hook Manager ----
     try
     {
-        vector<const Attribute *> hm_mads;
+        vector<const VectorAttribute *> hm_mads;
 
         nebula_configuration->get("HM_MAD", hm_mads);
 
@@ -765,7 +748,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Auth Manager ----
     try
     {
-        vector<const Attribute *> auth_mads;
+        vector<const VectorAttribute *> auth_mads;
 
         nebula_configuration->get("AUTH_MAD", auth_mads);
 
@@ -796,7 +779,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Image Manager ----
     try
     {
-        vector<const Attribute *> image_mads;
+        vector<const VectorAttribute *> image_mads;
 
         nebula_configuration->get("DATASTORE_MAD", image_mads);
 

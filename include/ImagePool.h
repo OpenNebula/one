@@ -41,14 +41,14 @@ class ImagePool : public PoolSQL
 public:
 
     ImagePool(
-            SqlDB *                             db,
-            const string&                       __default_type,
-            const string&                       __default_dev_prefix,
-            const string&                       __default_cdrom_dev_prefix,
-            vector<const Attribute *>&          restricted_attrs,
-            vector<const Attribute *>           hook_mads,
-            const string&                       remotes_location,
-            const vector<const Attribute *>&    _inherit_image_attrs);
+            SqlDB *                          db,
+            const string&                    __default_type,
+            const string&                    __default_dev_prefix,
+            const string&                    __default_cdrom_dev_prefix,
+            vector<const SingleAttribute *>& restricted_attrs,
+            vector<const VectorAttribute *>& hook_mads,
+            const string&                    remotes_location,
+            const vector<const SingleAttribute *>& _inherit_image_attrs);
 
     ~ImagePool(){};
 

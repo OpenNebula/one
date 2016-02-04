@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -299,7 +299,7 @@ extern int vm_file_var__debug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE YYSTYPE;
+
 union YYSTYPE
 {
 #line 206 "vm_file_var_syntax.y" /* yacc.c:355  */
@@ -310,6 +310,8 @@ union YYSTYPE
 
 #line 312 "vm_file_var_syntax.cc" /* yacc.c:355  */
 };
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -336,7 +338,7 @@ int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> * 
 
 /* Copy the second part of user declarations.  */
 
-#line 340 "vm_file_var_syntax.cc" /* yacc.c:358  */
+#line 342 "vm_file_var_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1534,7 +1536,7 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1538 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1540 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 5:
@@ -1559,11 +1561,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1563 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1565 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1567 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1569 "vm_file_var_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

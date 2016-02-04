@@ -151,20 +151,15 @@ void VirtualMachineManagerDriver::get_default(
     const char *  vname,
     string&       value) const
 {
-    vector<const Attribute *>   attrs;
-    string                      sn = name;
+    const VectorAttribute * vattr = driver_conf.get(name);
 
-    if ( driver_conf.get(sn,attrs) == 1 )
+    if ( vattr == 0 )
     {
-        const VectorAttribute * vattr;
-
-        vattr = static_cast<const VectorAttribute *>(attrs[0]);
-
-        value = vattr->vector_value(vname);
+        value.clear();
     }
     else
     {
-        value = "";
+        value = vattr->vector_value(vname);
     }
 }
 

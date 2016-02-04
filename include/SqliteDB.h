@@ -45,7 +45,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(string& db_name);
+    SqliteDB(const string& db_name);
 
     ~SqliteDB();
 

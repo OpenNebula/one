@@ -48,7 +48,7 @@ int VirtualMachinePoolXML::set_up()
             {
                 int cpu, mem;
                 long long disk;
-                vector<Attribute *> pci;
+                vector<VectorAttribute *> pci;
 
                 string action = "DEPLOY";
 

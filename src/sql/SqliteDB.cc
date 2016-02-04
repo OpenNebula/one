@@ -41,7 +41,7 @@ extern "C" int sqlite_callback (
 
 /* -------------------------------------------------------------------------- */
 
-SqliteDB::SqliteDB(string& db_name)
+SqliteDB::SqliteDB(const string& db_name)
 {
     int rc;
 
