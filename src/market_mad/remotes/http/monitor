@@ -58,7 +58,7 @@ PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
 MONITOR_SCRIPT=$(cat <<EOF
 USED_MB=\$(df -B1M -P ${PUBLIC_DIR} 2>/dev/null | tail -n 1 | awk '{print \$3}')
 TOTAL_MB=\$(df -B1M -P ${PUBLIC_DIR} 2>/dev/null | tail -n 1 | awk '{print \$2}')
-FREE_MB=\$(df -B1M -P ${PUBLIC_DIR} 2>/dev/null | tail -n 1 | awk '{print \$4}')
+FREE_MB=\$(expr \$TOTAL_MB - \$USED_MB)
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
     msg="Empty value found"
