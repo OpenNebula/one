@@ -40,7 +40,7 @@ public:
      *    @param m, monitor_period to monitor marketplaces
      *    @param mad, list of drivers for the manager
      */
-    MarketPlaceManager(time_t t, time_t m, std::vector<const Attribute*>& mad);
+    MarketPlaceManager(time_t t, time_t m, std::vector<const VectorAttribute*>& mad);
 
     ~MarketPlaceManager(){};
 

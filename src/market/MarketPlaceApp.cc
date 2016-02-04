@@ -290,13 +290,13 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(uname,        "/MARKETPLACEAPP/UNAME", "not_found");
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
-    rc += xpath(date,         "/MARKETPLACEAPP/DATE", -1);
+    rc += xpath<time_t>(date, "/MARKETPLACEAPP/DATE", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
     rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
     rc += xpath(itype,        "/MARKETPLACEAPP/TYPE",  -1);
     rc += xpath(description,  "/MARKETPLACEAPP/DESCRIPTION", "not_found");
-    rc += xpath(size_mb,      "/MARKETPLACEAPP/SIZE", -1);
+    rc += xpath<long long>(size_mb, "/MARKETPLACEAPP/SIZE", -1);
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
     rc += xpath(md5,          "/MARKETPLACEAPP/MD5", "not_found");
     rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");

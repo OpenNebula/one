@@ -87,7 +87,6 @@ const char * OpenNebulaTemplate::conf_name="oned.conf";
 
 void OpenNebulaTemplate::set_multiple_conf_default()
 {
-
 /*
 #*******************************************************************************
 # Transfer Manager Configuration
@@ -103,7 +102,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # dev
 #*******************************************************************************
 */
-
     set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES");
     set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO");
     set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES");
@@ -115,8 +113,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO");
 
     register_multiple_conf_default("TM_MAD_CONF");
-
-
 /*
 #*******************************************************************************
 # Datastore Manager Configuration
@@ -131,7 +127,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # vmfs
 #******
 */
-
     set_conf_ds("dev",    "DISK_TYPE",            "YES");
     set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
     set_conf_ds("dummy",  "",                     "NO");
@@ -145,8 +140,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
                 "NO");
 
     register_multiple_conf_default("DS_MAD_CONF");
-
-
 /*
 #*******************************************************************************
 # Marketplace Manager Configuration
@@ -155,7 +148,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # s3
 #******
 */
-
     set_conf_market("one",  "");
     set_conf_market("http", "BASE_URL,PUBLIC_DIR");
     set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
@@ -169,50 +161,37 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 void OpenNebulaTemplate::register_multiple_conf_default(
                                                 const std::string& conf_section)
 {
-    std::string defaults_name, attributes_name;
-
-    Attribute * defaults_value;
+    std::string d_name;
 
     bool found;
 
-    const VectorAttribute* defaults_attr;
-    const VectorAttribute* attributes_attr;
+    VectorAttribute* d_attr;
 
-    std::map<std::string, Attribute *>::iterator  iter_defaults, prev;
+    std::map<std::string, Attribute *>::iterator i, prev;
 
-    std::vector<const Attribute*>::const_iterator iter_attributes;
-    std::vector<const Attribute*> attributes_values;
+    std::vector<const VectorAttribute*>::const_iterator j;
+    std::vector<const VectorAttribute*> attrs;
 
-    get(conf_section.c_str(), attributes_values);
+    get(conf_section.c_str(), attrs);
 
-    for( iter_defaults  = conf_default.begin();
-         iter_defaults != conf_default.end(); )
+    for(i = conf_default.begin(); i != conf_default.end(); )
     {
-        if ( iter_defaults->first == conf_section )
+        if ( i->first == conf_section )
         {
             found = false;
 
-            defaults_value = iter_defaults->second;
+            d_attr = dynamic_cast<VectorAttribute*>(i->second);
 
-            defaults_attr = dynamic_cast<const VectorAttribute*>
-                            (defaults_value);
-
-            defaults_name = defaults_attr->vector_value("NAME");
-
-            for (iter_attributes = attributes_values.begin();
-                 iter_attributes != attributes_values.end(); iter_attributes++)
+            if (d_attr == 0)
             {
-                attributes_attr = dynamic_cast<const VectorAttribute*>
-                                  (*iter_attributes);
+                continue;
+            }
 
-                if (attributes_attr == 0)
-                {
-                    continue;
-                }
+            d_name = d_attr->vector_value("NAME");
 
-                attributes_name = attributes_attr->vector_value("NAME");
-
-                if ( attributes_name == defaults_name )
+            for (j = attrs.begin(); j != attrs.end(); j++)
+            {
+                if ( (*j)->vector_value("NAME") == d_name )
                 {
                     found = true;
                     break;
@@ -222,20 +201,20 @@ void OpenNebulaTemplate::register_multiple_conf_default(
             if ( !found )
             {
                 // insert into attributes
-                attributes.insert(make_pair(conf_section, defaults_value));
-                iter_defaults++;
+                attributes.insert(make_pair(conf_section, d_attr));
+                i++;
             }
             else
             {
                 // remove from conf_defaults
-                delete iter_defaults->second;
-                prev = iter_defaults++;
+                delete i->second;
+                prev = i++;
                 conf_default.erase(prev);
             }
         }
         else
         {
-            iter_defaults++;
+            i++;
         }
     }
 }

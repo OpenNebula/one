@@ -630,7 +630,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
     rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
 
-    rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
+    rc += xpath<time_t>(last_monitored, "/HOST/LAST_MON_TIME", 0);
 
     rc += xpath(cluster_id, "/HOST/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");

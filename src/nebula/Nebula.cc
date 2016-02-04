@@ -804,7 +804,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Marketplace Manager ----
     try
     {
-        vector<const Attribute *> mmads ;
+        vector<const VectorAttribute *> mmads ;
 
         nebula_configuration->get("MARKET_MAD", mmads);
 
@@ -990,19 +990,14 @@ error_mad:
 
 Log::MessageType Nebula::get_debug_level() const
 {
-    Log::MessageType            clevel = Log::ERROR;
-    vector<const Attribute *>   logs;
-    int                         rc;
-    int                         log_level_int;
+    Log::MessageType clevel = Log::ERROR;
+    int              log_level_int;
 
-    rc = nebula_configuration->get("LOG", logs);
+    const VectorAttribute * log = nebula_configuration->get("LOG");
 
-    if ( rc != 0 )
+    if ( log != 0 )
     {
-        string value;
-        const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                      (logs[0]);
-        value = log->vector_value("DEBUG_LEVEL");
+        string value = log->vector_value("DEBUG_LEVEL");
 
         log_level_int = atoi(value.c_str());
 
@@ -1020,20 +1015,14 @@ Log::MessageType Nebula::get_debug_level() const
 
 NebulaLog::LogType Nebula::get_log_system() const
 {
-    vector<const Attribute *> logs;
-    int                       rc;
-    NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
+    NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
 
-    rc = nebula_configuration->get("LOG", logs);
+    const VectorAttribute * log = nebula_configuration->get("LOG");
 
-    if ( rc != 0 )
+    if ( log != 0 )
     {
-        string value;
-        const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                      (logs[0]);
-
-        value      = log->vector_value("SYSTEM");
-        log_system = NebulaLog::str_to_type(value);
+        string value = log->vector_value("SYSTEM");
+        log_system   = NebulaLog::str_to_type(value);
     }
 
     return log_system;
@@ -1092,23 +1081,16 @@ int Nebula::get_conf_attribute(
     const std::string& name,
     const VectorAttribute* &value) const
 {
-    std::vector<const Attribute*>::const_iterator it;
-    std::vector<const Attribute*> values;
+    std::vector<const VectorAttribute*>::const_iterator it;
+    std::vector<const VectorAttribute*> values;
     std::string template_name;
     std::string name_upper;
 
-    nebula_configuration->Template::get(key, values);
+    nebula_configuration->get(key, values);
 
     for (it = values.begin(); it != values.end(); it ++)
     {
-        value = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (value == 0)
-        {
-            continue;
-        }
-
-        template_name = value->vector_value("NAME");
+        template_name = (*it)->vector_value("NAME");
         name_upper    = name;
 
         one_util::toupper(name_upper);

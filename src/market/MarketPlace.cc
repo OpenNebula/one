@@ -308,9 +308,9 @@ int MarketPlace::from_xml(const std::string &xml_str)
 
     rc += xpath(market_mad, "/MARKETPLACE/MARKET_MAD", "not_found");
 
-    rc += xpath(total_mb, "/MARKETPLACE/TOTAL_MB", 0);
-    rc += xpath(free_mb,  "/MARKETPLACE/FREE_MB",  0);
-    rc += xpath(used_mb,  "/MARKETPLACE/USED_MB",  0);
+    rc += xpath<long long>(total_mb, "/MARKETPLACE/TOTAL_MB", 0);
+    rc += xpath<long long>(free_mb,  "/MARKETPLACE/FREE_MB",  0);
+    rc += xpath<long long>(used_mb,  "/MARKETPLACE/USED_MB",  0);
 
 	// ----- Permissions -----
     rc += perms_from_xml();

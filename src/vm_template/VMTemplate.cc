@@ -220,7 +220,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
     rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
-    rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
+    rc += xpath<time_t>(regtime, "/VMTEMPLATE/REGTIME", 0);
 
     // Permissions
     rc += perms_from_xml();

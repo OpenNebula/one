@@ -136,21 +136,14 @@ static void monitor_action(
 
     market->unlock();
 
-    std::vector<Attribute *> apps;
+    std::vector<SingleAttribute *> apps;
     std::string err;
 
     int num = monitor_data.get("APP", apps);
 
     for (int i=0; i< num ; i++)
     {
-        SingleAttribute * sa = static_cast<SingleAttribute *>(apps[i]);
-
-        if ( sa == 0 )
-        {
-            continue;
-        }
-
-        if ( apppool->import(sa->value(), id, name, err) == -1 )
+        if ( apppool->import(apps[i]->value(), id, name, err) == -1 )
         {
             NebulaLog::log("MKP", Log::ERROR, "Error importing app: " + err);
         }

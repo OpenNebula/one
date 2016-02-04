@@ -98,6 +98,6 @@ void LoginToken::from_xml_node(const xmlNodePtr node)
 {
     ObjectXML oxml(node);
 
-    oxml.xpath(token, "/LOGIN_TOKEN/TOKEN", "" );
-    oxml.xpath(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0 );
+    oxml.xpath(token, "/LOGIN_TOKEN/TOKEN", "");
+    oxml.xpath<time_t>(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0);
 }

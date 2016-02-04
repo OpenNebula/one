@@ -36,7 +36,7 @@ void VirtualMachineXML::init_attributes()
     xpath(gid, "/VM/GID", -1);
 
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
-    xpath(cpu,    "/VM/TEMPLATE/CPU", 0);
+    xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
 
     // ------------------------ RANK & DS_RANK ---------------------------------
 

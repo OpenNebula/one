@@ -4023,11 +4023,11 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(gname,     "/VM/GNAME", "not_found");
     rc += xpath(name,      "/VM/NAME",  "not_found");
 
-    rc += xpath(last_poll, "/VM/LAST_POLL", 0);
-    rc += xpath(resched,   "/VM/RESCHED",   0);
+    rc += xpath<time_t>(last_poll, "/VM/LAST_POLL", 0);
+    rc += xpath(resched, "/VM/RESCHED", 0);
 
-    rc += xpath(stime,     "/VM/STIME",    0);
-    rc += xpath(etime,     "/VM/ETIME",    0);
+    rc += xpath<time_t>(stime, "/VM/STIME", 0);
+    rc += xpath<time_t>(etime, "/VM/ETIME", 0);
     rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
 
     // Permissions

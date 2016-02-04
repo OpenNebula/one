@@ -289,7 +289,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     long long     size_mb;
     istringstream iss;
-    ostringstream oss;
 
     string ds_name;
     string ds_data;
@@ -392,7 +391,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
         if ( app == 0 )
         {
-            att.resp_msg = "Cannot determine image SIZE.";
+            att.resp_msg = "Cannot determine image SIZE: " + size_str;
             failure_response(INTERNAL, att);
 
             delete tmpl;
@@ -420,9 +419,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         market->to_xml(extra_data);
 
         market->unlock();
-
-        oss << size_mb;
-        size_str = oss.str();
     }
     else
     {
@@ -449,6 +445,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
     }
+
 
     if (ds_check && (size_mb > avail))
     {

@@ -52,7 +52,7 @@ extern "C" void * marketplace_action_loop(void *arg)
 MarketPlaceManager::MarketPlaceManager(
             time_t _timer_period,
             time_t _monitor_period,
-            std::vector<const Attribute*>& _mads):
+            std::vector<const VectorAttribute*>& _mads):
         MadManager(_mads),
         timer_period(_timer_period),
         monitor_period(_monitor_period),
