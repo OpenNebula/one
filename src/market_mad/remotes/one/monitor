@@ -114,6 +114,8 @@ class OneMarket
         return if val.nil?
         return if val.class == String && val.empty?
 
+        val.gsub!('"','\"') if val.class == String
+
         str << "#{name}=\"#{val}\"\n"
     end
 
@@ -144,4 +146,3 @@ end
 #TODO get marketplace URL from MARKETPLACE Templace for other markets
 one_market = OneMarket.new
 puts one_market.get_appliances()
-
