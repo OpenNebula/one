@@ -51,7 +51,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (is_vrouter)
     {
-        att.resp_msg = "Templates with VROUTER=YES cannot be instantiated as stand-alone VMs";
+        att.resp_msg = "Virtual router templates cannot be instantiated as stand-alone VMs";
         failure_response(ACTION, att);
         return;
     }

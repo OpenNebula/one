@@ -1090,6 +1090,7 @@ int Nebula::get_conf_attribute(
 
     for (it = values.begin(); it != values.end(); it ++)
     {
+        value         = *it;
         template_name = (*it)->vector_value("NAME");
         name_upper    = name;
 

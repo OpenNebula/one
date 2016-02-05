@@ -88,7 +88,7 @@ void VirtualRouterInstantiate::request_execute(
 
     if (has_vmids)
     {
-        att.resp_msg = "Virtual Router already has VMs. Cannot instantiate new ones";
+        att.resp_msg = "Virtual router already has VMs. Cannot instantiate new ones";
         failure_response(ACTION, att);
         return;
     }
@@ -109,7 +109,7 @@ void VirtualRouterInstantiate::request_execute(
 
     if (!is_vrouter)
     {
-        att.resp_msg = "Only Templates with VROUTER=YES are allowed";
+        att.resp_msg = "Only virtual router templates are allowed";
         failure_response(ACTION, att);
         return;
     }
