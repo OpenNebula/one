@@ -653,7 +653,7 @@ class VIClient
 
             search_task.info.result.each { |image|
                 folderpath = ""
-                if image[-1] == "]"
+                if image.folderPath[-1] != "]"
                     folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
                 end
 
@@ -674,7 +674,7 @@ class VIClient
                         :type        => image.class.to_s,
                         :dsid        => ds_id,
                         :one         => "NAME=\"#{image_name}\"\n"\
-                                        "PATH=\"#{image_path}\"\n"\
+                                        "PATH=\"vcenter://#{image_path}\"\n"\
                                         "PERSISTENT=\"YES\"\n"\
                     }
 
@@ -776,9 +776,9 @@ class VIClient
         # Create Search Spec
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
         spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
-        spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
-                                                    :fileSize => true,
-                                                    :fileType => true,
+        spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner    => true,
+                                                    :fileSize     => true,
+                                                    :fileType     => true,
                                                     :modification => true)
         spec.matchPattern=[img_name]
 

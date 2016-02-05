@@ -52,6 +52,7 @@ end
 
 if img_path.start_with? "vcenter://"
     begin
+        img_path     = img_path.sub("vcenter://","")
         host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
         vi_client    = VCenterDriver::VIClient.new host_id
 
