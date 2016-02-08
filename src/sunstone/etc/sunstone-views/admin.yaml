@@ -599,7 +599,8 @@ tabs:
             #- 8        # Labels
         actions:
             MarketPlace.refresh: true
-            #MarketPlace.create_dialog: true
+            MarketPlace.create_dialog: true
+            MarketPlace.update_dialog: true
             MarketPlace.rename: true
             MarketPlace.chown: true
             MarketPlace.chgrp: true
@@ -624,7 +625,7 @@ tabs:
             #- 11        # Labels
         actions:
             MarketPlaceApp.refresh: true
-            #MarketPlaceApp.create_dialog: true
+            MarketPlaceApp.create_dialog: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true
