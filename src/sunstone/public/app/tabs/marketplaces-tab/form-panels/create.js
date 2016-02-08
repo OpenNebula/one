@@ -22,9 +22,7 @@ define(function(require) {
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
-  var ResourceSelect = require('utils/resource-select');
   var Config = require('sunstone-config');
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
@@ -173,28 +171,7 @@ define(function(require) {
 
   function _onShow(dialog) {
     $("#NAME", dialog).focus();
-
     $('#MARKET_MAD', dialog).change();
-
-//    var cluster_id = $("div#cluster_id .resource_list_select", dialog).val();
-//    if (!cluster_id) cluster_id = "-1";
-//
-//    var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
-//    if (!cluster_id_raw) cluster_id_raw = "-1";
-//
-//    ResourceSelect.insert({
-//        context: $('#cluster_id', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id,
-//        includeDefaultCluster: true
-//      });
-//
-//    ResourceSelect.insert({
-//        context: $('#datastore_cluster_raw', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id_raw,
-//        includeDefaultCluster: true
-//      });
 
     return false;
   }
@@ -220,70 +197,6 @@ define(function(require) {
     dialog.on('change', '#MARKET_MAD', function() {
       _setRequiredFields(dialog, this.value);
     });
-
-    // Show custom driver input only when custom is selected in selects
-//    $('input[name="ds_tab_custom_ds_mad"],' +
-//      'input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//
-//    $('select#ds_mad', dialog).change(function() {
-//      if ($(this).val() == "custom") {
-//          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
-//      } else {
-//        _setRequiredFields(dialog, $(this).val());
-//        $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
-//      }
-//    });
-//
-//    $('select#tm_mad', dialog).change(function() {
-//      if ($(this).val() == "custom")
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
-//      else
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//    });
-//
-//    $('#presets', dialog).change(function() {
-//      _hideAll(dialog);
-//      var choice_str = $(this).val();
-//
-//      switch (choice_str)
-//      {
-//        case 'fs':
-//          _selectFilesystem(dialog);
-//          break;
-//        case 'vmware_vmfs':
-//          _selectVmwareVmfs(dialog);
-//          break;
-//        case 'block_lvm':
-//          _selectBlockLvm(dialog);
-//          break;
-//        case 'fs_lvm':
-//          _selectFsLvm(dialog);
-//          break;
-//        case 'ceph':
-//          _selectCeph(dialog);
-//          break;
-//        case 'gluster':
-//          _selectGluster(dialog);
-//          break;
-//        case 'dev':
-//          _selectDevices(dialog);
-//          break;
-//        case 'iscsi':
-//          _selectISCSI(dialog);
-//          break;
-//        case 'custom':
-//          _selectCustom(dialog);
-//          break;
-//      }
-//    });
-//
-//    $('#presets', dialog).change();
-//
-//    // Hide disk_type
-//    $('select#disk_type', dialog).parent().hide();
-//
-//    _hideAll(dialog);
-//    _selectFilesystem(dialog);
   }
 
 
