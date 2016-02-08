@@ -33,12 +33,30 @@ protected:
                         const string& help)
         :Request(method_name, "A:siiiiiiiiii", help){};
 
+    RequestManagerChmod(const string& method_name,
+                        const string& params,
+                        const string& help)
+        :Request(method_name, params, help){};
+
     ~RequestManagerChmod(){};
 
     /* -------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+    static ErrorCode chmod( PoolSQL * pool,
+                            int oid,
+                            int owner_u,
+                            int owner_m,
+                            int owner_a,
+                            int group_u,
+                            int group_m,
+                            int group_a,
+                            int other_u,
+                            int other_m,
+                            int other_a,
+                            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -67,6 +85,7 @@ class TemplateChmod : public RequestManagerChmod
 public:
     TemplateChmod():
         RequestManagerChmod("TemplateChmod",
+                            "A:siiiiiiiiiib"
                             "Changes permission bits of a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -75,6 +94,9 @@ public:
     };
 
     ~TemplateChmod(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -113,6 +135,17 @@ public:
 
     ~ImageChmod(){};
 
+    static ErrorCode chmod( int oid,
+                            int owner_u,
+                            int owner_m,
+                            int owner_a,
+                            int group_u,
+                            int group_m,
+                            int group_a,
+                            int other_u,
+                            int other_m,
+                            int other_a,
+                            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

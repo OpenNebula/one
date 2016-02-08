@@ -256,6 +256,15 @@ protected:
      */
     void failure_response(ErrorCode ec, RequestAttributes& ra);
 
+    /**
+     *  Builds an error response. A descriptive error message
+     *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and
+     *  the ErrorCode
+     *    @param ec error code for this call
+     *    @param att the specific request attributes
+     */
+    string failure_message(ErrorCode ec, RequestAttributes& att);
+
     /* ---------------------------------------------------------------------- */
     /* Authorization methods for requests                                     */
     /* ---------------------------------------------------------------------- */

@@ -585,7 +585,7 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
 
 /* -------------------------------------------------------------------------- */
 
-void Request::failure_response(ErrorCode ec, RequestAttributes& att)
+string Request::failure_message(ErrorCode ec, RequestAttributes& att)
 {
     std::ostringstream oss;
     std::string        obname;
@@ -604,7 +604,7 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
     switch(ec)
     {
         case SUCCESS:
-            return;
+            return "";
 
         case AUTHORIZATION:
             oss << "User [" << att.uid << "] ";
@@ -652,7 +652,15 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
             break;
     }
 
-    failure_response(ec, oss.str(), att);
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::failure_response(ErrorCode ec, RequestAttributes& att)
+{
+    failure_response(ec, failure_message(ec, att), att);
 }
 
 /* -------------------------------------------------------------------------- */
