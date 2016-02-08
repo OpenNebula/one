@@ -25,7 +25,12 @@ define(function(require) {
       OpenNebulaAction.create(params, RESOURCE);
     },
     "del" : function(params) {
-      OpenNebulaAction.del(params, RESOURCE);
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.del(params, RESOURCE, action_obj);
+    },
+    "delete_recursive": function(params) {
+      var action_obj = {"recursive": true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "delete_recursive", action_obj);
     },
     "delete_from_provision": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "delete_from_provision");

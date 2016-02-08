@@ -230,6 +230,9 @@ tabs:
             Template.chmod: true
             Template.clone_dialog: true
             Template.delete: true
+            Template.delete_recursive: true
+            Template.share: true
+            Template.unshare: true
         template_creation_tabs:
             general: true
             storage: true

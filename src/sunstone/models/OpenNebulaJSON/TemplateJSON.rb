@@ -50,6 +50,7 @@ module OpenNebulaJSON
                  when "instantiate" then self.instantiate(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "delete_recursive" then self.delete_recursive(action_hash['params'])
                  when "delete_from_provision"
                           then self.delete_from_provision(action_hash['params'])
                  when "chmod_from_provision"
@@ -82,8 +83,10 @@ module OpenNebulaJSON
         end
 
         def chmod_json(params=Hash.new)
+            recursive = (params['recursive'] == true)
+
             if params['octet']
-                self.chmod_octet(params['octet'])
+                self.chmod_octet(params['octet'], recursive)
             else
                 self.chmod((params['owner_u']||-1),
                     (params['owner_m']||-1),
@@ -93,7 +96,8 @@ module OpenNebulaJSON
                     (params['group_a']||-1),
                     (params['other_u']||-1),
                     (params['other_m']||-1),
-                    (params['other_a']||-1))
+                    (params['other_a']||-1),
+                    recursive)
             end
         end
 
@@ -123,6 +127,11 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def delete_recursive(params=Hash.new)
+            recursive = (params['recursive'] == true)
+            self.delete(recursive)
         end
 
         def delete_from_provision(params=Hash.new)
