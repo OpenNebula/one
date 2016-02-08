@@ -51,6 +51,13 @@ EOT
                         "information, such as the SIZE for each DISK"
     }
 
+    RECURSIVE={
+        :name => "recursive",
+        :large => "--recursive",
+        :description => "Applies the action to the template plus any "+
+        "image defined in DISK/IMAGE_ID. Images defined by name are not affected"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end

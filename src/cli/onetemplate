@@ -163,9 +163,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Deletes the given Template
     EOT
 
-    command :delete, delete_desc, [:range, :templateid_list] do
+    command :delete, delete_desc, [:range, :templateid_list],
+            :options =>OneTemplateHelper::RECURSIVE do 
+
+        recursive = (options[:recursive] == true)
+
         helper.perform_actions(args[0],options,"deleted") do |t|
-            t.delete
+            t.delete(recursive)
         end
     end
 
@@ -264,9 +268,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Template permissions
     EOT
 
-    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet,
+            :options =>OneTemplateHelper::RECURSIVE do
+
+        recursive = (options[:recursive] == true)
+
         helper.perform_actions(args[0],options, "Permissions changed") do |t|
-            t.chmod_octet(args[1])
+            t.chmod_octet(args[1], recursive)
         end
     end
 
