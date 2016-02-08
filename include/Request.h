@@ -55,7 +55,10 @@ public:
     int                       resp_id;  /**< Id of the object */
     string                    resp_msg; /**< Additional response message */
 
-    RequestAttributes(){};
+    RequestAttributes()
+    {
+        resp_obj = PoolObjectSQL::NONE;
+    };
 
     RequestAttributes(const RequestAttributes& ra)
     {
