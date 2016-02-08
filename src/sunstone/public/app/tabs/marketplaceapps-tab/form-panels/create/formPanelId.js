@@ -14,44 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var Locale = require('utils/locale');
-
-  var MarketPlaceButtons = {
-    "MarketPlace.refresh" : {
-      type: "action",
-      layout: "refresh",
-      alwaysActive: true
-    },
-    "MarketPlace.create_dialog" : {
-      type: "create_dialog",
-      layout: "create"
-    },
-    "MarketPlace.update_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Update")
-    },
-    "MarketPlace.chown" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change owner"),
-      select: "User",
-      layout: "user_select",
-      tip: Locale.tr("Select the new owner") + ":"
-    },
-    "MarketPlace.chgrp" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change group"),
-      select: "Group",
-      layout: "user_select",
-      tip: Locale.tr("Select the new group") + ":"
-    },
-    "MarketPlace.delete" : {
-      type: "confirm",
-      text: Locale.tr("Delete"),
-      layout: "del"
-    }
-  };
-
-  return MarketPlaceButtons;
+define(function(require){
+  return 'createMarketPlaceAppForm';
 })

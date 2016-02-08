@@ -19,31 +19,29 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var CommonActions = require('utils/common-actions');
-  var OpenNebulaResource = require('opennebula/marketplace');
+  var OpenNebulaResource = require('opennebula/marketplaceapp');
 
-  var RESOURCE = "MarketPlace";
-  var XML_ROOT = "MARKETPLACE";
+  var RESOURCE = "MarketPlaceApp";
+  var XML_ROOT = "MARKETPLACEAPP";
   var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
-    "MarketPlace.create" : _commonActions.create(CREATE_DIALOG_ID),
-    "MarketPlace.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
-    "MarketPlace.list" : _commonActions.list(),
-    "MarketPlace.show" : _commonActions.show(),
-    "MarketPlace.refresh" : _commonActions.refresh(),
-    "MarketPlace.delete" : _commonActions.del(),
-    "MarketPlace.chown": _commonActions.multipleAction('chown'),
-    "MarketPlace.chgrp": _commonActions.multipleAction('chgrp'),
-    "MarketPlace.chmod": _commonActions.singleAction('chmod'),
-    "MarketPlace.update" : _commonActions.update(),
-    "MarketPlace.update_template" : _commonActions.updateTemplate(),
-    "MarketPlace.append_template" : _commonActions.appendTemplate(),
-    "MarketPlace.update_dialog" : _commonActions.checkAndShowUpdate(),
-    "MarketPlace.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
-    "MarketPlace.rename": _commonActions.singleAction('rename')
+    //"MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
+    //"MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "MarketPlaceApp.list" : _commonActions.list(),
+    "MarketPlaceApp.show" : _commonActions.show(),
+    "MarketPlaceApp.refresh" : _commonActions.refresh(),
+    "MarketPlaceApp.delete" : _commonActions.del(),
+    "MarketPlaceApp.chown": _commonActions.multipleAction('chown'),
+    "MarketPlaceApp.chgrp": _commonActions.multipleAction('chgrp'),
+    "MarketPlaceApp.chmod": _commonActions.singleAction('chmod'),
+    //"MarketPlaceApp.update" : _commonActions.updateTemplate(),
+    //"MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
+    //"MarketPlaceApp.append_template" : _commonActions.appendTemplate(),
+    "MarketPlaceApp.rename": _commonActions.singleAction('rename')
   }
 
   return _actions;

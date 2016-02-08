@@ -67,8 +67,7 @@ public:
      */
     Template * clone_template() const
     {
-        return new Template(
-                *(static_cast<Template *>(obj_template)));
+        return new Template(obj_template);
     };
 
     Template * get_vm_template() const;
@@ -249,7 +248,7 @@ private:
      *
      * @return 0 on success, -1 otherwise
      */
-    int release_network_leases(VectorAttribute const * nic);
+    int release_network_leases(const VectorAttribute  * nic);
 
     /**
      * Returns the nic with the giver nic_id, or 0

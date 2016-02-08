@@ -189,7 +189,19 @@ define(function(require) {
 
   function _checkAndShowUpdate() {
     var that = this;
-    return _checkAndShow("show_to_update");
+    return {
+      type: 'single',
+      call: function() {
+        var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
+        if (selectedNodes.length != 1) {
+          Notifier.notifyMessage('Please select one (and just one) resource to update.');
+          return false;
+        }
+
+        var resourceId = '' + selectedNodes[0];
+        Sunstone.runAction(that.resourceStr + '.show_to_update', resourceId);
+      }
+    }
   }
 
   function _checkAndShow(action) {

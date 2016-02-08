@@ -16,18 +16,18 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
-  var Buttons = require('./marketplaces-tab/buttons');
-  var Actions = require('./marketplaces-tab/actions');
-  var Table = require('./marketplaces-tab/datatable');
+  var Buttons = require('./marketplaceapps-tab/buttons');
+  var Actions = require('./marketplaceapps-tab/actions');
+  var Table = require('./marketplaceapps-tab/datatable');
 
-  var TAB_ID = require('./marketplaces-tab/tabId');
-  var DATATABLE_ID = "dataTableMarketplaces";
+  var TAB_ID = require('./marketplaceapps-tab/tabId');
+  var DATATABLE_ID = "dataTableMarketplaceApps";
 
   var _dialogs = [
   ];
 
   var _panels = [
-    //require('./marketplaces-tab/panels/info')
+    //require('./marketplaceapps-tab/panels/info')
   ];
 
   var _panelsHooks = [
@@ -35,14 +35,14 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./marketplaces-tab/form-panels/create')
+    //require('./datastores-tab/form-panels/create')
   ];
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + Locale.tr("MarketPlaces"),
-    listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlaces"),
-    infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlace"),
+    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + Locale.tr("Apps"),
+    listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("Apps"),
+    infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("App"),
     subheader: '<span/> <small></small>&emsp;',
     resource: 'MarketPlace',
     buttons: Buttons,

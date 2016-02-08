@@ -2051,13 +2051,15 @@ private:
     int parse_context(string& error_str);
 
     /**
-     * Parses the current contents of the context vector attribute,
-     * without adding any attributes. Substitutes $VARIABLE,
-     * $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
-     *
-     * @return 0 on success
+     * Parses the current contents of the context vector attribute, without
+     * adding any attributes. Substitutes $VARIABLE, $VARIABLE[ATTR] and
+     * $VARIABLE[ATTR, ATTR = VALUE]
+     *   @param pointer to the context attribute. It will be updated to point
+     *   to the new parsed CONTEXT
+     *   @param error_str description in case of error
+     *   @return 0 on success
      */
-    int reparse_context();
+    int parse_context_variables(VectorAttribute ** context, string& error_str);
 
     /**
      *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting

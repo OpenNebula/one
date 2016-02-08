@@ -1646,7 +1646,6 @@ SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
-                       src/sunstone/models/SunstoneMarketplace.rb \
                        src/sunstone/models/SunstoneViews.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \

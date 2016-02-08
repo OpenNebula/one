@@ -16,43 +16,37 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
-  var Buttons = require('./marketplaces-tab/buttons');
-  var Actions = require('./marketplaces-tab/actions');
-  var Table = require('./marketplaces-tab/datatable');
 
-  var TAB_ID = require('./marketplaces-tab/tabId');
-  var DATATABLE_ID = "dataTableMarketplaces";
-
-  var _dialogs = [
-  ];
-
-  var _panels = [
-    //require('./marketplaces-tab/panels/info')
-  ];
-
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
-
-  var _formPanels = [
-    require('./marketplaces-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + Locale.tr("MarketPlaces"),
-    listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlaces"),
-    infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlace"),
-    subheader: '<span/> <small></small>&emsp;',
-    resource: 'MarketPlace',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+  var MarketPlaceAppButtons = {
+    "MarketPlaceApp.refresh" : {
+      type: "action",
+      layout: "refresh",
+      alwaysActive: true
+    },
+    //"MarketPlaceApp.create_dialog" : {
+    //  type: "create_dialog",
+    //  layout: "create"
+    //},
+    "MarketPlaceApp.chown" : {
+      type: "confirm_with_select",
+      text: Locale.tr("Change owner"),
+      select: "User",
+      layout: "user_select",
+      tip: Locale.tr("Select the new owner") + ":"
+    },
+    "MarketPlaceApp.chgrp" : {
+      type: "confirm_with_select",
+      text: Locale.tr("Change group"),
+      select: "Group",
+      layout: "user_select",
+      tip: Locale.tr("Select the new group") + ":"
+    },
+    "MarketPlaceApp.delete" : {
+      type: "confirm",
+      text: Locale.tr("Delete"),
+      layout: "del"
+    }
   };
 
-  return Tab;
-});
+  return MarketPlaceAppButtons;
+})

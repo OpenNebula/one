@@ -923,50 +923,20 @@ static void clear_context_network(const char* vars[][2], int num_vars,
 
 int VirtualMachine::parse_context(string& error_str)
 {
-    int rc, num;
-
-    vector<Attribute *> array_context;
-    VectorAttribute *   context;
-    VectorAttribute *   context_parsed;
-
-    string * str;
-    string   parsed;
-    string   files_ds;
-    string   files_ds_parsed;
-    string   st;
-
-    ostringstream oss_parsed;
-
-    vector<int>  img_ids;
-
-    num = obj_template->remove("CONTEXT", array_context);
-
-    if ( num == 0 )
-    {
-        return 0;
-    }
-    else if ( num > 1 )
-    {
-        error_str = "Only one CONTEXT attribute can be defined.";
-        goto error_cleanup;
-    }
-
-    context = dynamic_cast<VectorAttribute *>(array_context[0]);
+    VectorAttribute * context = obj_template->get("CONTEXT");
 
     if ( context == 0 )
     {
-        error_str = "Wrong format for CONTEXT attribute.";
-        goto error_cleanup;
+        return 0;
     }
 
-    //Backup datastore files to parse them later
-
-    files_ds = context->vector_value("FILES_DS");
+    string files_ds = context->vector_value("FILES_DS");
 
     context->remove("FILES_DS");
 
-    // ----------- Inject Network context in marshalled string  ----------------
-
+    // -------------------------------------------------------------------------
+    // Inject Network context in marshalled string
+    // -------------------------------------------------------------------------
     bool net_context;
     context->vector_value("NETWORK", net_context);
 
@@ -989,37 +959,25 @@ int VirtualMachine::parse_context(string& error_str)
     }
 
     // -------------------------------------------------------------------------
-    // Parse CONTEXT variables & free vector attributes
+    // Parse CONTEXT variables
     // -------------------------------------------------------------------------
-
-    str = context->marshall();
-
-    if (str == 0)
+    if (parse_context_variables(&context, error_str) == -1)
     {
-        error_str = "Cannot marshall CONTEXT";
-        goto error_cleanup;
-    }
-
-    rc = parse_template_attribute(*str, parsed, error_str);
-
-    delete str;
-
-    if (rc != 0)
-    {
-        goto error_cleanup;
-    }
-
-    for (int i = 0; i < num ; i++)
-    {
-        delete array_context[i];
+        return -1;
     }
 
     // -------------------------------------------------------------------------
     // Parse FILE_DS variables
     // -------------------------------------------------------------------------
-
     if (!files_ds.empty())
     {
+        string files_ds_parsed;
+        string st;
+
+        ostringstream oss_parsed;
+
+        vector<int> img_ids;
+
         if ( parse_file_attribute(files_ds, img_ids, error_str) != 0 )
         {
             return -1;
@@ -1073,52 +1031,45 @@ int VirtualMachine::parse_context(string& error_str)
                 }
             }
         }
+
+        files_ds_parsed = oss_parsed.str();
+
+        if ( !files_ds_parsed.empty() )
+        {
+            context->replace("FILES_DS", files_ds_parsed);
+        }
     }
-
-    files_ds_parsed = oss_parsed.str();
-
-    context_parsed = new VectorAttribute("CONTEXT");
-    context_parsed->unmarshall(parsed);
-
-    if ( !files_ds_parsed.empty() )
-    {
-        context_parsed->replace("FILES_DS", files_ds_parsed);
-    }
-
-    obj_template->set(context_parsed);
 
     // -------------------------------------------------------------------------
     // OneGate URL
     // -------------------------------------------------------------------------
-
     bool token;
-    context_parsed->vector_value("TOKEN", token);
+    context->vector_value("TOKEN", token);
 
     if (token)
     {
-        string endpoint;
+        string ep;
 
-        Nebula::instance().get_configuration_attribute(
-                    "ONEGATE_ENDPOINT", endpoint);
+        Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
 
-        if ( endpoint.empty() )
+        if ( ep.empty() )
         {
             error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
                 "defined in oned.conf or CONTEXT.";
             return -1;
         }
 
-        context_parsed->replace("ONEGATE_ENDPOINT", endpoint);
-        context_parsed->replace("VMID", oid);
+        context->replace("ONEGATE_ENDPOINT", ep);
+        context->replace("VMID", oid);
 
-        // The token_password is taken from the owner user's template.
-        // We store this original owner in case a chown operation is performed.
+        // Store the original owner to compute token_password in case of a chown
         add_template_attribute("CREATED_BY", uid);
     }
 
     // -------------------------------------------------------------------------
     // Virtual Router attributes
     // -------------------------------------------------------------------------
+    string st;
 
     for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
     {
@@ -1126,46 +1077,23 @@ int VirtualMachine::parse_context(string& error_str)
 
         if (!st.empty())
         {
-            context_parsed->replace(VROUTER_ATTRIBUTES[i], st);
+            context->replace(VROUTER_ATTRIBUTES[i], st);
         }
     }
 
-    return rc;
-
-error_cleanup:
-    for (int i = 0; i < num ; i++)
-    {
-        delete array_context[i];
-    }
-
-    return -1;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::reparse_context()
+int VirtualMachine::parse_context_variables(VectorAttribute ** context,
+        string& error_str)
 {
     int rc;
 
-    VectorAttribute * context_parsed;
-
-    string * str;
     string   parsed;
-    string   error_str;
-
-    const VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if ( context == 0 )
-    {
-        return -1;
-    }
-
-    // -------------------------------------------------------------------------
-    // Parse CONTEXT variables & free vector attributes
-    // -------------------------------------------------------------------------
-
-    str = context->marshall();
+    string * str = (*context)->marshall();
 
     if (str == 0)
     {
@@ -1181,11 +1109,11 @@ int VirtualMachine::reparse_context()
         return -1;
     }
 
-    context_parsed = new VectorAttribute("CONTEXT");
-    context_parsed->unmarshall(parsed);
+    *context = new VectorAttribute("CONTEXT");
+    (*context)->unmarshall(parsed);
 
     obj_template->erase("CONTEXT");
-    obj_template->set(context_parsed);
+    obj_template->set(*context);
 
     return 0;
 }
@@ -2552,20 +2480,11 @@ VectorAttribute * VirtualMachine::get_attach_nic_info(
     // -------------------------------------------------------------------------
     // Get the new NIC attribute from the template
     // -------------------------------------------------------------------------
-
-    nics.clear();
-
-    if ( tmpl->get("NIC", nics) != 1 )
-    {
-        error_str = "The template must contain one NIC attribute";
-        return 0;
-    }
-
     nic = tmpl->get("NIC");
 
     if ( nic == 0 )
     {
-        error_str = "Internal error parsing NIC attribute";
+        error_str = "Wrong format or missing NIC attribute";
         return 0;
     }
 
@@ -2682,7 +2601,8 @@ VectorAttribute * VirtualMachine::attach_nic_failure()
 
 void VirtualMachine::detach_nic_failure()
 {
-    bool net_context;
+    bool   net_context;
+    string err;
 
     VectorAttribute * nic = get_attach_nic();
 
@@ -2713,7 +2633,7 @@ void VirtualMachine::detach_nic_failure()
                     context, nic);
         }
 
-        reparse_context();
+        parse_context_variables(&context, err);
     }
 }
 
@@ -2741,7 +2661,8 @@ void VirtualMachine::set_attach_nic(
         VectorAttribute *       new_nic,
         vector<VectorAttribute*> &rules)
 {
-    bool                net_context;
+    bool   net_context;
+    string err;
 
     vector<VectorAttribute*>::iterator it;
 
@@ -2774,7 +2695,7 @@ void VirtualMachine::set_attach_nic(
                     context, new_nic);
         }
 
-        reparse_context();
+        parse_context_variables(&context, err);
     }
 }
 
