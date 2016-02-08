@@ -528,6 +528,7 @@ get '/onedconf' do
     keys = [
         :DEFAULT_COST,
         :DS_MAD_CONF,
+        :MARKET_MAD_CONF,
         :VM_MAD,
         :IM_MAD,
         :AUTH_MAD
