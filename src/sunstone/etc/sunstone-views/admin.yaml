@@ -585,7 +585,7 @@ tabs:
             User.quotas_dialog: false
     marketplaces-tab:
         panel_tabs:
-            #marketplaces_info_tab: true
+            marketplace_info_tab: true
             #marketplaces_apps_tab: true
         table_columns:
             - 0         # Checkbox
