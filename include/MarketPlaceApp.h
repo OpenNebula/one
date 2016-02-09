@@ -273,7 +273,7 @@ private:
     /**
      *  Publishing date
      */
-    time_t      date;
+    time_t      regtime;
 
     /**
      *  Source URL for the marketplace app

@@ -101,7 +101,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     remove_template_attribute("MD5");
     remove_template_attribute("FORMAT");
 
-    date = time(NULL);
+    regtime = time(NULL);
 
     type = IMAGE;
 
@@ -246,7 +246,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GID>"            << gid           << "</GID>" <<
 			"<UNAME>"          << uname         << "</UNAME>" <<
 			"<GNAME>"          << gname         << "</GNAME>" <<
-			"<DATE>"           << date          << "</DATE>" <<
+			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
             "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
             "<SOURCE>"         << source        << "</SOURCE>" <<
@@ -290,7 +290,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(uname,        "/MARKETPLACEAPP/UNAME", "not_found");
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
-    rc += xpath<time_t>(date, "/MARKETPLACEAPP/DATE", -1);
+    rc += xpath<time_t>(regtime,"/MARKETPLACEAPP/REGTIME", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
     rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
@@ -425,7 +425,7 @@ void MarketPlaceApp::to_template(Template * tmpl) const
 int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 {
     std::string * info = one_util::base64_decode(info64);
-    std::string sdate;
+    std::string sregtime;
 
     if (info == 0)
     {
@@ -464,13 +464,13 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
     erase_template_attribute("FORMAT", format);
     erase_template_attribute("APPTEMPLATE64", apptemplate64);
 
-    erase_template_attribute("DATE", sdate);
-    std::istringstream iss(sdate);
-    iss >> date;
+    erase_template_attribute("REGTIME", sregtime);
+    std::istringstream iss(sregtime);
+    iss >> regtime;
 
-    if ( date == 0 )
+    if ( regtime == 0 )
     {
-        date = time(NULL);
+        regtime = time(NULL);
     }
 
    replace_template_attribute("IMPORTED", "YES");
