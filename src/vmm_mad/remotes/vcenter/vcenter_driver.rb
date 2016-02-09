@@ -340,93 +340,6 @@ class VIClient
     end
 
     ########################################################################
-    # Builds a hash with the Datacenter / Virtual Machines for this VCenter
-    # @param one_client [OpenNebula::Client] Use this client instead of @one
-    # @return [Hash] in the form
-    #   { dc_name [String] => VMs [Array] of VM Templates} 
-    ########################################################################
-    def running_vms(one_client=nil)
-        running_vms = {}
-
-        vmpool = OpenNebula::VirtualMachinePool.new(
-            (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vmpool.info
-
-        hostpool = OpenNebula::HostPool.new((one_client||@one))
-        rc       = hostpool.info
-        if OpenNebula.is_error?(rc)
-            raise "Error contacting OpenNebula #{rc.message}"
-        end
-
-        datacenters = get_entities(@root, 'Datacenter')
-
-        datacenters.each { |dc|
-            vms     = get_entities(dc.vmFolder, 'VirtualMachine')
-            ccrs    = get_entities(dc.hostFolder, 'ClusterComputeResource')
-
-            vm_list = vms.select { |v|
-                # Get rid of VM Templates and VMs not in running state
-                v.config &&
-                v.config.template != true &&
-                v.summary.runtime.powerState == "poweredOn"
-            }
-
-            one_tmp = []
-
-            vm_list.each { |v|
-                vi_tmp = VCenterVm.new(self, v)
-
-                # Do not reimport VMs deployed by OpenNebula
-                # since the core will get confused with the IDs
-                next if vi_tmp.vm.name.match(/^one-(\d*)(-(.*))?$/)
-
-                container_hostname = vi_tmp.vm.runtime.host.parent.name
-
-                cluster_name = ccrs.collect { |c|
-                  found_host=c.host.select {|h|
-                           h.parent.name == container_hostname}
-                   found_host.first.parent.name if found_host.size > 0
-                }.first
-
-                if !vmpool["VM/USER_TEMPLATE/PUBLIC_CLOUD[\
-                        TYPE=\"vcenter\" \
-                        and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
-
-                    host_id = name_to_id(container_hostname,hostpool,"HOST")[1]
-
-                    one_tmp << {
-                        :name => "#{vi_tmp.vm.name} - #{container_hostname}",
-                        :uuid => vi_tmp.vm.config.uuid,
-                        :host => container_hostname,
-                        :host_id => host_id,
-                        :one  => vi_tmp.vm_to_one
-                    }
-                end
-            }
-
-            running_vms[dc.name] = one_tmp
-        }
-
-        return running_vms
-    end
-
-    def name_to_id(name, pool, ename)
-            objects=pool.select {|object| object.name==name }
-
-            if objects.length>0
-                if objects.length>1
-                    return -1, "There are multiple #{ename}s with name #{name}."
-                else
-                    result = objects.first.id
-                end
-            else
-                return -1, "#{ename} named #{name} not found."
-            end
-
-            return 0, result
-    end
-
-    ########################################################################
     # Builds a hash with the Datacenter / CCR (Distributed)Networks
     # for this VCenter
     # @param one_client [OpenNebula::Client] Use this client instead of @one
@@ -1533,6 +1446,13 @@ class VCenterVm
     def vm_to_one
         host_name = @vm.runtime.host.parent.name
 
+        state = case state_to_c(@summary.runtime.powerState)
+                    when 'a'
+                        "RUNNING"
+                    when 'd'
+                        "POWEROFF"
+                end
+
         str = "NAME   = \"#{@vm.name} - #{host_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
@@ -1544,6 +1464,7 @@ class VCenterVm
               "  HOST        =\"#{host_name}\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
+              "IMPORT_STATE   = \"#{state}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
 
         vp     = @vm.config.extraConfig.select{|v|
@@ -1566,6 +1487,23 @@ class VCenterVm
         else
             notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"
+        end
+
+        case @vm.guest.guestFullName
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png"
         end
 
         return str
