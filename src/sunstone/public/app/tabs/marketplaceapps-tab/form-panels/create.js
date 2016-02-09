@@ -24,8 +24,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
-  var ResourceSelect = require('utils/resource-select');
+  var ImagesTable = require('tabs/images-tab/datatable');
+  var MarketPlacesTable = require('tabs/marketplaces-tab/datatable');
   var Config = require('sunstone-config');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -50,11 +52,23 @@ define(function(require) {
     this.tabId = TAB_ID;
     this.actions = {
       'create': {
-        'title': Locale.tr("Create MarketPlace"),
+        'title': Locale.tr("Create MarketPlace App"),
         'buttonText': Locale.tr("Create"),
         'resetButton': true
       }
     };
+
+    this.imagesTable = new ImagesTable(
+      FORM_PANEL_ID + 'imagesTable',
+      {'select': true});
+
+    this.marketPlacesTable = new MarketPlacesTable(
+      FORM_PANEL_ID + 'marketPlacesTable',
+      {'select': true});
+
+    this.marketPlacesTableAdvanced = new MarketPlacesTable(
+      FORM_PANEL_ID + 'marketPlacesTableAdvanced',
+      {'select': true});
 
     BaseFormPanel.call(this);
   }
@@ -78,35 +92,24 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
+      'imagesTableHTML': this.imagesTable.dataTableHTML,
+      'marketPlacesTableHTML': this.marketPlacesTable.dataTableHTML
     });
   }
 
   function _htmlAdvanced() {
-    return TemplateAdvancedHTML({formPanelId: this.formPanelId});
+    return TemplateAdvancedHTML({
+      'formPanelId': this.formPanelId,
+      'marketPlacesTableAdvancedHTML': this.marketPlacesTableAdvanced.dataTableHTML
+    });
   }
 
   function _onShow(dialog) {
-    $("#name", dialog).focus();
+    this.imagesTable.resetResourceTableSelect();
+    this.marketPlacesTable.resetResourceTableSelect();
+    this.marketPlacesTableAdvanced.resetResourceTableSelect();
 
-//    var cluster_id = $("div#cluster_id .resource_list_select", dialog).val();
-//    if (!cluster_id) cluster_id = "-1";
-//
-//    var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
-//    if (!cluster_id_raw) cluster_id_raw = "-1";
-//
-//    ResourceSelect.insert({
-//        context: $('#cluster_id', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id,
-//        includeDefaultCluster: true
-//      });
-//
-//    ResourceSelect.insert({
-//        context: $('#datastore_cluster_raw', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id_raw,
-//        includeDefaultCluster: true
-//      });
+    $("#NAME", dialog).focus();
 
     return false;
   }
@@ -115,208 +118,53 @@ define(function(require) {
   function _setup(dialog) {
     Tips.setup(dialog);
 
-    // Show custom driver input only when custom is selected in selects
-//    $('input[name="ds_tab_custom_ds_mad"],' +
-//      'input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//
-//    $('select#ds_mad', dialog).change(function() {
-//      if ($(this).val() == "custom") {
-//          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
-//      } else {
-//        _setRequiredFields(dialog, $(this).val());
-//        $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
-//      }
-//    });
-//
-//    $('select#tm_mad', dialog).change(function() {
-//      if ($(this).val() == "custom")
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
-//      else
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//    });
-//
-//    $('#presets', dialog).change(function() {
-//      _hideAll(dialog);
-//      var choice_str = $(this).val();
-//
-//      switch (choice_str)
-//      {
-//        case 'fs':
-//          _selectFilesystem(dialog);
-//          break;
-//        case 'vmware_vmfs':
-//          _selectVmwareVmfs(dialog);
-//          break;
-//        case 'block_lvm':
-//          _selectBlockLvm(dialog);
-//          break;
-//        case 'fs_lvm':
-//          _selectFsLvm(dialog);
-//          break;
-//        case 'ceph':
-//          _selectCeph(dialog);
-//          break;
-//        case 'gluster':
-//          _selectGluster(dialog);
-//          break;
-//        case 'dev':
-//          _selectDevices(dialog);
-//          break;
-//        case 'iscsi':
-//          _selectISCSI(dialog);
-//          break;
-//        case 'custom':
-//          _selectCustom(dialog);
-//          break;
-//      }
-//    });
-//
-//    $('#presets', dialog).change();
-//
-//    // Hide disk_type
-//    $('select#disk_type', dialog).parent().hide();
-//
-//    _hideAll(dialog);
-//    _selectFilesystem(dialog);
+    this.imagesTable.initialize();
+    this.marketPlacesTable.initialize();
+    this.marketPlacesTableAdvanced.initialize();
+
+    this.imagesTable.idInput().
+      attr('required', '').
+      attr('wizard_field', 'ORIGIN_ID');
+
+    this.marketPlacesTable.idInput().attr('required', '');
+    this.marketPlacesTableAdvanced.idInput().attr('required', '');
   }
 
 
   function _submitWizard(dialog) {
-//    var name            = $('#name', dialog).val();
-//    var cluster_id      = $(".resource_list_select", $('#cluster_id', dialog)).val();
-//    var ds_type         = $('input[name=ds_type]:checked', dialog).val();
-//    var ds_mad          = $('#ds_mad', dialog).val();
-//    ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]', dialog).val() : ds_mad;
-//    var tm_mad          = $('#tm_mad', dialog).val();
-//    tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]', dialog).val() : tm_mad;
-//    var type            = $('#disk_type', dialog).val();
-//
-//    var safe_dirs       = $('#safe_dirs', dialog).val();
-//    var base_path       = $('#base_path', dialog).val();
-//    var restricted_dirs = $('#restricted_dirs', dialog).val();
-//    var limit_transfer_bw = $('#limit_transfer_bw', dialog).val();
-//    var datastore_capacity_check = $('#datastore_capacity_check', dialog).is(':checked');
-//    var no_decompress   = $('#no_decompress', dialog).is(':checked');
-//
-//    var bridge_list     = $('#bridge_list', dialog).val();
-//    var ds_tmp_dir     = $('#ds_tmp_dir', dialog).val();
-//    var vg_name         = $('#vg_name', dialog).val();
-//    var limit_mb        = $('#limit_mb', dialog).val();
-//    var gluster_host    = $('#gluster_host', dialog).val();
-//    var gluster_volume  = $('#gluster_volume', dialog).val();
-//    var pool_name       = $('#pool_name', dialog).val();
-//    var ceph_host       = $('#ceph_host', dialog).val();
-//    var ceph_secret     = $('#ceph_secret', dialog).val();
-//    var ceph_user       = $('#ceph_user', dialog).val();
-//    var rbd_format      = $('#rbd_format', dialog).val();
-//    var staging_dir     = $('#staging_dir', dialog).val();
-//    var ceph_conf       = $('#ceph_conf', dialog).val();
-//    var iscsi_host      = $('#iscsi_host', dialog).val();
-//    var iscsi_user      = $('#iscsi_user', dialog).val();
-//    var iscsi_usage     = $('#iscsi_usage', dialog).val();
-//
-//    var ds_obj = {
-//      "datastore" : {
-//        "name" : name,
-//        "tm_mad" : tm_mad,
-//        "disk_type" : type,
-//        "type" : ds_type
-//      },
-//      "cluster_id" : cluster_id
-//    };
-//
-//    // If we are adding a system datastore then
-//    // we do not use ds_mad
-//    if (ds_type != "SYSTEM_DS")
-//        ds_obj.datastore.ds_mad = ds_mad;
-//
-//    if (base_path)
-//        ds_obj.datastore.base_path = base_path;
-//
-//    if (safe_dirs)
-//        ds_obj.datastore.safe_dirs = safe_dirs;
-//
-//    if (restricted_dirs)
-//        ds_obj.datastore.restricted_dirs = restricted_dirs;
-//
-//    if (limit_transfer_bw)
-//        ds_obj.datastore.limit_transfer_bw = limit_transfer_bw;
-//
-//    if (no_decompress)
-//        ds_obj.datastore.no_decompress = "YES";
-//
-//    if (datastore_capacity_check)
-//        ds_obj.datastore.datastore_capacity_check = "YES";
-//
-//    if (bridge_list)
-//        ds_obj.datastore.bridge_list = bridge_list;
-//
-//    if (ds_tmp_dir)
-//        ds_obj.datastore.ds_tmp_dir = ds_tmp_dir;
-//
-//    if (vg_name)
-//        ds_obj.datastore.vg_name = vg_name;
-//
-//    if (limit_mb)
-//        ds_obj.datastore.limit_mb = limit_mb;
-//
-//    if (gluster_host)
-//        ds_obj.datastore.gluster_host = gluster_host;
-//
-//    if (gluster_volume)
-//        ds_obj.datastore.gluster_volume = gluster_volume;
-//
-//    if (pool_name)
-//        ds_obj.datastore.pool_name = pool_name;
-//
-//    if (ceph_host)
-//        ds_obj.datastore.ceph_host = ceph_host;
-//
-//    if (ceph_secret)
-//        ds_obj.datastore.ceph_secret = ceph_secret;
-//
-//    if (ceph_user)
-//        ds_obj.datastore.ceph_user = ceph_user;
-//
-//    if (rbd_format)
-//        ds_obj.datastore.rbd_format = rbd_format;
-//
-//    if (staging_dir)
-//        ds_obj.datastore.staging_dir = staging_dir;
-//
-//    if (ceph_conf)
-//        ds_obj.datastore.ceph_conf = ceph_conf;
-//
-//    if (iscsi_host)
-//        ds_obj.datastore.iscsi_host = iscsi_host;
-//
-//    if (iscsi_user)
-//        ds_obj.datastore.iscsi_user = iscsi_user;
-//
-//    if (iscsi_usage)
-//        ds_obj.datastore.iscsi_usage = iscsi_usage;
+    var marketPlaceJSON = {};
+    $.extend(marketPlaceJSON, WizardFields.retrieve(dialog));
 
-//    Sunstone.runAction("Datastore.create", ds_obj);
+    var vmTemplate = $('#VMTEMPLATE', dialog).val();
+    if (vmTemplate) {
+      marketPlaceJSON['VMTEMPLATE64'] = btoa(vmTemplate);
+    }
+
+    var appTemplate = $('#APPTEMPLATE', dialog).val();
+    if (appTemplate) {
+      marketPlaceJSON['APPTEMPLATE64'] = btoa(appTemplate);
+    }
+
+    var marketPlaceAppObj = {
+      "marketplaceapp" : marketPlaceJSON,
+      "mp_id" : this.marketPlacesTable.idInput().val()
+    };
+
+    Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
     return false;
   }
 
   function _submitAdvanced(dialog) {
-//    var template   = $('#template', dialog).val();
-//    var cluster_id = $(".resource_list_select", $('#datastore_cluster_raw', dialog)).val();
-//
-//    if (!cluster_id) {
-//      Notifier.notifyError(Locale.tr("Please select a cluster for this datastore"));
-//      return false;
-//    }
-//
-//    var ds_obj = {
-//      "datastore" : {
-//        "datastore_raw" : template
-//      },
-//      "cluster_id" : cluster_id
-//    };
-//
-//    Sunstone.runAction("Datastore.create", ds_obj);
+    var template = $('#template', dialog).val();
+    var marketPlaceAppObj = {
+      "marketplaceapp" : {
+        "marketplaceapp_raw" : template
+      },
+      "mp_id" : this.marketPlacesTableAdvanced.idInput().val()
+    };
+
+    Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
+
     return false;
   }
 });

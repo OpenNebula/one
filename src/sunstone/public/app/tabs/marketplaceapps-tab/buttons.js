@@ -23,10 +23,10 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
-    //"MarketPlaceApp.create_dialog" : {
-    //  type: "create_dialog",
-    //  layout: "create"
-    //},
+    "MarketPlaceApp.create_dialog" : {
+      type: "create_dialog",
+      layout: "create"
+    },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),

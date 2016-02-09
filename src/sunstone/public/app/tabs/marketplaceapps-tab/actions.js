@@ -24,13 +24,13 @@ define(function(require) {
   var RESOURCE = "MarketPlaceApp";
   var XML_ROOT = "MARKETPLACEAPP";
   var TAB_ID = require('./tabId');
-  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
-    //"MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
-    //"MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "MarketPlaceApp.list" : _commonActions.list(),
     "MarketPlaceApp.show" : _commonActions.show(),
     "MarketPlaceApp.refresh" : _commonActions.refresh(),

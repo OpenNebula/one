@@ -35,7 +35,7 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    //require('./datastores-tab/form-panels/create')
+    require('./marketplaceapps-tab/form-panels/create')
   ];
 
   var Tab = {

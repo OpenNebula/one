@@ -620,7 +620,7 @@ tabs:
             #- 11        # Labels
         actions:
             MarketPlaceApp.refresh: true
-            #MarketPlaceApp.create_dialog: true
+            MarketPlaceApp.create_dialog: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true
