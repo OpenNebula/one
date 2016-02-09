@@ -143,9 +143,21 @@ static void monitor_action(
 
     for (int i=0; i< num ; i++)
     {
-        if ( apppool->import(apps[i]->value(), id, name, err) == -1 )
+        int rc = apppool->import(apps[i]->value(), id, name, err);
+
+        if ( rc == -1 )
         {
             NebulaLog::log("MKP", Log::ERROR, "Error importing app: " + err);
+        }
+        else if ( rc >= 0 ) //-2 means app already imported
+        {
+            MarketPlace * market = marketpool->get(id, true);
+
+            market->add_marketapp(rc);
+
+            marketpool->update(market);
+
+            market->unlock();
         }
     }
 
