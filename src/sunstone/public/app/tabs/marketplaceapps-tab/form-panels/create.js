@@ -104,19 +104,19 @@ define(function(require) {
     });
   }
 
-  function _onShow(dialog) {
+  function _onShow(context) {
     this.imagesTable.resetResourceTableSelect();
     this.marketPlacesTable.resetResourceTableSelect();
     this.marketPlacesTableAdvanced.resetResourceTableSelect();
 
-    $("#NAME", dialog).focus();
+    $("#NAME", context).focus();
 
     return false;
   }
 
-  // Set up the create datastore dialog
-  function _setup(dialog) {
-    Tips.setup(dialog);
+  // Set up the create datastore context
+  function _setup(context) {
+    Tips.setup(context);
 
     this.imagesTable.initialize();
     this.marketPlacesTable.initialize();
@@ -131,16 +131,16 @@ define(function(require) {
   }
 
 
-  function _submitWizard(dialog) {
+  function _submitWizard(context) {
     var marketPlaceJSON = {};
-    $.extend(marketPlaceJSON, WizardFields.retrieve(dialog));
+    $.extend(marketPlaceJSON, WizardFields.retrieve(context));
 
-    var vmTemplate = $('#VMTEMPLATE', dialog).val();
+    var vmTemplate = $('#VMTEMPLATE', context).val();
     if (vmTemplate) {
       marketPlaceJSON['VMTEMPLATE64'] = btoa(vmTemplate);
     }
 
-    var appTemplate = $('#APPTEMPLATE', dialog).val();
+    var appTemplate = $('#APPTEMPLATE', context).val();
     if (appTemplate) {
       marketPlaceJSON['APPTEMPLATE64'] = btoa(appTemplate);
     }
@@ -154,8 +154,8 @@ define(function(require) {
     return false;
   }
 
-  function _submitAdvanced(dialog) {
-    var template = $('#template', dialog).val();
+  function _submitAdvanced(context) {
+    var template = $('#template', context).val();
     var marketPlaceAppObj = {
       "marketplaceapp" : {
         "marketplaceapp_raw" : template
