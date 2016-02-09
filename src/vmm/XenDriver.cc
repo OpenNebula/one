@@ -35,10 +35,10 @@ int XenDriver::deployment_description(
 
     int num;
 
-    string  credits;
-    string  cpu;
-    string  memory;
-    string  vcpu;
+    string credits = "";
+    string cpu     = "";
+    string memory  = "";
+    string vcpu    = "";
 
     float   base_credit = 1.0;
     float   cpu_units   = 1.0;
@@ -102,8 +102,8 @@ int XenDriver::deployment_description(
     int localtime_found     = -1;
 
     vector<const VectorAttribute *> raw;
-    string data;
-    string default_raw;
+    string data        = "";
+    string default_raw = "";
 
     // ------------------------------------------------------------------------
 
@@ -624,17 +624,17 @@ int XenDriver::deployment_description(
             }
         }
 
-        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) )
+        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) == 0 )
         {
             pae_found = 0;
         }
 
-        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) )
+        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) == 0 )
         {
             acpi_found = 0;
         }
 
-        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) )
+        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) == 0 )
         {
             apic_found = 0;
         }
@@ -653,22 +653,22 @@ int XenDriver::deployment_description(
             get_default("FEATURES", "LOCALTIME", localtime);
         }
 
-        if ( pae_found == 0)
+        if ( pae_found == 0 )
         {
             file << "pae = " << on_off_string(pae) << endl;
         }
 
-        if ( acpi_found == 0)
+        if ( acpi_found == 0 )
         {
             file << "acpi = " << on_off_string(acpi) << endl;
         }
 
-        if ( apic_found == 0)
+        if ( apic_found == 0 )
         {
             file << "apic = " << on_off_string(apic) << endl;
         }
 
-        if ( device_model_found == 0)
+        if ( device_model_found == 0 )
         {
             file << "device_model = '" << device_model << "'" << endl;
         }

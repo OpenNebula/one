@@ -409,37 +409,34 @@ public:
     };
 
     /**
-     *  Gets a configuration attribute for oned, bool version
-     */
-    void get_configuration_attribute(
-        const char * name,
-        bool& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(
         const std::string& ds_name,
-        const VectorAttribute* &value) const;
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("DS_MAD_CONF", ds_name, value);
+    };
 
     /**
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(
         const string& tm_name,
-        const VectorAttribute* &value) const;
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("TM_MAD_CONF", tm_name, value);
+    };
 
     /**
      *  Gets a Market configuration attribute
      */
     int get_market_conf_attribute(
-        const string& tm_name,
-        const VectorAttribute* &value) const;
+        const string& mk_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
+    };
 
     /**
      *  Gets an XML document with all of the configuration attributes

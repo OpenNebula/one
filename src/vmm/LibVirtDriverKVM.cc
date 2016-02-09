@@ -206,8 +206,8 @@ int LibVirtDriver::deployment_description_kvm(
     string hyperv_options = "";
 
     vector<const VectorAttribute *> raw;
-    string default_raw;
-    string data;
+    string default_raw = "";
+    string data        = "";
 
     // ------------------------------------------------------------------------
 
@@ -928,7 +928,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 get_default("SPICE_OPTIONS", spice_options);
 
-                if ( spice_options != "" )
+                if (spice_options.empty())
                 {
                     file << "\t\t" << spice_options << endl;
                 }

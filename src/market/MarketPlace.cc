@@ -290,6 +290,31 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
+static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
+        const string& astr)
+{
+    std::vector<std::string> actions;
+    std::vector<std::string>::iterator vit;
+
+    std::string action;
+    MarketPlaceApp::Action id;
+
+    actions = one_util::split(astr, ',');
+
+    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
+    {
+        action = one_util::trim(*vit);
+
+        if ( MarketPlaceApp::action_from_str(action, id) != 0 )
+        {
+            NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
+            continue;
+        }
+
+        as.set(id);
+    }
+}
+
 int MarketPlace::from_xml(const std::string &xml_str)
 {
     int rc = 0;
@@ -345,6 +370,29 @@ int MarketPlace::from_xml(const std::string &xml_str)
     {
         return -1;
     }
+
+    // ------ SUPPORTED ACTIONS, regenerated from oned.conf ------
+    const VectorAttribute* vatt;
+    string actions;
+
+    if (Nebula::instance().get_market_conf_attribute(market_mad, vatt) == 0)
+    {
+        actions = vatt->vector_value("APP_ACTIONS");
+    }
+
+    if (actions.empty())
+    {
+        if (market_mad == "http" || market_mad == "s3")
+        {
+            actions = "create, monitor, delete";
+        }
+        else if ( market_mad == "one" )
+        {
+            actions = "create, monitor";
+        }
+    }
+
+    set_supported_actions(supported_actions, actions);
 
     return 0;
 }

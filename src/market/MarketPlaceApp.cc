@@ -305,8 +305,8 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
     rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
 
-    state = static_cast<MarketPlaceAppState>(istate);
-    type  = static_cast<MarketPlaceAppType>(itype);
+    state = static_cast<State>(istate);
+    type  = static_cast<Type>(itype);
 
 	// ----- Permissions -----
     rc += perms_from_xml();
@@ -360,7 +360,7 @@ int MarketPlaceApp::post_update_template(string& error)
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
-MarketPlaceApp::MarketPlaceAppType MarketPlaceApp::str_to_type(string& str_type)
+MarketPlaceApp::Type MarketPlaceApp::str_to_type(string& str_type)
 {
     one_util::toupper(str_type);
 

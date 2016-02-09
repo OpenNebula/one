@@ -3204,24 +3204,6 @@ bool VirtualMachine::is_vrouter()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_vrouter_action_supported(History::VMAction action)
-{
-    return (action == History::MIGRATE_ACTION ||
-            action == History::LIVE_MIGRATE_ACTION ||
-            action == History::HOLD_ACTION ||
-            action == History::RELEASE_ACTION ||
-            action == History::RESUME_ACTION ||
-            action == History::BOOT_ACTION ||
-            action == History::REBOOT_ACTION ||
-            action == History::REBOOT_HARD_ACTION ||
-            action == History::RESCHED_ACTION ||
-            action == History::UNRESCHED_ACTION ||
-            action == History::DISK_SNAPSHOT_CREATE_ACTION ||
-            action == History::DISK_SNAPSHOT_DELETE_ACTION);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::generate_context(string &files, int &disk_id,
         const string& token_password)

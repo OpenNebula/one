@@ -1326,12 +1326,6 @@ public:
      */
     bool is_vrouter();
 
-    /**
-     * Checks if the given action is supported for Virtual Router VMs
-     * @param action VM action to check
-     * @return true if the action is supported for Virtual Router VMs
-     */
-    static bool is_vrouter_action_supported(History::VMAction action);
 
     // ------------------------------------------------------------------------
     // Context related functions
