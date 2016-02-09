@@ -44,7 +44,7 @@ define(function(require) {
     listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("Apps"),
     infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("App"),
     subheader: '<span/> <small></small>&emsp;',
-    resource: 'MarketPlace',
+    resource: 'MarketPlaceApp',
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
