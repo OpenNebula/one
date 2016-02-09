@@ -129,7 +129,7 @@ define(function(require) {
         OpenNebulaMarketPlaceApp.stateStr(element.STATE),
         OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
         Humanize.prettyTime(element.REGTIME),
-        OpenNebulaMarketPlace.getName(element.MARKETPLACE_ID),
+        element.MARKETPLACE,
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
