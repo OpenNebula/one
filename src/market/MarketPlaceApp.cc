@@ -49,7 +49,6 @@ MarketPlaceApp::MarketPlaceApp(
         md5(""),
         size_mb(0),
         description(""),
-        publisher(""),
         version(""),
         apptemplate64(""),
         market_id(-1),
@@ -109,7 +108,6 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     //ORIGIN_ID
     //DESCRIPTION
     //APPTEMPLATE64
-    //PUBLISHER
     //VERSION
     if (!get_template_attribute("ORIGIN_ID", origin_id))
     {
@@ -121,13 +119,6 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     get_template_attribute("DESCRIPTION", description);
 
     get_template_attribute("APPTEMPLATE64", apptemplate64);
-
-    get_template_attribute("PUBLISHER", publisher);
-
-    if (publisher.empty())
-    {
-        publisher = uname;
-    }
 
     get_template_attribute("VERSION", version);
 
@@ -253,7 +244,6 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
             "<MD5>"            << md5           << "</MD5>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
             "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
-            "<PUBLISHER>"      << publisher     << "</PUBLISHER>" <<
             "<VERSION>"        << version       << "</VERSION>" <<
             "<FORMAT>"         << format        << "</FORMAT>" <<
             "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
@@ -299,7 +289,6 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath<long long>(size_mb, "/MARKETPLACEAPP/SIZE", -1);
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
     rc += xpath(md5,          "/MARKETPLACEAPP/MD5", "not_found");
-    rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");
     rc += xpath(format,       "/MARKETPLACEAPP/FORMAT", "not_found");
     rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
     rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
@@ -338,7 +327,6 @@ int MarketPlaceApp::post_update_template(string& error)
 {
 	std::string n_description;
 	std::string n_apptemplate64;
-	std::string n_publisher;
 	std::string n_version;
 
 	// -------------------------------------------------------------------------
@@ -346,12 +334,10 @@ int MarketPlaceApp::post_update_template(string& error)
     // -------------------------------------------------------------------------
     get_template_attribute("DESCRIPTION",   n_description);
     get_template_attribute("APPTEMPLATE64", n_apptemplate64);
-    get_template_attribute("PUBLISHER",     n_publisher);
     get_template_attribute("VERSION",       n_version);
 
     description   = n_description;
     apptemplate64 = n_apptemplate64;
-    publisher     = n_publisher;
     version       = n_version;
 
 	return 0;
@@ -460,7 +446,6 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
     erase_template_attribute("SIZE", size_mb);
     erase_template_attribute("VERSION", version);
     erase_template_attribute("MD5", md5);
-    erase_template_attribute("PUBLISHER", publisher);
     erase_template_attribute("FORMAT", format);
     erase_template_attribute("APPTEMPLATE64", apptemplate64);
 

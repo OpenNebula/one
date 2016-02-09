@@ -296,11 +296,6 @@ private:
     std::string description;
 
     /**
-     *  User sharing the app
-     */
-    std::string publisher;
-
-    /**
      *  Version of the app
      */
     std::string version;
