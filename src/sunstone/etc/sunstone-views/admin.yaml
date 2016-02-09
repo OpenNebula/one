@@ -608,8 +608,7 @@ tabs:
             MarketPlace.delete: true
     marketplaceapps-tab:
         panel_tabs:
-            #marketplaces_info_tab: true
-            #marketplaces_apps_tab: true
+            marketplaceapp_info_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

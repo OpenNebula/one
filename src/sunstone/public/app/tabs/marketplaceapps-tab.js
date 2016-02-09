@@ -27,7 +27,7 @@ define(function(require) {
   ];
 
   var _panels = [
-    //require('./marketplaceapps-tab/panels/info')
+    require('./marketplaceapps-tab/panels/info')
   ];
 
   var _panelsHooks = [
