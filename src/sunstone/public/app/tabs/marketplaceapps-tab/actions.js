@@ -25,12 +25,37 @@ define(function(require) {
   var XML_ROOT = "MARKETPLACEAPP";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var EXPORT_DIALOG_ID = require('./form-panels/export/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
     "MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "MarketPlaceApp.export_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export");
+      }
+    },
+    "MarketPlaceApp.export" : {
+      type: "multiple",
+      call: OpenNebulaResource.export,
+      callback: function(req) {
+        Sunstone.hideFormPanel(TAB_ID);
+        OpenNebulaAction.clear_cache("IMAGE");
+        OpenNebulaAction.clear_cache("VMTEMPLATE");
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: function(request, response){
+        // without tab id param to work for both templates and vms tab
+        Sunstone.hideFormPanelLoading();
+        Notifier.onError(request, response);
+      },
+      notify: true
+    },
     "MarketPlaceApp.list" : _commonActions.list(),
     "MarketPlaceApp.show" : _commonActions.show(),
     "MarketPlaceApp.refresh" : _commonActions.refresh(),

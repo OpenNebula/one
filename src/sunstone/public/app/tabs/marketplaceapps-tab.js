@@ -35,7 +35,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./marketplaceapps-tab/form-panels/create')
+    require('./marketplaceapps-tab/form-panels/create'),
+    require('./marketplaceapps-tab/form-panels/export')
   ];
 
   var Tab = {

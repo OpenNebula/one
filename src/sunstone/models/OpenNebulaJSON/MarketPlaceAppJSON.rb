@@ -48,6 +48,7 @@ module OpenNebulaJSON
 
             rc = case action_hash['perform']
                  when "update"        then self.update(action_hash['params'])
+                 when "export"        then self.export(action_hash['params'])
                  when "chown"         then self.chown(action_hash['params'])
                  when "chmod"         then self.chmod_octet(action_hash['params'])
                  when "rename"        then self.rename(action_hash['params'])
@@ -62,6 +63,12 @@ module OpenNebulaJSON
 
         def update(params=Hash.new)
             super(params['template_raw'])
+        end
+
+        def export(params=Hash.new)
+            dsid = params['dsid'] ? params['dsid'].to_i : params['dsid'] 
+            name = params['name']
+            super({:dsid => dsid, :name => name})
         end
 
         def chown(params=Hash.new)
