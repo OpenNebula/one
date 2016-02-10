@@ -605,6 +605,7 @@ tabs:
     marketplaceapps-tab:
         panel_tabs:
             marketplaceapp_info_tab: true
+            marketplaceapp_templates_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

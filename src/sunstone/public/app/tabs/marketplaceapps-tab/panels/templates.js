@@ -31,14 +31,14 @@ define(function(require) {
     TEMPLATES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
+  var TemplateInfo = require('hbs!./templates/html');
 
   /*
     CONSTANTS
    */
 
   var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
+  var PANEL_ID = require('./templates/panelId');
   var RESOURCE = "MarketPlaceApp"
   var XML_ROOT = "MARKETPLACEAPP"
 
@@ -47,8 +47,8 @@ define(function(require) {
    */
 
   function Panel(info) {
-    this.title = Locale.tr("Info");
-    this.icon = "fa-info-circle";
+    this.title = Locale.tr("Templates");
+    this.icon = "fa-file-o";
 
     this.element = info[XML_ROOT];
 
@@ -67,52 +67,53 @@ define(function(require) {
 
 
   function _html() {
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["VMTEMPLATE64"];
-    delete strippedTemplate["APPTEMPLATE64"];
-
-    var templateTableHTML = TemplateTable.html(
-                                      strippedTemplate, RESOURCE,
-                                      Locale.tr("Attributes"));
-
-    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
-    var stateStr = OpenNebulaMarketPlaceApp.stateStr(this.element.STATE);
-    var typeStr = OpenNebulaMarketPlaceApp.typeStr(this.element.TYPE);
-    var sizeStr = Humanize.sizeFromMB(this.element.SIZE);
-
+    var vmTemplate = atob(this.element.TEMPLATE.VMTEMPLATE64 || '');
+    var appTemplate = atob(this.element.TEMPLATE.APPTEMPLATE64 || '');
 
     return TemplateInfo({
       'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'templateTableHTML': templateTableHTML,
-      'permissionsTableHTML': permissionsTableHTML,
-      'prettyRegTime': prettyRegTime,
-      'stateStr': stateStr,
-      'typeStr': typeStr,
-      'sizeStr': sizeStr
+      'vmTemplate': vmTemplate,
+      'appTemplate': appTemplate
     });
   }
 
   function _setup(context) {
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["VMTEMPLATE64"];
-    delete strippedTemplate["APPTEMPLATE64"];
+    context.off("click", ".vmTemplate_edit");
+    context.on("click", ".vmTemplate_edit", function() {
+      $("#vmTemplate_text", context).hide();
+      $("#vmTemplate_textarea", context).show().focus();
+    });
 
-    var hiddenValues = {};
+    context.off("change", "#vmTemplate_textarea");
+    context.on("change", "#vmTemplate_textarea", function() {
+      var templateStr = 'VMTEMPLATE64 = "' + btoa($(this).val()) + '"';
+      Sunstone.runAction("MarketPlaceApp.append_template", that.element.ID, templateStr);
+    });
 
-    if (this.element.TEMPLATE.VMTEMPLATE64 !== undefined) {
-      hiddenValues.VMTEMPLATE64 = this.element.TEMPLATE.VMTEMPLATE64;
-    }
-    if (this.element.TEMPLATE.APPTEMPLATE64 !== undefined) {
-      hiddenValues.APPTEMPLATE64 = this.element.TEMPLATE.APPTEMPLATE64;
-    }
+    context.off("focusout", "#vmTemplate_textarea");
+    context.on("focusout", "#vmTemplate_textarea", function() {
+      $("#vmTemplate_text", context).show();
+      $("#vmTemplate_textarea", context).hide();
+    });
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
+    context.off("click", ".appTemplate_edit");
+    context.on("click", ".appTemplate_edit", function() {
+      $("#appTemplate_text", context).hide();
+      $("#appTemplate_textarea", context).show().focus();
+    });
 
-    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+    context.off("change", "#appTemplate_textarea");
+    context.on("change", "#appTemplate_textarea", function() {
+      var templateStr = 'APPTEMPLATE64 = "' + btoa($(this).val()) + '"';
+      Sunstone.runAction("MarketPlaceApp.append_template", that.element.ID, templateStr);
+    });
+
+    context.off("focusout", "#appTemplate_textarea");
+    context.on("focusout", "#appTemplate_textarea", function() {
+      $("#appTemplate_text", context).show();
+      $("#appTemplate_textarea", context).hide();
+    });
+
     return false;
   }
 });
