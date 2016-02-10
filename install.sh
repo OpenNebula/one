@@ -1217,7 +1217,8 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/snap_revert \
                          src/datastore_mad/remotes/ceph/snap_flatten \
                          src/datastore_mad/remotes/ceph/ceph.conf \
-                         src/datastore_mad/remotes/ceph/ceph_utils.sh"
+                         src/datastore_mad/remotes/ceph/ceph_utils.sh \
+                         src/datastore_mad/remotes/ceph/export"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/mkfs \
