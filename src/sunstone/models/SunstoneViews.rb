@@ -80,15 +80,15 @@ class SunstoneViews
                 return available.uniq
             end
 
-            if group["TEMPLATE/SUNSTONE_VIEWS"]
-                views_array = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+            if group["TEMPLATE/SUNSTONE/VIEWS"]
+                views_array = group["TEMPLATE/SUNSTONE/VIEWS"].split(",")
                 available << views_array.each{|v| v.strip!}
             elsif @views_config['groups']
                 available << @views_config['groups'][group.name]
             end
 
             gadmins       = group.admin_ids
-            gadmins_views = group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+            gadmins_views = group["TEMPLATE/SUNSTONE/GROUP_ADMIN_VIEWS"]
 
             if gadmins && gadmins.include?(user.id) && gadmins_views
                 views_array = gadmins_views.split(",")

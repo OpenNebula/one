@@ -67,8 +67,8 @@ SecurityGroup::~SecurityGroup()
 
 int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
-    vector<const Attribute*>::const_iterator it;
-    vector<const Attribute*> rules;
+    vector<const VectorAttribute*>::const_iterator it;
+    vector<const VectorAttribute*> rules;
 
     erase_template_attribute("NAME",name);
 
@@ -81,14 +81,7 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     for ( it = rules.begin(); it != rules.end(); it++ )
     {
-        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (rule == 0)
-        {
-            goto error_format;
-        }
-
-        if (!isValidRule(rule, error_str))
+        if (!isValidRule(*it, error_str))
         {
             goto error_valid;
         }
@@ -103,10 +96,6 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
 error_name:
     error_str = "No NAME in template for Security Group.";
-    goto error_common;
-
-error_format:
-    error_str = "RULE has to be defined as a vector attribute.";
     goto error_common;
 
 error_valid:
@@ -288,22 +277,15 @@ int SecurityGroup::from_xml(const string& xml)
 
 void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 {
-    vector<const Attribute*>::const_iterator it;
-    vector<const Attribute*> rules;
+    vector<const VectorAttribute*>::const_iterator it;
+    vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
     for ( it = rules.begin(); it != rules.end(); it++ )
     {
-        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
-
-        if ( rule == 0 )
-        {
-            continue;
-        }
-
         VectorAttribute* new_rule = new VectorAttribute(
-                                    "SECURITY_GROUP_RULE", rule->value());
+                                    "SECURITY_GROUP_RULE", (*it)->value());
 
         new_rule->replace("SECURITY_GROUP_ID", this->get_oid());
         new_rule->replace("SECURITY_GROUP_NAME", this->get_name());
@@ -430,22 +412,14 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
 int SecurityGroup::post_update_template(string& error)
 {
-    vector<const Attribute*>::const_iterator it;
-    vector<const Attribute*> rules;
+    vector<const VectorAttribute*>::const_iterator it;
+    vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
     for ( it = rules.begin(); it != rules.end(); it++ )
     {
-        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (rule == 0)
-        {
-            error = "RULE has to be defined as a vector attribute.";
-            return -1;
-        }
-
-        if (!isValidRule(rule, error))
+        if (!isValidRule(*it, error))
         {
             return -1;
         }

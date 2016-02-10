@@ -28,6 +28,7 @@ define(function(require) {
   var VCenterClusters = require('utils/vcenter/clusters');
   var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -61,6 +62,22 @@ define(function(require) {
     this.vCenterNetworks = new VCenterNetworks();
     this.vCenterTemplates = new VCenterTemplates();
 
+    var that = this;
+
+    that.vmMadNameList = [];
+    if (Config.vmMadConf !== undefined) {
+      $.each(Config.vmMadConf, function(index, vmMad) {
+        that.vmMadNameList.push(vmMad["NAME"]);
+      });
+    }
+
+    that.imMadNameList = [];
+    if (Config.imMadConf !== undefined) {
+      $.each(Config.imMadConf, function(index, imMad) {
+        that.imMadNameList.push(imMad["NAME"]);
+      });
+    }
+
     BaseFormPanel.call(this);
   };
 
@@ -83,7 +100,9 @@ define(function(require) {
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
       'vCenterTemplatesHTML': this.vCenterTemplates.html(),
-      'vCenterNetworksHTML': this.vCenterNetworks.html()
+      'vCenterNetworksHTML': this.vCenterNetworks.html(),
+      'vmMadNameList': this.vmMadNameList,
+      'imMadNameList': this.imMadNameList
     });
   }
 
@@ -248,7 +267,12 @@ define(function(require) {
     var cluster_id = $("#host_cluster_id .resource_list_select", context).val();
     if (!cluster_id) cluster_id = "-1";
 
-    ResourceSelect.insert('#host_cluster_id', context, "Cluster", cluster_id, false);
+    ResourceSelect.insert({
+        context: $('#host_cluster_id', context),
+        resourceName: 'Cluster',
+        initValue: cluster_id,
+        includeDefaultCluster: true
+      });
 
     $("#host_type_mad", context).change();
 

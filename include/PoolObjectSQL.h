@@ -49,41 +49,48 @@ public:
      */
     enum ObjectType
     {
-        VM          = 0x0000001000000000LL,
-        HOST        = 0x0000002000000000LL,
-        NET         = 0x0000004000000000LL,
-        IMAGE       = 0x0000008000000000LL,
-        USER        = 0x0000010000000000LL,
-        TEMPLATE    = 0x0000020000000000LL,
-        GROUP       = 0x0000040000000000LL,
-        ACL         = 0x0000080000000000LL,
-        DATASTORE   = 0x0000100000000000LL,
-        CLUSTER     = 0x0000200000000000LL,
-        DOCUMENT    = 0x0000400000000000LL,
-        ZONE        = 0x0000800000000000LL,
-        SECGROUP    = 0x0001000000000000LL,
-        VDC         = 0x0002000000000000LL
+        NONE           = 0x0000000000000000LL,
+        VM             = 0x0000001000000000LL,
+        HOST           = 0x0000002000000000LL,
+        NET            = 0x0000004000000000LL,
+        IMAGE          = 0x0000008000000000LL,
+        USER           = 0x0000010000000000LL,
+        TEMPLATE       = 0x0000020000000000LL,
+        GROUP          = 0x0000040000000000LL,
+        ACL            = 0x0000080000000000LL,
+        DATASTORE      = 0x0000100000000000LL,
+        CLUSTER        = 0x0000200000000000LL,
+        DOCUMENT       = 0x0000400000000000LL,
+        ZONE           = 0x0000800000000000LL,
+        SECGROUP       = 0x0001000000000000LL,
+        VDC            = 0x0002000000000000LL,
+        VROUTER        = 0x0004000000000000LL,
+        MARKETPLACE    = 0x0008000000000000LL,
+        MARKETPLACEAPP = 0x0010000000000000LL
     };
 
     static string type_to_str(ObjectType ob)
     {
         switch (ob)
         {
-            case VM:        return "VM" ; break;
-            case HOST:      return "HOST" ; break;
-            case NET:       return "NET" ; break;
-            case IMAGE:     return "IMAGE" ; break;
-            case USER:      return "USER" ; break;
-            case TEMPLATE:  return "TEMPLATE" ; break;
-            case GROUP:     return "GROUP" ; break;
-            case ACL:       return "ACL" ; break;
-            case DATASTORE: return "DATASTORE" ; break;
-            case CLUSTER:   return "CLUSTER" ; break;
-            case DOCUMENT:  return "DOCUMENT" ; break;
-            case ZONE:      return "ZONE" ; break;
-            case SECGROUP:  return "SECGROUP" ; break;
-            case VDC:       return "VDC" ; break;
-            default:        return "";
+            case VM:             return "VM" ; break;
+            case HOST:           return "HOST" ; break;
+            case NET:            return "NET" ; break;
+            case IMAGE:          return "IMAGE" ; break;
+            case USER:           return "USER" ; break;
+            case TEMPLATE:       return "TEMPLATE" ; break;
+            case GROUP:          return "GROUP" ; break;
+            case ACL:            return "ACL" ; break;
+            case DATASTORE:      return "DATASTORE" ; break;
+            case CLUSTER:        return "CLUSTER" ; break;
+            case DOCUMENT:       return "DOCUMENT" ; break;
+            case ZONE:           return "ZONE" ; break;
+            case SECGROUP:       return "SECGROUP" ; break;
+            case VDC:            return "VDC" ; break;
+            case VROUTER:        return "VROUTER" ; break;
+            case MARKETPLACE:    return "MARKETPLACE" ; break;
+            case MARKETPLACEAPP: return "MARKETPLACEAPP" ; break;
+            default:             return "";
         }
     };
 
@@ -320,152 +327,61 @@ public:
     // Template
     // ------------------------------------------------------------------------
     /**
-     *  Gets the values of a template attribute
+     *  Gets the first VectorAttribute of the specified type with the given name.
+     *  Const and non-const versions of this method is provided
+     *    @param name the attribute name.
+     *    @return true first attribute or 0 if not found or wrong type
+     */
+    const VectorAttribute * get_template_attribute(const string& s) const
+    {
+        return obj_template->get(s);
+    }
+
+    VectorAttribute * get_template_attribute(const string& s)
+    {
+        return obj_template->get(s);
+    }
+
+    /**
+     *  Gets the values of a template attribute, as a list of VectorAttributes
      *    @param name of the attribute
      *    @param values of the attribute
      *    @return the number of values
      */
-    int get_template_attribute(
-        const char *              name,
-        vector<const Attribute*>& values) const
+	template<typename T>
+    int get_template_attribute(const char * name, vector<const T*>& values) const
     {
         return obj_template->get(name,values);
     };
 
     /**
-     *  Gets a string based attribute (single)
+     *  These methods gets the value of a SingleAttribute and converts it to the
+	 *  target type
      *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined or
+     *    @param value of the attribute, will be ""/0/false if not defined or
      *    not a single attribute
+	 *
+     *    @return true if the attribute was found and is a valid type for the
+	 *    target value
      */
-    void get_template_attribute(
-        const char * name,
-        string&      value) const
-    {
-        obj_template->get(name,value);
-    }
-
-    /**
-     *  Gets and removes a string based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a string), will be "" if not defined or
-     *    not a single attribute
-     *    @return the number of attributes erased
-     */
-    int erase_template_attribute(
-        const char * name,
-        string&      value)
-    {
-        obj_template->get(name,value);
-        return obj_template->erase(name);
-    }
-
-    /**
-     *  Gets and removes a float based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a float), will be 0 if not defined or
-     *    not a single attribute
-     *    @return the number of attributes erased
-     */
-    int erase_template_attribute(
-        const char * name,
-        float&       value)
-    {
-        obj_template->get(name,value);
-        return obj_template->erase(name);
-    }
-
-    /**
-     *  Gets and removes a long long based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a long long), will be 0 if not defined or
-     *    not a single attribute
-     *    @return the number of attributes erased
-     */
-    int erase_template_attribute(
-        const char * name,
-        long long&   value)
-    {
-        obj_template->get(name,value);
-        return obj_template->erase(name);
-    }
-
-    /**
-     *  Gets and removes a boolean based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a boolean), will be false if not defined or
-     *    not a single attribute
-     *    @return the number of attributes erased
-     */
-    int erase_template_attribute(
-        const char * name,
-        bool&        value)
-    {
-        obj_template->get(name,value);
-        return obj_template->erase(name);
-    }
-
-    /**
-     *  Gets an int based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (an int), will be 0 if not defined or
-     *    not a single attribute
-     *
-     *    @return True if the Single attribute was found and is a valid integer
-     *    value
-     */
-    bool get_template_attribute(
-        const char *    name,
-        int&            value) const
+	template<typename T>
+    bool get_template_attribute(const char * name, T& value) const
     {
         return obj_template->get(name,value);
     }
 
     /**
-     *  Gets a long long based attribute (single)
+     *  These methods get and remove a string based attribute (single)
      *    @param name of the attribute
-     *    @param value of the attribute (long long), will be 0 if not defined or
-     *    not a single attribute
-     *
-     *    @return True if the Single attribute was found and is a valid integer
-     *    value
+     *    @param value of the attribute (a string), will be ""/0/false if not
+	 *    defined or  not a single attribute, depending on the target value type
+     *    @return the number of attributes erased
      */
-    bool get_template_attribute(
-        const char *    name,
-        long long&      value) const
+	template<typename T>
+    int erase_template_attribute(const char * name, T& value)
     {
-        return obj_template->get(name,value);
-    }
-
-    /**
-     *  Gets a float based attribute (single)
-     *    @param name of the attribute
-     *    @param value of the attribute (a float), will be 0 if not defined or
-     *    not a single attribute
-     *
-     *    @return True if the Single attribute was found and is a valid float
-     *    value
-     */
-    bool get_template_attribute(
-        const char *    name,
-        float&          value) const
-    {
-        return obj_template->get(name,value);
-    }
-
-    /**
-     *  Gets a boolean attribute (single) (YES = true)
-     *    @param name of the attribute
-     *    @param value of the attribute (True if "YES", false otherwise)
-     *
-     *    @return True if the Single attribute was found and is a valid boolean
-     *    value
-     */
-    bool get_template_attribute(
-        const char *    name,
-        bool&           value) const
-    {
-        return obj_template->get(name,value);
+        obj_template->get(name,value);
+        return obj_template->erase(name);
     }
 
     /**
@@ -475,9 +391,8 @@ public:
      *    @param value of the new attribute
      *    @return 0 on success
      */
-    int replace_template_attribute(
-        const string& name,
-        const string& value)
+	template<typename T>
+    int replace_template_attribute(const string& name, const T& value)
     {
         return obj_template->replace(name, value);
     }
@@ -489,18 +404,17 @@ public:
      *    @param values a vector containing a pointer to the attributes
      *    @return the number of attributes removed
      */
-    int remove_template_attribute(
-        const string&        name,
-        vector<Attribute *>& values)
+	template<typename T>
+    int remove_template_attribute(const string& n, vector<T *>& v)
     {
-        return obj_template->remove(name, values);
+        return obj_template->remove(n, v);
     }
 
     /**
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
-   string&  template_to_xml(string &xml) const
+    string& template_to_xml(string &xml) const
     {
         return obj_template->to_xml(xml);
     }
@@ -530,27 +444,8 @@ public:
      *    @param att_name Name for the attribute
      *    @param att_val Message string
      */
-    void add_template_attribute(const string& name, const string& value)
-    {
-        obj_template->add(name, value);
-    }
-
-    /**
-     *  Adds an int attribute
-     *    @param att_name Name for the attribute
-     *    @param att_val integer
-     */
-    void add_template_attribute(const string& name, int value)
-    {
-        obj_template->add(name, value);
-    }
-
-    /**
-     *  Adds a float attribute
-     *    @param att_name Name for the attribute
-     *    @param att_val integer
-     */
-    void add_template_attribute(const string& name, float value)
+	template<typename T>
+    void add_template_attribute(const string& name, const T& value)
     {
         obj_template->add(name, value);
     }

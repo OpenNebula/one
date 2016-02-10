@@ -53,7 +53,15 @@ function set_up_datastore {
 }
 
 #-------------------------------------------------------------------------------
-# Generates an unique image hash. Requires BASE_PATH to be set
+# Get file format using qemu-img
+#   @return string representation of the format, empty if error
+#-------------------------------------------------------------------------------
+function image_format {
+    echo "$($QEMU_IMG info $1 2>/dev/null | grep -Po '(?<=file format: )\w+')"
+}
+
+#-------------------------------------------------------------------------------
+# Generates an unique image hash. Requires ID to be set
 #   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
 function generate_image_hash {
@@ -64,11 +72,10 @@ function generate_image_hash {
 $CANONICAL_STR
 EOF
 )
-    IMAGE_HASH=$(echo $CANONICAL_MD5 | cut -d ' ' -f1)
-    IMAGE_HASH=$(basename "$IMAGE_HASH")
+    IMAGE_HASH="$(echo $CANONICAL_MD5 | cut -d ' ' -f1)"
 
-    if [ -z "$IMAGE_HASH" -o -z "$BASE_PATH" ]; then
-        log_error "Error generating the path in generate_image_path."
+    if [ -z "$IMAGE_HASH" ]; then
+        log_error "Error generating the path in generate_image_hash."
         exit 1
     fi
 
@@ -81,6 +88,12 @@ EOF
 #-------------------------------------------------------------------------------
 function generate_image_path {
     IMAGE_HASH=`generate_image_hash`
+
+    if [ -z "$BASE_PATH" ]; then
+        log_error "Error generating the path in generate_image_path."
+        exit 1
+    fi
+
     echo "${BASE_PATH}/${IMAGE_HASH}"
 }
 

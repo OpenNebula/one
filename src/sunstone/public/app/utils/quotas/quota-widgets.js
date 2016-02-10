@@ -344,11 +344,11 @@ define(function(require) {
           <td class="rvms_bar"></td>\
         </tr>');
 
-      ResourceSelect.insert(
-        'td.image_select',
-        $(".image_quota_table tbody tr", context).last(),
-        "Image",
-        null, true);
+      ResourceSelect.insert({
+          context: $('.image_select', $(".image_quota_table tbody tr", context).last()),
+          resourceName: 'Image',
+          emptyValue: true
+        });
 
       $(".image_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
@@ -499,11 +499,11 @@ define(function(require) {
           <td class="size_bar"></td>\
         </tr>');
 
-      ResourceSelect.insert(
-        'td.ds_select',
-        $(".ds_quota_table tbody tr", context).last(),
-        "Datastore",
-        null, true);
+      ResourceSelect.insert({
+          context: $('.ds_select', $(".ds_quota_table tbody tr", context).last()),
+          resourceName: 'Datastore',
+          emptyValue: true
+        });
 
       $(".ds_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
@@ -651,11 +651,11 @@ define(function(require) {
               <td class="leases_bar"></td>\
           </tr>');
 
-      ResourceSelect.insert(
-          'td.network_select',
-          $(".network_quota_table tbody tr", context).last(),
-          "Network",
-          null, true);
+      ResourceSelect.insert({
+          context: $('.network_select', $(".network_quota_table tbody tr", context).last()),
+          resourceName: 'Network',
+          emptyValue: true
+        });
 
       $(".network_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");

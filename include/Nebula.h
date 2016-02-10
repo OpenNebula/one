@@ -34,6 +34,9 @@
 #include "ZonePool.h"
 #include "SecurityGroupPool.h"
 #include "VdcPool.h"
+#include "VirtualRouterPool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -45,6 +48,7 @@
 #include "AuthManager.h"
 #include "AclManager.h"
 #include "ImageManager.h"
+#include "MarketPlaceManager.h"
 
 #include "DefaultQuotas.h"
 
@@ -136,6 +140,21 @@ public:
         return vdcpool;
     };
 
+    VirtualRouterPool * get_vrouterpool()
+    {
+        return vrouterpool;
+    };
+
+    MarketPlacePool * get_marketpool()
+    {
+        return marketpool;
+    };
+
+    MarketPlaceAppPool * get_apppool()
+    {
+        return apppool;
+    };
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -183,6 +202,11 @@ public:
     AclManager * get_aclm()
     {
         return aclm;
+    };
+
+    MarketPlaceManager * get_marketm()
+    {
+        return marketm;
     };
 
     // --------------------------------------------------------------
@@ -378,33 +402,8 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_configuration_attribute(
-        const char * name,
-        string& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (long long version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        long long& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (time_t version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        time_t& value) const
+    template<typename T>
+    void get_configuration_attribute(const string& name, T& value) const
     {
         nebula_configuration->get(name, value);
     };
@@ -432,6 +431,13 @@ public:
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(
+        const string& tm_name,
+        const VectorAttribute* &value) const;
+
+    /**
+     *  Gets a Market configuration attribute
+     */
+    int get_market_conf_attribute(
         const string& tm_name,
         const VectorAttribute* &value) const;
 
@@ -564,9 +570,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
         system_db(0), db(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
-        dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0), vdcpool(0),
+        dspool(0), clpool(0), docpool(0), zonepool(0),
+        secgrouppool(0), vdcpool(0), vrouterpool(0), marketpool(0), apppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
-        aclm(0), imagem(0)
+        aclm(0), imagem(0), marketm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -614,6 +621,9 @@ private:
         delete zonepool;
         delete secgrouppool;
         delete vdcpool;
+        delete vrouterpool;
+        delete marketpool;
+        delete apppool;
         delete vmm;
         delete lcm;
         delete im;
@@ -624,6 +634,7 @@ private:
         delete authm;
         delete aclm;
         delete imagem;
+        delete marketm;
         delete nebula_configuration;
         delete db;
         delete system_db;
@@ -693,6 +704,9 @@ private:
     ZonePool           * zonepool;
     SecurityGroupPool  * secgrouppool;
     VdcPool            * vdcpool;
+    VirtualRouterPool  * vrouterpool;
+    MarketPlacePool    * marketpool;
+    MarketPlaceAppPool * apppool;
 
     // ---------------------------------------------------------------
     // Nebula Managers
@@ -708,12 +722,31 @@ private:
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;
+    MarketPlaceManager *    marketm;
 
     // ---------------------------------------------------------------
     // Implementation functions
     // ---------------------------------------------------------------
 
     friend void nebula_signal_handler (int sig);
+
+    // ---------------------------------------------------------------
+    // Helper functions
+    // ---------------------------------------------------------------
+
+    /**
+     *  Gets a Generic configuration attribute
+     *  @param key String that identifies the configuration parameter group name
+     *  @param name Name of the specific configuration parameter
+     *  @param value Value of the specific configuration parameter
+     *  @return a reference to the generated string
+     */
+
+    int get_conf_attribute(
+        const std::string& key,
+        const std::string& name,
+        const VectorAttribute* &value) const;
+
 };
 
 #endif /*NEBULA_H_*/

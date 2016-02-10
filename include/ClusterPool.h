@@ -100,15 +100,6 @@ public:
         return name;
     };
 
-    /** Update a particular Cluster
-     *    @param user pointer to Cluster
-     *    @return 0 on success
-     */
-    int update(Cluster * cluster)
-    {
-        return cluster->update(db);
-    };
-
     /**
      *  Drops the Cluster from the data base. The object mutex SHOULD be
      *  locked.

@@ -40,7 +40,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     helper = OneUserHelper.new
 
     before_proc do
-        helper.set_client(options) if @comm_name != :login
+        helper.set_client(options) if ![:login, :key].include?(@comm_name)
     end
 
     ########################################################################
@@ -351,8 +351,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     key_desc = <<-EOT.unindent
-        DEPRECATED, use login to generate auth files.
-
         Shows a public key from a private SSH key. Use it as password
         for the SSH authentication mechanism.
     EOT

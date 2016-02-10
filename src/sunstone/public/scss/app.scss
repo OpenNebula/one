@@ -1,5 +1,6 @@
 @import "../bower_components/fontawesome/css/font-awesome.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
+@import "../bower_components/vis/dist/vis.min.css";
 @import "settings";
 @import "foundation";
 
@@ -574,7 +575,6 @@ fieldset {
 // Reveal
 
 .reveal-modal h3 {
-    margin-left: -20px;
     margin-bottom: 25px !important;
 }
 
@@ -1334,8 +1334,17 @@ hr {
 
 .custom_tags td {
   vertical-align: top; 
-}  
+}
 
+// Overwrite vis.js tooltip css
+div.vis-network-tooltip {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: condensed;
+
+  background-color: #ffffff;
+}  
 
 .labels-tree input[type="checkbox"] {
   margin: 0px;
@@ -1344,10 +1353,13 @@ hr {
 .labels-tree {
   font: inherit;
   list-style-type: none;
-  padding-bottom: 1em;
   padding-right: 1em;
   margin-left: 0;
   margin-bottom: 0;
+
+  & > li:last-child {
+    padding-bottom: 1em;
+  }
 
   .fa-angle-down, .fa-angle-right {
     padding: 3px;

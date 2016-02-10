@@ -27,7 +27,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-MadManager::MadManager(vector<const Attribute*>& _mads):mad_conf(_mads)
+MadManager::MadManager(vector<const VectorAttribute*>& _mads):mad_conf(_mads)
 {
     pthread_mutex_init(&mutex,0);
 }

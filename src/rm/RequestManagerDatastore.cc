@@ -29,7 +29,6 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
     int     rc;
 
     Datastore * ds;
-    string  err_msg;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -40,18 +39,16 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( ds == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = ds->enable(enable_flag, err_msg);
+    rc = ds->enable(enable_flag, att.resp_msg);
 
     if ( rc != 0  )
     {
-        failure_response(INTERNAL,request_error(err_msg,""), att);
+        failure_response(INTERNAL, att);
 
         ds->unlock();
         return;

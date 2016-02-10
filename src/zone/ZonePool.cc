@@ -158,7 +158,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ZonePool::update(Zone * zone)
+int ZonePool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -169,7 +169,7 @@ int ZonePool::update(Zone * zone)
         return -1;
     }
 
-    return zone->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

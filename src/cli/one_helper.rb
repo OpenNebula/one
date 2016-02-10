@@ -714,16 +714,17 @@ EOT
         client=OneHelper.client
 
         pool = case poolname
-        when "HOST"      then OpenNebula::HostPool.new(client)
-        when "GROUP"     then OpenNebula::GroupPool.new(client)
-        when "USER"      then OpenNebula::UserPool.new(client)
-        when "DATASTORE" then OpenNebula::DatastorePool.new(client)
-        when "CLUSTER"   then OpenNebula::ClusterPool.new(client)
-        when "VNET"      then OpenNebula::VirtualNetworkPool.new(client)
-        when "IMAGE"     then OpenNebula::ImagePool.new(client)
-        when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
-        when "VM"        then OpenNebula::VirtualMachinePool.new(client)
-        when "ZONE"      then OpenNebula::ZonePool.new(client)
+        when "HOST"        then OpenNebula::HostPool.new(client)
+        when "GROUP"       then OpenNebula::GroupPool.new(client)
+        when "USER"        then OpenNebula::UserPool.new(client)
+        when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"     then OpenNebula::ClusterPool.new(client)
+        when "VNET"        then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"       then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE"  then OpenNebula::TemplatePool.new(client)
+        when "VM"          then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"        then OpenNebula::ZonePool.new(client)
+        when "MARKETPLACE" then OpenNebula::MarketPlacePool.new(client)
         end
 
         rc = pool.info
@@ -963,7 +964,7 @@ EOT
         end
     end
 
-    def self.create_template(options)
+    def self.create_template(options, template_obj=nil)
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
@@ -1019,6 +1020,17 @@ EOT
 
         context=create_context(options)
         template<<context if context
+
+        if options[:userdata] && !template_obj.nil?
+            if template_obj.has_elements?('TEMPLATE/EC2')
+                template_obj.add_element(
+                    'TEMPLATE/EC2',
+                    'USERDATA' => options[:userdata])
+
+                template << template_obj.template_like_str(
+                    'TEMPLATE', false, 'EC2')
+            end
+        end
 
         [0, template]
     end

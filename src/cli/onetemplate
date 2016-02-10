@@ -160,7 +160,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     delete_desc = <<-EOT.unindent
-        Deletes the given Image
+        Deletes the given Template
     EOT
 
     command :delete, delete_desc, [:range, :templateid_list] do
@@ -208,17 +208,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 if args[1]
                     extra_template = File.read(args[1])
-                elsif options[:userdata]
-                    if t.has_elements?('TEMPLATE/EC2')
-                        t.add_element(
-                            'TEMPLATE/EC2',
-                            'USERDATA' => options[:userdata])
-
-                        extra_template = t.template_like_str(
-                            'TEMPLATE', false, 'EC2')
-                    end
                 else
-                    res = OpenNebulaHelper.create_template(options)
+                    res = OpenNebulaHelper.create_template(options, t)
 
                     if res.first != 0
                         STDERR.puts res.last
@@ -228,7 +219,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     extra_template = res.last
                 end
 
-                user_inputs = helper.get_user_inputs(t.to_hash) unless user_inputs
+                user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash) unless user_inputs
 
                 extra_template << "\n" << user_inputs
 

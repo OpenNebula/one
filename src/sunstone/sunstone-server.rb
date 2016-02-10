@@ -49,7 +49,12 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 
 SESSION_EXPIRE_TIME = 60*60
 
-DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE_DISPLAY_NAME'
+DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
+TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
+DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
+GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
+TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
+LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
 
 ##############################################################################
 # Required libraries
@@ -225,14 +230,14 @@ helpers do
             # - WSS CONECTION
             # - TABLE ORDER
 
-            if user['TEMPLATE/LANG']
-                session[:lang] = user['TEMPLATE/LANG']
+            if user[LANG_XPATH]
+                session[:lang] = user[LANG_XPATH]
             else
                 session[:lang] = $conf[:lang]
             end
 
-            if user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
-                session[:page_length] = user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
+            if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+                session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
             else
                 session[:page_length] = DEFAULT_PAGE_LENGTH
             end
@@ -242,18 +247,18 @@ helpers do
             session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
                              "yes" : "no")
 
-            if user['TEMPLATE/TABLE_ORDER']
-                session[:table_order] = user['TEMPLATE/TABLE_ORDER']
+            if user[TABLE_ORDER_XPATH]
+                session[:table_order] = user[TABLE_ORDER_XPATH]
             else
                 session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
             end
 
-            if user['TEMPLATE/DEFAULT_VIEW']
-                session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
-            elsif group.contains_admin(user.id) && group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
-                session[:default_view] = group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
-            elsif group['TEMPLATE/DEFAULT_VIEW']
-                session[:default_view] = group['TEMPLATE/DEFAULT_VIEW']
+            if user[DEFAULT_VIEW_XPATH]
+                session[:default_view] = user[DEFAULT_VIEW_XPATH]
+            elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+                session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+            elsif group[DEFAULT_VIEW_XPATH]
+                session[:default_view] = group[DEFAULT_VIEW_XPATH]
             else
                 session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
             end
@@ -458,11 +463,11 @@ post '/config' do
         error 500, ""
     end
 
-    session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
+    session[:lang]         = user[LANG_XPATH] if user[LANG_XPATH]
     session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
-    session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
-    session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
-    session[:page_length]  = user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH'] if user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
+    session[:default_view] = user[DEFAULT_VIEW_XPATH] if user[DEFAULT_VIEW_XPATH]
+    session[:table_order]  = user[TABLE_ORDER_XPATH] if user[TABLE_ORDER_XPATH]
+    session[:page_length]  = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH] if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
     [204, ""]
@@ -522,7 +527,11 @@ get '/onedconf' do
 
     keys = [
         :DEFAULT_COST,
-        :DS_MAD_CONF
+        :DS_MAD_CONF,
+        :MARKET_MAD_CONF,
+        :VM_MAD,
+        :IM_MAD,
+        :AUTH_MAD
     ]
 
     onedconf = {}
@@ -577,17 +586,6 @@ end
 
 get '/vm/showback' do
     @SunstoneServer.get_vm_showback(params)
-end
-
-##############################################################################
-# Marketplace
-##############################################################################
-get '/marketplace' do
-    @SunstoneServer.get_appliance_pool
-end
-
-get '/marketplace/:id' do
-    @SunstoneServer.get_appliance(params[:id])
 end
 
 ##############################################################################

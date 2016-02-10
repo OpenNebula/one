@@ -793,7 +793,14 @@ class ExecDriver < VirtualMachineDriver
     #  ATTACHNIC action to attach a new nic interface
     #
     def attach_nic(id, drv_message)
+        action = ACTION[:attach_nic]
         xml_data = decode(drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+        target_path = ensure_xpath(xml_data, id, action,
+                                   'DISK_TARGET_PATH') || return
+        target_device = ensure_xpath(xml_data, id, action,
+                                     'VM/TEMPLATE/CONTEXT/TARGET') || return
 
         begin
             source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
@@ -851,6 +858,21 @@ class ExecDriver < VirtualMachineDriver
                         :parameters => [:deploy_id, mac]
                     }
                 ]
+            },
+            {
+                :driver     => :vmm,
+                :action     => :prereconfigure,
+                :parameters => [:deploy_id, target_device]
+            },
+            {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.split
+            },
+            {
+                :driver     => :vmm,
+                :action     => :reconfigure,
+                :parameters => [:deploy_id, target_device, target_path]
             }
         ]
 

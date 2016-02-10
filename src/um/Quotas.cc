@@ -21,7 +21,7 @@
 
 int Quotas::set(Template *tmpl, string& error)
 {
-    vector<Attribute *> vquotas;
+    vector<VectorAttribute *> vquotas;
 
     if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
     {
@@ -166,6 +166,11 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
             vm_quota.del(tmpl);
             image_quota.del(tmpl);
         break;
+
+        case VIRTUALROUTER:
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            vr_net_quota.del(tmpl);
+        break;
     }
 }
 
@@ -211,6 +216,10 @@ bool Quotas::quota_check(QuotaType  type,
             }
 
             return true;
+
+        case VIRTUALROUTER:
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            return vr_net_quota.check(tmpl, default_quotas, error_str);
     }
 
     return false;
@@ -231,6 +240,7 @@ bool Quotas::quota_update(QuotaType  type,
         case NETWORK:
         case IMAGE:
         case VIRTUALMACHINE:
+        case VIRTUALROUTER:
             error_str = "Cannot update quota. Not implemented";
             return false;
 

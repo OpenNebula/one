@@ -71,6 +71,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
     $(document).foundation('accordion', 'reflow');
     var ssh_key = this.element.TEMPLATE.SSH_PUBLIC_KEY;
     if (ssh_key && ssh_key.length) {
@@ -126,18 +127,26 @@ define(function(require) {
     });
 
     $("#provision_change_view_form").submit(function() {
-      var template_str = 'DEFAULT_VIEW = "'+$('#provision_user_views_select', this).val()+'"';
+      var sunstone_template = {};
+      if (that.element.TEMPLATE.SUNSTONE) {
+        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
+      }
 
-      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
-
+      sunstone_template.DEFAULT_VIEW = $('#provision_user_views_select', this).val();
+      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
       return false;
     });
 
     $("#provision_change_language_form").submit(function() {
-      var template_str = 'LANG = "'+$('#provision_new_language', this).val()+'"';
+      var sunstone_template = {};
+      if (that.element.TEMPLATE.SUNSTONE) {
+        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
+      }
 
-      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
-
+      sunstone_template.LANG = $('#provision_new_language', this).val();
+      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
       return false;
     });
 

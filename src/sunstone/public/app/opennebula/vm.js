@@ -261,6 +261,15 @@ define(function(require) {
     'SL_PRIMARYIPADDRESS'
   ];
 
+  var NIC_IP_ATTRS = [
+    "IP",
+    "IP6_GLOBAL",
+    "IP6_ULA",
+    "VROUTER_IP",
+    "VROUTER_IP6_GLOBAL",
+    "VROUTER_IP6_ULA"
+  ];
+
   var EXTERNAL_NETWORK_ATTRIBUTES = [
     'GUEST_IP',
     'GUEST_IP_ADDRESSES',
@@ -666,17 +675,11 @@ define(function(require) {
         }
 
         $.each(nic, function(index, value) {
-          if (value.IP) {
-            ips.push(value.IP);
-          }
-
-          if (value.IP6_GLOBAL) {
-            ips.push(value.IP6_GLOBAL);
-          }
-
-          if (value.IP6_ULA) {
-            ips.push(value.IP6_ULA);
-          }
+          $.each(NIC_IP_ATTRS, function(j, attr){
+            if (value[attr]) {
+              ips.push(value[attr]);
+            }
+          });
         });
       }
     }

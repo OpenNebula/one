@@ -326,6 +326,7 @@ module KVM
             :snapshot_size   => []
         }
 
+        begin
         doc.elements.each('domain/devices/disk/source') do |ele|
             # read the disk path (for regular disks)
             file = ele.attributes['file'] rescue nil
@@ -419,6 +420,11 @@ module KVM
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snap_size.round}
                 end
             end
+        end
+        rescue Exception => e
+            STDERR.puts "Error getting disk information."
+            STDERR.puts e.message
+            STDERR.puts e.backtrace.join("\n  ")
         end
 
         data

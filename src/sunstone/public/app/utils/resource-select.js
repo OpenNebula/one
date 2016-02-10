@@ -20,70 +20,82 @@ define(function(require) {
   require('opennebula/cluster');
   require('opennebula/user');
   require('opennebula/group');
-
-  var _insert = function(id, context, resource, init_val, empty_value,
-      extra_options, filter_att, filter_val, trigger_change, only_name) {
-
-    var Resource = require('opennebula/' + resource.toLowerCase());
-    $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
+  
+  /**
+   * Insert a select with the specified list of OpenNebula resources
+   * The list of resources will be retrieved running a Resource.list action
+   *
+   * @param {Object}  opts
+   * @param {Object}  opts.context - jQuery selector where the select will be added
+   * @param {string}  opts.resourceName - Name of the OpenNebula JS resource (i.e: Cluster, Host)
+   * @param {string}  [opts.initValue] - The value of an option to be selected by default
+   * @param {Boolean} [opts.emptyValue] - Add a first option with the text Please select
+   * @param {Boolean} [opts.triggerChange] - Trigger the change event after the select is added
+   * @param {Boolean} [opts.onlyName] - Show only the name of the resource instead of ID:NAME
+   * @param {string}  [opts.extraOptions] - Extra options to be included in the select as a HTML string
+   * @param {string}  [opts.includeDefaultCluster] - Include the default (none) option for Clusters
+   * @param {string}  [opts.filterKey] - Select the resources whose filterKey matches filterValue
+   * @param {string}  [opts.filterValue] - RegExp that will be evaluated to filter the resources
+   */
+  var _insert = function(opts) {
+    var Resource = require('opennebula/' + opts.resourceName.toLowerCase());
+    opts.context.html('<i class="fa fa-spinner fa-spin"></i>');
 
     Resource.list({
       timeout: true,
-      success: function (request, obj_list) {
-        var select_str = '<select class="resource_list_select">';
+      success: function (request, elemList) {
+        var selectHTML = '<select class="resource_list_select">';
 
-        if (empty_value) {
-          select_str += '<option class="empty_value" value="">' +
+        if (opts.emptyValue) {
+          selectHTML += '<option class="empty_value" value="">' +
                           Locale.tr("Please select") + '</option>';
         }
 
-        if (resource == "Cluster") {
-          if (!extra_options) {
-            extra_options = "";
+        if (opts.includeDefaultCluster === true) {
+          if (opts.extraOptions === undefined) {
+            opts.extraOptions = '';
           }
 
-          extra_options += '<option value="-1">Default (none)</option>';
+          opts.extraOptions += '<option value="-1">Default (none)</option>';
         }
 
-        if (extra_options) {
-          select_str += extra_options;
+        if (opts.extraOptions !== undefined) {
+          selectHTML += opts.extraOptions;
         }
 
-        if (!filter_att) {
-          filter_att = [];
-        }
+        var resourceXMLRoot = Resource.resource;
+        var elem, add;
+        $.each(elemList, function() {
+          elem = this[resourceXMLRoot];
 
-        var res_name = Resource.resource;
-        $.each(obj_list, function() {
-          var id = this[res_name].ID;
-          var name = this[res_name].NAME;
-          var add = true;
-
-          for (var i = 0; i < filter_att.length; i++) {
-            if (this[res_name][filter_att[i]] == filter_val[i]) {
+          if (opts.filterKey !== undefined && opts.filterValue !== undefined) {
+            if (elem[opts.filterKey] === opts.filterValue) {
+              add = true;
+            } else {
               add = false;
-              break;
             }
+          } else {
+            add = true;
           }
 
-          if (add) {
-            select_str += '<option elem_id="' + id + '" value="' + id + '">'
-            if (!only_name) {
-              select_str += id + ': '
+          if (add === true) {
+            selectHTML += '<option elem_id="' + elem.ID + '" value="' + elem.ID + '">';
+            if (!opts.onlyName) {
+              selectHTML += elem.ID + ': ';
             }
-            select_str += name + '</option>';
+            selectHTML += elem.NAME + '</option>';
           }
         });
 
-        select_str += "</select>";
+        selectHTML += '</select>';
 
-        $(id, context).html(select_str);
+        opts.context.html(selectHTML);
 
-        if (init_val) {
-          $(id + " .resource_list_select", context).val(init_val);
+        if (opts.initValue !== undefined) {
+          $('.resource_list_select', opts.context).val(opts.initValue);
         }
-        if (trigger_change) {
-          $(id + " .resource_list_select", context).change();
+        if (opts.triggerChange === true) {
+          $(' .resource_list_select', opts.context).change();
         }
       },
       error: Notifier.onError

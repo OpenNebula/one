@@ -23,7 +23,6 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
-  var ResourceSelect = require('utils/resource-select');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var Accounting = require('utils/accounting');
@@ -380,7 +379,8 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
+      (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO")) ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -449,7 +449,8 @@ define(function(require) {
       $(".provision_create_template_cost_div").hide();
     }
 
-    if (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO")) {
+    if (Config.provision.create_vm.isEnabled("capacity_select") &&
+        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO"))) {
       provision_instance_type_accordion_id += 1;
 
       var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
@@ -1586,13 +1587,12 @@ define(function(require) {
 
               if (network_attrs.length > 0) {
                 NicsSection.generate_provision_network_accordion(
-                  $(".provision_network_selector", context), true);
+                  $(".provision_network_selector", context), {hide_add_button:true});
 
                 $.each(network_attrs, function(index, vnet_attr){
                   NicsSection.generate_provision_network_table(
                     $(".provision_nic_accordion", context),
-                    null,
-                    vnet_attr);
+                    {vnet_attr: vnet_attr});
                 });
               }
 

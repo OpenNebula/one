@@ -34,7 +34,7 @@ VirtualMachineManager::VirtualMachineManager(
     time_t                          _poll_period,
     bool                            _do_vm_poll,
     int                             _vm_limit,
-    vector<const Attribute*>&       _mads):
+    vector<const VectorAttribute*>&       _mads):
         MadManager(_mads),
         timer_period(_timer_period),
         poll_period(_poll_period),
@@ -2378,12 +2378,42 @@ void VirtualMachineManager::attach_nic_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
-    ostringstream os, error_os;
+    ostringstream os;
 
     string  vm_tmpl;
     string* drv_msg;
+    string  vm_tm_mad;
+    string  opennebula_hostname;
+    string  prolog_cmd;
+    string  disk_path;
+    string  token_password;
+
+    const VectorAttribute * disk;
+    int disk_id;
+    int rc;
+
+    Nebula& nd           = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -2404,6 +2434,30 @@ void VirtualMachineManager::attach_nic_action(
         goto error_driver;
     }
 
+    disk = vm->get_context();
+
+    if ( disk != 0 )
+    {
+        vm_tm_mad = vm->get_tm_mad();
+
+        rc = tm->prolog_context_command(vm, token_password, vm_tm_mad, os);
+
+        prolog_cmd = os.str();
+
+        if ( prolog_cmd.empty() || rc != 0 )
+        {
+            goto error_no_tm_command;
+        }
+
+        os.str("");
+
+        disk->vector_value("DISK_ID", disk_id);
+
+        os << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+        disk_path = os.str();
+    }
+
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
@@ -2414,9 +2468,9 @@ void VirtualMachineManager::attach_nic_action(
         "",
         "",
         "",
+        prolog_cmd,
         "",
-        "",
-        "",
+        disk_path,
         vm->to_xml(vm_tmpl),
         vm->get_ds_id());
 
@@ -2436,6 +2490,11 @@ error_history:
 error_driver:
     os.str("");
     os << "attach_nic_action, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_no_tm_command:
+    os.str("");
+    os << "Cannot set context disk to update it for VM " << vm->get_oid();
     goto error_common;
 
 error_common:
@@ -2461,7 +2520,6 @@ void VirtualMachineManager::detach_nic_action(
     ostringstream os;
     string        vm_tmpl;
     string *      drv_msg;
-    string        opennebula_hostname;
     string        error_str;
 
     // Get the VM from the pool

@@ -286,7 +286,11 @@ class BackEndSQLite < OneDBBacKEnd
     require 'fileutils'
 
     def initialize(file)
-        @sqlite_file = file
+        if !file.nil?
+            @sqlite_file = file
+        else
+            raise "SQLite database path not supplied."
+        end
     end
 
     def bck_file

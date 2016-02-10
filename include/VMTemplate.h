@@ -70,6 +70,16 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    // ------------------------------------------------------------------------
+    // Virtual Router
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if this Template is a Virtual Router Template
+     * @return true if this Template is a Virtual Router Template
+     */
+    bool is_vrouter();
+
 private:
     // -------------------------------------------------------------------------
     // Friends

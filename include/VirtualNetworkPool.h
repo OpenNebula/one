@@ -33,13 +33,10 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqlDB *                          db,
-                       const string&                    str_mac_prefix,
-                       int                              default_size,
-                       vector<const Attribute *>&       restricted_attrs,
-                       vector<const Attribute *>        hook_mads,
-                       const string&                    remotes_location,
-                       const vector<const Attribute *>& _inherit_attrs);
+    VirtualNetworkPool(SqlDB * db, const string& str_mac_prefix, int default_size,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const VectorAttribute *>& hook_mads, const string& remotes_location,
+        const vector<const SingleAttribute *>& _inherit_attrs);
 
     ~VirtualNetworkPool(){};
 
@@ -113,18 +110,23 @@ public:
      *            -2 not using the pool
      */
     int nic_attribute(
-            VectorAttribute*    nic,
-            int                 nic_id,
-            int                 uid,
-            int                 vid,
-            string&             error_str);
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute*            nic,
+            int                         nic_id,
+            int                         uid,
+            int                         vid,
+            string&                     error_str);
 
     /**
      *  Generates an Authorization token for a NIC attribute
      *    @param nic the nic to be authorized
      *    @param ar the AuthRequest
      */
-    void authorize_nic(VectorAttribute * nic, int uid, AuthRequest * ar);
+    void authorize_nic(
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute *           nic,
+            int                         uid,
+            AuthRequest *               ar);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool

@@ -218,11 +218,11 @@ define(function(require) {
       var selected_clusters = this.clustersTable.retrieveResourceTableSelect();
 
       $.each(selected_hosts, function(index, hostId) {
-        req_string.push('ID=\\"'+hostId+'\\"');
+        req_string.push('ID="'+hostId+'"');
       });
 
       $.each(selected_clusters, function(index, clusterId) {
-        req_string.push('CLUSTER_ID=\\"'+clusterId+'\\"');
+        req_string.push('CLUSTER_ID="'+clusterId+'"');
       });
 
       $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));

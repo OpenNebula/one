@@ -37,9 +37,8 @@ bool RequestManagerDelete::delete_authorization(
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                         get_error(object_name(auth_object),oid),
-                         att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return false;
     }
 
@@ -53,9 +52,8 @@ bool RequestManagerDelete::delete_authorization(
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION,
-                authorization_error(ar.message, att),
-                att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
         return false;
     }
@@ -82,8 +80,8 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object), oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -91,9 +89,8 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-            request_error("Cannot delete "+object_name(auth_object),error_msg),
-            att);
+        att.resp_msg = "Cannot delete " + object_name(auth_object) + ". " +  error_msg;
+        failure_response(ACTION, att);
         return;
     }
 
@@ -363,3 +360,41 @@ int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg
 
     return RequestManagerDelete::drop(oid, object, error_msg);
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
+{
+    Nebula& nd = Nebula::instance();
+
+    MarketPlaceManager * marketm = nd.get_marketm();
+    MarketPlacePool * marketpool = nd.get_marketpool();
+
+    MarketPlaceApp * app = static_cast<MarketPlaceApp *>(object);
+
+    int mp_id = app->get_market_id();
+
+    app->unlock();
+
+    MarketPlace * mp = marketpool->get(mp_id, true);
+
+    if ( mp == 0 )
+    {
+        emsg = "Cannot find associated MARKETPLACE";
+        return -1;
+    }
+
+    std::string mp_name = mp->get_name();
+    std::string mp_data;
+
+    mp->to_xml(mp_data);
+
+    mp->unlock();
+
+    return marketm->delete_app(oid, mp_data, emsg);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+

@@ -40,12 +40,12 @@ void HostXML::init_attributes()
 {
     xpath(oid,         "/HOST/ID",                     -1);
     xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
-    xpath(mem_usage,   "/HOST/HOST_SHARE/MEM_USAGE",   0);
-    xpath(cpu_usage,   "/HOST/HOST_SHARE/CPU_USAGE",   0);
-    xpath(max_mem,     "/HOST/HOST_SHARE/MAX_MEM",     0);
-    xpath(max_cpu,     "/HOST/HOST_SHARE/MAX_CPU",     0);
-    xpath(free_disk,   "/HOST/HOST_SHARE/FREE_DISK",   0);
-    xpath(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
+    xpath<long long>(mem_usage, "/HOST/HOST_SHARE/MEM_USAGE",   0);
+    xpath<long long>(cpu_usage, "/HOST/HOST_SHARE/CPU_USAGE",   0);
+    xpath<long long>(max_mem,   "/HOST/HOST_SHARE/MAX_MEM",     0);
+    xpath<long long>(max_cpu,   "/HOST/HOST_SHARE/MAX_CPU",     0);
+    xpath<long long>(free_disk, "/HOST/HOST_SHARE/FREE_DISK",   0);
+    xpath<long long>(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
     string public_cloud_st;
 
@@ -133,7 +133,7 @@ int HostXML::search(const char *name, int& value)
 /* -------------------------------------------------------------------------- */
 
 bool HostXML::test_capacity(long long cpu, long long mem,
-    vector<Attribute *>& p, string & error)
+    vector<VectorAttribute *>& p, string & error)
 {
     bool pci_fits = pci.test(p);
     bool fits     = ((max_cpu  - cpu_usage ) >= cpu) &&

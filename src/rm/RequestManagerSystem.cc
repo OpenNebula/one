@@ -43,9 +43,9 @@ void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
 {
     if ( att.gid != GroupPool::ONEADMIN_ID )
     {
-        failure_response(AUTHORIZATION,
-            "The oned configuration can only be retrieved by users in the oneadmin group",
-            att);
+        att.resp_msg = "The oned configuration can only be retrieved by users "
+            "in the oneadmin group";
+        failure_response(AUTHORIZATION, att);
         return;
     }
 
@@ -94,25 +94,25 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( att.gid != GroupPool::ONEADMIN_ID )
     {
-        failure_response(AUTHORIZATION,
-            "The default quotas can only be updated by users in the oneadmin group",
-            att);
+        att.resp_msg = "The default quotas can only be updated by users in the"
+            " oneadmin group";
+        failure_response(AUTHORIZATION, att);
         return;
     }
 
-    rc = quota_tmpl.parse_str_or_xml(quota_str, error_str);
+    rc = quota_tmpl.parse_str_or_xml(quota_str, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
         return;
     }
 
-    rc = set_default_quota(&quota_tmpl, error_str);
+    rc = set_default_quota(&quota_tmpl, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
         return;
     }
 

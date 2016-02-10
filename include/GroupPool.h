@@ -26,10 +26,8 @@ using namespace std;
 class GroupPool : public PoolSQL
 {
 public:
-    GroupPool(SqlDB * db,
-              vector<const Attribute *> hook_mads,
-              const string&             remotes_location,
-              bool                      is_federation_slave);
+    GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+          const string& remotes_location, bool is_federation_slave);
 
     ~GroupPool(){};
 
@@ -118,7 +116,7 @@ public:
      *    @param user pointer to Group
      *    @return 0 on success
      */
-    int update(Group * group);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular Group's Quotas

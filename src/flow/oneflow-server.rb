@@ -511,6 +511,10 @@ post '/service_template/:id/action' do
     when 'rename'
         status 204
         service_template.rename(opts['name'])
+    when 'clone'
+        status 204
+        service_template.clone(opts['name'])
+        # TODO return id of the new template
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end

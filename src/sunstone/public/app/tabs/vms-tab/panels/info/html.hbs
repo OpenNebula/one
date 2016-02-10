@@ -58,6 +58,17 @@
           <td class="value_td">{{resched}}</td>
           <td></td>
         </tr>
+        <tr>
+          <td class="key_td">{{tr "Virtual Router ID"}}</td>
+          <td class="value_td">
+            {{#if element.TEMPLATE.VROUTER_ID}}
+            <a class="vrid">{{element.TEMPLATE.VROUTER_ID}}</a>
+            {{else}}
+            --
+            {{/if}}
+          </td>
+          <td></td>
+        </tr>
       </tr>
     </tbody>
   </table>

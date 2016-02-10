@@ -118,31 +118,39 @@ define(function(require) {
       templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
 
+    var sunstone_template = {};
     if ($('#sunstone_capacity_select:checked', context).length > 0) {
-      templateJSON["SUNSTONE_CAPACITY_SELECT"] = "NO"
+      sunstone_template["CAPACITY_SELECT"] = "NO"
     }
 
     if ($('#sunstone_network_select:checked', context).length > 0) {
-      templateJSON["SUNSTONE_NETWORK_SELECT"] = "NO"
+      sunstone_template["NETWORK_SELECT"] = "NO"
+    }
+
+    if (!$.isEmptyObject(sunstone_template)) {
+      templateJSON['SUNSTONE'] = sunstone_template;
     }
 
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
-    if (templateJSON["SUNSTONE_CAPACITY_SELECT"] &&
-          (templateJSON["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
-      $("#sunstone_capacity_select", context).attr("checked", "checked");
+    var sunstone_template = templateJSON.SUNSTONE;
+    if (sunstone_template) {
+      if (sunstone_template["CAPACITY_SELECT"] &&
+          sunstone_template["CAPACITY_SELECT"].toUpperCase() == "NO") {
+        $("#sunstone_capacity_select", context).attr("checked", "checked");
+      }
+
+      delete sunstone_template["CAPACITY_SELECT"];
+
+      if (sunstone_template["NETWORK_SELECT"] &&
+          sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
+        $("#sunstone_network_select", context).attr("checked", "checked");
+      }
+
+      delete sunstone_template["NETWORK_SELECT"];
     }
-
-    delete templateJSON["SUNSTONE_CAPACITY_SELECT"];
-
-    if (templateJSON["SUNSTONE_NETWORK_SELECT"] &&
-          (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
-      $("#sunstone_network_select", context).attr("checked", "checked");
-    }
-
-    delete templateJSON["SUNSTONE_NETWORK_SELECT"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter' &&
       templateJSON["KEEP_DISKS_ON_DONE"] &&

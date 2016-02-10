@@ -64,7 +64,6 @@ protected:
     virtual int pool_allocate(xmlrpc_c::paramList const& _paramList,
                               Template * tmpl,
                               int& id,
-                              string& error_str,
                               RequestAttributes& att)
     {
         return -1;
@@ -73,12 +72,11 @@ protected:
     virtual int pool_allocate(xmlrpc_c::paramList const& _paramList,
                               Template * tmpl,
                               int& id,
-                              string& error_str,
                               RequestAttributes& att,
                               int cluster_id,
                               const string& cluster_name)
     {
-        return pool_allocate(_paramList, tmpl, id, error_str, att);
+        return pool_allocate(_paramList, tmpl, id, att);
     };
 
     virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
@@ -138,7 +136,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 
     bool allocate_authorization(Template *          obj_template,
@@ -175,7 +172,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
                       const string& cluster_name);
@@ -249,7 +245,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 
     bool allocate_authorization(Template *          obj_template,
@@ -281,7 +276,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
                       const string& cluster_name);
@@ -325,7 +319,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
 
@@ -353,7 +346,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 
 private:
@@ -389,7 +381,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
                       const string& cluster_name);
@@ -445,7 +436,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
 
@@ -478,7 +468,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
 
@@ -514,7 +503,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
 
@@ -547,7 +535,6 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
 
@@ -580,10 +567,113 @@ public:
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
                       int& id,
-                      string& error_str,
                       RequestAttributes& att);
 };
-/* -------------------------------------------------------------------------- */
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterAllocate : public RequestManagerAllocate
+{
+public:
+    VirtualRouterAllocate():
+        RequestManagerAllocate("VirtualRouterAllocate",
+                               "Allocates a new virtual router",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new Template;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      RequestAttributes& att);
+
+    bool allocate_authorization(Template *          obj_template,
+                                RequestAttributes&  att,
+                                PoolObjectAuth *    cluster_perms);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAllocate : public RequestManagerAllocate
+{
+public:
+    MarketPlaceAllocate():
+        RequestManagerAllocate("MarketPlaceAllocate",
+                               "Allocates a new marketplace",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new MarketPlaceTemplate;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template *                 tmpl,
+                      int&                       id,
+                      RequestAttributes&         att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppAllocate : public RequestManagerAllocate
+{
+public:
+    MarketPlaceAppAllocate():
+        RequestManagerAllocate("MarketPlaceAppAllocate",
+                               "Allocates a new marketplace app",
+                               "A:ssi",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        mppool      = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new MarketPlaceAppTemplate;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template *                 tmpl,
+                      int&                       id,
+                      RequestAttributes&         att);
+private:
+    MarketPlacePool * mppool;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

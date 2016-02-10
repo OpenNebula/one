@@ -30,7 +30,7 @@ class HookManager : public MadManager, public ActionListener
 {
 public:
 
-    HookManager(vector<const Attribute*>& _mads, VirtualMachinePool * _vmpool)
+    HookManager(vector<const VectorAttribute*>& _mads, VirtualMachinePool * _vmpool)
         :MadManager(_mads),vmpool(_vmpool)
     {
         am.addListener(this);

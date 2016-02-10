@@ -56,6 +56,12 @@ require 'opennebula/security_group_pool'
 require 'opennebula/vdc'
 require 'opennebula/vdc_pool'
 require 'opennebula/system'
+require 'opennebula/virtual_router'
+require 'opennebula/virtual_router_pool'
+require 'opennebula/marketplace'
+require 'opennebula/marketplace_pool'
+require 'opennebula/marketplaceapp'
+require 'opennebula/marketplaceapp_pool'
 
 module OpenNebula
 

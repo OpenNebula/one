@@ -38,7 +38,7 @@ public:
         time_t                    _poll_period,
         bool                      _do_vm_poll,
         int                       _vm_limit,
-        vector<const Attribute*>& _mads);
+        vector<const VectorAttribute*>& _mads);
 
     ~VirtualMachineManager(){};
 

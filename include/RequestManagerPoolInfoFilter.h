@@ -488,14 +488,66 @@ public:
 
     ~VdcPoolInfo(){};
 
-    /* -------------------------------------------------------------------- */
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+};
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    VirtualRouterPoolInfo():
+        RequestManagerPoolInfoFilter("VirtualRouterPoolInfo",
+                                     "Returns the virtual router pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterPoolInfo(){};
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class MarketPlacePoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    MarketPlacePoolInfo():
+        RequestManagerPoolInfoFilter("MarketPlacePoolInfo",
+                                     "Returns the marketplace pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlacePoolInfo(){};
+
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class MarketPlaceAppPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    MarketPlaceAppPoolInfo():
+        RequestManagerPoolInfoFilter("MarketPlacePoolInfo",
+                                     "Returns the market place pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppPoolInfo(){};
+};
 
 #endif

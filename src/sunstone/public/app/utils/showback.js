@@ -50,14 +50,22 @@ define(function(require) {
     if (opt.fixed_user != undefined){
       $("#showback_user_container", context).hide();
     } else {
-      ResourceSelect.insert("#showback_user_select", context, "User", -1, false,
-        '<option value="-1">'+Locale.tr("<< me >>")+'</option>');
+      ResourceSelect.insert({
+          context: $('#showback_user_select', context),
+          resourceName: 'User',
+          initValue: -1,
+          extraOptions: '<option value="-1">' + Locale.tr("<< me >>") + '</option>'
+        });
     }
 
     if (opt.fixed_group != undefined){
       $("#showback_group_container", context).hide();
     } else {
-      ResourceSelect.insert("#showback_group_select", context, "Group", "", true);
+      ResourceSelect.insert({
+          context: $('#showback_group_select', context),
+          resourceName: 'Group',
+          emptyValue: true
+        });
     }
 
     showback_dataTable = $("#showback_datatable",context).dataTable({

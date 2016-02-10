@@ -248,8 +248,8 @@ protected:
      *    @param remotes_location, path to remotes in the front-end where the
      *    hooks are installed
      */
-    void register_hooks(vector<const Attribute *> hook_mads,
-                        const string&             remotes_location);
+    void register_hooks(vector<const VectorAttribute *> hook_mads,
+                        const string&                   remotes_location);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the

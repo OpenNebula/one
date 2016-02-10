@@ -103,6 +103,15 @@ AclManager::AclManager(
                  AuthRequest::USE,
                  AclRule::ALL_ID,
                  error_str);
+
+        // * MARKETPLACE+MARKETPLACEAPP/* USE *
+        add_rule(AclRule::ALL_ID,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::MARKETPLACE |
+                    PoolObjectSQL::MARKETPLACEAPP,
+                 AuthRequest::USE,
+                 AclRule::ALL_ID,
+                 error_str);
     }
 }
 

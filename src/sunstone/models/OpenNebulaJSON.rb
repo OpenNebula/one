@@ -32,6 +32,9 @@ require 'OpenNebulaJSON/DatastoreJSON'
 require 'OpenNebulaJSON/ZoneJSON'
 require 'OpenNebulaJSON/SecurityGroupJSON'
 require 'OpenNebulaJSON/VdcJSON'
+require 'OpenNebulaJSON/VirtualRouterJSON'
+require 'OpenNebulaJSON/MarketPlaceJSON'
+require 'OpenNebulaJSON/MarketPlaceAppJSON'
 
 module OpenNebula
     class Error

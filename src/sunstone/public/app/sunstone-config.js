@@ -28,6 +28,10 @@ define(function(require) {
   };
 
   var _dsMadConf = {};
+  var _imMadConf = {};
+  var _vmMadConf = {};
+  var _authMadConf = {};
+  var _marketMadConf = {};
 
   var Config = {
     'isTabEnabled': function(tabName) {
@@ -155,6 +159,10 @@ define(function(require) {
     'enabledTabs': _config['view']['enabled_tabs'],
     "defaultCost" : _defaultCost,
     'dsMadConf' : _dsMadConf,
+    'imMadConf' : _imMadConf,
+    'vmMadConf' : _vmMadConf,
+    'authMadConf' : _authMadConf,
+    'marketMadConf' : _marketMadConf,
     "initOnedConf" : function() {
       OpenNebulaSystem.onedconf({
         data : {},
@@ -173,7 +181,23 @@ define(function(require) {
           }
 
           if (onedconf.DS_MAD_CONF != undefined){
-            jQuery.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+            $.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
+          }
+
+          if (onedconf.MARKET_MAD_CONF != undefined){
+            $.extend(true, _marketMadConf, onedconf.MARKET_MAD_CONF);
+          }
+
+          if (onedconf.IM_MAD != undefined){
+            $.extend(true, _imMadConf, onedconf.IM_MAD);
+          }
+
+          if (onedconf.VM_MAD != undefined){
+            $.extend(true, _vmMadConf, onedconf.VM_MAD);
+          }
+
+          if (onedconf.AUTH_MAD != undefined){
+            $.extend(true, _authMadConf, onedconf.AUTH_MAD);
           }
         },
         error: function(request, error_json){

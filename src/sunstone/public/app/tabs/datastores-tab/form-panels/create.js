@@ -95,8 +95,19 @@ define(function(require) {
     var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
     if (!cluster_id_raw) cluster_id_raw = "-1";
 
-    ResourceSelect.insert('div#cluster_id', dialog, "Cluster", cluster_id, false);
-    ResourceSelect.insert('div#datastore_cluster_raw', dialog, "Cluster", cluster_id_raw, false);
+    ResourceSelect.insert({
+        context: $('#cluster_id', dialog),
+        resourceName: 'Cluster',
+        initValue: cluster_id,
+        includeDefaultCluster: true
+      });
+
+    ResourceSelect.insert({
+        context: $('#datastore_cluster_raw', dialog),
+        resourceName: 'Cluster',
+        initValue: cluster_id_raw,
+        includeDefaultCluster: true
+      });
 
     return false;
   }
@@ -110,10 +121,12 @@ define(function(require) {
       'input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
 
     $('select#ds_mad', dialog).change(function() {
-      if ($(this).val() == "custom")
+      if ($(this).val() == "custom") {
           $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
-      else
-          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
+      } else {
+        _setRequiredFields(dialog, $(this).val());
+        $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
+      }
     });
 
     $('select#tm_mad', dialog).change(function() {
@@ -127,44 +140,31 @@ define(function(require) {
       _hideAll(dialog);
       var choice_str = $(this).val();
 
-      // Disable all required attributes except for those that come in the
-      // template.
-      $('input[required_active]', dialog).removeAttr('required')
-                                         .removeAttr('required_active');
-
       switch (choice_str)
       {
         case 'fs':
           _selectFilesystem(dialog);
-          // _setRequiredFields(dialog, '');
           break;
         case 'vmware_vmfs':
           _selectVmwareVmfs(dialog);
-          _setRequiredFields(dialog, 'vmfs');
           break;
         case 'block_lvm':
           _selectBlockLvm(dialog);
-          _setRequiredFields(dialog, 'lvm');
           break;
         case 'fs_lvm':
           _selectFsLvm(dialog);
-          // _setRequiredFields(dialog, '');
           break;
         case 'ceph':
           _selectCeph(dialog);
-          _setRequiredFields(dialog, 'ceph');
           break;
         case 'gluster':
           _selectGluster(dialog);
-          // _setRequiredFields(dialog, '');
           break;
         case 'dev':
           _selectDevices(dialog);
-          _setRequiredFields(dialog, 'dev');
           break;
         case 'iscsi':
           _selectISCSI(dialog);
-          _setRequiredFields(dialog, 'iscsi');
           break;
         case 'custom':
           _selectCustom(dialog);
@@ -340,9 +340,9 @@ define(function(require) {
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
     $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_host"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_user"],input#ceph_conf', dialog).parent().hide();
-    $('label[for="iscsi_usage"],input#ceph_conf', dialog).parent().hide();
+    $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
+    $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
+    $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
@@ -360,7 +360,7 @@ define(function(require) {
   }
 
   function _selectFilesystem(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#tm_mad', dialog).val('shared');
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).children('option').each(function() {
@@ -389,7 +389,7 @@ define(function(require) {
   function _selectVmwareVmfs(dialog) {
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
     $('label[for="ds_tmp_dir"],input#ds_tmp_dir', dialog).parent().fadeIn();
-    $('select#ds_mad', dialog).val('vmfs');
+    $('select#ds_mad', dialog).val('vmfs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('vmfs');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -407,7 +407,7 @@ define(function(require) {
   function _selectCeph(dialog) {
     $('input#image_ds_type', dialog).click();
     $('input#file_ds_type', dialog).attr('disabled', 'disabled');
-    $('select#ds_mad', dialog).val('ceph');
+    $('select#ds_mad', dialog).val('ceph').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('ceph');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -431,7 +431,7 @@ define(function(require) {
   }
 
   function _selectBlockLvm(dialog) {
-    $('select#ds_mad', dialog).val('lvm');
+    $('select#ds_mad', dialog).val('lvm').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -451,7 +451,7 @@ define(function(require) {
   }
 
   function _selectFsLvm(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('fs_lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -469,7 +469,7 @@ define(function(require) {
   }
 
   function _selectGluster(dialog) {
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('shared');
     $('select#tm_mad', dialog).children('option').each(function() {
@@ -496,7 +496,7 @@ define(function(require) {
   }
 
   function _selectDevices(dialog) {
-    $('select#ds_mad', dialog).val('dev');
+    $('select#ds_mad', dialog).val('dev').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('dev');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -514,7 +514,7 @@ define(function(require) {
   }
 
   function _selectISCSI(dialog) {
-    $('select#ds_mad', dialog).val('iscsi');
+    $('select#ds_mad', dialog).val('iscsi').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('iscsi');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
@@ -536,7 +536,7 @@ define(function(require) {
 
   function _selectCustom(dialog) {
     _hideAll(dialog);
-    $('select#ds_mad', dialog).val('fs');
+    $('select#ds_mad', dialog).val('fs').change();
     $('select#tm_mad', dialog).val('shared');
     $('input#safe_dirs', dialog).removeAttr('disabled');
     $('select#disk_type', dialog).removeAttr('disabled');
@@ -549,18 +549,17 @@ define(function(require) {
   }
 
   function _setRequiredFields(dialog, mad) {
-    $.each(Config.dsMadConf,function(i,e){
+    // Disable all required attributes except for those that come in the
+    // template.
+    $('[required_active]', dialog).removeAttr('required')
+                                       .removeAttr('required_active');
+
+    $.each(Config.dsMadConf, function(i, e){
         if (e["NAME"] == mad) {
           if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
-            var required_attrs = e["REQUIRED_ATTRS"].split(",");
-
-            if (required_attrs != undefined){
-              $.each(required_attrs, function(i,e){
-                $('input#' + e.toLowerCase(), dialog).attr('required', true)
-                                                     .attr('required_active', '');
-              });
-            }
-
+            $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
+              $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+            });
           }
           return false;
         }

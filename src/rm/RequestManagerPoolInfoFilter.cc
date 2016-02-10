@@ -98,10 +98,8 @@ void VirtualMachinePoolInfo::request_execute(
     if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
         ( state > VirtualMachine::UNDEPLOYED ))
     {
-        failure_response(XML_RPC_API,
-                         request_error("Incorrect filter_flag, state",""),
-                         att);
-
+        att.resp_msg = "Incorrect filter_flag, state";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -139,9 +137,8 @@ void VirtualMachinePoolAccounting::request_execute(
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -153,7 +150,8 @@ void VirtualMachinePoolAccounting::request_execute(
                                                               time_end);
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -181,9 +179,8 @@ void VirtualMachinePoolShowback::request_execute(
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -197,7 +194,8 @@ void VirtualMachinePoolShowback::request_execute(
                                                               end_year);
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -221,9 +219,8 @@ void VirtualMachinePoolMonitoring::request_execute(
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -233,7 +230,8 @@ void VirtualMachinePoolMonitoring::request_execute(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -269,7 +267,8 @@ void HostPoolMonitoring::request_execute(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -440,9 +439,8 @@ void RequestManagerPoolInfoFilter::dump(
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -468,7 +466,8 @@ void RequestManagerPoolInfoFilter::dump(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -489,9 +488,8 @@ void VirtualNetworkPoolInfo::request_execute(
 
     if ( filter_flag < MINE )
     {
-        failure_response(XML_RPC_API,
-                request_error("Incorrect filter_flag",""),
-                att);
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
         return;
     }
 
@@ -533,7 +531,8 @@ void VirtualNetworkPoolInfo::request_execute(
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -551,3 +550,14 @@ void VdcPoolInfo::request_execute(
 {
     dump(att, ALL, -1, -1, "", "");
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void MarketPlacePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+

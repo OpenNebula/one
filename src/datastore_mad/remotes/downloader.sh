@@ -16,6 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -117,6 +127,86 @@ function unarchive
     fi
 }
 
+function s3_env
+{
+    XPATH="$DRIVER_PATH/xpath.rb -b $DRV_ACTION"
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <($XPATH     /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ACCESS_KEY_ID \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/SECRET_ACCESS_KEY \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ENDPOINT)
+
+    S3_ACCESS_KEY_ID="${XPATH_ELEMENTS[j++]}"
+    S3_SECRET_ACCESS_KEY="${XPATH_ELEMENTS[j++]}"
+    S3_ENDPOINT="${XPATH_ELEMENTS[j++]}"
+}
+
+function s3_curl_args
+{
+    FROM="$1"
+
+    ENDPOINT=${S3_ENDPOINT:-https://s3.amazonaws.com}
+    OBJECT=$(basename $FROM)
+    BUCKET=$(basename $(dirname $FROM))
+
+    DATE="`date -u +'%a, %d %b %Y %H:%M:%S GMT'`"
+    AUTH_STRING="GET\n\n\n${DATE}\n/${BUCKET}/${OBJECT}"
+
+    SIGNED_AUTH_STRING=`echo -en "$AUTH_STRING" | \
+                        openssl sha1 -hmac ${S3_SECRET_ACCESS_KEY} -binary | \
+                        base64`
+
+    echo " -H \"Date: ${DATE}\"" \
+         " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
+         " ${ENDPOINT}/${BUCKET}/${OBJECT}"
+}
+
+function get_rbd_cmd
+{
+    local i j URL_ELEMENTS
+
+    FROM="$1"
+
+    URL_RB="$DRIVER_PATH/url.rb"
+
+    while IFS= read -r -d '' element; do
+        URL_ELEMENTS[i++]="$element"
+    done < <($URL_RB    $FROM \
+                        USER \
+                        HOST \
+                        SOURCE \
+                        PARAM_DS \
+                        PARAM_CEPH_USER \
+                        PARAM_CEPH_CONF)
+
+    USER="${URL_ELEMENTS[j++]}"
+    DST_HOST="${URL_ELEMENTS[j++]}"
+    SOURCE="${URL_ELEMENTS[j++]}"
+    DS="${URL_ELEMENTS[j++]}"
+    CEPH_USER="${URL_ELEMENTS[j++]}"
+    CEPH_CONF="${URL_ELEMENTS[j++]}"
+
+    # Remove leading '/'
+    SOURCE="${SOURCE#/}"
+
+    if [ -n "$USER" ]; then
+        DST_HOST="$USER@$DST_HOST"
+    fi
+
+    if [ -n "$CEPH_USER" ]; then
+        RBD="$RBD --id ${CEPH_USER}"
+    fi
+
+    if [ -n "$CEPH_CONF" ]; then
+        RBD="$RBD --conf ${CEPH_CONF}"
+    fi
+
+    echo "ssh $DST_HOST $RBD export $SOURCE -"
+}
+
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -162,19 +252,48 @@ TO="$2"
 # File used by the hasher function to store the resulting hash
 export HASH_FILE="/tmp/downloader.hash.$$"
 
+GLOBAL_CURL_ARGS="--fail -sS -k -L"
+
 case "$FROM" in
 http://*|https://*)
     # -k  so it does not check the certificate
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    curl_args="-sS -k -L $FROM"
+    curl_args="$GLOBAL_CURL_ARGS $FROM"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
     fi
 
     command="curl $curl_args"
+    ;;
+ssh://*)
+    # pseudo-url for ssh transfers ssh://user@host:path
+    # -l to limit the bw
+    ssh_src=${FROM#ssh://}
+    ssh_arg=(${ssh_src/:/ })
+
+    rmt_cmd="'cat ${ssh_arg[1]}'"
+
+    command="ssh ${ssh_arg[0]} $rmt_cmd"
+    ;;
+s3://*)
+
+    # Read s3 environment
+    s3_env
+
+    if [ -z "$S3_ACCESS_KEY_ID" -o -z "$S3_SECRET_ACCESS_KEY" ]; then
+        echo "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY are required" >&2
+        exit -1
+    fi
+
+    curl_args="$(s3_curl_args $FROM)"
+
+    command="curl $GLOBAL_CURL_ARGS $curl_args"
+    ;;
+rbd://*)
+    command="$(get_rbd_cmd $FROM)"
     ;;
 *)
     if [ ! -r $FROM ]; then
@@ -188,9 +307,9 @@ esac
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-$command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
+eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
-if [ "$?" != "0" ]; then
+if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
     echo "Error copying" >&2
     exit -1
 fi

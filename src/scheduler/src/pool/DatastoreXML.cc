@@ -53,16 +53,16 @@ void DatastoreXML::init_attributes()
     xpath(other_m, "/DATASTORE/PERMISSIONS/OTHER_M", 0);
     xpath(other_a, "/DATASTORE/PERMISSIONS/OTHER_A", 0);
 
-    xpath(free_mb,    "/DATASTORE/FREE_MB",     0);
+    xpath<long long>(free_mb, "/DATASTORE/FREE_MB", 0);
 
     long long total_mb, used_mb, limit_mb;
 
-    xpath(total_mb, "/DATASTORE/TOTAL_MB", 0);
-    xpath(used_mb,  "/DATASTORE/USED_MB",  0);
+    xpath<long long>(total_mb, "/DATASTORE/TOTAL_MB", 0);
+    xpath<long long>(used_mb,  "/DATASTORE/USED_MB",  0);
 
     monitored = (free_mb != 0 || total_mb != 0 || used_mb != 0);
 
-    int rc = xpath(limit_mb, "/DATASTORE/TEMPLATE/LIMIT_MB", 0);
+    int rc = xpath<long long>(limit_mb, "/DATASTORE/TEMPLATE/LIMIT_MB", 0);
 
     if (rc == 0)
     {

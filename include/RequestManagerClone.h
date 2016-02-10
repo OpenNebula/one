@@ -48,7 +48,6 @@ protected:
             int                         source_id,
             Template *                  tmpl,
             int&                        id,
-            string&                     error_str,
             RequestAttributes&          att) = 0;
 };
 
@@ -82,7 +81,6 @@ public:
             int                         source_id,
             Template *                  tmpl,
             int&                        id,
-            string&                     error_str,
             RequestAttributes&          att)
     {
         VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
@@ -91,7 +89,7 @@ public:
                 static_cast<VirtualMachineTemplate *>(tmpl);
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                ttmpl, &id, error_str);
+                ttmpl, &id, att.resp_msg);
     };
 };
 
@@ -126,14 +124,15 @@ public:
             int                         source_id,
             Template *                  tmpl,
             int&                        id,
-            string&                     error_str,
             RequestAttributes&          att)
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc = docpool->get(source_id, true);
+        Document * doc         = docpool->get(source_id, true);
+
+        doc->unlock();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, doc->get_document_type(), tmpl, &id, error_str);
+            att.umask, doc->get_document_type(), tmpl, &id, att.resp_msg);
     };
 };
 
@@ -167,13 +166,12 @@ public:
             int                         source_id,
             Template *                  tmpl,
             int&                        id,
-            string&                     error_str,
             RequestAttributes&          att)
     {
         SecurityGroupPool * secgrouppool = static_cast<SecurityGroupPool *>(pool);
 
         return secgrouppool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, tmpl, &id, error_str);
+            att.umask, tmpl, &id, att.resp_msg);
     };
 };
 /* -------------------------------------------------------------------------- */

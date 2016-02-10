@@ -23,24 +23,11 @@
 class Quotas;
 
 /**
- *  Base class for resource quotas, it provides basic storage and management of
- *  the quotas. Each resource MUST inherit from it to implement check and
- *  update methods. Quotas are stored in a template form, each class store the
- *  limits and usage in a resource specific format.
+ *  This class defines the public interface (pure abstract) for Quota.
  */
-class Quota: public Template
+class QuotaInterface
 {
 public:
-
-    /**
-     *  Set the quotas. If the quota previously exists its limit is updated.
-     *    @param quota_str the quota template in ASCII or XML formats
-     *    @param error describe the error in case of error
-     *
-     *    @return 0 on success -1 otherwise
-     */
-    int set(vector<Attribute*> * quotas, string& error);
-
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
      *  the usage counters are updated
@@ -50,6 +37,112 @@ public:
      *    @return true if the operation can be performed
      */
     virtual bool check(Template* tmpl, Quotas& default_quotas, string& error) = 0;
+
+    /**
+     *  Decrement usage counters when deallocating image
+     *    @param tmpl template for the resource
+     */
+    virtual void del(Template* tmpl) = 0;
+    /**
+     *  Set the quotas. If the quota previously exists its limit is updated.
+     *    @param quota_str the quota template in ASCII or XML formats
+     *    @param error describe the error in case of error
+     *
+     *    @return 0 on success -1 otherwise
+     */
+    virtual int set(vector<VectorAttribute*> * quotas, string& error) = 0;
+
+    /**
+     *  Check if a resource update in usage counters will exceed the
+     *  quota limits. If not the usage counters are updated for that resource
+     *    @param tmpl with increments in MEMORY and CPU
+     *    @param default_quotas Quotas that contain the default limits
+     *    @param error string
+     *    @return true if the operation can be performed
+     */
+    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error) = 0;
+
+    /**
+     * Returns the name that identifies the quota in a template
+     */
+     virtual const char * get_quota_name() = 0;
+
+     /**
+      *  Gets a quota identified by its ID.
+      *    @param id of the quota
+      *    @param va The quota, if it is found
+      *    @return 0 on success, -1 if not found
+      */
+     virtual int get_quota(const string& id, VectorAttribute **va) = 0;
+
+protected:
+    QuotaInterface(){};
+
+    virtual ~QuotaInterface(){};
+};
+
+/**
+ *  The QuotaDecorator class decorates the quota interface with specific
+ *  behavior over the same quota object and counters. Decorators must be derived
+ *  from this class and pass in its constructor the decorated object.
+ */
+class QuotaDecorator : public QuotaInterface
+{
+    virtual bool check(Template* tmpl, Quotas& default_quotas, string& error)
+    {
+        return quota->check(tmpl, default_quotas, error);
+    }
+
+    virtual void del(Template* tmpl)
+    {
+        return quota->del(tmpl);
+    }
+
+    virtual int set(vector<VectorAttribute*> * quotas, string& error)
+    {
+        return quota->set(quotas, error);
+    }
+
+    virtual bool update(Template * tmpl, Quotas& default_quotas, string& error)
+    {
+        return quota->update(tmpl, default_quotas, error);
+    }
+
+    virtual const char * get_quota_name()
+    {
+        return quota->get_quota_name();
+    }
+
+    virtual int get_quota(const string& id, VectorAttribute **va)
+    {
+        return quota->get_quota(id, va);
+    }
+
+protected:
+    QuotaDecorator(QuotaInterface * _quota):quota(_quota){};
+
+    virtual ~QuotaDecorator(){};
+
+    QuotaInterface * quota;
+};
+
+/**
+ *  Base class for resource quotas, it provides basic storage and management of
+ *  the quotas. Each resource MUST inherit from it to implement check and
+ *  update methods. Quotas are stored in a template form, each class store the
+ *  limits and usage in a resource specific format.
+ */
+class Quota: public Template, public QuotaInterface
+{
+public:
+    /**
+     *  Set the quotas. If the quota previously exists its limit is updated.
+     *    @param quota_str the quota template in ASCII or XML formats
+     *    @param error describe the error in case of error
+     *
+     *    @return 0 on success -1 otherwise
+     */
+    int set(vector<VectorAttribute*> * quotas, string& error);
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -64,12 +157,6 @@ public:
         error = "Update operation for quotas not supported.";
         return false;
     };
-
-    /**
-     *  Decrement usage counters when deallocating image
-     *    @param tmpl template for the resource
-     */
-    virtual void del(Template* tmpl) = 0;
 
     /**
      * Returns the name that identifies the quota in a template
@@ -101,7 +188,6 @@ public:
       * Value for "unlimited" limit
       */
      static const int UNLIMITED;
-
 
 protected:
 

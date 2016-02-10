@@ -25,6 +25,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
+  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
@@ -93,6 +94,19 @@ define(function(require) {
       }
     },
 
+    "ServiceTemplate.clone_dialog" : {
+      type: "custom",
+      call: function(){
+        Sunstone.getDialog(CLONE_DIALOG_ID).show();
+      }
+    },
+    
+    "ServiceTemplate.clone" : {
+      type: "single",
+      call: OpenNebulaResource.clone,
+      error: Notifier.onError,
+      notify: true
+    }
   };
 
   return _actions;

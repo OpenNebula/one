@@ -55,7 +55,7 @@ public:
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, vector<Attribute *> &pci,
+    bool test_capacity(long long cpu, long long mem, vector<VectorAttribute *> &pci,
         string & error);
 
     /**
@@ -65,7 +65,7 @@ public:
      *    @param pci devices needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu,long long mem,vector<Attribute *> &p)
+    bool test_capacity(long long cpu,long long mem,vector<VectorAttribute *> &p)
     {
         string tmp_st;
         return test_capacity(cpu, mem, p, tmp_st);
@@ -79,7 +79,7 @@ public:
      *    @return 0 on success
      */
     void add_capacity(int vmid, long long cpu, long long mem,
-        vector<Attribute *> &p)
+        vector<VectorAttribute *> &p)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;

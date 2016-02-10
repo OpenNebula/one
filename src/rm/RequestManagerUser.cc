@@ -35,16 +35,14 @@ void RequestManagerUser::
 
     if ( user == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    if ( user_action(id,paramList,error_str) < 0 )
+    if ( user_action(id, paramList, att.resp_msg) < 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -214,17 +212,15 @@ void UserEditGroup::
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
 
-    if ( secondary_group_action(user_id, group_id, paramList, error_str) < 0 )
+    if ( secondary_group_action(user_id, group_id, paramList, att.resp_msg) < 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -375,10 +371,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( user == 0 )
         {
-            failure_response(NO_EXISTS,
-                    get_error(object_name(auth_object),-1),
-                    att);
-
+            failure_response(NO_EXISTS, att);
             return;
         }
 
@@ -393,10 +386,8 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
@@ -405,10 +396,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( user == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),-1),
-                att);
-
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -424,11 +412,10 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        failure_response(XML_RPC_API,
-            request_error("Wrong valid period for token",""), att);
+        att.resp_msg = "Wrong valid period for token";
+        failure_response(XML_RPC_API,  att);
 
         user->unlock();
-
         return;
     }
 
