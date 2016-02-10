@@ -20,6 +20,7 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'base64'
+require 'rexml/document'
 
 class OneMarket
     ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
@@ -143,6 +144,11 @@ end
 ################################################################################
 # Main Program. Outpust the list of marketplace appliances
 ################################################################################
+
+drv_message = Base64::decode64(ARGV[0])
+doc = REXML::Document.new(drv_message).root
+url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+
 #TODO get marketplace URL from MARKETPLACE Templace for other markets
-one_market = OneMarket.new
-puts one_market.get_appliances()
+one_market = OneMarket.new(url)
+puts one_market.get_appliances
