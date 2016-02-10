@@ -27,8 +27,8 @@ class OneMarket
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
 
-    def initialize(url=ONE_MARKET_URL)
-        @url   = url
+    def initialize(url)
+        @url   = url || ONE_MARKET_URL
         @agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
     end
 
@@ -145,9 +145,12 @@ end
 # Main Program. Outpust the list of marketplace appliances
 ################################################################################
 
-drv_message = Base64::decode64(ARGV[0])
-doc = REXML::Document.new(drv_message).root
-url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+begin
+    drv_message = Base64::decode64(ARGV[0])
+    doc = REXML::Document.new(drv_message).root
+    url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+rescue Exception
+end
 
 #TODO get marketplace URL from MARKETPLACE Templace for other markets
 one_market = OneMarket.new(url)
