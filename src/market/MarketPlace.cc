@@ -307,7 +307,7 @@ static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
 
         if ( MarketPlaceApp::action_from_str(action, id) != 0 )
         {
-            NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
+            NebulaLog::log("MKP", Log::ERROR, "Wrong action: " + action);
             continue;
         }
 

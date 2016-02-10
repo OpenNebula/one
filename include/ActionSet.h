@@ -52,7 +52,7 @@ public:
      */
     bool is_set(T action) const
     {
-        return (action_set && (1 << static_cast<int>(action))) != 0;
+        return (action_set & (1 << static_cast<int>(action))) != 0;
     };
 
 private:
