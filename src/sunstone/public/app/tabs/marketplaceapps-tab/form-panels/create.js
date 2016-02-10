@@ -80,6 +80,7 @@ define(function(require) {
   FormPanel.prototype.htmlAdvanced = _htmlAdvanced;
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.submitAdvanced = _submitAdvanced;
+  FormPanel.prototype.setImageId = _setImageId;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
 
@@ -112,6 +113,14 @@ define(function(require) {
     $("#NAME", context).focus();
 
     return false;
+  }
+
+  function _setImageId(imageId) {
+    var selectedResources = {
+      ids : imageId
+    }
+    
+    this.imagesTable.selectResourceTableSelect(selectedResources);
   }
 
   // Set up the create datastore context

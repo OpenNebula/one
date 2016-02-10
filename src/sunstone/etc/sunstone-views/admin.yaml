@@ -265,6 +265,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.export_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true

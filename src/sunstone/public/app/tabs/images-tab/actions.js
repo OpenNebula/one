@@ -24,8 +24,11 @@ define(function(require) {
   var RESOURCE = "Image";
   var XML_ROOT = "IMAGE";
   var TAB_ID = require('./tabId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -50,6 +53,23 @@ define(function(require) {
     "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
     "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
+    "Image.export_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+        Sunstone.showFormPanel(MARKETPLACEAPPS_TAB_ID, CREATE_APP_DIALOG_ID, "create",
+          function(formPanelInstance, context) {
+            var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+            if (selectedNodes.length !== 1) {
+              Notifier.notifyMessage('Please select one (and just one) Image to export.');
+              return false;
+            }
+
+            var resourceId = '' + selectedNodes[0];
+            formPanelInstance.setImageId(resourceId);
+          });
+      }
+    },
     
     "Image.clone_dialog" : {
       type: "custom",
