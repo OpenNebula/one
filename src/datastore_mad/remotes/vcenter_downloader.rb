@@ -28,10 +28,17 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'uri'
+require 'cgi'
 
-hostname    = ARGV[0]
-ds_name     = ARGV[1]
-target_path = ARGV[2]
+vcenter_url = ARGV[0]
+
+u        = URI.parse(vcenter_url)
+params   = CGI.parse(u.query)
+
+hostname = params["param_host"][0]
+ds_name  = params["param_dsname"][0]
+img_src  = u.host + u.path
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
@@ -40,13 +47,11 @@ begin
     ds = vi_client.get_datastore(ds_name)
 
     # Setting "." as the source will read from the stdin
-     VCenterDriver::VIClient.in_silence do
-        ds.upload(target_path, ".")
+    VCenterDriver::VIClient.in_stderr_silence do
+        ds.download_to_stdout img_src
     end
-
-    puts target_path
 rescue Exception => e
-    STDERR.puts "Cannot upload image to datastore #{ds_name} on #{hostname}."\
-                "Reason: #{e.message}"
+    STDERR.puts "Cannot download image #{u.path} from datastore #{ds_name} "\
+                "on #{hostname}. Reason: #{e.message}"
     exit -1
 end

@@ -35,6 +35,19 @@ class RbVmomi::VIM::Datastore
     fail "download failed" unless $?.success?
   end
 
+  # Download a file from this datastore.
+  # @param remote_path [String] Source path on the datastore.
+  # @param local_path [String] Destination path on the local machine.
+  # @return [void]
+  def download_to_stdout remote_path
+    url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
+    pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
+                "-b", _connection.cookie,
+                url
+    Process.waitpid(pid, 0)
+    fail "download failed" unless $?.success?
+  end
+
   # Upload a file to this datastore.
   # @param remote_path [String] Destination path on the datastore.
   # @param local_path [String] Source path on the local machine.

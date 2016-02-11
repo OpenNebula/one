@@ -16,6 +16,10 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
+###############################################################################
+# This script is used retrieve the file size of a disk 
+###############################################################################
+
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -27,26 +31,45 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'opennebula'
 
-hostname    = ARGV[0]
-ds_name     = ARGV[1]
-target_path = ARGV[2]
+drv_action_enc = ARGV[0]
+id             = ARGV[1]
 
-begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-    ds = vi_client.get_datastore(ds_name)
 
-    # Setting "." as the source will read from the stdin
-     VCenterDriver::VIClient.in_silence do
-        ds.upload(target_path, ".")
-    end
 
-    puts target_path
-rescue Exception => e
-    STDERR.puts "Cannot upload image to datastore #{ds_name} on #{hostname}."\
-                "Reason: #{e.message}"
+img_source = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
+img_size   = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
+md5        = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
+
+md5 = md5.nil? ? "-" : md5
+
+hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+
+
+if img_source.nil?
+    STDERR.puts "Not enough information to export the image,"\
+                " missing image source."
     exit -1
 end
+
+# Create vcenter url with all needed information to extract the file from
+# the vCenter datastore
+
+vcenter_url_img = "vcenter://#{img_source}?"\
+                  "param_dsname=#{ds_name}&"\
+                  "param_host=#{hostname}"
+
+# Create import info document for marketplace import script
+
+puts "<IMPORT_INFO>
+        <IMPORT_SOURCE><![CDATA[#{vcenter_url_img}]]></IMPORT_SOURCE>
+        <MD5><![CDATA[#{md5}]]></MD5>
+        <SIZE><![CDATA[#{img_size}]]></SIZE>
+        <FORMAT>VMDK</FORMAT>
+        <DISPOSE>NO</DISPOSE>
+</IMPORT_INFO>"
