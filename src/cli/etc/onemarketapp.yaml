@@ -1,19 +1,19 @@
 ---
 :ID:
-  :desc: ONE identifier for the marketplace app
+  :desc: ONE identifier for the MarketPlaceApp
   :size: 4
 
 :NAME:
-  :desc: Name of the marketplace app
-  :size: 15
+  :desc: Name of the MarketPlaceApp
+  :size: 25
   :left: true
 
 :VERSION:
-  :desc: Version of the marketplace app
-  :size: 7
+  :desc: Version of the MarketPlaceApp
+  :size: 10
 
 :SIZE:
-  :desc: Marketplace app size (M)
+  :desc: MarketPlaceApp size (M)
   :size: 5
 
 :STAT:
@@ -21,22 +21,16 @@
   :size: 4
 
 :TYPE:
-  :desc: Marketplace app type
+  :desc: MarketPlaceApp type
   :size: 4
 
 :DATE:
-  :desc: Publishing date for the marketplace app
+  :desc: Publishing date for the MarketPlaceApp
   :size: 8
 
 :MARKET:
-  :desc: ID of the marketplace
-  :size: 6
-
-:PUBLISHER:
-  :desc: Publisher of the marketplace app
-  :size: 25
-  :left: true
-
+  :desc: Name of the MarketPlace
+  :size: 20
 
 :default:
 - :ID
@@ -47,4 +41,3 @@
 - :TYPE
 - :DATE
 - :MARKET
-- :PUBLISHER

@@ -43,10 +43,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :PUBLISHER, "Publisher of the App", :left, :size=>25 do |d|
-                d["PUBLISHER"]
-            end
-
             column :VERSION, "Version of the app", :size=>7 do |d|
                 d["VERSION"]
             end
@@ -68,11 +64,11 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 MarketPlaceApp::SHORT_MARKETPLACEAPP_TYPES[type]
             end
 
-            column :MARKET, "ID of the marketplace", :size=>6 do |d|
-                d["MARKETPLACE_ID"]
+            column :MARKET, "Name of the MarketPlace", :size=>6 do |d|
+                d["MARKETPLACE"]
             end
 
-            default :ID,:NAME,:VERSION,:SIZE,:STAT,:TYPE,:DATE,:MARKET,:PUBLISHER
+            default :ID,:NAME,:VERSION,:SIZE,:STAT,:TYPE,:DATE,:MARKET
         end
 
         table

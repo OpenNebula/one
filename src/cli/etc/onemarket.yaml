@@ -1,11 +1,11 @@
 ---
 :ID:
-  :desc: ONE identifier for the Marketplace  
+  :desc: ONE identifier for the Marketplace
   :size: 4
 
 :NAME:
   :desc: Name of the Marketplace
-  :size: 30
+  :size: 20
   :left: true
 
 :SIZE:
@@ -28,8 +28,8 @@
 
 :default:
 - :ID
+- :NAME
 - :SIZE
 - :AVAIL
 - :APPS
 - :MAD
-- :NAME
