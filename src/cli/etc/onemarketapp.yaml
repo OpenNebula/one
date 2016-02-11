@@ -24,8 +24,8 @@
   :desc: MarketPlaceApp type
   :size: 4
 
-:DATE:
-  :desc: Publishing date for the MarketPlaceApp
+:REGTIME:
+  :desc: Registration time of the MarketplaceApp
   :size: 8
 
 :MARKET:
@@ -39,5 +39,5 @@
 - :SIZE
 - :STAT
 - :TYPE
-- :DATE
+- :REGTIME
 - :MARKET

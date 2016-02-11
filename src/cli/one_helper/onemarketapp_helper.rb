@@ -55,8 +55,8 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 OneMarketPlaceAppHelper.state_to_str(d["STATE"])
             end
 
-            column :DATE, "Publishing date of the app", :size=>8 do |d|
-                Time.at(d['DATE'].to_i).strftime("%D")
+            column :REGTIME, "Registration time of the app", :size=>8 do |d|
+                Time.at(d['REGTIME'].to_i).strftime("%D")
             end
 
             column :TYPE, "Marketplace app type", :size=>4 do |d|
@@ -68,7 +68,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 d["MARKETPLACE"]
             end
 
-            default :ID,:NAME,:VERSION,:SIZE,:STAT,:TYPE,:DATE,:MARKET
+            default :ID,:NAME,:VERSION,:SIZE,:STAT,:TYPE,:REGTIME,:MARKET
         end
 
         table
@@ -121,7 +121,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         puts str % ["SOURCE", app['SOURCE']]
         puts str % ["MD5", app['MD5']]
         puts str % ["PUBLISHER", app['PUBLISHER']]
-        puts str % ["PUB. DATE", Time.at(app['DATE'].to_i).strftime("%c") ]
+        puts str % ["REGISTER TIME", Time.at(app['REGTIME'].to_i).strftime("%c") ]
         puts str % ["VERSION", app['VERSION']]
         puts str % ["DESCRIPTION", app['DESCRIPTION']]
         puts str % ["SIZE", OpenNebulaHelper.unit_to_str(app['SIZE'].to_i,{},'M')]
