@@ -63,6 +63,8 @@ define(function(require) {
     "MarketPlaceApp.chown": _commonActions.multipleAction('chown'),
     "MarketPlaceApp.chgrp": _commonActions.multipleAction('chgrp'),
     "MarketPlaceApp.chmod": _commonActions.singleAction('chmod'),
+    "MarketPlaceApp.enable": _commonActions.multipleAction('enable'),
+    "MarketPlaceApp.disable": _commonActions.multipleAction('disable'),
     //"MarketPlaceApp.update" : _commonActions.updateTemplate(),
     "MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
     "MarketPlaceApp.append_template" : _commonActions.appendTemplate(),

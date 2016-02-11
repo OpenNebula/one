@@ -45,6 +45,16 @@ define(function(require) {
       layout: "user_select",
       tip: Locale.tr("Select the new group") + ":"
     },
+    "MarketPlaceApp.enable" : {
+      type: "action",
+      layout: "more_select",
+      text: Locale.tr("Enable")
+    },
+    "MarketPlaceApp.disable" : {
+      type: "action",
+      layout: "more_select",
+      text: Locale.tr("Disable")
+    },
     "MarketPlaceApp.delete" : {
       type: "confirm",
       text: Locale.tr("Delete"),

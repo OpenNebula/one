@@ -632,4 +632,6 @@ tabs:
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true
             MarketPlaceApp.chmod: true
+            MarketPlaceApp.enable: true
+            MarketPlaceApp.disable: true
             MarketPlaceApp.delete: true
