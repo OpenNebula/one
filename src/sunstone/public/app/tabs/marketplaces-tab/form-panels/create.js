@@ -44,67 +44,67 @@ define(function(require) {
     {
       name: 'BASE_URL',
       label: Locale.tr("Base URL"),
-      tooltip: Locale.tr("URL base to generate app end points"),
+      tooltip: Locale.tr("URL base to generate app end points, where the PUBLIC_DIR is accessible."),
       driver: 'http'
     },
     {
       name: 'PUBLIC_DIR',
       label: Locale.tr("Public Directory"),
-      tooltip: Locale.tr("Directory path to place images, the document root for http server"),
+      tooltip: Locale.tr("Absolute directory path to place images, the document root for http server, in the frontend or in the hosts pointed at by the BRIDGE_LIST directive."),
       driver: 'http'
     },
     {
       name: 'BRIDGE_LIST',
       label: Locale.tr("Bridge List"),
-      tooltip: Locale.tr("Separated list of servers to access the public directory. If not defined, public directory will be local"),
+      tooltip: Locale.tr("Comma separated list of servers to access the public directory. If not defined, public directory will be local"),
       driver: 'http'
     },
     {
       name: 'ACCESS_KEY_ID',
       label: Locale.tr("Access Key Id"),
-      tooltip: Locale.tr("Access Key Id"),
+      tooltip: Locale.tr("The access key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'SECRET_ACCESS_KEY',
       label: Locale.tr("Secret Access Key"),
-      tooltip: Locale.tr("Secret Access Key"),
+      tooltip: Locale.tr("The secret key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'BUCKET',
       label: Locale.tr("Bucket"),
-      tooltip: Locale.tr("Bucket"),
+      tooltip: Locale.tr("The bucket where the files will be stored."),
       driver: 's3'
     },
     {
       name: 'REGION',
       label: Locale.tr("Region"),
-      tooltip: Locale.tr("Region"),
+      tooltip: Locale.tr("The region to connect to. If you are using Ceph-S3 any value here will work."),
       driver: 's3'
     },
     {
       name: 'TOTAL_MB',
       label: Locale.tr("Total MB"),
-      tooltip: Locale.tr("Total MB"),
+      tooltip: Locale.tr("This parameter defines the Total size of the MarketPlace in MB. It defaults to 1024 GB."),
       driver: 's3'
     },
     {
       name: 'SIGNATURE_VERSION',
       label: Locale.tr("Signature Version"),
-      tooltip: Locale.tr("Signature Version"),
+      tooltip: Locale.tr("Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."),
       driver: 's3'
     },
     {
       name: 'ENDPOINT',
       label: Locale.tr("Endpoint"),
-      tooltip: Locale.tr("Endpoint"),
+      tooltip: Locale.tr("The URL of AppMarket."),
       driver: 's3'
     },
     {
       name: 'FORCE_PATH_STYLE',
       label: Locale.tr("Force Path Style"),
-      tooltip: Locale.tr("Force Path Style"),
+      tooltip: Locale.tr("Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."),
       driver: 's3'
     }
   ]
