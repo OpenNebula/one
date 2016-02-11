@@ -35,13 +35,13 @@ define(function(require) {
       }
       //replace the text with an icon and spans
       //obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
-      obj.html('<span title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
+      obj.html('<span title="' + $.trim(tip) + '"><i class="fa fa-question-circle"></i></span>');
     });
   }
 
   var _html = function(str) {
     //return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fa fa-question-circle"></i></span>'
-    return '<span title="' + str + '"><i class="fa fa-question-circle"></i></span>';
+    return '<span title="' + $.trim(str) + '"><i class="fa fa-question-circle"></i></span>';
   }
 
   return {
