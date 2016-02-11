@@ -42,6 +42,12 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var MARKET_MAD_ATTRS = [
     {
+      name: 'ENDPOINT',
+      label: Locale.tr("Endpoint"),
+      tooltip: Locale.tr("URL of AppMarket."),
+      driver: 'one'
+    },
+    {
       name: 'BASE_URL',
       label: Locale.tr("Base URL"),
       tooltip: Locale.tr("URL base to generate app end points, where the PUBLIC_DIR is accessible."),
