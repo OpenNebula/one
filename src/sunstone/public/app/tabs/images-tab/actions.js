@@ -57,7 +57,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
-        Sunstone.showFormPanel(MARKETPLACEAPPS_TAB_ID, CREATE_APP_DIALOG_ID, "create",
+        Sunstone.showFormPanel(MARKETPLACEAPPS_TAB_ID, CREATE_APP_DIALOG_ID, "export",
           function(formPanelInstance, context) {
             var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
             if (selectedNodes.length !== 1) {

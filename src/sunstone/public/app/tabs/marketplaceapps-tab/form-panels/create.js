@@ -55,6 +55,11 @@ define(function(require) {
         'title': Locale.tr("Create MarketPlace App"),
         'buttonText': Locale.tr("Create"),
         'resetButton': true
+      },
+      'export': {
+        'title': Locale.tr("Create MarketPlace App from Image"),
+        'buttonText': Locale.tr("Create"),
+        'resetButton': true
       }
     };
 
