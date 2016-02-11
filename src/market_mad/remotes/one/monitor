@@ -34,7 +34,7 @@ class OneMarket
 
     def get(path)
         uri = URI(@url + path)
-        req = Net::HTTP::Get.new(uri)
+        req = Net::HTTP::Get.new(uri.request_uri)
 
         req['User-Agent'] = @agent
 
