@@ -99,6 +99,7 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     remove_template_attribute("SIZE");
     remove_template_attribute("MD5");
     remove_template_attribute("FORMAT");
+    remove_template_attribute("REGTIME");
 
     regtime = time(NULL);
 
@@ -332,13 +333,19 @@ int MarketPlaceApp::post_update_template(string& error)
 	// -------------------------------------------------------------------------
     // Update well known attributes
     // -------------------------------------------------------------------------
-    get_template_attribute("DESCRIPTION",   n_description);
-    get_template_attribute("APPTEMPLATE64", n_apptemplate64);
-    get_template_attribute("VERSION",       n_version);
+    get_template_attribute("DESCRIPTION",   description);
+    get_template_attribute("APPTEMPLATE64", apptemplate64);
+    get_template_attribute("VERSION",       version);
 
-    description   = n_description;
-    apptemplate64 = n_apptemplate64;
-    version       = n_version;
+	// -------------------------------------------------------------------------
+    // Remove non-update attributes
+    // -------------------------------------------------------------------------
+    remove_template_attribute("SOURCE");
+    remove_template_attribute("SIZE");
+    remove_template_attribute("MD5");
+    remove_template_attribute("FORMAT");
+    remove_template_attribute("REGTIME");
+    remove_template_attribute("ORIGIN_ID");
 
 	return 0;
 }
@@ -411,7 +418,6 @@ void MarketPlaceApp::to_template(Template * tmpl) const
 int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 {
     std::string * info = one_util::base64_decode(info64);
-    std::string sregtime;
 
     if (info == 0)
     {
@@ -442,23 +448,17 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     erase_template_attribute("NAME", name);
     erase_template_attribute("SOURCE", source);
-    erase_template_attribute("DESCRIPTION", description);
     erase_template_attribute("SIZE", size_mb);
-    erase_template_attribute("VERSION", version);
     erase_template_attribute("MD5", md5);
     erase_template_attribute("FORMAT", format);
-    erase_template_attribute("APPTEMPLATE64", apptemplate64);
+    erase_template_attribute("REGTIME", regtime);
 
-    erase_template_attribute("REGTIME", sregtime);
-    std::istringstream iss(sregtime);
-    iss >> regtime;
+    get_template_attribute("DESCRIPTION", description);
+    get_template_attribute("VERSION", version);
+    get_template_attribute("APPTEMPLATE64", apptemplate64);
 
-    if ( regtime == 0 )
-    {
-        regtime = time(NULL);
-    }
+    replace_template_attribute("IMPORTED", "YES");
 
-   replace_template_attribute("IMPORTED", "YES");
-   return 0;
+    return 0;
 }
 

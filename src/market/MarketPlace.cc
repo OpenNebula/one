@@ -146,7 +146,7 @@ int MarketPlace::insert(SqlDB *db, string& error_str)
 	//MarketPlacePool::allocate checks NAME
     erase_template_attribute("NAME", name);
 
-    erase_template_attribute("MARKET_MAD", market_mad);
+    get_template_attribute("MARKET_MAD", market_mad);
 
     if ( market_mad.empty() == true )
     {
@@ -408,6 +408,12 @@ int MarketPlace::post_update_template(std::string& error)
 
     if (!new_market_mad.empty())
     {
+        if (set_market_mad(new_market_mad, error) != 0)
+        {
+            add_template_attribute("MARKET_MAD", market_mad);
+            return -1;
+        }
+
         market_mad = new_market_mad;
     }
 
