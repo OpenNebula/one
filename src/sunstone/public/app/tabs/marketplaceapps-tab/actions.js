@@ -64,8 +64,8 @@ define(function(require) {
     "MarketPlaceApp.chgrp": _commonActions.multipleAction('chgrp'),
     "MarketPlaceApp.chmod": _commonActions.singleAction('chmod'),
     //"MarketPlaceApp.update" : _commonActions.updateTemplate(),
-    //"MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
-    //"MarketPlaceApp.append_template" : _commonActions.appendTemplate(),
+    "MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
+    "MarketPlaceApp.append_template" : _commonActions.appendTemplate(),
     "MarketPlaceApp.rename": _commonActions.singleAction('rename')
   }
 

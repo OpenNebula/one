@@ -78,6 +78,8 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+    
     context.off("click", ".vmTemplate_edit");
     context.on("click", ".vmTemplate_edit", function() {
       $("#vmTemplate_text", context).hide();

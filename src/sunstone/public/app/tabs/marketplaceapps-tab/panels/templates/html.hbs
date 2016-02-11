@@ -27,13 +27,15 @@
       </thead>
     </table>
     <textarea rows="6" type="text" id="appTemplate_textarea" class="hidden">{{appTemplate}}</textarea>
-    <pre id="appTemplate_text" class="info_text">
       {{#if appTemplate}}
+        <pre id="appTemplate_text" class="info_text">
         {{~htmlDecode appTemplate~}}
+        </pre>
       {{else}}
-        {{tr "You can provide a template for the resource that will be created in OpenNebula"}}
+        <p id="appTemplate_text" class="info_text">
+        {{~tr "You can provide a template for the resource that will be created in OpenNebula"~}}
+        </p>
       {{/if}}
-    </pre>
   </div>
   <div class="large-6 columns">  
     <table class="dataTable" cellpadding="0" cellspacing="0" border="0">
@@ -47,12 +49,14 @@
       </thead>
     </table>
     <textarea rows="6" type="text" id="vmTemplate_textarea" class="hidden">{{vmTemplate}}</textarea>
-    <pre id="vmTemplate_text" class="info_text">
       {{#if vmTemplate}}
+        <pre id="vmTemplate_text" class="info_text">
         {{~htmlDecode vmTemplate~}}
+        </pre>
       {{else}}
-        {{tr "You can provide a VM template associated to the resource that will be created in OpenNebula"}}
+        <p id="vmTemplate_text" class="info_text">
+        {{~tr "You can provide a VM template associated to the resource that will be created in OpenNebula"~}}
+        </p>
       {{/if}}
-    </pre>
   </div>
 </div>
