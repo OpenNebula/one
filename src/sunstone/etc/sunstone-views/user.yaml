@@ -268,6 +268,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.export_dialog: true
             Image.rename: true
             Image.chown: false
             Image.chgrp: false
@@ -583,8 +584,8 @@ tabs:
             User.quotas_dialog: false
     marketplaces-tab:
         panel_tabs:
-            #marketplaces_info_tab: true
-            #marketplaces_apps_tab: true
+            marketplace_info_tab: true
+            marketplaces_app_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -606,8 +607,8 @@ tabs:
             MarketPlace.delete: true
     marketplaceapps-tab:
         panel_tabs:
-            #marketplaces_info_tab: true
-            #marketplaces_apps_tab: true
+            marketplaceapp_info_tab: true
+            marketplaceapp_templates_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -623,9 +624,12 @@ tabs:
             #- 11        # Labels
         actions:
             MarketPlaceApp.refresh: true
-            #MarketPlaceApp.create_dialog: true
+            MarketPlaceApp.create_dialog: true
+            MarketPlaceApp.export_dialog: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true
             MarketPlaceApp.chmod: true
+            MarketPlaceApp.enable: true
+            MarketPlaceApp.disable: true
             MarketPlaceApp.delete: true

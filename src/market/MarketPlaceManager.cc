@@ -263,9 +263,19 @@ void MarketPlaceManager::monitor_market(int mp_id)
         return;
     }
 
-    mp->to_xml(mp_data);
-
     mp_name = mp->get_name();
+
+    if ( !mp->is_action_supported(MarketPlaceApp::MONITOR) )
+    {
+        NebulaLog::log("MKP", Log::DEBUG, "Monitoring disabled for market: " +
+                mp_name);
+
+        mp->unlock();
+
+        return;
+    }
+
+    mp->to_xml(mp_data);
 
     mp->unlock();
 

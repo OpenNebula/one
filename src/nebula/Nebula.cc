@@ -1107,23 +1107,3 @@ int Nebula::get_conf_attribute(
     return -1;
 };
 
-int Nebula::get_ds_conf_attribute(
-    const std::string& name,
-    const VectorAttribute* &value) const
-{
-    return get_conf_attribute("DS_MAD_CONF", name, value);
-};
-
-int Nebula::get_tm_conf_attribute(
-    const std::string& name,
-    const VectorAttribute* &value) const
-{
-    return get_conf_attribute("TM_MAD_CONF", name, value);
-};
-
-int Nebula::get_market_conf_attribute(
-    const std::string& name,
-    const VectorAttribute* &value) const
-{
-    return get_conf_attribute("MARKET_MAD_CONF", name, value);
-};

@@ -67,7 +67,8 @@ public:
      *    @param mp_name of the MarketPlace
      *    @param error_str Returns the error reason, if any
      *
-     *    @return 0 on success
+     *    @return the oid assigned to the object, -1 in case of failure, -2
+     *    already imported
      */
     int import(const std::string& t64, int mp_id, const std::string& mp_name,
             std::string& error_str);

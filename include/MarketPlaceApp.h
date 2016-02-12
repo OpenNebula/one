@@ -29,9 +29,43 @@ class MarketPlaceApp : public PoolObjectSQL
 {
 public:
     /**
+     *  MarketPlaceApp actions
+     */
+    enum Action
+    {
+        NONE    = 0,
+        CREATE  = 1,
+        DELETE  = 2,
+        MONITOR = 3
+    };
+
+    static int action_from_str(string& st, Action& action)
+    {
+        if (st == "create")
+        {
+            action = CREATE;
+        }
+        else if (st == "delete")
+        {
+            action = DELETE;
+        }
+        else if (st == "monitor")
+        {
+            action = MONITOR;
+        }
+        else
+        {
+            action = NONE;
+            return -1;
+        }
+
+        return 0;
+    };
+
+    /**
      *  MarketPlaceApp states
      */
-    enum MarketPlaceAppState
+    enum State
     {
         INIT      = 0, /** < Initialization state */
         READY     = 1, /** < Ready to use */
@@ -45,7 +79,7 @@ public:
      * @param state The state
      * @return the string representation
      */
-    static string state_to_str(MarketPlaceAppState state)
+    static string state_to_str(State state)
     {
         switch(state)
         {
@@ -61,7 +95,7 @@ public:
     /**
      *  MarketPlaceApp container types
      */
-    enum MarketPlaceAppType
+    enum Type
     {
 		UNKNOWN          = 0, /** < Unknown types     */
         IMAGE            = 1, /** < Image MarketPlace App*/
@@ -74,7 +108,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(MarketPlaceAppType ob)
+    static string type_to_str(Type ob)
     {
         switch (ob)
         {
@@ -91,7 +125,7 @@ public:
      *    @param str_type string representing the type
      *    @return the MarketPlaceType
      */
-    static MarketPlaceAppType str_to_type(string& str_type);
+    static Type str_to_type(string& str_type);
 
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
@@ -161,7 +195,7 @@ public:
      * Returns the marketplace app type
      *    @return marketplace app type
      */
-    MarketPlaceAppType get_type() const
+    Type get_type() const
     {
         return type;
     };
@@ -196,7 +230,7 @@ public:
     }
 
 
-    MarketPlaceAppState get_state() const
+    State get_state() const
     {
         return state;
     }
@@ -204,7 +238,7 @@ public:
     //--------------------------------------------------------------------------
     // Set Marketplace app attributes
     //--------------------------------------------------------------------------
-    void set_state(MarketPlaceAppState _state)
+    void set_state(State _state)
     {
         state = _state;
     };
@@ -239,7 +273,7 @@ private:
     /**
      *  Publishing date
      */
-    time_t      date;
+    time_t      regtime;
 
     /**
      *  Source URL for the marketplace app
@@ -260,11 +294,6 @@ private:
      *  Description of the App
      */
     std::string description;
-
-    /**
-     *  User sharing the app
-     */
-    std::string publisher;
 
     /**
      *  Version of the app
@@ -294,12 +323,12 @@ private:
     /**
      *  Marketplace App state
      */
-    MarketPlaceAppState state;
+    State state;
 
     /**
      * The marketplace type
      */
-    MarketPlaceAppType type;
+    Type type;
 
     /**
      *  Origin of this App

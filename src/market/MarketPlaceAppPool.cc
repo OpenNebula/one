@@ -144,7 +144,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     {
         //Marketplace app already imported
         delete app;
-        return 0;
+        return -2;
     }
 
     return PoolSQL::allocate(app, error_str);

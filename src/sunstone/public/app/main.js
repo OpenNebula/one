@@ -112,7 +112,7 @@ require.config({
     'spice-filexfer': '../bower_components/spice-html5/filexfer',
 
     /* vis.js */
-    'vis': '../bower_components/vis/dist/vis'
+    'vis': '../bower_components/vis/dist/vis.min'
   },
   shim: {
     /* Tabs */

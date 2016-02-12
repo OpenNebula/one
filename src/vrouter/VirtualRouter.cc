@@ -17,6 +17,24 @@
 #include "VirtualRouter.h"
 #include "VirtualNetworkPool.h"
 #include "Nebula.h"
+#include "VirtualMachine.h"
+
+static const History::VMAction action[12] = {
+    History::MIGRATE_ACTION,
+    History::LIVE_MIGRATE_ACTION,
+    History::HOLD_ACTION,
+    History::RELEASE_ACTION,
+    History::RESUME_ACTION,
+    History::BOOT_ACTION,
+    History::REBOOT_ACTION,
+    History::REBOOT_HARD_ACTION,
+    History::RESCHED_ACTION,
+    History::UNRESCHED_ACTION,
+    History::DISK_SNAPSHOT_CREATE_ACTION,
+    History::DISK_SNAPSHOT_DELETE_ACTION
+};
+
+const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 12);
 
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
@@ -728,3 +746,4 @@ void VirtualRouter::set_auth_request(int uid,
         vnpool->authorize_nic(PoolObjectSQL::VROUTER, *nics_it, uid, &ar);
     }
 }
+

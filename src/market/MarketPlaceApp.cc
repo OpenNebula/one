@@ -49,7 +49,6 @@ MarketPlaceApp::MarketPlaceApp(
         md5(""),
         size_mb(0),
         description(""),
-        publisher(""),
         version(""),
         apptemplate64(""),
         market_id(-1),
@@ -100,8 +99,9 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     remove_template_attribute("SIZE");
     remove_template_attribute("MD5");
     remove_template_attribute("FORMAT");
+    remove_template_attribute("REGTIME");
 
-    date = time(NULL);
+    regtime = time(NULL);
 
     type = IMAGE;
 
@@ -109,7 +109,6 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     //ORIGIN_ID
     //DESCRIPTION
     //APPTEMPLATE64
-    //PUBLISHER
     //VERSION
     if (!get_template_attribute("ORIGIN_ID", origin_id))
     {
@@ -121,13 +120,6 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
     get_template_attribute("DESCRIPTION", description);
 
     get_template_attribute("APPTEMPLATE64", apptemplate64);
-
-    get_template_attribute("PUBLISHER", publisher);
-
-    if (publisher.empty())
-    {
-        publisher = uname;
-    }
 
     get_template_attribute("VERSION", version);
 
@@ -246,14 +238,13 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GID>"            << gid           << "</GID>" <<
 			"<UNAME>"          << uname         << "</UNAME>" <<
 			"<GNAME>"          << gname         << "</GNAME>" <<
-			"<DATE>"           << date          << "</DATE>" <<
+			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
             "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
             "<SOURCE>"         << source        << "</SOURCE>" <<
             "<MD5>"            << md5           << "</MD5>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
             "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
-            "<PUBLISHER>"      << publisher     << "</PUBLISHER>" <<
             "<VERSION>"        << version       << "</VERSION>" <<
             "<FORMAT>"         << format        << "</FORMAT>" <<
             "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
@@ -290,7 +281,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(uname,        "/MARKETPLACEAPP/UNAME", "not_found");
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
-    rc += xpath<time_t>(date, "/MARKETPLACEAPP/DATE", -1);
+    rc += xpath<time_t>(regtime,"/MARKETPLACEAPP/REGTIME", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
     rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
@@ -299,14 +290,13 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath<long long>(size_mb, "/MARKETPLACEAPP/SIZE", -1);
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
     rc += xpath(md5,          "/MARKETPLACEAPP/MD5", "not_found");
-    rc += xpath(publisher,    "/MARKETPLACEAPP/PUBLISHER", "not_found");
     rc += xpath(format,       "/MARKETPLACEAPP/FORMAT", "not_found");
     rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
     rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
     rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
 
-    state = static_cast<MarketPlaceAppState>(istate);
-    type  = static_cast<MarketPlaceAppType>(itype);
+    state = static_cast<State>(istate);
+    type  = static_cast<Type>(itype);
 
 	// ----- Permissions -----
     rc += perms_from_xml();
@@ -338,21 +328,24 @@ int MarketPlaceApp::post_update_template(string& error)
 {
 	std::string n_description;
 	std::string n_apptemplate64;
-	std::string n_publisher;
 	std::string n_version;
 
 	// -------------------------------------------------------------------------
     // Update well known attributes
     // -------------------------------------------------------------------------
-    get_template_attribute("DESCRIPTION",   n_description);
-    get_template_attribute("APPTEMPLATE64", n_apptemplate64);
-    get_template_attribute("PUBLISHER",     n_publisher);
-    get_template_attribute("VERSION",       n_version);
+    get_template_attribute("DESCRIPTION",   description);
+    get_template_attribute("APPTEMPLATE64", apptemplate64);
+    get_template_attribute("VERSION",       version);
 
-    description   = n_description;
-    apptemplate64 = n_apptemplate64;
-    publisher     = n_publisher;
-    version       = n_version;
+	// -------------------------------------------------------------------------
+    // Remove non-update attributes
+    // -------------------------------------------------------------------------
+    remove_template_attribute("SOURCE");
+    remove_template_attribute("SIZE");
+    remove_template_attribute("MD5");
+    remove_template_attribute("FORMAT");
+    remove_template_attribute("REGTIME");
+    remove_template_attribute("ORIGIN_ID");
 
 	return 0;
 }
@@ -360,7 +353,7 @@ int MarketPlaceApp::post_update_template(string& error)
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
-MarketPlaceApp::MarketPlaceAppType MarketPlaceApp::str_to_type(string& str_type)
+MarketPlaceApp::Type MarketPlaceApp::str_to_type(string& str_type)
 {
     one_util::toupper(str_type);
 
@@ -425,7 +418,6 @@ void MarketPlaceApp::to_template(Template * tmpl) const
 int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 {
     std::string * info = one_util::base64_decode(info64);
-    std::string sdate;
 
     if (info == 0)
     {
@@ -456,24 +448,17 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     erase_template_attribute("NAME", name);
     erase_template_attribute("SOURCE", source);
-    erase_template_attribute("DESCRIPTION", description);
     erase_template_attribute("SIZE", size_mb);
-    erase_template_attribute("VERSION", version);
     erase_template_attribute("MD5", md5);
-    erase_template_attribute("PUBLISHER", publisher);
     erase_template_attribute("FORMAT", format);
-    erase_template_attribute("APPTEMPLATE64", apptemplate64);
+    erase_template_attribute("REGTIME", regtime);
 
-    erase_template_attribute("DATE", sdate);
-    std::istringstream iss(sdate);
-    iss >> date;
+    get_template_attribute("DESCRIPTION", description);
+    get_template_attribute("VERSION", version);
+    get_template_attribute("APPTEMPLATE64", apptemplate64);
 
-    if ( date == 0 )
-    {
-        date = time(NULL);
-    }
+    replace_template_attribute("IMPORTED", "YES");
 
-   replace_template_attribute("IMPORTED", "YES");
-   return 0;
+    return 0;
 }
 

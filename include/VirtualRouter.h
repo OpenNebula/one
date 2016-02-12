@@ -22,6 +22,8 @@
 #include "ObjectCollection.h"
 #include "VirtualMachineTemplate.h"
 #include "AuthRequest.h"
+#include "History.h"
+#include "ActionSet.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -131,18 +133,27 @@ public:
                                  AuthRequest& ar,
                                  Template *tmpl);
 
+    /**
+     * Checks if the given action is supported for Virtual Router VMs
+     * @param action VM action to check
+     * @return true if the action is supported for Virtual Router VMs
+     */
+    static bool is_action_supported(History::VMAction action)
+    {
+        return SUPPORTED_ACTIONS.is_set(action);
+    }
+
 private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
-
     friend class VirtualRouterPool;
 
+    static const ActionSet<History::VMAction> SUPPORTED_ACTIONS;
 
     // *************************************************************************
     // Attributes
     // *************************************************************************
-
     ObjectCollection vms;
 
     // *************************************************************************

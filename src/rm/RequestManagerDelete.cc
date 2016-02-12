@@ -518,6 +518,14 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
     std::string mp_name = mp->get_name();
     std::string mp_data;
 
+    if ( !mp->is_action_supported(MarketPlaceApp::DELETE) )
+    {
+        emsg = "Delete disabled for market: " + mp_name;
+        mp->unlock();
+
+        return -1;
+    }
+
     mp->to_xml(mp_data);
 
     mp->unlock();

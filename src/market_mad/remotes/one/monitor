@@ -20,20 +20,21 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'base64'
+require 'rexml/document'
 
 class OneMarket
     ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
 
-    def initialize(url=ONE_MARKET_URL)
-        @url   = url
+    def initialize(url)
+        @url   = url || ONE_MARKET_URL
         @agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
     end
 
     def get(path)
         uri = URI(@url + path)
-        req = Net::HTTP::Get.new(uri)
+        req = Net::HTTP::Get.new(uri.request_uri)
 
         req['User-Agent'] = @agent
 
@@ -74,7 +75,7 @@ class OneMarket
             print_var(tmpl, "DESCRIPTION", app["short_description"])
             print_var(tmpl, "VERSION",     app["version"])
             print_var(tmpl, "TAGS",        app["tags"].join(', '))
-            print_var(tmpl, "DATE",        app["creation_time"])
+            print_var(tmpl, "REGTIME",     app["creation_time"])
 
             if !app["files"].nil? && !app["files"][0].nil?
                 file = app["files"][0]
@@ -143,6 +144,14 @@ end
 ################################################################################
 # Main Program. Outpust the list of marketplace appliances
 ################################################################################
+
+begin
+    drv_message = Base64::decode64(ARGV[0])
+    doc = REXML::Document.new(drv_message).root
+    url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+rescue Exception
+end
+
 #TODO get marketplace URL from MARKETPLACE Templace for other markets
-one_market = OneMarket.new
-puts one_market.get_appliances()
+one_market = OneMarket.new(url)
+puts one_market.get_appliances

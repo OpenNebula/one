@@ -15,6 +15,10 @@
 {{! -------------------------------------------------------------------------- }}
 
 <form data-abide="ajax" id="{{formPanelId}}Advanced" class="custom creation">
+  <fieldset>
+    <legend>{{tr "Select the Marketplace where the App will be created"}}</legend>
+    {{{marketPlacesTableAdvancedHTML}}}
+  </fieldset>
   <div class="row">
     <div class="large-12 columns">
       <p>{{tr "Write the MarketPlace Appliance template here"}}</p>

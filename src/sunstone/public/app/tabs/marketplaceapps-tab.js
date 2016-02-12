@@ -27,7 +27,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    //require('./marketplaceapps-tab/panels/info')
+    require('./marketplaceapps-tab/panels/info'),
+    require('./marketplaceapps-tab/panels/templates')
   ];
 
   var _panelsHooks = [
@@ -35,7 +36,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    //require('./datastores-tab/form-panels/create')
+    require('./marketplaceapps-tab/form-panels/create'),
+    require('./marketplaceapps-tab/form-panels/export')
   ];
 
   var Tab = {
@@ -44,7 +46,7 @@ define(function(require) {
     listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("Apps"),
     infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("App"),
     subheader: '<span/> <small></small>&emsp;',
-    resource: 'MarketPlace',
+    resource: 'MarketPlaceApp',
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),

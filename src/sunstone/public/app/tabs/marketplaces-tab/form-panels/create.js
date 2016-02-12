@@ -22,9 +22,7 @@ define(function(require) {
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
-  var ResourceSelect = require('utils/resource-select');
   var Config = require('sunstone-config');
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
@@ -44,69 +42,75 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var MARKET_MAD_ATTRS = [
     {
+      name: 'ENDPOINT',
+      label: Locale.tr("Endpoint"),
+      tooltip: Locale.tr("URL of AppMarket."),
+      driver: 'one'
+    },
+    {
       name: 'BASE_URL',
       label: Locale.tr("Base URL"),
-      tooltip: Locale.tr("URL base to generate app end points"),
+      tooltip: Locale.tr("URL base to generate app end points, where the PUBLIC_DIR is accessible."),
       driver: 'http'
     },
     {
       name: 'PUBLIC_DIR',
       label: Locale.tr("Public Directory"),
-      tooltip: Locale.tr("Directory path to place images, the document root for http server"),
+      tooltip: Locale.tr("Absolute directory path to place images, the document root for http server, in the frontend or in the hosts pointed at by the BRIDGE_LIST directive."),
       driver: 'http'
     },
     {
       name: 'BRIDGE_LIST',
       label: Locale.tr("Bridge List"),
-      tooltip: Locale.tr("Separated list of servers to access the public directory. If not defined, public directory will be local"),
+      tooltip: Locale.tr("Comma separated list of servers to access the public directory. If not defined, public directory will be local"),
       driver: 'http'
     },
     {
       name: 'ACCESS_KEY_ID',
       label: Locale.tr("Access Key Id"),
-      tooltip: Locale.tr("Access Key Id"),
+      tooltip: Locale.tr("The access key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'SECRET_ACCESS_KEY',
       label: Locale.tr("Secret Access Key"),
-      tooltip: Locale.tr("Secret Access Key"),
+      tooltip: Locale.tr("The secret key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'BUCKET',
       label: Locale.tr("Bucket"),
-      tooltip: Locale.tr("Bucket"),
+      tooltip: Locale.tr("The bucket where the files will be stored."),
       driver: 's3'
     },
     {
       name: 'REGION',
       label: Locale.tr("Region"),
-      tooltip: Locale.tr("Region"),
+      tooltip: Locale.tr("The region to connect to. If you are using Ceph-S3 any value here will work."),
       driver: 's3'
     },
     {
       name: 'TOTAL_MB',
       label: Locale.tr("Total MB"),
-      tooltip: Locale.tr("Total MB"),
+      tooltip: Locale.tr("This parameter defines the Total size of the MarketPlace in MB. It defaults to 1024 GB."),
       driver: 's3'
     },
     {
       name: 'SIGNATURE_VERSION',
       label: Locale.tr("Signature Version"),
-      tooltip: Locale.tr("Signature Version"),
+      tooltip: Locale.tr("Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."),
       driver: 's3'
     },
     {
       name: 'ENDPOINT',
       label: Locale.tr("Endpoint"),
-      tooltip: Locale.tr("Endpoint"),
+      tooltip: Locale.tr("The URL of AppMarket."),
       driver: 's3'
     },
     {
       name: 'FORCE_PATH_STYLE',
       label: Locale.tr("Force Path Style"),
-      tooltip: Locale.tr("Force Path Style"),
+      tooltip: Locale.tr("Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."),
       driver: 's3'
     }
   ]
@@ -173,28 +177,7 @@ define(function(require) {
 
   function _onShow(dialog) {
     $("#NAME", dialog).focus();
-
     $('#MARKET_MAD', dialog).change();
-
-//    var cluster_id = $("div#cluster_id .resource_list_select", dialog).val();
-//    if (!cluster_id) cluster_id = "-1";
-//
-//    var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
-//    if (!cluster_id_raw) cluster_id_raw = "-1";
-//
-//    ResourceSelect.insert({
-//        context: $('#cluster_id', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id,
-//        includeDefaultCluster: true
-//      });
-//
-//    ResourceSelect.insert({
-//        context: $('#datastore_cluster_raw', dialog),
-//        resourceName: 'Cluster',
-//        initValue: cluster_id_raw,
-//        includeDefaultCluster: true
-//      });
 
     return false;
   }
@@ -220,70 +203,6 @@ define(function(require) {
     dialog.on('change', '#MARKET_MAD', function() {
       _setRequiredFields(dialog, this.value);
     });
-
-    // Show custom driver input only when custom is selected in selects
-//    $('input[name="ds_tab_custom_ds_mad"],' +
-//      'input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//
-//    $('select#ds_mad', dialog).change(function() {
-//      if ($(this).val() == "custom") {
-//          $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
-//      } else {
-//        _setRequiredFields(dialog, $(this).val());
-//        $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
-//      }
-//    });
-//
-//    $('select#tm_mad', dialog).change(function() {
-//      if ($(this).val() == "custom")
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
-//      else
-//          $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
-//    });
-//
-//    $('#presets', dialog).change(function() {
-//      _hideAll(dialog);
-//      var choice_str = $(this).val();
-//
-//      switch (choice_str)
-//      {
-//        case 'fs':
-//          _selectFilesystem(dialog);
-//          break;
-//        case 'vmware_vmfs':
-//          _selectVmwareVmfs(dialog);
-//          break;
-//        case 'block_lvm':
-//          _selectBlockLvm(dialog);
-//          break;
-//        case 'fs_lvm':
-//          _selectFsLvm(dialog);
-//          break;
-//        case 'ceph':
-//          _selectCeph(dialog);
-//          break;
-//        case 'gluster':
-//          _selectGluster(dialog);
-//          break;
-//        case 'dev':
-//          _selectDevices(dialog);
-//          break;
-//        case 'iscsi':
-//          _selectISCSI(dialog);
-//          break;
-//        case 'custom':
-//          _selectCustom(dialog);
-//          break;
-//      }
-//    });
-//
-//    $('#presets', dialog).change();
-//
-//    // Hide disk_type
-//    $('select#disk_type', dialog).parent().hide();
-//
-//    _hideAll(dialog);
-//    _selectFilesystem(dialog);
   }
 
 

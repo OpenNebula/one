@@ -61,7 +61,7 @@ int MarketPlaceManager::import_app(
 
     app->to_xml(app_data);
 
-    MarketPlaceApp::MarketPlaceAppType type = app->get_type();
+    MarketPlaceApp::Type type = app->get_type();
 
 	int app_id    = app->get_oid();
     int origin_id = app->get_origin_id();
@@ -131,7 +131,7 @@ void MarketPlaceManager::release_app_resources(int appid)
         return;
     }
 
-    MarketPlaceApp::MarketPlaceAppType type = app->get_type();
+    MarketPlaceApp::Type type = app->get_type();
 
     int iid = app->get_origin_id();
 
@@ -180,8 +180,8 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
 
     app->to_xml(app_data);
 
-    MarketPlaceApp::MarketPlaceAppType type   = app->get_type();
-    MarketPlaceApp::MarketPlaceAppState state = app->get_state();
+    MarketPlaceApp::Type type   = app->get_type();
+    MarketPlaceApp::State state = app->get_state();
 
     int market_id = app->get_market_id();
 

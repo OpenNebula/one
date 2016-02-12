@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "ObjectCollection.h"
 #include "MarketPlaceTemplate.h"
+#include "MarketPlaceApp.h"
+#include "ActionSet.h"
 
 /**
  *  The MarketPlace class. It represents an abstract container for OpenNebula
@@ -86,6 +88,16 @@ public:
      */
     void update_monitor(const Template& data);
 
+    /**
+     *  Check if action is supported for the apps
+     *    @param action
+     *    @return true if it is supported
+     */
+    bool is_action_supported(MarketPlaceApp::Action action) const
+    {
+        return supported_actions.is_set(action);
+    }
+
 private:
 
     friend class MarketPlacePool;
@@ -93,7 +105,6 @@ private:
     // *************************************************************************
     // MarketPlace Attributes
     // *************************************************************************
-
     /**
      * Name of the marketplace driver used to import apps
      */
@@ -113,6 +124,11 @@ private:
      * Used capacity in MB
      */
      long long used_mb;
+
+    /**
+     *  Supported actions on MarketPlaceApps
+     */
+    ActionSet<MarketPlaceApp::Action> supported_actions;
 
     // *************************************************************************
     // Constructor

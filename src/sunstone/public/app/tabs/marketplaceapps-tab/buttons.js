@@ -23,10 +23,14 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
-    //"MarketPlaceApp.create_dialog" : {
-    //  type: "create_dialog",
-    //  layout: "create"
-    //},
+    "MarketPlaceApp.create_dialog" : {
+      type: "create_dialog",
+      layout: "create"
+    },
+    "MarketPlaceApp.export_dialog" : {
+      type: "action",
+      text: '<i class="fa fa-download"/>'
+    },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),
@@ -40,6 +44,16 @@ define(function(require) {
       select: "Group",
       layout: "user_select",
       tip: Locale.tr("Select the new group") + ":"
+    },
+    "MarketPlaceApp.enable" : {
+      type: "action",
+      layout: "more_select",
+      text: Locale.tr("Enable")
+    },
+    "MarketPlaceApp.disable" : {
+      type: "action",
+      layout: "more_select",
+      text: Locale.tr("Disable")
     },
     "MarketPlaceApp.delete" : {
       type: "confirm",

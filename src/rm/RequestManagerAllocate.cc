@@ -912,6 +912,14 @@ int MarketPlaceAppAllocate::pool_allocate(
     std::string mp_name = mp->get_name();
     std::string mp_data;
 
+    if ( !mp->is_action_supported(MarketPlaceApp::CREATE) )
+    {
+        att.resp_msg = "Create disabled for market: " + mp_name;
+        mp->unlock();
+
+        return -1;
+    }
+
     mp->to_xml(mp_data);
 
     mp->unlock();
