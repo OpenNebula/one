@@ -20,8 +20,10 @@ ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
 end
 
 $: << RUBY_LIB_LOCATION
@@ -46,9 +48,46 @@ begin
 
     ds = vi_client.get_datastore(ds_name)
 
-    # Setting "." as the source will read from the stdin
-    VCenterDriver::VIClient.in_stderr_silence do
-        ds.download_to_stdout img_src
+    if ds.is_descriptor? img_src
+        descriptor_name = File.basename u.path
+        temp_folder = VAR_LOCATION + "/vcenter/"
+        FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
+
+        # Build array of files to download
+        files_to_download = [descriptor_name]
+        descriptor = ds.get_text_file img_src
+        flat_files = descriptor.select{|l| l.start_with?("RW")}
+        flat_files.each{|file| 
+              files_to_download << file.split(" ")[-1].chomp.chomp('"').reverse.chomp('"').reverse
+        }
+
+        # Dowload files
+        url_prefix = u.host + "/"
+        
+        VCenterDriver::VIClient.in_silence do
+            files_to_download.each{|file|
+            ds.download(url_prefix + file, temp_folder + file) 
+            }
+        end
+
+        # Create tar.gz
+        rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} >& /dev/null")
+             raise "Error creating tar file for #{descriptor_name}" unless rs
+        
+        # Cat file to stdout
+        rs = system("cat #{temp_folder + descriptor_name}.tar.gz")
+             raise "Error reading tar for #{descriptor_name}" unless rs
+
+
+        # Delete tar.gz
+        rs = system("cd #{temp_folder} && rm #{descriptor_name}.tar.gz #{files_to_download.join(' ')}")
+             raise "Error removing tar for #{descriptor_name}" unless rs
+        
+    else
+        # Setting "." as the source will read from the stdin
+        VCenterDriver::VIClient.in_stderr_silence do
+            ds.download_to_stdout img_src
+        end
     end
 rescue Exception => e
     STDERR.puts "Cannot download image #{u.path} from datastore #{ds_name} "\
