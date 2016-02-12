@@ -35,6 +35,8 @@ define(function(require) {
   var NicsSection = require('utils/nics-section');
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
+  var WizardFields = require('utils/wizard-fields');
+  var UserInputs = require('utils/user-inputs');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -126,83 +128,6 @@ define(function(require) {
   }
 
   $(document).foundation();
-
-  function generate_custom_attrs(context, custom_attrs) {
-    context.off();
-    var text_attrs = [];
-
-    $.each(custom_attrs, function(key, value){
-      var parts = value.split("|");
-      // 0 mandatory; 1 type; 2 desc;
-      var attrs = {
-        "name": key,
-        "mandatory": parts[0],
-        "type": parts[1],
-        "description": parts[2],
-      }
-
-      switch (parts[1]) {
-        case "text":
-        case "text64":
-        case "password":
-          text_attrs.push(attrs)
-          break;
-      }
-    });
-
-    if (text_attrs.length > 0) {
-      context.html(
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns">'+
-            '<h3 class="subheader text-right">'+
-              '<span class="left">'+
-                '<i class="fa fa-th fa-gears"></i>&emsp;'+
-                Locale.tr("Custom Attributes")+
-              '</span>'+
-            '</h3>'+
-            '<br>'+
-          '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="provision_custom_attributes">'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
-        '<br>');
-
-
-      $.each(text_attrs, function(index, custom_attr){
-        var input;
-
-        switch (custom_attr.type) {
-          case "text":
-            input = '<textarea type="text" rows="1" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
-            break;
-          case "text64":
-            input = '<textarea type="text" rows="1" text64="true" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
-            break;
-          case "password":
-            input = '<input type="password" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
-            break;
-        }
-
-        $(".provision_custom_attributes", context).append(
-          '<br>'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<label style="font-size: 16px">' +
-                '<i class="fa fa-asterisk" style="color:#0099c3"/> '+
-                TemplateUtils.htmlDecode(custom_attr.description) +
-                input +
-              '</label>'+
-            '</div>'+
-          '</div>');
-      });
-    } else {
-      context.html("");
-    }
-  }
 
   function generate_cardinality_selector(context, role_template, template_json) {
     context.off();
@@ -1348,9 +1273,11 @@ define(function(require) {
             }
 
             if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
-              generate_custom_attrs(
-                $(".provision_custom_attributes_selector", create_vm_context),
-                template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+              UserInputs.vmTemplateInsert(
+                  $(".provision_custom_attributes_selector", create_vm_context),
+                  template_json,
+                  {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+
             } else {
               $(".provision_custom_attributes_selector", create_vm_context).html("");
             }
@@ -1402,29 +1329,7 @@ define(function(require) {
             $.extend(extra_info.template, instance_typa_data)
           }
 
-          var missing_attr = false;
-          var user_inputs_values = {};
-          if ($(".provision_custom_attributes", $(this))) {
-            $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
-              if (!$(this).val()) {
-                $(this).parent("label").css("color", "red");
-                missing_attr = true;
-              } else {
-                $(this).parent("label").css("color", "#777");
-
-                if ($(this).attr('text64') == "true"){
-                  user_inputs_values[$(this).attr("attr_name")] = btoa($(this).val());
-                } else {
-                  user_inputs_values[$(this).attr("attr_name")] = $(this).val();
-                }
-              }
-            })
-          }
-
-          if (missing_attr) {
-            $(".alert-box-error", $(this)).fadeIn().html(Locale.tr("You have not specified all the Custom Atrributes for this VM"));
-            return false;
-          }
+          var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
 
           if (!$.isEmptyObject(user_inputs_values)) {
              $.extend(extra_info.template, user_inputs_values)
@@ -1596,11 +1501,6 @@ define(function(require) {
                 });
               }
 
-              //if (text_attrs.length > 0) {
-              //  generate_custom_attrs(
-              //    $(".provision_custom_attributes_selector", context),
-              //    text_attrs);
-              //}
             } else {
               $(".provision_network_selector", context).html("")
               $(".provision_custom_attributes_selector", context).html("")
@@ -1649,9 +1549,11 @@ define(function(require) {
                     template_json);
 
                   if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
-                    generate_custom_attrs(
-                      $(".provision_custom_attributes_selector", role_context),
-                      template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+                    UserInputs.vmTemplateInsert(
+                        $(".provision_custom_attributes_selector", role_context),
+                        template_json,
+                        {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+
                   } else {
                     $(".provision_custom_attributes_selector", role_context).html("");
                   }
@@ -1705,21 +1607,9 @@ define(function(require) {
           }
 
           var roles = [];
-          var missing_attr = false;
 
           $(".provision_create_flow_role", context).each(function(){
-            var user_inputs_values = {};
-            if ($(".provision_custom_attributes", $(this))) {
-              $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
-                if (!$(this).val()) {
-                  $(this).parent("label").css("color", "red");
-                  missing_attr = true;
-                } else {
-                  $(this).parent("label").css("color", "#777");
-                  user_inputs_values[$(this).attr("attr_name")] = $(this).val();
-                }
-              })
-            }
+            var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
 
             var role_template = $(this).data("opennebula");
 
@@ -1744,11 +1634,6 @@ define(function(require) {
 
           if (flow_name){
             extra_info["merge_template"]["name"] = flow_name;
-          }
-
-          if (missing_attr) {
-            $(".alert-box-error", $(this)).fadeIn().html(Locale.tr("You have not specified all the Custom Atrributes for this Service"));
-            return false;
           }
 
           Sunstone.runAction("Provision.Flow.instantiate", template_id, extra_info);
