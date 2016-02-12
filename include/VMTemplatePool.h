@@ -82,18 +82,6 @@ public:
     };
 
     /**
-     *  Updates the object's data in the data base. The object mutex SHOULD be
-     *  locked.
-     *    @param objsql a pointer to the object
-     *
-     *    @return 0 on success.
-     */
-    int update(VMTemplate * vm_template)
-    {
-        return vm_template->update(db);
-    };
-
-    /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents

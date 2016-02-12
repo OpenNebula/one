@@ -318,7 +318,59 @@ public:
     ~VdcInfo(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterInfo : public RequestManagerInfo
+{
+public:
+    VirtualRouterInfo():
+        RequestManagerInfo("VirtualRouterInfo",
+                           "Returns virtual router information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceInfo():
+        RequestManagerInfo("MarketPlaceInfo",
+                           "Returns marketplace information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceAppInfo():
+        RequestManagerInfo("MarketPlaceAppInfo",
+                           "Returns marketplace app information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppInfo(){};
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

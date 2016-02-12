@@ -78,7 +78,13 @@ define(function(require) {
       "select_resource": Locale.tr("Please select a Template from the list"),
       "you_selected": Locale.tr("You selected the following Template:"),
       "select_resource_multiple": Locale.tr("Please select one or more Templates from the list"),
-      "you_selected_multiple": Locale.tr("You selected the following Templates:")
+      "you_selected_multiple": Locale.tr("You selected the following Templates:"),
+
+      // By default the filter is set to return all VM Templates that
+      // are NOT virtual router templates
+      "filter_fn": function(tmpl){
+        return (tmpl.TEMPLATE.VROUTER == undefined || tmpl.TEMPLATE.VROUTER.toUpperCase() != "YES");
+      }
     };
 
     this.labels = [];

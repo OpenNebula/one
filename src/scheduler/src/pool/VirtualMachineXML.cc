@@ -36,7 +36,7 @@ void VirtualMachineXML::init_attributes()
     xpath(gid, "/VM/GID", -1);
 
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
-    xpath(cpu,    "/VM/TEMPLATE/CPU", 0);
+    xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
 
     // ------------------------ RANK & DS_RANK ---------------------------------
 
@@ -142,17 +142,14 @@ void VirtualMachineXML::init_attributes()
         system_ds_usage = 0;
     }
 
-    vector<Attribute*> attrs;
-    user_template->get("PUBLIC_CLOUD", attrs);
+    vector<VectorAttribute*> attrs;
 
-    public_cloud = (attrs.size() > 0);
+    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
 
     if (public_cloud == false)
     {
         attrs.clear();
-        user_template->get("EC2", attrs);
-
-        public_cloud = (attrs.size() > 0);
+        public_cloud = (user_template->get("EC2", attrs) > 0);
     }
 
     only_public_cloud = false;
@@ -203,7 +200,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineXML::get_requirements (int& cpu, int& memory,
-    long long& disk, vector<Attribute *> &pci)
+    long long& disk, vector<VectorAttribute *> &pci)
 {
     pci.clear();
 

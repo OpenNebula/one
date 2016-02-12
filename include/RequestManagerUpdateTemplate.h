@@ -286,7 +286,60 @@ public:
     ~VdcUpdateTemplate(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VirtualRouterUpdateTemplate():
+        RequestManagerUpdateTemplate("VirtualRouterUpdateTemplate",
+                                     "Updates a virtual router template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    MarketPlaceUpdateTemplate():
+        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+                                     "Updates a marketplace template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    MarketPlaceAppUpdateTemplate():
+        RequestManagerUpdateTemplate("MarketPlaceUpdateTemplate",
+                                     "Updates a marketplace app template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

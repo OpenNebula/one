@@ -22,6 +22,7 @@
 #include "VirtualNetworkTemplate.h"
 #include "Clusterable.h"
 #include "AddressRangePool.h"
+#include "ObjectCollection.h"
 
 #include <vector>
 #include <string>
@@ -82,7 +83,7 @@ public:
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_var(vector<Attribute *> &var, string& error_msg);
+    int add_var(vector<VectorAttribute *> &var, string& error_msg);
 
     /**
      * Removes an address range from the VNET
@@ -156,64 +157,80 @@ public:
 
     /**
      *    Gets a new address lease for a specific VM
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_addr(int vid, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_addr(PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_addr(ot, oid, nic, inherit);
     }
 
     /**
      *    Gets a new address lease for a specific VM by MAC
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac the MAC address requested
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_by_mac(int vid, const string& mac, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_by_mac(PoolObjectSQL::ObjectType ot, int oid, const string& mac,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_by_mac(mac, PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
     }
 
     /**
      *    Gets a new address lease for a specific VM by IP
-     *    @param vid VM identifier
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param ip the IP address requested
      *    @param nic the VM NIC attribute to be filled with the lease info.
      *    @param inherit attributes from the address range to include in the NIC
      *    @return 0 if success
      */
-    int allocate_by_ip(int vid, const string& ip, VectorAttribute * nic,
-        const vector<string>& inherit)
+    int allocate_by_ip(PoolObjectSQL::ObjectType ot, int oid, const string& ip,
+            VectorAttribute * nic, const vector<string>& inherit)
     {
-        return ar_pool.allocate_by_ip(ip, PoolObjectSQL::VM, vid, nic, inherit);
+        return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
     }
 
     /**
      *  Release previously given address lease
      *    @param arid of the address range where the address was leased from
-     *    @param vid the ID of the VM
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(unsigned int arid, int vid, const string& mac)
+    void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int oid,
+                    const string& mac)
     {
-        ar_pool.free_addr(arid, PoolObjectSQL::VM, vid, mac);
+        ar_pool.free_addr(arid, ot, oid, mac);
+
+        if (ot == PoolObjectSQL::VROUTER)
+        {
+            vrouters.del_collection_id(oid);
+        }
     }
 
     /**
      *  Release previously given address lease
-     *    @param vid the ID of the VM
+     *    @param ot the type of the object requesting the address
+     *    @param oid the id of the object requesting the address
      *    @param mac MAC address identifying the lease
      */
-    void free_addr(int vid, const string& mac)
+    void free_addr(PoolObjectSQL::ObjectType ot, int oid, const string& mac)
     {
-        ar_pool.free_addr(PoolObjectSQL::VM, vid, mac);
+        ar_pool.free_addr(ot, oid, mac);
+
+        if (ot == PoolObjectSQL::VROUTER)
+        {
+            vrouters.del_collection_id(oid);
+        }
     }
 
     /**
@@ -253,6 +270,21 @@ public:
     int nic_attribute(
             VectorAttribute *       nic,
             int                     vid,
+            const vector<string>&   inherit_attrs);
+
+    /**
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  @param nic attribute for the VRouter template
+     *  @param vrid of the VRouter getting the lease
+     *  @param inherit_attrs Attributes to be inherited from the vnet template
+     *      into the nic
+     *  @return 0 on success
+     */
+    int vrouter_nic_attribute(
+            VectorAttribute *       nic,
+            int                     vrid,
             const vector<string>&   inherit_attrs);
 
     /**
@@ -377,10 +409,12 @@ public:
      *  A vector containing just -1 means all VMs.
      *  @param vnet_ids list of VNET the user can access reservation info from.
      *  A vector containing just -1 means all VNETs.
+     *  @param vrs list of VRouter the user can access reservation info from.
+     *  A vector containing just -1 means all VRouters.
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets) const;
+        const vector<int>& vnets, const vector<int>& vrs) const;
 
     /**
      *  Gets a string based attribute (single) from an address range. If the
@@ -458,6 +492,11 @@ private:
      */
     AddressRangePool ar_pool;
 
+    /**
+     *  Set of Virtual Router IDs
+     */
+    ObjectCollection vrouters;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
@@ -490,7 +529,8 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, bool extended,
-        const vector<int>& vm_ids, const vector<int>& vnet_oids) const;
+        const vector<int>& vm_ids, const vector<int>& vnet_oids,
+        const vector<int>& vr_ids) const;
 
     /**
      *  Rebuilds the object from an xml formatted string

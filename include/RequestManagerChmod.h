@@ -171,7 +171,62 @@ public:
 
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterChmod: public RequestManagerChmod
+{
+public:
+    VirtualRouterChmod():
+        RequestManagerChmod("VirtualRouterChmod",
+                            "Changes permission bits of a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterChmod(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceChmod: public RequestManagerChmod
+{
+public:
+    MarketPlaceChmod():
+        RequestManagerChmod("MarketPlaceChmod",
+                           "Changes permission bits of a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceChmod(){};
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppChmod: public RequestManagerChmod
+{
+public:
+    MarketPlaceAppChmod():
+        RequestManagerChmod("MarketPlaceAppChmod",
+                           "Changes permission bits of a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppChmod(){};
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

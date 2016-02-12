@@ -137,9 +137,6 @@ public:
 
     ~ImageDelete(){};
 
-
-    /* -------------------------------------------------------------------- */
-
     int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
@@ -354,7 +351,61 @@ public:
     ~VdcDelete(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterDelete : public RequestManagerDelete
+{
+public:
+    VirtualRouterDelete():
+        RequestManagerDelete("VirtualRouterDelete",
+                             "Deletes a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceDelete():
+        RequestManagerDelete("MarketPlaceDelete",
+                             "Deletes a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceAppDelete():
+        RequestManagerDelete("MarketPlaceAppDelete",
+                             "Deletes a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

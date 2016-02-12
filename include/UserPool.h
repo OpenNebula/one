@@ -41,7 +41,7 @@ public:
 
     UserPool(SqlDB * db,
              time_t  __session_expiration_time,
-             vector<const Attribute *> hook_mads,
+             vector<const VectorAttribute *> hook_mads,
              const string&             remotes_location,
              bool                      is_federation_slave);
 
@@ -114,7 +114,7 @@ public:
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(User * user);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular User's Quotas

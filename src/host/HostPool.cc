@@ -37,7 +37,7 @@ time_t HostPool::_monitor_expiration;
 /* -------------------------------------------------------------------------- */
 
 HostPool::HostPool(SqlDB*                    db,
-                   vector<const Attribute *> hook_mads,
+                   vector<const VectorAttribute *> hook_mads,
                    const string&             hook_location,
                    const string&             remotes_location,
                    time_t                    expire_time)
@@ -52,9 +52,6 @@ HostPool::HostPool(SqlDB*                    db,
     }
 
     // ------------------ Initialize Hooks for the pool ----------------------
-
-    const VectorAttribute * vattr;
-
     string name;
     string on;
     string cmd;
@@ -65,15 +62,13 @@ HostPool::HostPool(SqlDB*                    db,
 
     for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
     {
-        vattr = static_cast<const VectorAttribute *>(hook_mads[i]);
+        name = hook_mads[i]->vector_value("NAME");
+        on   = hook_mads[i]->vector_value("ON");
+        cmd  = hook_mads[i]->vector_value("COMMAND");
+        arg  = hook_mads[i]->vector_value("ARGUMENTS");
+        hook_mads[i]->vector_value("REMOTE", remote);
 
-        name = vattr->vector_value("NAME");
-        on   = vattr->vector_value("ON");
-        cmd  = vattr->vector_value("COMMAND");
-        arg  = vattr->vector_value("ARGUMENTS");
-        vattr->vector_value("REMOTE", remote);
-
-        transform (on.begin(),on.end(),on.begin(),(int(*)(int))toupper);
+        one_util::toupper(on);
 
         if ( on.empty() || cmd.empty() )
         {

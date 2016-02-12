@@ -34,14 +34,14 @@ string ImagePool::_default_cdrom_dev_prefix;
 /* -------------------------------------------------------------------------- */
 
 ImagePool::ImagePool(
-        SqlDB *                             db,
-        const string&                       __default_type,
-        const string&                       __default_dev_prefix,
-        const string&                       __default_cdrom_dev_prefix,
-        vector<const Attribute *>&          restricted_attrs,
-        vector<const Attribute *>           hook_mads,
-        const string&                       remotes_location,
-        const vector<const Attribute *>&    _inherit_attrs)
+        SqlDB *                          db,
+        const string&                    __default_type,
+        const string&                    __default_dev_prefix,
+        const string&                    __default_cdrom_dev_prefix,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const VectorAttribute *>& hook_mads,
+        const string&                    remotes_location,
+        const vector<const SingleAttribute *>& _inherit_attrs)
     :PoolSQL(db, Image::table, true, true)
 {
     // Init static defaults
@@ -51,13 +51,11 @@ ImagePool::ImagePool(
     _default_cdrom_dev_prefix = __default_cdrom_dev_prefix;
 
     // Init inherit attributes
-    vector<const Attribute *>::const_iterator it;
+    vector<const SingleAttribute *>::const_iterator it;
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
-        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
-
-        inherit_attrs.push_back(sattr->value());
+        inherit_attrs.push_back((*it)->value());
     }
 
     // Set default type
@@ -89,6 +87,7 @@ int ImagePool::allocate (
         Image::DiskType          disk_type,
         const string&            ds_data,
         Datastore::DatastoreType ds_type,
+        const string&            extra_data,
         int                      cloning_id,
         int *                    oid,
         string&                  error_str)
@@ -101,6 +100,8 @@ int ImagePool::allocate (
     string          name;
     string          type;
     ostringstream   oss;
+
+    int rc;
 
     img = new Image(uid, gid, uname, gname, umask, img_template);
 
@@ -168,7 +169,9 @@ int ImagePool::allocate (
     {
         if (cloning_id == -1)
         {
-            if ( imagem->register_image(*oid, ds_data, error_str) == -1 )
+            rc = imagem->register_image(*oid, ds_data, extra_data, error_str);
+
+            if ( rc == -1 )
             {
                 img = get(*oid, true);
 
@@ -187,7 +190,13 @@ int ImagePool::allocate (
         }
         else
         {
-            if (imagem->clone_image(*oid, cloning_id, ds_data, error_str) == -1)
+            rc = imagem->clone_image(*oid,
+                                     cloning_id,
+                                     ds_data,
+                                     extra_data,
+                                     error_str);
+
+            if (rc == -1)
             {
                 img = get(*oid, true);
 
@@ -322,7 +331,24 @@ int ImagePool::acquire_disk(int               vm_id,
 
     *snap = 0;
 
-    if (!(source = disk->vector_value("IMAGE")).empty())
+    if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    {
+        iid = get_disk_id(source);
+
+        if ( iid == -1)
+        {
+            error_str = "Wrong ID set in IMAGE_ID";
+            return -1;
+        }
+
+        img = imagem->acquire_image(vm_id, iid, error_str);
+
+        if ( img == 0 )
+        {
+            return -1;
+        }
+    }
+    else if (!(source = disk->vector_value("IMAGE")).empty())
     {
         int uiid = get_disk_uid(disk,uid);
 
@@ -345,23 +371,6 @@ int ImagePool::acquire_disk(int               vm_id,
         }
 
         iid = img->get_oid();
-    }
-    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
-    {
-        iid = get_disk_id(source);
-
-        if ( iid == -1)
-        {
-            error_str = "Wrong ID set in IMAGE_ID";
-            return -1;
-        }
-
-        img = imagem->acquire_image(vm_id, iid, error_str);
-
-        if ( img == 0 )
-        {
-            return -1;
-        }
     }
     else //Not using the image repository (volatile DISK)
     {
@@ -494,22 +503,22 @@ void ImagePool::disk_attribute(
     Nebula&         nd      = Nebula::instance();
     DatastorePool * ds_pool = nd.get_dspool();
 
-    if (!(source = disk->vector_value("IMAGE")).empty())
-    {
-        int uiid = get_disk_uid(disk,uid);
-
-        if ( uiid != -1)
-        {
-            img = get(source, uiid, true);
-        }
-    }
-    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    if (!(source = disk->vector_value("IMAGE_ID")).empty())
     {
         int iid = get_disk_id(source);
 
         if ( iid != -1)
         {
             img = get(iid, true);
+        }
+    }
+    else if (!(source = disk->vector_value("IMAGE")).empty())
+    {
+        int uiid = get_disk_uid(disk,uid);
+
+        if ( uiid != -1)
+        {
+            img = get(source, uiid, true);
         }
     }
 

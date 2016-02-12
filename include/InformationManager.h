@@ -41,7 +41,7 @@ public:
         int                         _host_limit,
         int                         _monitor_threads,
         const string&               _remotes_location,
-        vector<const Attribute*>&   _mads)
+        vector<const VectorAttribute*>&   _mads)
             :MadManager(_mads),
             hpool(_hpool),
             clpool(_clpool),

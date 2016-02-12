@@ -117,7 +117,7 @@ public:
     }
 
     void get_requirements (int& cpu, int& memory, long long& disk,
-        vector<Attribute *> &pci);
+        vector<VectorAttribute *> &pci);
 
     map<int,long long> get_storage_usage();
 

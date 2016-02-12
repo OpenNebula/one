@@ -26,7 +26,7 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db, const vector<const Attribute *>& _inherit_attrs);
+    DatastorePool(SqlDB * db, const vector<const SingleAttribute *>& _inherit_attrs);
 
     ~DatastorePool(){};
 
@@ -133,15 +133,6 @@ public:
     {
         // Name is enough key because Datastores can't repeat names.
         return name;
-    };
-
-    /** Update a particular Datastore
-     *    @param user pointer to Datastore
-     *    @return 0 on success
-     */
-    int update(Datastore * datastore)
-    {
-        return datastore->update(db);
     };
 
     /**

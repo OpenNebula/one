@@ -22,6 +22,7 @@
 #include <sstream>
 
 #include "Mad.h"
+#include "ActionSet.h"
 #include "VirtualMachinePool.h"
 #include "History.h"
 
@@ -91,7 +92,7 @@ public:
      */
     bool is_imported_action_supported(History::VMAction action) const
     {
-        return (imported_vm_actions && (1 << static_cast<int>(action))) != 0;
+        return imported_actions.is_set(action);
     }
 
 protected:
@@ -101,13 +102,10 @@ protected:
      *    @param name of config attribute
      *    @param value of the attribute
      */
-    void get_default(
-        const char *  name,
-        string&       value) const
+    template<typename T>
+    void get_default(const string& name, T& value) const
     {
-        string sn = name;
-
-        driver_conf.get(sn,value);
+        driver_conf.get(name, value);
     }
 
     /**
@@ -117,26 +115,25 @@ protected:
      *    @param vname of the attribute
      *    @param value of the attribute
      */
-    void get_default(
-        const char *  name,
-        const char *  vname,
-        string&       value) const;
+    template<typename T>
+    int get_default(const char* name, const char* vname, T& value) const
+    {
+        const VectorAttribute * vattr = driver_conf.get(name);
 
-    /**
-     *  Gets a configuration attr from driver configuration file (vector
-     *  version)
-     *    @param name of config vector attribute for the domain
-     *    @param vname of the attribute
-     *    @param value of the attribute
-     *
-     *    @return true if the attribute was found
-     */
-    bool get_default(
-        const char *  name,
-        const char *  vname,
-        bool&         value) const;
+        if (vattr != 0)
+        {
+            return -1;
+        }
+
+        return vattr->vector_value(vname, value);
+    }
 
 private:
+    friend class VirtualMachineManager;
+
+    static const string imported_actions_default;
+    static const string imported_actions_default_public;
+
     /**
      *  Configuration file for the driver
      */
@@ -146,14 +143,12 @@ private:
      *  List of available actions for imported VMs. Each bit is an action
      *  as defined in History.h, 1=supported and 0=not supported
      */
-    long long imported_vm_actions;
+    ActionSet<History::VMAction> imported_actions;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
     VirtualMachinePool * vmpool;
-
-    friend class VirtualMachineManager;
 
     /**
      *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"
@@ -287,7 +282,6 @@ private:
         const string& drv_msg) const
     {
         write_drv("POLL", oid, drv_msg);
-
     }
 
     /**

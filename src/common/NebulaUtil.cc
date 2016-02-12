@@ -25,6 +25,7 @@
 
 #include <string>
 #include <sstream>
+#include <cstring>
 #include <iomanip>
 #include <algorithm>
 #include <math.h>
@@ -305,4 +306,30 @@ std::string one_util::trim(const std::string& str)
 	std::string tstr(wfirst, wlast);
 
 	return tstr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string one_util::gsub(const std::string& st, const std::string& sfind,
+    const std::string& srepl)
+{
+    std::string result = st;
+
+    std::string::size_type pos = 0;
+
+    size_t srepl_len = srepl.length();
+    size_t sfind_len = sfind.length();
+
+    pos = result.find(sfind, pos);
+
+    while(pos != std::string::npos)
+    {
+        result.replace(pos, sfind_len , srepl);
+        pos += srepl_len;
+
+        pos = result.find(sfind, pos);
+    }
+
+    return result;
 }

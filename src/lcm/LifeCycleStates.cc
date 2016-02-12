@@ -38,7 +38,7 @@ void  LifeCycleManager::save_success_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -157,7 +157,7 @@ void  LifeCycleManager::save_failure_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -261,7 +261,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         int    cpu,mem,disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -335,7 +335,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         int    cpu, mem, disk;
-        vector<Attribute *> pci;
+        vector<VectorAttribute *> pci;
 
         time_t the_time = time(0);
 
@@ -797,7 +797,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 void  LifeCycleManager::epilog_success_action(int vid)
 {
     VirtualMachine *    vm;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     time_t the_time = time(0);
     int    cpu,mem,disk;
@@ -1542,7 +1542,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1574,7 +1574,7 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
     {
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->attach_nic_failure(vid);
 
         vm = vmpool->get(vid,true);
 
@@ -1601,7 +1601,39 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
 
 void LifeCycleManager::detach_nic_success_action(int vid)
 {
-    attach_nic_failure_action(vid);
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        vm->unlock();
+
+        vmpool->detach_nic_success(vid);
+
+        vm = vmpool->get(vid,true);
+
+        if ( vm == 0 )
+        {
+            return;
+        }
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_nic_success_action, VM in a wrong state");
+        vm->unlock();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1609,7 +1641,29 @@ void LifeCycleManager::detach_nic_success_action(int vid)
 
 void LifeCycleManager::detach_nic_failure_action(int vid)
 {
-    attach_nic_success_action(vid);
+    VirtualMachine * vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        vm->detach_nic_failure();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_nic_failure_action, VM in a wrong state");
+    }
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */

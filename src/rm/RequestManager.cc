@@ -40,6 +40,8 @@
 #include "RequestManagerGroup.h"
 #include "RequestManagerVdc.h"
 #include "RequestManagerDatastore.h"
+#include "RequestManagerMarketPlaceApp.h"
+#include "RequestManagerVirtualRouter.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -349,6 +351,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_update(new DocumentUpdateTemplate());
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
+    xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -360,6 +363,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_allocate(new ClusterAllocate());
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
+    xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -375,6 +379,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_delete(new ClusterDelete());
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
+    xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -386,6 +391,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_info(new ClusterInfo());
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
+    xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -401,6 +407,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
+    xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_enable(new HostEnable());
@@ -427,6 +434,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_chown(new DatastoreChown());
     xmlrpc_c::methodPtr doc_chown(new DocumentChown());
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
+    xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -436,6 +444,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_chmod(new DatastoreChmod());
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
+    xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -459,6 +468,12 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastore_rename(new DatastoreRename());
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
+    xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+
+    // Virtual Router Methods
+    xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
+    xmlrpc_c::methodPtr vrouter_attachnic(new VirtualRouterAttachNic());
+    xmlrpc_c::methodPtr vrouter_detachnic(new VirtualRouterDetachNic());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -883,6 +898,117 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vdc.rename",      vdc_rename);
 
     RequestManagerRegistry.addMethod("one.vdcpool.info",    vdcpool_info);
+
+    /* Virtual Router related methods*/
+    RequestManagerRegistry.addMethod("one.vrouter.update", vrouter_update);
+    RequestManagerRegistry.addMethod("one.vrouter.allocate",vrouter_allocate);
+    RequestManagerRegistry.addMethod("one.vrouter.delete", vrouter_delete);
+    RequestManagerRegistry.addMethod("one.vrouter.info", vrouter_info);
+    RequestManagerRegistry.addMethod("one.vrouter.chown", vrouter_chown);
+    RequestManagerRegistry.addMethod("one.vrouter.chmod", vrouter_chmod);
+    RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
+    RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
+    RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
+    RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
+
+    RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
+
+    /* MarketPlace related methods */
+
+    xmlrpc_c::method * market_allocate_pt;
+    xmlrpc_c::method * market_update_pt;
+    xmlrpc_c::method * market_delete_pt;
+    xmlrpc_c::method * market_chmod_pt;
+    xmlrpc_c::method * market_chown_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        market_allocate_pt = new RequestManagerProxy("one.market.allocate");
+        market_update_pt   = new RequestManagerProxy("one.market.update");
+        market_delete_pt   = new RequestManagerProxy("one.market.delete");
+        market_chmod_pt    = new RequestManagerProxy("one.market.chmod");
+        market_chown_pt    = new RequestManagerProxy("one.market.chown");
+    }
+    else
+    {
+        market_allocate_pt = new MarketPlaceAllocate();
+        market_update_pt   = new MarketPlaceUpdateTemplate();
+        market_delete_pt   = new MarketPlaceDelete();
+        market_chmod_pt    = new MarketPlaceChmod();
+        market_chown_pt    = new MarketPlaceChown();
+    }
+
+    xmlrpc_c::methodPtr market_allocate(market_allocate_pt);
+    xmlrpc_c::methodPtr market_update(market_update_pt);
+    xmlrpc_c::methodPtr market_delete(market_delete_pt);
+    xmlrpc_c::methodPtr market_chmod(market_chmod_pt);
+    xmlrpc_c::methodPtr market_chown(market_chown_pt);
+
+    xmlrpc_c::methodPtr market_info(new MarketPlaceInfo());
+    xmlrpc_c::methodPtr market_rename(new MarketPlaceRename());
+    xmlrpc_c::methodPtr marketpool_info(new MarketPlacePoolInfo());
+
+    RequestManagerRegistry.addMethod("one.market.allocate", market_allocate);
+    RequestManagerRegistry.addMethod("one.market.update", market_update);
+    RequestManagerRegistry.addMethod("one.market.delete", market_delete);
+    RequestManagerRegistry.addMethod("one.market.chmod", market_chmod);
+    RequestManagerRegistry.addMethod("one.market.chown", market_chown);
+
+    RequestManagerRegistry.addMethod("one.market.info", market_info);
+    RequestManagerRegistry.addMethod("one.market.rename", market_rename);
+
+    RequestManagerRegistry.addMethod("one.marketpool.info", marketpool_info);
+
+    /* MarketPlaceApp related methods */
+
+    xmlrpc_c::method * marketapp_allocate_pt;
+    xmlrpc_c::method * marketapp_update_pt;
+    xmlrpc_c::method * marketapp_delete_pt;
+    xmlrpc_c::method * marketapp_chmod_pt;
+    xmlrpc_c::method * marketapp_chown_pt;
+    xmlrpc_c::method * marketapp_enable_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        marketapp_allocate_pt = new RequestManagerProxy("one.marketapp.allocate");
+        marketapp_update_pt   = new RequestManagerProxy("one.marketapp.update");
+        marketapp_delete_pt   = new RequestManagerProxy("one.marketapp.delete");
+        marketapp_chmod_pt    = new RequestManagerProxy("one.marketapp.chmod");
+        marketapp_chown_pt    = new RequestManagerProxy("one.marketapp.chown");
+        marketapp_enable_pt   = new RequestManagerProxy("one.marketapp.enable");
+    }
+    else
+    {
+        marketapp_allocate_pt = new MarketPlaceAppAllocate();
+        marketapp_update_pt   = new MarketPlaceAppUpdateTemplate();
+        marketapp_delete_pt   = new MarketPlaceAppDelete();
+        marketapp_chmod_pt    = new MarketPlaceAppChmod();
+        marketapp_chown_pt    = new MarketPlaceAppChown();
+        marketapp_enable_pt   = new MarketPlaceAppEnable();
+    }
+
+    xmlrpc_c::methodPtr marketapp_allocate(marketapp_allocate_pt);
+    xmlrpc_c::methodPtr marketapp_update(marketapp_update_pt);
+    xmlrpc_c::methodPtr marketapp_delete(marketapp_delete_pt);
+    xmlrpc_c::methodPtr marketapp_chmod(marketapp_chmod_pt);
+    xmlrpc_c::methodPtr marketapp_chown(marketapp_chown_pt);
+    xmlrpc_c::methodPtr marketapp_enable(marketapp_enable_pt);
+
+    xmlrpc_c::methodPtr marketapp_info(new MarketPlaceAppInfo());
+    xmlrpc_c::methodPtr marketapp_rename(new MarketPlaceAppRename());
+    xmlrpc_c::methodPtr marketapppool_info(new MarketPlaceAppPoolInfo());
+
+    RequestManagerRegistry.addMethod("one.marketapp.allocate", marketapp_allocate);
+    RequestManagerRegistry.addMethod("one.marketapp.update", marketapp_update);
+    RequestManagerRegistry.addMethod("one.marketapp.delete", marketapp_delete);
+    RequestManagerRegistry.addMethod("one.marketapp.chmod", marketapp_chmod);
+    RequestManagerRegistry.addMethod("one.marketapp.chown", marketapp_chown);
+    RequestManagerRegistry.addMethod("one.marketapp.enable", marketapp_enable);
+
+    RequestManagerRegistry.addMethod("one.marketapp.info", marketapp_info);
+    RequestManagerRegistry.addMethod("one.marketapp.rename", marketapp_rename);
+
+    RequestManagerRegistry.addMethod("one.marketapppool.info", marketapppool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

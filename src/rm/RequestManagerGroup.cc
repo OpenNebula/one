@@ -26,16 +26,14 @@ void GroupSetQuota::
     string  quota_str = xmlrpc_c::value_string(paramList.getString(2));
 
     Group * group;
-    string  error_str;
 
     Template quota_tmpl;
     int      rc;
 
     if ( id == GroupPool::ONEADMIN_ID )
     {
-        failure_response(ACTION,
-                       request_error("Cannot set quotas for oneadmin group",""),
-                       att);
+        att.resp_msg = "Cannot set quotas for oneadmin group";
+        failure_response(ACTION, att);
         return;
     }
 
@@ -44,11 +42,11 @@ void GroupSetQuota::
         return;
     }
 
-    rc = quota_tmpl.parse_str_or_xml(quota_str, error_str);
+    rc = quota_tmpl.parse_str_or_xml(quota_str, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -56,14 +54,12 @@ void GroupSetQuota::
 
     if ( group == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),id),
-                att);
-
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    group->quota.set(&quota_tmpl, error_str);
+    group->quota.set(&quota_tmpl, att.resp_msg);
 
     static_cast<GroupPool *>(pool)->update_quotas(group);
 
@@ -71,7 +67,7 @@ void GroupSetQuota::
 
     if ( rc != 0 )
     {
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
     }
     else
     {
@@ -117,9 +113,9 @@ void GroupEditAdmin::request_execute(
 
     if ( rc == -1 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::USER),
-                user_id), att);
-
+        att.resp_obj = PoolObjectSQL::USER;
+        att.resp_id  = user_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -133,9 +129,8 @@ void GroupEditAdmin::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             return;
         }
@@ -145,14 +140,12 @@ void GroupEditAdmin::request_execute(
 
     if ( group  == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),group_id),
-                att);
-
+        att.resp_id = group_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_admin(group, user_id, error_str);
+    rc = edit_admin(group, user_id, att.resp_msg);
 
     if (rc == 0)
     {
@@ -163,9 +156,8 @@ void GroupEditAdmin::request_execute(
 
     if (rc != 0)
     {
-        failure_response(INTERNAL,
-                request_error("Cannot edit group", error_str),
-                att);
+        att.resp_msg = "Cannot edit group. " + att.resp_msg;
+        failure_response(INTERNAL, att);
 
         return;
     }

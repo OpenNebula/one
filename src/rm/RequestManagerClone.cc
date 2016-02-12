@@ -35,16 +35,12 @@ void RequestManagerClone::request_execute(
     Template *      tmpl;
     PoolObjectSQL * source_obj;
 
-    string          error_str;
-
     source_obj = pool->get(source_id, true);
 
     if ( source_obj == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object), source_id),
-                att);
-
+        att.resp_id = source_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -71,20 +67,19 @@ void RequestManagerClone::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             delete tmpl;
             return;
         }
     }
 
-    rc = pool_allocate(source_id, tmpl, new_id, error_str, att);
+    rc = pool_allocate(source_id, tmpl, new_id, att);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, allocate_error(error_str), att);
+        failure_response(ALLOCATE, att);
         return;
     }
 

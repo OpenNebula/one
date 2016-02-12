@@ -400,7 +400,7 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
-        const vector<int>& vns) const
+        const vector<int>& vns, const vector<int>& vrs) const
 {
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
@@ -411,6 +411,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     bool all_vms = (vms.size() == 1 && vms[0] == -1);
     bool all_vns = (vns.size() == 1 && vns[0] == -1);
+    bool all_vrs = (vrs.size() == 1 && vrs[0] == -1);
 
     oss << "<AR>";
 
@@ -505,6 +506,16 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                 if (all_vns || (find(vns.begin(),vns.end(),vnid) != vns.end()))
                 {
                     lease.replace("VNET", vnid);
+                    is_in = true;
+                }
+            }
+            else if (it->second & PoolObjectSQL::VROUTER)
+            {
+                int oid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vrs || (find(vrs.begin(),vrs.end(),oid) != vrs.end()))
+                {
+                    lease.replace("VROUTER", oid);
                     is_in = true;
                 }
             }
@@ -1491,8 +1502,7 @@ bool AddressRange::check(string& rs_attr) const
     return false;
 };
 
-void AddressRange::set_restricted_attributes(
-    vector<const Attribute *>& rattrs)
+void AddressRange::set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
 {
     if (restricted_set)
     {
@@ -1503,8 +1513,7 @@ void AddressRange::set_restricted_attributes(
 
     for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
     {
-        const SingleAttribute * sattr = static_cast<const SingleAttribute *>(rattrs[i]);
-        string attr_s = sattr->value();
+        string attr_s = rattrs[i]->value();
 
         restricted_attributes.insert(one_util::toupper(attr_s));
     }

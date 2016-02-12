@@ -31,19 +31,7 @@ const int QuotaVirtualMachine::NUM_VM_METRICS  = 4;
 
 int QuotaVirtualMachine::get_quota(const string& id, VectorAttribute **va)
 {
-    vector<Attribute*> values;
-    int num;
-
-    *va = 0;
-
-    num = get(template_name, values);
-
-    if ( num == 0 )
-    {
-        return 0;
-    }
-
-    *va = dynamic_cast<VectorAttribute *>(values[0]);
+    *va = get(template_name);
 
     return 0;
 }

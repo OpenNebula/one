@@ -90,7 +90,7 @@ public:
      *    @param vdc pointer to Vdc
      *    @return 0 on success
      */
-    int update(Vdc * vdc);
+    int update(PoolObjectSQL * objsql);
 
     /**
      *  Drops the Vdc from the data base. The object mutex SHOULD be

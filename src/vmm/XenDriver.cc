@@ -31,18 +31,19 @@ int XenDriver::deployment_description(
     const VirtualMachine *  vm,
     const string&           file_name) const
 {
-    ofstream                    file;
+    ofstream file;
 
-    int                         num;
-    vector<const Attribute *>   attrs;
+    int num;
 
-    string  credits;
-    string  cpu;
-    string  memory;
-    string  vcpu;
+    string credits = "";
+    string cpu     = "";
+    string memory  = "";
+    string vcpu    = "";
 
     float   base_credit = 1.0;
     float   cpu_units   = 1.0;
+
+    const VectorAttribute * os;
 
     string kernel     = "";
     string initrd     = "";
@@ -55,7 +56,7 @@ int XenDriver::deployment_description(
 
     vector<string> boots;
 
-    const VectorAttribute * disk;
+    vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
     string target     = "";
@@ -66,7 +67,7 @@ int XenDriver::deployment_description(
     string default_driver = "";
     string mode;
 
-    const VectorAttribute * nic;
+    vector<const VectorAttribute *> nic;
 
     string ip         = "";
     string mac        = "";
@@ -100,9 +101,9 @@ int XenDriver::deployment_description(
     int device_model_found  = -1;
     int localtime_found     = -1;
 
-    const VectorAttribute * raw;
-    string data;
-    string default_raw;
+    vector<const VectorAttribute *> raw;
+    string data        = "";
+    string default_raw = "";
 
     // ------------------------------------------------------------------------
 
@@ -170,24 +171,17 @@ int XenDriver::deployment_description(
     //  OS and boot options
     // ------------------------------------------------------------------------
 
-    num = vm->get_template_attribute("OS",attrs);
+    os = vm->get_template_attribute("OS");
 
-    if ( num > 0 )
+    if ( os != 0 )
     {
-        const VectorAttribute * os;
-
-        os = dynamic_cast<const VectorAttribute *>(attrs[0]);
-
-        if ( os != 0 )
-        {
-            kernel     = os->vector_value("KERNEL");
-            initrd     = os->vector_value("INITRD");
-            root       = os->vector_value("ROOT");
-            kernel_cmd = os->vector_value("KERNEL_CMD");
-            bootloader = os->vector_value("BOOTLOADER");
-            hvm        = os->vector_value("HVM");
-            boot       = os->vector_value("BOOT");
-        }
+        kernel     = os->vector_value("KERNEL");
+        initrd     = os->vector_value("INITRD");
+        root       = os->vector_value("ROOT");
+        kernel_cmd = os->vector_value("KERNEL_CMD");
+        bootloader = os->vector_value("BOOTLOADER");
+        hvm        = os->vector_value("HVM");
+        boot       = os->vector_value("BOOT");
     }
 
     if ( kernel.empty() )
@@ -286,14 +280,9 @@ int XenDriver::deployment_description(
         }
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-
-    num = vm->get_template_attribute("DISK",attrs);
-
     get_default("DISK","DRIVER",default_driver);
 
     if (default_driver.empty())
@@ -307,20 +296,15 @@ int XenDriver::deployment_description(
 
     file << "disk = [" << endl;
 
+    num = vm->get_template_attribute("DISK", disk);
+
     for (int i=0; i < num ;i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        target = disk->vector_value("TARGET");
-        type   = disk->vector_value("TYPE");
-        ro     = disk->vector_value("READONLY");
-        driver = disk->vector_value("DRIVER");
-        disk->vector_value_str("DISK_ID", disk_id);
+        target = disk[i]->vector_value("TARGET");
+        type   = disk[i]->vector_value("TYPE");
+        ro     = disk[i]->vector_value("READONLY");
+        driver = disk[i]->vector_value("DRIVER");
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
         if ( target.empty() )
         {
@@ -373,15 +357,13 @@ int XenDriver::deployment_description(
         file << "," << mode << "'," << endl;
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Context Device
     // ------------------------------------------------------------------------
+    context = vm->get_template_attribute("CONTEXT");
 
-    if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
+    if ( context != 0 )
     {
-        context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
         driver  = context->vector_value("DRIVER");
 
@@ -417,13 +399,10 @@ int XenDriver::deployment_description(
 
     file << "]" << endl;
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Network
     // ------------------------------------------------------------------------
-
-    num = vm->get_template_attribute("NIC",attrs);
+    num = vm->get_template_attribute("NIC", nic);
 
     get_default("NIC", "MODEL", default_model);
 
@@ -433,19 +412,12 @@ int XenDriver::deployment_description(
     {
         char pre_char = ' ';
 
-        nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
         file << "    '";
 
-        ip     = nic->vector_value("IP");
-        mac    = nic->vector_value("MAC");
-        bridge = nic->vector_value("BRIDGE");
-        model  = nic->vector_value("MODEL");
+        ip     = nic[i]->vector_value("IP");
+        mac    = nic[i]->vector_value("MAC");
+        bridge = nic[i]->vector_value("BRIDGE");
+        model  = nic[i]->vector_value("MODEL");
 
         string * the_model = 0;
 
@@ -487,202 +459,182 @@ int XenDriver::deployment_description(
 
     file << "]" << endl;
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Graphics
     // ------------------------------------------------------------------------
+    graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+    if ( graphics != 0 )
     {
-        graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        type   = graphics->vector_value("TYPE");
+        listen = graphics->vector_value("LISTEN");
+        port   = graphics->vector_value("PORT");
+        passwd = graphics->vector_value("PASSWD");
+        keymap = graphics->vector_value("KEYMAP");
 
-        if ( graphics != 0 )
+        one_util::toupper(type);
+
+        if ( type == "VNC" )
         {
-            type   = graphics->vector_value("TYPE");
-            listen = graphics->vector_value("LISTEN");
-            port   = graphics->vector_value("PORT");
-            passwd = graphics->vector_value("PASSWD");
-            keymap = graphics->vector_value("KEYMAP");
-
-            one_util::toupper(type);
-
-            if ( type == "VNC" )
+            if ( !is_hvm )
             {
-                if ( !is_hvm )
-                {
-                    file << "vfb = ['type=vnc";
-                }
-                else
-                {
-                    file << "vnc = '1'" << endl;
-                }
-
-                if ( !listen.empty() )
-                {
-                    if ( is_hvm )
-                    {
-                        file << "vnclisten = '" << listen << "'" << endl;
-                    }
-                    else
-                    {
-                        file << ",vnclisten=" << listen;
-                    }
-                }
-
-                if ( !port.empty() )
-                {
-                    istringstream iss(port);
-                    int           display;
-
-                    iss >> display;
-
-                    if ( iss.fail() || display < 5900 )
-                    {
-                        goto error_vncdisplay;
-                    }
-
-                    if ( is_hvm )
-                    {
-                        file << "vncunused = '0'" << endl;
-                        file << "vncdisplay = '" << display - 5900 << "'" << endl;
-                    }
-                    else
-                    {
-                        file << ",vncunused=0";
-                        file << ",vncdisplay=" << display - 5900;
-                    }
-                }
-
-                if ( !passwd.empty() )
-                {
-                    if ( is_hvm )
-                    {
-                        file << "vncpasswd = '" << passwd << "'" << endl;
-                    }
-                    else
-                    {
-                        file << ",vncpasswd=" << passwd;
-                    }
-                }
-
-                if ( !keymap.empty() )
-                {
-                    if ( is_hvm )
-                    {
-                        file << "keymap = '" << keymap << "'" << endl;
-                    }
-                    else
-                    {
-                        file << ",keymap=" << keymap;
-                    }
-                }
-
-                if ( !is_hvm )
-                {
-                    file <<"']" << endl;
-                }
-            }
-            else if ( is_hvm && type == "SPICE" )
-            {
-                file << "spice = '1'" << endl;
-
-                if ( !listen.empty() )
-                {
-                    file << "spicehost = '" << listen << "'" << endl;
-                }
-
-                if ( !port.empty() )
-                {
-                    file << "spiceport = '" << port << "'" << endl;
-                }
-
-                if ( !passwd.empty() )
-                {
-                    file << "spicepasswd = '" << passwd << "'" << endl;
-                }
-                else
-                {
-                    file << "spicedisable_ticketing = '1'" << endl;
-                }
+                file << "vfb = ['type=vnc";
             }
             else
             {
-                vm->log("VMM", Log::WARNING,
-                        "Not supported graphics type, ignored.");
+                file << "vnc = '1'" << endl;
+            }
+
+            if ( !listen.empty() )
+            {
+                if ( is_hvm )
+                {
+                    file << "vnclisten = '" << listen << "'" << endl;
+                }
+                else
+                {
+                    file << ",vnclisten=" << listen;
+                }
+            }
+
+            if ( !port.empty() )
+            {
+                istringstream iss(port);
+                int           display;
+
+                iss >> display;
+
+                if ( iss.fail() || display < 5900 )
+                {
+                    goto error_vncdisplay;
+                }
+
+                if ( is_hvm )
+                {
+                    file << "vncunused = '0'" << endl;
+                    file << "vncdisplay = '" << display - 5900 << "'" << endl;
+                }
+                else
+                {
+                    file << ",vncunused=0";
+                    file << ",vncdisplay=" << display - 5900;
+                }
+            }
+
+            if ( !passwd.empty() )
+            {
+                if ( is_hvm )
+                {
+                    file << "vncpasswd = '" << passwd << "'" << endl;
+                }
+                else
+                {
+                    file << ",vncpasswd=" << passwd;
+                }
+            }
+
+            if ( !keymap.empty() )
+            {
+                if ( is_hvm )
+                {
+                    file << "keymap = '" << keymap << "'" << endl;
+                }
+                else
+                {
+                    file << ",keymap=" << keymap;
+                }
+            }
+
+            if ( !is_hvm )
+            {
+                file <<"']" << endl;
             }
         }
-    }
+        else if ( is_hvm && type == "SPICE" )
+        {
+            file << "spice = '1'" << endl;
 
-    attrs.clear();
+            if ( !listen.empty() )
+            {
+                file << "spicehost = '" << listen << "'" << endl;
+            }
+
+            if ( !port.empty() )
+            {
+                file << "spiceport = '" << port << "'" << endl;
+            }
+
+            if ( !passwd.empty() )
+            {
+                file << "spicepasswd = '" << passwd << "'" << endl;
+            }
+            else
+            {
+                file << "spicedisable_ticketing = '1'" << endl;
+            }
+        }
+        else
+        {
+            vm->log("VMM", Log::WARNING,
+                    "Not supported graphics type, ignored.");
+        }
+    }
 
     // ------------------------------------------------------------------------
     // Input (only usb tablet)
     // ------------------------------------------------------------------------
+    input = vm->get_template_attribute("INPUT");
 
-    if ( vm->get_template_attribute("INPUT",attrs) > 0 )
+    if ( input != 0 )
     {
-        input = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        type = input->vector_value("TYPE");
+        bus  = input->vector_value("BUS");
 
-        if ( input != 0 )
+        if ( type == "tablet" && bus == "usb" )
         {
-            type = input->vector_value("TYPE");
-            bus  = input->vector_value("BUS");
-
-            if ( type == "tablet" && bus == "usb" )
-            {
-                file << "usb = 1" << endl;
-                file << "usbdevice = 'tablet'" << endl;
-            }
-            else
-            {
-                vm->log("VMM", Log::WARNING,
-                    "Not supported input, only usb tablet, ignored.");
-            }
+            file << "usb = 1" << endl;
+            file << "usbdevice = 'tablet'" << endl;
+        }
+        else
+        {
+            vm->log("VMM", Log::WARNING,
+                "Not supported input, only usb tablet, ignored.");
         }
     }
-
-    attrs.clear();
 
     // ------------------------------------------------------------------------
     // Features (only for HVM)
     // ------------------------------------------------------------------------
-
     if ( is_hvm )
     {
-        num = vm->get_template_attribute("FEATURES",attrs);
+        features = vm->get_template_attribute("FEATURES");
 
-        if ( num > 0 )
+        if ( features != 0 )
         {
-            features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+            pae_found  = features->vector_value("PAE", pae);
+            acpi_found = features->vector_value("ACPI", acpi);
+            apic_found = features->vector_value("APIC", apic);
+            localtime_found =
+                features->vector_value("LOCALTIME", localtime);
 
-            if ( features != 0 )
+            device_model = features->vector_value("DEVICE_MODEL");
+            if ( device_model != "" )
             {
-                pae_found  = features->vector_value("PAE", pae);
-                acpi_found = features->vector_value("ACPI", acpi);
-                apic_found = features->vector_value("APIC", apic);
-                localtime_found =
-                    features->vector_value("LOCALTIME", localtime);
-
-                device_model = features->vector_value("DEVICE_MODEL");
-                if ( device_model != "" )
-                {
-                    device_model_found = 0;
-                }
+                device_model_found = 0;
             }
         }
 
-        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) )
+        if ( pae_found != 0 && get_default("FEATURES", "PAE", pae) == 0 )
         {
             pae_found = 0;
         }
 
-        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) )
+        if ( acpi_found != 0 && get_default("FEATURES", "ACPI", acpi) == 0 )
         {
             acpi_found = 0;
         }
 
-        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) )
+        if ( apic_found != 0 && get_default("FEATURES", "APIC", apic) == 0 )
         {
             apic_found = 0;
         }
@@ -701,22 +653,22 @@ int XenDriver::deployment_description(
             get_default("FEATURES", "LOCALTIME", localtime);
         }
 
-        if ( pae_found == 0)
+        if ( pae_found == 0 )
         {
             file << "pae = " << on_off_string(pae) << endl;
         }
 
-        if ( acpi_found == 0)
+        if ( acpi_found == 0 )
         {
             file << "acpi = " << on_off_string(acpi) << endl;
         }
 
-        if ( apic_found == 0)
+        if ( apic_found == 0 )
         {
             file << "apic = " << on_off_string(apic) << endl;
         }
 
-        if ( device_model_found == 0)
+        if ( device_model_found == 0 )
         {
             file << "device_model = '" << device_model << "'" << endl;
         }
@@ -725,32 +677,23 @@ int XenDriver::deployment_description(
         {
             file << "localtime = '1'" << endl;
         }
-
-        attrs.clear();
     }
 
     // ------------------------------------------------------------------------
     // Raw XEN attributes
     // ------------------------------------------------------------------------
 
-    num = vm->get_template_attribute("RAW",attrs);
+    num = vm->get_template_attribute("RAW", raw);
 
     for(int i=0; i<num;i++)
     {
-        raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( raw == 0 )
-        {
-            continue;
-        }
-
-        type = raw->vector_value("TYPE");
+        type = raw[i]->vector_value("TYPE");
 
         one_util::toupper(type);
 
         if ( type == "XEN" )
         {
-            data = raw->vector_value("DATA");
+            data = raw[i]->vector_value("DATA");
             file << data << endl;
         }
     }

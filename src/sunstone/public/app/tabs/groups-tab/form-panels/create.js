@@ -171,6 +171,7 @@ define(function(require) {
     });
 
     $("#group_res_net", context).prop("checked", false);
+    $("#group_res_vr", context).prop("checked", false);
 
     $(context).off("change", ".admin_view_input");
     $(context).on("change", ".admin_view_input", function(){

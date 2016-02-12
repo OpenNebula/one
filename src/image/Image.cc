@@ -402,14 +402,15 @@ int Image::from_xml(const string& xml)
     rc += xpath(int_type,       "/IMAGE/TYPE",      0);
     rc += xpath(int_disk_type,  "/IMAGE/DISK_TYPE", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT",0);
-    rc += xpath(regtime,        "/IMAGE/REGTIME",   0);
+    rc += xpath<time_t>(regtime,"/IMAGE/REGTIME",   0);
 
-    rc += xpath(source,         "/IMAGE/SOURCE",        "not_found");
-    rc += xpath(size_mb,        "/IMAGE/SIZE",          0);
-    rc += xpath(int_state,      "/IMAGE/STATE",         0);
-    rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
-    rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
-    rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
+    rc += xpath<long long>(size_mb, "/IMAGE/SIZE", 0);
+
+    rc += xpath(source,     "/IMAGE/SOURCE",     "not_found");
+    rc += xpath(int_state,  "/IMAGE/STATE",      0);
+    rc += xpath(running_vms,"/IMAGE/RUNNING_VMS",-1);
+    rc += xpath(cloning_ops,"/IMAGE/CLONING_OPS",-1);
+    rc += xpath(cloning_id, "/IMAGE/CLONING_ID", -1);
 
     rc += xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
 

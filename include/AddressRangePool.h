@@ -82,7 +82,7 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<Attribute *> ars, bool keep_restricted, string& error_msg);
+    int update_ar(vector<VectorAttribute *> ars, bool keep_restricted, string& error_msg);
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
@@ -341,10 +341,12 @@ public:
      *      A vector containing just -1 means all VMs.
      *    @param vnet_ids list of VNET the user can access reservation info from.
      *      A vector containing just -1 means all VNETs.
+     *    @param vrs list of VRouter the user can access VNET usage info from.
+     *      A vector containing just -1 means all VRouters.
      *    @return the string with the XML
      */
     string& to_xml(string& sstream, bool extended, const vector<int>& vms,
-        const vector<int>& vnets) const;
+        const vector<int>& vnets, const vector<int>& vrs) const;
 
 private:
     /**

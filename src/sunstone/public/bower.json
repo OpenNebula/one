@@ -19,10 +19,11 @@
     "resumablejs": "git://github.com/23/resumable.js.git#420cd351c5",
     "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5#spice-html5-0.1.6",
     "require-handlebars-plugin": "0.11.2",
-    "requirejs": "2.1.17",
     "almond": "0.3.1",
     "datatables": "1.10.7",
-    "foundation": "5.5.2"
+    "foundation": "5.5.2",
+    "vis": "4.12.0",
+    "requirejs": "2.1.22"
   },
   "version": "4.14",
   "authors": [

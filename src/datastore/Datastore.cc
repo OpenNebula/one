@@ -711,9 +711,9 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
 
-    rc += xpath(total_mb, "/DATASTORE/TOTAL_MB", 0);
-    rc += xpath(free_mb,  "/DATASTORE/FREE_MB",  0);
-    rc += xpath(used_mb,  "/DATASTORE/USED_MB",  0);
+    rc += xpath<long long>(total_mb,"/DATASTORE/TOTAL_MB",0);
+    rc += xpath<long long>(free_mb, "/DATASTORE/FREE_MB", 0);
+    rc += xpath<long long>(used_mb, "/DATASTORE/USED_MB", 0);
 
     // Permissions
     rc += perms_from_xml();

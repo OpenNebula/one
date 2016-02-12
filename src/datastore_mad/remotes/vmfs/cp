@@ -43,6 +43,8 @@ source ${DRIVER_PATH}/vmfs.conf
 DRV_ACTION=$1
 ID=$2
 
+export DRV_ACTION
+
 UTILS_PATH="${DRIVER_PATH}/.."
 
 XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"

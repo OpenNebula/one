@@ -165,21 +165,16 @@ void Scheduler::start()
 
     try
     {
-        vector<const Attribute *> logs;
-        int rc;
-
         NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
         Log::MessageType   clevel     = Log::ERROR;;
 
-        rc = conf.get("LOG", logs);
+        const VectorAttribute * log = conf.get("LOG");
 
-        if ( rc != 0 )
+        if ( log != 0 )
         {
             string value;
             int    ilevel;
 
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
             value      = log->vector_value("SYSTEM");
             log_system = NebulaLog::str_to_type(value);
 
@@ -297,15 +292,13 @@ void Scheduler::start()
 
     NebulaLog::log("SCHED", Log::INFO, "oned successfully contacted.");
 
-    vector<const Attribute*> fed;
-
     zone_id = 0;
 
-    if (oned_conf.get("FEDERATION", fed) > 0)
-    {
-        const VectorAttribute * va=static_cast<const VectorAttribute *>(fed[0]);
+    const VectorAttribute * fed = oned_conf.get("FEDERATION");
 
-        if (va->vector_value("ZONE_ID", zone_id) != 0)
+    if (fed != 0)
+    {
+        if (fed->vector_value("ZONE_ID", zone_id) != 0)
         {
             zone_id = 0;
         }
@@ -524,8 +517,8 @@ int Scheduler::set_up_pools()
  *  @return true for a positive match
  */
 static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm,
-    int vmem, int vcpu, vector<Attribute *>& vpci, HostXML * host, int &n_auth,
-    int& n_error, int &n_fits, int &n_matched, string &error)
+    int vmem, int vcpu, vector<VectorAttribute *>& vpci, HostXML * host,
+    int &n_auth, int& n_error, int &n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -747,7 +740,7 @@ void Scheduler::match_schedule()
     int vm_memory;
     int vm_cpu;
     long long vm_disk;
-    vector<Attribute *> vm_pci;
+    vector<VectorAttribute *> vm_pci;
 
     int n_resources;
     int n_matched;
@@ -1055,7 +1048,7 @@ void Scheduler::dispatch()
 
     int cpu, mem;
     long long dsk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     int hid, dsid, cid;
     bool test_cap_result;

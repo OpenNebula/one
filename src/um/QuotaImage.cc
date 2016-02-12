@@ -29,8 +29,7 @@ const int QuotaImage::NUM_IMAGE_METRICS  = 1;
 
 bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
 {
-    vector<Attribute*> disks;
-    VectorAttribute *  disk;
+    vector<VectorAttribute*> disk;
 
     string image_id;
     int num;
@@ -39,18 +38,11 @@ bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
 
     image_request.insert(make_pair("RVMS",1));
 
-    num = tmpl->get("DISK", disks);
+    num = tmpl->get("DISK", disk);
 
     for (int i = 0 ; i < num ; i++)
     {
-        disk = dynamic_cast<VectorAttribute *>(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        image_id = disk->vector_value("IMAGE_ID");
+        image_id = disk[i]->vector_value("IMAGE_ID");
 
         if ( !image_id.empty() )
         {
@@ -70,8 +62,7 @@ bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
 void QuotaImage::del(Template * tmpl)
 {
 
-    vector<Attribute*> disks;
-    VectorAttribute *  disk;
+    vector<VectorAttribute*> disk;
 
     string image_id;
     int num;
@@ -80,18 +71,11 @@ void QuotaImage::del(Template * tmpl)
 
     image_request.insert(make_pair("RVMS",1));
 
-    num = tmpl->get("DISK", disks);
+    num = tmpl->get("DISK", disk);
 
     for (int i = 0 ; i < num ; i++)
     {
-        disk = dynamic_cast<VectorAttribute *>(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        image_id = disk->vector_value("IMAGE_ID");
+        image_id = disk[i]->vector_value("IMAGE_ID");
 
         del_quota(image_id, image_request);
     }

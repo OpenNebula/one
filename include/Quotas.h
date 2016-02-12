@@ -35,7 +35,8 @@ public:
         VM,             /**< Checks VM usage (MEMORY, CPU and VMS) */
         NETWORK,        /**< Checks Network usage (leases) */
         IMAGE,          /**< Checks Image usage (RVMs using it) */
-        VIRTUALMACHINE  /**< Checks all VM associated resources VM, NETWORK, IMAGE */
+        VIRTUALMACHINE, /**< Checks all VM associated resources VM, NETWORK, IMAGE */
+        VIRTUALROUTER   /**< Checks the Virtual Router NETWORK usage (leases) */
     };
 
     /**
@@ -67,17 +68,6 @@ public:
      int ds_get(const string& id, VectorAttribute **va)
      {
          return datastore_quota.get_quota(id, va);
-     }
-
-    /**
-     *  Delete VM related usage (network, image and compute) from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void vm_del(Template * tmpl)
-     {
-        network_quota.del(tmpl);
-        vm_quota.del(tmpl);
-        image_quota.del(tmpl);
      }
 
      /**

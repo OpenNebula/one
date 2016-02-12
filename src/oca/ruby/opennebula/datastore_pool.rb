@@ -36,9 +36,9 @@ module OpenNebula
             super('DATASTORE_POOL','DATASTORE',client)
         end
 
-        # Factory method to create User objects
+        # Factory method to create datastore objects
         def factory(element_xml)
-            OpenNebula::Group.new(element_xml,@client)
+            OpenNebula::Datastore.new(element_xml,@client)
         end
 
         #######################################################################

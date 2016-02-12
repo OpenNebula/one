@@ -40,7 +40,6 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
     int other_a = xmlrpc_c::value_int(paramList.getInt(10));
 
     PoolObjectSQL * object;
-    string          error_str;
 
     if ( att.uid != 0 && att.gid != 0)
     {
@@ -51,9 +50,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS,
-                             get_error(object_name(auth_object),oid),
-                             att);
+            att.resp_id = oid;
+            failure_response(NO_EXISTS, att);
             return;
         }
 
@@ -100,10 +98,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
             if ( !enable_other )
             {
-                failure_response(AUTHORIZATION,
-                         "Management of 'other' permissions is disabled in oned.conf",
-                         att);
-
+                att.resp_msg = "'other' permissions is disabled in oned.conf";
+                failure_response(AUTHORIZATION, att);
                 return;
             }
         }
@@ -114,9 +110,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
 
             return;
         }
@@ -128,20 +123,17 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     int rc = object->set_permissions(owner_u, owner_m, owner_a, group_u,
-                        group_m, group_a, other_u, other_m, other_a, error_str);
+                    group_m, group_a, other_u, other_m, other_a, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,
-                request_error("Error updating permissions",error_str),
-                att);
+        failure_response(INTERNAL, att);
 
         object->unlock();
         return;

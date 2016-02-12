@@ -37,11 +37,9 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db,
-                     vector<const Attribute *> hook_mads,
-                     const string&             remotes_location,
-                     bool                      is_federation_slave)
-    :PoolSQL(db, Group::table, !is_federation_slave, true)
+GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+    const string& remotes_location, bool is_federation_slave) :
+        PoolSQL(db, Group::table, !is_federation_slave, true)
 {
     ostringstream oss;
     string        error_str;
@@ -144,7 +142,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::update(Group * group)
+int GroupPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -155,7 +153,7 @@ int GroupPool::update(Group * group)
         return -1;
     }
 
-    return group->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

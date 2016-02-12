@@ -53,7 +53,7 @@ string UserPool::oneadmin_name;
 
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time,
-                   vector<const Attribute *> hook_mads,
+                   vector<const VectorAttribute *> hook_mads,
                    const string&             remotes_location,
                    bool                      is_federation_slave):
                        PoolSQL(db, User::table, !is_federation_slave, true)
@@ -399,7 +399,7 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::update(User * user)
+int UserPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -410,7 +410,7 @@ int UserPool::update(User * user)
         return -1;
     }
 
-    return user->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,0 +1,35 @@
+---
+:ID:
+  :desc: ONE identifier for the Marketplace
+  :size: 4
+
+:NAME:
+  :desc: Name of the Marketplace
+  :size: 20
+  :left: true
+
+:SIZE:
+  :desc: Marketplace total size (M)
+  :size: 10
+
+:AVAIL:
+  :desc: MarketPlace free size (%)
+  :size: 10
+  :left: true
+
+:APPS:
+  :desc: Number of Marketplace Apps
+  :size: 6
+
+:MAD:
+  :desc: Marketplace driver
+  :size: 7
+  :left: true
+
+:default:
+- :ID
+- :NAME
+- :SIZE
+- :AVAIL
+- :APPS
+- :MAD

@@ -88,7 +88,7 @@ private:
      * ImageTemplate::check
      * @param rattrs Attributes to restrict
      */
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs)
+    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
     {
         Template::set_restricted_attributes(rattrs, restricted_attributes);
     };

@@ -227,7 +227,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
-          $LIB_LOCATION/ruby/cloud/marketplace \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/ruby/onedb/shared \
@@ -295,6 +294,10 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
+          $VAR_LOCATION/remotes/market \
+          $VAR_LOCATION/remotes/market/http \
+          $VAR_LOCATION/remotes/market/one \
+          $VAR_LOCATION/remotes/market/s3 \
           $VAR_LOCATION/remotes/datastore/iscsi \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -329,10 +332,6 @@ LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
-LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cloud/marketplace"
-
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula"
 
@@ -342,7 +341,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
@@ -431,6 +430,9 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
+    MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
+    MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
+    MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -449,8 +451,6 @@ INSTALL_FILES=(
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
     ECO_BIN_FILES:$BIN_LOCATION
-    MARKET_LIB_FILES:$LIB_LOCATION/ruby/cloud/marketplace
-    MARKET_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -467,8 +467,6 @@ INSTALL_CLIENT_FILES=(
     ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_BIN_CLIENT_FILES:$BIN_LOCATION
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    MARKET_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/marketplace
-    MARKET_BIN_CLIENT_FILES:$BIN_LOCATION
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
@@ -588,6 +586,9 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneflow-template \
            src/cli/onesecgroup \
            src/cli/onevdc \
+           src/cli/onevrouter \
+           src/cli/onemarket \
+           src/cli/onemarketapp \
            src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
@@ -664,7 +665,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/authm_mad/one_auth_mad.rb \
               src/authm_mad/one_auth_mad \
               src/datastore_mad/one_datastore.rb \
-              src/datastore_mad/one_datastore"
+              src/datastore_mad/one_datastore \
+              src/market_mad/one_market.rb \
+              src/market_mad/one_market"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -689,7 +692,9 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/snapshot_create \
                     src/vmm_mad/remotes/kvm/snapshot_revert \
                     src/vmm_mad/remotes/kvm/snapshot_delete \
-                    src/vmm_mad/remotes/kvm/shutdown"
+                    src/vmm_mad/remotes/kvm/shutdown \
+                    src/vmm_mad/remotes/kvm/reconfigure \
+                    src/vmm_mad/remotes/kvm/prereconfigure"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
@@ -1155,6 +1160,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
+                             src/datastore_mad/remotes/url.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
 DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
@@ -1165,7 +1171,8 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/snap_delete \
                          src/datastore_mad/remotes/dummy/snap_revert \
                          src/datastore_mad/remotes/dummy/snap_flatten \
-                         src/datastore_mad/remotes/dummy/rm"
+                         src/datastore_mad/remotes/dummy/rm \
+                         src/datastore_mad/remotes/dummy/export"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/mkfs \
@@ -1175,7 +1182,8 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/snap_delete \
                          src/datastore_mad/remotes/fs/snap_revert \
                          src/datastore_mad/remotes/fs/snap_flatten \
-                         src/datastore_mad/remotes/fs/rm"
+                         src/datastore_mad/remotes/fs/rm \
+                         src/datastore_mad/remotes/fs/export"
 
 DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/mkfs \
@@ -1209,7 +1217,8 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/snap_revert \
                          src/datastore_mad/remotes/ceph/snap_flatten \
                          src/datastore_mad/remotes/ceph/ceph.conf \
-                         src/datastore_mad/remotes/ceph/ceph_utils.sh"
+                         src/datastore_mad/remotes/ceph/ceph_utils.sh \
+                         src/datastore_mad/remotes/ceph/export"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/mkfs \
@@ -1232,9 +1241,28 @@ DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/clone"
 
 #-------------------------------------------------------------------------------
-# Migration scripts for onedb command, to be installed under $LIB_LOCATION
+# Marketplace drivers, to be installed under $REMOTES_LOCATION/market
+#   - HTTP based marketplace, $REMOTES_LOCATION/market/http
+#   - OpenNebula public marketplace, $REMOTES_LOCATION/market/one
+#   - S3-obeject based marketplace, $REMOTES_LOCATION/market/s3
 #-------------------------------------------------------------------------------
 
+MARKETPLACE_DRIVER_HTTP_SCRIPTS="src/market_mad/remotes/http/import \
+            src/market_mad/remotes/http/delete \
+            src/market_mad/remotes/http/monitor"
+
+MARKETPLACE_DRIVER_ONE_SCRIPTS="src/market_mad/remotes/one/import \
+            src/market_mad/remotes/one/delete \
+            src/market_mad/remotes/one/monitor"
+
+MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
+            src/market_mad/remotes/s3/delete \
+            src/market_mad/remotes/s3/monitor \
+            src/market_mad/remotes/s3/S3.rb"
+
+#-------------------------------------------------------------------------------
+# Migration scripts for onedb command, to be installed under $LIB_LOCATION
+#-------------------------------------------------------------------------------
 
 ONEDB_FILES="src/onedb/fsck.rb \
             src/onedb/import_slave.rb \
@@ -1283,7 +1311,8 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.9.80_to_4.10.3.rb \
                             src/onedb/local/4.10.3_to_4.11.80.rb \
                             src/onedb/local/4.11.80_to_4.13.80.rb \
-                            src/onedb/local/4.13.80_to_4.13.85.rb"
+                            src/onedb/local/4.13.80_to_4.13.85.rb \
+                            src/onedb/local/4.13.85_to_4.90.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
@@ -1406,7 +1435,13 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/xml_pool.rb \
                             src/oca/ruby/opennebula/xml_utils.rb \
                             src/oca/ruby/opennebula/zone_pool.rb \
-                            src/oca/ruby/opennebula/zone.rb"
+                            src/oca/ruby/opennebula/zone.rb \
+                            src/oca/ruby/opennebula/virtual_router_pool.rb \
+                            src/oca/ruby/opennebula/virtual_router.rb \
+                            src/oca/ruby/opennebula/marketplace_pool.rb \
+                            src/oca/ruby/opennebula/marketplace.rb \
+                            src/oca/ruby/opennebula/marketplaceapp_pool.rb \
+                            src/oca/ruby/opennebula/marketplaceapp.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1521,19 +1556,6 @@ ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
 
 ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 
-#-------------------------------------------------------------------------------
-# Marketplace Client
-#-------------------------------------------------------------------------------
-
-MARKET_LIB_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
-
-MARKET_LIB_CLIENT_FILES="src/cloud/marketplace/lib/marketplace_client.rb"
-
-MARKET_BIN_FILES="src/cloud/marketplace/bin/onemarket"
-
-MARKET_BIN_CLIENT_FILES="src/cloud/marketplace/bin/onemarket"
-
-
 #-----------------------------------------------------------------------------
 # CLI files
 #-----------------------------------------------------------------------------
@@ -1556,7 +1578,10 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onezone_helper.rb \
                    src/cli/one_helper/onevdc_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
-                   src/cli/one_helper/onesecgroup_helper.rb"
+                   src/cli/one_helper/onesecgroup_helper.rb \
+                   src/cli/one_helper/onevrouter_helper.rb \
+                   src/cli/one_helper/onemarketapp_helper.rb \
+                   src/cli/one_helper/onemarket_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1574,7 +1599,10 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneacct \
                src/cli/onesecgroup \
                src/cli/oneshowback \
-               src/cli/onevdc"
+               src/cli/onevdc \
+               src/cli/onevrouter \
+               src/cli/onemarketapp \
+               src/cli/onemarket"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1590,7 +1618,10 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneacct.yaml \
                 src/cli/etc/onesecgroup.yaml \
                 src/cli/etc/oneshowback.yaml \
-                src/cli/etc/onevdc.yaml"
+                src/cli/etc/onevdc.yaml \
+                src/cli/etc/onevrouter.yaml \
+                src/cli/etc/onemarketapp.yaml \
+                src/cli/etc/onemarket.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1616,7 +1647,6 @@ SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
-                       src/sunstone/models/SunstoneMarketplace.rb \
                        src/sunstone/models/SunstoneViews.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
@@ -1633,7 +1663,10 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/VdcJSON.rb"
+                    src/sunstone/models/OpenNebulaJSON/VdcJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualRouterJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/MarketPlaceJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/MarketPlaceAppJSON.rb"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
@@ -1861,6 +1894,9 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
+        share/man/onevrouter.1.gz \
+        share/man/onemarket.1.gz \
+        share/man/onemarketapp.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \

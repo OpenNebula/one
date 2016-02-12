@@ -109,7 +109,10 @@ require.config({
     'spice-sha1': '../bower_components/spice-html5/thirdparty/sha1',
     'spice-ticket': '../bower_components/spice-html5/ticket',
     'spice-resize': '../bower_components/spice-html5/resize',
-    'spice-filexfer': '../bower_components/spice-html5/filexfer'
+    'spice-filexfer': '../bower_components/spice-html5/filexfer',
+
+    /* vis.js */
+    'vis': '../bower_components/vis/dist/vis.min'
   },
   shim: {
     /* Tabs */
@@ -131,13 +134,16 @@ require.config({
         'tabs/clusters-tab',
         'tabs/hosts-tab',
         'tabs/datastores-tab',
+        'tabs/vnets-topology-tab',
         'tabs/vnets-tab',
         'tabs/secgroups-tab',
+        'tabs/vrouters-tab',
         'tabs/zones-tab',
-        'tabs/marketplace-tab',
         'tabs/oneflow-dashboard',
         'tabs/oneflow-services-tab',
         'tabs/oneflow-templates-tab',
+        'tabs/marketplaces-tab',
+        'tabs/marketplaceapps-tab',
         'tabs/settings-tab',
         'tabs/support-tab'
       ]

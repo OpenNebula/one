@@ -18,11 +18,13 @@ enabled_tabs:
     - datastores-tab
     - vnets-tab
     - secgroups-tab
+    - vrouters-tab
     #- zones-tab
-    - marketplace-tab
     - oneflow-dashboard
     - oneflow-services-tab
     - oneflow-templates-tab
+    - marketplaces-tab
+    - marketplaceapps-tab
     - settings-tab
     #- support-tab
 autorefresh: true
@@ -263,6 +265,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.export_dialog: true
             Image.rename: true
             Image.chown: false
             Image.chgrp: false
@@ -393,6 +396,7 @@ tabs:
             vnet_ar_list_tab: true
             vnet_leases_tab: true
             vnet_sg_list_tab: true
+            vnet_vr_list_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -441,21 +445,26 @@ tabs:
             SecurityGroup.chmod: true
             SecurityGroup.clone_dialog: true
             SecurityGroup.delete: true
-    marketplace-tab:
+    vrouters-tab:
         panel_tabs:
-            marketplace_info_tab: true
+            virtual_router_info_tab: true
+            virtual_router_vms_tab: true
         table_columns:
             - 0         # Checkbox
-            #- 1         # ID
-            - 2         # Name
-            - 3         # Publisher
-            - 4         # Hypervisor
-            - 5         # Arch
-            - 6         # Format
-            #- 7         # Tags
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
         actions:
-            Marketplace.refresh: true
-            Marketplace.import: true
+            VirtualRouter.refresh: true
+            VirtualRouter.create_dialog: true
+            VirtualRouter.rename: true
+            VirtualRouter.chown: true
+            VirtualRouter.chgrp: true
+            VirtualRouter.chmod: true
+            VirtualRouter.delete: true
+            VirtualRouter.attachnic: true
+            VirtualRouter.detachnic: true
     oneflow-dashboard:
         panel_tabs:
         table_columns:
@@ -570,3 +579,54 @@ tabs:
             user_showback_tab: true
         actions:
             User.quotas_dialog: false
+    marketplaces-tab:
+        panel_tabs:
+            marketplace_info_tab: true
+            marketplaces_app_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Capacity
+            - 6         # Apps
+            - 7         # Driver
+            #- 8        # Labels
+        actions:
+            MarketPlace.refresh: true
+            MarketPlace.create_dialog: true
+            MarketPlace.update_dialog: true
+            MarketPlace.rename: true
+            MarketPlace.chown: true
+            MarketPlace.chgrp: true
+            MarketPlace.chmod: true
+            MarketPlace.delete: true
+    marketplaceapps-tab:
+        panel_tabs:
+            marketplaceapp_info_tab: true
+            marketplaceapp_templates_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            #- 5         # Version
+            - 6         # Size
+            - 7         # State
+            #- 8         # Type
+            - 9         # Registration
+            - 10        # Marketplace
+            #- 11        # Labels
+        actions:
+            MarketPlaceApp.refresh: true
+            MarketPlaceApp.create_dialog: true
+            MarketPlaceApp.export_dialog: true
+            MarketPlaceApp.rename: true
+            MarketPlaceApp.chown: true
+            MarketPlaceApp.chgrp: true
+            MarketPlaceApp.chmod: true
+            MarketPlaceApp.enable: true
+            MarketPlaceApp.disable: true
+            MarketPlaceApp.delete: true

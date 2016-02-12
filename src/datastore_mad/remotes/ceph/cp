@@ -40,6 +40,8 @@ source ${DRIVER_PATH}/ceph.conf
 DRV_ACTION=$1
 ID=$2
 
+export DRV_ACTION
+
 UTILS_PATH="${DRIVER_PATH}/.."
 
 XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"
@@ -139,7 +141,7 @@ fi
 REGISTER_CMD=$(cat <<EOF
     set -e
 
-    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
+    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}')
 
     if [ "\$FORMAT" != "raw" ]; then
         $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw

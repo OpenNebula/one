@@ -122,17 +122,12 @@ string SchedulerTemplate::get_policy() const
 
     istringstream iss;
 
-    vector<const Attribute *> vsched;
-    const  VectorAttribute *  sched;
+    const  VectorAttribute * sched = get("DEFAULT_SCHED");
 
-    get("DEFAULT_SCHED", vsched);
-
-    if (vsched.empty())
+    if (sched == 0)
     {
         return "";
     }
-
-    sched = static_cast<const VectorAttribute *> (vsched[0]);
 
     iss.str(sched->vector_value("POLICY"));
     iss >> policy;
@@ -176,17 +171,12 @@ string SchedulerTemplate::get_ds_policy() const
 
     istringstream iss;
 
-    vector<const Attribute *> vsched;
-    const  VectorAttribute *  sched;
+    const  VectorAttribute * sched = get("DEFAULT_DS_SCHED");
 
-    get("DEFAULT_DS_SCHED", vsched);
-
-    if (vsched.empty())
+    if (sched == 0)
     {
         return "";
     }
-
-    sched = static_cast<const VectorAttribute *> (vsched[0]);
 
     iss.str(sched->vector_value("POLICY"));
     iss >> policy;

@@ -1,5 +1,6 @@
 @import "../bower_components/fontawesome/css/font-awesome.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
+@import "../bower_components/vis/dist/vis.min.css";
 @import "settings";
 @import "foundation";
 
@@ -1184,13 +1185,19 @@ hr {
   }
 }
 
-#user_ssh_public_key_text, #config_ssh_public_key_text {
+#user_ssh_public_key_text, 
+#config_ssh_public_key_text {
   font-size: 0.875rem;
   color: #777;
   padding: 0px 10px;
   overflow-x:hidden;
-  text-overflow:
-  ellipsis; height: 120px;
+  text-overflow: ellipsis;
+  height: 120px;
+}
+
+.info_text {
+  color: #777;
+  padding: 0px 10px;
 }
 
 .vm-action-disabled {
@@ -1333,8 +1340,17 @@ hr {
 
 .custom_tags td {
   vertical-align: top; 
-}  
+}
 
+// Overwrite vis.js tooltip css
+div.vis-network-tooltip {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: condensed;
+
+  background-color: #ffffff;
+}  
 
 .labels-tree input[type="checkbox"] {
   margin: 0px;

@@ -91,7 +91,7 @@ public:
      *    @param zone pointer to Zone
      *    @return 0 on success
      */
-    int update(Zone * zone);
+    int update(PoolObjectSQL * objsql);
 
     /**
      *  Drops the Zone from the data base. The object mutex SHOULD be

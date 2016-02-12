@@ -308,6 +308,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     "V:#{d['VM']}"
                 elsif d['VNET']
                     "N:#{d['VNET']}"
+                elsif d['VROUTER']
+                    "R:#{d['VROUTER']}"
                 end
             end
 
@@ -323,6 +325,13 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
+
+        puts
+
+        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS")
+        vn.vrouter_ids.each do |id|
+            puts "%-15s" % [id]
+        end
 
         if options[:show_ar]
             ar_list.each do |ar_id|

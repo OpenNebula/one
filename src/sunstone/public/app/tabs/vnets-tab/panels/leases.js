@@ -91,6 +91,9 @@ define(function(require) {
         } else if (lease.VNET != undefined) { //used by a VNET
           col0HTML = '<span type="text" class="radius label "></span>';
           col1HTML = Locale.tr("NET:") + lease.VNET;
+        } else if (lease.VROUTER != undefined) { //used by a VR
+          col0HTML = '<span type="text" class="radius label "></span>';
+          col1HTML = Locale.tr("VR:") + lease.VROUTER;
         } else {
           col0HTML = '<span type="text" class="radius label "></span>';
           col1HTML = '--';

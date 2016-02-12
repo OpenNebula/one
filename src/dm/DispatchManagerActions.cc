@@ -92,7 +92,7 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     vm->get_requirements(cpu, mem, disk, pci);
 
@@ -772,7 +772,7 @@ int DispatchManager::finalize(
     Host * host;
     ostringstream oss;
 
-    vector<Attribute *> pci;
+    vector<VectorAttribute *> pci;
 
     VirtualMachine::VmState state;
     bool is_public_host = false;
@@ -1443,6 +1443,7 @@ int DispatchManager::attach_nic(
     int uid;
     int oid;
     int rc;
+    string tmp_error;
 
     set<int> vm_sgs;
 
@@ -1496,8 +1497,8 @@ int DispatchManager::attach_nic(
 
     vm->set_resched(false);
 
-    uid = vm->get_uid();
-    oid = vm->get_oid();
+    uid  = vm->get_uid();
+    oid  = vm->get_oid();
 
     vmpool->update(vm);
 
@@ -1514,8 +1515,6 @@ int DispatchManager::attach_nic(
 
     if ( vm == 0 )
     {
-        delete nic;
-
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
@@ -1526,6 +1525,8 @@ int DispatchManager::attach_nic(
                 delete *it;
             }
         }
+
+        delete nic;
 
         oss << "Could not attach a new NIC to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
@@ -1599,7 +1600,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
     }
 
     vmpool->update(vm);
@@ -1618,6 +1619,7 @@ int DispatchManager::detach_nic(
     string&  error_str)
 {
     ostringstream oss;
+    string        tmp_error;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1644,7 +1646,7 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    if ( vm->set_attach_nic(nic_id) == -1 )
+    if ( vm->set_detach_nic(nic_id) == -1 )
     {
         oss << "Could not detach NIC with NIC_ID " << nic_id
             << ", it does not exist.";
@@ -1698,9 +1700,11 @@ int DispatchManager::detach_nic(
     }
     else
     {
+        vmpool->update(vm);
+
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->detach_nic_success(vid);
 
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }

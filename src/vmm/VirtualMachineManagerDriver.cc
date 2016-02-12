@@ -22,19 +22,30 @@
 #include "NebulaUtil.h"
 #include <sstream>
 
+
+const string VirtualMachineManagerDriver::imported_actions_default =
+    "shutdown, shutdown-hard, hold, release, suspend, resume, delete, reboot, "
+    "reboot-hard, resched, unresched, disk-attach, disk-detach, nic-attach, "
+    "nic-detach, snap-create, snap-delete";
+
+const string VirtualMachineManagerDriver::imported_actions_default_public =
+    "shutdown, shutdown-hard, hold, release, suspend, resume, delete, reboot, "
+    "reboot-hard, resched, unresched, disk-attach, disk-detach, nic-attach, "
+    "nic-detach, snap-create, snap-delete, poweroff, poweroff-hard";
+
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     int                         userid,
     const map<string,string>&   attrs,
     bool                        sudo,
     VirtualMachinePool *        pool):
-        Mad(userid,attrs,sudo), driver_conf(true), imported_vm_actions(0),
-	 	vmpool(pool)
+        Mad(userid,attrs,sudo), driver_conf(true), vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = 0;
     const char *    cfile;
     string          file;
     int             rc;
+    string          action_defaults;
 
     it = attrs.find("DEFAULT");
 
@@ -78,26 +89,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
     if (it != attrs.end())
     {
-        vector<string> actions;
-        vector<string>::iterator vit;
-
-		string action;
-		History::VMAction id;
-
-        actions = one_util::split(it->second, ',');
-
-        for (vit = actions.begin() ; vit != actions.end() ; ++vit)
-        {
-        	action = one_util::trim(*vit);
-
-			if ( History::action_from_str(action, id) != 0 )
-			{
-				NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
-				continue;
-			}
-
-			imported_vm_actions += 1 << static_cast<int>(id);
-        }
+        action_defaults = it->second;
     }
     else
     {
@@ -107,90 +99,39 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
 		if (it != attrs.end())
 		{
-			if ( it->second == "kvm" )
+			if ( it->second == "kvm" || it->second == "xen3" ||
+                 it->second == "xen" || it->second == "vmware" )
 			{
-				imported_vm_actions = 132623768;
+				action_defaults = imported_actions_default;
 			}
-			else if ( it->second == "xen3" )
+			else if ( it->second == "sl" || it->second == "ec2" ||
+			          it->second == "az" || it->second == "vcenter" )
 			{
-				imported_vm_actions = 132623768;
-			}
-			else if ( it->second == "xen" )
-			{
-				imported_vm_actions = 132623768;
-			}
-			else if ( it->second == "vmware" )
-			{
-				imported_vm_actions = 132623768;
-			}
-			else if ( it->second == "vcenter" )
-			{
-				imported_vm_actions = 134196632;
-			}
-			else if ( it->second == "ec2" )
-			{
-				imported_vm_actions = 134196632;
-			}
-			else if ( it->second == "az" )
-			{
-				imported_vm_actions = 134196632;
-			}
-			else if ( it->second == "sl" )
-			{
-				imported_vm_actions = 134196632;
+                action_defaults = imported_actions_default_public;
 			}
 		}
     }
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    vector<string> actions;
+    vector<string>::iterator vit;
 
-void VirtualMachineManagerDriver::get_default(
-    const char *  name,
-    const char *  vname,
-    string&       value) const
-{
-    vector<const Attribute *>   attrs;
-    string                      sn = name;
+    string action;
+    History::VMAction id;
 
-    if ( driver_conf.get(sn,attrs) == 1 )
+    actions = one_util::split(action_defaults, ',');
+
+    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
     {
-        const VectorAttribute * vattr;
+        action = one_util::trim(*vit);
 
-        vattr = static_cast<const VectorAttribute *>(attrs[0]);
+        if ( History::action_from_str(action, id) != 0 )
+        {
+            NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
+            continue;
+        }
 
-        value = vattr->vector_value(vname);
+        imported_actions.set(id);
     }
-    else
-    {
-        value = "";
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachineManagerDriver::get_default(
-    const char *  name,
-    const char *  vname,
-    bool&         value) const
-{
-    string st;
-
-    get_default(name, vname, st);
-
-    if ( st == "" )
-    {
-        value = false;
-        return false;
-    }
-
-    one_util::toupper(st);
-
-    value = ( st == "YES" );
-
-    return true;
 }
 
 /* ************************************************************************** */

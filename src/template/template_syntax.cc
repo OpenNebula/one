@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -167,7 +167,7 @@ extern int template__debug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE YYSTYPE;
+
 union YYSTYPE
 {
 #line 74 "template_syntax.y" /* yacc.c:355  */
@@ -177,6 +177,8 @@ union YYSTYPE
 
 #line 179 "template_syntax.cc" /* yacc.c:355  */
 };
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -203,7 +205,7 @@ int template__parse (mem_collector * mc, Template *      tmpl, char **         e
 
 /* Copy the second part of user declarations.  */
 
-#line 207 "template_syntax.cc" /* yacc.c:358  */
+#line 209 "template_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1397,7 +1399,7 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1401 "template_syntax.cc" /* yacc.c:1646  */
+#line 1403 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1414,7 +1416,7 @@ yyreduce:
 
                 delete amap;
             }
-#line 1418 "template_syntax.cc" /* yacc.c:1646  */
+#line 1420 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 8:
@@ -1428,7 +1430,7 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1432 "template_syntax.cc" /* yacc.c:1646  */
+#line 1434 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 9:
@@ -1436,7 +1438,7 @@ yyreduce:
     {
                 YYABORT;
             }
-#line 1440 "template_syntax.cc" /* yacc.c:1646  */
+#line 1442 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 10:
@@ -1453,7 +1455,7 @@ yyreduce:
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
             }
-#line 1457 "template_syntax.cc" /* yacc.c:1646  */
+#line 1459 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 11:
@@ -1470,11 +1472,11 @@ yyreduce:
                 attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[-4].val_attr);
             }
-#line 1474 "template_syntax.cc" /* yacc.c:1646  */
+#line 1476 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1478 "template_syntax.cc" /* yacc.c:1646  */
+#line 1480 "template_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
