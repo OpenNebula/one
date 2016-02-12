@@ -81,11 +81,13 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-7 columns">
-    {{{capacityInputsHTML}}}
+  <div class="capacityCreate large-12 columns">
+    {{{capacityCreateHTML}}}
   </div>
-  <div class="large-5 columns">
-    {{#isFeatureEnabled "showback"}}
+</div>
+{{#isFeatureEnabled "showback"}}
+<div class="row">
+  <div class="medium-6 columns">
     <fieldset>
       <legend>{{tr "Cost"}}</legend>
         <div class="medium-6 columns">
@@ -110,9 +112,9 @@
           <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
         </div>
     </fieldset>
-    {{/isFeatureEnabled}}
   </div>
 </div>
+{{/isFeatureEnabled}}
 <div class="row">
   <div class="large-6 columns">
     <input type="checkbox" id="sunstone_capacity_select" name="name"/>

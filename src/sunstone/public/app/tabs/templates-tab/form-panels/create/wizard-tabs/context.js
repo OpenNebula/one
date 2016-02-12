@@ -27,6 +27,7 @@ define(function(require) {
   var CustomTagsTable = require('utils/custom-tags-table');
   var FilesTable = require('tabs/files-tab/datatable')
   var OpenNebulaHost = require('opennebula/host');
+  var UserInputs = require('utils/user-inputs');
 
   /*
     TEMPLATES
@@ -161,28 +162,76 @@ define(function(require) {
     that.contextFilesTable.initialize(selectOptions);
     that.contextFilesTable.refreshResourceTableSelect();
 
+    // TODO: bug, user_input_name pattern is ignored
+
     context.on("click", ".add_service_custom_attr", function() {
-      $(".service_custom_attrs tbody").append(
+      $(".service_custom_attrs tbody", context).append(
         '<tr>' +
           '<td>' +
-            '<input class="user_input_name" type="text" pattern="[\\w]+"/>' +
-            '<small class="error">' + Locale.tr("Only word characters are allowed") + '</small>' +
+            '<label>' + Locale.tr("Name") +
+              '<input class="user_input_name" type="text" pattern="[\\w]+"/>' +
+              '<small class="error">' + Locale.tr("Only word characters are allowed") + '</small>' +
+            '</label>' +
           '</td>' +
           '<td>' +
-            '<select class="user_input_type" >' +
-              '<option value="text">' + Locale.tr("text") + '</option>' +
-              '<option value="text64">' + Locale.tr("text (base64)") + '</option>' +
-              '<option value="password">' + Locale.tr("password") + '</option>' +
-            '</select>' +
+            '<label>' + Locale.tr("Type") +
+              '<select class="user_input_type" >' +
+                '<option value="text">' +       Locale.tr("text")           + '</option>' +
+                '<option value="text64">' +     Locale.tr("text (base64)")  + '</option>' +
+                '<option value="password">' +   Locale.tr("password")       + '</option>' +
+                '<option value="number">' +     Locale.tr("number")         + '</option>' +
+                '<option value="number-float">'+Locale.tr("number (float)") + '</option>' +
+                '<option value="range">' +      Locale.tr("range")          + '</option>' +
+                '<option value="range-float">' +Locale.tr("range (float)")  + '</option>' +
+                '<option value="list">' +       Locale.tr("list")           + '</option>' +
+              '</select>' +
+            '</label>' +
           '</td>' +
           '<td>' +
-            '<textarea class="user_input_description"/>' +
+            '<label>' + Locale.tr("Description") +
+              '<textarea class="user_input_description"/>' +
+            '</label>' +
+
+            '<div class="user_input_type_right number number-float">' +
+              '<label class="user_input_opt">' + Locale.tr("Default value") +
+                '<input type=text class="user_input_initial" placeholder="42"/>' +
+              '</label>' +
+            '</div>' +
+
+            '<div class="user_input_type_right range range-float">' +
+              '<label class="user_input_opt">' + Locale.tr("Options") +
+                '<input type=text class="user_input_params" placeholder="2..16"/>' +
+              '</label>' +
+              '<label class="user_input_opt">' + Locale.tr("Default value") +
+                '<input type=text class="user_input_initial" placeholder="8"/>' +
+              '</label>' +
+            '</div>' +
+
+            '<div class="user_input_type_right list">' +
+              '<label class="user_input_opt">' + Locale.tr("Options") +
+                '<input type=text class="user_input_params" placeholder="optA,optB,optC"/>' +
+              '</label>' +
+              '<label class="user_input_opt">' + Locale.tr("Default value") +
+                '<input type=text class="user_input_initial" placeholder="optB"/>' +
+              '</label>' +
+            '</div>' +
+
           '</td>' +
           '<td>' +
+            '</br>' +
             '<a href="#"><i class="fa fa-times-circle remove-tab"></i></a>' +
           '</td>' +
         '</tr>');
-    })
+
+        $("select.user_input_type", context).change();
+    });
+
+    context.on("change", "select.user_input_type", function() {
+      var row = $(this).closest("tr");
+      $(".user_input_type_right", row).hide();
+
+      $(".user_input_type_right."+this.value, row).show();
+    });
 
     context.on("click", ".service_custom_attrs i.remove-tab", function() {
       var tr = $(this).closest('tr');
@@ -241,11 +290,29 @@ define(function(require) {
       var userInputsJSON = {};
       $(".service_custom_attrs tbody tr", context).each(function() {
         if ($(".user_input_name", $(this)).val()) {
-          var attr_name = $(".user_input_name", $(this)).val();
-          var attr_type = $(".user_input_type", $(this)).val();
-          var attr_desc = $(".user_input_description", $(this)).val();
-          userInputsJSON[attr_name] = "M|" + attr_type + "|" + attr_desc;
-          contextJSON[attr_name] = "$" + attr_name.toUpperCase();
+          var attr = {};
+          attr.name = $(".user_input_name", $(this)).val();
+          attr.mandatory = true;
+          attr.type = $(".user_input_type", $(this)).val();
+          attr.description = $(".user_input_description", $(this)).val();
+
+          switch(attr.type){
+            case "number":
+            case "number-float":
+              attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+              break;
+
+            case "range":
+            case "range-float":
+            case "list":
+              attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
+              attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+              break;
+          }
+
+          userInputsJSON[attr.name] = UserInputs.marshall(attr);
+
+          contextJSON[attr.name] = "$" + attr.name.toUpperCase();
         }
       });
 
@@ -300,10 +367,27 @@ define(function(require) {
         $(".add_service_custom_attr", context).trigger("click");
 
         var context = $(".service_custom_attrs tbody tr", context).last();
-        var parts = value.split("|");
+
         $(".user_input_name", context).val(key);
-        $(".user_input_type", context).val(parts[1]);
-        $(".user_input_description", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(parts[2])));
+
+        var attr = UserInputs.unmarshall(value);
+
+        $(".user_input_type", context).val(attr.type).change();
+        $(".user_input_description", context).val(attr.description);
+
+        switch(attr.type){
+          case "number":
+          case "number-float":
+            $("."+attr.type+" input.user_input_initial", context).val(attr.initial);
+            break;
+
+          case "range":
+          case "range-float":
+          case "list":
+            $("."+attr.type+" input.user_input_params", context).val(attr.params);
+            $("."+attr.type+" input.user_input_initial", context).val(attr.initial);
+            break;
+        }
 
         if (contextJSON) {
           delete contextJSON[key];

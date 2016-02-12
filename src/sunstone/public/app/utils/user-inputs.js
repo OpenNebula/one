@@ -25,16 +25,27 @@ define(function(require) {
 
   return {
     'vmTemplateInsert': _generateVMTemplateUserInputs,
-    'serviceTemplateInsert': _generateServiceTemplateUserInputs
-  }
+    'serviceTemplateInsert': _generateServiceTemplateUserInputs,
+    'marshall': _marshall,
+    'unmarshall': _unmarshall,
+    'parse': _parse,
+    'generateInputElement': _generateInputElement,
+    'attributeInput': _attributeInput
+  };
 
   // It will replace the div's html with a row for each USER_INPUTS
   // opts.text_header: header text for the text & password inputs
   // opts.network_header: header text for the network inputs
   // returns true if at least one input was inserted
   function _generateVMTemplateUserInputs(div, template_json, opts) {
-    return _generateInstantiateUserInputs(
-        div, template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, opts);
+    // Delete the special user inputs for the capacity
+    var inputs = $.extend({}, template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+
+    delete inputs["CPU"];
+    delete inputs["MEMORY"];
+    delete inputs["VCPU"];
+
+    return _generateInstantiateUserInputs(div, inputs, opts);
   }
 
   // It will replace the div's html with a row for each USER_INPUTS
@@ -70,27 +81,15 @@ define(function(require) {
     }
 
     var network_attrs = [];
-    var text_attrs = [];
+    var input_attrs = [];
 
     $.each(user_inputs, function(key, value) {
-      var parts = value.split("|");
-      // 0 mandatory; 1 type; 2 desc;
-      var attrs = {
-        "name": key,
-        "mandatory": parts[0],
-        "type": parts[1],
-        "description": parts[2],
-      }
+      var attrs = _parse(key, value);
 
-      switch (parts[1]) {
-        case "vnet_id":
-          network_attrs.push(attrs)
-          break;
-        case "text":
-        case "text64":
-        case "password":
-          text_attrs.push(attrs)
-          break;
+      if (attrs.type == "vnet_id"){
+        network_attrs.push(attrs);
+      } else {
+        input_attrs.push(attrs);
       }
     });
 
@@ -137,7 +136,7 @@ define(function(require) {
       });
     }
 
-    if (text_attrs.length > 0) {
+    if (input_attrs.length > 0) {
       if (opts.text_header.length > 0) {
         div.append(
         '<br>' +
@@ -152,33 +151,229 @@ define(function(require) {
 
       div.append('<div class="instantiate_user_inputs"/>');
 
-      $.each(text_attrs, function(index, custom_attr) {
-        var input;
-
-        switch (custom_attr.type) {
-          case "text":
-            input = '<textarea type="text" rows="1" wizard_field="' + custom_attr.name + '" required/>';
-            break;
-          case "text64":
-            input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + custom_attr.name + '" required/>';
-            break;
-          case "password":
-            input = '<input type="password" wizard_field="' + custom_attr.name + '" required/>';
-            break;
-        }
-
+      $.each(input_attrs, function(index, custom_attr) {
         $(".instantiate_user_inputs", div).append(
           '<div class="row">' +
             '<div class="large-12 large-centered columns">' +
               '<label>' +
                 TemplateUtils.htmlDecode(custom_attr.description) +
-                input +
+                _attributeInput(custom_attr) +
               '</label>' +
             '</div>' +
           '</div>');
       });
     }
 
-    return (network_attrs.length > 0 || text_attrs.length > 0);
+    return (network_attrs.length > 0 || input_attrs.length > 0);
   }
-})
+
+  /**
+   * Transforms a user input object to a string
+   * @param  {object} attr user input object, e.g.
+   *                        { "name":
+   *                          "mandatory": true/false
+   *                          "type":
+   *                          "description":
+   *                          ["params":] "2..8" / "2,4,8"
+   *                          ["initial":] "3"
+   *                        }
+   * @return {string}      String in the form "M|range|Description here|2..8|4"
+   */
+  function _marshall(attr) {
+    var st = "";
+
+    st += (attr.mandatory ? "M" : "O") + "|" +
+          (attr.type != undefined ? attr.type : "text") + "|" +
+          (attr.description != undefined ? attr.description : "");
+
+    switch (attr.type) {
+      case "number":
+      case "number-float":
+        st += ("| |" + (attr.initial != undefined ? attr.initial : "") );
+
+        break;
+      case "range":
+      case "range-float":
+      case "list":
+        st += ("|" + (attr.params != undefined ? attr.params : "") +
+               "|" + (attr.initial != undefined ? attr.initial : "") );
+
+        break;
+    }
+
+    return st;
+  }
+
+  /**
+   * Transforms a user input string to an object
+   * @param  {string} value String in the form "M|range|Description here|2..8|4"
+   * @return {object} user input object, e.g.
+   *                        { "mandatory": true/false
+   *                          "type":
+   *                          "description":
+   *                          ["params":] "2..8" / "2,4,8"
+   *                          ["initial":] "3"
+   *                        }
+   */
+  function _unmarshall(value) {
+    var parts = value.split("|");
+
+    var attr = {
+      "mandatory": (parts[0] == "M"),
+      "type": parts[1],
+      "description": parts[2],
+    };
+
+    if (parts[3] != undefined){
+      attr.params = parts[3];
+    }
+
+    if (parts[4] != undefined){
+      attr.initial = parts[4];
+    }
+
+    return attr;
+  }
+
+  /**
+   * Returns a structure with the user input parameters
+   * @param  {string} name  Template Attribute name, e.g. USER_PASSWORD
+   * @param  {string} value Template Attribute value,
+   *                        e.g. "M|range|Description here|2..8|4"
+   * @return {object}       { "name":
+                              "mandatory":
+                              "type":
+                              "description":
+                              ["params":] "2..8" / "2,4,8"
+                              ["initial":]
+                              ["min":]
+                              ["max":]
+                              ["step":]
+                              ["options":]
+                            }
+   */
+  function _parse(name, value) {
+    var attr = _unmarshall(value);
+
+    attr.name = name;
+
+    // TODO: error management (params undefined)
+
+    switch (attr.type) {
+      case "number":
+        attr.step = "1";
+        break;
+
+      case "number-float":
+        attr.step = "0.01";
+        break;
+
+      case "range":
+        var params = attr.params.split("..");  // "2..8"
+
+        attr.min = parseInt( params[0] );
+        attr.max = parseInt( params[1] );
+        attr.step = "1";
+
+        break;
+
+      case "range-float":
+        var params = attr.params.split("..");  // "2.4..8.75"
+
+        attr.min = parseFloat( params[0] );
+        attr.max = parseFloat( params[1] );
+        attr.step = "0.01";
+
+        break;
+
+      case "list":
+        attr.options = attr.params.split(",");  // "2,4,16"
+
+        break;
+    }
+
+    return attr;
+  }
+
+  /**
+   * Returns an html <input> for the given user input attribute
+   * @param  {object} attr structure as returned by parse
+   * @return {string}             string containing an html <input> element
+   */
+  function _attributeInput(attr) {
+    var input;
+
+    switch (attr.type) {
+      case "text":
+        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" required/>';
+        break;
+      case "text64":
+        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" required/>';
+        break;
+      case "password":
+        input = '<input type="password" wizard_field="' + attr.name + '" required/>';
+        break;
+      case "number":
+      case "number-float":
+        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>';
+        break;
+      case "range":
+      case "range-float":
+        input =
+        '<div class="row uinput-slider-container">'+
+          '<div class="small-8 columns">'+
+            '<input type="range" class="uinput-slider" style="width:100%"'+
+              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
+              'value="'+attr.initial+'"/>'+
+          '</div>'+
+          '<div class="small-4 columns">'+
+            '<input type="number" class="uinput-slider-val" '+
+              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
+              'value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>'+
+          '</div>'+
+        '</div>';
+
+        $(document).off("input", "input.uinput-slider-val");
+        $(document).on("input", "input.uinput-slider-val", function(){
+          $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
+        });
+
+        $(document).off("input", "input.uinput-slider");
+        $(document).on("input", "input.uinput-slider", function(){
+          $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
+        });
+
+        break;
+      case "list":
+        input = '<select wizard_field="' + attr.name + '" required>';
+
+        $.each(attr.options, function(){
+          var selected = (attr.initial == this);
+
+          input +=  '<option value="'+this+'" '+
+                    (selected? 'selected' : '')+'>'+
+                      this+
+                    '</option>';
+        });
+
+        input += '</select>';
+
+        break;
+    }
+
+    return input;
+  }
+
+  /**
+   * Returns an html <input> for the given USER_INPUT attribute
+   * @param  {string} name  Template Attribute name, e.g. USER_PASSWORD
+   * @param  {string} value Template Attribute value,
+   *                        e.g. "M|range|Description here|2..8|4"
+   * @return {string}       string containing an html <input> element
+   */
+  function _generateInputElement(name, value) {
+    var attrs = _parse(name, value);
+
+    return _attributeInput(attrs);
+  }
+});
