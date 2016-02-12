@@ -120,7 +120,7 @@ protected:
     {
         const VectorAttribute * vattr = driver_conf.get(name);
 
-        if (vattr != 0)
+        if (vattr == 0)
         {
             return -1;
         }
