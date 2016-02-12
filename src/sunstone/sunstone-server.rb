@@ -56,6 +56,13 @@ GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
 
+# If no costs are defined in oned.conf these values will be used
+DEFAULT_COST = {
+    'CPU_COST' => 0,
+    'MEMORY_COST' => 0,
+    'DISK_COST' => 0
+};
+
 ##############################################################################
 # Required libraries
 ##############################################################################
@@ -388,9 +395,42 @@ get '/' do
         error 500, ""
     end
 
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    rc = OpenNebula::System.new(serveradmin_client).get_configuration
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    oned_conf_template = rc.to_hash()['TEMPLATE']
+
+    keys = [
+        :DEFAULT_COST,
+        :DS_MAD_CONF,
+        :MARKET_MAD_CONF,
+        :VM_MAD,
+        :IM_MAD,
+        :AUTH_MAD
+    ]
+
+    oned_conf = {}
+    keys.each do |key|
+        if key == :DEFAULT_COST
+            if oned_conf_template[key.to_s]
+                oned_conf[key] = oned_conf_template[key.to_s]
+            else
+                oned_conf[key] = DEFAULT_COST
+            end
+        else
+            oned_conf[key] = oned_conf_template[key.to_s]
+        end
+    end
+
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index, :locals => {:logos_conf => logos_conf}
+    erb :index, :locals => {:logos_conf => logos_conf, :oned_conf => oned_conf}
 end
 
 get '/login' do
@@ -511,35 +551,6 @@ get '/infrastructure' do
     infrastructure[:vcenter_customizations] = set.to_a
 
     [200, infrastructure.to_json]
-end
-
-get '/onedconf' do
-    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-
-    rc = OpenNebula::System.new(serveradmin_client).get_configuration
-
-    if OpenNebula.is_error?(rc)
-        logger.error { rc.message }
-        error 500, ""
-    end
-
-    onedconf_template = rc.to_hash()['TEMPLATE']
-
-    keys = [
-        :DEFAULT_COST,
-        :DS_MAD_CONF,
-        :MARKET_MAD_CONF,
-        :VM_MAD,
-        :IM_MAD,
-        :AUTH_MAD
-    ]
-
-    onedconf = {}
-    keys.each do |key|
-        onedconf[key] = onedconf_template[key.to_s]
-    end
-
-    [200, onedconf.to_json]
 end
 
 get '/vm/:id/log' do

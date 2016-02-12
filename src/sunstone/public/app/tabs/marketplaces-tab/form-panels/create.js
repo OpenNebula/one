@@ -137,8 +137,8 @@ define(function(require) {
     };
 
     that.marketMadNameList = [];
-    if (Config.marketMadConf !== undefined) {
-      $.each(Config.marketMadConf, function(index, marketMad) {
+    if (Config.onedConf.MARKET_MAD_CONF !== undefined) {
+      $.each(Config.onedConf.MARKET_MAD_CONF, function(index, marketMad) {
         that.marketMadNameList.push(marketMad["NAME"]);
       });
     }
@@ -250,17 +250,19 @@ define(function(require) {
 
     // Show attributes for the selected market mad and set the required ones
     $('.market-mad-attr-container.' + marketMADName).show();
-    $.each(Config.marketMadConf, function(i, e){
-        if (e["NAME"] == marketMADName) {
-          if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
-            $.each(e["REQUIRED_ATTRS"].split(","), function(i, attrName){
-              $('#' + attrName, dialog).attr('required', true);
-            });
+    if (Config.onedConf.MARKET_MAD_CONF !== undefined) {
+      $.each(Config.onedConf.MARKET_MAD_CONF, function(i, e){
+          if (e["NAME"] == marketMADName) {
+            if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
+              $.each(e["REQUIRED_ATTRS"].split(","), function(i, attrName){
+                $('#' + attrName, dialog).attr('required', true);
+              });
+            }
+            return false;
           }
-          return false;
         }
-      }
-    );
+      );
+    }
   }
 });
 

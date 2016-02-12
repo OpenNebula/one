@@ -65,15 +65,15 @@ define(function(require) {
     var that = this;
 
     that.vmMadNameList = [];
-    if (Config.vmMadConf !== undefined) {
-      $.each(Config.vmMadConf, function(index, vmMad) {
+    if (Config.onedConf.VM_MAD !== undefined) {
+      $.each(Config.onedConf.VM_MAD, function(index, vmMad) {
         that.vmMadNameList.push(vmMad["NAME"]);
       });
     }
 
     that.imMadNameList = [];
-    if (Config.imMadConf !== undefined) {
-      $.each(Config.imMadConf, function(index, imMad) {
+    if (Config.onedConf.IM_MAD !== undefined) {
+      $.each(Config.onedConf.IM_MAD, function(index, imMad) {
         that.imMadNameList.push(imMad["NAME"]);
       });
     }

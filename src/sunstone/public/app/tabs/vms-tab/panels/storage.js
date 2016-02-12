@@ -72,7 +72,7 @@ define(function(require) {
     var diskCost = this.element.TEMPLATE.DISK_COST;
 
     if (diskCost == undefined){
-      diskCost = Config.defaultCost.diskCost;
+      diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
     }
 
     return TemplateHtml({

@@ -267,15 +267,15 @@ define(function(require) {
       var diskCost   = capacity.DISK_COST;
 
       if (cpuCost == undefined){
-        cpuCost = Config.defaultCost.cpuCost;
+        cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
       }
 
       if (memoryCost == undefined){
-        memoryCost = Config.defaultCost.memoryCost;
+        memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
       }
 
       if (diskCost == undefined){
-        diskCost = Config.defaultCost.diskCost;
+        diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
       }
 
       if ((cpuCost != 0 || memoryCost != 0 || diskCost != 0) && Config.isFeatureEnabled("showback")) {
@@ -424,11 +424,11 @@ define(function(require) {
     var memoryCost = capacity.MEMORY_COST;
 
     if (cpuCost == undefined){
-      cpuCost = Config.defaultCost.cpuCost;
+      cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
     }
 
     if (memoryCost == undefined){
-      memoryCost = Config.defaultCost.memoryCost;
+      memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
     }
 
     if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
