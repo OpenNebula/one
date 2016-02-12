@@ -37,6 +37,7 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
+  var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -264,15 +265,18 @@ define(function(require) {
       }
   }
 
-  var provision_instance_type_accordion_id = 0;
+  var provision_capacity_accordion_id = 0;
 
-  function generate_provision_instance_type_accordion(context, capacity) {
+  function generate_provision_capacity_accordion(context, element) {
+
+    var capacity = element.TEMPLATE;
+
     context.off();
     var memory_value;
     var memory_unit;
 
-    if (capacity.MEMORY > 1000){
-      memory_value = Math.floor(capacity.MEMORY/1024);
+    if (capacity.MEMORY >= 1024){
+      memory_value = (capacity.MEMORY/1024).toFixed(2);
       memory_unit = "GB";
     } else {
       memory_value = (capacity.MEMORY ? capacity.MEMORY : '-');
@@ -304,44 +308,48 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      (Config.provision.create_vm.isEnabled("capacity_select") &&
-        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO")) ?
+      (Config.provision.create_vm.isEnabled("capacity_select") ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
+          '<dl class="accordion" data-accordion="provision_accordion_'+provision_capacity_accordion_id+'">'+
             '<dd class="accordion-navigation">'+
-              '<a href="#provision_instance_type_dd_'+provision_instance_type_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
+              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
                 Locale.tr("Change Capacity")+
               '</a>'+
-              '<div id="provision_instance_type_dd_'+provision_instance_type_accordion_id+'" class="content">'+
-                '<div class="row">'+
-                  '<div class="large-12 large-centered columns">'+
-                    '<h3 class="subheader text-right">'+
-                      '<input type="search" class="provision-search-input right" placeholder="Search"/>'+
-                    '</h3>'+
-                    '<br>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="large-12 large-centered columns">'+
-                    '<table class="provision_instance_types_table">'+
-                      '<thead class="hidden">'+
-                        '<tr>'+
-                          '<th>'+Locale.tr("Name")+'</th>'+
-                        '</tr>'+
-                      '</thead>'+
-                      '<tbody class="hidden">'+
-                      '</tbody>'+
-                    '</table>'+
-                    '<br>'+
-                  '</div>'+
-                '</div>'+
+              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="content">'+
+                '<br>'+
+                CapacityInputs.html() +
               '</div>'+
             '</dd>'+
           '</dl>'+
         '</div>'+
       '</div>' : '' ) +
       '<br>');
+
+    if (Config.provision.create_vm.isEnabled("capacity_select")) {
+      provision_capacity_accordion_id += 1;
+
+      CapacityInputs.setup(context);
+      CapacityInputs.fill(context, element);
+
+      CapacityInputs.setCallback(context, function(values){
+        $(".cpu_value", context).html(values.CPU);
+
+        var memory_value;
+        var memory_unit;
+
+        if (values.MEMORY >= 1024){
+          memory_value = (values.MEMORY/1024).toFixed(2);
+          memory_unit = "GB";
+        } else {
+          memory_value = values.MEMORY;
+          memory_unit = "MB";
+        }
+
+        $(".memory_value", context).html(memory_value);
+        $(".memory_unit", context).html(memory_unit);
+      });
+    }
 
     var cost = 0;
 
@@ -356,134 +364,30 @@ define(function(require) {
       memoryCost = Config.defaultCost.memoryCost;
     }
 
+    var _redoCost = function(values){
+      var cost = 0;
+
+      if (values.CPU != undefined){
+        cost += cpuCost * values.CPU;
+      }
+
+      if (values.MEMORY != undefined){
+        cost += memoryCost * values.MEMORY;
+      }
+
+      $(".cost_value", context).html(cost.toFixed(2));
+    };
+
     if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
       $(".provision_create_template_cost_div").show();
 
-      if (capacity.CPU) {
-        cost += capacity.CPU * cpuCost;
-        $(".cost_value").data("CPU_COST", cpuCost);
-      }
+      _redoCost(capacity);
 
-      if (capacity.MEMORY) {
-        cost += capacity.MEMORY * memoryCost;
-        $(".cost_value").data("MEMORY_COST", memoryCost);
+      if (Config.provision.create_vm.isEnabled("capacity_select")){
+        CapacityInputs.setCallback(context, _redoCost);
       }
-
-      $(".cost_value").html(cost.toFixed(2));
     } else {
       $(".provision_create_template_cost_div").hide();
-    }
-
-    if (Config.provision.create_vm.isEnabled("capacity_select") &&
-        !((capacity.SUNSTONE) && (capacity.SUNSTONE.CAPACITY_SELECT == "NO"))) {
-      provision_instance_type_accordion_id += 1;
-
-      var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
-        "iDisplayLength": 6,
-        "sDom" : '<"H">t<"F"lp>',
-        "bSort" : false,
-        "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-        "aoColumnDefs": [
-            { "bVisible": false, "aTargets": ["all"]}
-        ],
-        "aoColumns": [
-            { "mDataProp": "name" }
-        ],
-        "fnPreDrawCallback": function (oSettings) {
-          // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-          if (this.$('tr', {"filter": "applied"} ).length == 0) {
-            this.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
-                Locale.tr("There are no instance_types available. Please contact your cloud administrator")+
-              '</span>'+
-              '</div>');
-          } else {
-            $(".provision_instance_types_table", context).html(
-              '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
-              '</ul>');
-          }
-
-          return true;
-        },
-        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-          var data = aData;
-
-          var li = $('<li>'+
-              '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
-                '<li class="provision-title" title="'+data.name+'">'+
-                  data.name+
-                '</li>'+
-                '<li class="provision-bullet-item">'+
-                  '<span style="font-size: 40px">'+
-                  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-                  '<span style="vertical-align: middle; font-size:14px">'+
-                    'x'+data.cpu+' - '+
-                    ((data.memory > 1000) ?
-                      (Math.floor(data.memory/1024)+'GB') :
-                      (data.memory+'MB'))+
-                  '</span>'+
-                  '</span>'+
-                '</li>'+
-                '<li class="provision-description">'+
-                  (data.description || '')+
-                '</li>'+
-              '</ul>'+
-            '</li>').appendTo($(".provision_instance_types_ul", context));
-
-          $(".provision-pricing-table", li).data("opennebula", data)
-
-          return nRow;
-        }
-      });
-
-
-      $('.provision-search-input', context).on('input',function(){
-        provision_instance_types_datatable.fnFilter( $(this).val() );
-      })
-
-      context.on("click", ".provision-pricing-table.only-one" , function(){
-        $(".cpu_value", context).html($(this).attr("cpu"));
-
-        var memory_value;
-        var memory_unit;
-
-        if ($(this).attr("memory") > 1000){
-          memory_value = Math.floor($(this).attr("memory")/1024);
-          memory_unit = "GB";
-        } else {
-          memory_value = $(this).attr("memory");
-          memory_unit = "MB";
-        }
-
-        $(".memory_value", context).html(memory_value);
-        $(".memory_unit", context).html(memory_unit);
-
-        if (Config.isFeatureEnabled("showback")) {
-          var cost = 0;
-
-          if ($(".cost_value").data("CPU_COST")) {
-            cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
-          }
-
-          if ($(".cost_value").data("MEMORY_COST")) {
-            cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
-          }
-
-          $(".cost_value").html(cost.toFixed(2));
-        }
-
-        $('.accordion a', context).first().trigger("click");
-      })
-
-      $(document).foundation();
-
-      update_provision_instance_types_datatable(provision_instance_types_datatable);
     }
   }
 
@@ -889,25 +793,6 @@ define(function(require) {
     Sunstone.runAction('Provision.Group.show', "-1");
   }
 
-  function update_provision_instance_types_datatable(datatable) {
-      datatable.fnClearTable(true);
-      if (!config['instance_types'] || config['instance_types'].length == 0) {
-        datatable.html('<div class="text-center">'+
-          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-            '<i class="fa fa-cloud fa-stack-2x"></i>'+
-            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-          '</span>'+
-          '<br>'+
-          '<br>'+
-          '<span style="font-size: 18px; color: #999">'+
-            Locale.tr("There are no instance types available")+
-          '</span>'+
-          '</div>');
-      } else {
-        datatable.fnAddData(config['instance_types']);
-      }
-  }
-
   function update_provision_flow_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
       '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
@@ -1255,9 +1140,9 @@ define(function(require) {
 
             $(".provision_accordion_template a").first().trigger("click");
 
-            generate_provision_instance_type_accordion(
+            generate_provision_capacity_accordion(
               $(".provision_capacity_selector", create_vm_context),
-              template_json.VMTEMPLATE.TEMPLATE);
+              template_json.VMTEMPLATE);
 
             var disksContext = $(".provision_disk_selector", create_vm_context);
             if (Config.provision.create_vm.isEnabled("disk_resize")) {
@@ -1305,7 +1190,6 @@ define(function(require) {
           var vm_name = $("#vm_name", context).val();
           var nics = NicsSection.retrieve(context);
           var disks = DisksResize.retrieve($(".provision_disk_selector", context));
-          var instance_type = $(".provision_instance_types_ul .selected", context);
 
           var extra_info = {
             'vm_name' : vm_name,
@@ -1321,12 +1205,9 @@ define(function(require) {
             extra_info.template.DISK = disks;
           }
 
-          if (instance_type.length > 0) {
-            var instance_typa_data = $.extend({}, instance_type.data("opennebula"));
-            delete instance_typa_data.name;
-            delete instance_typa_data.description;
-
-            $.extend(extra_info.template, instance_typa_data)
+          if (Config.provision.create_vm.isEnabled("capacity_select")){
+            capacityContext = $(".provision_capacity_selector", context);
+            $.extend(extra_info.template, CapacityInputs.retrieveChanges(capacityContext));
           }
 
           var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
