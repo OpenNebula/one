@@ -19,19 +19,122 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var VNetsTable = require('tabs/vnets-tab/datatable');
 
+  var TemplateHTML = require('hbs!./user-inputs/table');
+  var RowTemplateHTML = require('hbs!./user-inputs/row');
+
   //==============================================================================
   // VM & Service user inputs
   //==============================================================================
 
   return {
+    // User inputs edition
+    'html': _html,
+    'setup': _setup,
+    'fill': _fill,
+    'retrieve': _retrieve,
+
+    // Instantiate
     'vmTemplateInsert': _generateVMTemplateUserInputs,
     'serviceTemplateInsert': _generateServiceTemplateUserInputs,
+
+    // Utils
     'marshall': _marshall,
     'unmarshall': _unmarshall,
     'parse': _parse,
     'generateInputElement': _generateInputElement,
     'attributeInput': _attributeInput
   };
+
+  function _html(){
+    return TemplateHTML();
+  }
+
+  function _setup(context){
+
+    // TODO: bug, user_input_name pattern is ignored
+
+    context.on("click", ".add_user_input_attr", function() {
+      $(".user_input_attrs tbody", context).append(RowTemplateHTML());
+
+      $("select.user_input_type", context).change();
+    });
+
+    context.on("change", "select.user_input_type", function() {
+      var row = $(this).closest("tr");
+
+      $(".user_input_type_right", row).hide();
+      $(".user_input_type_right."+this.value, row).show();
+    });
+
+    context.on("click", ".user_input_attrs i.remove-tab", function() {
+      $(this).closest('tr').remove();
+    });
+  }
+
+  function _retrieve(context){
+    var userInputsJSON = {};
+
+    $(".user_input_attrs tbody tr", context).each(function() {
+      if ($(".user_input_name", $(this)).val()) {
+        var attr = {};
+        attr.name = $(".user_input_name", $(this)).val();
+        attr.mandatory = true;
+        attr.type = $(".user_input_type", $(this)).val();
+        attr.description = $(".user_input_description", $(this)).val();
+
+        switch(attr.type){
+          case "number":
+          case "number-float":
+            attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+            break;
+
+          case "range":
+          case "range-float":
+          case "list":
+            attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
+            attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+            break;
+        }
+
+        userInputsJSON[attr.name] = _marshall(attr);
+      }
+    });
+
+    return userInputsJSON;
+  }
+
+  function _fill(context, templateJSON){
+    var userInputsJSON = templateJSON['USER_INPUTS'];
+
+    if (userInputsJSON) {
+      $.each(userInputsJSON, function(key, value) {
+        $(".add_user_input_attr", context).trigger("click");
+
+        var trcontext = $(".user_input_attrs tbody tr", context).last();
+
+        $(".user_input_name", trcontext).val(key);
+
+        var attr = _unmarshall(value);
+
+        $(".user_input_type", trcontext).val(attr.type).change();
+        $(".user_input_description", trcontext).val(attr.description);
+
+        switch(attr.type){
+          case "number":
+          case "number-float":
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+            break;
+
+          case "range":
+          case "range-float":
+          case "list":
+            $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+            break;
+        }
+      });
+    }
+  }
 
   // It will replace the div's html with a row for each USER_INPUTS
   // opts.text_header: header text for the text & password inputs
