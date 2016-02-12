@@ -44,6 +44,16 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
+            column :USER, "Username of the Marketplace owner", :left,
+                    :size=>10 do |d|
+                helper.user_name(d, options)
+            end
+
+            column :GROUP, "Group of the Marketplace", :left,
+                    :size=>10 do |d|
+                helper.group_name(d, options)
+            end
+
             column :NAME, "Name of the Marketplace", :left, :size=>30 do |d|
                 d["NAME"]
             end
@@ -72,7 +82,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["MARKET_MAD"]
             end
 
-            default :ID, :SIZE, :AVAIL, :APPS, :TYPE, :MAD, :NAME
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :APPS, :TYPE, :MAD, :NAME
         end
 
         table
