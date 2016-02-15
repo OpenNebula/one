@@ -32,9 +32,6 @@ define(function(require) {
       var action_obj = {"recursive": true};
       OpenNebulaAction.simple_action(params, RESOURCE, "delete_recursive", action_obj);
     },
-    "delete_from_provision": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "delete_from_provision");
-    },
     "list" : function(params) {
       OpenNebulaAction.list(params, RESOURCE);
     },
@@ -50,10 +47,6 @@ define(function(require) {
     "chmod" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
-    },
-    "chmod_from_provision": function(params) {
-      var action_obj = params.data.extra_param;
-      OpenNebulaAction.simple_action(params, RESOURCE, "chmod_from_provision", action_obj);
     },
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};

@@ -263,7 +263,7 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.delete_from_provision({
+        OpenNebula.Template.delete_recursive({
           timeout: true,
           data : {
             id : template_id
@@ -311,11 +311,14 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.chmod_from_provision({
+        OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 1}
+            extra_param: {
+              'group_u': 1,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
@@ -353,11 +356,14 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.chmod_from_provision({
+        OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 0}
+            extra_param: {
+              'group_u': 0,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
