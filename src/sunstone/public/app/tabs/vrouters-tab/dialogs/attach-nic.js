@@ -68,7 +68,7 @@ define(function(require) {
 
     NicsSection.insert({},
       $(".nicsContext", context),
-      {floatingIP: true, management: true, 
+      {floatingIP: true, forceIPv4:true, management: true,
         hide_add_button:true,
         click_add_button:true
       });

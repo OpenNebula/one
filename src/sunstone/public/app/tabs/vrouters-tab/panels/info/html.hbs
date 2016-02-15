@@ -61,10 +61,10 @@
         <tr>
           <td class="nic_id" nic_id="{{NIC_ID}}">{{NIC_ID}}</td>
           <td>{{NETWORK}}</td>
-          <td>{{valOrDefault IP "--"}}</td>
-          <td>{{valOrDefault IP6_ULA "--"}}</td>
-          <td>{{valOrDefault IP6_GLOBAL "--"}}</td>
-          <td>{{valOrDefault VROUTER_MANAGEMENT "--"}}</td>
+          <td>{{IP}}</td>
+          <td>{{IP6_ULA}}</td>
+          <td>{{IP6_GLOBAL}}</td>
+          <td>{{VROUTER_MANAGEMENT}}</td>
           <td>
             {{#isTabActionEnabled "vrouters-tab" "VirtualRouter.detachnic"}}
             <a href="VirtualRouter.detachnic" class="detachnic" ><i class="fa fa-times"/>
