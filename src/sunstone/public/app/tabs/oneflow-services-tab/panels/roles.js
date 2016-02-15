@@ -187,7 +187,7 @@ define(function(require) {
 
       this.servicerolesDataTable.initialize();
 
-      Sunstone.insertButtonsInTab("oneflow-services", "service_roles_tab", roles_buttons, $('#role_actions', context));
+      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", roles_buttons, $('#role_actions', context));
     }
   }
 
@@ -299,7 +299,7 @@ define(function(require) {
 
       this.serviceroleVMsDataTable.initialize();
       Sunstone.insertButtonsInTab(
-        "oneflow-services",
+        TAB_ID,
         "service_roles_tab",
         roles_vm_buttons,
         $('div#role_vms_actions', context));

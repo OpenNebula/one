@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'oneflow-templates';
+  return 'oneflow-templates-tab';
 });

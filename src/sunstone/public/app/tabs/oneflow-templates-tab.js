@@ -46,7 +46,7 @@ define(function(require) {
     tabId: TAB_ID,
     title: Locale.tr("Templates"),
     tabClass: "subTab",
-    parentTab: "oneflow-dashboard",
+    parentTab: "oneflow-dashboard-tab",
     listHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+Locale.tr("OneFlow - Templates"),
     infoHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+Locale.tr("OneFlow - Template"),
     subheader: '',
