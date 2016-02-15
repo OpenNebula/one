@@ -176,6 +176,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    download_desc = <<-EOT.unindent
+        Downloads an image to a file
+    EOT
+
+    command :download, download_desc, :imageid, :path do
+        helper.perform_action(args[0],options,"downloaded") do |image|
+            image.download(args[1], helper.client)
+        end
+    end
+
     delete_desc = <<-EOT.unindent
         Deletes the given Image
     EOT
