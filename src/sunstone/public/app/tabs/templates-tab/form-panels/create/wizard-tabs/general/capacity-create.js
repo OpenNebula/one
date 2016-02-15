@@ -178,6 +178,8 @@ define(function(require) {
 
     var userInputsJSON = element['USER_INPUTS'];
 
+    $("[class$=_modify_type]", context).val("fixed").change();
+
     if (userInputsJSON) {
       $.each(["memory","cpu","vcpu"], function(i,classname){
         var name = classname.toUpperCase();
@@ -190,8 +192,6 @@ define(function(require) {
           $("input."+classname+"_modify_opt."+attr.type, context).val(attr.params).trigger("input");
 
           delete userInputsJSON[name];
-        } else {
-          $("."+classname+"_modify_type", context).val("fixed").change();
         }
       });
     }
