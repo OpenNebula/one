@@ -119,9 +119,6 @@ define(function(require) {
     }
 
     var sunstone_template = {};
-    if ($('#sunstone_capacity_select:checked', context).length > 0) {
-      sunstone_template["CAPACITY_SELECT"] = "NO"
-    }
 
     if ($('#sunstone_network_select:checked', context).length > 0) {
       sunstone_template["NETWORK_SELECT"] = "NO"
@@ -139,13 +136,6 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var sunstone_template = templateJSON.SUNSTONE;
     if (sunstone_template) {
-      if (sunstone_template["CAPACITY_SELECT"] &&
-          sunstone_template["CAPACITY_SELECT"].toUpperCase() == "NO") {
-        $("#sunstone_capacity_select", context).attr("checked", "checked");
-      }
-
-      delete sunstone_template["CAPACITY_SELECT"];
-
       if (sunstone_template["NETWORK_SELECT"] &&
           sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
         $("#sunstone_network_select", context).attr("checked", "checked");

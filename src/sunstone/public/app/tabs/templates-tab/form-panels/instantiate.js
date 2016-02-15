@@ -226,13 +226,6 @@ define(function(require) {
             });
           }
 
-          if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE &&
-              template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.CAPACITY_SELECT &&
-              template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.CAPACITY_SELECT.toUpperCase() == "NO"){
-
-            capacityContext.hide();
-          }
-
           idsDone += 1;
           if (idsLength == idsDone){
             Sunstone.enableFormPanelSubmit(TAB_ID);
