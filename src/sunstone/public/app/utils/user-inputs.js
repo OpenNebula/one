@@ -50,9 +50,6 @@ define(function(require) {
   }
 
   function _setup(context){
-
-    // TODO: bug, user_input_name pattern is ignored
-
     context.on("click", ".add_user_input_attr", function() {
       $(".user_input_attrs tbody", context).append(RowTemplateHTML());
 
