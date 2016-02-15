@@ -82,11 +82,11 @@ define(function(require) {
     var memoryCost = this.element.TEMPLATE.MEMORY_COST;
 
     if (cpuCost == undefined){
-      cpuCost = Config.defaultCost.cpuCost;
+      cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
     }
 
     if (memoryCost == undefined){
-      memoryCost = Config.defaultCost.memoryCost;
+      memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
     }
 
     return TemplateInfo({

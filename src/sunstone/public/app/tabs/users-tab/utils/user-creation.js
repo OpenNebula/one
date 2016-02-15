@@ -48,8 +48,8 @@ define(function(require) {
       this.options.auth_driver = true;
     }
 
-    if (Config.authMadConf !== undefined && Config.authMadConf['AUTHN'] !== undefined) {
-      this.authMadNameList = Config.authMadConf['AUTHN'].split(',');
+    if (Config.onedConf.AUTH_MAD !== undefined && Config.onedConf.AUTH_MAD['AUTHN'] !== undefined) {
+      this.authMadNameList = Config.onedConf.AUTH_MAD['AUTHN'].split(',');
     } else {
       this.authMadNameList = []
     }

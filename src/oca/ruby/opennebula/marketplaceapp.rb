@@ -216,6 +216,45 @@ module OpenNebula
             end
         end
 
+        # Invokes 'download.sh' to download the app to the specified path
+        #
+        # @param path The destination of the downloader.sh action
+        # @param client The request client
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def download(path, client)
+            rc = info
+            return rc if OpenNebula.is_error?(rc)
+
+            market_id = self['MARKETPLACE_ID']
+            market    = MarketPlace.new(MarketPlace.build_xml(market_id), client)
+
+            rc = market.info
+            return rc if OpenNebula.is_error?(rc)
+
+            # This 'drv_message' is missing some elements, compared to the one
+            # sent by the core. However, 'downloader.sh' only requires the
+            # MarketPlace information.
+            drv_message    = "<DS_DRIVER_ACTION_DATA>" <<
+                             "#{market.to_xml}" <<
+                             "</DS_DRIVER_ACTION_DATA>"
+
+            drv_message_64 = Base64::strict_encode64(drv_message)
+
+            ENV['DRV_ACTION'] = drv_message_64
+
+            download_cmd = "#{VAR_LOCATION}/remotes/datastore/downloader.sh " <<
+                           "#{self['SOURCE']} #{path}"
+
+            system(download_cmd)
+
+            if (status = $?.exitstatus) != 0
+                error_msg = "Error executing '#{download_cmd}'. " <<
+                            "Exit status: #{status}"
+                return OpenNebula::Error.new(error_msg)
+            end
+        end
+
         # Enables this app
         def enable
             return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)

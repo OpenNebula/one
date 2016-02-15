@@ -201,11 +201,11 @@ define(function(require) {
           var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
 
           if (cpuCost == undefined){
-            cpuCost = Config.defaultCost.cpuCost;
+            cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
           }
 
           if (memoryCost == undefined){
-            memoryCost = Config.defaultCost.memoryCost;
+            memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
           }
 
           if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {

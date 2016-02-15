@@ -73,8 +73,12 @@ define(function(require) {
 
   function _setup(context) {
     $("input[name='graphics_type']", context).change(function() {
-      $("#TYPE", context).val($(this).attr("value"))
-      $("#LISTEN", context).val("0.0.0.0")
+      $("#TYPE", context).val($(this).attr("value"));
+      if ($(this).attr("value") !== '') {
+        $("#LISTEN", context).val("0.0.0.0");
+      } else {
+        $("#LISTEN", context).val('');
+      }
     });
 
     context.off("click", '#add_input');

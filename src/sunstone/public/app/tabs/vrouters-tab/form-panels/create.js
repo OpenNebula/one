@@ -108,7 +108,7 @@ define(function(require) {
 
     NicsSection.insert({},
       $(".nicsContext", context),
-      {floatingIP: true, management: true});
+      {floatingIP: true, forceIPv4:true, management: true});
 
     this.templatesTable.initialize();
 

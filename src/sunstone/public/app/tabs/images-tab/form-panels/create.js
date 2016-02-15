@@ -145,18 +145,20 @@ define(function(require) {
           var pers_forced = false;
 
           // Set the persistency
-          $.each(Config.dsMadConf,function(i,e){
-              if (e["NAME"] == mad && !$.isEmptyObject(e["PERSISTENT_ONLY"])) {
-                if (e["PERSISTENT_ONLY"] != undefined &&
-                    e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
-                    $('#img_persistent', context).prop('disabled', true);
-                    $('#img_persistent', context).prop('checked', true);
-                    pers_forced = true;
-                    return false;
+          if (Config.onedConf.DS_MAD_CONF !== undefined) {
+            $.each(Config.onedConf.DS_MAD_CONF, function(i,e){
+                if (e["NAME"] == mad && !$.isEmptyObject(e["PERSISTENT_ONLY"])) {
+                  if (e["PERSISTENT_ONLY"] != undefined &&
+                      e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
+                      $('#img_persistent', context).prop('disabled', true);
+                      $('#img_persistent', context).prop('checked', true);
+                      pers_forced = true;
+                      return false;
+                  }
                 }
               }
-            }
-          );
+            );
+          }
 
           if (!pers_forced) {
             $('#img_persistent', context).prop('disabled', false);

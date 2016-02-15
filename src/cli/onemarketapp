@@ -19,9 +19,11 @@
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    VAR_LOCATION      = "/var/lib/one"
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
+    VAR_LOCATION      = ONE_LOCATION + "/var"
 end
 
 $: << RUBY_LIB_LOCATION
@@ -122,6 +124,16 @@ CommandParser::CmdParser.new(ARGV) do
                     puts "    ID: #{id}"
                 }
             }
+        end
+    end
+
+    download_desc = <<-EOT.unindent
+        Downloads a MarketApp to a file
+    EOT
+
+    command :download, download_desc, :appid, :path do
+        helper.perform_action(args[0],options,"downloaded") do |app|
+            app.download(args[1], helper.client)
         end
     end
 

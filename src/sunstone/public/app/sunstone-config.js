@@ -16,22 +16,9 @@
 
 define(function(require) {
   require('jquery');
-  var OpenNebulaSystem = require('opennebula/system');
 
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
-
-  var _defaultCost = {
-    cpuCost    : 0,
-    memoryCost : 0,
-    diskCost   : 0
-  };
-
-  var _dsMadConf = {};
-  var _imMadConf = {};
-  var _vmMadConf = {};
-  var _authMadConf = {};
-  var _marketMadConf = {};
 
   var Config = {
     'isTabEnabled': function(tabName) {
@@ -157,55 +144,7 @@ define(function(require) {
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
-    "defaultCost" : _defaultCost,
-    'dsMadConf' : _dsMadConf,
-    'imMadConf' : _imMadConf,
-    'vmMadConf' : _vmMadConf,
-    'authMadConf' : _authMadConf,
-    'marketMadConf' : _marketMadConf,
-    "initOnedConf" : function() {
-      OpenNebulaSystem.onedconf({
-        data : {},
-        timeout: true,
-        success: function (request, onedconf){
-          if (onedconf.DEFAULT_COST != undefined){
-            if (onedconf.DEFAULT_COST.CPU_COST != undefined){
-              _defaultCost.cpuCost = parseInt(onedconf.DEFAULT_COST.CPU_COST);
-            }
-            if (onedconf.DEFAULT_COST.MEMORY_COST != undefined){
-              _defaultCost.memoryCost = parseInt(onedconf.DEFAULT_COST.MEMORY_COST);
-            }
-            if (onedconf.DEFAULT_COST.DISK_COST != undefined){
-              _defaultCost.diskCost = parseInt(onedconf.DEFAULT_COST.DISK_COST);
-            }
-          }
-
-          if (onedconf.DS_MAD_CONF != undefined){
-            $.extend(true, _dsMadConf, onedconf.DS_MAD_CONF);
-          }
-
-          if (onedconf.MARKET_MAD_CONF != undefined){
-            $.extend(true, _marketMadConf, onedconf.MARKET_MAD_CONF);
-          }
-
-          if (onedconf.IM_MAD != undefined){
-            $.extend(true, _imMadConf, onedconf.IM_MAD);
-          }
-
-          if (onedconf.VM_MAD != undefined){
-            $.extend(true, _vmMadConf, onedconf.VM_MAD);
-          }
-
-          if (onedconf.AUTH_MAD != undefined){
-            $.extend(true, _authMadConf, onedconf.AUTH_MAD);
-          }
-        },
-        error: function(request, error_json){
-          console.error("There was an error requesting oned.conf: "+
-                        error_json.error.message);
-        }
-      });
-    }
+    'onedConf': _config['oned_conf']
   }
 
   return Config;

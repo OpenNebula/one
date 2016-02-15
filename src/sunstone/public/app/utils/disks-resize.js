@@ -77,7 +77,7 @@ define(function(require){
           var disk_cost = template_json.VMTEMPLATE.TEMPLATE.DISK_COST;
 
           if (disk_cost == undefined) {
-            disk_cost = Config.defaultCost.diskCost;
+            disk_cost = Config.onedConf.DEFAULT_COST.DISK_COST;
           }
 
           if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {

@@ -3,6 +3,16 @@
   :desc: ONE identifier for the Marketplace
   :size: 4
 
+:USER:
+  :desc: Username of the Marketplace owner
+  :size: 10
+  :left: true
+
+:GROUP:
+  :desc: Group of the Marketplace
+  :size: 10
+  :left: true
+
 :NAME:
   :desc: Name of the Marketplace
   :size: 20

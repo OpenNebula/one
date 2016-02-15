@@ -81,6 +81,34 @@ define(function(require) {
       nics = [this.element.TEMPLATE.NIC];
     }
 
+    $.map(nics, function(nic){
+      if (nic.NETWORK == undefined){
+        nic.NETWORK = "--";
+      }
+
+      if (nic.FLOATING_IP != undefined && nic.FLOATING_IP.toUpperCase() == "YES"){
+        if(nic.IP == undefined){
+          nic.IP = "--";
+        }
+
+        if(nic.IP6_ULA == undefined){
+          nic.IP6_ULA = "--";
+        }
+
+        if(nic.IP6_GLOBAL == undefined){
+          nic.IP6_GLOBAL = "--";
+        }
+      } else {
+        nic.IP = "--";
+        nic.IP6_ULA = "--";
+        nic.IP6_GLOBAL = "--";
+      }
+
+      if(nic.VROUTER_MANAGEMENT == undefined){
+        nic.VROUTER_MANAGEMENT = "--";
+      }
+    });
+
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["NIC"];

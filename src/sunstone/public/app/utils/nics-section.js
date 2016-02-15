@@ -39,6 +39,8 @@ define(function(require) {
    *                                - click_add_button {bool}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
+   *                                - forceIPv4 {bool}: true to show the
+   *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
    */
@@ -91,12 +93,12 @@ define(function(require) {
       if (nic) {
         if ($("input.floating_ip", $(this)).prop("checked")){
           nic["FLOATING_IP"] = "YES";
+        }
 
-          var ip4 = $("input.manual_ip4", $(this)).val();
+        var ip4 = $("input.manual_ip4", $(this)).val();
 
-          if (ip4 != ""){
-            nic["IP"] = ip4;
-          }
+        if (ip4 != undefined && ip4 != ""){
+          nic["IP"] = ip4;
         }
 
         if ($("input.management", $(this)).prop("checked")){
@@ -117,6 +119,8 @@ define(function(require) {
    *                                - vnet_attr {object}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
+   *                                - forceIPv4 {bool}: true to show the
+   *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
    */
@@ -276,13 +280,17 @@ define(function(require) {
                 '</span>' +
               '</label>' +
             '</div>' +
-          '</div>' +
+          '</div>';
+      }
+
+      if (options.forceIPv4){
+        html +=
           '<div class="row noclick">' +
             '<div class="small-5 columns">' +
               '<label class="right inline" style="color: #777; font-size: 16px">' +
                 Locale.tr("Force IPv4:") + " " +
                 '<span class="tip">' +
-                  Locale.tr("Optionally, you can force the IP assigned to the floating IP.") +
+                  Locale.tr("Optionally, you can force the IP assigned to the network interface.") +
                 '</span>' +
               '</label>' +
             '</div>' +
@@ -312,8 +320,6 @@ define(function(require) {
       Tips.setup($(".selected_network", dd_context));
 
       $('a', dd_context).first().trigger("click");
-
-      $("input.floating_ip", dd_context).change();
     })
 
     dd_context.on("click", ".provision_remove_nic" , function() {
@@ -323,10 +329,6 @@ define(function(require) {
 
     dd_context.on("click", ".noclick" , function(event) {
       event.stopPropagation();
-    });
-
-    dd_context.on("change", "input.floating_ip" , function() {
-      $(".manual_ip4", dd_context).prop("disabled", !$(this).is(":checked"));
     });
 
     if (!options.nic && !options.vnet_attr) {
@@ -343,6 +345,8 @@ define(function(require) {
    *                                - click_add_button {bool}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
+   *                                - forceIPv4 {bool}: true to show the
+   *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
    */

@@ -554,17 +554,19 @@ define(function(require) {
     $('[required_active]', dialog).removeAttr('required')
                                        .removeAttr('required_active');
 
-    $.each(Config.dsMadConf, function(i, e){
-        if (e["NAME"] == mad) {
-          if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
-            $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
-              $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
-            });
+    if (Config.onedConf.DS_MAD_CONF !== undefined) {
+      $.each(Config.onedConf.DS_MAD_CONF, function(i, e){
+          if (e["NAME"] == mad) {
+            if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
+              $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
+                $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+              });
+            }
+            return false;
           }
-          return false;
         }
-      }
-    );
+      );
+    }
   }
 });
 

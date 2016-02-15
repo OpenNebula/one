@@ -42,7 +42,8 @@
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
         'page_length' : '<%= session[:page_length] %>',
-        'vm_logos' : <%= logos_conf.to_json %>
+        'vm_logos' : <%= logos_conf.to_json %>,
+        'oned_conf' : <%= oned_conf.to_json %>
       };
     </script>
 
