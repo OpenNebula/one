@@ -45,7 +45,7 @@ define(function(require) {
     tabId: TAB_ID,
     title: Locale.tr("Services"),
     tabClass: "subTab",
-    parentTab: "oneflow-dashboard",
+    parentTab: "oneflow-dashboard-tab",
     listHeader: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+Locale.tr("OneFlow - Services"),
     infoHeader: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+Locale.tr("OneFlow - Service"),
     subheader: '',

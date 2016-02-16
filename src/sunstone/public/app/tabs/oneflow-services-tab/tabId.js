@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'oneflow-services';
+  return 'oneflow-services-tab';
 });

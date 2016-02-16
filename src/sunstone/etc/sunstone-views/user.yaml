@@ -20,7 +20,7 @@ enabled_tabs:
     - secgroups-tab
     - vrouters-tab
     #- zones-tab
-    - oneflow-dashboard
+    - oneflow-dashboard-tab
     - oneflow-services-tab
     - oneflow-templates-tab
     - marketplaces-tab
@@ -468,11 +468,11 @@ tabs:
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
-    oneflow-dashboard:
+    oneflow-dashboard-tab:
         panel_tabs:
         table_columns:
         actions:
-    oneflow-services:
+    oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
             service_roles_tab: true
@@ -527,7 +527,7 @@ tabs:
             Service.shutdown: true
             Service.recover: true
             Service.delete: true
-    oneflow-templates:
+    oneflow-templates-tab:
         panel_tabs:
             service_template_info_tab: true
             service_template_roles_tab: true

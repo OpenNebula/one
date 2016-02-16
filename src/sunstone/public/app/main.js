@@ -139,7 +139,7 @@ require.config({
         'tabs/secgroups-tab',
         'tabs/vrouters-tab',
         'tabs/zones-tab',
-        'tabs/oneflow-dashboard',
+        'tabs/oneflow-dashboard-tab',
         'tabs/oneflow-services-tab',
         'tabs/oneflow-templates-tab',
         'tabs/marketplaces-tab',

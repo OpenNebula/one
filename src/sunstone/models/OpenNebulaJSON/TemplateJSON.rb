@@ -99,7 +99,7 @@ module OpenNebulaJSON
 
         def instantiate(params=Hash.new)
             if params['template']
-                select_network = self['TEMPLATE/SUNSTONE_NETWORK_SELECT']
+                select_network = self['TEMPLATE/SUNSTONE/NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
                 end

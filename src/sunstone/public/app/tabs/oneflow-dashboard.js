@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var TAB_ID = 'oneflow-dashboard';
+  var TAB_ID = 'oneflow-dashboard-tab';
 
   var Tab = {
     tabId: TAB_ID,

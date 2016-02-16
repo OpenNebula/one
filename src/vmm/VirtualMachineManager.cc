@@ -2436,7 +2436,7 @@ void VirtualMachineManager::attach_nic_action(
 
     disk = vm->get_context();
 
-    if ( disk != 0 )
+    if (disk != 0 && !vm->get_host_is_cloud())
     {
         vm_tm_mad = vm->get_tm_mad();
 
