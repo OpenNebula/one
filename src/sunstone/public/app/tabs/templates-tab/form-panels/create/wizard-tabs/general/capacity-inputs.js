@@ -54,21 +54,25 @@ define(function(require) {
 
   function _setup(context) {
     // MB to GB
-    context.on("input", "div.memory_input input", function(){
+    $("div.memory_input", context).on("input", "input, select", function(){
+      var val = "";
+
       if (this.value && this.value >= 0) {
-        $("div.memory_gb_input input", context).val( this.value / 1024 );
-      } else {
-        $("div.memory_gb_input input", context).val("");
+        val = this.value / 1024;
       }
+
+      $("input, select", $("div.memory_gb_input", context)).val(val);
     });
 
     // GB to MB
-    context.on("input", "div.memory_gb_input input", function(){
+    $("div.memory_gb_input", context).on("input", "input, select", function(){
+      var val = "";
+
       if (this.value && this.value >= 0) {
-        $("div.memory_input input", context).val( Math.floor(this.value * 1024) );
-      } else {
-        $("div.memory_input input", context).val("");
+        val = Math.floor(this.value * 1024);
       }
+
+      $("input, select", $("div.memory_input", context)).val(val);
     });
 
     // Unit select
@@ -128,33 +132,38 @@ define(function(require) {
         // Modified input for GB
         var attr_gb = UserInputs.parse("MEMORY", userInputs.MEMORY);
 
+        attr_gb.initial = attr_gb.initial / 1024;
+
         if (attr_gb.type == "range"){
           attr_gb.type = "range-float";
           attr_gb.min = (attr_gb.min / 1024);
           attr_gb.max = (attr_gb.max / 1024);
-          attr_gb.initial = (attr_gb.initial / 1024);
-          attr_gb.step = (0.25);
+          attr_gb.step = 0.25;
+
         } else if (attr_gb.type == "list"){
           attr_gb.options = attr_gb.options.map(function(e){
                               return e / 1024;
                             });
+          attr_gb.step = 0.25;
 
-          attr_gb.initial = attr_gb.initial / 1024;
-        } else {
-          // TODO: error?
+        } else if (attr_gb.type == "number"){
+          attr_gb.type = "number-float";
+          attr_gb.step = 1;
         }
 
         input = UserInputs.attributeInput(attr_gb);
         $("div.memory_gb_input", context).html(input);
-        $("div.memory_gb_input input", context).removeAttr("wizard_field");
+        $("input, select", $("div.memory_gb_input", context)).removeAttr("wizard_field");
       }
     }
 
     // Update memory_gb with the value set in memory
-    $("div.memory_input input", context).trigger("input");
+    $("input, select", $("div.memory_input", context)).trigger("input");
 
-    if ($("div.memory_input input", context).val() >= 1024){
+    if ($("input, select", $("div.memory_input", context)).val() >= 1024){
       $("#memory_unit", context).val("GB").change();
+    } else {
+      $("#memory_unit", context).val("MB").change();
     }
   }
 
