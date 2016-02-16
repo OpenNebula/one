@@ -26,6 +26,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
+  var Locale = require('utils/locale');
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -84,11 +85,39 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
-    var user_login_content =  '<button href="#" data-dropdown="userSelectDropdown" class="button small radius secondary dropdown" id="logout">\
+    var user_login_content =
+    '<button href="#" data-dropdown="userSelectDropdown" class="button small radius secondary dropdown" id="logout">\
       <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</button>\
-      <ul id="userSelectDropdown" data-dropdown-content class="f-dropdown">\
-        <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
-        <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
+      <ul id="userSelectDropdown" data-dropdown-content class="f-dropdown">';
+
+    if (config['available_views'].length > 1){
+        user_login_content +=
+        '<li><a href="#" class="quickconf_view_header"><i class="fa fa-fw fa-eye"></i> '+Locale.tr("Views")+'</a></li>';
+
+      $.each(config['available_views'], function(i, view) {
+        var faclass = "";
+
+        if (view == config['user_config']["default_view"]){
+          faclass = "fa fa-fw fa-check";
+        } else {
+          faclass = "fa fa-fw";
+        }
+
+        user_login_content +=
+        '<li><a href="#" class="quickconf_view" view="'+view+'"><i class="'+faclass+'"></i> '+view+'</a></li>';
+      });
+
+      user_login_content +=
+        '<li><hr/></li>';
+    }
+
+    if (Config.isTabEnabled(SETTINGS_TAB_ID)){
+      user_login_content +=
+        '<li><a href="#" class="configuration"><i class="fa fa-fw fa-cog"></i> '+Locale.tr("Settings")+'</a></li>';
+    }
+
+    user_login_content +=
+        '<li><a href="#" class="logout"><i class="fa fa-fw fa-power-off"></i> '+Locale.tr("Sign Out")+'</a></li>\
       </ul>\
     <button href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
       <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</button>\
@@ -96,9 +125,17 @@ define(function(require) {
 
     $(".user-zone-info").html(user_login_content);
 
-    if (!Config.isTabEnabled(SETTINGS_TAB_ID)){
-      $(".user-zone-info a.configuration").parent('li').remove();
-    }
+    $(".user-zone-info a.quickconf_view_header").click(function() {
+      var context = $(this).closest('ul');
+      $(".quickconf_view", context).toggle();
+
+      return false;
+    });
+
+    $(".user-zone-info a.quickconf_view").click(function() {
+      var sunstone_setting = {DEFAULT_VIEW : $(this).attr("view")};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", -1, sunstone_setting);
+    });
 
     function zoneRefresh() {
       // Populate Zones dropdown
