@@ -365,7 +365,7 @@ define(function(require) {
         break;
 
       case "number-float":
-        attr.step = "0.01";
+        attr.step = "any";
         break;
 
       case "range":
@@ -382,7 +382,7 @@ define(function(require) {
 
         attr.min = parseFloat( params[0] );
         attr.max = parseFloat( params[1] );
-        attr.step = "0.01";
+        attr.step = "any";
 
         break;
 
