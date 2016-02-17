@@ -98,7 +98,8 @@ define(function(require) {
               'context': context,
               'dataTable': datatable,
               'labelsColumn': TEMPLATE_LABELS_COLUMN,
-              'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS'
+              'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS',
+              'placeholder': Locale.tr("No labels defined")
             });
           }
         },

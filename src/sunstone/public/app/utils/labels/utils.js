@@ -51,7 +51,9 @@ define(function(require) {
    *                          if not provided the one defined in the Sunstone tab datatable
    *                          will be used
    * @param {string}        [opts.labelsPath] - Path of the labels attr, this value will be
-   *                          used if the datatable uses aData object instead of an array with the values
+   *                          used if the datatable uses aData object instead of an array w
+   *                          ith the values
+   * @param {string}        [opts.placeholder] - Message to be shown in no labels are defined
    */
   function _insertLabelsMenu(opts) {
     var context = opts.context || $('#li_' + opts.tabName);
@@ -61,15 +63,21 @@ define(function(require) {
 
     var labels = _getLabels(dataTable, labelsColumn, labelsPath);
     $('.labels-tree', context).remove();
-    context.append(Tree.html(_makeTree(labels), true));
-    Tree.setup($('.labels-tree', context));
+    if ($.isEmptyObject(labels)) {
+      if (opts.placeholder) {
+        context.append('<div class="text-center">' + opts.placeholder + '</div>');
+      }
+    } else {
+      context.append(Tree.html(_makeTree(labels), true));
+      Tree.setup($('.labels-tree', context));
+    }
 
     /*
       Filter datatable when a label in the left menu is clicked
      */
     context.off('click', '.one-label');
     context.on('click', '.one-label', function() {
-      if (opts.tabName) {
+      if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
         Sunstone.showTab(opts.tabName);
       }
 
