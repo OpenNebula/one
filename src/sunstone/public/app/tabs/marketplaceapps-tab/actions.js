@@ -20,6 +20,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var CommonActions = require('utils/common-actions');
   var OpenNebulaResource = require('opennebula/marketplaceapp');
+  var OpenNebulaAction = require('opennebula/action');
 
   var RESOURCE = "MarketPlaceApp";
   var XML_ROOT = "MARKETPLACEAPP";
