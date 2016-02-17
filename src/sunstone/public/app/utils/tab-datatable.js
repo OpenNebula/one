@@ -497,20 +497,19 @@ define(function(require) {
   }
 
   //replaces an element with id 'tag' in a dataTable with a new one
-  function _updateElement(request, element_json) {
-    var id = element_json[this.xmlRoot].ID;
-    var element = this.elementArray(element_json);
-    var tag = '#' + this.resource.toLowerCase() + '_' + id;
-    // fnGetData should be used instead, otherwise it depends on the visible columns
-    var nodes = this.dataTable.fnGetNodes();
-    var tr = $(tag, nodes).parents('tr')[0];
-    if (tr) {
-      var checked_val = $('input.check_item', tr).prop('checked');
-      var position = this.dataTable.fnGetPosition(tr);
-      this.dataTable.fnUpdate(element, position, undefined, false);
-      $('input.check_item', tr).prop('checked', checked_val);
-      this.recountCheckboxes();
-    }
+  function _updateElement(request, elementJSON) {
+    var that = this;
+    var elementId = elementJSON[that.xmlRoot].ID;
+    var element = that.elementArray(elementJSON);
+
+    $.each(that.dataTable.fnGetData(), function(index, aData) {
+      if (aData[that.selectOptions.id_index] === elementId) {
+        element[0] = aData[0];
+        that.dataTable.fnUpdate(element, index, undefined, false);
+        that.recountCheckboxes();
+        return false;
+      }
+    });
   }
 
   function _getElementData(id, resource_tag) {

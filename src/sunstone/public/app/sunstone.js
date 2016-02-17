@@ -571,8 +571,17 @@ define(function(require) {
     $('.top_button, .list_button', context).attr('disabled', false);
   }
 
+  // Returns the element that is currently shown in the right info
+  var _getElementRightInfo = function(tabName, context) {
+    var context = context || $(".right-info", $("#" + tabName));
+    return context.data('element');
+  }
+
   var _insertPanels = function(tabName, info, contextTabId, context) {
     var context = context || $(".right-info", $("#" + tabName));
+
+    context.data('element', info[Object.keys(info)[0]]);
+
     var containerId = tabName + '-panels';
     var activaTab = $("dd.active a", $("#" + containerId));
     if (activaTab) {
@@ -1006,6 +1015,7 @@ define(function(require) {
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
+    "getElementRightInfo": _getElementRightInfo,
 
     'showTab': _showTab,
     "showElement" : _showElement,

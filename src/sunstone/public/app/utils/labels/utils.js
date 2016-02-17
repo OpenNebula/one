@@ -334,9 +334,19 @@ define(function(require) {
   }
 
   function _getLabel(dataTable, labelsColumn, resourceId) {
-    var nodes = dataTable.fnGetNodes();
-    var tr = $('.check_item[value="' + resourceId + '"]', nodes).closest('tr');
-    var aData = dataTable.fnGetData(tr);
-    return aData[labelsColumn];
+    var tab = dataTable.parents(".tab")
+    if (Sunstone.rightInfoVisible(tab)) {
+      var element = Sunstone.getElementRightInfo(tab.attr('id'));
+      if (element && element.TEMPLATE) {
+        return element.TEMPLATE[LABELS_ATTR]||'';
+      } else {
+        return '';
+      }
+    } else {
+      var nodes = dataTable.fnGetNodes();
+      var tr = $('.check_item[value="' + resourceId + '"]', nodes).closest('tr');
+      var aData = dataTable.fnGetData(tr);
+      return aData[labelsColumn];
+    }
   }
 });
