@@ -485,9 +485,7 @@ define(function(require) {
     }
 
     if (that.labelsColumn) {
-      var dataTable = that.dataTable;
-      var labelsColumn = that.labelsColumn;
-      LabelsUtils.insertLabelsMenu($('#li_' + that.tabId), dataTable, labelsColumn);
+      LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       LabelsUtils.insertLabelsDropdown(that.tabId);
     }
 

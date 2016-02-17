@@ -94,7 +94,12 @@ define(function(require) {
             datatable.fnAddData(item_list);
             LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
             var context = $('.labels-dropdown', datatable.closest('.content'));
-            LabelsUtils.insertLabelsMenu(context, datatable, TEMPLATE_LABELS_COLUMN, "VMTEMPLATE.TEMPLATE.LABELS");
+            LabelsUtils.insertLabelsMenu({
+              'context': context,
+              'dataTable': datatable,
+              'labelsColumn': TEMPLATE_LABELS_COLUMN,
+              'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS'
+            });
           }
         },
         error: Notifier.onError
