@@ -50,7 +50,7 @@ define(function(require) {
 
   function html(opts_arg){
     opts = $.extend({
-        title: Locale.tr("Saved Templates"),
+        title: Locale.tr("Templates"),
         refresh: true,
         create: true,
         active: true,
@@ -114,7 +114,6 @@ define(function(require) {
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
           { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
           { "mDataProp": "VMTEMPLATE.UID" }
       ],
       "fnPreDrawCallback": function (oSettings) {
@@ -128,7 +127,7 @@ define(function(require) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              Locale.tr("There are no saved templates available")+
+              Locale.tr("There are no templates available")+
               '<br>'+
               Locale.tr("Create a template by saving a running Virtual Machine")+
             '</span>'+
@@ -158,7 +157,7 @@ define(function(require) {
         }
 
         $(".provision_templates_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
                 data.NAME +
               '</li>'+
@@ -193,8 +192,6 @@ define(function(require) {
       }
     });
 
-    provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-
     $('.provision_list_templates_search', context).on('input',function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
@@ -212,9 +209,9 @@ define(function(require) {
 
     $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
       if ($(this).val() != "-2"){
-        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
+        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
       } else {
-        provision_templates_datatable.fnFilter("", 3);
+        provision_templates_datatable.fnFilter("", 2);
       }
     })
 
