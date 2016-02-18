@@ -106,7 +106,6 @@ define(function(require) {
         $("#flow_name", context).val('');
         //$(".provision_selected_networks").html("");
         $(".provision-pricing-table", context).removeClass("selected");
-        //$('a[href="#provision_system_templates_selector"]', context).click();
       },
       error: Notifier.onError
     },
@@ -122,7 +121,9 @@ define(function(require) {
         $(".provision_selected_networks").html("");
         $(".provision-pricing-table", context).removeClass("selected");
         $(".alert-box-error", context).hide();
-        $('a[href="#provision_system_templates_selector"]', context).click();
+
+        $('#provision_vm_instantiate_templates_owner_filter').val('all').change();
+        $('#provision_vm_instantiate_template_search').val('').trigger('input');
       },
       error: Notifier.onError
     }
@@ -731,18 +732,10 @@ define(function(require) {
 
   function show_provision_create_vm() {
     OpenNebula.Action.clear_cache("VMTEMPLATE");
-    ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
-    provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
-    ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
-    provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-    provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
-
-    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
-      ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
-      provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-      provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
-    }
+    ProvisionTemplatesList.updateDatatable(provision_vm_instantiate_templates_datatable);
+    $('#provision_vm_instantiate_templates_owner_filter').val('all').change();
+    $('#provision_vm_instantiate_template_search').val('').trigger('input');
 
     $(".provision_accordion_template .selected_template").hide();
     $(".provision_accordion_template .select_template").show();
@@ -970,6 +963,16 @@ define(function(require) {
             '</span>';
           }
 
+          var owner;
+
+          if (data.UID == config.user_id){
+            owner = Locale.tr("mine");
+          } else if (data.GID == config.user_gid){
+            owner = Locale.tr("group");
+          } else {
+            owner = Locale.tr("system");
+          }
+
           var li = $('<li>'+
               '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
                 '<li class="provision-title" title="'+data.NAME+'">'+
@@ -980,6 +983,12 @@ define(function(require) {
                 '</li>'+
                 '<li class="provision-description">'+
                   (data.TEMPLATE.DESCRIPTION || '...')+
+                '</li>'+
+                '<li class="text-right provision-bullet-item">'+
+                  '<span class="left" style="color: #999;">'+
+                    '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                    owner+
+                  '</span>'+
                 '</li>'+
               '</ul>'+
             '</li>').appendTo($("#"+tableID+'_ul'));
@@ -1009,7 +1018,8 @@ define(function(require) {
           return true;
         }
 
-        provision_system_templates_datatable = $('#provision_system_templates_table').dataTable({
+
+        provision_vm_instantiate_templates_datatable = $('#provision_vm_instantiate_templates_table').dataTable({
           "iDisplayLength": 6,
           "sDom" : '<"H">t<"F"lp>',
           "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
@@ -1019,100 +1029,62 @@ define(function(require) {
           "aoColumns": [
               { "mDataProp": "VMTEMPLATE.ID" },
               { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
+              { "mDataProp": function ( data, type, val ) {
+                  var owner;
+
+                  if (data.VMTEMPLATE.UID == config.user_id){
+                    owner = "mine";
+                  } else if (data.VMTEMPLATE.GID == config.user_gid){
+                    owner = "group";
+                  } else {
+                    owner = "system";
+                  }
+
+                  if (type === 'filter') {
+                    // In order to make "mine" search work
+                    if(owner == "mine"){
+                      return Locale.tr("mine");
+                    } else if(owner == "group"){
+                      return Locale.tr("group");
+                    } else if(owner == "system"){
+                      return Locale.tr("system");
+                    }
+                  }
+
+                  return owner;
+                }
+              },
               { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
-            initializeTemplateCards(this, "provision_system_templates")
+            initializeTemplateCards(this, "provision_vm_instantiate_templates");
           },
           "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-            appendTemplateCard(aData, "provision_system_templates");
+            appendTemplateCard(aData, "provision_vm_instantiate_templates");
             return nRow;
           },
           "fnDrawCallback": function(oSettings) {
           }
         });
 
-
-        provision_vdc_templates_datatable = $('#provision_vdc_templates_table').dataTable({
-          "iDisplayLength": 6,
-          "sDom" : '<"H">t<"F"lp>',
-          "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-          "aoColumnDefs": [
-              { "bVisible": false, "aTargets": ["all"]}
-          ],
-          "aoColumns": [
-              { "mDataProp": "VMTEMPLATE.ID" },
-              { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
-          ],
-          "fnPreDrawCallback": function (oSettings) {
-            initializeTemplateCards(this, "provision_vdc_templates")
-          },
-          "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-            appendTemplateCard(aData, "provision_vdc_templates");
-            return nRow;
-          }
+        $('#provision_vm_instantiate_template_search').on('input',function(){
+          provision_vm_instantiate_templates_datatable.fnFilter( $(this).val() );
         });
 
-
-        provision_saved_templates_datatable = $('#provision_saved_templates_table').dataTable({
-          "iDisplayLength": 6,
-          "sDom" : '<"H">t<"F"lp>',
-          "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-          "aoColumnDefs": [
-              { "bVisible": false, "aTargets": ["all"]}
-          ],
-          "aoColumns": [
-              { "mDataProp": "VMTEMPLATE.ID" },
-              { "mDataProp": "VMTEMPLATE.NAME" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-              { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" },
-              { "mDataProp": "VMTEMPLATE.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
-          ],
-          "fnPreDrawCallback": function (oSettings) {
-            initializeTemplateCards(this, "provision_saved_templates")
-          },
-          "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-            appendTemplateCard(aData, "provision_saved_templates");
-            return nRow;
+        $('#provision_vm_instantiate_templates_owner_filter').on('change', function(){
+          switch($(this).val()){
+            case "all":
+              provision_vm_instantiate_templates_datatable.fnFilter('', 2);
+              break;
+            default:
+              provision_vm_instantiate_templates_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
+              break;
           }
         });
-
-
-        $('#provision_create_system_template_search').on('input',function(){
-          provision_system_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_vdc_template_search').on('input',function(){
-          provision_vdc_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_saved_template_search').on('input',function(){
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('[href="#provision_system_templates_selector"]').on('click', function() {
-          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
-        })
-
-        $('[href="#provision_saved_templates_selector"]').on('click', function() {
-          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
-        })
-
-        $('[href="#provision_vdc_templates_selector"]').on('click', function() {
-          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
-        })
 
         $("#provision_create_template_refresh_button").click(function(){
           OpenNebula.Action.clear_cache("VMTEMPLATE");
-          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
-          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
-          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
-
+          ProvisionTemplatesList.updateDatatable(provision_vm_instantiate_templates_datatable);
         });
 
         tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
@@ -1181,7 +1153,7 @@ define(function(require) {
         $("#provision_create_vm").submit(function(){
           var context = $(this);
 
-          var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
+          var template_id = $(".provision_select_template .selected", context).attr("opennebula_id");
           if (!template_id) {
             $(".alert-box-error", context).fadeIn().html(Locale.tr("You must select at least a template configuration"));
             return false;
