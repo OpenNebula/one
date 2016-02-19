@@ -39,6 +39,7 @@ define(function(require) {
 
   var PANEL_ID = require('./wilds/panelId');
   var RESOURCE = "Host"
+  var IMPORT_TEMPLATE_COLUMN = 3;
 
   /*
     CONSTRUCTOR
@@ -78,9 +79,12 @@ define(function(require) {
     that.dataTableWildHosts = $("#datatable_host_wilds", context).dataTable({
       "bSortClasses" : false,
       "bDeferRender": true,
+      "aLengthMenu": [[2, 12, 36, 72], [2, 12, 36, 72]],
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": [0]},
-          {"sWidth": "35px", "aTargets": [0]}
+          {"sWidth": "35px", "aTargets": [0]},
+          {"bVisible": true, "aTargets": [0, 1, 2]}, // Hide Import Template column
+          {"bVisible": false, "aTargets": ['_all']}
       ]
     });
 
@@ -94,20 +98,19 @@ define(function(require) {
       $.each(wilds, function(index, elem) {
         var name      = elem.VM_NAME;
         var deploy_id = elem.DEPLOY_ID;
-        var template = elem.IMPORT_TEMPLATE;
+        var template = elem.IMPORT_TEMPLATE || '';
 
         if (name && deploy_id && template) {
           var wilds_list_array = [
             [
               '<input type="checkbox" class="import_wild_checker import_' + index + '" unchecked/>',
               name,
-              deploy_id
+              deploy_id,
+              template
             ]
           ];
 
           that.dataTableWildHosts.fnAddData(wilds_list_array);
-
-          $(".import_" + index, that.dataTableWildHosts).data("wild_template", atob(elem.IMPORT_TEMPLATE));
         }
       });
     }
@@ -118,8 +121,8 @@ define(function(require) {
     // Enable the import button when at least a VM is selected
     $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
 
-    $(".import_wild_checker", context).off("change");
-    $(".import_wild_checker", context).on("change", function(){
+    context.off("change", ".import_wild_checker");
+    context.on("change", ".import_wild_checker", function(){
       if ($(".import_wild_checker:checked", context).length == 0){
         $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
       } else {
@@ -134,56 +137,63 @@ define(function(require) {
       $("#import_wilds", context).html('<i class="fa fa-spinner fa-spin"></i>');
 
       $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-        var vm_json = {
-          "vm": {
-            "vm_raw": $(this).data("wild_template")
-          }
-        };
-
         var import_host_id = that.element.ID;
         var wild_row       = $(this).closest('tr');
 
-        // Create the VM in OpenNebula
-        OpenNebulaVM.create({
-          timeout: true,
-          data: vm_json,
-          success: function(request, response) {
-            OpenNebulaAction.clear_cache("VM");
+        var aData = that.dataTableWildHosts.fnGetData(wild_row);
+        var wildTemplate64 = aData[IMPORT_TEMPLATE_COLUMN];
 
-            var extra_info = {};
-
-            extra_info['host_id'] = import_host_id;
-            extra_info['ds_id']   = -1;
-            extra_info['enforce'] = false;
-
-            // Deploy the VM
-            Sunstone.runAction("VM.silent_deploy_action",
-                               response.VM.ID,
-                               extra_info);
-
-            // Notify
-            Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
-
-            // Delete row (shouldn't be there in next monitorization)
-            that.dataTableWildHosts.fnDeleteRow(wild_row);
-
-            $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-            $("#import_wilds", context).html(Locale.tr("Import Wilds"));
-          },
-          error: function (request, error_json) {
-            var msg;
-            if (error_json.error.message){
-              msg = error_json.error.message;
-            } else {
-              msg = Locale.tr("Cannot contact server: is it running and reachable?");
+        if (wildTemplate64 !== '') {
+          var vm_json = {
+            "vm": {
+              "vm_raw": atob(wildTemplate64)
             }
+          };
 
-            Notifier.notifyError(msg);
+          // Create the VM in OpenNebula
+          OpenNebulaVM.create({
+            timeout: true,
+            data: vm_json,
+            success: function(request, response) {
+              OpenNebulaAction.clear_cache("VM");
 
-            $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-            $("#import_wilds", context).html(Locale.tr("Import Wilds"));
-          }
-        });
+              var extra_info = {};
+
+              extra_info['host_id'] = import_host_id;
+              extra_info['ds_id']   = -1;
+              extra_info['enforce'] = false;
+
+              // Deploy the VM
+              Sunstone.runAction("VM.silent_deploy_action",
+                                 response.VM.ID,
+                                 extra_info);
+
+              // Notify
+              Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
+
+              // Delete row (shouldn't be there in next monitorization)
+              that.dataTableWildHosts.fnDeleteRow(wild_row);
+
+              $("#import_wilds", context).removeAttr("disabled").off("click.disable");
+              $("#import_wilds", context).html(Locale.tr("Import Wilds"));
+            },
+            error: function (request, error_json) {
+              var msg;
+              if (error_json.error.message){
+                msg = error_json.error.message;
+              } else {
+                msg = Locale.tr("Cannot contact server: is it running and reachable?");
+              }
+
+              Notifier.notifyError(msg);
+
+              $("#import_wilds", context).removeAttr("disabled").off("click.disable");
+              $("#import_wilds", context).html(Locale.tr("Import Wilds"));
+            }
+          });
+        } else {
+          Notifier.notifyError(Locale.tr("This resources doesn't have a template to be imported"));
+        }
       });
     });
 
