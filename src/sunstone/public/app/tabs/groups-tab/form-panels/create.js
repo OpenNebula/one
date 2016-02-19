@@ -185,6 +185,7 @@ define(function(require) {
 
     if (this.action == "create") {
       $("input#group_view_cloud").prop('checked', true).change();
+      $("input#group_admin_view_cloud").prop('checked', true).change();
       $("input#group_admin_view_groupadmin").prop('checked', true).change();
 
       _generateViewsSelect(context, "admin", "groupadmin");
