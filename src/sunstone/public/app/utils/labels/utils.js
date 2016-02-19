@@ -39,20 +39,48 @@ define(function(require) {
 
   /* FUNCTION DEFINITIONS */
 
-  /*
-    Add labels tree to the left menu
+  /**
+   * Add labels tree to the left menu
+   * @param {Object}        opts - Options
+   * @param {string}        opts.tabName - Tab Name to retrieve the rest of the opts
+   * @param {jQuery Object} [opts.context] - jQuery object to insert the menu, if not
+   *                          provided the link of the tab in the left menu will be used
+   * @param {DataTable}     [opts.dataTable] - Datatable to apply the filter, if not
+   *                          provided the one defined in the Sunstone tab will be used
+   * @param {Number}        [opts.labelsColumn] - Column of the labels in the datatable,
+   *                          if not provided the one defined in the Sunstone tab datatable
+   *                          will be used
+   * @param {string}        [opts.labelsPath] - Path of the labels attr, this value will be
+   *                          used if the datatable uses aData object instead of an array w
+   *                          ith the values
+   * @param {string}        [opts.placeholder] - Message to be shown in no labels are defined
    */
-  function _insertLabelsMenu(context, dataTable, labelsColumn, labelsPath) {
+  function _insertLabelsMenu(opts) {
+    var context = opts.context || $('#li_' + opts.tabName);
+    var dataTable = opts.dataTable || Sunstone.getDataTable(opts.tabName).dataTable;
+    var labelsColumn = opts.labelsColumn || Sunstone.getDataTable(opts.tabName).labelsColumn;
+    var labelsPath = opts.labelsPath;
+
     var labels = _getLabels(dataTable, labelsColumn, labelsPath);
     $('.labels-tree', context).remove();
-    context.append(Tree.html(_makeTree(labels), true));
-    Tree.setup($('.labels-tree', context));
+    if ($.isEmptyObject(labels)) {
+      if (opts.placeholder) {
+        context.append('<div class="text-center">' + opts.placeholder + '</div>');
+      }
+    } else {
+      context.append(Tree.html(_makeTree(labels), true));
+      Tree.setup($('.labels-tree', context));
+    }
 
     /*
       Filter datatable when a label in the left menu is clicked
      */
     context.off('click', '.one-label');
     context.on('click', '.one-label', function() {
+      if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
+        Sunstone.showTab(opts.tabName);
+      }
+
       var regExp = [];
       var label = $(this).attr('one-label-full-name');
       regExp.push('^' + label + '$');
@@ -94,7 +122,7 @@ define(function(require) {
 
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
-        labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
+        labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
         if (labelsStr != '') {
           $.each(labelsStr.split(','), function(){
             if (labelsIndexed[this]) {
@@ -159,7 +187,7 @@ define(function(require) {
       var labelsArray, labelIndex;
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
-        labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
+        labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
         if (labelsStr != '') {
           labelsArray = labelsStr.split(',')
         } else {
@@ -190,7 +218,7 @@ define(function(require) {
         var labelsArray, labelIndex;
         var selectedItems = tabTable.elements();
         $.each(selectedItems, function(index, resourceId) {
-          labelsStr = _getLabel(dataTable, labelsColumn, resourceId);
+          labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
           if (labelsStr != '') {
             labelsArray = labelsStr.split(',')
           } else {
@@ -233,7 +261,7 @@ define(function(require) {
             }
 
             
-            _insertLabelsMenu($('#li_' + tabName), tabTable.dataTable, tabTable.labelsColumn);
+            _insertLabelsMenu({'tabName': tabName});
             _insertLabelsDropdown(tabName);
           },
           error: Notifier.onError
@@ -333,10 +361,9 @@ define(function(require) {
     return _deserializeLabels(labels.join(','));
   }
 
-  function _getLabel(dataTable, labelsColumn, resourceId) {
-    var tab = dataTable.parents(".tab")
-    if (Sunstone.rightInfoVisible(tab)) {
-      var element = Sunstone.getElementRightInfo(tab.attr('id'));
+  function _getLabel(tabName, dataTable, labelsColumn, resourceId) {
+    if (Sunstone.rightInfoVisible($('#' + tabName))) {
+      var element = Sunstone.getElementRightInfo(tabName);
       if (element && element.TEMPLATE) {
         return element.TEMPLATE[LABELS_ATTR]||'';
       } else {

@@ -77,7 +77,20 @@ define(function(require) {
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
-    var templateTableHTML = TemplateTable.html(this.element.USER_TEMPLATE, RESOURCE, Locale.tr("Attributes"));
+
+    // Get rid of the unwanted (for show) SCHED_* keys
+    var that = this;
+    var strippedTemplate = {};
+    var unshownValues = {};
+    $.each(that.element.USER_TEMPLATE, function(key, value) {
+      if (!key.match(/^SCHED_*/)) {
+        strippedTemplate[key] = value;
+      } else {
+        unshownValues[key] = value;
+      }
+    })
+
+    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), unshownValues);
 
     var monitoring = $.extend({}, this.element.MONITORING);
     delete monitoring.CPU;

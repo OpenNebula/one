@@ -25,6 +25,7 @@ define(function(require) {
   var Vis = require('vis');
 
   var TemplateDashboard = require('hbs!./vnets-topology-tab/html');
+  var TemplateEmptyTable = require('hbs!utils/tab-datatable/empty-table');
 
   var _network;
   var _vnetList;
@@ -120,26 +121,32 @@ define(function(require) {
             var i = 0;
 
             function _getVNet(index){
-              var vnetId = item_list[index].VNET.ID;
+              var element = item_list[index];
+              if (element !== undefined) {
+                var vnetId = element.VNET.ID;
 
-              OpenNebula.Network.show({
-                data : {
-                  id: vnetId
-                },
-                timeout:true,
-                success: function(request,info){
-                  vnetList.push(info);
+                OpenNebula.Network.show({
+                  data : {
+                    id: vnetId
+                  },
+                  timeout:true,
+                  success: function(request,info){
+                    vnetList.push(info);
 
-                  i += 1;
-                  if (i == item_list.length){
-                    _vnetList = vnetList;
-                    _doTopology();
-                  } else {
-                    _getVNet(i);
-                  }
-                },
-                error: Notifier.onError
-              });
+                    i += 1;
+                    if (i == item_list.length){
+                      _vnetList = vnetList;
+                      _doTopology();
+                    } else {
+                      _getVNet(i);
+                    }
+                  },
+                  error: Notifier.onError
+                });
+              } else {
+                _vnetList = vnetList;
+                $('#visgraph').html(TemplateEmptyTable());
+              }
             }
 
             _getVNet(i);

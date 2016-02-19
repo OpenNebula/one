@@ -73,6 +73,7 @@ define(function(require) {
   FormPanel.prototype.constructor = FormPanel;
   FormPanel.prototype.htmlWizard = _htmlWizard;
   FormPanel.prototype.submitWizard = _submitWizard;
+  FormPanel.prototype.setResourceId = _setResourceId;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
 
@@ -105,6 +106,9 @@ define(function(require) {
     this.datastoresTable.idInput().attr('required', '');
   }
 
+  function _setResourceId(context, resourceId) {
+    this.resourceId = resourceId;
+  }
 
   function _submitWizard(context) {
     var marketPlaceAppObj = {
@@ -112,7 +116,7 @@ define(function(require) {
       "dsid" : this.datastoresTable.idInput().val()
     };
 
-    Sunstone.runAction("MarketPlaceApp.export", Sunstone.getDataTable(TAB_ID).elements(), marketPlaceAppObj);
+    Sunstone.runAction("MarketPlaceApp.export", [this.resourceId], marketPlaceAppObj);
     return false;
   }
 });

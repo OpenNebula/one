@@ -58,7 +58,7 @@ define(function(require) {
     },
     "VM.migrate_live" : {
       type: "action",
-      text: Locale.tr("Migrate") + ' <span class="label secondary radius">live</span>',
+      text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
       tip: Locale.tr("This will live-migrate the selected VMs to the chosen host"),
       layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
@@ -107,7 +107,7 @@ define(function(require) {
     },
     "VM.reboot_hard" : {
       type: "action",
-      text: Locale.tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Reboot") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsrepeat_buttons",
       tip: Locale.tr("This will perform a hard reboot on selected VMs"),
       custom_classes : "state-dependent"
@@ -121,7 +121,7 @@ define(function(require) {
     },
     "VM.poweroff_hard" : {
       type: "action",
-      text: Locale.tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Power Off") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmspause_buttons",
       tip: Locale.tr("This will send a forced power off signal to running VMs. They can be resumed later."),
       custom_classes : "state-dependent"
@@ -135,7 +135,7 @@ define(function(require) {
     },
     "VM.undeploy_hard" : {
       type: "action",
-      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsstop_buttons",
       tip: Locale.tr("Shuts down the given VM. The VM is saved in the system Datastore."),
       custom_classes : "state-dependent"
@@ -149,7 +149,7 @@ define(function(require) {
     },
     "VM.shutdown_hard" : {
       type: "confirm",
-      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will initiate the shutdown-hard (forced) process in the selected VMs"),
       custom_classes : "state-dependent"
@@ -164,7 +164,7 @@ define(function(require) {
     },
     "VM.delete_recreate" : {
       type: "confirm",
-      text: Locale.tr("Delete") + ' <span class="label secondary radius">recreate</span>',
+      text: Locale.tr("Delete") + ' <span class="label secondary radius">' + Locale.tr("recreate") + '</span>',
       layout: "vmsrepeat_buttons",
       tip: Locale.tr("This will delete and recreate VMs to PENDING state"),
       custom_classes : "state-dependent"

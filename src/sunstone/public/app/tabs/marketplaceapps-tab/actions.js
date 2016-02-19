@@ -36,7 +36,19 @@ define(function(require) {
     "MarketPlaceApp.export_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export");
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) app to export.");
+          return false;
+        }
+
+        var resourceId = "" + selected_nodes[0];
+
+        Sunstone.resetFormPanel(TAB_ID, EXPORT_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export",
+          function(formPanelInstance, context) {
+            formPanelInstance.setResourceId(context, resourceId);
+          });
       }
     },
     "MarketPlaceApp.export" : {

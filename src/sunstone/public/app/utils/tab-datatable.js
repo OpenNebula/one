@@ -485,9 +485,7 @@ define(function(require) {
     }
 
     if (that.labelsColumn) {
-      var dataTable = that.dataTable;
-      var labelsColumn = that.labelsColumn;
-      LabelsUtils.insertLabelsMenu($('#li_' + that.tabId), dataTable, labelsColumn);
+      LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       LabelsUtils.insertLabelsDropdown(that.tabId);
     }
 
@@ -504,8 +502,13 @@ define(function(require) {
 
     $.each(that.dataTable.fnGetData(), function(index, aData) {
       if (aData[that.selectOptions.id_index] === elementId) {
-        element[0] = aData[0];
+        var nodes = that.dataTable.fnGetNodes();
+        var checkId = '#' + that.resource.toLowerCase() + '_' + elementId;
+        var checkVal = $(checkId, nodes).prop('checked');
         that.dataTable.fnUpdate(element, index, undefined, false);
+        if (checkVal) {
+          $(checkId, nodes).prop('checked', checkVal);
+        }
         that.recountCheckboxes();
         return false;
       }
