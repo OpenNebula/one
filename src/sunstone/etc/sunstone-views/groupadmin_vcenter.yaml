@@ -398,7 +398,9 @@ tabs:
         panel_tabs:
         actions:
             NetworkTopology.refresh: true
-            NetworkTopology.toggleVMs: true
+            NetworkTopology.fit: true
+            NetworkTopology.collapseVMs: true
+            NetworkTopology.openVMs: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: false

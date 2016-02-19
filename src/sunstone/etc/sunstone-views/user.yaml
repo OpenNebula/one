@@ -16,6 +16,7 @@ enabled_tabs:
     #- clusters-tab
     #- hosts-tab
     - datastores-tab
+    - vnets-topology-tab
     - vnets-tab
     - secgroups-tab
     - vrouters-tab
@@ -77,7 +78,7 @@ tabs:
             User.chgrp: true
             User.addgroup: true
             User.delgroup: true
-            User.chauth: true
+            User.change_authentication: true
             User.delete: true
     groups-tab:
         panel_tabs:
@@ -98,6 +99,7 @@ tabs:
         actions:
             Group.refresh: true
             Group.create_dialog: true
+            Group.update_dialog: true
             Group.quotas_dialog: true
             Group.delete: true
             Group.edit_admins: true
@@ -207,6 +209,7 @@ tabs:
             VM.disk_snapshot_delete: true
             VM.resched: false
             VM.unresched: false
+            VM.saveas_template: true
     templates-tab:
         panel_tabs:
             template_info_tab: true
@@ -393,6 +396,13 @@ tabs:
             Datastore.delete: false
             Datastore.enable: false
             Datastore.disable: false
+    vnets-topology-tab:
+        panel_tabs:
+        actions:
+            NetworkTopology.refresh: true
+            NetworkTopology.fit: true
+            NetworkTopology.collapseVMs: true
+            NetworkTopology.openVMs: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
@@ -417,6 +427,7 @@ tabs:
             Network.create_dialog: false
             Network.import_dialog: false
             Network.update_dialog: true
+            Network.reserve_dialog: true
             Network.addtocluster: false
             Network.rename: true
             Network.chown: false
@@ -489,6 +500,8 @@ tabs:
                 Role.reboot_hard: true
                 Role.poweroff: true
                 Role.poweroff_hard: true
+                Role.undeploy: true
+                Role.undeploy_hard: true
                 Role.shutdown: true
                 Role.shutdown_hard: true
                 Role.delete: true
@@ -540,12 +553,13 @@ tabs:
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: true
+            ServiceTemplate.update_dialog: true
             ServiceTemplate.instantiate: true
             ServiceTemplate.chown: false
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
             ServiceTemplate.rename: true
-            ServiceTemplate.clone: true
+            ServiceTemplate.clone_dialog: true
             ServiceTemplate.delete: true
     zones-tab:
         panel_tabs:
