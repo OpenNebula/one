@@ -440,9 +440,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         wilds.each do |wild|
           if wild['IMPORT_TEMPLATE']
             wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
-            name   = wild_tmplt.select { |line|
-                      line[/^NAME/]
-                     }[0].split("=")[1].gsub("\"", " ").strip
+            name   = wild['VM_NAME']
             import = wild_tmplt.select { |line|
                        line[/^IMPORT_VM_ID/]
                      }[0].split("=")[1].gsub("\"", " ").strip
