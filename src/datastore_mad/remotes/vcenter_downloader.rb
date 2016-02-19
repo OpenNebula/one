@@ -32,6 +32,7 @@ $: << File.dirname(__FILE__)
 require 'vcenter_driver'
 require 'uri'
 require 'cgi'
+require 'fileutils'
 
 vcenter_url = ARGV[0]
 
@@ -50,7 +51,7 @@ begin
 
     if ds.is_descriptor? img_src
         descriptor_name = File.basename u.path
-        temp_folder = VAR_LOCATION + "/vcenter/"
+        temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name
         FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
 
         # Build array of files to download
@@ -72,17 +73,15 @@ begin
 
         # Create tar.gz
         rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} >& /dev/null")
-             raise "Error creating tar file for #{descriptor_name}" unless rs
+        (FileUtils.rm_rf(temp_folder) ; raise "Error creating tar file for #{descriptor_name}") unless rs
         
         # Cat file to stdout
         rs = system("cat #{temp_folder + descriptor_name}.tar.gz")
-             raise "Error reading tar for #{descriptor_name}" unless rs
-
+        (FileUtils.rm_rf(temp_folder) ; raise "Error reading tar for #{descriptor_name}") unless rs
 
         # Delete tar.gz
         rs = system("cd #{temp_folder} && rm #{descriptor_name}.tar.gz #{files_to_download.join(' ')}")
-             raise "Error removing tar for #{descriptor_name}" unless rs
-        
+        (FileUtils.rm_rf(temp_folder) ; raise "Error removing tar for #{descriptor_name}") unless rs
     else
         # Setting "." as the source will read from the stdin
         VCenterDriver::VIClient.in_stderr_silence do

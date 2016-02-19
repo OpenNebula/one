@@ -24,14 +24,17 @@ ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
 else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
 end
 
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'opennebula'
+require 'fileutils'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -55,27 +58,82 @@ if img_path.nil?
 end
 
 if img_path.start_with? "vcenter://"
-    # No upload to datastore is supported, cp is a dummy operation to 
-    # reference an already existing image
+    # File already in the vCenter datastore
 
     puts img_path.sub("vcenter://","")
 else
-    downloader_args = " "
-    downloader_args += "--md5 #{md5} " if md5
-    downloader_args += "--sha1 #{sha1} " if sha1
-    downloader_args += "--nodecomp " if nodecomp
-    downloader_args += "--limit #{limit_bw} " if nodecomp
-    # Copy to stdout
-    downloader_args += img_path + " - "
+    downsh_args = " "
+    downsh_args += "--md5 #{md5} " if md5 and !md5.empty? and !md5.eql? "-"
+    downsh_args += "--sha1 #{sha1} " if sha1 and !sha1.empty?
+    downsh_args += "--nodecomp " if nodecomp and !nodecomp.empty?
+    downsh_args += "--limit #{limit_bw} " if limit_bw and !limit_bw.empty?
 
     # Generate target path
     str_for_target_path = Time.now.to_s + id.to_s
     target_path = Digest::MD5.hexdigest(str_for_target_path) + ".vmdk"
 
-    uploader_args = hostname + " " + ds_name + " " + target_path
+    files_to_upload = Array.new
 
-    cmd = "#{File.dirname(__FILE__)}/../downloader.sh #{downloader_args} |"\
-          "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
+    # Let's find out if we are dealing with a gzip tarball
+    if img_path.start_with? "http://"
+        mt = `curl #{img_path} 2> /dev/null|head -n 1024 | file -b --mime-type -`
+        is_file_gzipped = mt.chomp.eql? "application/x-gzip"
+    else
+        is_file_gzipped = `file -b #{img_path}`.start_with? "gzip"
+    end
 
-    system(cmd)
+    # If the file is a tar.gz, decompress and upload all files
+    if is_file_gzipped
+        temp_folder = VAR_LOCATION + "/vcenter/" + File.basename(img_path) + "/"
+        FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
+
+        if img_path.start_with? "http://"
+            # Download file since we need to decompress it
+            img_filename = File.basename(img_path)
+            system("curl #{img_path} > #{temp_folder + img_filename}"\
+                   " 2> /dev/null")
+            # The following code will use the downloaded image
+            img_path = temp_folder + img_filename
+        end
+
+        # Decomppress file
+        rs = system("cd #{temp_folder} && tar xzf #{img_path} &> /dev/null")
+        (FileUtils.rm_rf(temp_folder) ; raise "Error extracting tar for #{descriptor_name}") unless rs
+
+        # Read descriptor
+        descriptor_path=Dir[temp_folder+"/*"].select{|f| 
+                                   `file -b #{f}`.start_with? "ASCII" }
+        (FileUtils.rm_rf(temp_folder) ; raise "Error, malformed vmdk") if descriptor_path.size!=1
+        descriptor = File.read(descriptor_path[0]).split("\n")
+        flat_files = descriptor.select{|l| l.start_with?("RW")}
+
+        files_to_upload << descriptor_path[0]
+
+        flat_files.each{|file| 
+              files_to_upload << temp_folder + 
+                file.split(" ")[-1].chomp.chomp('"').reverse.chomp('"').reverse
+        }
+    else
+        files_to_upload << img_path
+    end
+
+    files_to_upload.reverse.each_with_index {|file_to_upload, index|
+        if index == files_to_upload.size - 1
+            uploader_args = hostname + " " + ds_name + " " + target_path
+        else
+            uploader_args = hostname + " " + ds_name + " " + 
+                            File.basename(file_to_upload) + "&> /dev/null"
+        end
+
+        # Copy to stdout
+        downloader_args = downsh_args + file_to_upload + " - "
+
+        # Build the pipe for the descriptor
+        cmd = "#{File.dirname(__FILE__)}/../downloader.sh #{downloader_args} |"\
+              "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
+
+        system(cmd)
+    }
+
+    FileUtils.rm_rf(temp_folder) if is_file_gzipped
 end
