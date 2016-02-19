@@ -122,6 +122,10 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);
     },
+    "import_wild" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "import_wild", action_obj);
+    },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     },

@@ -52,6 +52,7 @@ module OpenNebulaJSON
                 when "disable" then self.disable
                 when "update" then self.update(action_hash['params'])
                 when "rename" then self.rename(action_hash['params'])
+                when "import_wild" then self.import_wild(action_hash['params'])
                 else
                     error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -68,6 +69,10 @@ module OpenNebulaJSON
         end
 
         def rename(params=Hash.new)
+            super(params['name'])
+        end
+
+        def import_wild(params=Hash.new)
             super(params['name'])
         end
     end
