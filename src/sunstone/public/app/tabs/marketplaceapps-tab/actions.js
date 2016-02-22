@@ -54,7 +54,19 @@ define(function(require) {
     "MarketPlaceApp.export" : {
       type: "multiple",
       call: OpenNebulaResource.export,
-      callback: function(req) {
+      callback: function(req, response) {
+        if (response['IMAGE'] !== undefined) {
+          $.each(response['IMAGE'], function(i, image) {
+            Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + image.ID, false);
+          });
+        };
+
+        if (response['VMTEMPLATE'] !== undefined) {
+          $.each(response['VMTEMPLATE'], function(i, vmTempalte) {
+            Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + vmTempalte.ID, false);
+          });
+        };
+
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("IMAGE");
         OpenNebulaAction.clear_cache("VMTEMPLATE");

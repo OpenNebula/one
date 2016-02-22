@@ -72,7 +72,29 @@ module OpenNebulaJSON
         def export(params=Hash.new)
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid'] 
             name = params['name']
-            super({:dsid => dsid, :name => name})
+            rc = super({:dsid => dsid, :name => name})
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                response = {}
+                if rc[:image]
+                    response['IMAGE'] = []
+                    rc[:image].each { |image_id|
+                        image = ImageJSON.new_with_id(image_id, @client)
+                        response['IMAGE'] << image.to_hash['IMAGE']
+                    }
+                end
+
+                if rc[:vmtemplate]
+                    response['VMTEMPLATE'] = []
+                    rc[:vmtemplate].each { |vmtemplate_id|
+                        vmtemplate = TemplateJSON.new_with_id(vmtemplate_id, @client)
+                        response['VMTEMPLATE'] << vmtemplate.to_hash['VMTEMPLATE']
+                    }
+                end
+
+                return response
+            end
         end
 
         def chown(params=Hash.new)
