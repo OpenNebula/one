@@ -106,6 +106,10 @@ define(function(require) {
     "Template.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,
+      callback: function(request, response) {
+        OpenNebulaAction.clear_cache("VMTEMPLATE");
+        Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + response.VMTEMPLATE.ID, false);
+      },
       error: Notifier.onError,
       notify: true
     }

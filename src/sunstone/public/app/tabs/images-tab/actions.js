@@ -19,6 +19,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var OpenNebulaResource = require('opennebula/image');
+  var OpenNebulaAction = require('opennebula/action');
   var CommonActions = require('utils/common-actions');
 
   var RESOURCE = "Image";
@@ -61,7 +62,7 @@ define(function(require) {
           function(formPanelInstance, context) {
             var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
             if (selectedNodes.length !== 1) {
-              Notifier.notifyMessage('Please select one (and just one) Image to export.');
+              Notifier.notifyMessage(Locale.tr("Please select one (and just one) Image to export."));
               return false;
             }
 
@@ -80,6 +81,10 @@ define(function(require) {
     "Image.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,
+      callback: function(request, response) {
+        OpenNebulaAction.clear_cache("IMAGE");
+        Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + response.IMAGE.ID, false);
+      },
       error: Notifier.onError,
       notify: true
     }

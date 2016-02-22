@@ -108,9 +108,15 @@ module OpenNebulaJSON
 
         def clone(params=Hash.new)
             if params['target_ds']
-                super(params['name'], params['target_ds'].to_i)
+                rc = super(params['name'], params['target_ds'].to_i)
             else
-                super(params['name'])
+                rc = super(params['name'])
+            end
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                return ImageJSON.new_with_id(rc, @client)
             end
         end
 

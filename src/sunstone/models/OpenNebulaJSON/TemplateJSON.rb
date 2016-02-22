@@ -118,7 +118,13 @@ module OpenNebulaJSON
         end
 
         def clone(params=Hash.new)
-            super(params['name'])
+            rc = super(params['name'])
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                return TemplateJSON.new_with_id(rc, @client)
+            end
         end
 
         def rename(params=Hash.new)
