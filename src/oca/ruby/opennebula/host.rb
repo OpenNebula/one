@@ -217,6 +217,7 @@ module OpenNebula
             return rc if OpenNebula.is_error?(rc)
 
             vm.deploy(id, false)
+            return vm.id
         end
 
         #######################################################################

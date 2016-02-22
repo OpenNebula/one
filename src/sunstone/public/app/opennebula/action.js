@@ -53,10 +53,10 @@ define(function(require) {
       type: "POST",
       contentType: "application/json; charset=utf-8",
       data: JSON.stringify(action),
-      success: function() {
+      success: function(response) {
         _clearCache(cache_name);
 
-        return callback ? callback(request) : null;
+        return callback ? callback(request, response) : null;
       },
       error: function(response) {
         return callbackError ?

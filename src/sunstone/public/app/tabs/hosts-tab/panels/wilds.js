@@ -151,7 +151,7 @@ define(function(require) {
           data: dataJSON,
           success: function(request, response) {
             OpenNebulaAction.clear_cache("VM");
-            // TODO Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
+            Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
 
             // Delete row (shouldn't be there in next monitorization)
             that.dataTableWildHosts.fnDeleteRow(wild_row);

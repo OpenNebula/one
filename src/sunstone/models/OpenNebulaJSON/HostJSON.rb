@@ -73,7 +73,12 @@ module OpenNebulaJSON
         end
 
         def import_wild(params=Hash.new)
-            super(params['name'])
+            rc = super(params['name'])
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                return VirtualMachineJSON.new_with_id(rc, @client)
+            end
         end
     end
 end

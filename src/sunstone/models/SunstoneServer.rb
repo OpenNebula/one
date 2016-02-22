@@ -206,7 +206,11 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            return [204, resource.to_json]
+            if rc.nil?
+                return [204, resource.to_json]
+            else
+                return [201, rc.to_json]
+            end
         end
     end
 
