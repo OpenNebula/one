@@ -27,6 +27,11 @@ module Migrator
     "OpenNebula 4.90.0"
   end
 
+  TEMPLATE_TRANSFORM_ATTRS = {
+    'SUNSTONE_CAPACITY_SELECT'  => 'CAPACITY_SELECT',
+    'SUNSTONE_NETWORK_SELECT'   => 'NETWORK_SELECT'
+  }
+
   def up
     init_log_time()
 
@@ -116,6 +121,50 @@ module Migrator
     @db.run "INSERT INTO pool_control VALUES('marketplace_pool',99);"
 
     @db.run "CREATE TABLE marketplaceapp_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+
+    log_time()
+
+    # 3671
+
+    @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
+    @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_template_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        TEMPLATE_TRANSFORM_ATTRS.each do |old_name, new_name|
+          elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/#{old_name}")
+
+          if (!elem.nil?)
+            elem.remove
+
+            elem.name = new_name
+
+            if (doc.at_xpath("/VMTEMPLATE/TEMPLATE/SUNSTONE").nil?)
+              doc.at_xpath("/VMTEMPLATE/TEMPLATE").add_child(
+                doc.create_element("SUNSTONE"))
+            end
+
+            doc.at_xpath("/VMTEMPLATE/TEMPLATE/SUNSTONE").add_child(elem)
+          end
+        end
+
+        @db[:template_pool].insert(
+          :oid        => row[:oid],
+          :name       => row[:name],
+          :body       => doc.root.to_s,
+          :uid        => row[:uid],
+          :gid        => row[:gid],
+          :owner_u    => row[:owner_u],
+          :group_u    => row[:group_u],
+          :other_u    => row[:other_u])
+      end
+    end
+
+    @db.run "DROP TABLE old_template_pool;"
+
+    log_time()
 
     return true
   end
