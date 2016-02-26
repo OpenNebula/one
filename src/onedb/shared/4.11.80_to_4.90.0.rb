@@ -128,6 +128,40 @@ module Migrator
 
     log_time()
 
+    # Feature #4217
+
+    oneadmin_uname = nil
+
+    @db.fetch("SELECT name FROM user_pool WHERE oid=0") do |row|
+        oneadmin_uname = row[:name]
+    end
+
+    if oneadmin_uname == nil
+        puts "Error trying to read oneadmin's user name ('SELECT name FROM user_pool WHERE oid=0')"
+        return false
+    end
+
+    oneadmin_gname = nil
+
+    @db.fetch("SELECT name FROM group_pool WHERE oid=0") do |row|
+        oneadmin_gname = row[:name]
+    end
+
+    if oneadmin_gname == nil
+        puts "Error trying to read oneadmin's group name ('SELECT name FROM group_pool WHERE oid=0')"
+        return false
+    end
+
+    @db.run  "CREATE TABLE marketplace_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+    @db.run "INSERT INTO marketplace_pool VALUES(0,'OpenNebula Public','<MARKETPLACE><ID>0</ID><UID>0</UID><GID>0</GID><UNAME>#{oneadmin_uname}</UNAME><GNAME>#{oneadmin_gname}</GNAME><NAME>OpenNebula Public</NAME><MARKET_MAD><![CDATA[one]]></MARKET_MAD><TOTAL_MB>0</TOTAL_MB><FREE_MB>0</FREE_MB><USED_MB>0</USED_MB><MARKETPLACEAPPS></MARKETPLACEAPPS><PERMISSIONS><OWNER_U>1</OWNER_U><OWNER_M>1</OWNER_M><OWNER_A>1</OWNER_A><GROUP_U>1</GROUP_U><GROUP_M>0</GROUP_M><GROUP_A>0</GROUP_A><OTHER_U>1</OTHER_U><OTHER_M>0</OTHER_M><OTHER_A>0</OTHER_A></PERMISSIONS><TEMPLATE><DESCRIPTION><![CDATA[OpenNebula Systems MarketPlace]]></DESCRIPTION></TEMPLATE></MARKETPLACE>',0,0,1,1,1);"
+
+    @db.run "INSERT INTO pool_control VALUES('marketplace_pool',99);"
+
+    @db.run "CREATE TABLE marketplaceapp_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+
+    log_time()
+
     return true
   end
 

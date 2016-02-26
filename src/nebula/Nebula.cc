@@ -322,8 +322,6 @@ void Nebula::start(bool bootstrap_only)
             rc += GroupQuotas::bootstrap(db);
             rc += SecurityGroupPool::bootstrap(db);
             rc += VirtualRouterPool::bootstrap(db);
-            rc += MarketPlacePool::bootstrap(db);
-            rc += MarketPlaceAppPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -346,6 +344,8 @@ void Nebula::start(bool bootstrap_only)
             rc += AclManager::bootstrap(db);
             rc += ZonePool::bootstrap(db);
             rc += VdcPool::bootstrap(db);
+            rc += MarketPlacePool::bootstrap(db);
+            rc += MarketPlaceAppPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
