@@ -364,10 +364,6 @@ function setupConfigDialog() {
 
     setupTips(dialog);
 
-    if (config['user_config']["vnc_wss"] == "yes"){
-        $('input#wss_checkbox').attr('checked','checked');
-    };
-
     $('#table_order option[value="'+config['user_config']["table_order"]+'"]', dialog).attr('selected','selected');
 
     $('#lang_sel option[value="'+config['user_config']["lang"]+'"]', dialog).attr('selected','selected');
@@ -380,7 +376,6 @@ function setupConfigDialog() {
 
     $('#config_submit', dialog).live('click',function(){
       var lang = $('#lang_sel', dialog).val();
-      var vnc_wss = $('input#wss_checkbox', dialog).is(':checked') ? "yes" : "no";
       var table_order = $('#table_order', dialog).val();
       var default_view = $('#view_sel', dialog).val();
 
@@ -392,7 +387,6 @@ function setupConfigDialog() {
           var template = user_json.USER.TEMPLATE;
 
           template["LANG"] = lang;
-          template['VNC_WSS'] = vnc_wss;
           template['TABLE_ORDER'] = table_order;
           template["DEFAULT_VIEW"] = default_view;
 
