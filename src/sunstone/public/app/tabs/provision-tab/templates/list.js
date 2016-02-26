@@ -162,6 +162,21 @@ define(function(require) {
           actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
         }
 
+        var cpu_txt = "";
+        var mem_txt = "";
+
+        if(data.TEMPLATE.CPU){
+          cpu_txt = 'x'+data.TEMPLATE.CPU;
+        }
+
+        if(data.TEMPLATE.MEMORY){
+          if (data.TEMPLATE.MEMORY > 1000){
+            mem_txt = Math.floor(data.TEMPLATE.MEMORY/1024)+'GB';
+          } else {
+            mem_txt = data.TEMPLATE.MEMORY+'MB';
+          }
+        }
+
         $(".provision_templates_ul", context).append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
@@ -169,11 +184,8 @@ define(function(require) {
               '</li>'+
               '<li class="provision-bullet-item text-left" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
-                'x'+data.TEMPLATE.CPU+' - '+
-                ((data.TEMPLATE.MEMORY > 1000) ?
-                  (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
-                ' - '+
+                cpu_txt+' - '+
+                mem_txt+' - '+
                 get_provision_disk_image(data) +
               '</li>'+
               '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
