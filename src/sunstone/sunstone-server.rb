@@ -56,12 +56,31 @@ GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
 
-# If no costs are defined in oned.conf these values will be used
-DEFAULT_COST = {
-    'CPU_COST' => 0,
-    'MEMORY_COST' => 0,
-    'DISK_COST' => 0
-};
+ONED_CONF_OPTS = {
+    # If no costs are defined in oned.conf these values will be used
+    'DEFAULT_COST' => {
+        'CPU_COST' => 0,
+        'MEMORY_COST' => 0,
+        'DISK_COST' => 0
+    },
+    # Only these values will be shown when retrieving oned.conf from the browser
+    'ALLOWED_KEYS' => [
+        'DEFAULT_COST',
+        'DS_MAD_CONF',
+        'MARKET_MAD_CONF',
+        'VM_MAD',
+        'IM_MAD',
+        'AUTH_MAD'
+    ],
+    # Generate an array if there is only 1 element
+    'ARRAY_KEYS' => [
+        'DS_MAD_CONF',
+        'MARKET_MAD_CONF',
+        'VM_MAD',
+        'IM_MAD',
+        'AUTH_MAD'
+    ]
+}
 
 ##############################################################################
 # Required libraries
@@ -402,25 +421,21 @@ get '/' do
 
     oned_conf_template = rc.to_hash()['TEMPLATE']
 
-    keys = [
-        :DEFAULT_COST,
-        :DS_MAD_CONF,
-        :MARKET_MAD_CONF,
-        :VM_MAD,
-        :IM_MAD,
-        :AUTH_MAD
-    ]
-
     oned_conf = {}
-    keys.each do |key|
-        if key == :DEFAULT_COST
-            if oned_conf_template[key.to_s]
-                oned_conf[key] = oned_conf_template[key.to_s]
+    ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
+        value = oned_conf_template[key]
+        if key == 'DEFAULT_COST'
+            if value
+                oned_conf[key] = value
             else
-                oned_conf[key] = DEFAULT_COST
+                oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
             end
         else
-            oned_conf[key] = oned_conf_template[key.to_s]
+            if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
+                oned_conf[key] = [value]
+            else
+                oned_conf[key] = value
+            end
         end
     end
 
