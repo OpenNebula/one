@@ -504,7 +504,6 @@ post '/config' do
     end
 
     session[:lang]         = user[LANG_XPATH] if user[LANG_XPATH]
-    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
     session[:default_view] = user[DEFAULT_VIEW_XPATH] if user[DEFAULT_VIEW_XPATH]
     session[:table_order]  = user[TABLE_ORDER_XPATH] if user[TABLE_ORDER_XPATH]
     session[:page_length]  = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH] if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
