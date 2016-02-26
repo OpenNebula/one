@@ -72,8 +72,6 @@ tabs:
             User.quotas_dialog: true
             User.groups_dialog: true
             User.chgrp: true
-            User.addgroup: true
-            User.delgroup: true
             User.chauth: true
             User.delete: true
     groups-tab:

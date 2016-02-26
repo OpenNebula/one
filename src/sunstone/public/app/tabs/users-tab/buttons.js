@@ -54,20 +54,6 @@ define(function(require) {
       select: "Group",
       tip: Locale.tr("This will change the main group of the selected users. Select the new group")+":"
     },
-    "User.addgroup" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Add to group"),
-      layout: "user_select",
-      select: "Group",
-      tip: Locale.tr("This will add the user to a secondary group. Select the new group")+":"
-    },
-    "User.delgroup" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Remove from group"),
-      layout: "user_select",
-      select: "Group",
-      tip: Locale.tr("This will remove the user from a secondary group. Select the group")+":"
-    },
     "User.delete" : {
       type: "confirm",
       text: Locale.tr("Delete"),
