@@ -70,6 +70,13 @@ public:
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
 
+    /**
+     * Returns all the DISK/IMAGE_IDs in the Template
+     * @return image IDs
+     */
+    vector<int> get_img_ids();
+    // TODO: make const
+
     // ------------------------------------------------------------------------
     // Virtual Router
     // ------------------------------------------------------------------------

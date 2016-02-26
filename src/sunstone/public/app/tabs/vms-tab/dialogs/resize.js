@@ -72,7 +72,7 @@ define(function(require) {
     Tips.setup(context);
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var templateJSON = CapacityInputs.retrieveResize(context);
+      var templateJSON = CapacityInputs.retrieveChanges(context);
 
       var enforce = $("#enforce", this).is(":checked");
 

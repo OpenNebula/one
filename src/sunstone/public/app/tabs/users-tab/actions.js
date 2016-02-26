@@ -21,6 +21,7 @@ define(function(require) {
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/user');
   var CommonActions = require('utils/common-actions');
+  var TemplateUtils = require('utils/template-utils');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -161,6 +162,28 @@ define(function(require) {
         }
       },
       error: Notifier.onError
+    },
+
+    "User.append_sunstone_setting_refresh" : {
+      type: "single",
+      call: function(params){
+        OpenNebulaResource.show({
+          data : {
+            id: params.data.id
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+
+            $.extend(sunstone_template, params.data.extra_param)
+            var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+            Sunstone.runAction("User.append_template_refresh", params.data.id, template_str);
+          },
+          error: Notifier.onError
+        });
+      }
     },
 
     "User.fetch_quotas" : {

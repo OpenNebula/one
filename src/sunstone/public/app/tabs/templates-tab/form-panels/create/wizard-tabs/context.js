@@ -27,6 +27,7 @@ define(function(require) {
   var CustomTagsTable = require('utils/custom-tags-table');
   var FilesTable = require('tabs/files-tab/datatable')
   var OpenNebulaHost = require('opennebula/host');
+  var UserInputs = require('utils/user-inputs');
 
   /*
     TEMPLATES
@@ -78,6 +79,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
+      'userInputsHTML': UserInputs.html(),
       'customTagsTableHTML': CustomTagsTable.html(),
       'contextFilesTableHTML': this.contextFilesTable.dataTableHTML
     });
@@ -145,6 +147,7 @@ define(function(require) {
       opt.attr('selected', 'selected');
     });
 
+    UserInputs.setup(context);
     CustomTagsTable.setup(context);
 
     var selectOptions = {
@@ -160,34 +163,6 @@ define(function(require) {
 
     that.contextFilesTable.initialize(selectOptions);
     that.contextFilesTable.refreshResourceTableSelect();
-
-    context.on("click", ".add_service_custom_attr", function() {
-      $(".service_custom_attrs tbody").append(
-        '<tr>' +
-          '<td>' +
-            '<input class="user_input_name" type="text" pattern="[\\w]+"/>' +
-            '<small class="error">' + Locale.tr("Only word characters are allowed") + '</small>' +
-          '</td>' +
-          '<td>' +
-            '<select class="user_input_type" >' +
-              '<option value="text">' + Locale.tr("text") + '</option>' +
-              '<option value="text64">' + Locale.tr("text (base64)") + '</option>' +
-              '<option value="password">' + Locale.tr("password") + '</option>' +
-            '</select>' +
-          '</td>' +
-          '<td>' +
-            '<textarea class="user_input_description"/>' +
-          '</td>' +
-          '<td>' +
-            '<a href="#"><i class="fa fa-times-circle remove-tab"></i></a>' +
-          '</td>' +
-        '</tr>');
-    })
-
-    context.on("click", ".service_custom_attrs i.remove-tab", function() {
-      var tr = $(this).closest('tr');
-      tr.remove();
-    });
   }
 
   function _fillCustomizations(context, customizations) {
@@ -238,15 +213,11 @@ define(function(require) {
         contextJSON["TOKEN"] = "YES";
       }
 
-      var userInputsJSON = {};
-      $(".service_custom_attrs tbody tr", context).each(function() {
-        if ($(".user_input_name", $(this)).val()) {
-          var attr_name = $(".user_input_name", $(this)).val();
-          var attr_type = $(".user_input_type", $(this)).val();
-          var attr_desc = $(".user_input_description", $(this)).val();
-          userInputsJSON[attr_name] = "M|" + attr_type + "|" + attr_desc;
-          contextJSON[attr_name] = "$" + attr_name.toUpperCase();
-        }
+      var userInputsJSON = UserInputs.retrieve(context);
+
+      $.each(userInputsJSON, function(key,value){
+        var name = key.toUpperCase();
+        contextJSON[name] = "$" + name;
       });
 
       var start_script = $("#START_SCRIPT", context).val();
@@ -296,19 +267,13 @@ define(function(require) {
     $("#network_context", context).removeAttr('checked');
 
     if (userInputsJSON) {
-      $.each(userInputsJSON, function(key, value) {
-        $(".add_service_custom_attr", context).trigger("click");
+      UserInputs.fill(context, templateJSON);
 
-        var context = $(".service_custom_attrs tbody tr", context).last();
-        var parts = value.split("|");
-        $(".user_input_name", context).val(key);
-        $(".user_input_type", context).val(parts[1]);
-        $(".user_input_description", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(parts[2])));
-
-        if (contextJSON) {
+      if (contextJSON) {
+        $.each(userInputsJSON, function(key, value){
           delete contextJSON[key];
-        }
-      });
+        });
+      }
 
       delete templateJSON['USER_INPUTS'];
     }

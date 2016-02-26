@@ -50,7 +50,7 @@ define(function(require) {
 
   function html(opts_arg){
     opts = $.extend({
-        title: Locale.tr("Saved Templates"),
+        title: Locale.tr("Templates"),
         refresh: true,
         create: true,
         active: true,
@@ -120,7 +120,6 @@ define(function(require) {
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
           { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
           { "mDataProp": "VMTEMPLATE.UID" }
       ],
       "fnPreDrawCallback": function (oSettings) {
@@ -134,7 +133,7 @@ define(function(require) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              Locale.tr("There are no saved templates available")+
+              Locale.tr("There are no templates available")+
               '<br>'+
               Locale.tr("Create a template by saving a running Virtual Machine")+
             '</span>'+
@@ -163,18 +162,30 @@ define(function(require) {
           actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
         }
 
+        var cpu_txt = "";
+        var mem_txt = "";
+
+        if(data.TEMPLATE.CPU){
+          cpu_txt = 'x'+data.TEMPLATE.CPU;
+        }
+
+        if(data.TEMPLATE.MEMORY){
+          if (data.TEMPLATE.MEMORY > 1000){
+            mem_txt = Math.floor(data.TEMPLATE.MEMORY/1024)+'GB';
+          } else {
+            mem_txt = data.TEMPLATE.MEMORY+'MB';
+          }
+        }
+
         $(".provision_templates_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
                 data.NAME +
               '</li>'+
               '<li class="provision-bullet-item text-left" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
-                'x'+data.TEMPLATE.CPU+' - '+
-                ((data.TEMPLATE.MEMORY > 1000) ?
-                  (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
-                ' - '+
+                cpu_txt+' - '+
+                mem_txt+' - '+
                 get_provision_disk_image(data) +
               '</li>'+
               '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
@@ -199,8 +210,6 @@ define(function(require) {
       }
     });
 
-    provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-
     $('.provision_list_templates_search', context).on('input',function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
@@ -218,9 +227,9 @@ define(function(require) {
 
     $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
       if ($(this).val() != "-2"){
-        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
+        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
       } else {
-        provision_templates_datatable.fnFilter("", 3);
+        provision_templates_datatable.fnFilter("", 2);
       }
     })
 
@@ -269,7 +278,7 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.delete_from_provision({
+        OpenNebula.Template.delete_recursive({
           timeout: true,
           data : {
             id : template_id
@@ -317,11 +326,14 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.chmod_from_provision({
+        OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 1}
+            extra_param: {
+              'group_u': 1,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
@@ -359,11 +371,14 @@ define(function(require) {
 
         var template_id = $(this).attr("template_id");
 
-        OpenNebula.Template.chmod_from_provision({
+        OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 0}
+            extra_param: {
+              'group_u': 0,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");

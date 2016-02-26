@@ -1,0 +1,148 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<div class="row">
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="MEMORY">
+          {{tr "Memory"}}
+          {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
+        </label>
+      </div>
+      <div class="small-8 columns">
+        <div class="mb_unit memory_input">
+          <input type="number" min="0" step="256" wizard_field="MEMORY" id="MEMORY"/>
+        </div>
+        <div class="gb_unit memory_gb_input">
+          <input type="number" min="0" step="0.25" name="memory_gb"/>
+        </div>
+      </div>
+      <div class="small-4 columns">
+        <select id="memory_unit" name="MEMORY_UNIT">
+          <option value="MB">{{tr "MB"}}</option>
+          <option value="GB" selected>{{tr "GB"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "Memory modification"}}
+          {{{tip (tr "Allow users to modify this template's memory on instantiate")}}}
+        </label>
+      </div>
+      <div class="small-4 columns">
+        <select class="memory_modify_type" >
+          <option value="fixed">{{tr "fixed"}}</option>
+          <option selected value="number">{{tr "number"}}</option>
+          <option value="range">{{tr "range"}}</option>
+          <option value="list">{{tr "list"}}</option>
+        </select>
+      </div>
+      <div class="small-6 columns">
+        <div class="memory_modify_opt range">
+          <input type=text class="mb_unit memory_modify_opt range" placeholder="512..4096"/>
+          <input type=text class="gb_unit" placeholder="0.5..4"/>
+        </div>
+        <div class="memory_modify_opt list">
+          <input type=text class="mb_unit memory_modify_opt list" placeholder="1024,4096,8192"/>
+          <input type=text class="gb_unit" placeholder="1,4,8"/>
+        </div>
+      </div>
+      <div class="small-2 columns">
+        <span class="memory_modify_opt range list memory_modify_unit">
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="CPU">
+          {{tr "CPU"}}
+          {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
+        </label>
+        <div class="cpu_input">
+          <input type="number" step="0.01" min="0" wizard_field="CPU" id="CPU"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "CPU modification"}}
+          {{{tip (tr "Allow users to modify this template's CPU on instantiate")}}}
+        </label>
+      </div>
+      <div class="small-4 columns">
+        <select class="cpu_modify_type" >
+          <option value="fixed">{{tr "fixed"}}</option>
+          <option selected value="number-float">{{tr "number"}}</option>
+          <option value="range">{{tr "range"}}</option>
+          <option value="list">{{tr "list"}}</option>
+        </select>
+      </div>
+      <div class="small-8 columns">
+        <input type=text class="cpu_modify_opt range" placeholder="0.5..8"/>
+        <input type=text class="cpu_modify_opt list" placeholder="0.5,1,4,16"/>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="VCPU">
+          {{tr "VCPU"}}
+          {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
+        </label>
+        <div class="vcpu_input">
+          <input type="number" step="1" min="0" wizard_field="VCPU" id="VCPU"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "VCPU modification"}}
+          {{{tip (tr "Allow users to modify this template's VCPU on instantiate")}}}
+        </label>
+      </div>
+      <div class="small-4 columns">
+        <select class="vcpu_modify_type" >
+          <option value="fixed">{{tr "fixed"}}</option>
+          <option selected value="number">{{tr "number"}}</option>
+          <option value="range">{{tr "range"}}</option>
+          <option value="list">{{tr "list"}}</option>
+        </select>
+      </div>
+      <div class="small-8 columns">
+        <input type=text class="vcpu_modify_opt range" placeholder="1..8"/>
+        <input type=text class="vcpu_modify_opt list" placeholder="4,8,16"/>
+      </div>
+    </div>
+  </div>
+</div>

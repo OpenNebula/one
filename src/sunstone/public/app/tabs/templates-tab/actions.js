@@ -38,9 +38,67 @@ define(function(require) {
     "Template.show" : _commonActions.show(),
     "Template.refresh" : _commonActions.refresh(),
     "Template.delete" : _commonActions.del(),
+    
+    "Template.delete_recursive":
+      {
+        type: "multiple",
+        call: OpenNebulaResource.delete_recursive,
+        callback : function(request, response) {
+          var elementId = request.request.data[0][0].toString();
+          Sunstone.getDataTable(TAB_ID).deleteElement(elementId);
+        },
+        elements: function() {
+          return Sunstone.getDataTable(TAB_ID).elements();
+        },
+        error: Notifier.onError,
+        notify: true
+      },
+
     "Template.chown": _commonActions.multipleAction('chown'),
     "Template.chgrp": _commonActions.multipleAction('chgrp'),
     "Template.chmod": _commonActions.singleAction('chmod'),
+    "Template.share":
+      {
+        type: "multiple",
+        call: function(params){
+          var permissions = {
+            'group_u' : 1,
+            'recursive' : true
+          };
+
+          Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
+        },
+        callback : function(request, response) {
+          Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
+        },
+        elements: function() {
+          return Sunstone.getDataTable(TAB_ID).elements();
+        },
+        error: Notifier.onError,
+        notify: false
+      },
+
+    "Template.unshare":
+      {
+        type: "multiple",
+        call: function(params){
+          var permissions = {
+            'group_u' : 0,
+            'recursive' : true
+          };
+
+          Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
+        },
+        callback : function(request, response) {
+          Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
+        },
+        elements: function() {
+          return Sunstone.getDataTable(TAB_ID).elements();
+        },
+        error: Notifier.onError,
+        notify: false
+      },
+
     "Template.rename": _commonActions.singleAction('rename'),
     "Template.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Template.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),

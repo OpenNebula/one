@@ -295,10 +295,6 @@ helpers do
         session.clear
         return [204, ""]
     end
-
-    def cloud_view_instance_types
-        $conf[:instance_types] || []
-    end
 end
 
 before do

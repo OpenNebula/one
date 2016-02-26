@@ -31,6 +31,18 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
+                         const string& params,
+                         const string& help)
+        :Request(method_name, params, help)
+    {
+        auth_op = AuthRequest::MANAGE;
+
+        Nebula& nd  = Nebula::instance();
+        clpool      = nd.get_clpool();
+        aclm        = nd.get_aclm();
+    };
+
+    RequestManagerDelete(const string& method_name,
                          const string& help)
         :Request(method_name, "A:si", help)
     {
@@ -45,11 +57,14 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att);
 
-    bool delete_authorization(int                           oid,
-                              RequestAttributes&            att);
+    static ErrorCode delete_authorization(
+            PoolSQL*                pool,
+            int                     oid,
+            AuthRequest::Operation  auth_op,
+            RequestAttributes&      att);
 
     /* -------------------------------------------------------------------- */
 
@@ -79,6 +94,7 @@ class TemplateDelete : public RequestManagerDelete
 public:
     TemplateDelete():
         RequestManagerDelete("TemplateDelete",
+                             "A:sib"
                              "Deletes a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -87,6 +103,9 @@ public:
     };
 
     ~TemplateDelete(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -137,7 +156,10 @@ public:
 
     ~ImageDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    static ErrorCode delete_img(int oid, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

@@ -51,6 +51,13 @@ EOT
                         "information, such as the SIZE for each DISK"
     }
 
+    RECURSIVE={
+        :name => "recursive",
+        :large => "--recursive",
+        :description => "Applies the action to the template plus any "+
+        "image defined in DISK/IMAGE_ID. Images defined by name are not affected"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end
@@ -111,6 +118,9 @@ EOT
         table
     end
 
+    INT_EXP = /^-?\d+$/
+    FLOAT_EXP = /^-?\d+(\.\d+)?$/
+
     def self.get_user_inputs(template)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
@@ -123,21 +133,39 @@ EOT
         user_inputs.each do |key, val|
             input_cfg = val.split('|')
 
-            if input_cfg.length != 3
-                STDERR.puts "Malformed user input. It should have 3 parts separated by '|':"
+            if input_cfg.length < 3
+                STDERR.puts "Malformed user input. It should have at least 3 parts separated by '|':"
                 STDERR.puts "  #{key}: #{val}"
                 exit(-1)
             end
 
-            optional, type, description = input_cfg
+            optional, type, description, params, initial = input_cfg
             optional.strip!
             type.strip!
             description.strip!
 
-            print "  * (#{key}) #{description}: "
+            if input_cfg.length > 3
+                if input_cfg.length != 5
+                    STDERR.puts "Malformed user input. It should have 5 parts separated by '|':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                params.strip!
+                initial.strip!
+            end
+
+            puts "  * (#{key}) #{description}"
+
+            header = "    "
+            if initial != nil && initial != ""
+                header += "Press enter for default (#{initial}). "
+            end
 
             case type
             when 'text', 'text64'
+                print header
+
                 answer = STDIN.readline.chop
 
                 if answer == "<<EDITOR>>"
@@ -147,13 +175,87 @@ EOT
                 if type == 'text64'
                     answer = Base64::encode64(answer).strip.delete("\n")
                 end
+
             when 'password'
+                print header
+
                 answer = OpenNebulaHelper::OneHelper.get_password
+
+            when 'number', 'number-float'
+                if type == "number"
+                    header += "Integer: "
+                    exp = INT_EXP
+                else
+                    header += "Float: "
+                    exp = FLOAT_EXP
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if (answer == "")
+                end while (answer =~ exp) == nil
+
+            when 'range', 'range-float'
+                min,max = params.split('..')
+
+                if min.nil? || max.nil?
+                    STDERR.puts "Malformed user input. Parameters should be 'min..max':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                if type == "range"
+                    exp = INT_EXP
+                    min = min.to_i
+                    max = max.to_i
+
+                    header += "Integer in the range [#{min}..#{max}]: "
+                else
+                    exp = FLOAT_EXP
+                    min = min.to_f
+                    max = max.to_f
+
+                    header += "Float in the range [#{min}..#{max}]: "
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if (answer == "")
+                end while ((answer =~ exp) == nil || answer.to_f < min || answer.to_f > max)
+
+            when 'list'
+                options = params.split(",")
+
+                options.each_with_index {|opt,i|
+                    puts "    #{i}  #{opt}"
+                }
+
+                puts
+
+                header += "Please type the selection number: "
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    if (answer == "")
+                        answer = initial
+                    else
+                        answer = options[answer.to_i]
+                    end
+
+                end while (!options.include?(answer))
+
             else
-                STDERR.puts "user input types can only be text or password:"
+                STDERR.puts "Wrong type for user input:"
                 STDERR.puts "  #{key}: #{val}"
                 exit(-1)
             end
+
             answers << "#{key} = \""
             answers << answer.gsub('"', "\\\"") << "\"\n"
         end

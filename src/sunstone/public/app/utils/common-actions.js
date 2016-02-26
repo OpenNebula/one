@@ -97,7 +97,8 @@ define(function(require) {
       type: "multiple",
       call : that.openNebulaResource.del,
       callback : function(request, response) {
-        Sunstone.getDataTable(that.tabId).deleteElement(request, response);
+        var elementId = request.request.data.toString();
+        Sunstone.getDataTable(that.tabId).deleteElement(elementId);
       },
       elements: function() {
         return Sunstone.getDataTable(that.tabId).elements();

@@ -125,7 +125,7 @@ define(function(require) {
       }
 
       capacityContext = $(".capacityContext"  + template_id, context);
-      $.extend(tmp_json, CapacityInputs.retrieveResize(capacityContext));
+      $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
       extra_info['template'] = tmp_json;
 
@@ -209,29 +209,21 @@ define(function(require) {
           }
 
           if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
-            var cost = 0;
-
-            var cpu    = template_json.VMTEMPLATE.TEMPLATE.CPU;
-            var memory = template_json.VMTEMPLATE.TEMPLATE.MEMORY;
-
-            if (cpu != undefined && memory != undefined) {
-              cost = cpuCost * cpu + memoryCost * memory;
-            }
-
-            $(".cost_value", capacityContext).html(cost.toFixed(2));
             $(".capacity_cost_div", capacityContext).show();
 
             CapacityInputs.setCallback(capacityContext, function(values){
-              var cost = cpuCost * values.CPU + memoryCost * values.MEMORY;
+              var cost = 0;
+
+              if (values.CPU != undefined){
+                cost += cpuCost * values.CPU;
+              }
+
+              if (values.MEMORY != undefined){
+                cost += memoryCost * values.MEMORY;
+              }
+
               $(".cost_value", capacityContext).html(cost.toFixed(2));
             });
-          }
-
-          if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE &&
-              template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.CAPACITY_SELECT &&
-              template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.CAPACITY_SELECT.toUpperCase() == "NO"){
-
-            capacityContext.hide();
           }
 
           idsDone += 1;

@@ -127,26 +127,16 @@ define(function(require) {
     });
 
     $("#provision_change_view_form").submit(function() {
-      var sunstone_template = {};
-      if (that.element.TEMPLATE.SUNSTONE) {
-        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
-      }
+      var sunstone_setting = {DEFAULT_VIEW : $('#provision_user_views_select', this).val()};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
 
-      sunstone_template.DEFAULT_VIEW = $('#provision_user_views_select', this).val();
-      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
-      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
       return false;
     });
 
     $("#provision_change_language_form").submit(function() {
-      var sunstone_template = {};
-      if (that.element.TEMPLATE.SUNSTONE) {
-        $.extend(sunstone_template, that.element.TEMPLATE.SUNSTONE);
-      }
+      var sunstone_setting = {LANG : $('#provision_new_language', this).val()};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
 
-      sunstone_template.LANG = $('#provision_new_language', this).val();
-      var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
-      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
       return false;
     });
 

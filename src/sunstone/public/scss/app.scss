@@ -1477,3 +1477,13 @@ div.vis-network-tooltip {
     }
   }
 }
+
+// For abide validation
+
+.error input {
+  border-bottom-color: $alert-color !important;
+}
+
+.error textarea {
+  border-bottom-color: $alert-color !important;
+}

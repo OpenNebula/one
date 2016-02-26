@@ -16,6 +16,7 @@ enabled_tabs:
     - clusters-tab
     - hosts-tab
     #- datastores-tab
+    - vnets-topology-tab
     - vnets-tab
     #- secgroups-tab
     - vrouters-tab
@@ -72,7 +73,7 @@ tabs:
             User.quotas_dialog: true
             User.groups_dialog: true
             User.chgrp: true
-            User.chauth: true
+            User.change_authentication: true
             User.delete: true
     groups-tab:
         panel_tabs:
@@ -93,6 +94,7 @@ tabs:
         actions:
             Group.refresh: true
             Group.create_dialog: true
+            Group.update_dialog: true
             Group.quotas_dialog: true
             Group.delete: true
             Group.edit_admins: true
@@ -202,6 +204,7 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.resched: true
             VM.unresched: true
+            VM.saveas_template: false
     templates-tab:
         panel_tabs:
             template_info_tab: true
@@ -226,6 +229,9 @@ tabs:
             Template.chmod: true
             Template.clone_dialog: true
             Template.delete: true
+            Template.delete_recursive: false
+            Template.share: false
+            Template.unshare: false
         template_creation_tabs:
             general: true
             storage: true
@@ -384,12 +390,19 @@ tabs:
             Datastore.delete: true
             Datastore.enable: true
             Datastore.disable: true
+    vnets-topology-tab:
+        panel_tabs:
+        actions:
+            NetworkTopology.refresh: true
+            NetworkTopology.fit: true
+            NetworkTopology.collapseVMs: true
+            NetworkTopology.openVMs: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
             vnet_ar_list_tab: true
             vnet_leases_tab: true
-            vnet_sg_list_tab: true
+            vnet_sg_list_tab: false
             vnet_vr_list_tab: true
         table_columns:
             - 0         # Checkbox
@@ -408,6 +421,7 @@ tabs:
             Network.create_dialog: true
             Network.import_dialog: true
             Network.update_dialog: true
+            Network.reserve_dialog: true
             Network.addtocluster: true
             Network.rename: true
             Network.chown: true
@@ -480,6 +494,8 @@ tabs:
                 Role.reboot_hard: true
                 Role.poweroff: true
                 Role.poweroff_hard: true
+                Role.undeploy: true
+                Role.undeploy_hard: true
                 Role.shutdown: true
                 Role.shutdown_hard: true
                 Role.delete: true
@@ -531,12 +547,13 @@ tabs:
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: true
+            ServiceTemplate.update_dialog: true
             ServiceTemplate.instantiate: true
             ServiceTemplate.chown: true
             ServiceTemplate.chgrp: true
             ServiceTemplate.chmod: true
             ServiceTemplate.rename: true
-            ServiceTemplate.clone: true
+            ServiceTemplate.clone_dialog: true
             ServiceTemplate.delete: true
     zones-tab:
         panel_tabs:

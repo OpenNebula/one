@@ -104,8 +104,8 @@ define(function(require) {
       $(".service_networks tbody").append(
         '<tr>\
           <td>\
-            <input class="service_network_name" type="text" pattern="[\\w]+"/>\
-            <small class="error">'+Locale.tr("Only word characters are allowed")+'</small>\
+            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
+            <small class="error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
@@ -200,14 +200,6 @@ define(function(require) {
 
 
     $(document).foundation('tab', 'reflow');
-
-    context.foundation({
-      abide : {
-        patterns: {
-          word_chars: /^\w+$/
-        }
-      }
-    });
 
     // Add first role
     $("#tf_btn_roles", context).trigger("click");

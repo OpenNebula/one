@@ -23,6 +23,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var UserInputs = require('utils/user-inputs');
 
   /*
     TEMPLATES
@@ -40,7 +41,7 @@ define(function(require) {
     'setCallback': _setCallback,
     'fill': _fill,
     'retrieve': _retrieve,
-    'retrieveResize': _retrieveResize
+    'retrieveChanges': _retrieveChanges
   };
 
   /*
@@ -52,139 +53,42 @@ define(function(require) {
   }
 
   function _setup(context) {
-    // Define the cpu slider
-    var cpu_input = $("#CPU", context);
-    var cpu_slider = $("#cpu_slider", context)
+    // MB to GB
+    $("div.memory_input", context).on("input", "input, select", function(){
+      var val = "";
 
-    context.foundation('slider', 'reflow');
-
-    //cpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
-
-    cpu_slider.on('change.fndtn.slider', function(){
-      if ($(this).attr('data-slider') >= 0) {
-        cpu_input.val($(this).attr('data-slider') / 100);
-      }
-    });
-
-    cpu_input.on('change', function() {
       if (this.value && this.value >= 0) {
-        cpu_slider.foundation('slider', 'set_value', this.value * 100);
-      } else {
-        cpu_slider.foundation('slider', 'set_value', -1);
+        val = this.value / 1024;
       }
+
+      $("input, select", $("div.memory_gb_input", context)).val(val);
     });
 
-    cpu_slider.foundation('slider', 'set_value', 100);
+    // GB to MB
+    $("div.memory_gb_input", context).on("input", "input, select", function(){
+      var val = "";
 
-    // Define the memory slider
-
-    var final_memory_input = $("#MEMORY", context);
-    var memory_input = $("#MEMORY_TMP", context);
-    var memory_unit  = $("#memory_unit", context);
-
-    var current_memory_unit = memory_unit.val();
-
-    var update_final_memory_input = function() {
-      if (current_memory_unit == 'MB') {
-        final_memory_input.val(Math.floor(memory_input.val()));
-      } else {
-        final_memory_input.val(Math.floor(memory_input.val() * 1024));
-      }
-    }
-
-    memory_input.on('change', function() {
       if (this.value && this.value >= 0) {
-        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
-        update_final_memory_input();
-      } else {
-        $("#memory_slider", context).foundation('slider', 'set_value', -1);
-        final_memory_input.val("");
+        val = Math.floor(this.value * 1024);
       }
+
+      $("input, select", $("div.memory_input", context)).val(val);
     });
 
-    final_memory_input.on('change', function() {
-      if (this.value && this.value >= 0) {
-        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
-        memory_input.val(Math.floor(this.value));
-      } else {
-        $("#memory_slider", context).foundation('slider', 'set_value', -1);
-        memory_input.val("");
-      }
-    });
-
-    $("#memory_slider", context).on('change.fndtn.slider', function() {
-      if ($(this).attr('data-slider') >= 0) {
-        memory_input.val($(this).attr('data-slider') / 100);
-        update_final_memory_input();
-      }
-    });
-
-    memory_unit.on('change', function() {
+    // Unit select
+    $("#memory_unit", context).on('change', function() {
       var memory_unit_val = $('#memory_unit :selected', context).val();
 
-      if (current_memory_unit != memory_unit_val) {
-        current_memory_unit = memory_unit_val
-        var new_val;
-        if (memory_unit_val == 'GB') {
-          $("#memory_slider", context).detach();
-          $(".memory_slider_container", context).html(
-            '<div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 1600; step: 50;">'+
-              '<span class="range-slider-handle"></span>'+
-              '<span class="range-slider-active-segment"></span>'+
-              '<input type="hidden">'+
-            '</div>');
-
-          new_val = memory_input.val() / 1024;
-        } else if (memory_unit_val == 'MB') {
-          $("#memory_slider", context).detach();
-          $(".memory_slider_container", context).html(
-            '<div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 409600; step: 12800;">'+
-              '<span class="range-slider-handle"></span>'+
-              '<span class="range-slider-active-segment"></span>'+
-              '<input type="hidden">'+
-            '</div>');
-
-          new_val = Math.floor(memory_input.val() * 1024);
-        }
-
-        $("#memory_slider", context).foundation('slider', 'reflow');
-        memory_input.val(new_val);
-        $("#memory_slider", context).foundation('slider', 'set_value', new_val * 100);
-        $("#memory_slider", context).on('change.fndtn.slider', function() {
-          if ($(this).attr('data-slider') >= 0) {
-            memory_input.val($(this).attr('data-slider') / 100);
-            update_final_memory_input();
-          }
-        });
-
-        update_final_memory_input();
-      }
-    });
-
-    // init::start is ignored for some reason
-    $("#memory_slider", context).foundation('slider', 'set_value', 51200);
-
-    // Define the vcpu slider
-
-    var vcpu_input = $("#VCPU", context);
-    var vcpu_slider = $("#vcpu_slider", context)
-
-    //vcpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
-    vcpu_slider.on('change.fndtn.slider', function(){
-      if ($(this).attr('data-slider') > 0) {
-        vcpu_input.val($(this).attr('data-slider') / 100);
-      }
-    });
-
-    vcpu_input.on('change', function() {
-      if (this.value && this.value > 0) {
-        vcpu_slider.foundation('slider', 'set_value', this.value * 100);
+      if (memory_unit_val == 'GB') {
+        $("div.memory_input", context).hide();
+        $("div.memory_gb_input", context).show();
       } else {
-        vcpu_slider.foundation('slider', 'set_value', -1);
+        $("div.memory_input", context).show();
+        $("div.memory_gb_input", context).hide();
       }
     });
 
-    vcpu_slider.foundation('slider', 'set_value', 0);
+    $("#memory_unit", context).change();
   }
 
   /**
@@ -200,7 +104,84 @@ define(function(require) {
       $(this).data("original_value", element.TEMPLATE[field_name]);
     });
 
+    var userInputs;
+
+    if (element.USER_TEMPLATE != undefined){
+      userInputs = element.USER_TEMPLATE.USER_INPUTS;
+    } else {
+      userInputs = element.TEMPLATE.USER_INPUTS;
+    }
+
+    if (userInputs != undefined){
+
+      if (userInputs.CPU != undefined){
+        var attr = UserInputs.parse("CPU", userInputs.CPU);
+
+        if (element.TEMPLATE.CPU != undefined){
+          attr.initial = element.TEMPLATE.CPU;
+        }
+
+        var input = UserInputs.attributeInput(attr);
+
+        $("div.cpu_input", context).html(input);
+      }
+
+      if (userInputs.VCPU != undefined){
+        var attr = UserInputs.parse("VCPU", userInputs.VCPU);
+
+        if (element.TEMPLATE.VCPU != undefined){
+          attr.initial = element.TEMPLATE.VCPU;
+        }
+
+        var input = UserInputs.attributeInput(attr);
+
+        $("div.vcpu_input", context).html(input);
+      }
+
+      if (userInputs.MEMORY != undefined){
+        // Normal input for MB
+        var attr = UserInputs.parse("MEMORY", userInputs.MEMORY);
+        var input = UserInputs.attributeInput(attr);
+
+        $("div.memory_input", context).html(input);
+
+        // Modified input for GB
+        var attr_gb = UserInputs.parse("MEMORY", userInputs.MEMORY);
+
+        attr_gb.initial = attr_gb.initial / 1024;
+
+        if (attr_gb.type == "range"){
+          attr_gb.type = "range-float";
+          attr_gb.min = (attr_gb.min / 1024);
+          attr_gb.max = (attr_gb.max / 1024);
+          attr_gb.step = "any";
+
+        } else if (attr_gb.type == "list"){
+          attr_gb.options = attr_gb.options.map(function(e){
+                              return e / 1024;
+                            });
+
+        } else if (attr_gb.type == "number"){
+          attr_gb.type = "number-float";
+          attr_gb.step = "any";
+        }
+
+        input = UserInputs.attributeInput(attr_gb);
+        $("div.memory_gb_input", context).html(input);
+        $("input, select", $("div.memory_gb_input", context)).removeAttr("wizard_field");
+      }
+    }
+
     WizardFields.fill(context, element.TEMPLATE);
+
+    // Update memory_gb with the value set in memory
+    $("input, select", $("div.memory_input", context)).trigger("input");
+
+    if ($("input, select", $("div.memory_input", context)).val() >= 1024){
+      $("#memory_unit", context).val("GB").change();
+    } else {
+      $("#memory_unit", context).val("MB").change();
+    }
   }
 
   /**
@@ -209,9 +190,11 @@ define(function(require) {
    * @param {Function} callback will be called as callback( retrieve(context) )
    */
   function _setCallback(context, callback) {
-    context.on("change.fndtn.slider", function(){
+    context.on("input", function(){
       callback( _retrieve(context) );
     });
+
+    callback( _retrieve(context) );
   }
 
   /**
@@ -235,7 +218,7 @@ define(function(require) {
    *                                  - MEMORY
    *                                  - VCPU
    */
-  function _retrieveResize(context) {
+  function _retrieveChanges(context) {
     var templateJSON = WizardFields.retrieve(context);
 
     var fields = $('[wizard_field]', context);

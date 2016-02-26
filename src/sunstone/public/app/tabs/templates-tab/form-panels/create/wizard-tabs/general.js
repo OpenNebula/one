@@ -21,7 +21,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var CapacityInputs = require('./general/capacity-inputs');
+  var CapacityCreate = require('./general/capacity-create');
   var WizardFields = require('utils/wizard-fields');
   var Config = require('sunstone-config');
 
@@ -62,7 +62,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'capacityInputsHTML': CapacityInputs.html(),
+      'capacityCreateHTML': CapacityCreate.html(),
       'logos': Config.vmLogos
     });
   }
@@ -103,7 +103,7 @@ define(function(require) {
       // There is another listener in context.js setup
     });
 
-    CapacityInputs.setup(context);
+    CapacityCreate.setup($("div.capacityCreate", context));
   }
 
   function _retrieve(context) {
@@ -119,9 +119,6 @@ define(function(require) {
     }
 
     var sunstone_template = {};
-    if ($('#sunstone_capacity_select:checked', context).length > 0) {
-      sunstone_template["CAPACITY_SELECT"] = "NO"
-    }
 
     if ($('#sunstone_network_select:checked', context).length > 0) {
       sunstone_template["NETWORK_SELECT"] = "NO"
@@ -131,19 +128,14 @@ define(function(require) {
       templateJSON['SUNSTONE'] = sunstone_template;
     }
 
+    $.extend(templateJSON, CapacityCreate.retrieve($("div.capacityCreate", context)));
+
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
     var sunstone_template = templateJSON.SUNSTONE;
     if (sunstone_template) {
-      if (sunstone_template["CAPACITY_SELECT"] &&
-          sunstone_template["CAPACITY_SELECT"].toUpperCase() == "NO") {
-        $("#sunstone_capacity_select", context).attr("checked", "checked");
-      }
-
-      delete sunstone_template["CAPACITY_SELECT"];
-
       if (sunstone_template["NETWORK_SELECT"] &&
           sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {
         $("#sunstone_network_select", context).attr("checked", "checked");
@@ -181,6 +173,8 @@ define(function(require) {
       $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click")
       delete templateJSON["HYPERVISOR"];
     }
+
+    CapacityCreate.fill($("div.capacityCreate", context), templateJSON);
 
     WizardFields.fill(context, templateJSON);
   }

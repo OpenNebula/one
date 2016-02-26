@@ -268,9 +268,9 @@ define(function(require) {
     this.dataTable.fnAddData(element);
   }
 
-  //deletes an element with id 'tag' from a dataTable
-  function _deleteElement(req) {
-    var tag = '#' + this.resource.toLowerCase() + '_' + req.request.data;
+  //deletes an element with id 'elementId' from a dataTable
+  function _deleteElement(elementId) {
+    var tag = '#' + this.resource.toLowerCase() + '_' + elementId;
     var tr = $(tag, this.dataTable).parents('tr')[0];
     this.dataTable.fnDeleteRow(tr);
     this.recountCheckboxes();

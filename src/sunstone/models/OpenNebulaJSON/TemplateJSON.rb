@@ -50,10 +50,7 @@ module OpenNebulaJSON
                  when "instantiate" then self.instantiate(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
-                 when "delete_from_provision"
-                          then self.delete_from_provision(action_hash['params'])
-                 when "chmod_from_provision"
-                          then self.chmod_from_provision(action_hash['params'])
+                 when "delete_recursive" then self.delete_recursive(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -82,8 +79,10 @@ module OpenNebulaJSON
         end
 
         def chmod_json(params=Hash.new)
+            recursive = (params['recursive'] == true)
+
             if params['octet']
-                self.chmod_octet(params['octet'])
+                self.chmod_octet(params['octet'], recursive)
             else
                 self.chmod((params['owner_u']||-1),
                     (params['owner_m']||-1),
@@ -93,18 +92,13 @@ module OpenNebulaJSON
                     (params['group_a']||-1),
                     (params['other_u']||-1),
                     (params['other_m']||-1),
-                    (params['other_a']||-1))
+                    (params['other_a']||-1),
+                    recursive)
             end
         end
 
         def instantiate(params=Hash.new)
             if params['template']
-                select_capacity = self['TEMPLATE/SUNSTONE/CAPACITY_SELECT']
-                if (select_capacity && select_capacity.upcase == "NO")
-                    params['template'].delete("CPU")
-                    params['template'].delete("MEMORY")
-                end
-
                 select_network = self['TEMPLATE/SUNSTONE/NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
@@ -131,36 +125,9 @@ module OpenNebulaJSON
             super(params['name'])
         end
 
-        def delete_from_provision(params=Hash.new)
-            # Delete associated images
-            self.each("TEMPLATE/DISK/IMAGE_ID"){|image_id|
-                img = OpenNebula::Image.new_with_id(image_id.text, @client)
-                rc  = img.delete
-                if OpenNebula::is_error?(rc)
-                   error_msg = "Some of the resources associated with " <<
-                      "this template couldn't be deleted. Error: " << rc.message
-                   return OpenNebula::Error.new(error_msg)
-                end
-            }
-
-            # Delete template
-            self.delete
-        end
-
-        def chmod_from_provision(params=Hash.new)
-            # Chmod associated images
-            self.each("TEMPLATE/DISK/IMAGE_ID"){|image_id|
-                img = OpenNebulaJSON::ImageJSON.new_with_id(image_id.text, @client)
-                rc  = img.chmod_json(params)
-                if OpenNebula::is_error?(rc)
-                   error_msg = "Some of the resources associated with " <<
-                    "this template couldn't be published. Error: " << rc.message
-                   return OpenNebula::Error.new(error_msg)
-                end
-            }
-
-            # Chmod template
-            self.chmod_json(params)
+        def delete_recursive(params=Hash.new)
+            recursive = (params['recursive'] == true)
+            self.delete(recursive)
         end
     end
 end

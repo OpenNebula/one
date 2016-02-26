@@ -21,6 +21,9 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var OpenNebulaVM = require('opennebula/vm');
   var Accounting = require('utils/accounting');
+  var OpenNebula = require('opennebula');
+  var QuotaWidgets = require('utils/quotas/quota-widgets');
+  var QuotaDefaults = require('utils/quotas/quota-defaults');
 
   var TemplateDashboard = require('hbs!./dashboard-tab/html');
 
@@ -35,6 +38,8 @@ define(function(require) {
   var USERS_CREATE_FORM_PANEL_ID = require('tabs/users-tab/form-panels/create/formPanelId');
   var IMAGES_CREATE_FORM_PANEL_ID = require('tabs/images-tab/form-panels/create/formPanelId');
   var VNETS_CREATE_FORM_PANEL_ID = require('tabs/vnets-tab/form-panels/create/formPanelId');
+
+  var TAB_ID = require('./dashboard-tab/tabId');
 
   var _initialized = false;
   var _activeWidgets = [];
@@ -112,6 +117,104 @@ define(function(require) {
           data: options
         });
       }
+    },
+    'groupquotas': {
+      'html': require('hbs!./provision-tab/dashboard/vdc-quotas'),
+      'onShow': function() {
+        OpenNebula.Group.show({
+          data : {
+              id: "-1"
+          },
+          success: function(request,group_json){
+            var group = group_json.GROUP;
+
+            QuotaWidgets.initEmptyQuotas(group);
+
+            if (!$.isEmptyObject(group.VM_QUOTA)){
+                var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
+
+                var vms = QuotaWidgets.quotaInfo(
+                    group.VM_QUOTA.VM.VMS_USED,
+                    group.VM_QUOTA.VM.VMS,
+                    default_group_quotas.VM_QUOTA.VM.VMS,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_str").html(vms["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+
+                var memory = QuotaWidgets.quotaMBInfo(
+                    group.VM_QUOTA.VM.MEMORY_USED,
+                    group.VM_QUOTA.VM.MEMORY,
+                    default_group_quotas.VM_QUOTA.VM.MEMORY,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_str").html(memory["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+
+                var cpu = QuotaWidgets.quotaFloatInfo(
+                    group.VM_QUOTA.VM.CPU_USED,
+                    group.VM_QUOTA.VM.CPU,
+                    default_group_quotas.VM_QUOTA.VM.CPU,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_str").html(cpu["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+            }
+          }
+        });
+      }
+    },
+    'quotas': {
+      'html': require('hbs!./provision-tab/dashboard/quotas'),
+      'onShow': function() {
+        OpenNebula.User.show({
+          data : {
+              id: "-1"
+          },
+          success: function(request,user_json){
+            var user = user_json.USER;
+
+            QuotaWidgets.initEmptyQuotas(user);
+
+            if (!$.isEmptyObject(user.VM_QUOTA)){
+                var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
+
+                var vms = QuotaWidgets.quotaInfo(
+                    user.VM_QUOTA.VM.VMS_USED,
+                    user.VM_QUOTA.VM.VMS,
+                    default_user_quotas.VM_QUOTA.VM.VMS,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_rvms_percentage").html(vms["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_rvms_str").html(vms["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
+
+                var memory = QuotaWidgets.quotaMBInfo(
+                    user.VM_QUOTA.VM.MEMORY_USED,
+                    user.VM_QUOTA.VM.MEMORY,
+                    default_user_quotas.VM_QUOTA.VM.MEMORY,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_memory_percentage").html(memory["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_memory_str").html(memory["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
+
+                var cpu = QuotaWidgets.quotaFloatInfo(
+                    user.VM_QUOTA.VM.CPU_USED,
+                    user.VM_QUOTA.VM.CPU,
+                    default_user_quotas.VM_QUOTA.VM.CPU,
+                    true);
+
+                $("#"+TAB_ID+" #provision_dashboard_cpu_percentage").html(cpu["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_cpu_str").html(cpu["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
+            }
+          }
+        });
+      }
     }
   }
 
@@ -129,8 +232,6 @@ define(function(require) {
       call: _onShow
     },
   }
-
-  var TAB_ID = require('./dashboard-tab/tabId');
 
   var Tab = {
     tabId: TAB_ID,

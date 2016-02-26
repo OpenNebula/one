@@ -17,12 +17,14 @@
   <div class="row">
     <div class="large-10 large-centered columns">
       <h2 class="subheader">{{tr "Create Virtual Machine"}}</h2>
-      <br></div>
+      <br>
+    </div>
   </div>
   <div class="row">
     <div class="large-8 large-centered columns">
       <input type="text" id="vm_name"  class="provision-input" placeholder="{{tr "Virtual Machine Name"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
-      <br></div>
+      <br>
+    </div>
   </div>
   <div class="row">
     <div class="large-10 large-centered columns">
@@ -37,87 +39,36 @@
             </span>
           </a>
           <div id="provision_dd_template" class="active content">
+            <div class="row">
+              <div class="medium-8 columns">
+                <button href="#"  data-options="align:right" data-dropdown="provisionVMInstantiateLabelsDropdown" class="right small secondary button dropdown radius">
+                  <i class="fa fa-tags"/> {{tr "Labels"}}
+                </button>
+                <ul id="provisionVMInstantiateLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
+                <input type="search" class="right provision-search-input" placeholder="Search" id="provision_vm_instantiate_template_search"/>
+              </div>
+              <div class="medium-4 columns">
+                <select id="provision_vm_instantiate_templates_owner_filter">
+                  <option value="all" selected="selected">{{tr "ALL"}}</option>
+                  <option value="mine">{{tr "mine"}}</option>
+                  <option value="group">{{tr "group"}}</option>
+                  <option value="system">{{tr "system"}}</option>
+                </select>
+              </div>
+            </div>
             <div class="row provision_select_template">
-              <div class="large-12 large-centered columns">
-                <dl class="tabs text-center" data-tab style="width: 100%">
-                  <dd class="active" style="width: 33%;">
-                    <a href="#provision_system_templates_selector">{{tr "System"}}</a>
-                  </dd>
-                  <dd style="width: 33%;">
-                    <a href="#provision_vdc_templates_selector">{{tr "Group"}}</a>
-                  </dd>
-                  <dd style="width: 34%;">
-                    <a href="#provision_saved_templates_selector">{{tr "Saved"}}</a>
-                  </dd>
-                </dl>
-                <div class="tabs-content">
-                  <div class="content active" id="provision_system_templates_selector">
-                    <div class="row">
-                      <div class="large-12 columns">
-                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
-                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
-                        <ul id="provisionSystemLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
-                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_system_template_search"/>
-                      </div>
-                    </div>
-                    <table id="provision_system_templates_table">
-                      <thead class="hidden">
-                        <tr>
-                          <th>{{tr "ID"}}</th>
-                          <th>{{tr "Name"}}</th>
-                          <th>{{tr "Saved"}}</th>
-                          <th>{{tr "Shared"}}</th>
-                          <th>{{tr "Labels"}}</th>
-                        </tr>
-                      </thead>
-                      <tbody class="hidden"></tbody>
-                    </table>
-                  </div>
-                  <div class="content" id="provision_vdc_templates_selector">
-                    <div class="row">
-                      <div class="large-12 columns">
-                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
-                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
-                        <ul id="provisionVdcLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
-                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_vdc_template_search"/>
-                      </div>
-                    </div>
-                    <table id="provision_vdc_templates_table">
-                      <thead class="hidden">
-                        <tr>
-                          <th>{{tr "ID"}}</th>
-                          <th>{{tr "Name"}}</th>
-                          <th>{{tr "Saved"}}</th>
-                          <th>{{tr "Shared"}}</th>
-                          <th>{{tr "Labels"}}</th>
-                        </tr>
-                      </thead>
-                      <tbody class="hidden"></tbody>
-                    </table>
-                  </div>
-                  <div class="content" id="provision_saved_templates_selector">
-                    <div class="row">
-                      <div class="large-12 columns">
-                        <button href="#"  data-options="align:right" data-dropdown="provisionSystemLabelsDropdown" class="right small secondary button dropdown radius">
-                          <i class="fa fa-tags"/> {{tr "Labels"}}</button>
-                        <ul id="provisionSavedLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
-                        <input type="search" class="right provision-search-input" placeholder="Search" id="provision_create_saved_template_search"/>
-                      </div>
-                    </div>
-                    <table id="provision_saved_templates_table">
-                      <thead class="hidden">
-                        <tr>
-                          <th>{{tr "ID"}}</th>
-                          <th>{{tr "Name"}}</th>
-                          <th>{{tr "Saved"}}</th>
-                          <th>{{tr "Shared"}}</th>
-                          <th>{{tr "Labels"}}</th>
-                        </tr>
-                      </thead>
-                      <tbody class="hidden"></tbody>
-                    </table>
-                  </div>
-                </div>
+              <div class="small-12 columns">
+                <table id="provision_vm_instantiate_templates_table">
+                  <thead class="hidden">
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>OWNER</th>
+                      <th>Labels</th>
+                    </tr>
+                  </thead>
+                  <tbody class="hidden"></tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -147,4 +98,5 @@
     </div>
   </div>
   <br>
-  <br></form>
+  <br>
+</form>
