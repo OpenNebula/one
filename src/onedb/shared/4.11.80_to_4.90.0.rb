@@ -160,6 +160,17 @@ module Migrator
 
     @db.run "CREATE TABLE marketplaceapp_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
 
+    last_oid = -1
+
+    @db.fetch("SELECT last_oid FROM pool_control WHERE tablename='acl'") do |row|
+        last_oid = row[:last_oid].to_i
+    end
+
+    # * MARKETPLACE+MARKETPLACEAPP/* USE *
+    @db.run "INSERT INTO acl VALUES(#{last_oid+1},17179869184,6755416620924928,1,17179869184);"
+
+    @db.run "REPLACE INTO pool_control VALUES('acl', #{last_oid+1});"
+
     log_time()
 
     return true
