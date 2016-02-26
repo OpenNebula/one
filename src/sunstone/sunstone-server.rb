@@ -431,7 +431,6 @@ post '/config' do
     end
 
     session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
-    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
     session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
