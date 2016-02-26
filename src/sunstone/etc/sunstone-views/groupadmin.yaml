@@ -74,8 +74,6 @@ tabs:
             User.quotas_dialog: true
             User.groups_dialog: false
             User.chgrp: false
-            User.addgroup: false
-            User.delgroup: false
             User.change_authentication: false
             User.delete: true
     groups-tab:
