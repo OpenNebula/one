@@ -224,7 +224,9 @@ void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        vector<int> img_ids = tmpl->get_img_ids();
+        vector<int> img_ids;
+
+        tmpl->get_img_ids(img_ids);
 
         tmpl->unlock();
 

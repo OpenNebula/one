@@ -182,7 +182,7 @@ void TemplateDelete::request_execute(
 
     if (recursive)
     {
-        img_ids = object->get_img_ids();
+        object->get_img_ids(img_ids);
     }
 
     object->unlock();

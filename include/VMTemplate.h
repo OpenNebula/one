@@ -74,8 +74,10 @@ public:
      * Returns all the DISK/IMAGE_IDs in the Template
      * @return image IDs
      */
-    vector<int> get_img_ids();
-    // TODO: make const
+    void get_img_ids(vector<int>& img_ids)
+    {
+        xpaths<int>(img_ids,"/VMTEMPLATE/TEMPLATE/DISK/IMAGE_ID");
+    }
 
     // ------------------------------------------------------------------------
     // Virtual Router

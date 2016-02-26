@@ -260,31 +260,3 @@ bool VMTemplate::is_vrouter()
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-
-vector<int> VMTemplate::get_img_ids()
-{
-    vector<int> img_ids;
-
-    // TODO: xpaths(vector<int>..) is not working
-    //xpaths(img_ids,"/VMTEMPLATE/TEMPLATE/DISK/IMAGE_ID");
-
-    vector<string> img_ids_st;
-    vector<string>::iterator it;
-
-    xpaths(img_ids_st,"/VMTEMPLATE/TEMPLATE/DISK/IMAGE_ID");
-
-    for (it = img_ids_st.begin(); it != img_ids_st.end(); it++)
-    {
-        istringstream iss(*it);
-        int val;
-
-        iss >> dec >> val;
-
-        if (!iss.fail())
-        {
-            img_ids.push_back( val );
-        }
-    }
-
-    return img_ids;
-}
