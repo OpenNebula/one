@@ -138,7 +138,7 @@ public:
     };
 
     /**
-     *  Lists the Datastore ids
+     *  Lists the MarketPlace ids
      *  @param oids a vector with the oids of the objects.
      *
      *  @return 0 on success

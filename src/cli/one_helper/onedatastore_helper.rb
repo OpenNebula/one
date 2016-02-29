@@ -83,7 +83,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 if d["IMAGES"]["ID"].nil?
                     "0"
                 else
-                    d["IMAGES"]["ID"].size
+                    [d["IMAGES"]["ID"]].flatten.size
                 end
             end
 

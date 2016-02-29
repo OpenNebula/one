@@ -98,6 +98,8 @@ public:
         return supported_actions.is_set(action);
     }
 
+    bool is_public() const;
+
 private:
 
     friend class MarketPlacePool;

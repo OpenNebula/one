@@ -74,7 +74,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 if d["MARKETPLACEAPPS"]["ID"].nil?
                     "0"
                 else
-                    d["MARKETPLACEAPPS"]["ID"].size
+                    [d["MARKETPLACEAPPS"]["ID"]].flatten.size
                 end
             end
 

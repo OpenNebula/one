@@ -432,3 +432,18 @@ void MarketPlace::update_monitor(const Template& data)
     data.get("USED_MB",  used_mb);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool MarketPlace::is_public() const
+{
+    const VectorAttribute* vatt;
+    bool _public = false;
+
+    if (Nebula::instance().get_market_conf_attribute(market_mad, vatt) == 0)
+    {
+        vatt->vector_value("PUBLIC", _public);
+    }
+
+    return _public;
+}

@@ -160,7 +160,7 @@ int MarketPlacePool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 
     MarketPlace *mp  = static_cast<MarketPlace *>(objsql);
 
-    if( mp->get_collection_size() > 0 )
+    if( !mp->is_public() && mp->get_collection_size() > 0 )
     {
         std::ostringstream oss;
 

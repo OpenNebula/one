@@ -536,3 +536,54 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
+{
+    MarketPlace * mp = static_cast<MarketPlace *>(object);
+    set<int> apps    = mp->get_marketapp_ids();
+
+    int rc = pool->drop(object, emsg);
+
+    object->unlock();
+
+    if ( rc != 0 || apps.empty() )
+    {
+        return rc;
+    }
+
+    Nebula& nd = Nebula::instance();
+
+    MarketPlaceApp *     app;
+    MarketPlaceAppPool * apppool = nd.get_apppool();
+
+    string app_error;
+
+    for ( set<int>::iterator i = apps.begin(); i != apps.end(); ++i )
+    {
+        app = apppool->get(*i, true);
+
+        if ( app == 0 )
+        {
+            continue;
+        }
+
+       if ( apppool->drop(app, app_error) != 0 )
+       {
+           ostringstream oss;
+
+           oss << "Cannot remove " << object_name(PoolObjectSQL::MARKETPLACEAPP)
+               << " " << *i << ": " << app_error << ". ";
+
+           emsg = emsg + oss.str();
+
+           rc = -1;
+       }
+
+       app->unlock();
+    }
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
