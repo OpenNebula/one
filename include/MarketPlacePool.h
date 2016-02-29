@@ -27,7 +27,8 @@ class MarketPlaceApp;
 class MarketPlacePool : public PoolSQL
 {
 public:
-    MarketPlacePool(SqlDB * db);
+    MarketPlacePool(SqlDB * db,
+                    bool    is_federation_slave);
 
     ~MarketPlacePool(){};
 

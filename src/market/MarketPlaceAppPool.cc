@@ -43,6 +43,15 @@ int MarketPlaceAppPool:: allocate(
 
     std::ostringstream oss;
 
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "MarketPlaceAppPool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
 
     mp->market_id   = mp_id;
@@ -101,6 +110,23 @@ error_name:
     *oid = -1;
 
     return *oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
+{
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "MarketPlaceAppPool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
+    return PoolSQL::drop(objsql, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -589,8 +589,8 @@ void Nebula::start(bool bootstrap_only)
 
         secgrouppool = new SecurityGroupPool(db);
 
-        marketpool  = new MarketPlacePool(db);
-        apppool     = new MarketPlaceAppPool(db);
+        marketpool  = new MarketPlacePool(db, is_federation_slave());
+        apppool     = new MarketPlaceAppPool(db, is_federation_slave());
     }
     catch (exception&)
     {

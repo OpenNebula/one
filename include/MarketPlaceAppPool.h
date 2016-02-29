@@ -24,7 +24,10 @@ class SqlDB;
 class MarketPlaceAppPool : public PoolSQL
 {
 public:
-    MarketPlaceAppPool(SqlDB * db):PoolSQL(db,MarketPlaceApp::table,true,true){};
+    MarketPlaceAppPool(
+            SqlDB * db,
+            bool    is_federation_slave)
+                :PoolSQL(db,MarketPlaceApp::table,!is_federation_slave,true){};
 
     ~MarketPlaceAppPool(){};
 
@@ -60,6 +63,16 @@ public:
             const std::string& mp_data,
             int *              oid,
             std::string&       error_str);
+
+    /**
+     *  Drops the MarketPlaceApp from the data base. The object mutex SHOULD be
+     *  locked.
+     *    @param objsql a pointer to the MarketPlace object
+     *    @param error_msg Error reason, if any
+     *    @return 0 on success, -1 DB error
+     */
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+
     /**
      *  Imports an app into the marketplace, as reported by the monitor driver
      *    @param template to generate app with the from_template64 function

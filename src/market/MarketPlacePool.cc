@@ -20,9 +20,17 @@
 
 /* -------------------------------------------------------------------------- */
 
-MarketPlacePool::MarketPlacePool(SqlDB * db)
-    :PoolSQL(db, MarketPlace::table, true, true)
+MarketPlacePool::MarketPlacePool(
+        SqlDB * db,
+        bool    is_federation_slave)
+    :PoolSQL(db, MarketPlace::table, !is_federation_slave, true)
 {
+    //Federation slaves do not need to init the pool
+    if (is_federation_slave)
+    {
+        return;
+    }
+
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
@@ -92,6 +100,15 @@ int MarketPlacePool::allocate(
 
     ostringstream oss;
 
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "MarketPlacePool::allocate called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     mp = new MarketPlace(uid, gid, uname, gname, umask, mp_template);
 
     // -------------------------------------------------------------------------
@@ -132,6 +149,15 @@ error_name:
 
 int MarketPlacePool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 {
+    if (Nebula::instance().is_federation_slave())
+    {
+        NebulaLog::log("ONE",Log::ERROR,
+                "MarketPlacePool::drop called, but this "
+                "OpenNebula is a federation slave");
+
+        return -1;
+    }
+
     MarketPlace *mp  = static_cast<MarketPlace *>(objsql);
 
     if( mp->get_collection_size() > 0 )
