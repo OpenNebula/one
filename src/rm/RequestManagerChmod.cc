@@ -214,6 +214,9 @@ void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
     {
         VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
 
+        int rc = 0;
+        set<int> error_ids;
+
         if ( tmpl == 0 )
         {
             att.resp_id = oid;
@@ -238,9 +241,20 @@ void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
             if (ec != SUCCESS)
             {
                 NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
-            }
 
-            // TODO rollback?
+                error_ids.insert(*it);
+                rc = -1;
+            }
+        }
+
+        if ( rc != 0 )
+        {
+            att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
+                ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+                error_ids.end(), ',');
+
+            failure_response(ACTION, att);
+            return;
         }
     }
 
