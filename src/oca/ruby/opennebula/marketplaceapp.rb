@@ -168,8 +168,6 @@ module OpenNebula
             return Error.new("Missing datastore id") if options[:dsid].nil?
             return Error.new("Missing name to export app") if options[:name].nil?
 
-            one = Client.new()
-
             rc  = info
             return rc if OpenNebula.is_error?(rc)
             return Error.new("App is not in READY state") if state_str!="READY"
@@ -188,7 +186,7 @@ module OpenNebula
                 tmpl << "NAME=\"" << name << "\"\n"
                 tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
 
-                image = Image.new(Image.build_xml, one)
+                image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
 
                 return rc if OpenNebula.is_error?(rc)
@@ -202,7 +200,7 @@ module OpenNebula
                     tmpl << "\nNAME=#{name}\n"
                     tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
 
-                    vmtpl = Template.new(Template.build_xml, one)
+                    vmtpl = Template.new(Template.build_xml, @client)
                     rc    = vmtpl.allocate(tmpl)
 
                     return rc if OpenNebula.is_error?(rc)
