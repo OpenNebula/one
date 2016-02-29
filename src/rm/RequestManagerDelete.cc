@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerDelete.h"
+#include "NebulaUtil.h"
 
 using namespace std;
 
@@ -152,6 +153,7 @@ void TemplateDelete::request_execute(
     VMTemplate *    object;
     string          error_msg;
     vector<int>     img_ids;
+    set<int>        error_ids;
     ErrorCode       ec;
 
     if (paramList.size() > 2)
@@ -205,10 +207,21 @@ void TemplateDelete::request_execute(
             if (ec != SUCCESS)
             {
                 NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
-            }
 
-            // TODO rollback?
+                error_ids.insert(*it);
+                rc = -1;
+            }
         }
+    }
+
+    if ( rc != 0 )
+    {
+        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::IMAGE) +
+            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+            error_ids.end(), ',');
+
+        failure_response(ACTION, att);
+        return;
     }
 
     success_response(oid, att);
