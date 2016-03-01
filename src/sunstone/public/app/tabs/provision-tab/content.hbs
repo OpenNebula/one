@@ -24,12 +24,6 @@
 <div class="provision_templates_list_section hidden section_content"></div>
 {{/isProvisionTabEnabled}}
 
-{{#isProvisionTabEnabled "provision-tab" "users"}}
-{{> tabs/provision-tab/group/info}}
-{{> tabs/provision-tab/users/create}}
-<div class="provision_users_list_section hidden section_content"></div>
-{{/isProvisionTabEnabled}}
-
 {{#isProvisionTabEnabled "provision-tab" "flows"}}
 {{> tabs/provision-tab/flows/create}}
 <div class="provision_flows_list_section hidden section_content"></div>

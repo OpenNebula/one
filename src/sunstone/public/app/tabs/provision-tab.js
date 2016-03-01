@@ -39,11 +39,8 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
 
-  var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
-
   var ProvisionVmsList = require('./provision-tab/vms/list');
   var ProvisionTemplatesList = require('./provision-tab/templates/list');
-  var ProvisionUsersList = require('./provision-tab/users/list');
   var ProvisionFlowsList = require('./provision-tab/flows/list');
 
   // Templates
@@ -54,48 +51,11 @@ define(function(require) {
   var TemplateDashboardVdcQuotas = require('hbs!./provision-tab/dashboard/vdc-quotas');
   var TemplateDashboardVms = require('hbs!./provision-tab/dashboard/vms');
   var TemplateDashboardVdcVms = require('hbs!./provision-tab/dashboard/vdc-vms');
-  var TemplateDashboardUsers = require('hbs!./provision-tab/dashboard/users');
-
-  var TemplateGroupInfo = require('hbs!./provision-tab/group/info');
 
   var TAB_ID = require('./provision-tab/tabId');
   var TEMPLATE_LABELS_COLUMN = 4;
 
   var povision_actions = {
-    "Provision.User.create" : {
-        type: "create",
-        call: OpenNebula.User.create,
-        callback: function(request, response) {
-          if ( $("div#provision_create_user_manual_quota",
-               $("#provision_create_user")).hasClass("active") ){
-
-            quota_json = ProvisionQuotaWidget.retrieve($("#provision_create_user"));
-
-            Sunstone.runAction("Provision.User.set_quota",
-                                [response.USER.ID], quota_json);
-          } else {
-            clear_provision_create_user();
-          }
-        },
-        error: Notifier.onError
-    },
-
-    "Provision.User.set_quota" : {
-        type: "multiple",
-        call: OpenNebula.User.set_quota,
-        callback: function(request) {
-          clear_provision_create_user();
-        },
-        error: Notifier.onError
-    },
-
-    "Provision.Group.show" : {
-        type: "single",
-        call: OpenNebula.Group.show,
-        callback: show_provision_group_info_callback,
-        error: Notifier.onError
-    },
-
     "Provision.Flow.instantiate" : {
       type: "single",
       call: OpenNebula.ServiceTemplate.instantiate,
@@ -546,46 +506,6 @@ define(function(require) {
       });
     }
 
-    if (Config.provision.dashboard.isEnabled("users")) {
-      $("#provision_dashboard").append(TemplateDashboardUsers());
-
-      var start_time =  Math.floor(new Date().getTime() / 1000);
-      // ms to s
-
-      // 604800 = 7 days = 7*24*60*60
-      start_time = start_time - 604800;
-
-      // today
-      var end_time = -1;
-
-      var options = {
-        "start_time": start_time,
-        "end_time": end_time,
-        "group": config["user_gid"]
-      }
-
-      var no_table = true;
-
-      OpenNebula.VM.accounting({
-          success: function(req, response){
-              Accounting.fillAccounting($("#dashboard_vdc_user_accounting"), req, response, no_table);
-          },
-          error: Notifier.onError,
-          data: options
-      });
-
-      OpenNebula.User.list({
-        timeout: true,
-        success: function (request, item_list){
-          var total = item_list.length || 0;
-
-          var context = $("#provision_users_dashboard");
-          $("#provision_dashboard_users_total", context).html(total);
-        },
-        error: Notifier.onError
-      });
-    }
-
     if (Config.provision.dashboard.isEnabled("quotas")) {
       $("#provision_dashboard").append(TemplateDashboardQuotas());
 
@@ -687,49 +607,6 @@ define(function(require) {
     }
   }
 
-
-  function show_provision_user_info() {
-    Sunstone.runAction("Provision.User.show", "-1");
-    $(".section_content").hide();
-    $("#provision_user_info").fadeIn();
-    $("dd.active a", $("#provision_user_info")).trigger("click");
-  }
-
-
-
-  function show_provision_group_info_callback(request, response) {
-    var info = response.GROUP;
-
-    var context = $("#provision_manage_vdc");
-
-    var default_group_quotas = QuotaDefaults.default_quotas(info.DEFAULT_GROUP_QUOTAS);
-
-    var quotas_tab_html = QuotaWidgets.initQuotasPanel(info, default_group_quotas,
-                                        "#provision_vdc_quotas_div", false);
-
-    $("#provision_vdc_quotas_div").html(quotas_tab_html);
-
-    QuotaWidgets.setupQuotasPanel(info,
-        "#provision_vdc_quotas_div",
-        false,
-        "Group");
-
-    $("#provision_info_vdc_group_acct", context).html(Accounting.html());
-    Accounting.setup(
-      $("#provision_info_vdc_group_acct", context),
-      {   fixed_group: info.ID,
-          init_group_by: "user" });
-
-    if (Config.isFeatureEnabled("showback")) {
-      $("#provision_info_vdc_group_showback", context).html(Showback.html());
-      Showback.setup(
-        $("#provision_info_vdc_group_showback", context),
-        {   fixed_user: "", fixed_group: info.ID });
-    }
-
-    $("#acct_placeholder", context).hide();
-  }
-
   function show_provision_create_vm() {
     OpenNebula.Action.clear_cache("VMTEMPLATE");
 
@@ -773,19 +650,6 @@ define(function(require) {
     $("#provision_create_flow").fadeIn();
   }
 
-  function show_provision_create_user() {
-    $(".section_content").hide();
-    $("#provision_create_user").fadeIn();
-    $(document).foundation();
-  }
-
-  function show_provision_vdc_info() {
-    $(".section_content").hide();
-    $("#provision_manage_vdc").fadeIn();
-
-    Sunstone.runAction('Provision.Group.show', "-1");
-  }
-
   function update_provision_flow_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
       '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
@@ -822,22 +686,6 @@ define(function(require) {
         error: Notifier.onError
       });
     }, timeout);
-  }
-
-  // Closes and resets the create user wizard
-  function clear_provision_create_user(){
-    OpenNebula.Action.clear_cache("USER");
-    ProvisionUsersList.show(0);
-
-    var context = $("#provision_create_user");
-    $("#username", context).val('');
-    $("#password", context).val('');
-    $("#repeat_password", context).val('');
-
-    ProvisionQuotaWidget.reset(context);
-
-    $(".alert-box-error", context).hide();
-    $(".alert-box-error", context).html("");
   }
 
   var _panels = [
@@ -901,7 +749,6 @@ define(function(require) {
 
         // TODO check if active
         ProvisionFlowsList.generate($(".provision_flows_list_section"), {active: true});
-        ProvisionUsersList.generate($(".provision_users_list_section"), {active: true});
 
         //
         // Dashboard
@@ -938,11 +785,6 @@ define(function(require) {
         $(document).on("click", ".provision_flows_list_button", function(){
           OpenNebula.Action.clear_cache("SERVICE");
           ProvisionFlowsList.show(0);
-        });
-
-        $(document).on("click", ".provision_users_list_button", function(){
-          OpenNebula.Action.clear_cache("USER");
-          ProvisionUsersList.show(0);
         });
 
         //
@@ -1503,95 +1345,6 @@ define(function(require) {
 
         $(".provision_create_flow_button").on("click", function(){
           show_provision_create_flow();
-        });
-
-        //
-        // Group Info
-        //
-
-
-        $("#provision_vdc_info_button").on("click", function(){
-          OpenNebula.Action.clear_cache("GROUP");
-          show_provision_vdc_info();
-        });
-
-        //
-        // Create User
-        //
-
-        var context = $("#provision_create_user");
-
-        ProvisionQuotaWidget.setup(context);
-
-        // Workaround to fix sliders. Apparently the setup fails while they are hidden
-        context.on('click', 'a[href="#provision_create_user_manual_quota"]', function(){
-          $(".provision_rvms_quota_input", context).change();
-          $(".provision_memory_quota_input", context).change();
-          $(".provision_memory_quota_tmp_input", context).change();
-          $(".provision_cpu_quota_input", context).change();
-
-          // Workaround until hidden Foundation.slider can be initialized
-          var intervalCounter = 0;
-          var intervalId = setInterval(function() {
-
-            if ($("#provision_create_user_manual_quota", context).is(":visible") ||
-                intervalCounter > 5){
-
-              context.foundation('slider', 'reflow');
-              clearInterval(intervalId);
-            }
-
-            intervalCounter += 1;
-          }, 500);
-
-        });
-
-        $("#provision_create_user").submit(function(){
-          var context = $(this);
-
-          var username = $("#username", context).val();
-          var password = $("#password", context).val();
-          var repeat_password = $("#repeat_password", context).val();
-
-          // TODO driver
-          var driver = 'core';
-
-          if (!username.length || !password.length){
-            $(".alert-box-error", context).fadeOut();
-            $(".alert-box-error", context).fadeIn().html(Locale.tr("You have to provide a username and password"));
-            return false;
-          }
-
-          if (password !== repeat_password){
-            $(".alert-box-error", context).fadeOut();
-            $(".alert-box-error", context).fadeIn().html(Locale.tr("Passwords do not match"));
-            return false;
-          }
-
-          var user_json = { "user" :
-                            { "name" : username,
-                              "password" : password,
-                              "auth_driver" : driver
-                            }
-                          };
-
-          Sunstone.runAction("Provision.User.create",user_json);
-          $(".alert-box-error", context).html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-            '</span>'+
-            '</div>');
-
-          return false;
-        });
-
-        $(document).on("click", ".provision_create_user_button", function(){
-          show_provision_create_user();
         });
       }
     });

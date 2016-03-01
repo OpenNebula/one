@@ -18,7 +18,6 @@ tabs:
             vm_template_tab: false
             vm_log_tab: false
         provision_tabs:
-            users: false
             flows: true
             templates: false
         actions: &provisionactions
@@ -51,7 +50,6 @@ tabs:
             vms: true
             vdcquotas: false
             vdcvms: false
-            users:  false
         create_vm:
             capacity_select: false
             network_select: true
