@@ -385,7 +385,7 @@ public:
     void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
             vector<VectorAttribute *> pci)
     {
-        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        if ( vm_collection.add(vm_id) == 0 )
         {
             host_share.add(vm_id, cpu, mem, disk, pci);
         }
@@ -412,7 +412,7 @@ public:
     void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
             vector<VectorAttribute *> pci)
     {
-        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        if ( vm_collection.del(vm_id) == 0 )
         {
             host_share.del(cpu, mem, disk, pci);
         }
@@ -471,7 +471,7 @@ public:
      */
     set<int> get_vm_ids()
     {
-        return vm_collection.get_collection_copy();
+        return vm_collection.clone();
     }
 
     /**

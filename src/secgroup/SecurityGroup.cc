@@ -41,7 +41,11 @@ SecurityGroup::SecurityGroup(
         int             _umask,
         Template*       sgroup_template):
         PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,table),
-        vm_collection("VMS")
+        updated("UPDATED_VMS"),
+        outdated("OUTDATED_VMS"),
+        updating("UPDATING_VMS"),
+        error("ERROR_VMS")
+
 {
     if (sgroup_template != 0)
     {
@@ -196,19 +200,25 @@ string& SecurityGroup::to_xml(string& xml) const
     ostringstream   oss;
     string          template_xml;
     string          perms_xml;
-    string          vm_collection_xml;
+    string          updated_xml;
+    string          outdated_xml;
+    string          updating_xml;
+    string          error_xml;
 
     oss <<
     "<SECURITY_GROUP>"    <<
-        "<ID>"      << oid      << "</ID>"          <<
-        "<UID>"     << uid      << "</UID>"         <<
-        "<GID>"     << gid      << "</GID>"         <<
-        "<UNAME>"   << uname    << "</UNAME>"       <<
-        "<GNAME>"   << gname    << "</GNAME>"       <<
-        "<NAME>"    << name     << "</NAME>"        <<
-        perms_to_xml(perms_xml)                                   <<
-        vm_collection.to_xml(vm_collection_xml)                   <<
-        obj_template->to_xml(template_xml) <<
+        "<ID>"      << oid      << "</ID>"     <<
+        "<UID>"     << uid      << "</UID>"    <<
+        "<GID>"     << gid      << "</GID>"    <<
+        "<UNAME>"   << uname    << "</UNAME>"  <<
+        "<GNAME>"   << gname    << "</GNAME>"  <<
+        "<NAME>"    << name     << "</NAME>"   <<
+        perms_to_xml(perms_xml)                <<
+        updated.to_xml(updated_xml)<<
+        outdated.to_xml(outdated_xml)      <<
+        updating.to_xml(updating_xml)      <<
+        error.to_xml(error_xml)      <<
+        obj_template->to_xml(template_xml)     <<
     "</SECURITY_GROUP>";
 
     xml = oss.str();
@@ -252,14 +262,50 @@ int SecurityGroup::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    ObjectXML::get_nodes("/SECURITY_GROUP/VMS", content);
+    ObjectXML::get_nodes("/SECURITY_GROUP/UPDATED_VMS", content);
 
     if (content.empty())
     {
         return -1;
     }
 
-    rc += vm_collection.from_xml_node(content[0]);
+    rc += updated.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    ObjectXML::get_nodes("/SECURITY_GROUP/OUTDATED_VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += outdated.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    ObjectXML::get_nodes("/SECURITY_GROUP/UPDATING_VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += updating.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    ObjectXML::get_nodes("/SECURITY_GROUP/ERROR_VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += error.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -427,3 +473,6 @@ int SecurityGroup::post_update_template(string& error)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

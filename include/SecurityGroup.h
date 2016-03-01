@@ -58,25 +58,38 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     *  Adds a VM ID to the set.
+     *  Adds a VM ID to the security group (up-to-date set)
      *    @param vm_id The new id
      *
      *    @return 0 on success, -1 if the ID was already in the set
      */
     int add_vm(int vm_id)
     {
-        return vm_collection.add_collection_id(vm_id);
+        return updated.add(vm_id);
     }
 
     /**
-     *  Deletes a VM ID from the set.
+     *  Deletes a VM ID from the security Group (any of the sets)
      *    @param vm_id The id
-     *
-     *    @return 0 on success, -1 if the ID was not in the set
      */
-    int del_vm(int vm_id)
+    void del_vm(int vm_id)
     {
-        return vm_collection.del_collection_id(vm_id);
+        if ( updated.del(vm_id) == 0 )
+        {
+            return;
+        }
+
+        if ( updating.del(vm_id) == 0 )
+        {
+            return;
+        }
+
+        if ( error.del(vm_id) == 0 )
+        {
+            return;
+        }
+
+        outdated.del(vm_id);
     }
 
     /**
@@ -85,7 +98,7 @@ public:
      */
     int get_vms() const
     {
-        return vm_collection.get_collection_size();
+        return updated.size() + updating.size() + error.size() + outdated.size();
     }
 
     /**
@@ -97,6 +110,49 @@ public:
      * @return a group of vector attributes
      */
      void get_rules(vector<VectorAttribute*>& result) const;
+
+     /**
+      * Commit SG changes to associated VMs
+      *   @param recover, if true It will propagate the changes to VMs in error
+      *   and those being updated. Otherwise all VMs associated with the SG will
+      *   be updated
+      */
+    void commit(bool recover)
+    {
+        if (!recover)
+        {
+            outdated << updated;
+            updated.clear();
+        }
+
+        outdated << updating << error;
+
+        updating.clear();
+        error.clear();
+    };
+
+    /**
+     *  Functions to manipulate the vm collection id's
+     */
+    int get_outdated(int& id)
+    {
+        return outdated.pop(id);
+    }
+
+    int add_updating(int id)
+    {
+        return updating.add(id);
+    }
+
+    int del_updating(int id)
+    {
+        return updating.del(id);
+    }
+
+    int add_error(int id)
+    {
+        return error.add(id);
+    }
 
 private:
 
@@ -191,9 +247,20 @@ private:
     }
 
     /**
-     *  Stores a collection with the VMs using the security group
+     *  These collections stores the collection of VMs in the security
+     *  group and manages the update process of a Security Group
+     *    - updated VMs using the last version of the sg rules
+     *    - outdated VMs with a previous version of the security group
+     *    - updating VMs being updated, action sent to the drivers
+     *    - error VMs that fail to update because of a wrong state or driver error
      */
-    ObjectCollection vm_collection;
+    ObjectCollection updated;
+
+    ObjectCollection outdated;
+
+    ObjectCollection updating;
+
+    ObjectCollection error;
 };
 
 #endif /*SECURITYGROUP_H_*/

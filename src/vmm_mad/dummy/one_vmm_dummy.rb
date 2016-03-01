@@ -176,6 +176,15 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:cleanup],result,id)
     end
 
+    def update_sg(id, drv_message)
+        result = retrieve_result("update_sg")
+
+        xml_data = decode(drv_message)
+        sg_id    = xml_data.elements['SECURITY_GROUP_ID'].text
+
+        send_message(ACTION[:update_sg],result,id,sg_id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 

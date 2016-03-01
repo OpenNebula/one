@@ -44,7 +44,6 @@ Datastore::Datastore(
         int                 cluster_id,
         const string&       cluster_name):
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
-            ObjectCollection("IMAGES"),
             Clusterable(cluster_id, cluster_name),
             ds_mad(""),
             tm_mad(""),
@@ -54,7 +53,8 @@ Datastore::Datastore(
             total_mb(0),
             free_mb(0),
             used_mb(0),
-            state(READY)
+            state(READY),
+            images("IMAGES")
 {
     if (ds_template != 0)
     {
@@ -649,8 +649,6 @@ string& Datastore::to_xml(string& xml) const
     string          template_xml;
     string          perms_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     oss <<
     "<DATASTORE>"               <<
         "<ID>"                  << oid          << "</ID>"          <<
@@ -671,8 +669,8 @@ string& Datastore::to_xml(string& xml) const
         "<TOTAL_MB>"            << total_mb     << "</TOTAL_MB>"    <<
         "<FREE_MB>"             << free_mb      << "</FREE_MB>"     <<
         "<USED_MB>"             << used_mb      << "</USED_MB>"     <<
-        collection_xml          <<
-        obj_template->to_xml(template_xml)                  <<
+        images.to_xml(collection_xml)      <<
+        obj_template->to_xml(template_xml) <<
     "</DATASTORE>";
 
     xml = oss.str();
@@ -731,7 +729,7 @@ int Datastore::from_xml(const string& xml)
     }
 
     // Set of IDs
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += images.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();

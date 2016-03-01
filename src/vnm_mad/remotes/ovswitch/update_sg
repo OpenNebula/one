@@ -1,4 +1,4 @@
-# SConstruct for src/rm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
@@ -15,42 +15,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+source $(dirname $0)/../../scripts_common.sh
 
-Import('env')
-
-lib_name='nebula_rm'
-
-#Sources to generate the library
-source_files=[
-    'Request.cc',
-    'RequestManager.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfoFilter.cc',
-    'RequestManagerDelete.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerVirtualNetwork.cc',
-    'RequestManagerVirtualMachine.cc',
-    'RequestManagerVMTemplate.cc',
-    'RequestManagerUpdateTemplate.cc',
-    'RequestManagerUser.cc',
-    'RequestManagerGroup.cc',
-    'RequestManagerHost.cc',
-    'RequestManagerImage.cc',
-    'RequestManagerChown.cc',
-    'RequestManagerAcl.cc',
-    'RequestManagerChmod.cc',
-    'RequestManagerCluster.cc',
-    'RequestManagerClone.cc',
-    'RequestManagerSystem.cc',
-    'RequestManagerRename.cc',
-    'RequestManagerProxy.cc',
-    'RequestManagerVdc.cc',
-    'RequestManagerDatastore.cc',
-    'RequestManagerLock.cc',
-    'RequestManagerMarketPlaceApp.cc',
-    'RequestManagerVirtualRouter.cc',
-    'RequestManagerSecurityGroup.cc'
-]
-
-# Build library
-env.StaticLibrary(lib_name, source_files)
+log_error "Security groups not supported for ovswitch"
+exit 1

@@ -70,26 +70,26 @@ int Cluster::check_drop(string& error_msg)
 {
     ostringstream oss;
 
-    if ( hosts.get_collection_size() > 0 )
+    if ( hosts.size() > 0 )
     {
         oss << "Cluster " << oid << " is not empty, it contains "
-            << hosts.get_collection_size() << " hosts.";
+            << hosts.size() << " hosts.";
 
         goto error_common;
     }
 
-    if ( datastores.get_collection_size() > 0 )
+    if ( datastores.size() > 0 )
     {
         oss << "Cluster " << oid << " is not empty, it contains "
-            << datastores.get_collection_size() << " datastores.";
+            << datastores.size() << " datastores.";
 
         goto error_common;
     }
 
-    if ( vnets.get_collection_size() > 0 )
+    if ( vnets.size() > 0 )
     {
         oss << "Cluster " << oid << " is not empty, it contains "
-            << vnets.get_collection_size() << " vnets.";
+            << vnets.size() << " vnets.";
 
         goto error_common;
     }
@@ -124,7 +124,7 @@ string& Cluster::get_ds_location(string &ds_location)
 
 int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
 {
-   int rc = datastores.add_collection_id(id);
+   int rc = datastores.add(id);
 
     if ( rc < 0 )
     {
@@ -139,7 +139,7 @@ int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& err
 
 int Cluster::del_datastore(int id, string& error_msg)
 {
-    int rc = datastores.del_collection_id(id);
+    int rc = datastores.del(id);
 
     if ( rc < 0 )
     {

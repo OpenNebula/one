@@ -190,7 +190,7 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -2;
     }
 
-    if( group->get_collection_size() > 0 )
+    if( group->users.size() > 0 )
     {
         ostringstream oss;
         oss << "Group " << group->get_oid() << " is not empty.";

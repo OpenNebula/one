@@ -125,6 +125,15 @@ public:
         return vmd->is_imported_action_supported(action);
     }
 
+    /**
+     * Updates firewall rules of a VM
+     *   @param vm pointer to VM, needs to be locked
+     *   @param sgid the id of the security group
+     *
+     *   @return 0 on success
+     */
+    int updatesg(VirtualMachine * vm, int sgid);
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager
@@ -248,6 +257,7 @@ private:
      *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
      *    @param ds_id of the system datastore
+     *    @param id of the security group
      */
     string * format_message(
         const string& hostname,
@@ -262,7 +272,8 @@ private:
         const string& tm_command_rollback,
         const string& disk_target_path,
         const string& tmpl,
-        int ds_id);
+        int ds_id,
+        int sgid);
 
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on

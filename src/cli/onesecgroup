@@ -183,6 +183,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    commit_desc = <<-EOT.unindent
+        Commit SG changes to associated VMs. This command is to propagate
+        security group rules to VMs when they are updated. This operation takes
+        time to iterate over all VMs in the security group, progress can be
+        checked through the outdated, updating and error VM sets.
+    EOT
+
+    command :commit, rename_desc, :secgroupid,
+        :options =>[OneSecurityGroupHelper::RECOVER] do
+        helper.perform_action(args[0], options, "commit") do |o|
+            o.commit(options[:recover]==true)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Security Group in the pool
     EOT

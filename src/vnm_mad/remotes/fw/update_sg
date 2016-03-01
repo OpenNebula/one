@@ -1,4 +1,4 @@
-# SConstruct for src/rm
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
@@ -16,41 +16,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-lib_name='nebula_rm'
+require 'vnmmad'
 
-#Sources to generate the library
-source_files=[
-    'Request.cc',
-    'RequestManager.cc',
-    'RequestManagerInfo.cc',
-    'RequestManagerPoolInfoFilter.cc',
-    'RequestManagerDelete.cc',
-    'RequestManagerAllocate.cc',
-    'RequestManagerVirtualNetwork.cc',
-    'RequestManagerVirtualMachine.cc',
-    'RequestManagerVMTemplate.cc',
-    'RequestManagerUpdateTemplate.cc',
-    'RequestManagerUser.cc',
-    'RequestManagerGroup.cc',
-    'RequestManagerHost.cc',
-    'RequestManagerImage.cc',
-    'RequestManagerChown.cc',
-    'RequestManagerAcl.cc',
-    'RequestManagerChmod.cc',
-    'RequestManagerCluster.cc',
-    'RequestManagerClone.cc',
-    'RequestManagerSystem.cc',
-    'RequestManagerRename.cc',
-    'RequestManagerProxy.cc',
-    'RequestManagerVdc.cc',
-    'RequestManagerDatastore.cc',
-    'RequestManagerLock.cc',
-    'RequestManagerMarketPlaceApp.cc',
-    'RequestManagerVirtualRouter.cc',
-    'RequestManagerSecurityGroup.cc'
-]
+template64 = ARGV[0]
+deploy_id  = ARGV[1]
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+begin
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64, deploy_id)
+    filter_driver.activate(true)
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

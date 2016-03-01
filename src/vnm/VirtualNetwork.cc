@@ -707,7 +707,7 @@ int VirtualNetwork::vrouter_nic_attribute(
 
     if (rc == 0)
     {
-        vrouters.add_collection_id(vrid);
+        vrouters.add(vrid);
     }
 
     return rc;

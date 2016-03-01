@@ -26,7 +26,7 @@
 /**
  *  The Datastore class.
  */
-class Datastore : public PoolObjectSQL, ObjectCollection, public Clusterable
+class Datastore : public PoolObjectSQL, public Clusterable
 {
 public:
     /**
@@ -108,7 +108,7 @@ public:
      */
     int add_image(int id)
     {
-        return add_collection_id(id);
+        return images.add(id);
     };
 
     /**
@@ -118,7 +118,7 @@ public:
      */
     int del_image(int id)
     {
-        return del_collection_id(id);
+        return images.del(id);
     };
 
     /**
@@ -126,7 +126,15 @@ public:
      */
     set<int> get_image_ids()
     {
-        return get_collection_copy();
+        return images.clone();
+    }
+
+    /**
+     *  Returns the number of images
+     */
+    int images_size()
+    {
+        return images.size();
     }
 
     /**
@@ -294,6 +302,11 @@ private:
      *  Datastore state
      */
     DatastoreState state;
+
+    /**
+     *  Collection of image ids in this datastore
+     */
+    ObjectCollection images;
 
     // *************************************************************************
     // Constructor

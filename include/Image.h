@@ -294,7 +294,7 @@ public:
 
     int dec_running (int vm_id)
     {
-        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        if ( vm_collection.del(vm_id) == 0 )
         {
             running_vms--;
         }
@@ -304,7 +304,7 @@ public:
 
     int inc_running(int vm_id)
     {
-        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        if ( vm_collection.add(vm_id) == 0 )
         {
             running_vms++;
         }
@@ -324,7 +324,7 @@ public:
 
     int dec_cloning(int img_id)
     {
-        if ( img_clone_collection.del_collection_id(img_id) == 0 )
+        if ( img_clone_collection.del(img_id) == 0 )
         {
             cloning_ops--;
         }
@@ -334,7 +334,7 @@ public:
 
     int inc_cloning(int img_id)
     {
-        if ( img_clone_collection.add_collection_id(img_id) == 0 )
+        if ( img_clone_collection.add(img_id) == 0 )
         {
             cloning_ops++;
         }

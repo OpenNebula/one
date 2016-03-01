@@ -73,6 +73,7 @@ void LifeCycleManager::init_managers()
     vmpool = nd.get_vmpool();
     hpool  = nd.get_hpool();
     ipool  = nd.get_ipool();
+    sgpool = nd.get_secgrouppool();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -293,6 +294,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case POWEROFF_HARD:
         aname = "POWEROFF_HARD";
+        break;
+
+    case UPDATESG:
+        aname = "UPDATESG";
         break;
 
     default:
@@ -523,6 +528,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "POWEROFF_HARD")
     {
         poweroff_hard_action(vid);
+    }
+    else if (action == "UPDATESG")
+    {
+        updatesg_action(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

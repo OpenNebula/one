@@ -80,7 +80,7 @@ string& ObjectCollection::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectCollection::add_collection_id(int id)
+int ObjectCollection::add(int id)
 {
     pair<set<int>::iterator,bool> ret;
 
@@ -97,7 +97,7 @@ int ObjectCollection::add_collection_id(int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectCollection::del_collection_id(int id)
+int ObjectCollection::del(int id)
 {
     if( collection_set.erase(id) != 1 )
     {
@@ -107,3 +107,37 @@ int ObjectCollection::del_collection_id(int id)
     return 0;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectCollection::pop(int& elem)
+{
+    if (collection_set.empty())
+    {
+        return -1;
+    }
+
+    set<int>::iterator it = collection_set.begin();
+
+    elem = *it;
+
+    collection_set.erase(it);
+
+    return 0;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ObjectCollection& ObjectCollection::operator<<(const ObjectCollection& r)
+{
+    set<int>::const_iterator i;
+
+    for (i = r.collection_set.begin(); i != r.collection_set.end(); ++i)
+    {
+        collection_set.insert(*i);
+    }
+
+    return *this;
+}

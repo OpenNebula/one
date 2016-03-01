@@ -42,14 +42,23 @@ public:
      */
     string& to_xml(string& xml) const;
 
-    int add_vmid(int vmid);
+    int add_vmid(int vmid)
+    {
+        return vms.add(vmid);
+    }
 
-    bool has_vmids() const;
+    bool has_vmids() const
+    {
+        return vms.size() > 0;
+    }
 
     /**
      *  Returns a copy of the VM IDs set
      */
-    set<int> get_vms() const;
+    set<int> get_vms() const
+    {
+        return vms.clone();
+    }
 
     // ------------------------------------------------------------------------
     // Template Contents

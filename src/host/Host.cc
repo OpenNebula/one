@@ -325,7 +325,7 @@ int Host::update_info(Template        &tmpl,
 
     obj_template->remove("VM", vm_att);
 
-    tmp_lost_vms = vm_collection.get_collection_copy();
+    tmp_lost_vms = vm_collection.clone();
 
     tmp_zombie_vms.clear();
 
@@ -497,7 +497,7 @@ void Host::error_info(const string& message, set<int> &vm_ids)
 {
     ostringstream oss;
 
-    vm_ids = vm_collection.get_collection_copy();
+    vm_ids = vm_collection.clone();
 
     oss << "Error monitoring Host " << get_name() << " (" << get_oid() << ")"
         << ": " << message;

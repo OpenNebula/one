@@ -213,7 +213,7 @@ public:
 
         if (ot == PoolObjectSQL::VROUTER)
         {
-            vrouters.del_collection_id(oid);
+            vrouters.del(oid);
         }
     }
 
@@ -229,7 +229,7 @@ public:
 
         if (ot == PoolObjectSQL::VROUTER)
         {
-            vrouters.del_collection_id(oid);
+            vrouters.del(oid);
         }
     }
 

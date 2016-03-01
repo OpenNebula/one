@@ -21,6 +21,7 @@
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
 #include "ImagePool.h"
+#include "SecurityGroupPool.h"
 
 using namespace std;
 
@@ -41,7 +42,7 @@ class LifeCycleManager : public ActionListener
 public:
 
     LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0), imagem(0)
+        vmpool(0), hpool(0), ipool(0), sgpool(0), tm(0), vmm(0), dm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -101,7 +102,8 @@ public:
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
-        FINALIZE
+        FINALIZE,
+        UPDATESG          /**< Sent by RM/VMM to trigger the secgroup update  */
     };
 
     /**
@@ -170,6 +172,11 @@ private:
      *  Pointer to the Image Pool, to access images
      */
     ImagePool *             ipool;
+
+    /**
+     *  Pointer to the SecurityGroup Pool
+     */
+    SecurityGroupPool *     sgpool;
 
     /**
      * Pointer to TransferManager
@@ -312,6 +319,8 @@ private:
     void poweroff_hard_action(int vid);
 
     void poweroff_action(int vid, bool hard);
+
+    void updatesg_action(int sgid);
 
     void restart_action(int vid);
 

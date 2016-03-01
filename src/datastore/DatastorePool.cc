@@ -251,7 +251,7 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     int rc;
 
-    if( datastore->get_collection_size() > 0 )
+    if( datastore->images_size() > 0 )
     {
         ostringstream oss;
         oss << "Datastore " << datastore->get_oid() << " is not empty.";

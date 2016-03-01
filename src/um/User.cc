@@ -225,15 +225,13 @@ string& User::to_xml_extended(string& xml, bool extended) const
     string collection_xml;
     string token_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     int  enabled_int = enabled?1:0;
 
     oss <<
     "<USER>"
          "<ID>"          << oid         <<"</ID>"         <<
          "<GID>"         << gid         <<"</GID>"        <<
-         collection_xml  <<
+         groups.to_xml(collection_xml)  <<
          "<GNAME>"       << gname       <<"</GNAME>"      <<
          "<NAME>"        << name        <<"</NAME>"       <<
          "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
@@ -314,7 +312,7 @@ int User::from_xml(const string& xml)
     }
 
     // Set of IDs
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += groups.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();

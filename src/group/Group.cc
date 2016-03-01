@@ -217,14 +217,12 @@ string& Group::to_xml_extended(string& xml, bool extended) const
     string          admins_xml;
     string          template_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     oss <<
     "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"        <<
         "<NAME>" << name << "</NAME>"      <<
         obj_template->to_xml(template_xml) <<
-        collection_xml                     <<
+        users.to_xml(collection_xml) <<
         admins.to_xml(admins_xml);
 
     if (extended)
@@ -273,7 +271,7 @@ int Group::from_xml(const string& xml)
         return -1;
     }
 
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += users.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -320,7 +318,7 @@ int Group::add_admin(int user_id, string& error_msg)
     int rc;
     ostringstream oss;
 
-    if ( collection_contains(user_id) == false )
+    if ( users.contains(user_id) == false )
     {
         oss << "User " << user_id << " is not part of Group "
             << oid << ".";
@@ -330,7 +328,7 @@ int Group::add_admin(int user_id, string& error_msg)
         return -1;
     }
 
-    rc = admins.add_collection_id(user_id);
+    rc = admins.add(user_id);
 
     if (rc == -1)
     {
@@ -413,7 +411,7 @@ void Group::add_admin_rules(int user_id)
 
 int Group::del_admin(int user_id, string& error_msg)
 {
-    int rc = admins.del_collection_id(user_id);
+    int rc = admins.del(user_id);
 
     if (rc == -1)
     {

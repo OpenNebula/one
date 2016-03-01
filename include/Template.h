@@ -192,6 +192,16 @@ public:
      */
     virtual void set(Attribute * attr);
 
+    virtual void set(vector<SingleAttribute *>& values)
+    {
+        _set<SingleAttribute>(values);
+    }
+
+    virtual void set(vector<VectorAttribute *>& values)
+    {
+        _set<VectorAttribute>(values);
+    }
+
     /**
      *  Adds a new attribute to the template (replacing it if already defined)
      *    @param name of the new attribute
@@ -574,6 +584,17 @@ private:
     {
         return const_cast<T *>(
                 static_cast<const Template&>(*this).__get<T>(s));
+    }
+
+    template<typename T>
+    void _set(vector<T *>& values)
+    {
+        typename vector<T *>::iterator it;
+
+        for(it = values.begin(); it != values.end(); it++ )
+        {
+            set(*it);
+        }
     }
 };
 

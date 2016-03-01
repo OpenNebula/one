@@ -27,7 +27,7 @@
  *  The MarketPlace class. It represents an abstract container for OpenNebula
  *  objects (Image, VM Templates or Flows)
  */
-class MarketPlace : public PoolObjectSQL, ObjectCollection
+class MarketPlace : public PoolObjectSQL
 {
 public:
     /**
@@ -52,7 +52,7 @@ public:
      */
     int add_marketapp(int id)
     {
-        return add_collection_id(id);
+        return marketapps.add(id);
     };
 
     /**
@@ -62,7 +62,7 @@ public:
      */
     int del_marketapp(int id)
     {
-        return del_collection_id(id);
+        return marketapps.del(id);
     };
 
     /**
@@ -70,7 +70,7 @@ public:
      */
     set<int> get_marketapp_ids()
     {
-        return get_collection_copy();
+        return marketapps.clone();
     }
 
     /**
@@ -131,6 +131,11 @@ private:
      *  Supported actions on MarketPlaceApps
      */
     ActionSet<MarketPlaceApp::Action> supported_actions;
+
+    /**
+     *  Collection of MarketPlaceApps in this MarketPlace
+     */
+    ObjectCollection marketapps;
 
     // *************************************************************************
     // Constructor

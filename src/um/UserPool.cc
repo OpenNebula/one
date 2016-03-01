@@ -330,7 +330,7 @@ int UserPool::allocate (
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Add the primary group to the collection
-    user->add_collection_id(gid);
+    user->groups.add(gid);
 
     // Set a password for the OneGate tokens
     user->add_template_attribute("TOKEN_PASSWORD", one_util::random_password());

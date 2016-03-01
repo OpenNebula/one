@@ -46,11 +46,11 @@ MarketPlace::MarketPlace(
     int                   umask,
     MarketPlaceTemplate * mp_template):
         PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, table),
-        ObjectCollection("MARKETPLACEAPPS"),
         market_mad(""),
         total_mb(0),
         free_mb(0),
-        used_mb(0)
+        used_mb(0),
+        marketapps("MARKETPLACEAPPS")
 {
     if (mp_template != 0)
     {
@@ -264,7 +264,6 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 	std::string        collection_xml;
 	std::string        perm_str;
 
-    ObjectCollection::to_xml(collection_xml);
 
     oss << "<MARKETPLACE>"
 			"<ID>"    << oid   << "</ID>"  <<
@@ -277,7 +276,7 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 			"<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
 			"<FREE_MB>"  << free_mb  << "</FREE_MB>"  <<
 			"<USED_MB>"  << used_mb  << "</USED_MB>"  <<
-			collection_xml <<
+            marketapps.to_xml(collection_xml) <<
 			perms_to_xml(perm_str) <<
 			obj_template->to_xml(template_xml) <<
         "</MARKETPLACE>";
@@ -348,7 +347,7 @@ int MarketPlace::from_xml(const std::string &xml_str)
         return -1;
     }
 
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += marketapps.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
 

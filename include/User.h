@@ -33,7 +33,7 @@ using namespace std;
 /**
  *  The User class.
  */
-class User : public PoolObjectSQL, public ObjectCollection
+class User : public PoolObjectSQL
 {
 public:
 
@@ -178,7 +178,7 @@ public:
      */
     set<int> get_groups()
     {
-        return get_collection_copy();
+        return groups.clone();
     };
 
     // *************************************************************************
@@ -193,7 +193,7 @@ public:
      */
     int add_group(int group_id)
     {
-        return add_collection_id(group_id);
+        return groups.add(group_id);
     }
 
     /**
@@ -211,7 +211,7 @@ public:
             return -2;
         }
 
-        return del_collection_id(group_id);
+        return groups.del(group_id);
     }
 
     // *************************************************************************
@@ -267,6 +267,11 @@ private:
      * Flag marking user enabled/disabled
      */
     bool        enabled;
+
+    /**
+     *  Collection og group ids for this user
+     */
+    ObjectCollection groups;
 
     // *************************************************************************
     // Authentication session (Private)
@@ -353,11 +358,11 @@ protected:
          const string& _auth_driver,
          bool          _enabled):
         PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,table),
-        ObjectCollection("GROUPS"),
         quota(),
         password(_password),
         auth_driver(_auth_driver),
-        enabled(_enabled)
+        enabled(_enabled),
+        groups("GROUPS")
     {
         obj_template = new UserTemplate;
     };

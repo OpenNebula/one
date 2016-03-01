@@ -159,13 +159,18 @@ int VirtualRouter::drop(SqlDB * db)
 
 int VirtualRouter::shutdown_vms()
 {
-    DispatchManager *   dm = Nebula::instance().get_dm();
-    set<int>::iterator  it;
-    string              error;
-    int                 rc;
-    int                 result = 0;
+    DispatchManager* dm = Nebula::instance().get_dm();
 
-    for (it = vms.get_collection().begin(); it != vms.get_collection().end(); it++)
+    set<int> _vms;
+    set<int>::iterator  it;
+
+    string error;
+    int rc;
+    int result = 0;
+
+    _vms = vms.get_collection();
+
+    for (it = _vms.begin(); it != _vms.end(); it++)
     {
         rc = dm->shutdown(*it, true, error);
 
@@ -580,30 +585,6 @@ int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
     delete new_tmpl;
 
     return PoolObjectSQL::append_template(new_str, keep_restricted, error);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualRouter::add_vmid(int vmid)
-{
-    return vms.add_collection_id(vmid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualRouter::has_vmids() const
-{
-    return vms.get_collection_size() > 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-set<int> VirtualRouter::get_vms() const
-{
-    return vms.get_collection_copy();
 }
 
 /* -------------------------------------------------------------------------- */

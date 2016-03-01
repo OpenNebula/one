@@ -450,6 +450,12 @@ public:
         obj_template->add(name, value);
     }
 
+    template<typename T>
+    void add_template_attribute(vector<T *>& values)
+    {
+        obj_template->set(values);
+    }
+
     /**
      *  Factory method for templates, it should be implemented
      *  by classes that uses templates

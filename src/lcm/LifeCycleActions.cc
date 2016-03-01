@@ -1523,3 +1523,185 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
     return;
 }
+
+/*  -------------------------------------------------------------------------- */
+/*  -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::updatesg_action(int sgid)
+{
+    VirtualMachine * vm;
+
+    int  vmid;
+
+    SecurityGroup  * sg = sgpool->get(sgid, true);
+
+    if ( sg == 0 )
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Iterate over SG VMs, rules at hypervisor are updated one by one
+    // -------------------------------------------------------------------------
+    do
+    {
+        bool is_error = false;
+        bool is_tmpl  = false;
+        bool is_update= false;
+
+        if (sg->get_outdated(vmid) != 0)
+        {
+            sgpool->update(sg);
+            sg->unlock();
+
+            return;
+        }
+
+        sg->unlock();
+
+        vm = vmpool->get(vmid, true);
+
+        if ( vm == 0 )
+        {
+            continue;
+        }
+
+        VirtualMachine::LcmState lstate = vm->get_lcm_state();
+        VirtualMachine::VmState  state  = vm->get_state();
+
+        if ( state != VirtualMachine::ACTIVE ) //Update just VM information
+        {
+            is_tmpl = true;
+        }
+        else
+        {
+            switch (lstate)
+            {
+                //Cannnot update these VMs, SG rules being updated/created
+                case VirtualMachine::BOOT:
+                case VirtualMachine::BOOT_MIGRATE:
+                case VirtualMachine::BOOT_SUSPENDED:
+                case VirtualMachine::BOOT_STOPPED:
+                case VirtualMachine::BOOT_UNDEPLOY:
+                case VirtualMachine::BOOT_POWEROFF:
+                case VirtualMachine::BOOT_UNKNOWN:
+                case VirtualMachine::BOOT_FAILURE:
+                case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+                case VirtualMachine::BOOT_STOPPED_FAILURE:
+                case VirtualMachine::MIGRATE:
+                case VirtualMachine::HOTPLUG_NIC:
+                case VirtualMachine::UNKNOWN:
+                    is_error = true;
+                    break;
+
+                //Update just VM information
+                case VirtualMachine::LCM_INIT:
+                case VirtualMachine::PROLOG:
+                case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+                case VirtualMachine::PROLOG_RESUME_FAILURE:
+                case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_RESUME:
+                case VirtualMachine::PROLOG_UNDEPLOY:
+                case VirtualMachine::EPILOG:
+                case VirtualMachine::EPILOG_STOP:
+                case VirtualMachine::EPILOG_UNDEPLOY:
+                case VirtualMachine::EPILOG_FAILURE:
+                case VirtualMachine::EPILOG_STOP_FAILURE:
+                case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::SHUTDOWN:
+                case VirtualMachine::SHUTDOWN_POWEROFF:
+                case VirtualMachine::SHUTDOWN_UNDEPLOY:
+                case VirtualMachine::SAVE_STOP:
+                case VirtualMachine::SAVE_SUSPEND:
+                case VirtualMachine::SAVE_MIGRATE:
+                case VirtualMachine::CLEANUP_RESUBMIT:
+                case VirtualMachine::CLEANUP_DELETE:
+                case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
+                case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+                case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+                case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+                case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+                case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+                    is_tmpl = true;
+                    break;
+
+                //Update VM information + SG rules at host
+                case VirtualMachine::RUNNING:
+                case VirtualMachine::HOTPLUG:
+                case VirtualMachine::HOTPLUG_SNAPSHOT:
+                case VirtualMachine::HOTPLUG_SAVEAS:
+                case VirtualMachine::DISK_SNAPSHOT:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT:
+                case VirtualMachine::DISK_SNAPSHOT_DELETE:
+                    is_update = true;
+                    break;
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Update VM template with the new security group rules & trigger update
+        // ---------------------------------------------------------------------
+        if ( is_tmpl || is_update )
+        {
+            vector<VectorAttribute *> sg_rules;
+
+            sgpool->get_security_group_rules(-1, sgid, sg_rules);
+
+            vm->remove_security_group(sgid);
+
+            vm->add_template_attribute(sg_rules);
+
+            vmpool->update(vm);
+        }
+
+        if ( is_update )
+        {
+            vmm->updatesg(vm, sgid);
+        }
+
+        vm->unlock();
+
+        sg = sgpool->get(sgid, true);
+
+        if ( sg == 0 )
+        {
+            return;
+        }
+
+        // ---------------------------------------------------------------------
+        // Update VM status in the security group and exit
+        // ---------------------------------------------------------------------
+        if ( is_error )
+        {
+            sg->add_error(vmid);
+        }
+        else if ( is_tmpl )
+        {
+            sg->add_vm(vmid);
+        }
+        else if ( is_update )
+        {
+            sg->add_updating(vmid);
+        }
+
+        sgpool->update(sg);
+
+        if (is_update)
+        {
+            sg->unlock();
+            return;
+        }
+    } while (true);
+}
+
