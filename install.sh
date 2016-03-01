@@ -716,7 +716,9 @@ VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/snapshot_revert \
                     src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown"
+                    src/vmm_mad/remotes/xen/shutdown \
+                    src/vmm_mad/remotes/xen/reconfigure \
+                    src/vmm_mad/remotes/xen/prereconfigure"
 
 VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/deploy \
@@ -734,7 +736,9 @@ VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
                     src/vmm_mad/remotes/xen/snapshot_create \
                     src/vmm_mad/remotes/xen/snapshot_revert \
                     src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown"
+                    src/vmm_mad/remotes/xen/shutdown \
+                    src/vmm_mad/remotes/xen/reconfigure \
+                    src/vmm_mad/remotes/xen/prereconfigure"
 #-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
 #-------------------------------------------------------------------------------
@@ -802,7 +806,9 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
                       src/vmm_mad/remotes/ec2/poll \
-                      src/vmm_mad/remotes/ec2/shutdown"
+                      src/vmm_mad/remotes/ec2/shutdown \
+                      src/vmm_mad/remotes/ec2/reconfigure \
+                      src/vmm_mad/remotes/ec2/prereconfigure"
 
 #------------------------------------------------------------------------------
 # VMM Driver SoftLayer scripts, to be installed under $REMOTES_LOCATION/vmm/sl
@@ -823,7 +829,9 @@ VMM_EXEC_SL_SCRIPTS="src/vmm_mad/remotes/sl/cancel \
                      src/vmm_mad/remotes/sl/reset \
                      src/vmm_mad/remotes/sl/save \
                      src/vmm_mad/remotes/sl/poll \
-                     src/vmm_mad/remotes/sl/shutdown"
+                     src/vmm_mad/remotes/sl/shutdown \
+                     src/vmm_mad/remotes/sl/reconfigure \
+                     src/vmm_mad/remotes/sl/prereconfigure"
 
 #------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
@@ -844,7 +852,9 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/reset \
                      src/vmm_mad/remotes/az/save \
                      src/vmm_mad/remotes/az/poll \
-                     src/vmm_mad/remotes/az/shutdown"
+                     src/vmm_mad/remotes/az/shutdown \
+                     src/vmm_mad/remotes/az/reconfigure \
+                     src/vmm_mad/remotes/az/prereconfigure"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
