@@ -51,8 +51,9 @@ tabs:
             vdcquotas: false
             vdcvms: false
         create_vm:
-            capacity_select: false
+            capacity_select: true
             network_select: true
+            disk_resize: false
     settings-tab:
         panel_tabs:
             user_info_tab: false
