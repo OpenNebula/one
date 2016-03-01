@@ -27,6 +27,7 @@ define(function(require) {
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   var XML_ROOT = "VMTEMPLATE"
   var RESOURCE = "Template"
@@ -39,6 +40,35 @@ define(function(require) {
     "Template.refresh" : _commonActions.refresh(),
     "Template.delete" : _commonActions.del(),
     
+    "Template.delete_dialog":
+      {
+        type: "custom",
+        call: function() {
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+            //header :
+            body : Locale.tr("This will delete the Template.<br/>You can also delete any Image referenced inside this Template"),
+            //question :
+            buttons : [
+              Locale.tr("Delete all images"),
+              Locale.tr("Delete"),
+            ],
+            submit : [
+              function(){
+                Sunstone.runAction('Template.delete_recursive', Sunstone.getDataTable(TAB_ID).elements());
+                return false;
+              },
+              function(){
+                Sunstone.runAction('Template.delete', Sunstone.getDataTable(TAB_ID).elements());
+                return false;
+              }
+            ]
+          });
+
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+        }
+      },
+
     "Template.delete_recursive":
       {
         type: "multiple",

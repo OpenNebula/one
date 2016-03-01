@@ -67,24 +67,18 @@ define(function(require) {
       type: "confirm",
       layout: "main",
       text: Locale.tr("Share"),
-      tip: Locale.tr("The template, along with any image defined in DISK/IMAGE_ID, will be shared with the group's users. Images defined by name are not affected. Permission changed: GROUP USE"),
+      tip: Locale.tr("The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"),
     },
     "Template.unshare" : {
       type: "confirm",
       layout: "main",
       text: Locale.tr("Unshare"),
-      tip: Locale.tr("The template, along with any image defined in DISK/IMAGE_ID, will be unshared with the group's users. Images defined by name are not affected. Permission changed: GROUP USE"),
+      tip: Locale.tr("The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"),
     },
-    "Template.delete" : {
-      type: "confirm",
-      text: Locale.tr("Delete"),
-      layout: "vmsdelete_buttons"
-    },
-    "Template.delete_recursive" : {
-      type: "confirm",
-      text: Locale.tr('Delete <span class="label secondary radius">recursive</span>'),
-      tip: Locale.tr("The template will be deleted, along with any image defined in DISK/IMAGE_ID. Images defined by name are not affected"),
-      layout: "vmsdelete_buttons"
+    "Template.delete_dialog" : {
+      type: "action",
+      layout: "del",
+      text: Locale.tr("Delete")
     }
   };
 
