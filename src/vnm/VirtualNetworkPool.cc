@@ -336,12 +336,5 @@ void VirtualNetworkPool::authorize_nic(
 
     vnet->unlock();
 
-    if (ot == PoolObjectSQL::VM)
-    {
-        ar->add_auth(AuthRequest::USE, perm);
-    }
-    else // (ot == PoolObjectSQL::VROUTER)
-    {
-        ar->add_auth(AuthRequest::MANAGE, perm);
-    }
+    ar->add_auth(AuthRequest::USE, perm);
 }
