@@ -228,6 +228,11 @@ public:
         attribute_value = va.attribute_value;
     };
 
+    VectorAttribute(const VectorAttribute* va):Attribute(va->attribute_name)
+    {
+        attribute_value = va->attribute_value;
+    };
+
     ~VectorAttribute(){};
 
     /**

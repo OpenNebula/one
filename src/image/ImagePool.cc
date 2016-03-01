@@ -290,24 +290,6 @@ int ImagePool::get_disk_uid(VectorAttribute *  disk, int _uid)
 
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::get_disk_id(const string& id_s)
-{
-    istringstream  is;
-    int            id;
-
-    is.str(id_s);
-    is >> id;
-
-    if( is.fail() )
-    {
-        return -1;
-    }
-
-    return id;
-}
-
-/* -------------------------------------------------------------------------- */
-
 int ImagePool::acquire_disk(int               vm_id,
                             VectorAttribute * disk,
                             int               disk_id,
@@ -331,16 +313,8 @@ int ImagePool::acquire_disk(int               vm_id,
 
     *snap = 0;
 
-    if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        iid = get_disk_id(source);
-
-        if ( iid == -1)
-        {
-            error_str = "Wrong ID set in IMAGE_ID";
-            return -1;
-        }
-
         img = imagem->acquire_image(vm_id, iid, error_str);
 
         if ( img == 0 )
@@ -348,7 +322,7 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
     }
-    else if (!(source = disk->vector_value("IMAGE")).empty())
+    else if ( disk->vector_value("IMAGE", source) == 0 )
     {
         int uiid = get_disk_uid(disk,uid);
 
@@ -376,7 +350,7 @@ int ImagePool::acquire_disk(int               vm_id,
     {
         string type = disk->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type != "SWAP" && type != "FS" )
         {
@@ -384,10 +358,9 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
 
-        int rc;
         long long size;
 
-        rc = disk->vector_value("SIZE", size);
+        int rc = disk->vector_value("SIZE", size);
 
         if ( rc != 0 || size <= 0 )
         {
@@ -411,7 +384,7 @@ int ImagePool::acquire_disk(int               vm_id,
         DatastorePool * ds_pool = nd.get_dspool();
 
         long long size = 0;
-        bool has_size = (disk->vector_value("SIZE", size) == 0);
+        bool has_size  = (disk->vector_value("SIZE", size) == 0);
 
         if (has_size && img->is_persistent() && size != img->get_size())
         {
@@ -494,6 +467,7 @@ void ImagePool::disk_attribute(
     string  source;
     Image * img = 0;
     int     datastore_id;
+    int     iid;
 
     string           dev_prefix;
     Image::ImageType img_type;
@@ -503,18 +477,13 @@ void ImagePool::disk_attribute(
     Nebula&         nd      = Nebula::instance();
     DatastorePool * ds_pool = nd.get_dspool();
 
-    if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        int iid = get_disk_id(source);
-
-        if ( iid != -1)
-        {
-            img = get(iid, true);
-        }
+        img = get(iid, true);
     }
-    else if (!(source = disk->vector_value("IMAGE")).empty())
+    else if ( disk->vector_value("IMAGE", source) == 0 )
     {
-        int uiid = get_disk_uid(disk,uid);
+        int uiid = get_disk_uid(disk, uid);
 
         if ( uiid != -1)
         {
@@ -541,11 +510,14 @@ void ImagePool::disk_attribute(
 
 void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
-    string          source;
-    Image *         img = 0;
+    string  source;
+    Image * img = 0;
+
+    int iid;
+
     PoolObjectAuth  perm;
 
-    if (!(source = disk->vector_value("IMAGE")).empty())
+    if ( disk->vector_value("IMAGE", source) == 0 )
     {
         int uiid = get_disk_uid(disk,uid);
 
@@ -561,15 +533,8 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
             disk->replace("IMAGE_ID", img->get_oid());
         }
     }
-    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    else if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        int iid = get_disk_id(source);
-
-        if ( iid == -1)
-        {
-            return;
-        }
-
         img = get(iid, true);
     }
 
@@ -584,3 +549,46 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 
     ar->add_auth(AuthRequest::USE, perm);
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ImagePool::get_image_ids(vector<VectorAttribute *>& disks, set<int>& ids,
+        int uid)
+{
+    vector<VectorAttribute *>::iterator i;
+
+    int    iid;
+    string iname;
+
+    Image * img = 0;
+
+    for ( i = disks.begin() ; i != disks.end(); ++i )
+    {
+        if ( (*i)->vector_value("IMAGE_ID", iid) == 0 )
+        {
+            ids.insert(iid);
+        }
+        else if ( (*i)->vector_value("IMAGE", iname) == 0 )
+        {
+            int uiid = get_disk_uid(*i, uid);
+
+            if ( uiid == -1)
+            {
+                continue;
+            }
+
+            img = get(iname, uiid, true);
+
+            if ( img != 0 )
+            {
+                ids.insert(img->get_oid());
+
+                img->unlock();
+            }
+        }
+    }
+}
+
+

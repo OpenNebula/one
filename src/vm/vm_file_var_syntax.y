@@ -133,9 +133,11 @@ int get_image_path(VirtualMachine * vm,
     }
     else if ( var1 == "IMAGE_ID" )
     {
-        iid = ImagePool::get_disk_id(val1);
+        istringstream is(val1);
 
-        if ( iid != -1 )
+        is >> iid;
+
+        if ( !is.fail() )
         {
             img = ipool->get(iid, true);
         }

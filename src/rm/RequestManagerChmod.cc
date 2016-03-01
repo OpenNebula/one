@@ -214,8 +214,15 @@ void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
     {
         VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
 
+        vector<VectorAttribute *> disks;
+
         int rc = 0;
+
         set<int> error_ids;
+        set<int> img_ids;
+
+        Nebula&   nd     = Nebula::instance();
+        ImagePool* ipool = nd.get_ipool();
 
         if ( tmpl == 0 )
         {
@@ -224,29 +231,28 @@ void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        vector<int> img_ids;
-
-        tmpl->get_img_ids(img_ids);
+        tmpl->get_disks(disks);
 
         tmpl->unlock();
 
-        ErrorCode ec;
+        ipool->get_image_ids(disks, img_ids, att.uid);
 
-        for (vector<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
+        for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
         {
-            ec = ImageChmod::chmod(*it,
-                    owner_u, owner_m, owner_a,
-                    group_u, group_m, group_a,
-                    other_u, other_m, other_a,
-                    att);
-
-            if (ec != SUCCESS)
+            if ( ImageChmod::chmod(*it, owner_u, owner_m, owner_a, group_u,
+                    group_m, group_a, other_u, other_m, other_a, att) != SUCCESS)
             {
                 NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
 
                 error_ids.insert(*it);
                 rc = -1;
             }
+        }
+
+        for (vector<VectorAttribute *>::iterator i = disks.begin();
+                i != disks.end() ; i++)
+        {
+            delete *i;
         }
 
         if ( rc != 0 )

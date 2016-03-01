@@ -209,12 +209,13 @@ public:
      */
     static int get_disk_uid(VectorAttribute *  disk, int _uid);
 
-    /**
-     *  Get the disk id based on its string representation. Used in VM parsers
-     *    @param id_s the string id
-     *    @return the id in int form
-     */
-     static int get_disk_id(const string& id_s);
+     /**
+      *  Gets the IDs of the images associated to a set of disks
+      *    @param dsk a vector with the DISK attributes
+      *    @param ids set of image ids
+      *    @param uid effective user id makeing the call
+      */
+     void get_image_ids(vector<VectorAttribute *>& dsk, set<int>& ids, int uid);
 
 private:
     //--------------------------------------------------------------------------

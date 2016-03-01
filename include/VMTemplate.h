@@ -71,12 +71,21 @@ public:
     };
 
     /**
-     * Returns all the DISK/IMAGE_IDs in the Template
-     * @return image IDs
+     * Returns a copy of the DISK attributes of this template, the attributes
+	 * are copied and must be freed by the calling function.
+	 *   @param a vector to store the disks.
      */
-    void get_img_ids(vector<int>& img_ids)
+    void get_disks(vector<VectorAttribute *>& disks)
     {
-        xpaths<int>(img_ids,"/VMTEMPLATE/TEMPLATE/DISK/IMAGE_ID");
+		vector<const VectorAttribute *> _disks;
+
+		obj_template->get("DISK", _disks);
+
+		for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
+				i != _disks.end() ; ++i)
+		{
+			disks.push_back(new VectorAttribute(*i));
+		}
     }
 
     // ------------------------------------------------------------------------

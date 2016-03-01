@@ -148,13 +148,17 @@ int RequestManagerDelete::drop(
 void TemplateDelete::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    bool            recursive = false;
+    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool recursive = false;
+
     VMTemplate *    object;
-    string          error_msg;
-    vector<int>     img_ids;
-    set<int>        error_ids;
-    ErrorCode       ec;
+
+    string    error_msg;
+    set<int>  error_ids;
+    set<int>  img_ids;
+    ErrorCode ec;
+
+    vector<VectorAttribute *> disks;
 
     if (paramList.size() > 2)
     {
@@ -182,7 +186,7 @@ void TemplateDelete::request_execute(
 
     if (recursive)
     {
-        object->get_img_ids(img_ids);
+        object->get_disks(disks);
     }
 
     object->unlock();
@@ -198,19 +202,26 @@ void TemplateDelete::request_execute(
 
     if (recursive)
     {
-        ErrorCode ec;
+        Nebula&   nd     = Nebula::instance();
+        ImagePool* ipool = nd.get_ipool();
 
-        for (vector<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
+        ipool->get_image_ids(disks, img_ids, att.uid);
+
+        for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
         {
-            ec = ImageDelete::delete_img(*it, att);
-
-            if (ec != SUCCESS)
+            if ( ImageDelete::delete_img(*it, att) != SUCCESS )
             {
                 NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
 
                 error_ids.insert(*it);
                 rc = -1;
             }
+        }
+
+        for (vector<VectorAttribute *>::iterator i = disks.begin() ;
+                i != disks.end() ; i++)
+        {
+            delete *i;
         }
     }
 
