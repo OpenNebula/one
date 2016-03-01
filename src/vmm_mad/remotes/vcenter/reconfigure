@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vcenter_driver'
+
+deploy_id = ARGV[0]
+host      = ARGV[-1]
+vm_id     = ARGV[-2]
+
+vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+vm.info
+
+vm_xml = vm.to_xml
+
+begin
+    VCenterDriver::VCenterVm.reconfigure(deploy_id, host, vm_xml)
+rescue Exception => e
+    STDERR.puts "Reconfiguration of VM #{deploy_id} on host #{host} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end
+

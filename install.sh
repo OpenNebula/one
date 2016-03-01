@@ -779,7 +779,9 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/reset \
                          src/vmm_mad/remotes/vcenter/save \
                          src/vmm_mad/remotes/vcenter/poll \
-                         src/vmm_mad/remotes/vcenter/shutdown"
+                         src/vmm_mad/remotes/vcenter/shutdown \
+                         src/vmm_mad/remotes/vcenter/reconfigure \
+                         src/vmm_mad/remotes/vcenter/prereconfigure"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
