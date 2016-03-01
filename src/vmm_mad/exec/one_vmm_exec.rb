@@ -796,11 +796,12 @@ class ExecDriver < VirtualMachineDriver
         action = ACTION[:attach_nic]
         xml_data = decode(drv_message)
 
-        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
-        target_path = ensure_xpath(xml_data, id, action,
-                                   'DISK_TARGET_PATH') || return
-        target_device = ensure_xpath(xml_data, id, action,
-                                     'VM/TEMPLATE/CONTEXT/TARGET') || return
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+        target_path = xml_data.elements['DISK_TARGET_PATH']
+        target_path = target_path.text if target_path
+        target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
+        target_device = target_device.text if target_device
 
         begin
             source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
@@ -863,18 +864,25 @@ class ExecDriver < VirtualMachineDriver
                 :driver     => :vmm,
                 :action     => :prereconfigure,
                 :parameters => [:deploy_id, target_device]
-            },
-            {
-                :driver     => :tm,
-                :action     => :tm_context,
-                :parameters => tm_command.split
-            },
-            {
-                :driver     => :vmm,
-                :action     => :reconfigure,
-                :parameters => [:deploy_id, target_device, target_path]
             }
         ]
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
+        steps << {
+            :driver     => :vmm,
+            :action     => :reconfigure,
+            :parameters => [:deploy_id, target_device, target_path]
+        }
+
+        STDERR.puts "TM_COMMAND"
+        STDERR.puts tm_command.inspect
 
         action.run(steps)
     end
