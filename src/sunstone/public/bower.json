@@ -9,7 +9,6 @@
     "css/login.css"
   ],
   "dependencies": {
-    "jquery": "2.1.4",
     "flot": "0.8.3",
     "jgrowl": "1.4.2",
     "fontawesome": "4.3.0",
@@ -21,9 +20,10 @@
     "require-handlebars-plugin": "0.11.2",
     "almond": "0.3.1",
     "datatables": "1.10.7",
-    "foundation": "5.5.2",
     "vis": "4.12.0",
-    "requirejs": "2.1.22"
+    "requirejs": "2.1.22",
+    "foundation-sites": "^6.2.0",
+    "jquery": "^2.2.1",
   },
   "version": "4.14",
   "authors": [
@@ -41,8 +41,5 @@
     "bower_components",
     "test",
     "tests"
-  ],
-  "resolutions": {
-    "foundation": "5.5.1"
-  }
+  ]
 }

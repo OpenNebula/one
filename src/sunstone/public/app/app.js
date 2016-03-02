@@ -16,7 +16,7 @@
 
 define(function(require) {
   require('jquery');
-  require('foundation.dropdown');
+  require('foundation');
 
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
