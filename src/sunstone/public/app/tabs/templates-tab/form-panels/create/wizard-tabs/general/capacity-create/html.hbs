@@ -43,14 +43,14 @@
     <div class="row">
       <div class="small-12 columns">
         <label>
-          {{tr "Memory modification"}}
-          {{{tip (tr "Allow users to modify this template's memory on instantiate")}}}
+          {{tr "Memory modification on instantiation"}}
+          {{{tip (tr "Allow users to modify this template's default memory on instantiate")}}}
         </label>
       </div>
       <div class="small-4 columns">
         <select class="memory_modify_type" >
           <option value="fixed">{{tr "fixed"}}</option>
-          <option selected value="number">{{tr "number"}}</option>
+          <option selected value="number">{{tr "any value"}}</option>
           <option value="range">{{tr "range"}}</option>
           <option value="list">{{tr "list"}}</option>
         </select>
@@ -91,13 +91,13 @@
       <div class="small-12 columns">
         <label>
           {{tr "CPU modification"}}
-          {{{tip (tr "Allow users to modify this template's CPU on instantiate")}}}
+          {{{tip (tr "Allow users to modify this template's default CPU on instantiate")}}}
         </label>
       </div>
       <div class="small-4 columns">
         <select class="cpu_modify_type" >
           <option value="fixed">{{tr "fixed"}}</option>
-          <option selected value="number-float">{{tr "number"}}</option>
+          <option selected value="number-float">{{tr "any value"}}</option>
           <option value="range">{{tr "range"}}</option>
           <option value="list">{{tr "list"}}</option>
         </select>
@@ -128,13 +128,13 @@
       <div class="small-12 columns">
         <label>
           {{tr "VCPU modification"}}
-          {{{tip (tr "Allow users to modify this template's VCPU on instantiate")}}}
+          {{{tip (tr "Allow users to modify this template's default VCPU on instantiate")}}}
         </label>
       </div>
       <div class="small-4 columns">
         <select class="vcpu_modify_type" >
           <option value="fixed">{{tr "fixed"}}</option>
-          <option selected value="number">{{tr "number"}}</option>
+          <option selected value="number">{{tr "any value"}}</option>
           <option value="range">{{tr "range"}}</option>
           <option value="list">{{tr "list"}}</option>
         </select>
