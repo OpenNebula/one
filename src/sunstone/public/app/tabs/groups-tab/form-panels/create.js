@@ -146,7 +146,9 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    context.foundation('tab', 'reflow');
+    //context.foundation('tabs');
+    Foundation.reflow(context, 'tabs');
+
     this.userCreation.setup( $("#admin_user_wrapper",context) );
     Tips.setup(context);
 
