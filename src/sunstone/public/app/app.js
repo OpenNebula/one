@@ -35,14 +35,14 @@ define(function(require) {
     require('utils/dialogs/generic-confirm')
   ]
 
-  Sunstone.addDialogs(_commonDialogs);
-  Sunstone.addMainTabs();
 
   //$(window).load(function() {
   //   $('#loading').hide();
   //});
 
   $(document).ready(function() {
+    Sunstone.addDialogs(_commonDialogs);
+    Sunstone.addMainTabs();
     Sunstone.insertTabs();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)){
