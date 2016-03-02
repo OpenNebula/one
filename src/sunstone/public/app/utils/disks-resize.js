@@ -44,7 +44,7 @@ define(function(require){
                 '<i class="fa fa-tasks fa-lg"></i>&emsp;'+
                 Locale.tr("Disks")+
               '</span>'+
-              '<span class="provision_create_template_disk_cost_div hidden">' +
+              '<span class="provision_create_template_disk_cost_div" hidden>' +
                 '<span class="cost_value">0.00</span> '+
                 '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
               '</span>'+

@@ -13,7 +13,7 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-<form id="provision_create_vm" class="hidden section_content">
+<form id="provision_create_vm" class="section_content" hidden>
   <div class="row">
     <div class="large-10 large-centered columns">
       <h2 class="subheader">{{tr "Create Virtual Machine"}}</h2>
@@ -59,7 +59,7 @@
             <div class="row provision_select_template">
               <div class="small-12 columns">
                 <table id="provision_vm_instantiate_templates_table">
-                  <thead class="hidden">
+                  <thead hidden>
                     <tr>
                       <th>ID</th>
                       <th>Name</th>
@@ -67,7 +67,7 @@
                       <th>Labels</th>
                     </tr>
                   </thead>
-                  <tbody class="hidden"></tbody>
+                  <tbody hidden></tbody>
                 </table>
               </div>
             </div>
@@ -93,7 +93,7 @@
   <br>
   <div class="row">
     <div class="large-7 columns large-centered">
-      <div data-alert class="alert-box alert-box-error radius text-center hidden"></div>
+      <div data-alert class="alert-box alert-box-error radius text-center" hidden></div>
       <button href="#" class="button large success radius large-12 small-12" type="submit" style="height: 59px">{{tr "Create"}}</button>
     </div>
   </div>

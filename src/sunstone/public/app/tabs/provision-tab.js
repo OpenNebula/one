@@ -138,7 +138,7 @@ define(function(require) {
                 '<span class="" style="color: #999;">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
               '</div>'+
             '</div>'+
-            '<div class="large-4 columns text-center provision_create_service_cost_div hidden">'+
+            '<div class="large-4 columns text-center provision_create_service_cost_div" hidden>'+
               '<span class="cost_value" style="color: #777; font-size:40px"></span>'+
               '<br>'+
               '<span style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
@@ -261,7 +261,7 @@ define(function(require) {
               ' '+
               '<span class="memory_unit">'+memory_unit+'</span> '+
               '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
-              '<span class="provision_create_template_cost_div hidden">' +
+              '<span class="provision_create_template_cost_div" hidden>' +
                 '<span class="cost_value">0.00</span> '+
                 '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
               '</span>'+

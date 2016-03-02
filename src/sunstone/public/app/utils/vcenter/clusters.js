@@ -38,7 +38,7 @@ define(function(require) {
   return VCenterClusters;
 
   function _html() {
-    return '<div class="vcenter_clusters hidden"></div>';
+    return '<div class="vcenter_clusters" hidden></div>';
   }
 
   /*

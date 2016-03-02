@@ -31,7 +31,7 @@ define(function(require) {
             '<i class="fa fa-fw fa-chevron-up"/>'+
             title+
         '</a>'+
-        '<div id="'+html_id+'" class="content hidden">'+
+        '<div id="'+html_id+'" class="content" hidden>'+
           options.fn(this) +
         '</div>'+
       '</div>'

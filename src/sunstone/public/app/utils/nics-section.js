@@ -188,13 +188,13 @@ define(function(require) {
         '<div class="row">' +
           '<div class="large-12 large-centered columns">' +
             '<table class="provision_networks_table">' +
-              '<thead class="hidden">' +
+              '<thead hidden>' +
                 '<tr>' +
                   '<th>' + Locale.tr("ID") + '</th>' +
                   '<th>' + Locale.tr("Name") + '</th>' +
                 '</tr>' +
               '</thead>' +
-              '<tbody class="hidden">' +
+              '<tbody hidden>' +
               '</tbody>' +
             '</table>' +
             '<br>' +

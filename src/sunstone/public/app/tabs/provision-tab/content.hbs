@@ -18,13 +18,13 @@
 {{!provision_user_info}}
 
 {{> tabs/provision-tab/vms/create}}
-<div class="provision_vms_list_section hidden section_content"></div>
+<div class="provision_vms_list_section section_content" hidden></div>
 
 {{#isProvisionTabEnabled "provision-tab" "templates"}}
-<div class="provision_templates_list_section hidden section_content"></div>
+<div class="provision_templates_list_section section_content" hidden></div>
 {{/isProvisionTabEnabled}}
 
 {{#isProvisionTabEnabled "provision-tab" "flows"}}
 {{> tabs/provision-tab/flows/create}}
-<div class="provision_flows_list_section hidden section_content"></div>
+<div class="provision_flows_list_section section_content" hidden></div>
 {{/isProvisionTabEnabled}}

@@ -42,7 +42,7 @@
       <table id="datatable_roles_{{panelId}}" class="dataTable twelve">
         <thead>
           <tr>
-            <th class="check hidden">
+            <th class="check" hidden>
               <input type="checkbox" class="check_all" value=""></input>
             </th>
             <th>{{tr "Name"}}</th>
@@ -57,7 +57,7 @@
         <tbody>
           {{#each roleList}}
           <tr>
-            <td class="hidden">
+            <td hidden>
               <input class="check_item" type="checkbox" id="role_{{name}}" name="selected_items" value="{{../element.ID}}/role/{{name}}"/>
             </td>
             <td>{{name}}</td>

@@ -64,7 +64,7 @@ define(function(require) {
       }
 
       html += tree.htmlStr;
-      html += '<ul class="hidden">';
+      html += '<ul hidden>';
     } else {
       if (tree.subTree.length > 0) {
         html += '<i class="fa fa-fw fa-angle-down"></i> ';
