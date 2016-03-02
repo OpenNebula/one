@@ -27,6 +27,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
+  var UserInputs = require('utils/user-inputs');
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -53,6 +54,7 @@ define(function(require) {
     _setupAccordion();
     _setupCloseDropdownsOnClick();
     _insertUserAndZoneSelector();
+    UserInputs.initialSetup();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);

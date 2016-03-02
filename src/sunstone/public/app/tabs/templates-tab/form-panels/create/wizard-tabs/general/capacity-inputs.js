@@ -75,16 +75,20 @@ define(function(require) {
       $("input, select", $("div.memory_input", context)).val(val);
     });
 
+    var gb_inputs = $("div.memory_gb_input", context).detach();
+
     // Unit select
     $("#memory_unit", context).on('change', function() {
       var memory_unit_val = $('#memory_unit :selected', context).val();
 
       if (memory_unit_val == 'GB') {
         $("div.memory_input", context).hide();
-        $("div.memory_gb_input", context).show();
+        gb_inputs.appendTo($("div.memory_input_wrapper", context));
+
+        $("div.memory_input input,select",context).trigger("input");
       } else {
         $("div.memory_input", context).show();
-        $("div.memory_gb_input", context).hide();
+        gb_inputs = $("div.memory_gb_input", context).detach();
       }
     });
 
@@ -141,6 +145,11 @@ define(function(require) {
       if (userInputs.MEMORY != undefined){
         // Normal input for MB
         var attr = UserInputs.parse("MEMORY", userInputs.MEMORY);
+
+        if (attr.type == "range"){
+          attr.tick_size = 1024;
+        }
+
         var input = UserInputs.attributeInput(attr);
 
         $("div.memory_input", context).html(input);
@@ -152,9 +161,10 @@ define(function(require) {
 
         if (attr_gb.type == "range"){
           attr_gb.type = "range-float";
-          attr_gb.min = (attr_gb.min / 1024);
-          attr_gb.max = (attr_gb.max / 1024);
-          attr_gb.step = "any";
+          attr_gb.min = Math.ceil((attr_gb.min / 1024));
+          attr_gb.max = Math.floor((attr_gb.max / 1024));
+          attr_gb.step = "1";
+          attr_gb.tick_size = 1;
 
         } else if (attr_gb.type == "list"){
           attr_gb.options = attr_gb.options.map(function(e){
@@ -163,7 +173,7 @@ define(function(require) {
 
         } else if (attr_gb.type == "number"){
           attr_gb.type = "number-float";
-          attr_gb.step = "any";
+          attr_gb.step = "1";
         }
 
         input = UserInputs.attributeInput(attr_gb);

@@ -22,6 +22,9 @@ define(function(require) {
   var TemplateHTML = require('hbs!./user-inputs/table');
   var RowTemplateHTML = require('hbs!./user-inputs/row');
 
+  var uinputListId = 0;
+
+
   //==============================================================================
   // VM & Service user inputs
   //==============================================================================
@@ -42,7 +45,10 @@ define(function(require) {
     'unmarshall': _unmarshall,
     'parse': _parse,
     'generateInputElement': _generateInputElement,
-    'attributeInput': _attributeInput
+    'attributeInput': _attributeInput,
+
+    // Setup
+    'initialSetup': _initialSetup
   };
 
   function _html(){
@@ -350,6 +356,8 @@ define(function(require) {
                               ["max":]
                               ["step":]
                               ["options":]
+                              ["tick_size":] For range inputs, the tick positions
+                                             starting from 0, not min
                             }
    */
   function _parse(name, value) {
@@ -375,6 +383,11 @@ define(function(require) {
         attr.max = parseInt( params[1] );
         attr.step = "1";
 
+        attr.tick_size = 1;
+        while ((attr.max - attr.min) / attr.tick_size > 10 ){
+          attr.tick_size *= 10;
+        }
+
         break;
 
       case "range-float":
@@ -383,6 +396,11 @@ define(function(require) {
         attr.min = parseFloat( params[0] );
         attr.max = parseFloat( params[1] );
         attr.step = "any";
+
+        attr.tick_size = 1;
+        while ((attr.max - attr.min) / attr.tick_size > 10 ){
+          attr.tick_size *= 10;
+        }
 
         break;
 
@@ -419,29 +437,41 @@ define(function(require) {
         break;
       case "range":
       case "range-float":
+
+        var list_attr = "";
+        var datalist  = "";
+
+        if (attr.tick_size != undefined){
+          uinputListId += 1;
+
+          list_attr = 'list="uinput-list-'+uinputListId+'"';
+
+          datalist = '<datalist id="uinput-list-'+uinputListId+'">';
+
+          var tick_val = attr.tick_size * Math.ceil(attr.min / attr.tick_size);
+          while (tick_val <= attr.max){
+            datalist += '<option>'+tick_val+'</option>';
+            tick_val += attr.tick_size;
+          }
+
+          datalist += '</datalist>';
+        }
+
         input =
         '<div class="row uinput-slider-container">'+
           '<div class="small-8 columns">'+
             '<input type="range" class="uinput-slider" style="width:100%"'+
               'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'"/>'+
+              'value="'+attr.initial+'" '+
+              list_attr+'/>'+
           '</div>'+
+          datalist+
           '<div class="small-4 columns">'+
             '<input type="number" class="uinput-slider-val" '+
               'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
               'value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>'+
           '</div>'+
         '</div>';
-
-        $(document).off("input", "input.uinput-slider-val");
-        $(document).on("input", "input.uinput-slider-val", function(){
-          $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
-        });
-
-        $(document).off("input", "input.uinput-slider");
-        $(document).on("input", "input.uinput-slider", function(){
-          $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
-        });
 
         break;
       case "list":
@@ -475,5 +505,17 @@ define(function(require) {
     var attrs = _parse(name, value);
 
     return _attributeInput(attrs);
+  }
+
+  function _initialSetup() {
+    $(document).off("input", "input.uinput-slider-val");
+    $(document).on("input", "input.uinput-slider-val", function(){
+      $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
+    });
+
+    $(document).off("input", "input.uinput-slider");
+    $(document).on("input", "input.uinput-slider", function(){
+      $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
+    });
   }
 });
