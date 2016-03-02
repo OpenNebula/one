@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.slider');
+//  require('foundation.slider');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');

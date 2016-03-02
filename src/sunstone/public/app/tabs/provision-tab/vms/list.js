@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.alert');
+//  require('foundation.alert');
   var Sunstone = require('sunstone');
   var OpenNebula = require('opennebula');
   var OpenNebulaVM = require('opennebula/vm');

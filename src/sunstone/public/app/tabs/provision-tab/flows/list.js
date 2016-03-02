@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.alert');
+//  require('foundation.alert');
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');

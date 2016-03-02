@@ -16,7 +16,7 @@
 
 define(function(require) {
   // Dependencies
-  require('foundation.abide');
+//  require('foundation.abide');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');

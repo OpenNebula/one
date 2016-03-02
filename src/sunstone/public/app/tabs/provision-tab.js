@@ -15,8 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.core');
-  require('foundation.accordion');
+//  require('foundation.core');
+//  require('foundation.accordion');
   require('datatables.net');
   require('datatables.foundation');
   var Locale = require('utils/locale');

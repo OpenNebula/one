@@ -16,9 +16,9 @@
 
 define(function(require) {
   require('jquery');
-  require('foundation.reveal');
-  require('foundation.tab');
-  require('foundation.dropdown');
+  //require('foundation.reveal');
+  //require('foundation.tab');
+  //require('foundation.dropdown');
 
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -450,7 +450,7 @@ define(function(require) {
       return false;
     });
 
-    $(document).foundation('dropdown', 'reflow');
+    //$(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "a[href='back']", function(e) {
@@ -665,8 +665,8 @@ define(function(require) {
       }
     });
 
-    context.foundation('tab', 'reflow');
     $('[href=' + activaTabHref + ']', context).trigger("click");
+    context.foundation();
 
     if (hooks) {
       $.each(hooks, function(i, hook){

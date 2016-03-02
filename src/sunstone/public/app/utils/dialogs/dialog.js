@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.reveal');
+//  require('foundation.reveal');
 
   function BaseDialog() {
     return this;

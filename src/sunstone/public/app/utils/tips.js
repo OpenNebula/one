@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.tooltip');
+//  require('foundation.tooltip');
   //Replaces all class"tip" divs with an information icon that
   //displays the tip information on mouseover.
   var _setup = function(context, position) {

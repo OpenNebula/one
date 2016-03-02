@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.accordion');
+//  require('foundation.accordion');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');

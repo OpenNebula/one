@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
