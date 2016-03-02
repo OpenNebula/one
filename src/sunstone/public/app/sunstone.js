@@ -136,9 +136,10 @@ define(function(require) {
       dataTable.initialize();
       if (dataTable.labelsColumn) {
         $('#' + tabName + 'labels_buttons').html(
-          '<button href="#" data-dropdown="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button small secondary button dropdown radius">' +
+          '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button secondary button dropdown">' +
             '<i class="fa fa-tags"/></button>' +
-          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown f-dropdown" data-dropdown-content></ul>');
+          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></ul>').foundation();
+
       }
     }
   }
@@ -254,14 +255,14 @@ define(function(require) {
           buttonContext = $("#" + customId + "create_buttons", buttonsRow);
           icon = button.icon ? button.icon : '<i class="fa fa-plus"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("success", "button", "small", "radius");
+          strClass.push("success", "button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : '<i class="fa fa-refresh fa-lg"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("white_button", "refresh", "secondary", "button", "small", "radius");
+          strClass.push("white_button", "refresh", "secondary", "button",  "hollow");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "top":
@@ -270,19 +271,19 @@ define(function(require) {
               '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>' +
               '<i class="fa fa-play fa-stack-1x"></i>' +
             '</span>';
-          strClass.push("white_button", "toggle_top_button", "only-right-list", "secondary", "button", "small", "radius");
+          strClass.push("white_button", "toggle_top_button", "only-right-list", "secondary", "button",  "hollow");
           buttonCode = '<a class="' + strClass.join(' ') + '" style="padding-left:0px; margin-right: 20px">' + text + '</a>';
           break;
         case "main":
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("secondary", "button",  "hollow");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmsplay_buttons":
           buttonContext = $("#" + customId + "vmsplay_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("secondary", "button",  "hollow");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmspause_buttons":
@@ -323,13 +324,13 @@ define(function(require) {
         case "del":
           buttonContext = $("#" + customId + "delete_buttons", buttonsRow);
           text = '<i class=" fa fa-trash-o"/> ';
-          strClass.push("alert", "button", "small", "radius");
+          strClass.push("alert", "button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         default:
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("secondary", "button",  "hollow");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
         }
 
@@ -339,37 +340,39 @@ define(function(require) {
       //$('.top_button',actionBlock).addClass("secondary small button")
 
       actionBlock.append(buttonsRow);
+      actionBlock.foundation();
+
 
       if ($("#" + customId + "more_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "more_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "more_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "user_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsplanification_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsplanification_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsplanification_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsdelete_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsdelete_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsstop_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsstop_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsstop_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmspause_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmspause_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmspause_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsrepeat_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "user_buttons]", actionBlock).remove()
       }
       //actionBlock.foundationButtons();
       $('.top_button, .list_button', actionBlock).prop('disabled', false);
@@ -386,8 +389,6 @@ define(function(require) {
         _submitFormPanel(tabName);
         return false;
       })
-
-      $(document).foundation();
     }//if tab exists
   }
 
