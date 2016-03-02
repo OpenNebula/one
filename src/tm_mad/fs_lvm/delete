@@ -46,7 +46,8 @@ DELETE_CMD=$(cat <<EOF
     # remove link
     rm -f $DST_PATH
 
-    $SUDO $LVREMOVE -f \$DEV
+    $SUDO $LVCHANGE -an \$DEV
+    $SUDO $LVREMOVE \$DEV
 EOF
 )
 
