@@ -18,12 +18,10 @@
 #define _NEBULA_LOG_H_
 
 #include "Log.h"
+#include "NebulaUtil.h"
 
 #include <sstream>
-
-#ifdef SYSLOG_LOG
-#   include <syslog.h>
-#endif /* SYSLOG_LOG */
+#include <syslog.h>
 
 using namespace std;
 
@@ -36,7 +34,7 @@ public:
     enum LogType {
         FILE       = 0,
         FILE_TS    = 1,
-        CERR       = 2,
+        STD        = 2,
         SYSLOG     = 3,
         UNDEFINED  = 4
     };
@@ -52,26 +50,28 @@ public:
         ios_base::openmode  mode,
         const string&       daemon)
     {
+        _log_type = ltype;
+
         switch(ltype)
         {
             case FILE:
-                NebulaLog::logger = new FileLog(filename,clevel,mode);
+                NebulaLog::logger = new FileLog(filename, clevel, mode);
                 break;
             case FILE_TS:
-                NebulaLog::logger = new FileLogTS(filename,clevel,mode);
+                NebulaLog::logger = new FileLogTS(filename, clevel, mode);
                 break;
             case SYSLOG:
                 NebulaLog::logger = new SysLog(clevel, daemon);
                 break;
             default:
-                NebulaLog::logger = new CerrLog(clevel);
+                NebulaLog::logger = new StdLog(clevel);
                 break;
         }
     };
 
     static LogType str_to_type(string& type)
     {
-        transform(type.begin(), type.end(), type.begin(), (int(*)(int))toupper);
+        one_util::toupper(type);
 
         if (type == "FILE")
         {
@@ -81,9 +81,9 @@ public:
         {
             return SYSLOG;
         }
-        else if (type == "STDERR")
+        else if (type == "STD")
         {
-            return CERR;
+            return STD;
         }
 
         return UNDEFINED;
@@ -123,11 +123,18 @@ public:
         return logger->get_log_level();
     };
 
+    static LogType log_type()
+    {
+        return _log_type;
+    };
+
 private:
     NebulaLog(){};
+
     ~NebulaLog(){};
 
-    static Log * logger;
+    static LogType _log_type;
+    static Log *   logger;
 };
 
 /* -------------------------------------------------------------------------- */
