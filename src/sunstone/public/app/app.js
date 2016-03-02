@@ -88,9 +88,9 @@ define(function(require) {
 
   function _insertUserAndZoneSelector() {
     var user_login_content =
-    '<button href="#" data-dropdown="userSelectDropdown" class="button small radius secondary dropdown" id="logout">\
+    '<button type="button" data-toggle="userSelectDropdown" class="button secondary dropdown" id="logout">\
       <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</button>\
-      <ul id="userSelectDropdown" data-dropdown-content class="f-dropdown">';
+      <ul id="userSelectDropdown" data-dropdown data-close-on-click="true" class="dropdown-pane menu vertical">';
 
     if (config['available_views'].length > 1){
         user_login_content +=
@@ -121,11 +121,12 @@ define(function(require) {
     user_login_content +=
         '<li><a href="#" class="logout"><i class="fa fa-fw fa-power-off"></i> '+Locale.tr("Sign Out")+'</a></li>\
       </ul>\
-    <button href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
+    <button type="button" data-toggle="drop2" class="button secondary dropdown" id="zonelector">\
       <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</button>\
-      <ul id="drop2" data-dropdown-content class="zone-ul f-dropdown"></ul>';
+      <ul id="drop2" data-dropdown data-close-on-click="true" class="zone-ul dropdown-pane menu vertical"></ul>';
 
     $(".user-zone-info").html(user_login_content);
+    $(".user-zone-info").foundation();
 
     $(".user-zone-info a.quickconf_view_header").click(function() {
       var context = $(this).closest('ul');
