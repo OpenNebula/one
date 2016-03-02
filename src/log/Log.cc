@@ -112,7 +112,7 @@ StdLog::StdLog(const MessageType level, int oid,
 {
     ostringstream oss;
 
-    oss << "[" << PoolObjectSQL::type_to_str(obj_type) << " " << oid << "] ";
+    oss << "[" << PoolObjectSQL::type_to_str(obj_type) << " " << oid << "]";
     resource_label = oss.str();
 }
 
@@ -140,10 +140,11 @@ void StdLog::log(
         str[24] = '\0';
 
         std::clog << str << " "
+				  << resource_label
                   << "[Z"<< zone_id<< "]"
                   << "[" << module << "]"
                   << "[" << error_names[type] << "]: "
-                  << resource_label << message << endl;
+                  << message << endl;
 
         std::clog.flush();
     }
@@ -172,7 +173,7 @@ SysLog::SysLog(const MessageType level, int oid,
 {
     ostringstream oss;
 
-    oss << "[" << PoolObjectSQL::type_to_str(obj_type) << " " << oid << "] ";
+    oss << "[" << PoolObjectSQL::type_to_str(obj_type) << " " << oid << "]";
     resource_label = oss.str();
 }
 
@@ -194,10 +195,11 @@ void SysLog::log(
         {
             ostringstream oss;
 
-            oss << "[Z"<< zone_id<< "]"
+            oss << resource_label
+				<< "[Z"<< zone_id<< "]"
                 << "[" << module << "]"
                 << "[" << error_names[type] << "]: "
-                << resource_label << line;
+                << line;
 
             syslog(slevel, oss.str().c_str());
         }
