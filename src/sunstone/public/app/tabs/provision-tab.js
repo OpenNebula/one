@@ -17,7 +17,8 @@
 define(function(require) {
   require('foundation.core');
   require('foundation.accordion');
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');

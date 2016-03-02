@@ -19,7 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var Locale = require('utils/locale');
   var CanImportWilds = require('../utils/can-import-wilds');
   var OpenNebulaHost = require('opennebula/host');

@@ -19,7 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
   var Sunstone = require('sunstone');
   var SunstoneConfig = require('sunstone-config');
@@ -49,13 +50,24 @@ define(function(require) {
 
   /* Set the defaults for DataTables initialisation */
   $.extend(true, $.fn.dataTable.defaults, {
-    dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
+    dom:
+      "t"+
+      "<'row'<'small-6 columns'i><'small-6 columns'<'float-right'l>p>>",
     renderer: 'foundation',
     language: {
       "sLengthMenu": "_MENU_",
       "emptyTable": TemplateEmptyTable()
     }
-  });
+  } );
+
+  //$.extend(true, $.fn.dataTable.defaults, {
+  //  dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
+  //  renderer: 'foundation',
+  //  language: {
+  //    "sLengthMenu": "_MENU_",
+  //    "emptyTable": TemplateEmptyTable()
+  //  }
+  //});
 
   /*
     CONSTRUCTOR

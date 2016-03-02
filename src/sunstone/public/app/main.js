@@ -23,8 +23,8 @@ require.config({
     'jquery': '../bower_components/jquery/dist/jquery',
 
     /* DataTables */
-    'datatables': '../bower_components/datatables/media/js/jquery.dataTables',
-    'foundation-datatables': '../bower_components/foundation-datatables/integration/foundation/dataTables.foundation',
+    'datatables.net': '../bower_components/datatables/media/js/jquery.dataTables',
+    'datatables.foundation': '../bower_components/datatables/media/js/dataTables.foundation',
 
     /* DataTables */
     'jgrowl': '../bower_components/jgrowl/jquery.jgrowl',
@@ -153,11 +153,6 @@ require.config({
     /* jGrowl */
     'jgrowl': {
       deps: ['jquery']
-    },
-
-    /* dataTables */
-    'foundation-datatables': {
-      deps: ['jquery', 'datatables']
     },
 
     /* Foundation */

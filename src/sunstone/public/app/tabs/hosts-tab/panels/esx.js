@@ -19,7 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var Locale = require('utils/locale');
   var CPUBars = require('../utils/cpu-bars');
   var MemoryBars = require('../utils/memory-bars');
