@@ -438,12 +438,6 @@ define(function(require) {
         error = _runAction(value);
       }
 
-      if (!error && !$(this).hasClass("refresh")) {
-        //proceed to close confirm dialog in
-        //case it was open
-        _getDialogInstance(CONFIRM_DIALOG_ID).hide();
-      };
-
       return false;
     });
 

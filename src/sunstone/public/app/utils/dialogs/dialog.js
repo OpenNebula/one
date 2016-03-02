@@ -34,15 +34,13 @@ define(function(require) {
     var that = this;
     var dialogElement = $(that.html()).appendTo('div#dialogs');
     that.setup(dialogElement);
-    dialogElement.foundation('reveal', 'reflow');
+    Foundation.reflow(dialogElement, 'reveal');
 
-    dialogElement.on('opened.fndtn.reveal', function (e) {
-      if (e.namespace !== 'fndtn.reveal') { return; }
+    dialogElement.on('open.zf.reveal', function (e) {
       that.onShow(dialogElement);
     });
 
-    dialogElement.on('close.fndtn.reveal', function (e) {
-      if (e.namespace !== 'fndtn.reveal') { return; }
+    dialogElement.on('closed.zf.reveal', function (e) {
       if (that.onClose) {
         that.onClose(dialogElement);
       }
@@ -59,12 +57,12 @@ define(function(require) {
   }
 
   function _show() {
-    this.dialogElement.foundation('reveal', 'open');
+    this.dialogElement.foundation('open');
     return false;
   }
 
   function _hide() {
-    this.dialogElement.foundation('reveal', 'close');
+    this.dialogElement.foundation('close');
   }
 
   function _reset() {

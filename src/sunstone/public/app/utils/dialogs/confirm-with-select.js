@@ -89,7 +89,7 @@ define(function(require) {
       }
 
       if (!error) {
-        dialog.foundation('reveal', 'close');
+        dialog.foundation('close');
       }
 
       return false;
