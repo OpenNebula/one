@@ -157,26 +157,42 @@ define(function(require) {
     if (condition && !condition()) {return;}
 
     if (tabInfo.no_content === true) {
-      tabClass += " tab_with_no_content"
+      tabClass += " tab_with_no_content is-accordion-submenu-parent"
     } else {
       tabInfo['tabName'] = tabName;
       var TabTemplate = require('hbs!sunstone/tab')
       $('div.right-content').append(TabTemplate(tabInfo));
     }
 
-    var liItem = '<li id="li_' + tabName + '" class="' + tabClass + ' ' + parent + '"><a href="#">' + tabInfo.title + '</a></li>';
+    var liItem;
+    if (parent !== '') {
+      liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
+              '<a href="#">' + tabInfo.title + '</a>' + 
+            '</li>';
 
-    $('div#menu ul#navigation').append(liItem);
+      $('#menu ul#navigation #li_' + parent + ' .menu').append(liItem);
+    } else {
+      liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
+              '<a href="#">' + tabInfo.title + '</a>' + 
+              '<ul class="menu vertical nested" data-submenu>' +
+              '</ul>' +
+            '</li>';
+
+      $('div#menu ul#navigation').append(liItem);
+    }
+
+    Foundation.reInit($('div#menu ul#navigation'));
+
 
     //if this is a submenu...
-    if (parent.length) {
-      var children = $('div#menu ul#navigation #li_' + parent);
-      //if there are other submenus, insert after last of them
-      if (children.length) {
-        $('div#menu li#li_' + tabName).hide();//hide by default
-        $('div#menu li#li_' + parent + ' span').css("display", "inline-block");
-      }
-    };
+    //if (parent.length) {
+    //  var children = $('div#menu ul#navigation #li_' + parent);
+    //  //if there are other submenus, insert after last of them
+    //  if (children.length) {
+    //    $('div#menu li#li_' + tabName).hide();//hide by default
+    //    $('div#menu li#li_' + parent + ' span').css("display", "inline-block");
+    //  }
+    //};
 
     if (tabInfo.forms) {
       $.each(tabInfo.forms, function(key, value) {
@@ -666,8 +682,8 @@ define(function(require) {
       }
     });
 
-    $('[href=' + activaTabHref + ']', context).trigger("click");
     context.foundation();
+    $('[href="' + activaTabHref + '"]', context).trigger("click");
 
     if (hooks) {
       $.each(hooks, function(i, hook){
