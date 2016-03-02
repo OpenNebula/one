@@ -147,7 +147,11 @@ private:
 class StdLog : public Log
 {
 public:
-    StdLog(const MessageType level = WARNING):Log(level){};
+    StdLog(const MessageType level):Log(level){};
+
+    StdLog(const MessageType level,
+           int oid,
+           const PoolObjectSQL::ObjectType obj_type);
 
     ~StdLog(){};
 
@@ -155,6 +159,9 @@ public:
         const char *            module,
         const MessageType       type,
         const char *            message);
+
+private:
+    string resource_label;
 };
 
 /* -------------------------------------------------------------------------- */

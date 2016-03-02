@@ -250,7 +250,7 @@ int VirtualMachine::select(SqlDB * db)
                 break;
 
             case NebulaLog::STD:
-                _log = new StdLog(clevel);
+                _log = new StdLog(clevel, oid, obj_type);
                 break;
 
             default:
