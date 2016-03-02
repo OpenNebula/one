@@ -79,14 +79,14 @@
     <span id="{{customId}}submit_button" class="left" style="margin-left: 10px;">
       <a class="button success radius submit_button" href="submit">{{tr "Create"}}</a>
     </span>
-    <dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">
-      <dd id="wizard_mode" class="active">
+    <ul id="{{customId}}FormTabs" class="tabs right wizard_tabs" data-tabs style="margin-left: 10px;">
+      <li id="wizard_mode" class="tabs-title is-active">
         <a style="padding: 0.3rem 1rem;" href="#{{customId}}-wizardForms">{{tr "Wizard"}}</a>
-      </dd>
-      <dd id="advanced_mode">
+      </li>
+      <li id="advanced_mode" class="tabs-title">
         <a style="padding: 0.3rem 1rem;" href="#{{customId}}-advancedForms">{{tr "Advanced"}}</a>
-      </dd>
-    </dl>
+      </li>
+    </ul>
   </span>
 </div>
 "
