@@ -216,14 +216,13 @@ define(function(require) {
 
       attr.type = $("."+classname+"_modify_type", context).val();
 
-      if (attr.type == "fixed"){
-        // No user input, continue
-        return true;
-      }
-
       attr.name = classname.toUpperCase();
       attr.mandatory = true;
       attr.description = "";
+
+      if (classname == "vcpu" || attr.type == "fixed"){
+        attr.mandatory = false;
+      }
 
       attr.initial = $('input[wizard_field="'+attr.name+'"]', context).val();
 
