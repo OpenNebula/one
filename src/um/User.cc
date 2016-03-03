@@ -234,8 +234,8 @@ string& User::to_xml_extended(string& xml, bool extended) const
          groups.to_xml(collection_xml)  <<
          "<GNAME>"       << gname       <<"</GNAME>"      <<
          "<NAME>"        << name        <<"</NAME>"       <<
-         "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
-         "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
+         "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
+         "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         login_token.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);

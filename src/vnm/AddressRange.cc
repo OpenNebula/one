@@ -422,14 +422,15 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             continue;
         }
 
-        oss << "<" << it->first << "><![CDATA[" << it->second
-                << "]]></"<< it->first << ">";
+        oss << "<" << it->first << ">"
+            << one_util::escape_xml(it->second)
+            << "</"<< it->first << ">";
     }
 
     mac_end[1] = mac[1];
     mac_end[0] = (mac[0] + size - 1);
 
-    oss << "<MAC_END><![CDATA[" << mac_to_s(mac_end) << "]]></MAC_END>";
+    oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
     aux_st = attr->vector_value("IP");
 
@@ -441,7 +442,8 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         if (rc == 0)
         {
-            oss << "<IP_END><![CDATA[" << ip_to_s(ip_i + size - 1) << "]]></IP_END>";
+            oss << "<IP_END>" << one_util::escape_xml(ip_to_s(ip_i + size - 1))
+                << "</IP_END>";
         }
     }
 
@@ -452,19 +454,19 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
         {
             ip6_to_s(ula6, mac, ip6_s);
-            oss << "<IP6_ULA><![CDATA[" << ip6_s << "]]></IP6_ULA>";
+            oss << "<IP6_ULA>" << one_util::escape_xml(ip6_s) << "</IP6_ULA>";
 
             ip6_to_s(ula6, mac_end, ip6_s);
-            oss << "<IP6_ULA_END><![CDATA[" << ip6_s << "]]></IP6_ULA_END>";
+            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s) << "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
         {
             ip6_to_s(global6, mac, ip6_s);
-            oss << "<IP6_GLOBAL><![CDATA[" << ip6_s << "]]></IP6_GLOBAL>";
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL>";
 
             ip6_to_s(global6, mac_end, ip6_s);
-            oss << "<IP6_GLOBAL_END><![CDATA[" << ip6_s << "]]></IP6_GLOBAL_END>";
+            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL_END>";
         }
     }
 

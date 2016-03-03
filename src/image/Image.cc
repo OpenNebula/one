@@ -352,9 +352,9 @@ string& Image::to_xml(string& xml) const
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
-            "<SOURCE><![CDATA["<< source          << "]]></SOURCE>"   <<
-            "<PATH><![CDATA["  << path            << "]]></PATH>"     <<
-            "<FSTYPE><![CDATA["<< fs_type         << "]]></FSTYPE>"   <<
+            "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
+            "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
+            "<FSTYPE>"         << one_util::escape_xml(fs_type)<< "</FSTYPE>" <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<

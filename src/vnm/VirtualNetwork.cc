@@ -436,8 +436,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             perms_to_xml(perm_str)     <<
             "<CLUSTER_ID>"<< cluster_id<< "</CLUSTER_ID>"<<
             "<CLUSTER>"   << cluster   << "</CLUSTER>"   <<
-            "<BRIDGE>"    << bridge    << "</BRIDGE>"    <<
-            "<VLAN>"      << vlan      << "</VLAN>";
+            "<BRIDGE>"    << one_util::escape_xml(bridge)<< "</BRIDGE>" <<
+            "<VLAN>"      << one_util::escape_xml(vlan)  << "</VLAN>";
 
     if (parent_vid != -1)
     {
@@ -450,7 +450,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     if (!phydev.empty())
     {
-        os << "<PHYDEV><![CDATA[" << phydev << "]]></PHYDEV>";
+        os << "<PHYDEV>" << one_util::escape_xml(phydev) << "</PHYDEV>";
     }
     else
     {
@@ -459,7 +459,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     if (!vlan_id.empty())
     {
-        os << "<VLAN_ID><![CDATA[" << vlan_id << "]]></VLAN_ID>";
+        os << "<VLAN_ID>" << one_util::escape_xml(vlan_id) << "</VLAN_ID>";
     }
     else
     {

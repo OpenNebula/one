@@ -300,26 +300,26 @@ string& History::to_xml(string& xml, bool database) const
 
     oss <<
         "<HISTORY>" <<
-          "<OID>"               << oid               << "</OID>"   <<
-          "<SEQ>"               << seq               << "</SEQ>"   <<
-          "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
-          "<HID>"               << hid               << "</HID>"   <<
-          "<CID>"               << cid               << "</CID>"   <<
-          "<STIME>"             << stime             << "</STIME>" <<
-          "<ETIME>"             << etime             << "</ETIME>" <<
-          "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
-          "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
-          "<TMMAD>"             << tm_mad_name       << "</TMMAD>" <<
-          "<DS_LOCATION>"       << ds_location       << "</DS_LOCATION>" <<
-          "<DS_ID>"             << ds_id             << "</DS_ID>" <<
-          "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
-          "<PETIME>"            << prolog_etime      << "</PETIME>"<<
-          "<RSTIME>"            << running_stime     << "</RSTIME>"<<
-          "<RETIME>"            << running_etime     << "</RETIME>"<<
-          "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
-          "<EETIME>"            << epilog_etime      << "</EETIME>"<<
-          "<REASON>"            << reason            << "</REASON>"<<
-          "<ACTION>"            << action            << "</ACTION>";
+          "<OID>"         << oid               << "</OID>"   <<
+          "<SEQ>"         << seq               << "</SEQ>"   <<
+          "<HOSTNAME>"    << hostname          << "</HOSTNAME>"<<
+          "<HID>"         << hid               << "</HID>"   <<
+          "<CID>"         << cid               << "</CID>"   <<
+          "<STIME>"       << stime             << "</STIME>" <<
+          "<ETIME>"       << etime             << "</ETIME>" <<
+          "<VMMMAD>"      << one_util::escape_xml(vmm_mad_name) << "</VMMMAD>"<<
+          "<VNMMAD>"      << one_util::escape_xml(vnm_mad_name) << "</VNMMAD>"<<
+          "<TMMAD>"       << one_util::escape_xml(tm_mad_name)  << "</TMMAD>" <<
+          "<DS_LOCATION>" << one_util::escape_xml(ds_location)  << "</DS_LOCATION>" <<
+          "<DS_ID>"       << ds_id             << "</DS_ID>" <<
+          "<PSTIME>"      << prolog_stime      << "</PSTIME>"<<
+          "<PETIME>"      << prolog_etime      << "</PETIME>"<<
+          "<RSTIME>"      << running_stime     << "</RSTIME>"<<
+          "<RETIME>"      << running_etime     << "</RETIME>"<<
+          "<ESTIME>"      << epilog_stime      << "</ESTIME>"<<
+          "<EETIME>"      << epilog_etime      << "</EETIME>"<<
+          "<REASON>"      << reason            << "</REASON>"<<
+          "<ACTION>"      << action            << "</ACTION>";
 
     if ( database )
     {

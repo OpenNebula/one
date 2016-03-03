@@ -19,8 +19,7 @@
 #include <cstring>
 
 #include "Attribute.h"
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include "NebulaUtil.h"
 
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
@@ -101,8 +100,9 @@ void VectorAttribute::to_xml(ostringstream &oss) const
         }
         else
         {
-            oss << "<" << it->first << "><![CDATA[" << it->second
-                << "]]></"<< it->first << ">";
+            oss << "<" << it->first << ">"
+                << one_util::escape_xml(it->second)
+                << "</" << it->first << ">";
         }
     }
 
@@ -294,7 +294,7 @@ int VectorAttribute::vector_value(const char *name, bool& value) const
 
     string tmp = it->second;
 
-    TO_UPPER(tmp);
+    one_util::toupper(tmp);
 
     if (tmp == "YES")
     {

@@ -592,9 +592,9 @@ string& Host::to_xml(string& xml) const
        "<ID>"               << oid              << "</ID>"              <<
        "<NAME>"             << name             << "</NAME>"            <<
        "<STATE>"            << state            << "</STATE>"           <<
-       "<IM_MAD><![CDATA["  << im_mad_name      << "]]></IM_MAD>"       <<
-       "<VM_MAD><![CDATA["  << vmm_mad_name     << "]]></VM_MAD>"       <<
-       "<VN_MAD><![CDATA["  << vnm_mad_name     << "]]></VN_MAD>"       <<
+       "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
+       "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
+       "<VN_MAD>"        << one_util::escape_xml(vnm_mad_name) << "</VN_MAD>" <<
        "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
        "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
        "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
