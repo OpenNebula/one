@@ -209,6 +209,8 @@ int LibVirtDriver::deployment_description_kvm(
     string default_raw = "";
     string data        = "";
 
+    string vm_xml;
+
     // ------------------------------------------------------------------------
 
     file.open(file_name.c_str(), ios::out);
@@ -1152,6 +1154,9 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t<system_datastore>"
              << one_util::escape_xml(vm->get_remote_system_dir())
          << "</system_datastore>\n"
+         << "\t\t<vm_xml64>"
+             << one_util::escape_xml(one_util::base64_encode(vm->to_xml(vm_xml)))
+         << "<vm_xml64>\n"
          << "\t</metadata>\n";
 
     file << "</domain>" << endl;
