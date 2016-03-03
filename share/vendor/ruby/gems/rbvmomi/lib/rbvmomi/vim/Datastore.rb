@@ -26,7 +26,6 @@ class RbVmomi::VIM::Datastore
   # @return [void]
   def download remote_path, local_path
     url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
-puts url
     pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
                 "-o", local_path,
                 "-b", _connection.cookie,
