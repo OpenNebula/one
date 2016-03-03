@@ -65,13 +65,13 @@ define(function(require) {
     },
     "Template.share" : {
       type: "confirm",
-      layout: "main",
+      layout: "user_select",
       text: Locale.tr("Share"),
       tip: Locale.tr("The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"),
     },
     "Template.unshare" : {
       type: "confirm",
-      layout: "main",
+      layout: "user_select",
       text: Locale.tr("Unshare"),
       tip: Locale.tr("The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"),
     },
