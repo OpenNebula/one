@@ -40,7 +40,7 @@ static void do_network_hosts(ofstream& file,
 {
     if (cg_host.empty())
     {
-        file << "'/>" << endl;
+        file << "/>" << endl;
         return;
     }
 
@@ -49,7 +49,7 @@ static void do_network_hosts(ofstream& file,
 
     hosts = one_util::split(cg_host, ' ');
 
-    file << "'>" << endl;
+    file << ">" << endl;
 
     for (it = hosts.begin(); it != hosts.end(); it++)
     {
@@ -60,23 +60,23 @@ static void do_network_hosts(ofstream& file,
             continue;
         }
 
-        file << "\t\t\t\t<host name='" << parts[0];
+        file << "\t\t\t\t<host name=" << one_util::escape_xml_attr(parts[0]);
 
         if (parts.size() > 1)
         {
-            file << "' port='" << parts[1];
+            file << " port=" << one_util::escape_xml_attr(parts[1]);
         }
         else if ( default_port != -1 )
         {
-            file << "' port='" << default_port;
+            file << " port=" << one_util::escape_xml_attr(default_port);
         }
 
         if (!transport.empty())
         {
-            file << "' transport='" << transport;
+            file << " transport=" << one_util::escape_xml_attr(transport);
         }
 
-        file << "'/>" << endl;
+        file << "/>" << endl;
     }
 
     file << "\t\t\t</source>" << endl;
@@ -222,9 +222,8 @@ int LibVirtDriver::deployment_description_kvm(
     // Starting XML document
     // ------------------------------------------------------------------------
 
-    file << "<domain type='"
-         << emulator
-         << "' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>"
+    file << "<domain type=" << one_util::escape_xml_attr(emulator)
+         << " xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>"
          << endl;
 
     // ------------------------------------------------------------------------
@@ -246,7 +245,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (!vcpu.empty())
     {
-        file << "\t<vcpu>" << vcpu << "</vcpu>" << endl;
+        file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
     }
 
     //Every process gets 1024 shares by default (cgroups), scale this with CPU
@@ -303,11 +302,11 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("OS", "MACHINE", machine);
     }
 
-    file << "\t\t<type arch='" << arch << "'";
+    file << "\t\t<type arch=" << one_util::escape_xml_attr(arch);
 
     if ( !machine.empty() )
     {
-        file << " machine='" << machine << "'";
+        file << " machine=" << one_util::escape_xml_attr(machine);
     }
 
     file << ">hvm</type>" << endl;
@@ -351,11 +350,11 @@ int LibVirtDriver::deployment_description_kvm(
 
     if ( !kernel.empty() )
     {
-        file << "\t\t<kernel>" << kernel << "</kernel>" << endl;
+        file << "\t\t<kernel>" << one_util::escape_xml(kernel) << "</kernel>\n";
 
         if ( !initrd.empty() )
         {
-            file << "\t\t<initrd>" << initrd << "</initrd>" << endl;
+            file << "\t\t<initrd>" << one_util::escape_xml(initrd) << "</initrd>\n";
         }
 
         if ( !root.empty() )
@@ -365,19 +364,21 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (!kernel_cmd.empty())
         {
-            file << "\t\t<cmdline>" << kernel_cmd << "</cmdline>" << endl;
+            file << "\t\t<cmdline>" << one_util::escape_xml(kernel_cmd)
+                 << "</cmdline>\n";
         }
     }
     else if ( !bootloader.empty() )
     {
-        file << "\t\t<bootloader>" << bootloader << "</bootloader>" << endl;
+        file << "\t\t<bootloader>" << one_util::escape_xml(bootloader)
+             << "</bootloader>\n";
     }
 
     boots = one_util::split(boot, ',');
 
     for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
     {
-        file << "\t\t<boot dev='" << *it << "'/>" << endl;
+        file << "\t\t<boot dev=" << one_util::escape_xml_attr(*it) << "/>\n";
     }
 
     file << "\t</os>" << endl;
@@ -394,7 +395,8 @@ int LibVirtDriver::deployment_description_kvm(
         emulator_path = "/usr/bin/kvm";
     }
 
-    file << "\t\t<emulator>" << emulator_path << "</emulator>" << endl;
+    file << "\t\t<emulator>" << one_util::escape_xml(emulator_path)
+         << "</emulator>\n";
 
     // ------------------------------------------------------------------------
     // Disks
@@ -508,33 +510,38 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( type == "BLOCK" )
         {
-            file << "\t\t<disk type='block' device='disk'>" << endl
-                 << "\t\t\t<source dev='" << vm->get_remote_system_dir()
-                 << "/disk." << disk_id << "'/>" << endl;
+            ostringstream dev;
+
+            dev << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+            file << "\t\t<disk type='block' device='disk'>\n"
+                 << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev)
+                 << "/>\n";
         }
         else if ( type == "ISCSI" )
         {
             file << "\t\t<disk type='network' device='disk'>" << endl;
 
-            file << "\t\t\t<source protocol='iscsi' name='";
+            file << "\t\t\t<source protocol='iscsi' name=";
 
             if ( !iscsi_iqn.empty() )
             {
-                file << iscsi_iqn;
+                file << one_util::escape_xml_attr(iscsi_iqn);
             }
             else
             {
-                file << source;
+                file << one_util::escape_xml_attr(source);
             }
 
             do_network_hosts(file, iscsi_host, "", ISCSI_DEFAULT_PORT);
 
             if ( !iscsi_user.empty() && !iscsi_usage.empty() )
             {
-                file << "\t\t\t<auth username='"<< iscsi_user <<"'>" << endl
-                     << "\t\t\t\t<secret type='iscsi' usage='"
-                     << iscsi_usage << "'/>" << endl
-                     << "\t\t\t</auth>" << endl;
+                file << "\t\t\t<auth username="
+                     << one_util::escape_xml_attr(iscsi_user) << ">\n"
+                     << "\t\t\t\t<secret type='iscsi' usage="
+                     << one_util::escape_xml_attr(iscsi_usage)<< "/>\n"
+                     << "\t\t\t</auth>\n";
             }
         }
         else if ( type == "RBD" || type == "RBD_CDROM" || disk_type == "RBD" )
@@ -548,39 +555,44 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='rbd' name='";
+            file << "\t\t\t<source protocol='rbd' name=";
+
+            ostringstream rbd_name;
 
             if ( !source.empty() )
             {
-                file << source;
+                rbd_name << source;
             }
             else
             {
                 if ( !pool_name.empty() )
                 {
-                    file << pool_name;
+                    rbd_name << pool_name;
                 }
                 else
                 {
-                    file << "one";
+                    rbd_name << "one";
                 }
 
-                file << "/one-sys";
+                rbd_name << "/one-sys";
             }
 
             if ( clone == "YES" || source.empty() )
             {
-                file << "-" << vm->get_oid() << "-" << disk_id;
+                rbd_name << "-" << vm->get_oid() << "-" << disk_id;
             }
+
+            file << one_util::escape_xml_attr(rbd_name);
 
             do_network_hosts(file, ceph_host, "", CEPH_DEFAULT_PORT);
 
             if ( !ceph_secret.empty() && !ceph_user.empty())
             {
-                file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
-                     << "\t\t\t\t<secret type='ceph' uuid='"
-                     << ceph_secret <<"'/>" << endl
-                     << "\t\t\t</auth>" << endl;
+                file << "\t\t\t<auth username="
+                     << one_util::escape_xml_attr(ceph_user) << ">\n"
+                     << "\t\t\t\t<secret type='ceph' uuid="
+                     << one_util::escape_xml_attr(ceph_secret) <<"/>\n"
+                     << "\t\t\t</auth>\n";
             }
         }
         else if ( type == "SHEEPDOG" || type == "SHEEPDOG_CDROM" )
@@ -594,12 +606,18 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='sheepdog' name='" << source;
+            file << "\t\t\t<source protocol='sheepdog' name=";
+
+            ostringstream sheep_name;
+
+            sheep_name << source;
 
             if ( clone == "YES" )
             {
-                file << "-" << vm->get_oid() << "-" << disk_id;
+                sheep_name << "-" << vm->get_oid() << "-" << disk_id;
             }
+
+            file << one_util::escape_xml_attr(sheep_name);
 
             do_network_hosts(file, sheepdog_host, "tcp", -1);
         }
@@ -614,36 +632,49 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='gluster' name='" << gluster_volume
-                 << "/";
+            file << "\t\t\t<source protocol='gluster' name=";
+
+            ostringstream gluster_name;
+
+            gluster_name << gluster_volume << "/";
 
             if ( clone == "YES" )
             {
-                file << vm->get_oid() << "/disk." << disk_id;
+                gluster_name << vm->get_oid() << "/disk." << disk_id;
             }
             else
             {
-                file << one_util::split(source, '/').back();
+                gluster_name << one_util::split(source, '/').back();
             }
+
+            file << one_util::escape_xml_attr(gluster_name);
 
             do_network_hosts(file, gluster_host, "tcp", GLUSTER_DEFAULT_PORT);
         }
         else if ( type == "CDROM" )
         {
-            file << "\t\t<disk type='file' device='cdrom'>" << endl
-                 << "\t\t\t<source file='" << vm->get_remote_system_dir()
-                 << "/disk." << disk_id << "'/>" << endl;
+            ostringstream cd_name;
+
+            cd_name << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+            file << "\t\t<disk type='file' device='cdrom'>\n"
+                 << "\t\t\t<source file="
+                 << one_util::escape_xml_attr(cd_name)<< "/>\n";
         }
         else
         {
-            file << "\t\t<disk type='file' device='disk'>" << endl
-                 << "\t\t\t<source file='" << vm->get_remote_system_dir()
-                 << "/disk." << disk_id << "'/>" << endl;
+            ostringstream fname;
+
+            fname << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+            file << "\t\t<disk type='file' device='disk'>\n"
+                 << "\t\t\t<source file="
+                 << one_util::escape_xml_attr(fname) << "/>\n";
         }
 
         // ---- target device to map the disk ----
 
-        file << "\t\t\t<target dev='" << target << "'/>" << endl;
+        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
 
         // ---- readonly attribute for the disk ----
 
@@ -654,48 +685,48 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Image Format using qemu driver ----
 
-        file << "\t\t\t<driver name='qemu' type='";
+        file << "\t\t\t<driver name='qemu' type=";
 
         if ( type == "CDROM" ) // Use driver raw for CD's
         {
-            file << "raw";
+            file << one_util::escape_xml_attr("raw");
         }
         else if ( !driver.empty() )
         {
-            file << driver;
+            file << one_util::escape_xml_attr(driver);
         }
         else
         {
-            file << default_driver;
+            file << one_util::escape_xml_attr(default_driver);
         }
 
-        file << "' cache='";
+        file << " cache=";
 
         if ( !cache.empty() )
         {
-            file << cache << "'";
+            file << one_util::escape_xml_attr(cache);
         }
         else
         {
-            file << default_driver_cache << "'";
+            file << one_util::escape_xml_attr(default_driver_cache);
         }
 
         if ( !disk_io.empty() )
         {
-            file << " io='" << disk_io << "'";
+            file << " io=" << one_util::escape_xml_attr(disk_io);
         }
         else if ( !default_driver_disk_io.empty() )
         {
-            file << " io='" << default_driver_disk_io << "'";
+            file << " io=" << one_util::escape_xml_attr(default_driver_disk_io);
         }
 
         if ( !discard.empty() )
         {
-            file << " discard='" << discard << "'";
+            file << " discard=" << one_util::escape_xml_attr(discard);
         }
         else if ( !default_driver_discard.empty() )
         {
-            file << " discard='" << default_driver_discard << "'";
+            file << " discard=" << one_util::escape_xml_attr(default_driver_discard);
         }
 
         file << "/>" << endl;
@@ -710,38 +741,44 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( !total_bytes_sec.empty() )
             {
-                file << "\t\t\t\t<total_bytes_sec>" << total_bytes_sec
-                     << "</total_bytes_sec>" << endl;
+                file << "\t\t\t\t<total_bytes_sec>"
+                     << one_util::escape_xml(total_bytes_sec)
+                     << "</total_bytes_sec>\n";
             }
 
             if ( !read_bytes_sec.empty() )
             {
-                file << "\t\t\t\t<read_bytes_sec>" << read_bytes_sec
-                     << "</read_bytes_sec>" << endl;
+                file << "\t\t\t\t<read_bytes_sec>"
+                     << one_util::escape_xml(read_bytes_sec)
+                     << "</read_bytes_sec>\n";
             }
 
             if ( !write_bytes_sec.empty() )
             {
-                file << "\t\t\t\t<write_bytes_sec>" << write_bytes_sec
-                     << "</write_bytes_sec>" << endl;
+                file << "\t\t\t\t<write_bytes_sec>"
+                     << one_util::escape_xml(write_bytes_sec)
+                     << "</write_bytes_sec>\n";
             }
 
             if ( !total_iops_sec.empty() )
             {
-                file << "\t\t\t\t<total_iops_sec>" << total_iops_sec
-                     << "</total_iops_sec>" << endl;
+                file << "\t\t\t\t<total_iops_sec>"
+                     << one_util::escape_xml(total_iops_sec)
+                     << "</total_iops_sec>\n";
             }
 
             if ( !read_iops_sec.empty() )
             {
-                file << "\t\t\t\t<read_iops_sec>" << read_iops_sec
-                     << "</read_iops_sec>" << endl;
+                file << "\t\t\t\t<read_iops_sec>"
+                     << one_util::escape_xml(read_iops_sec)
+                     << "</read_iops_sec>\n";
             }
 
             if ( !write_iops_sec.empty() )
             {
-                file << "\t\t\t\t<write_iops_sec>" << write_iops_sec
-                     << "</write_iops_sec>" << endl;
+                file << "\t\t\t\t<write_iops_sec>"
+                     << one_util::escape_xml(write_iops_sec)
+                     << "</write_iops_sec>\n";
             }
 
             file << "\t\t\t</iotune>" << endl;
@@ -764,17 +801,18 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !target.empty() )
         {
-            file << "\t\t<disk type='file' device='cdrom'>" << endl;
+            ostringstream fname;
 
-            file << "\t\t\t<source file='" << vm->get_remote_system_dir()
-                 << "/disk." << disk_id << "'/>" << endl;
+            fname << vm->get_remote_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t\t<target dev='" << target << "'/>" << endl;
-            file << "\t\t\t<readonly/>" << endl;
-
-            file << "\t\t\t<driver name='qemu' type='raw'/>" << endl;
-
-            file << "\t\t</disk>" << endl;
+            file << "\t\t<disk type='file' device='cdrom'>\n"
+                 << "\t\t\t<source file="
+                     << one_util::escape_xml_attr(fname)  << "/>\n"
+                 << "\t\t\t<target dev="
+                     << one_util::escape_xml_attr(target) << "/>\n"
+                 << "\t\t\t<readonly/>\n"
+                 << "\t\t\t<driver name='qemu' type='raw'/>\n"
+                 << "\t\t</disk>\n";
         }
         else
         {
@@ -824,22 +862,26 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }
 
-            file << "\t\t\t<source bridge='" << *the_bridge << "'/>" << endl;
+            file << "\t\t\t<source bridge="
+                 << one_util::escape_xml_attr(*the_bridge) << "/>\n";
         }
 
         if( !mac.empty() )
         {
-            file << "\t\t\t<mac address='" << mac << "'/>" << endl;
+            file << "\t\t\t<mac address=" << one_util::escape_xml_attr(mac)
+                 << "/>\n";
         }
 
         if( !target.empty() )
         {
-            file << "\t\t\t<target dev='" << target << "'/>" << endl;
+            file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target)
+                 << "/>\n";
         }
 
         if( !script.empty() )
         {
-            file << "\t\t\t<script path='" << script << "'/>" << endl;
+            file << "\t\t\t<script path=" << one_util::escape_xml_attr(script)
+                 << "/>\n";
         }
 
         string * the_model = 0;
@@ -855,7 +897,8 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (the_model != 0)
         {
-            file << "\t\t\t<model type='" << *the_model << "'/>" << endl;
+            file << "\t\t\t<model type="
+                 << one_util::escape_xml_attr(*the_model) << "/>\n";
         }
 
         if (!ip.empty() )
@@ -873,10 +916,11 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( the_filter != 0 )
             {
-                file <<"\t\t\t<filterref filter='"<< *the_filter <<"'>"<<endl;
-                file << "\t\t\t\t<parameter name='IP' value='"
-                     << ip << "'/>" << endl;
-                file << "\t\t\t</filterref>" << endl;
+                file << "\t\t\t<filterref filter="
+                         << one_util::escape_xml_attr(*the_filter) << ">\n"
+                     << "\t\t\t\t<parameter name='IP' value="
+                         << one_util::escape_xml_attr(ip) << "/>\n"
+                     << "\t\t\t</filterref>\n";
             }
         }
 
@@ -900,26 +944,26 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( type == "vnc" || type == "spice" )
         {
-            file << "\t\t<graphics type='" << type << "'";
+            file << "\t\t<graphics type=" << one_util::escape_xml_attr(type);
 
             if ( !listen.empty() )
             {
-                file << " listen='" << listen << "'";
+                file << " listen=" << one_util::escape_xml_attr(listen);
             }
 
             if ( !port.empty() )
             {
-                file << " port='" << port << "'";
+                file << " port=" << one_util::escape_xml_attr(port);
             }
 
             if ( !passwd.empty() )
             {
-                file << " passwd='" << passwd << "'";
+                file << " passwd=" << one_util::escape_xml_attr(passwd);
             }
 
             if ( !keymap.empty() )
             {
-                file << " keymap='" << keymap << "'";
+                file << " keymap=" << one_util::escape_xml_attr(keymap);
             }
 
             file << "/>" << endl;
@@ -953,11 +997,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !type.empty() )
         {
-            file << "\t\t<input type='" << type << "'";
+            file << "\t\t<input type=" << one_util::escape_xml_attr(type);
 
             if ( !bus.empty() )
             {
-                file << " bus='" << bus << "'";
+                file << " bus=" << one_util::escape_xml_attr(bus);
             }
 
             file << "/>" << endl;
@@ -985,17 +1029,17 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>";
-        file << endl;
-        file << "\t\t\t<source>" << endl;
+        file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
 
-        file << "\t\t\t\t<address ";
-        file << "domain='0x" << domain << "' ";
-        file << "bus='0x" << bus << "' ";
-        file << "slot='0x" << slot << "' ";
-        file << "function='0x" << func << "'/>" << endl;
+        file << "\t\t\t<source>\n";
+        file << "\t\t\t\t<address "
+                 << "domain="   << one_util::escape_xml_attr("0x" + domain)
+                 << "bus="      << one_util::escape_xml_attr("0x" + bus)
+                 << "slot="     << one_util::escape_xml_attr("0x" + slot)
+                 << "function=" << one_util::escape_xml_attr("0x" + func)
+             << "/>\n";
+        file << "\t\t\t</source>\n";
 
-        file << "\t\t\t</source>" << endl;
         file << "\t\t</hostdev>" << endl;
     }
 
@@ -1104,10 +1148,11 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Metadata used by drivers
     // ------------------------------------------------------------------------
-    file << "\t<metadata>" << endl;
-    file << "\t\t<system_datastore>" << vm->get_remote_system_dir() <<
-        "</system_datastore>" << endl;
-    file << "\t</metadata>" << endl;
+    file << "\t<metadata>\n"
+         << "\t\t<system_datastore>"
+             << one_util::escape_xml(vm->get_remote_system_dir())
+         << "</system_datastore>\n"
+         << "\t</metadata>\n";
 
     file << "</domain>" << endl;
 
