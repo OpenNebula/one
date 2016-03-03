@@ -71,6 +71,8 @@ digraph OpenNebula {
         prolog_migrate_suspend;
         prolog_migrate_suspend_failure;
         prolog_undeploy;
+        prolog_migrate_unknown;
+        prolog_migrate_unknown_failure;
         color="white"
     }
     subgraph {
@@ -154,7 +156,8 @@ digraph OpenNebula {
     prolog_migrate  -> boot_migrate [style="dashed", color="blue"];
     boot_migrate    -> running [style="dashed", color="blue"];
 
-    unknown         -> boot [label="migrate"];
+    unknown         -> prolog_migrate_unknown [label="migrate"];
+    prolog_migrate_unknown  -> boot [style="dashed", color="blue"];
 
     poweroff                -> prolog_migrate_poweroff [label="migrate"];
     prolog_migrate_poweroff -> poweroff [style="dashed", color="blue"];
@@ -303,6 +306,9 @@ digraph OpenNebula {
 
     prolog_resume   -> stopped [style="dotted", color="red"];
     prolog_undeploy -> undeployed [style="dotted", color="red"];
+
+    prolog_migrate_unknown          -> prolog_migrate_unknown_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_unknown_failure  -> prolog_migrate_unknown [label="migrate"];
 
     boot            -> boot_failure [label=" ", style="dotted", color="red"];
     boot_migrate    -> boot_migrate_failure [label=" ", style="dotted", color="red"];

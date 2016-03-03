@@ -109,6 +109,8 @@ define(function(require) {
     "DISK_SNAPSHOT",
     "DISK_SNAPSHOT_REVERT",
     "DISK_SNAPSHOT_DELETE",
+    "PROLOG_MIGRATE_UNKNOWN",
+    "PROLOG_MIGRATE_UNKNOWN_FAILURE",
   ];
 
   var LCM_STATES = {
@@ -171,7 +173,9 @@ define(function(require) {
     DISK_SNAPSHOT_DELETE_SUSPENDED  : 56,
     DISK_SNAPSHOT                   : 57,
     DISK_SNAPSHOT_REVERT            : 58,
-    DISK_SNAPSHOT_DELETE            : 59
+    DISK_SNAPSHOT_DELETE            : 59,
+    PROLOG_MIGRATE_UNKNOWN          : 60,
+    PROLOG_MIGRATE_UNKNOWN_FAILURE  : 61
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -235,6 +239,8 @@ define(function(require) {
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_REVERT
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE
+    Locale.tr("MIGRATE"),   // PROLOG_MIGRATE_UNKNOWN
+    Locale.tr("FAILURE"),   // PROLOG_MIGRATE_UNKNOWN_FAILURE
   ];
 
   var VNC_STATES = [
@@ -543,6 +549,7 @@ define(function(require) {
         case LCM_STATES.BOOT_STOPPED_FAILURE:
         case LCM_STATES.PROLOG_RESUME_FAILURE:
         case LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+        case LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE:
           return true;
 
         default:
