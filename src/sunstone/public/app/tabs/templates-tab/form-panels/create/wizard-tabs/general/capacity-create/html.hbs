@@ -57,8 +57,22 @@
       </div>
       <div class="small-6 columns">
         <div class="memory_modify_opt range">
-          <input type=text class="mb_unit memory_modify_opt range" placeholder="512..4096"/>
-          <input type=text class="gb_unit" placeholder="0.5..4"/>
+          <div class="row mb_unit">
+            <div class="small-6 columns">
+              <input type="number" min="0" class="user_input_params_min" placeholder="{{tr "Min"}}"/>
+            </div>
+            <div class="small-6 columns">
+              <input type="number" min="0" class="user_input_params_max" placeholder="{{tr "Max"}}"/>
+            </div>
+          </div>
+          <div class="row gb_unit">
+            <div class="small-6 columns">
+              <input type="number" min="0" step="any" class="user_input_params_min" placeholder="{{tr "Min"}}"/>
+            </div>
+            <div class="small-6 columns">
+              <input type="number" min="0" step="any" class="user_input_params_max" placeholder="{{tr "Max"}}"/>
+            </div>
+          </div>
         </div>
         <div class="memory_modify_opt list">
           <input type=text class="mb_unit memory_modify_opt list" placeholder="1024,4096,8192"/>
@@ -98,12 +112,19 @@
         <select class="cpu_modify_type" >
           <option value="fixed">{{tr "fixed"}}</option>
           <option selected value="number-float">{{tr "any value"}}</option>
-          <option value="range">{{tr "range"}}</option>
+          <option value="range-float">{{tr "range"}}</option>
           <option value="list">{{tr "list"}}</option>
         </select>
       </div>
       <div class="small-8 columns">
-        <input type=text class="cpu_modify_opt range" placeholder="0.5..8"/>
+        <div class="row cpu_modify_opt range-float">
+          <div class="small-6 columns">
+            <input type="number" min="0" step="0.01" class="user_input_params_min" placeholder="{{tr "Min"}}"/>
+          </div>
+          <div class="small-6 columns">
+            <input type="number" min="0" step="0.01" class="user_input_params_max" placeholder="{{tr "Max"}}"/>
+          </div>
+        </div>
         <input type=text class="cpu_modify_opt list" placeholder="0.5,1,4,16"/>
       </div>
     </div>
@@ -140,7 +161,14 @@
         </select>
       </div>
       <div class="small-8 columns">
-        <input type=text class="vcpu_modify_opt range" placeholder="1..8"/>
+        <div class="row vcpu_modify_opt range">
+          <div class="small-6 columns">
+            <input type="number" min="0" step="1" class="user_input_params_min" placeholder="{{tr "Min"}}"/>
+          </div>
+          <div class="small-6 columns">
+            <input type="number" min="0" step="1" class="user_input_params_max" placeholder="{{tr "Max"}}"/>
+          </div>
+        </div>
         <input type=text class="vcpu_modify_opt list" placeholder="4,8,16"/>
       </div>
     </div>

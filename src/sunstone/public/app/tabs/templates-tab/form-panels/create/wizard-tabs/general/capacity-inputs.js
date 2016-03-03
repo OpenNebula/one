@@ -129,6 +129,8 @@ define(function(require) {
       attr.initial = element.TEMPLATE.CPU;
     }
 
+    attr.step = 0.01;
+
     input = UserInputs.attributeInput(attr);
 
     $("div.cpu_input", context).html(input);
@@ -195,7 +197,8 @@ define(function(require) {
     // Update memory_gb with the value set in memory
     $("input, select", $("div.memory_input", context)).trigger("input");
 
-    if ($("input, select", $("div.memory_input", context)).val() >= 1024){
+    var mem_value = $("input, select", $("div.memory_input", context)).val();
+    if (mem_value == "" || (mem_value >= 1024 && (mem_value % 1024 == 0))){
       $("#memory_unit", context).val("GB").change();
     } else {
       $("#memory_unit", context).val("MB").change();
