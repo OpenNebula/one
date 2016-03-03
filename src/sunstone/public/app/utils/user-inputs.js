@@ -94,6 +94,11 @@ define(function(require) {
 
           case "range":
           case "range-float":
+            var min = $("."+attr.type+" input.user_input_params_min", $(this)).val();
+            var max = $("."+attr.type+" input.user_input_params_max", $(this)).val();
+            attr.params  = min + ".." + max;
+            attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+            break;
           case "list":
             attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
@@ -132,6 +137,19 @@ define(function(require) {
 
           case "range":
           case "range-float":
+            var values = attr.params.split("..");  // "2..8"
+
+            if (values.length == 2){
+              $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
+              $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
+            } else {
+              console.error('Wrong user input parameters for "'+key+'". Expected "MIN..MAX", received "'+attr.params+'"');
+            }
+
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+
+            break;
+
           case "list":
             $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
