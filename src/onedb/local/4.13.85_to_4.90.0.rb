@@ -28,7 +28,6 @@ module Migrator
   end
 
   TEMPLATE_TRANSFORM_ATTRS = {
-    'SUNSTONE_CAPACITY_SELECT'  => 'CAPACITY_SELECT',
     'SUNSTONE_NETWORK_SELECT'   => 'NETWORK_SELECT'
   }
 
@@ -88,14 +87,14 @@ module Migrator
 
     log_time()
 
-    # 3671
-
     @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
     @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_template_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        # Feature #3671
 
         TEMPLATE_TRANSFORM_ATTRS.each do |old_name, new_name|
           elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/#{old_name}")
@@ -112,6 +111,38 @@ module Migrator
 
             doc.at_xpath("/VMTEMPLATE/TEMPLATE/SUNSTONE").add_child(elem)
           end
+        end
+
+        # Feature #4317
+
+        elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/SUNSTONE_CAPACITY_SELECT")
+
+        if elem.nil?
+          capacity_edit = true
+        else
+          elem.remove
+          capacity_edit = (elem.text != "NO")
+        end
+
+        if !capacity_edit
+          cpu_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/CPU")
+          memory_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/MEMORY")
+          vcpu_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/VCPU")
+
+          cpu    = cpu_e != nil ? cpu_e.text : ""
+          memory = memory_e != nil ? memory_e.text : ""
+          vcpu   = vcpu_e != nil ? vcpu_e.text : ""
+
+          user_inputs = doc.at_xpath("/VMTEMPLATE/TEMPLATE/USER_INPUTS")
+
+          if user_inputs.nil?
+            user_inputs = doc.create_element("USER_INPUTS")
+            doc.at_xpath("/VMTEMPLATE/TEMPLATE").add_child(user_inputs)
+          end
+
+          user_inputs.add_child(doc.create_element("CPU")).content = "O|fixed|||#{cpu}"
+          user_inputs.add_child(doc.create_element("MEMORY")).content = "O|fixed|||#{memory}"
+          user_inputs.add_child(doc.create_element("VCPU")).content = "O|fixed|||#{vcpu}"
         end
 
         @db[:template_pool].insert(
