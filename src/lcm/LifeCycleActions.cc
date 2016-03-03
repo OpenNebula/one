@@ -251,57 +251,29 @@ void  LifeCycleManager::migrate_action(int vid)
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
     else if (vm->get_state() == VirtualMachine::POWEROFF ||
-        vm->get_state() == VirtualMachine::SUSPENDED )
+             vm->get_state() == VirtualMachine::SUSPENDED ||
+             (vm->get_state() == VirtualMachine::ACTIVE &&
+              vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
     {
-        //------------------------------------------------------
-        //   Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF
-        //------------------------------------------------------
+        //----------------------------------------------------------------------
+        // Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF/SUSPENDED/UNKNOWN
+        //----------------------------------------------------------------------
         if (vm->get_state() == VirtualMachine::POWEROFF)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
         }
-        else // VirtualMachine::SUSPENDED
+        else if (vm->get_state() == VirtualMachine::SUSPENDED)
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+        }
+        else //VirtualMachine::UNKNOWN
+        {
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
         }
 
         vm->set_state(VirtualMachine::ACTIVE);
 
         vm->set_resched(false);
-
-        vm->delete_snapshots();
-
-        vm->reset_info();
-
-        vmpool->update(vm);
-
-        vm->set_stime(the_time);
-
-        vm->set_prolog_stime(the_time);
-
-        vmpool->update_history(vm);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
-            disk, pci);
-
-        //----------------------------------------------------
-
-        tm->trigger(TransferManager::PROLOG_MIGR,vid);
-    }
-    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-    {
-        //----------------------------------------------------
-        //   Bypass SAVE_MIGRATE goto PROLOG_MIGRATE_UNKNOWN
-        //----------------------------------------------------
-
-        vm->set_resched(false);
-
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
 
         vm->delete_snapshots();
 
@@ -1606,10 +1578,12 @@ void  LifeCycleManager::updatesg_action(int sgid)
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
                 case VirtualMachine::PROLOG_RESUME_FAILURE:
                 case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
                 case VirtualMachine::PROLOG_FAILURE:
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                 case VirtualMachine::PROLOG_RESUME:
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::EPILOG:

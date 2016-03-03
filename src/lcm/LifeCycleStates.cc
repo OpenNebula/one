@@ -663,10 +663,6 @@ void LifeCycleManager::prolog_success_action(int vid)
 
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_FAILURE: //recover success
-                    action = VirtualMachineManager::DEPLOY;
-                    vm->set_state(VirtualMachine::BOOT);
-                    break;
-
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
                     action = VirtualMachineManager::DEPLOY;
