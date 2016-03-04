@@ -151,7 +151,7 @@ EOT
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
             "datastore_pool", "document_pool", "zone_pool", "secgroup_pool",
-            "vdc_pool"]
+            "vdc_pool", "vrouter_pool"]
 
         federated_tables = ["group_pool", "user_pool", "acl", "zone_pool", "vdc_pool"]
 
