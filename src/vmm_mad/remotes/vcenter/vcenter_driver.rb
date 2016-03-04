@@ -980,8 +980,8 @@ class VCenterHost < ::OpenNebula::Host
                 matches = name.match(/^one-(\d*)(-(.*))?$/)
                 number  = matches[1] if matches
 
-                extraconfig_vmid = vm.config.extraConfig.select{|v|
-                                           v[:key]=="opennebula.vm.id"}
+                extraconfig_vmid = v.config.extraConfig.select{|val|
+                                           val[:key]=="opennebula.vm.id"}
 
                 if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
                     number = extraconfig_vmid[0][:value]
@@ -1515,9 +1515,9 @@ class VCenterVm
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
 
         vp     = @vm.config.extraConfig.select{|v|
-                                           v[:key]=="remotedisplay.vnc.port"}
+                                           v[:key].downcase=="remotedisplay.vnc.port"}
         keymap = @vm.config.extraConfig.select{|v|
-                                           v[:key]=="remotedisplay.vnc.keymap"}
+                                           v[:key].downcase=="remotedisplay.vnc.keymap"}
 
         if vp.size > 0
             str << "GRAPHICS = [\n"\
