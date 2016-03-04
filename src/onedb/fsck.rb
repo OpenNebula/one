@@ -30,7 +30,7 @@ require 'set'
 require 'nokogiri'
 
 module OneDBFsck
-    VERSION = "4.11.80"
+    VERSION = "4.90.0"
     LOCAL_VERSION = "4.90.0"
 
     def check_db_version()
@@ -151,9 +151,10 @@ EOT
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
             "datastore_pool", "document_pool", "zone_pool", "secgroup_pool",
-            "vdc_pool", "vrouter_pool"]
+            "vdc_pool", "vrouter_pool", "marketplace_pool", "marketplaceapp_pool"]
 
-        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool", "vdc_pool"]
+        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool",
+            "vdc_pool", "marketplace_pool", "marketplaceapp_pool"]
 
         tables.each do |table|
             max_oid = -1
@@ -703,7 +704,7 @@ EOT
 
                 images_elem.each_element("ID") do |id_elem|
                     log_error(
-                        "Image #{id_elem.text} is in Cluster #{ds_id} "<<
+                        "Image #{id_elem.text} is in Datastore #{ds_id} "<<
                         "image id list, but it should not")
                 end
 
@@ -747,8 +748,9 @@ EOT
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
             if counters[:image][row[:oid]].nil?
                 counters[:image][row[:oid]] = {
-                    :vms    => Set.new,
-                    :clones => Set.new
+                    :vms        => Set.new,
+                    :clones     => Set.new,
+                    :app_clones => Set.new
                 }
             end
 
@@ -759,8 +761,9 @@ EOT
 
                 if counters[:image][img_id].nil?
                     counters[:image][img_id] = {
-                        :vms    => Set.new,
-                        :clones => Set.new
+                        :vms        => Set.new,
+                        :clones     => Set.new,
+                        :app_clones => Set.new
                     }
                 end
 
@@ -1224,6 +1227,131 @@ EOT
         log_time()
 
         ########################################################################
+        # Marketplace
+        #
+        # MARKETPLACE/MARKETPLACEAPPS/ID
+        ########################################################################
+        # App
+        #
+        # MARKETPLACEAPP/MARKETPLACE_ID
+        # MARKETPLACEAPP/MARKETPLACE
+        # MARKETPLACEAPP/ORIGIN_ID
+        ########################################################################
+
+        marketplace = {}
+
+        @db.fetch("SELECT oid, name FROM marketplace_pool") do |row|
+            marketplace[row[:oid]] = {:name => row[:name], :apps => []}
+        end
+
+        apps_fix = {}
+
+        @db.fetch("SELECT oid,body FROM marketplaceapp_pool") do |row|
+            doc = Document.new(row[:body])
+
+            market_id   = doc.root.get_text('MARKETPLACE_ID').to_s.to_i
+            market_name = doc.root.get_text('MARKETPLACE')
+
+            ####################################################################
+            # TODO, BUG: this code will only work for a standalone oned.
+            # In a federation, the image ID will refer to a different image
+            # in each zone
+            ####################################################################
+
+            origin_id = doc.root.get_text('ORIGIN_ID').to_s.to_i
+            if origin_id >= 0 && doc.root.get_text('STATE').to_s.to_i == 2 # LOCKED
+                counters[:image][origin_id][:app_clones].add(row[:oid])
+            end
+
+            ####################################################################
+            #####################################################################
+
+            if market_id != -1
+                market_entry = marketplace[market_id]
+
+                if market_entry.nil?
+                    log_error("Marketplace App #{row[:oid]} has marketplace #{market_id}, but it does not exist. The app is probably unusable, and needs to be deleted manually:\n"<<
+                        "  * The DB entry can be deleted with the command:\n"<<
+                        "    DELETE FROM marketplaceapp_pool WHERE oid=#{row[:oid]};\n"<<
+                        "  * Run fsck again.\n", false)
+                else
+                    if market_name != market_entry[:name]
+                        log_error("Marketplace App #{row[:oid]} has a wrong name for marketplace #{market_id}, #{market_name}. It will be changed to #{market_entry[:name]}")
+
+                        doc.root.each_element('MARKETPLACE') do |e|
+                            e.text = market_entry[:name]
+                        end
+
+                        apps_fix[row[:oid]] = doc.root.to_s
+                    end
+
+                    market_entry[:apps] << row[:oid]
+                end
+            end
+        end
+        
+        if !db_version[:is_slave]
+            @db.transaction do
+                apps_fix.each do |id, body|
+                    @db[:marketplaceapp_pool].where(:oid => id).update(:body => body)
+                end
+            end
+        elsif !apps_fix.empty?
+            log_msg("^ Marketplace App errors need to be fixed in the master OpenNebula")
+        end
+
+        log_time()
+
+        markets_fix = {}
+
+        @db.fetch("SELECT oid,body FROM marketplace_pool") do |row|
+            market_id = row[:oid]
+            doc = Document.new(row[:body])
+
+            apps_elem = doc.root.elements.delete("MARKETPLACEAPPS")
+
+            apps_new_elem = doc.root.add_element("MARKETPLACEAPPS")
+
+            error = false
+
+            marketplace[market_id][:apps].each do |id|
+                id_elem = apps_elem.elements.delete("ID[.=#{id}]")
+
+                if id_elem.nil?
+                    error = true
+
+                    log_error(
+                        "Marketplace App #{id} is missing from Marketplace #{market_id} "<<
+                        "app id list")
+                end
+
+                apps_new_elem.add_element("ID").text = id.to_s
+            end
+
+            apps_elem.each_element("ID") do |id_elem|
+                error = true
+
+                log_error(
+                    "Marketplace App #{id_elem.text} is in Marketplace #{market_id} "<<
+                    "app id list, but it should not")
+            end
+
+            markets_fix[row[:oid]] = doc.root.to_s
+        end
+        
+        if !db_version[:is_slave]
+            @db.transaction do
+                markets_fix.each do |id, body|
+                    @db[:marketplace_pool].where(:oid => id).update(:body => body)
+                end
+            end
+        elsif !markets_fix.empty?
+            log_msg("^ Marketplace errors need to be fixed in the master OpenNebula")
+        end
+
+        log_time()
+
+        ########################################################################
         # Image
         #
         # IMAGE/RUNNING_VMS
@@ -1231,6 +1359,7 @@ EOT
         #
         # IMAGE/CLONING_OPS
         # IMAGE/CLONES/ID
+        # IMAGE/APP_CLONES/ID
         #
         # IMAGE/CLONING_ID
         #
@@ -1249,8 +1378,10 @@ EOT
                 persistent = ( doc.root.get_text('PERSISTENT').to_s == "1" )
                 current_state = doc.root.get_text('STATE').to_s.to_i
 
-                rvms            = counters[:image][oid][:vms].size
-                n_cloning_ops   = counters[:image][oid][:clones].size
+                counters_img = counters[:image][oid]
+
+                rvms          = counters_img[:vms].size
+                n_cloning_ops = counters_img[:clones].size + counters_img[:app_clones].size
 
                 # rewrite running_vms
                 doc.root.each_element("RUNNING_VMS") {|e|
@@ -1265,7 +1396,7 @@ EOT
 
                 vms_new_elem = doc.root.add_element("VMS")
 
-                counters[:image][oid][:vms].each do |id|
+                counters_img[:vms].each do |id|
                     id_elem = vms_elem.elements.delete("ID[.=#{id}]")
 
                     if id_elem.nil?
@@ -1282,7 +1413,8 @@ EOT
 
                 if ( persistent && rvms > 0 )
                     n_cloning_ops = 0
-                    counters[:image][oid][:clones] = Set.new
+                    counters_img[:clones]     = Set.new
+                    counters_img[:app_clones] = Set.new
                 end
 
                 # Check number of clones
@@ -1298,7 +1430,7 @@ EOT
 
                 clones_new_elem = doc.root.add_element("CLONES")
 
-                counters[:image][oid][:clones].each do |id|
+                counters_img[:clones].each do |id|
                     id_elem = clones_elem.elements.delete("ID[.=#{id}]")
 
                     if id_elem.nil?
@@ -1310,6 +1442,25 @@ EOT
 
                 clones_elem.each_element("ID") do |id_elem|
                     log_error("Image #{id_elem.text} is in Image #{oid} CLONES id list, but it should not")
+                end
+
+                # re-do list of Apps cloning this one
+                clones_elem = doc.root.elements.delete("APP_CLONES")
+
+                clones_new_elem = doc.root.add_element("APP_CLONES")
+
+                counters_img[:app_clones].each do |id|
+                    id_elem = clones_elem.elements.delete("ID[.=#{id}]")
+
+                    if id_elem.nil?
+                        log_error("Marketplace App #{id} is missing from Image #{oid} APP_CLONES id list")
+                    end
+
+                    clones_new_elem.add_element("ID").text = id.to_s
+                end
+
+                clones_elem.each_element("ID") do |id_elem|
+                    log_error("Marketplace App #{id_elem.text} is in Image #{oid} APP_CLONES id list, but it should not")
                 end
 
 
