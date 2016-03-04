@@ -14,21 +14,53 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="small-12 columns">
-  <div id="" class="row left-body left-header media-object">
-    <div class="logo-header small-12 medium-4 columns">
-      <div class="media-object-section">
-        <button id="menu-toggle" class="button secondary tiny">
-          <i class="fa fa-bars"></i>
-        </button>
-      </div>
-      <div class="media-object-section">
-        <img class="opennebula-img" src="{{logo}}"/>
-      </div class="media-object-section">
-    </div>
-    <div class="small-12 medium-8 columns">
-      <div class="user-zone-info right">
-      </div>
-    </div>
-  </div>
-</div>
+<ul class="dropdown menu" data-disable-hover="true" data-click-open="true" data-alignment="right" data-dropdown-menu>
+  <li>
+    <a href="#">
+      <i class="fa fa-user fa-lg fa-fw header-icon"></i>
+      {{displayName}}
+    </a>
+    <ul class="menu">
+      {{#if settingsTabEnabled}}
+      <li>
+        <a href="#" class="configuration">
+          <i class="fa fa-fw fa-cog"></i>
+          {{tr "Settings"}}
+        </a>
+      </li>
+      {{/if}}
+      <li>
+        <a href="#" class="logout">
+          <i class="fa fa-fw fa-power-off"></i>
+          {{tr "Sign Out"}}
+        </a>
+      </li>
+      {{#if availableViews}}
+      <li>
+        <a href="#">
+          <i class="fa fa-fw fa-eye"></i>
+          {{tr "Views"}}
+        </a>
+        <ul class="menu">
+          {{#each availableViews}}
+          <li>
+            <a href="#" class="quickconf_view" view="{{this}}">
+              <i class="fa fa-fw"></i> 
+              {{this}}
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+      </li>
+      {{/if}}
+    </ul>
+  </li>
+  <li>
+    <a id="zonelector" href="#">
+      <i class="fa fa-globe fa-lg fa-fw header-icon"></i>
+      {{zoneName}}
+    </a>
+    <ul class="menu zone-ul">
+    </ul>
+  </li>
+</ul>

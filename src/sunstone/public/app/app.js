@@ -29,6 +29,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var UserInputs = require('utils/user-inputs');
 
+  var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
+
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
     require('utils/dialogs/confirm-with-select'),
@@ -87,47 +89,14 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
-    var user_login_content =
-    '<button type="button" data-toggle="userSelectDropdown" class="button secondary dropdown" id="logout">\
-      <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</button>\
-      <ul id="userSelectDropdown" data-dropdown data-close-on-click="true" class="dropdown-pane menu vertical">';
+    $(".user-zone-info").html(UserAndZoneTemplate({
+      displayName: config['display_name'],
+      settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
+      availableViews: config['available_views'],
+      zoneName: config['zone_name']
+    })).foundation();
 
-    if (config['available_views'].length > 1){
-        user_login_content +=
-        '<li><a href="#" class="quickconf_view_header"><i class="fa fa-fw fa-eye"></i> '+Locale.tr("Views")+'</a></li>';
-
-      $.each(config['available_views'], function(i, view) {
-        var faclass = "";
-
-        if (view == config['user_config']["default_view"]){
-          faclass = "fa fa-fw fa-check";
-        } else {
-          faclass = "fa fa-fw";
-        }
-
-        user_login_content +=
-        '<li><a href="#" class="quickconf_view" view="'+view+'"><i class="'+faclass+'"></i> '+view+'</a></li>';
-      });
-
-      user_login_content +=
-        '<li><hr/></li>';
-    }
-
-    if (Config.isTabEnabled(SETTINGS_TAB_ID)){
-      user_login_content +=
-        '<li><a href="#" class="configuration"><i class="fa fa-fw fa-cog"></i> '+Locale.tr("Settings")+'</a></li>';
-    }
-
-    user_login_content +=
-        '<li><a href="#" class="logout"><i class="fa fa-fw fa-power-off"></i> '+Locale.tr("Sign Out")+'</a></li>\
-      </ul>\
-    <button type="button" data-toggle="drop2" class="button secondary dropdown" id="zonelector">\
-      <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</button>\
-      <ul id="drop2" data-dropdown data-close-on-click="true" class="zone-ul dropdown-pane menu vertical"></ul>';
-
-    $(".user-zone-info").html(user_login_content);
-    $(".user-zone-info").foundation();
-
+    $('.quickconf_view[view="' + config['user_config']["default_view"] + '"] i').addClass('fa-check');
     $(".user-zone-info a.quickconf_view_header").click(function() {
       var context = $(this).closest('ul');
       $(".quickconf_view", context).toggle();
@@ -147,7 +116,8 @@ define(function(require) {
         success: function (request, obj_list) {
           $('.zone-ul').empty();
           $.each(obj_list, function() {
-            $('.zone-ul').append('<li><a id="' + this.ZONE.NAME + '" class="zone-choice">' + this.ZONE.NAME + '</a></li>');
+            $('.zone-ul').append('<li>' +
+              '<a href="#" id="' + this.ZONE.NAME + '" class="zone-choice">' + this.ZONE.NAME + '</a></li>');
           });
         },
         error: Notifier.onError

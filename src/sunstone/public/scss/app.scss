@@ -6,17 +6,27 @@
 @import "settings";
 @import "foundation";
 
+@import './top-row';
+@import './menu';
+
 @include foundation-everything;
 
 
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 200;
   font-stretch: condensed;
   src: local('Open Sans'), local('OpenSans'), url('opensans/opensans.woff') format('woff');
 }
 
 
 .right {
-  float: right !important; }
+  float: right !important; 
+}
+
+table {
+  input {
+    margin-bottom: 0px !important;
+  }
+}
