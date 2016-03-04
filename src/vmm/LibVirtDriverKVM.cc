@@ -209,7 +209,8 @@ int LibVirtDriver::deployment_description_kvm(
     string default_raw = "";
     string data        = "";
 
-    string vm_xml;
+    string  vm_xml;
+    string* vm64;
 
     // ------------------------------------------------------------------------
 
@@ -517,7 +518,7 @@ int LibVirtDriver::deployment_description_kvm(
             dev << vm->get_remote_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='block' device='disk'>\n"
-                 << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev)
+                 << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
                  << "/>\n";
         }
         else if ( type == "ISCSI" )
@@ -584,7 +585,7 @@ int LibVirtDriver::deployment_description_kvm(
                 rbd_name << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            file << one_util::escape_xml_attr(rbd_name);
+            file << one_util::escape_xml_attr(rbd_name.str());
 
             do_network_hosts(file, ceph_host, "", CEPH_DEFAULT_PORT);
 
@@ -619,7 +620,7 @@ int LibVirtDriver::deployment_description_kvm(
                 sheep_name << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            file << one_util::escape_xml_attr(sheep_name);
+            file << one_util::escape_xml_attr(sheep_name.str());
 
             do_network_hosts(file, sheepdog_host, "tcp", -1);
         }
@@ -649,7 +650,7 @@ int LibVirtDriver::deployment_description_kvm(
                 gluster_name << one_util::split(source, '/').back();
             }
 
-            file << one_util::escape_xml_attr(gluster_name);
+            file << one_util::escape_xml_attr(gluster_name.str());
 
             do_network_hosts(file, gluster_host, "tcp", GLUSTER_DEFAULT_PORT);
         }
@@ -661,7 +662,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
-                 << one_util::escape_xml_attr(cd_name)<< "/>\n";
+                 << one_util::escape_xml_attr(cd_name.str())<< "/>\n";
         }
         else
         {
@@ -671,7 +672,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t<disk type='file' device='disk'>\n"
                  << "\t\t\t<source file="
-                 << one_util::escape_xml_attr(fname) << "/>\n";
+                 << one_util::escape_xml_attr(fname.str()) << "/>\n";
         }
 
         // ---- target device to map the disk ----
@@ -809,7 +810,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
-                     << one_util::escape_xml_attr(fname)  << "/>\n"
+                     << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev="
                      << one_util::escape_xml_attr(target) << "/>\n"
                  << "\t\t\t<readonly/>\n"
@@ -1150,14 +1151,20 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Metadata used by drivers
     // ------------------------------------------------------------------------
+    vm64 = one_util::base64_encode(vm->to_xml(vm_xml));
+
     file << "\t<metadata>\n"
          << "\t\t<system_datastore>"
-             << one_util::escape_xml(vm->get_remote_system_dir())
-         << "</system_datastore>\n"
-         << "\t\t<vm_xml64>"
-             << one_util::escape_xml(one_util::base64_encode(vm->to_xml(vm_xml)))
-         << "<vm_xml64>\n"
-         << "\t</metadata>\n";
+         << one_util::escape_xml(vm->get_remote_system_dir())
+         << "</system_datastore>\n";
+
+    if ( vm64 != 0 )
+    {
+        file << "\t\t<vm_xml64>"<< one_util::escape_xml(*vm64)<< "</vm_xml64>\n";
+        delete vm64;
+    }
+
+    file << "\t</metadata>\n";
 
     file << "</domain>" << endl;
 
