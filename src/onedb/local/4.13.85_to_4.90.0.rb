@@ -161,6 +161,32 @@ module Migrator
 
     log_time()
 
+    @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+    @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_image_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        doc.at_xpath("/IMAGE/TEMPLATE").add_child(doc.create_element("APP_CLONES"))
+
+        @db[:image_pool].insert(
+          :oid        => row[:oid],
+          :name       => row[:name],
+          :body       => doc.root.to_s,
+          :uid        => row[:uid],
+          :gid        => row[:gid],
+          :owner_u    => row[:owner_u],
+          :group_u    => row[:group_u],
+          :other_u    => row[:other_u])
+      end
+    end
+
+
+    @db.run "DROP TABLE old_image_pool;"
+
+    log_time()
+
     return true
   end
 

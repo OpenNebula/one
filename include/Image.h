@@ -322,9 +322,20 @@ public:
         return cloning_ops;
     }
 
-    int dec_cloning(int img_id)
+    int dec_cloning(PoolObjectSQL::ObjectType ot, int oid)
     {
-        if ( img_clone_collection.del(img_id) == 0 )
+        int rc = -1;
+
+        if (ot == PoolObjectSQL::IMAGE)
+        {
+            rc = img_clone_collection.del(oid);
+        }
+        else //if (ot == PoolObjectSQL::MARKETPLACEAPP)
+        {
+            rc = app_clone_collection.del(oid);
+        }
+
+        if ( rc == 0 )
         {
             cloning_ops--;
         }
@@ -332,9 +343,20 @@ public:
         return cloning_ops;
     }
 
-    int inc_cloning(int img_id)
+    int inc_cloning(PoolObjectSQL::ObjectType ot, int oid)
     {
-        if ( img_clone_collection.add(img_id) == 0 )
+        int rc = -1;
+
+        if (ot == PoolObjectSQL::IMAGE)
+        {
+            rc = img_clone_collection.add(oid);
+        }
+        else //if (ot == PoolObjectSQL::MARKETPLACEAPP)
+        {
+            rc = app_clone_collection.add(oid);
+        }
+
+        if ( rc == 0 )
         {
             cloning_ops++;
         }
@@ -581,7 +603,7 @@ private:
     int running_vms;
 
     /**
-     * Number of pending cloning operations
+     * Number of pending cloning operations, for both images and apps
      */
     int cloning_ops;
 
@@ -610,6 +632,11 @@ private:
      *  Stores a collection with the Images cloning this image
      */
     ObjectCollection img_clone_collection;
+
+    /**
+     *  Stores a collection with the Marketplace apps cloning this image
+     */
+    ObjectCollection app_clone_collection;
 
     /**
      * Snapshot list for this image

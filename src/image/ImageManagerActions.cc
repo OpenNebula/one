@@ -243,7 +243,8 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_cloning_image(int iid, int clone_img_id)
+void ImageManager::release_cloning_resource(
+        int iid, PoolObjectSQL::ObjectType ot, int clone_oid)
 {
     Image * img = ipool->get(iid,true);
 
@@ -272,7 +273,7 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
     {
         case Image::USED:
         case Image::CLONE:
-            if (img->dec_cloning(clone_img_id) == 0  && img->get_running() == 0)
+            if (img->dec_cloning(ot, clone_oid) == 0  && img->get_running() == 0)
             {
                 img->set_state(Image::READY);
             }
@@ -602,7 +603,8 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::set_clone_state(int new_id, int cloning_id, std::string& error)
+int ImageManager::set_clone_state(
+        PoolObjectSQL::ObjectType ot, int new_id, int cloning_id, string& error)
 {
     int     rc  = 0;
     Image * img = ipool->get(cloning_id, true);
@@ -616,7 +618,7 @@ int ImageManager::set_clone_state(int new_id, int cloning_id, std::string& error
     switch(img->get_state())
     {
         case Image::READY:
-            img->inc_cloning(new_id);
+            img->inc_cloning(ot, new_id);
 
             if (img->is_persistent())
             {
@@ -632,7 +634,7 @@ int ImageManager::set_clone_state(int new_id, int cloning_id, std::string& error
 
         case Image::USED:
         case Image::CLONE:
-            img->inc_cloning(new_id);
+            img->inc_cloning(ot, new_id);
             ipool->update(img);
             break;
 
@@ -678,7 +680,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    if ( set_clone_state(new_id, cloning_id, error) == -1 )
+    if ( set_img_clone_state(new_id, cloning_id, error) == -1 )
     {
         return -1;
     }
