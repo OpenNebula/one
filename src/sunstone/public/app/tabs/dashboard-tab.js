@@ -236,8 +236,8 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     resource: 'Dashboard',
-    title: '<i class="fa fa-lg fa-fw fa-tachometer"></i>&emsp;' + Locale.tr("Dashboard"),
-    listHeader: '<i class="fa fa-lg fa-fw fa-tachometer"></i>&emsp;' + Locale.tr("Dashboard"),
+    title: Locale.tr("Dashboard"),
+    listHeader: Locale.tr("Dashboard"),
     buttons: _buttons,
     actions: _actions,
     content: _html()

@@ -165,15 +165,21 @@ define(function(require) {
     }
 
     var liItem;
+    var title = '';
+    if (tabInfo.icon) {
+      title += '<i class="fa fa-lg fa-fw ' + tabInfo.icon + '"></i> ';
+    }
+    title += tabInfo.title;
+
     if (parent !== '') {
       liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
-              '<a href="#">' + tabInfo.title + '</a>' + 
+              '<a href="#">' + title + '</a>' + 
             '</li>';
 
       $('#menu ul#navigation #li_' + parent + ' .menu').append(liItem);
     } else {
       liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
-              '<a href="#">' + tabInfo.title + '</a>' + 
+              '<a href="#">' + title + '</a>' + 
               '<ul class="menu vertical nested" data-submenu>' +
               '</ul>' +
             '</li>';

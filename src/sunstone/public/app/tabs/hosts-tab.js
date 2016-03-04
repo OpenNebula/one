@@ -48,10 +48,11 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Hosts"),
+    icon: 'fa-hdd-o',
     tabClass: "subTab",
-    parentTab: "infra-tab",
-    listHeader: '<i class="fa fa-fw fa-hdd-o"></i>&emsp;' + Locale.tr("Hosts"),
-    infoHeader: '<i class="fa fa-fw fa-hdd-o"></i>&emsp;' + Locale.tr("Host"),
+    parentTab: "infrastructure-top-tab",
+    listHeader: Locale.tr("Hosts"),
+    infoHeader: Locale.tr("Host"),
     subheader: '<span class="total_hosts"/> <small>' + Locale.tr("TOTAL") + '</small>&emsp;\
         <span class="on_hosts"/> <small>' + Locale.tr("ON") + '</small>&emsp;\
         <span class="off_hosts"/> <small>' + Locale.tr("OFF") + '</small>&emsp;\

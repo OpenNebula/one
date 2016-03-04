@@ -44,11 +44,12 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: Locale.tr("Templates"),
+    title: Locale.tr("Services"),
+    icon: 'fa-files-o',
     tabClass: "subTab",
-    parentTab: "oneflow-dashboard-tab",
-    listHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+Locale.tr("OneFlow - Templates"),
-    infoHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+Locale.tr("OneFlow - Template"),
+    parentTab: "templates-top-tab",
+    listHeader: Locale.tr("Service Templates"),
+    infoHeader: Locale.tr("Service Template"),
     subheader: '',
     content: '<div class="row oneflow_templates_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

@@ -44,10 +44,11 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Services"),
+    icon: 'fa-cubes',
     tabClass: "subTab",
-    parentTab: "oneflow-dashboard-tab",
-    listHeader: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+Locale.tr("OneFlow - Services"),
-    infoHeader: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+Locale.tr("OneFlow - Service"),
+    parentTab: "instances-top-tab",
+    listHeader: Locale.tr("Services"),
+    infoHeader: Locale.tr("Service"),
     subheader: '',
     content: '<div class="row oneflow_services_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

@@ -16,42 +16,13 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
-  var Buttons = require('./zones-tab/buttons');
-  var Actions = require('./zones-tab/actions');
-  var Table = require('./zones-tab/datatable');
+  var TAB_ID = 'system-top-tab';
 
-  var TAB_ID = require('./zones-tab/tabId');
-  var DATATABLE_ID = "dataTableZones";
-
-  var _dialogs = [
-    require('./zones-tab/dialogs/create')
-  ];
-
-  var _panels = [
-    require('./zones-tab/panels/info')
-  ];
-
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
-
-  var ZonesTab = {
+  var Tab = {
     tabId: TAB_ID,
-    title: Locale.tr("Zones"),
-    icon: 'fa-globe',
-    tabClass: "subTab",
-    parentTab: "infrastructure-top-tab",
-    listHeader: Locale.tr("Zones"),
-    infoHeader: Locale.tr("Zone"),
-    subheader: '',
-    resource: 'Zone',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    dialogs: _dialogs
-  };
+    title: Locale.tr("System"),
+    no_content: true
+  }
 
-  return ZonesTab;
+  return Tab;
 });

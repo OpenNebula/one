@@ -1,0 +1,26 @@
+#menu {
+  padding-right: 1rem;
+
+  li {
+    &.topTab > a {
+      text-transform: uppercase;
+      color: $dark-gray;
+    }
+    &.subTab > a {
+      padding: 0.5rem 1rem;
+      color: $black;
+      i {
+        color: $dark-gray;
+      }
+    }
+    a {
+      font-size: rem-calc(13px);
+    }
+  }
+
+  .nested {
+    li:last-child {
+      padding-bottom: 1rem;
+    }
+  }
+}

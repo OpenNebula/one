@@ -46,10 +46,11 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Groups"),
+    icon: 'fa-users',
     tabClass: "subTab",
-    parentTab: "system-tab",
-    listHeader: '<i class="fa fa-fw fa-users"></i>&emsp;'+Locale.tr("Groups"),
-    infoHeader: '<i class="fa fa-fw fa-users"></i>&emsp;'+Locale.tr("Group"),
+    parentTab: "system-top-tab",
+    listHeader: Locale.tr("Groups"),
+    infoHeader: Locale.tr("Group"),
     subheader: '<span>\
         <span class="total_groups"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

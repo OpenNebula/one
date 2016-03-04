@@ -36,9 +36,10 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("ACLs"),
+    icon: 'fa-key',
     tabClass: "subTab",
-    parentTab: "system-tab",
-    listHeader: '<i class="fa fa-key"></i>&emsp;'+Locale.tr("Access Control Lists"),
+    parentTab: "system-top-tab",
+    listHeader: Locale.tr("Access Control Lists"),
     subheader: '<span/><small></small>&emsp;',
     resource: 'Acl',
     buttons: Buttons,

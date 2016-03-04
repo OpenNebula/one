@@ -41,10 +41,13 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + Locale.tr("MarketPlaces"),
-    listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlaces"),
-    infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("MarketPlace"),
-    subheader: '<span/> <small></small>&emsp;',
+    title:  Locale.tr("MarketPlaces"),
+    icon: 'fa-shopping-cart',
+    tabClass: "subTab",
+    parentTab: "storage-top-tab",
+    listHeader: Locale.tr("MarketPlaces"),
+    infoHeader: Locale.tr("MarketPlace"),
+    subheader: '',
     resource: 'MarketPlace',
     buttons: Buttons,
     actions: Actions,
