@@ -68,19 +68,19 @@
     </button>
     <ul id='{{customId}}more_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
 
-  <span id='{{customId}}form_buttons' class='only-right-form' style='display: none'>
-    <span id="{{customId}}reset_button" class="left" style="margin-left: 10px;">
+  <span id='{{customId}}form_buttons' class='only-right-form' hidden>
+    <span id="{{customId}}reset_button" class="left">
       <a class="button secondary radius reset_button" href="submit">{{tr "Reset"}}</a>
     </span>
-    <span id="{{customId}}submit_button" class="left" style="margin-left: 10px;">
+    <span id="{{customId}}submit_button" class="left">
       <a class="button success radius submit_button" href="submit">{{tr "Create"}}</a>
     </span>
-    <ul id="{{customId}}FormTabs" class="tabs right wizard_tabs" data-tabs style="margin-left: 10px;">
+    <ul id="{{customId}}FormTabs" class="tabs right wizard_tabs" data-tabs>
       <li id="wizard_mode" class="tabs-title is-active">
-        <a style="padding: 0.3rem 1rem;" href="#{{customId}}-wizardForms">{{tr "Wizard"}}</a>
+        <a href="#{{customId}}-wizardForms">{{tr "Wizard"}}</a>
       </li>
       <li id="advanced_mode" class="tabs-title">
-        <a style="padding: 0.3rem 1rem;" href="#{{customId}}-advancedForms">{{tr "Advanced"}}</a>
+        <a href="#{{customId}}-advancedForms">{{tr "Advanced"}}</a>
       </li>
     </ul>
   </span>

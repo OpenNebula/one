@@ -52,7 +52,7 @@ define(function(require) {
   $.extend(true, $.fn.dataTable.defaults, {
     dom:
       "t"+
-      "<'row'<'small-6 columns'i><'small-6 columns'<'float-right'l>p>>",
+      "<'row'<'small-6 columns'li><'small-6 columns'p>>",
     renderer: 'foundation',
     language: {
       "sLengthMenu": "_MENU_",

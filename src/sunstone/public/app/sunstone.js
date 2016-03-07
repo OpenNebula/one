@@ -362,8 +362,8 @@ define(function(require) {
       //$('.top_button',actionBlock).addClass("secondary small button")
 
       actionBlock.append(buttonsRow);
-      actionBlock.foundation();
-
+      //actionBlock.foundation();
+      Foundation.reflow(actionBlock, 'dropdown');
 
       if ($("#" + customId + "more_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "more_buttons]", actionBlock).remove()
@@ -806,9 +806,11 @@ define(function(require) {
 
       if (!formPanelInstance) {
         formContext =
-        $('<div class="tabs-content tabs-contentForm" form-panel-id="'+formPanelId+'">\
-          <div class="wizardForms content active" id="'+tab.tabName+'-wizardForms"></div>\
-          <div class="advancedForms content" id="'+tab.tabName+'-advancedForms"></div>\
+        $('<div class="tabs-content tabs-contentForm" ' +
+                'data-tabs-content="' + tab.tabName + 'FormTabs" ' +
+                'form-panel-id="'+formPanelId+'">\
+          <div class="wizardForms tabs-panel is-active" id="'+tab.tabName+'-wizardForms"></div>\
+          <div class="advancedForms tabs-panel" id="'+tab.tabName+'-advancedForms"></div>\
         </div>').appendTo( $(".contentForm", context) );
 
         // Create panelInstance, insert in the DOM and setup
@@ -817,6 +819,8 @@ define(function(require) {
           console.log("Form Panel not defined");
           return false;
         } // Panel not defined
+
+        Foundation.reflow(context, 'tabs');
 
         formPanelInstance = new formPanel();
         formPanelInstance.setAction(formContext, action);
