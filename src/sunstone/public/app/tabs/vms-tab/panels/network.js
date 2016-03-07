@@ -254,8 +254,14 @@ define(function(require) {
           });
         }
 
-        if (that.element.TEMPLATE.SECURITY_GROUP_RULE != undefined) {
-          $.each(that.element.TEMPLATE.SECURITY_GROUP_RULE, function() {
+        var rules = that.element.TEMPLATE.SECURITY_GROUP_RULE;
+
+        if (rules != undefined) {
+          if (!$.isArray(rules)) {
+            rules = [rules];
+          }
+
+          $.each(rules, function() {
             if (nic_secgroups[this.SECURITY_GROUP_ID]) {
               secgroups.push(this);
             }
