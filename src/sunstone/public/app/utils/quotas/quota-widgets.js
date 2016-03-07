@@ -1157,26 +1157,26 @@ define(function(require) {
   // Quotas dialog
   //============================================================================
 
-  function _quotas_tmpl(){
+  function _quotas_tmpl(uniqueId){
     return '<div class="row">\
         <div class="large-12 columns">\
-          <dl class="tabs right-info-tabs text-center" data-tab>\
-               <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
-               <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
-               <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\
-               <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+Locale.tr("VNet")+'</a></dd>\
+          <dl id="' + uniqueId + 'Tabs" class="tabs right-info-tabs text-center" data-tabs>\
+               <dd class="tabs-title is-active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
+               <dd class="tabs-title"><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
+               <dd class="tabs-title"><a href="#image_quota"><i class="fa fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\
+               <dd class="tabs-title"><a href="#network_quota"><i class="fa fa-globe"></i><br>'+Locale.tr("VNet")+'</a></dd>\
           </dl>\
         </div>\
       </div>\
       <div class="row">\
-        <div class="tabs-content">\
-          <div id="vm_quota" class="content active">\
+        <div class="tabs-content" data-tabs-content="' + uniqueId + 'Tabs">\
+          <div id="vm_quota" class="tabs-panel is-active">\
           </div>\
-          <div id="datastore_quota" class="content">\
+          <div id="datastore_quota" class="tabs-panel">\
           </div>\
-          <div id="image_quota" class="content">\
+          <div id="image_quota" class="tabs-panel">\
           </div>\
-          <div id="network_quota" class="content">\
+          <div id="network_quota" class="tabs-panel">\
           </div>\
         </div>\
       </div>';
@@ -1186,6 +1186,8 @@ define(function(require) {
    * Sets up a dialog to edit and update user and group quotas
    */
   function _setupQuotasDialog(context){
+    Foundation.reflow(context, 'tabs');
+
     $('form', context).submit(function(){
       var obj = retrieveQuotasValues(context);
       var action = $('div.form_buttons button',this).val();
@@ -1228,8 +1230,6 @@ define(function(require) {
     _setupDatastoreWidget(context, default_quotas);
 
     quotasPanelEditAction(context);
-
-    context.foundation();
   }
 
   return {
