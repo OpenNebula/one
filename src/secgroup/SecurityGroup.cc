@@ -16,6 +16,7 @@
 
 #include "SecurityGroup.h"
 #include "NebulaUtil.h"
+#include "Nebula.h"
 #include <arpa/inet.h>
 
 /* ------------------------------------------------------------------------ */
@@ -470,6 +471,10 @@ int SecurityGroup::post_update_template(string& error)
             return -1;
         }
     }
+
+    commit(false);
+
+    Nebula::instance().get_lcm()->trigger(LifeCycleManager::UPDATESG, oid);
 
     return 0;
 }
