@@ -86,7 +86,7 @@ define(function(require) {
     that.numberOfDisks = 0;
     that.diskTabObjects = {};
 
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {
@@ -101,7 +101,7 @@ define(function(require) {
       var diskId = content.attr("diskId");
       delete that.diskTabObjects[diskId];
 
-      if (dd.attr("class") == 'active') {
+      if (dd.attr("class") == 'is-active') {
         $('a', dl.children('dd').last()).click();
       }
 
@@ -158,13 +158,15 @@ define(function(require) {
     this.numberOfDisks++;
     var diskTab = new DiskTab(this.numberOfDisks);
 
-    var content = $('<div id="' + diskTab.diskTabId + '" class="active disk wizard_internal_tab content">' +
+    var content = $('<div id="' + diskTab.diskTabId + '" class="disk wizard_internal_tab tabs-panel">' +
         diskTab.html() +
       '</div>').appendTo($("#" + CONTENTS_CONTAINER_ID, context));
 
-    var a = $("<dd class='active'>" +
+    var a = $("<dd class='tabs-title'>" +
        "<a href='#" + diskTab.diskTabId + "'>" + Locale.tr("DISK") + "</a>" +
       "</dd>").appendTo($("#" + LINKS_CONTAINER_ID, context));
+
+    Foundation.reInit($("#" + LINKS_CONTAINER_ID, context));
 
     $("a", a).trigger("click");
 

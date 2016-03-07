@@ -13,119 +13,120 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<dl class="tabs vertical" data-tab>
-  <dd class="active">
-    <a href="#placementTab">{{tr "Placement"}}</a>
-  </dd>
-  <dd>
-    <a href="#policyTab">{{tr "Policy"}}</a>
-  </dd>
-</dl>
-<div class="tabs-content vertical">
-  <div class="requirements wizard_internal_tab active content" id="placementTab">
-    <fieldset>
-      <legend>{{tr "Host Requirements"}}</legend>
-      <div class="row">
-        <div class="large-12 columns text-center">
-          <input type="radio" id="hosts_req" name="req_select" value="host_select">
-          <label for="hosts_req">{{tr "Select Hosts "}}</label>
-          <input type="radio" id="clusters_req"  name="req_select" value="cluster_select">
-          <label for="clusters_req">{{tr "Select Clusters "}}</label>
-        </div>
-      </div>
-      <br>
-      <div id="req_type" class="host_select" hidden>
-      {{{hostsTableSelectHTML}}}
-      </div>
-      <div id="req_type" class="cluster_select hidden">
-      {{{clustersTableSelectHTML}}}
-      </div>
-      <br>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="SCHED_REQUIREMENTS">
-            {{tr "Expression"}}
-            {{{tip (tr "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")}}}
-          </label>
-          <input type="text" wizard_field="SCHED_REQUIREMENTS" id="SCHED_REQUIREMENTS" name="requirements" />
-        </div>
-      </div>
-    </fieldset>
-    <fieldset class="hypervisor only_kvm only_vmware only_xen">
-      <legend>{{tr "Datastore Requirements"}}</legend>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="SCHED_DS_REQUIREMENTS">
-            {{tr "Expression"}}
-            {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
-          </label>
-          <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS" name="requirements" />
-        </div>
-      </div>
-    </fieldset>
+<div class="row collapse">
+  <div class="medium-2 columns">
+    <dl class="tabs vertical" id="schedulingTabs" data-tabs>
+      <dd class="tabs-title is-active">
+        <a href="#placementTab">{{tr "Placement"}}</a>
+      </dd>
+      <dd class="tabs-title">
+        <a href="#policyTab">{{tr "Policy"}}</a>
+      </dd>
+    </dl>
   </div>
-  <div id="policyTab" class="wizard_internal_tab content">
-    <fieldset class="host_rank">
-      <legend>{{tr "Host Rank"}}</legend>
-      <div class="row">
-        <div class="large-12 columns text-center">
-          <input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS">
-          <label for="packingRadio">
-            {{tr "Packing"}}
+  <div class="medium-10 columns">
+    <div class="tabs-content vertical" data-tabs-content="schedulingTabs">
+      <div class="requirements wizard_internal_tab is-active tabs-panel" id="placementTab">
+        <fieldset>
+          <legend>{{tr "Host Requirements"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="hosts_req" name="req_select" value="host_select">
+              <label for="hosts_req">{{tr "Select Hosts "}}</label>
+              <input type="radio" id="clusters_req"  name="req_select" value="cluster_select">
+              <label for="clusters_req">{{tr "Select Clusters "}}</label>
+            </div>
+          </div>
+          <br>
+          <div id="req_type" class="host_select" hidden>{{{hostsTableSelectHTML}}}</div>
+          <div id="req_type" class="cluster_select hidden">{{{clustersTableSelectHTML}}}</div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_REQUIREMENTS">
+                {{tr "Expression"}}
+            {{{tip (tr "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_REQUIREMENTS" id="SCHED_REQUIREMENTS" name="requirements" />
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="hypervisor only_kvm only_vmware only_xen">
+          <legend>{{tr "Datastore Requirements"}}</legend>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_DS_REQUIREMENTS">
+                {{tr "Expression"}}
+            {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+              </label>
+              <input type="text" wizard_field="SCHED_DS_REQUIREMENTS" id="SCHED_DS_REQUIREMENTS" name="requirements" />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div id="policyTab" class="wizard_internal_tab tabs-panel">
+        <fieldset class="host_rank">
+          <legend>{{tr "Host Rank"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="packingRadio" name="rank_select" value="RUNNING_VMS">
+              <label for="packingRadio">
+                {{tr "Packing"}}
             {{{tip (tr "Pack the VMs in the cluster nodes to reduce VM fragmentation")}}}
-          </label>
-          <input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS">
-          <label for="stripingRadio">
-            {{tr "Stripping"}}
+              </label>
+              <input type="radio"  id="stripingRadio" name="rank_select" value="-RUNNING_VMS">
+              <label for="stripingRadio">
+                {{tr "Stripping"}}
             {{{tip (tr "Spread the VMs in the cluster nodes")}}}
-          </label>
-          <input type="radio"  id="loadawareRadio" name="rank_select" value="FREE_CPU">
-          <label for="loadawareRadio">
-            {{tr "Load-aware"}}
+              </label>
+              <input type="radio"  id="loadawareRadio" name="rank_select" value="FREE_CPU">
+              <label for="loadawareRadio">
+                {{tr "Load-aware"}}
             {{{tip (tr "Maximize the resources available to VMs in a node")}}}
-          </label>
-        </div>
-      </div>
-      <br>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="SCHED_RANK">
-            {{tr "Expression"}}
-            <span class="tip">
-              {{tr "This field sets which attribute will be used to sort the suitable hosts for this VM"}}.
-            </span>
-          </label>
-          <input type="text" wizard_field="SCHED_RANK" id="SCHED_RANK" name="RANK" />
-        </div>
-      </div>
-    </fieldset>
-    <fieldset class="ds_rank hypervisor only_kvm only_vmware only_xen">
-      <legend>{{tr "Datastore Rank"}}</legend>
-      <div class="row">
-        <div class="large-12 columns text-center">
-          <input type="radio" id="packingDSRadio" name="ds_rank_select" value="-FREE_MB">
-          <label for="packingDSRadio">
-            {{tr "Packing"}}
+              </label>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_RANK">
+                {{tr "Expression"}}
+                <span class="tip">
+                  {{tr "This field sets which attribute will be used to sort the suitable hosts for this VM"}}.
+                </span>
+              </label>
+              <input type="text" wizard_field="SCHED_RANK" id="SCHED_RANK" name="RANK" />
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="ds_rank hypervisor only_kvm only_vmware only_xen">
+          <legend>{{tr "Datastore Rank"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="packingDSRadio" name="ds_rank_select" value="-FREE_MB">
+              <label for="packingDSRadio">
+                {{tr "Packing"}}
             {{{tip (tr "Tries to optimize storage usage by selecting the DS with less free space")}}}
-          </label>
-          <input type="radio"  id="stripingDSRadio" name="ds_rank_select" value="FREE_MB">
-          <label for="stripingDSRadio">
-            {{tr "Stripping"}}
+              </label>
+              <input type="radio"  id="stripingDSRadio" name="ds_rank_select" value="FREE_MB">
+              <label for="stripingDSRadio">
+                {{tr "Stripping"}}
             {{{tip (tr "Striping. Tries to optimize I/O by distributing the VMs across datastores.")}}}
-          </label>
-        </div>
-      </div>
-      <br>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="SCHED_DS_RANK">
-            {{tr "Expression"}}
+              </label>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="SCHED_DS_RANK">
+                {{tr "Expression"}}
             {{{tip (tr "This field sets which attribute will be used to sort the suitable datastores for this VM")}}}
-          </label>
-          <input type="text" wizard_field="SCHED_DS_RANK" id="SCHED_DS_RANK" name="RANK" />
-        </div>
+              </label>
+              <input type="text" wizard_field="SCHED_DS_RANK" id="SCHED_DS_RANK" name="RANK" />
+            </div>
+          </div>
+        </fieldset>
       </div>
-    </fieldset>
+    </div>
   </div>
 </div>

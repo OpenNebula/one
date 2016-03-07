@@ -361,7 +361,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
     that.numberOfProviders = 0;
 
     // close icon: removing the tab on click
@@ -462,7 +462,7 @@ define(function(require) {
     var htmlId  = 'provider' + provider_id;
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab content">' +
+    var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab tabs-panel">' +
       '<div class="row">' +
         '<div class="large-12 columns">' +
           '<label>' + Locale.tr("Hybrid Cloud") + '</label>' +
@@ -476,13 +476,15 @@ define(function(require) {
     '</div>'
     $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", context));
 
-    var a = $("<dd>\
+    var a = $("<dd class='tabs-title'>\
         <a id='provider_tab" + htmlId + "' href='#" + htmlId + "Tab'>" + Locale.tr("PROVIDER") + "</a>\
       </dd>").appendTo($("dl#template_create_hybrid_tabs", context));
 
     $("dl#template_create_hybrid_tabs dd", context).each(function(index) {
         $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
       })
+
+    Foundation.reInit($("dl#template_create_hybrid_tabs", context));
 
     $("a", a).trigger("click");
 

@@ -13,13 +13,16 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<dl class="tabs vertical" id="template_create_hybrid_tabs" data-tab>
-  <dt class="text-center">
-    <a href="" class="button tiny radius" id="tf_btn_hybrid">
+<div class="row collapse">
+  <div class="medium-2 columns">
+    <dl class="tabs vertical" id="template_create_hybrid_tabs" data-tabs>
+    </dl>
+    <button href="" type="button" class="button small radius" id="tf_btn_hybrid">
       <span class="fa fa-plus"></span>
       {{tr "Add another provider"}}
-    </a>
-  </dt>
-</dl>
-<div class="tabs-content vertical" id="template_create_hybrid_tabs_content"></div>
+    </button>
+  </div>
+  <div class="medium-10 columns">
+    <div class="tabs-content vertical" id="template_create_hybrid_tabs_content" data-tabs-content="template_create_hybrid_tabs"></div>
+  </div>
+</div>

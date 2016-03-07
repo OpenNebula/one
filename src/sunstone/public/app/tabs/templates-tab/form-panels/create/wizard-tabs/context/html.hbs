@@ -13,8 +13,7 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div class="row hypervisor only_vcenter" style="display: none;">
+<div class="row hypervisor only_vcenter" hidden>
   <div class="large-12 columns text-center">
     <label>{{tr "Contextualization type"}}</label>
     <input type="radio" name="context_type" id="context_type_vcenter" value="context_type_vcenter">
@@ -24,117 +23,113 @@
   </div>
   <hr/>
 </div>
-<div class="row hypervisor only_vcenter context_type context_type_vcenter" style="display: none;">
+<div class="row hypervisor only_vcenter context_type context_type_vcenter" hidden>
   <div class="columns medium-6">
     <label for="vcenter_customizations">{{tr "vCenter customizations"}}:</label>
     <select id="vcenter_customizations"/>
   </div>
   <div class="columns medium-6">
     <label>&nbsp;</label>
-    <input id="vcenter_customizations_value" type="text">
-  </div>
+    <input id="vcenter_customizations_value" type="text"></div>
 </div>
-<div class="context_type context_type_opennebula">
-  <dl id="context_tabs" class="tabs vertical" data-tab>
-    <dd class="active">
-      <a href="#netsshTab">{{tr "Configuration"}}</a>
-    </dd>
-    <dd>
-      <a href="#filesTab">{{tr "Files"}}</a>
-    </dd>
-    <dd>
-      <a href="#zcustomTab">{{tr "Custom vars"}}</a>
-    </dd>
-  </dl>
-  <div class="tabs-content vertical">
-    <div class="wizard_internal_tab active content" id="netsshTab">
-      <div class="row">
-        <div class="columns medium-6">
-          <div class="row">
-            <div class="columns large-12">
-              <input type="checkbox" name="ssh_context" id="ssh_context" checked>
-              <label for="ssh_context">
-                {{tr "  Add SSH contextualization"}}
+<div class="context_type context_type_opennebula row collapse">
+  <div class="medium-2 columns">
+    <dl id="context_tabs" class="tabs vertical" data-tabs>
+      <dd class="tabs-title is-active">
+        <a href="#netsshTab">{{tr "Configuration"}}</a>
+      </dd>
+      <dd class="tabs-title">
+        <a href="#filesTab">{{tr "Files"}}</a>
+      </dd>
+      <dd class="tabs-title">
+        <a href="#zcustomTab">{{tr "Custom vars"}}</a>
+      </dd>
+    </dl>
+  </div>
+  <div class="medium-10 columns">
+    <div class="tabs-content vertical" data-tabs-content="context_tabs">
+      <div class="wizard_internal_tab is-active tabs-panel" id="netsshTab">
+        <div class="row">
+          <div class="columns medium-6">
+            <div class="row">
+              <div class="columns large-12">
+                <input type="checkbox" name="ssh_context" id="ssh_context" checked>
+                <label for="ssh_context">
+                  {{tr "  Add SSH contextualization"}}
                 {{{tip (tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")}}}
-              </label>
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="large-12 columns">
+                <label for="ssh_public_key">{{tr "Public Key"}}:</label>
+                <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
+              </div>
             </div>
           </div>
-          <div class="row">
-            <div class="large-12 columns">
-              <label for="ssh_public_key">{{tr "Public Key"}}:</label>
-              <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
-            </div>
-          </div>
-        </div>
-        <div class="columns medium-6">
-          <div class="row">
-            <div class="columns large-12">
-              <input type="checkbox" name="network_context" id="network_context" checked>
-              <label for="network_context">
-                {{tr "  Add Network contextualization"}}
+          <div class="columns medium-6">
+            <div class="row">
+              <div class="columns large-12">
+                <input type="checkbox" name="network_context" id="network_context" checked>
+                <label for="network_context">
+                  {{tr "  Add Network contextualization"}}
                 {{{tip (tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")}}}
-              </label>
+                </label>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="columns large-12">
-              <input type="checkbox" name="token_context" id="token_context">
-              <label for="token_context">
-                {{tr "  Add OneGate token"}}
+            <div class="row">
+              <div class="columns large-12">
+                <input type="checkbox" name="token_context" id="token_context">
+                <label for="token_context">
+                  {{tr "  Add OneGate token"}}
                 {{{tip (tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")}}}
-              </label>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="START_SCRIPT">
-            {{tr "Start Script"}}
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="START_SCRIPT">
+              {{tr "Start Script"}}
             {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script. For example 'yum upgrade'")}}}
-          </label>
-          <textarea rows="4" type="text" id="START_SCRIPT" name="START_SCRIPT" />
-          <input type="checkbox" name="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT">
-          <label for="ENCODE_START_SCRIPT">
-            {{tr "  Encode Script in Base64"}}
-          </label>
+            </label>
+            <textarea rows="4" type="text" id="START_SCRIPT" name="START_SCRIPT" />
+            <input type="checkbox" name="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT">
+            <label for="ENCODE_START_SCRIPT">{{tr "  Encode Script in Base64"}}</label>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
+        <div class="row">
+          <div class="large-12 columns"> <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
           {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">{{{userInputsHTML}}}</div>
         </div>
       </div>
-      <div class="row">
-        <div class="large-12 columns">
-          {{{userInputsHTML}}}
-        </div>
-      </div>
-    </div>
-    <div class="wizard_internal_tab content" id="filesTab">
-      {{{contextFilesTableHTML}}}
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="FILES_DS">
-            {{tr "FILES_DS"}}
+      <div class="wizard_internal_tab tabs-panel" id="filesTab">
+        {{{contextFilesTableHTML}}}
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="FILES_DS">
+              {{tr "FILES_DS"}}
             {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
-          </label>
-          <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
+            </label>
+            <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <label for="INIT_SCRIPTS">
-            {{tr "Init scripts"}}
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="INIT_SCRIPTS">
+              {{tr "Init scripts"}}
             {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
-          </label>
-          <input type="text" wizard_field="INIT_SCRIPTS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
+            </label>
+            <input type="text" wizard_field="INIT_SCRIPTS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="wizard_internal_tab content" id="zcustomTab">
-      {{{customTagsTableHTML}}}
+      <div class="wizard_internal_tab tabs-panel" id="zcustomTab">{{{customTagsTableHTML}}}</div>
     </div>
   </div>
 </div>

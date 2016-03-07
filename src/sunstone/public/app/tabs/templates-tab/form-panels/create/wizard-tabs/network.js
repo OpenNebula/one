@@ -86,7 +86,7 @@ define(function(require) {
     that.numberOfNics = 0;
     that.nicTabObjects = {};
 
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {
@@ -174,13 +174,15 @@ define(function(require) {
     this.numberOfNics++;
     var nicTab = new NicTab(this.numberOfNics);
 
-    var content = $('<div id="' + nicTab.nicTabId + '" class="active nic wizard_internal_tab content">' +
+    var content = $('<div id="' + nicTab.nicTabId + '" class="nic wizard_internal_tab tabs-panel">' +
         nicTab.html() +
       '</div>').appendTo($("#" + CONTENTS_CONTAINER_ID, context));
 
-    var a = $("<dd class='active'>" +
+    var a = $("<dd class='tabs-title'>" +
        "<a href='#" + nicTab.nicTabId + "'>" + Locale.tr("NIC") + "</a>" +
       "</dd>").appendTo($("#" + LINKS_CONTAINER_ID, context));
+
+    Foundation.reInit($("#" + LINKS_CONTAINER_ID, context));
 
     $("a", a).trigger("click");
 

@@ -186,7 +186,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     var kernelDSContext = $(".kernel_ds",  context);
     var kernelDSInputsContext = $("#kernel_path_inputs",  context);
