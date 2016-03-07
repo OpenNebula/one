@@ -128,6 +128,30 @@ module Migrator
 
     log_time()
 
+    # Feature #4215
+
+    @db.transaction do
+      @db.fetch("SELECT oid,body FROM group_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        doc.root.xpath("ADMINS/ID").each do |uid|
+          user     = Acl::USERS["UID"] | uid.text.to_i
+          resource = 354936097341440 | Acl::USERS["GID"] | row[:oid]
+
+          @db[:acl].where({
+              :user=>user,          # #<uid>
+              :resource=>resource,  # VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid>
+              :rights=>3,           # USE+MANAGE
+              :zone=>17179869184    # *
+            }).update(
+              # VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@101
+              :resource => (1480836004184064 | Acl::USERS["GID"] | row[:oid]))
+        end
+      end
+    end
+
+    log_time()
+
     # Feature #4217
 
     oneadmin_uname = nil

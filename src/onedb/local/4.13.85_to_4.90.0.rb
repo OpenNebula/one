@@ -38,28 +38,6 @@ module Migrator
 
     @db.run "CREATE TABLE vrouter_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
-    @db.transaction do
-      @db.fetch("SELECT oid,body FROM group_pool") do |row|
-        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
-
-        doc.root.xpath("ADMINS/ID").each do |uid|
-          user     = Acl::USERS["UID"] | uid.text.to_i
-          resource = 354936097341440 | Acl::USERS["GID"] | row[:oid]
-
-          @db[:acl].where({
-              :user=>user,          # #<uid>
-              :resource=>resource,  # VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid>
-              :rights=>3,           # USE+MANAGE
-              :zone=>17179869184    # *
-            }).update(
-              # VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@101
-              :resource => (1480836004184064 | Acl::USERS["GID"] | row[:oid]))
-        end
-      end
-    end
-
-    log_time()
-
     @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
     @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, pid INTEGER, UNIQUE(name,uid));"
 
