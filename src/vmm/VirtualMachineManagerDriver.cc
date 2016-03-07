@@ -331,25 +331,33 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 
     if ( action == "DEPLOY" )
     {
+        LifeCycleManager::Actions action = LifeCycleManager::DEPLOY_SUCCESS;
+
         if (result == "SUCCESS")
         {
             string deploy_id;
 
             is >> deploy_id;
 
-            vm->set_deploy_id(deploy_id);
-
-            vmpool->update(vm);
-
-            lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
+            if ( !deploy_id.empty() )
+            {
+                vm->set_deploy_id(deploy_id);
+            }
+            else
+            {
+                action = LifeCycleManager::DEPLOY_FAILURE;
+                log_error(vm,os,is,"Empty deploy ID for virtual machine");
+            }
         }
         else
         {
+            action = LifeCycleManager::DEPLOY_FAILURE;
             log_error(vm,os,is,"Error deploying virtual machine");
-            vmpool->update(vm);
-
-            lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
+
+        vmpool->update(vm);
+
+        lcm->trigger(action, id);
     }
     else if (action == "SHUTDOWN" )
     {

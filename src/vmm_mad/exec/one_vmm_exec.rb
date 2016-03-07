@@ -140,7 +140,7 @@ class VmmAction
 
         if DriverExecHelper.failed?(result)
             info << @data[:failed_info]
-        else
+        elsif !@data["#{@main_action.to_s}_info".to_sym].nil?
             info << @data["#{@main_action.to_s}_info".to_sym]
         end
 

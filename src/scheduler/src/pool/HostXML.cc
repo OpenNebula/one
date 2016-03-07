@@ -92,46 +92,6 @@ void HostXML::init_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostXML::search(const char *name, int& value)
-{
-    string s_name(name);
-
-    if (s_name == "CURRENT_VMS")
-    {
-        vector<string>::iterator it;
-        istringstream  iss;
-        int id;
-
-        vector<string> results;
-
-        xpaths(results, "/HOST/VMS/ID");
-
-        for (it=results.begin(); it!=results.end(); it++)
-        {
-            iss.clear();
-            iss.str(*it);
-
-            iss >> id;
-
-            if (!iss.fail() && id == value)
-            {
-                return 0; //VMID found in VMS value is VMID
-            }
-        }
-
-        value = -1; //VMID not found in VMS value is -1
-
-        return 0;
-    }
-    else
-    {
-        return ObjectXML::search(name, value);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 bool HostXML::test_capacity(long long cpu, long long mem,
     vector<VectorAttribute *>& p, string & error)
 {

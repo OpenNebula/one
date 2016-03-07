@@ -172,19 +172,20 @@ public:
      *
      *    @return -1 if the element was not found
      */
-    virtual int search(const char *name, std::string& value);
+    virtual int search(const char *name, std::string& value)
+    {
+        return __search(name, value);
+    }
 
-    /**
-     *  Search the Object for a given attribute in a set of object specific
-     *  routes. integer version
-     */
-    virtual int search(const char *name, int& value);
+    virtual int search(const char *name, int& value)
+    {
+        return __search(name, value);
+    }
 
-    /**
-     *  Search the Object for a given attribute in a set of object specific
-     *  routes. float version
-     */
-    virtual int search(const char *name, float& value);
+    virtual int search(const char *name, float& value)
+    {
+        return __search(name, value);
+    }
 
     /**
      *  Get xml nodes by Xpath
@@ -327,9 +328,57 @@ private:
      *  @param name of the attribute
      *  @results vector of attributes that matches the query
      */
-    void search(const char* name, std::vector<std::string>& results);
+    template<typename T>
+    void __search(const char* name, std::vector<T>& results)
+    {
 
+        if (name[0] == '/')
+        {
+            xpaths(results, name);
+        }
+        else if (num_paths == 0)
+        {
+            results.clear();
+        }
+        else
+        {
+            std::ostringstream  xpath;
 
+            xpath << paths[0] << name;
+
+            for (int i = 1; i < num_paths ; i++)
+            {
+                xpath << '|' << paths[i] << name;
+            }
+
+            xpaths(results, xpath.str().c_str());
+        }
+    }
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return -1 if the element was not found
+     */
+    template<typename T>
+    int __search(const char *name, T& value)
+    {
+        std::vector<T> results;
+
+        __search(name, results);
+
+        if (results.size() != 0)
+        {
+            value = results[0];
+
+            return 0;
+        }
+
+        return -1;
+    };
 };
 
 #endif /*OBJECT_XML_H_*/

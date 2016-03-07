@@ -377,18 +377,26 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Close stds, we no longer need them
     // -----------------------------------------------------------
+    if (NebulaLog::log_type() != NebulaLog::STD )
+    {
+        fd = open("/dev/null", O_RDWR);
 
-    fd = open("/dev/null", O_RDWR);
+        dup2(fd,0);
+        dup2(fd,1);
+        dup2(fd,2);
 
-    dup2(fd,0);
-    dup2(fd,1);
-    dup2(fd,2);
+        close(fd);
 
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-    fcntl(1,F_SETFD,0);
-    fcntl(2,F_SETFD,0);
+        fcntl(0, F_SETFD, 0); // Keep them open across exec funcs
+        fcntl(1, F_SETFD, 0);
+        fcntl(2, F_SETFD, 0);
+    }
+    else
+    {
+        fcntl(0, F_SETFD, FD_CLOEXEC);
+        fcntl(1, F_SETFD, FD_CLOEXEC);
+        fcntl(2, F_SETFD, FD_CLOEXEC);
+    }
 
     // -----------------------------------------------------------
     // Block all signals before creating any Nebula thread

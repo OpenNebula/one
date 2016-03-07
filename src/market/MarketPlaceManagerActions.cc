@@ -97,7 +97,7 @@ int MarketPlaceManager::import_app(
 
             ds->unlock();
 
-			if (imagem->set_clone_state(-app_id, origin_id, err) != 0)
+			if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
 			{
 				return -1;
 			}
@@ -140,7 +140,7 @@ void MarketPlaceManager::release_app_resources(int appid)
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
-            imagem->release_cloning_image(iid, -appid);
+            imagem->release_cloning_app(iid, appid);
             return;
 
         case MarketPlaceApp::VMTEMPLATE:

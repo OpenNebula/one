@@ -28,7 +28,6 @@ module Migrator
   end
 
   TEMPLATE_TRANSFORM_ATTRS = {
-    'SUNSTONE_CAPACITY_SELECT'  => 'CAPACITY_SELECT',
     'SUNSTONE_NETWORK_SELECT'   => 'NETWORK_SELECT'
   }
 
@@ -88,14 +87,14 @@ module Migrator
 
     log_time()
 
-    # 3671
-
     @db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
     @db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_template_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        # Feature #3671
 
         TEMPLATE_TRANSFORM_ATTRS.each do |old_name, new_name|
           elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/#{old_name}")
@@ -114,6 +113,38 @@ module Migrator
           end
         end
 
+        # Feature #4317
+
+        elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/SUNSTONE_CAPACITY_SELECT")
+
+        if elem.nil?
+          capacity_edit = true
+        else
+          elem.remove
+          capacity_edit = (elem.text != "NO")
+        end
+
+        if !capacity_edit
+          cpu_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/CPU")
+          memory_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/MEMORY")
+          vcpu_e = doc.at_xpath("/VMTEMPLATE/TEMPLATE/VCPU")
+
+          cpu    = cpu_e != nil ? cpu_e.text : ""
+          memory = memory_e != nil ? memory_e.text : ""
+          vcpu   = vcpu_e != nil ? vcpu_e.text : ""
+
+          user_inputs = doc.at_xpath("/VMTEMPLATE/TEMPLATE/USER_INPUTS")
+
+          if user_inputs.nil?
+            user_inputs = doc.create_element("USER_INPUTS")
+            doc.at_xpath("/VMTEMPLATE/TEMPLATE").add_child(user_inputs)
+          end
+
+          user_inputs.add_child(doc.create_element("CPU")).content = "O|fixed|||#{cpu}"
+          user_inputs.add_child(doc.create_element("MEMORY")).content = "O|fixed|||#{memory}"
+          user_inputs.add_child(doc.create_element("VCPU")).content = "O|fixed|||#{vcpu}"
+        end
+
         @db[:template_pool].insert(
           :oid        => row[:oid],
           :name       => row[:name],
@@ -127,6 +158,63 @@ module Migrator
     end
 
     @db.run "DROP TABLE old_template_pool;"
+
+    log_time()
+
+    # Feature #4217
+
+    @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
+    @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_image_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        doc.at_xpath("/IMAGE/TEMPLATE").add_child(doc.create_element("APP_CLONES"))
+
+        @db[:image_pool].insert(
+          :oid        => row[:oid],
+          :name       => row[:name],
+          :body       => doc.root.to_s,
+          :uid        => row[:uid],
+          :gid        => row[:gid],
+          :owner_u    => row[:owner_u],
+          :group_u    => row[:group_u],
+          :other_u    => row[:other_u])
+      end
+    end
+
+    @db.run "DROP TABLE old_image_pool;"
+
+    log_time()
+
+    # Feature #3204
+
+    @db.run "ALTER TABLE secgroup_pool RENAME TO old_secgroup_pool;"
+    @db.run "CREATE TABLE secgroup_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_secgroup_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        doc.root.at_xpath("VMS").name = "UPDATED_VMS"
+        doc.root.add_child(doc.create_element("OUTDATED_VMS"))
+        doc.root.add_child(doc.create_element("UPDATING_VMS"))
+        doc.root.add_child(doc.create_element("ERROR_VMS"))
+
+        @db[:secgroup_pool].insert(
+          :oid        => row[:oid],
+          :name       => row[:name],
+          :body       => doc.root.to_s,
+          :uid        => row[:uid],
+          :gid        => row[:gid],
+          :owner_u    => row[:owner_u],
+          :group_u    => row[:group_u],
+          :other_u    => row[:other_u])
+      end
+    end
+
+    @db.run "DROP TABLE old_secgroup_pool;"
 
     log_time()
 

@@ -526,9 +526,9 @@ string& PoolObjectSQL::lock_db_to_xml(string& xml) const
     int locked_int = locked ? 1 : 0;
 
     oss << "<LOCK>"
-            << "<LOCKED>"           << locked_int   << "</LOCKED>"
-            << "<OWNER><![CDATA["   << lock_owner   << "]]></OWNER>"
-            << "<EXPIRES>"          << lock_expires << "</EXPIRES>"
+            << "<LOCKED>"  << locked_int   << "</LOCKED>"
+            << "<OWNER>"   << one_util::escape_xml(lock_owner) << "</OWNER>"
+            << "<EXPIRES>" << lock_expires << "</EXPIRES>"
         << "</LOCK>";
 
     xml = oss.str();

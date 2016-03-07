@@ -122,12 +122,26 @@ public:
 
     /**
      *  Search the Object for a given attribute in a set of object specific
-     *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
-     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
-     *    running VMs in the host. If the VM_ID is found value is not modified
-     *    otherwise is set to -1
+     *  routes.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return -1 if the element was not found
      */
-    int search(const char *name, int& value);
+    virtual int search(const char *name, std::string& value)
+    {
+        return __search(name, value);
+    }
+
+    virtual int search(const char *name, int& value)
+    {
+        return __search(name, value);
+    }
+
+    virtual int search(const char *name, float& value)
+    {
+        return __search(name, value);
+    }
 
     /**
      *  Checks if the host is a remote public cloud
@@ -171,6 +185,43 @@ private:
     static int host_num_paths; /**< number of paths*/
 
     void init_attributes();
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. Overrite ObjectXML function to deal with pseudo-attributes
+     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
+     *    running VMs in the host. If the VM_ID is found value is not modified
+     *    otherwise is set to -1
+     */
+    template<typename T>
+    int __search(const char *name, T& value)
+    {
+        string s_name(name);
+
+        if (s_name == "CURRENT_VMS")
+        {
+            typename std::vector<T>::iterator it;
+            std::vector<T> results;
+
+            xpaths(results, "/HOST/VMS/ID");
+
+            for (it=results.begin(); it!=results.end(); it++)
+            {
+                if (*it == value)
+                {
+                    return 0; //VMID found in VMS value is VMID
+                }
+            }
+
+            value = -1; //VMID not found in VMS value is -1
+
+            return 0;
+        }
+        else
+        {
+            return ObjectXML::search(name, value);
+        }
+    };
 };
 
 #endif /* HOST_XML_H_ */

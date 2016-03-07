@@ -336,6 +336,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :PROLOG_MIGRATE_FAILURE          => :migrate,
         :PROLOG_MIGRATE_POWEROFF_FAILURE => :migrate,
         :PROLOG_MIGRATE_SUSPEND_FAILURE  => :migrate,
+        :PROLOG_MIGRATE_UNKNOWN_FAILURE  => :migrate,
         :PROLOG_FAILURE                  => :prolog,
         :PROLOG_RESUME_FAILURE           => :resume,
         :PROLOG_UNDEPLOY_FAILURE         => :resume,

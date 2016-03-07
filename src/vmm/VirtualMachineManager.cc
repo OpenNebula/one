@@ -425,7 +425,7 @@ string * VirtualMachineManager::format_message(
 
     if ( !tm_command.empty() )
     {
-        oss << "<TM_COMMAND><![CDATA[" << tm_command << "]]></TM_COMMAND>";
+        oss << "<TM_COMMAND>" << one_util::escape_xml(tm_command) << "</TM_COMMAND>";
     }
     else
     {
@@ -434,8 +434,8 @@ string * VirtualMachineManager::format_message(
 
     if (!tm_command_rollback.empty())
     {
-        oss << "<TM_COMMAND_ROLLBACK><![CDATA[" << tm_command_rollback
-            << "]]></TM_COMMAND_ROLLBACK>";
+        oss << "<TM_COMMAND_ROLLBACK>" << one_util::escape_xml(tm_command_rollback)
+            << "</TM_COMMAND_ROLLBACK>";
     }
     else
     {

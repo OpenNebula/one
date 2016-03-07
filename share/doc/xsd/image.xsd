@@ -65,6 +65,13 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
+        <xs:element name="APP_CLONES">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="SNAPSHOTS">
           <xs:complexType>

@@ -639,6 +639,8 @@ void LifeCycleManager::prolog_success_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_FAILURE: //recover success
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
             switch (lcm_state)
             {
                 case VirtualMachine::PROLOG_RESUME:
@@ -661,6 +663,8 @@ void LifeCycleManager::prolog_success_action(int vid)
 
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_FAILURE: //recover success
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
                     action = VirtualMachineManager::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT);
                     break;
@@ -763,6 +767,11 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             vmpool->update(vm);
             break;
 
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE);
+            vmpool->update(vm);
+            break;
+
         case VirtualMachine::PROLOG_RESUME:
             vm->set_state(VirtualMachine::PROLOG_RESUME_FAILURE);
             vmpool->update(vm);
@@ -776,6 +785,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover failure from failure state
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
         case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:

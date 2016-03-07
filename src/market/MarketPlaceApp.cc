@@ -240,14 +240,14 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GNAME>"          << gname         << "</GNAME>" <<
 			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
-            "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
-            "<SOURCE>"         << source        << "</SOURCE>" <<
-            "<MD5>"            << md5           << "</MD5>" <<
+            "<ORIGIN_ID>" << one_util::escape_xml(origin_id)<< "</ORIGIN_ID>" <<
+            "<SOURCE>"    << one_util::escape_xml(source)   << "</SOURCE>" <<
+            "<MD5>"       << one_util::escape_xml(md5)      << "</MD5>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
-            "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
-            "<VERSION>"        << version       << "</VERSION>" <<
-            "<FORMAT>"         << format        << "</FORMAT>" <<
-            "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
+            "<DESCRIPTION>"   << one_util::escape_xml(description)   << "</DESCRIPTION>" <<
+            "<VERSION>"       << one_util::escape_xml(version)       << "</VERSION>" <<
+            "<FORMAT>"        << one_util::escape_xml(format)        << "</FORMAT>" <<
+            "<APPTEMPLATE64>" << one_util::escape_xml(apptemplate64) << "</APPTEMPLATE64>" <<
             "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
             "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
             "<STATE>"          << state         << "</STATE>" <<

@@ -88,11 +88,17 @@ define(function(require) {
         switch(attr.type){
           case "number":
           case "number-float":
+          case "fixed":
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
 
           case "range":
           case "range-float":
+            var min = $("."+attr.type+" input.user_input_params_min", $(this)).val();
+            var max = $("."+attr.type+" input.user_input_params_max", $(this)).val();
+            attr.params  = min + ".." + max;
+            attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+            break;
           case "list":
             attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
@@ -125,11 +131,25 @@ define(function(require) {
         switch(attr.type){
           case "number":
           case "number-float":
+          case "fixed":
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
             break;
 
           case "range":
           case "range-float":
+            var values = attr.params.split("..");  // "2..8"
+
+            if (values.length == 2){
+              $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
+              $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
+            } else {
+              console.error('Wrong user input parameters for "'+key+'". Expected "MIN..MAX", received "'+attr.params+'"');
+            }
+
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+
+            break;
+
           case "list":
             $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
@@ -295,6 +315,7 @@ define(function(require) {
     switch (attr.type) {
       case "number":
       case "number-float":
+      case "fixed":
         st += ("| |" + (attr.initial != undefined ? attr.initial : "") );
 
         break;
@@ -328,6 +349,7 @@ define(function(require) {
       "mandatory": (parts[0] == "M"),
       "type": parts[1],
       "description": parts[2],
+      "initial": ""
     };
 
     if (parts[3] != undefined){
@@ -421,19 +443,21 @@ define(function(require) {
   function _attributeInput(attr) {
     var input;
 
+    var required = (attr.mandatory ? "required" : "");
+
     switch (attr.type) {
       case "text":
-        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" required/>';
+        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "text64":
-        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" required/>';
+        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "password":
-        input = '<input type="password" wizard_field="' + attr.name + '" required/>';
+        input = '<input type="password" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "number":
       case "number-float":
-        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>';
+        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "range":
       case "range-float":
@@ -469,13 +493,13 @@ define(function(require) {
           '<div class="small-4 columns">'+
             '<input type="number" class="uinput-slider-val" '+
               'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>'+
+              'value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+'/>'+
           '</div>'+
         '</div>';
 
         break;
       case "list":
-        input = '<select wizard_field="' + attr.name + '" required>';
+        input = '<select wizard_field="' + attr.name + '" '+required+'>';
 
         $.each(attr.options, function(){
           var selected = (attr.initial == this);
@@ -488,6 +512,9 @@ define(function(require) {
 
         input += '</select>';
 
+        break;
+      case "fixed":
+        input = '<input type="text" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+' disabled/>';
         break;
     }
 

@@ -22,6 +22,8 @@
 #include <sstream>
 #include <algorithm>
 
+#include "NebulaUtil.h"
+
 using namespace std;
 
 /**
@@ -163,8 +165,8 @@ public:
     {
         string * xml = new string;
 
-        *xml = "<" + name() + "><![CDATA[" + attribute_value
-             + "]]></"+ name() + ">";
+        *xml = "<" + name() + ">" + one_util::escape_xml(attribute_value) +
+               "</"+ name() + ">";
 
         return xml;
     }

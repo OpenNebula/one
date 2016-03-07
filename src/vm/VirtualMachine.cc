@@ -246,11 +246,11 @@ int VirtualMachine::select(SqlDB * db)
                 break;
 
             case NebulaLog::SYSLOG:
-                _log = new SysLogResource(oid, obj_type, clevel);
+                _log = new SysLog(clevel, oid, obj_type);
                 break;
 
-            case NebulaLog::CERR:
-                _log = new CerrLog(clevel);
+            case NebulaLog::STD:
+                _log = new StdLog(clevel, oid, obj_type);
                 break;
 
             default:

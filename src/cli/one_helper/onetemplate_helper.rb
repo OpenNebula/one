@@ -131,7 +131,7 @@ EOT
         puts "There are some parameters that require user input. Use the string <<EDITOR>> to launch an editor (e.g. for multi-line inputs)"
 
         user_inputs.each do |key, val|
-            input_cfg = val.split('|')
+            input_cfg = val.split('|', -1)
 
             if input_cfg.length < 3
                 STDERR.puts "Malformed user input. It should have at least 3 parts separated by '|':"
@@ -139,8 +139,8 @@ EOT
                 exit(-1)
             end
 
-            optional, type, description, params, initial = input_cfg
-            optional.strip!
+            mandatory, type, description, params, initial = input_cfg
+            optional = mandatory.strip == "O"
             type.strip!
             description.strip!
 
@@ -195,7 +195,13 @@ EOT
                     answer = STDIN.readline.chop
 
                     answer = initial if (answer == "")
-                end while (answer =~ exp) == nil
+
+                    noanswer = ((answer == "") && optional)
+                end while !noanswer && (answer =~ exp) == nil
+
+                if noanswer
+                    next
+                end
 
             when 'range', 'range-float'
                 min,max = params.split('..')
@@ -225,7 +231,13 @@ EOT
                     answer = STDIN.readline.chop
 
                     answer = initial if (answer == "")
-                end while ((answer =~ exp) == nil || answer.to_f < min || answer.to_f > max)
+
+                    noanswer = ((answer == "") && optional)
+                end while !noanswer && ((answer =~ exp) == nil || answer.to_f < min || answer.to_f > max)
+
+                if noanswer
+                    next
+                end
 
             when 'list'
                 options = params.split(",")
@@ -248,7 +260,17 @@ EOT
                         answer = options[answer.to_i]
                     end
 
-                end while (!options.include?(answer))
+                    noanswer = ((answer == "") && optional)
+
+                end while !noanswer && (!options.include?(answer))
+
+                if noanswer
+                    next
+                end
+
+            when 'fixed'
+                puts "    Fixed value of (#{initial}). Cannot be changed"
+                answer = initial
 
             else
                 STDERR.puts "Wrong type for user input:"
@@ -256,8 +278,12 @@ EOT
                 exit(-1)
             end
 
-            answers << "#{key} = \""
-            answers << answer.gsub('"', "\\\"") << "\"\n"
+            # Do not replace values that are equal to the ones already in the
+            # template. Useful for cpu, mem, vcpu
+            if answer != template['VMTEMPLATE']['TEMPLATE'][key]
+                answers << "#{key} = \""
+                answers << answer.gsub('"', "\\\"") << "\"\n"
+            end
         end
 
         answers
