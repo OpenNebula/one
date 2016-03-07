@@ -138,7 +138,7 @@ define(function(require) {
         $('#' + tabName + 'labels_buttons').html(
           '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button secondary button dropdown">' +
             '<i class="fa fa-tags"/></button>' +
-          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></ul>').foundation();
+          '<div id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
 
       }
     }
@@ -284,7 +284,7 @@ define(function(require) {
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : '<i class="fa fa-refresh fa-lg"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("white_button", "refresh", "secondary", "button",  "hollow");
+          strClass.push("white_button", "refresh", "button",  "secondary");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "top":
@@ -293,19 +293,19 @@ define(function(require) {
               '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>' +
               '<i class="fa fa-play fa-stack-1x"></i>' +
             '</span>';
-          strClass.push("white_button", "toggle_top_button", "only-right-list", "secondary", "button",  "hollow");
+          strClass.push("white_button", "toggle_top_button", "only-right-list", "button",  "hollow");
           buttonCode = '<a class="' + strClass.join(' ') + '" style="padding-left:0px; margin-right: 20px">' + text + '</a>';
           break;
         case "main":
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button",  "hollow");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmsplay_buttons":
           buttonContext = $("#" + customId + "vmsplay_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button",  "hollow");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmspause_buttons":
@@ -352,7 +352,7 @@ define(function(require) {
         default:
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button",  "hollow");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
         }
 
