@@ -150,7 +150,7 @@ define(function(require) {
       });
     }
 
-    context.foundation();
+    Foundation.reflow(context, 'tabs');
     Tips.setup();
   }
 

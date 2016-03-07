@@ -16,13 +16,13 @@
 
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div>
-    <dl id="vdc_create_tabs" class="tabs right-info-tabs text-center" data-tab>
-      <dd class="active"><a href="#vdcCreateGeneralTab"><i class="fa fa-th"></i><br>{{tr "General"}}</a></dd>
-      <dd><a href="#vdcCreateGroupsTab"><i class="fa fa-users"></i><br>{{tr "Groups"}}</a></dd>
-      <dd><a href="#vdcCreateResourcesTab"><i class="fa fa-hdd-o"></i><br>{{tr "Resources"}}</a></dd>
+    <dl id="{{formPanelId}}Tabs" class="tabs right-info-tabs text-center" data-tabs>
+      <dd class="tabs-title is-active"><a href="#vdcCreateGeneralTab"><i class="fa fa-th"></i><br>{{tr "General"}}</a></dd>
+      <dd class="tabs-title"><a href="#vdcCreateGroupsTab"><i class="fa fa-users"></i><br>{{tr "Groups"}}</a></dd>
+      <dd class="tabs-title"><a href="#vdcCreateResourcesTab"><i class="fa fa-hdd-o"></i><br>{{tr "Resources"}}</a></dd>
     </dl>
-    <div id="vdc_create_tabs_content" class="tabs-content">
-      <div class="content active" id="vdcCreateGeneralTab">
+    <div class="tabs-content" data-tabs-content="{{formPanelId}}Tabs">
+      <div class="tabs-panel is-active" id="vdcCreateGeneralTab">
         <div class="row">
           <div class="large-6 medium-8 columns">
             <label for="name" >{{tr "Name"}}:
@@ -49,10 +49,10 @@
         </div>
         {{{customTagsHTML}}}
       </div>
-      <div id="vdcCreateGroupsTab" class="content">
+      <div id="vdcCreateGroupsTab" class="tabs-panel">
         {{{groupsTableHTML}}}
       </div>
-      <div id="vdcCreateResourcesTab" class="content">
+      <div id="vdcCreateResourcesTab" class="tabs-panel">
         {{{resourcesTabHTML}}}
       </div>
     </div>
