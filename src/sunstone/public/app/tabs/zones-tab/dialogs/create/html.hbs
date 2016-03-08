@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="row reveal-modal" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="reveal" data-reveal>
   <div class="row">
     <div class="large-12 columns">
       <h3 id="create_zone_header" class="subheader">{{tr "Create Zone"}}</h3>
@@ -36,6 +36,8 @@
     <div class="form_buttons">
       <button class="button radius right success" id="create_zone_submit" value="zone/create">{{tr "Create"}}</button>
     </div>
-    <a class="close-reveal-modal">&#215;</a>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </form>
 </div>
