@@ -66,7 +66,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('abide', 'reflow');
+    Foundation.reflow(context, 'abide');
     
     that.arTab.setup(context, "update_ar");
 

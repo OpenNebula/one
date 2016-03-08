@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal large max-height" data-reveal >
+<div id="{{dialogId}}" class="reveal large max-height" data-reveal>
   <div class="reveal-body">
     <form data-abide="ajax" id="update_ar_form" action="">
       <div class="row">
@@ -34,7 +34,9 @@
           </button>
         </div>
       </div>
-      <a class="close-reveal-modal">&#215;</a>
+      <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </form>
   </div>
 </div>
