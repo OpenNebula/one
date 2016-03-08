@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal small" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="reveal small" data-reveal>
   <div class="row">
     <div class="large-12 columns">
       <h3 class="subheader" id="">{{tr "Snapshot"}}</h3>
@@ -37,7 +37,9 @@
       <div class="form_buttons">
         <button class="button radius right success" type="submit">{{tr "Take snapshot"}}</button>
       </div>
-      <a class="close-reveal-modal">&#215;</a>
+      <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </form>
   </div>
 </div>

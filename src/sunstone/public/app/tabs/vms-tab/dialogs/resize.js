@@ -96,7 +96,7 @@ define(function(require) {
     $('#vm_id', context).text(that.element.ID);
     CapacityInputs.fill(context, that.element);
 
-    context.foundation('slider', 'reflow');
+    // TODO context.foundation('slider', 'reflow');
     
     return false;
   }

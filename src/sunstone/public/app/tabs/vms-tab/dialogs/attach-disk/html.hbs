@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal large" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="reveal large" data-reveal>
   <div class="row">
     <div class="large-12 columns">
       <h3 class="subheader" id="">{{tr "Attach new disk"}}</h3>
@@ -34,7 +34,9 @@
           <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">{{tr "Attach"}}</button>
         </div>
       </div>
-      <a class="close-reveal-modal">&#215;</a>
+      <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </form>
   </div>
 </div>

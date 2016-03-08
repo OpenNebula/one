@@ -600,7 +600,7 @@ define(function(require) {
     context.data('element', info[Object.keys(info)[0]]);
 
     var containerId = tabName + '-panels';
-    var activaTab = $("dd.is-active a", $("#" + containerId));
+    var activaTab = $("li.is-active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
     }
@@ -666,23 +666,25 @@ define(function(require) {
     })
 
     context.html(html);
-
     $.each(SunstoneCfg['tabs'][tabName]["panelInstances"], function(panelName, panel) {
       panel.setup(context);
 
       if(isRefresh && prevPanelStates[panelName] && panel.setState){
         panel.setState( prevPanelStates[panelName], context );
       }
+    });
 
-      if (panel.onShow) {
-        context.off('click', '[href="#' + panel.panelId + '"]');
-        context.on('click', '[href="#' + panel.panelId + '"]', function(){
-          panel.onShow(context);
-        });
+    $('#' + containerId + 'Tabs', context).on('change.zf.tabs', function(target) {
+      var tabIdWithHash = $('.is-active > a', this)[0].hash;
+      var panel = SunstoneCfg['tabs'][tabName]["panelInstances"][tabIdWithHash.substring(1)];
+      if (panel && panel.onShow) {
+        panel.onShow(context);
       }
     });
 
-    context.foundation();
+    Foundation.reflow(context, 'tabs');
+
+    //context.foundation();
     $('[href="' + activaTabHref + '"]', context).trigger("click");
 
     if (hooks) {
