@@ -70,7 +70,7 @@ fi
 
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 SNAP_DIR_SHORT=$(basename "$SNAP_DIR")
-SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${SNAP_DIR}"
+SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${SNAP_ID}"
 
 SNAP_CMD="qemu-img create -f qcow2 -b \"${SNAP_PATH_SHORT}\" \"\$(readlink ${DISK_PATH})\""
 
