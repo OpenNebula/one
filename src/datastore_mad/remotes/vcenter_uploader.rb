@@ -32,6 +32,7 @@ require 'vcenter_driver'
 hostname    = ARGV[0]
 ds_name     = ARGV[1]
 target_path = ARGV[2]
+source_path = ARGV[3]
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
@@ -39,9 +40,16 @@ begin
 
     ds = vi_client.get_datastore(ds_name)
 
-    # Setting "." as the source will read from the stdin
-     VCenterDriver::VIClient.in_silence do
-        ds.upload(target_path, ".")
+    directory = File.dirname(target_path)
+    vi_client.create_directory(directory, ds_name)
+
+    VCenterDriver::VIClient.in_silence do
+        if source_path
+            ds.upload(target_path, source_path)
+        else
+            # Setting "." as the source will read from the stdin
+            ds.upload(target_path, ".")
+        end
     end
 
     puts target_path
@@ -50,3 +58,4 @@ rescue Exception => e
                 "Reason: #{e.message}"
     exit -1
 end
+
