@@ -1296,6 +1296,11 @@ public:
     bool is_imported() const;
 
     /**
+     *  Return state of the VM right before import
+     */
+    string get_import_state();
+
+    /**
      * Checks if the current VM MAD supports the given action for imported VMs
      * @param action VM action to check
      * @return true if the current VM MAD supports the given action for imported VMs

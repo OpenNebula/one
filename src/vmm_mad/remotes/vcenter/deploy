@@ -34,17 +34,23 @@ dfile = ARGV[0]
 host  = ARGV[1]
 vm_id = ARGV[2]
 
-vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
-vm.info
+drv_action_enc = STDIN.read.gsub("\n","")
 
-lcm_state = vm.lcm_state_str
-deploy_id = vm.deploy_id
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'VM')
+
+deploy_id     = drv_action["/VM/DEPLOY_ID"]
+lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
+datastore     = drv_action["/VM/USER_TEMPLATE/VCENTER_DATASTORE"]
+lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 
 begin
     puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
                                          lcm_state,
                                          deploy_id,
-                                         host)
+                                         host,
+                                         datastore)
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
                 "due to \"#{e.message}\""

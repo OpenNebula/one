@@ -36,6 +36,7 @@ class RbVmomi::TrivialSoap
       puts ex.backtrace.join("\n")
     end
     @http = Net::HTTP.new(@opts[:host], @opts[:port], @opts[:proxyHost], @opts[:proxyPort])
+
     if @opts[:ssl]
       require 'net/https'
       @http.use_ssl = true
@@ -44,6 +45,10 @@ class RbVmomi::TrivialSoap
       else
         @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       end
+
+      @http.ssl_version = :TLSv1
+      
+
       @http.cert = OpenSSL::X509::Certificate.new(@opts[:cert]) if @opts[:cert]
       @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end

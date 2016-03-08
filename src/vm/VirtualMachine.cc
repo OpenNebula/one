@@ -2369,6 +2369,16 @@ bool VirtualMachine::is_imported() const
     return imported;
 }
 
+string VirtualMachine::get_import_state()
+{
+    string import_state;
+
+    user_obj_template->get("IMPORT_STATE", import_state);
+    user_obj_template->erase("IMPORT_STATE");
+
+    return import_state;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

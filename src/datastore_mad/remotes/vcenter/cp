@@ -1,0 +1,234 @@
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used retrieve the file size of a disk
+###############################################################################
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'opennebula'
+require 'fileutils'
+require 'tempfile'
+
+def is_remote?(file)
+    file.match(%r{^https?://})
+end
+
+def get_type(file)
+    type = %x{file -b --mime-type #{file}}
+    if $?.exitstatus != 0
+        STDERR.puts "Can not read file #{file}"
+        exit(-1)
+    end
+
+    type.strip
+end
+
+def needs_unpack?(file)
+    temp = Tempfile.new('one-')
+    temp.close
+
+    file_path = file
+
+    if is_remote?(file)
+        rc = system("curl --fail -sS -k -L #{file_path} | head -c 1024 > #{temp.path}")
+        if !rc
+            STDERR.puts "Can not download file #{file_path}"
+            exit(-1)
+        end
+        file_path = temp.path
+    end
+
+    type = get_type(file_path)
+    type.gsub!(%r{^application/x-}, '')
+    unpack = %w{bzip2 gzip tar}.include?(type)
+
+    temp.unlink
+
+    unpack
+end
+
+def vmdk_info(file)
+    file_path = file
+
+    if File.directory?(file_path)
+        files = Dir["#{file_path}/*.vmdk"]
+        found = false
+        count = 0
+        last  = nil
+
+        files.each do |f|
+            if get_type(f).strip == "text/plain"
+                file_path = f
+                found = true
+                break
+            else
+                count += 1
+                last = f
+            end
+        end
+
+        if !found
+            if count == 1
+                file_path = last
+                found = true
+            else
+                STDERR.puts "Could not find vmdk"
+                exit(-1)
+            end
+        end
+    end
+
+    if get_type(file_path).strip == "application/octet-stream"
+        return {
+            :type   => :standalone,
+            :file   => file_path,
+            :dir    => File.dirname(file_path)
+        }
+    elsif get_type(file_path).strip == "text/plain"
+        info = {
+            :type   => :flat,
+            :file   => file_path,
+            :dir    => File.dirname(file_path)
+        }
+
+        files_list = []
+        descriptor = File.read(file_path).split("\n")
+        flat_files = descriptor.select {|l| l.start_with?("RW")}
+
+        flat_files.each do |f|
+            files_list << info[:dir] + "/" +
+                f.split(" ")[3].chomp.chomp('"').reverse.chomp('"').reverse
+        end
+
+        info[:flat_files] = files_list
+
+        return info
+    else
+        STDERR.puts "Unrecognized file type"
+        exit(-1)
+    end
+end
+
+drv_action_enc = ARGV[0]
+id             = ARGV[1]
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+
+img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+md5      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
+sha1     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
+nodecomp = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
+limit_bw = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
+hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+
+
+if img_path.nil?
+    STDERR.puts "Not enough information to register the image,"\
+                " missing image path."
+    exit(-1)
+end
+
+if img_path.start_with? "vcenter://"
+    # File already in the vCenter datastore
+
+    puts img_path.sub("vcenter://","")
+    exit(0)
+end
+
+downsh_args = " "
+downsh_args += "--md5 #{md5} " if md5 and !md5.empty? and !md5.eql? "-"
+downsh_args += "--sha1 #{sha1} " if sha1 and !sha1.empty?
+downsh_args += "--nodecomp " if nodecomp and !nodecomp.empty?
+downsh_args += "--limit #{limit_bw} " if limit_bw and !limit_bw.empty?
+
+downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
+
+# Generate target path
+str_for_target_path = Time.now.to_s + id.to_s
+target_path = Digest::MD5.hexdigest(str_for_target_path)
+
+files_to_upload = Array.new
+
+file_path = img_path
+skip_download = false
+delete_file = false
+files_to_upload = []
+
+if is_remote?(file_path) || needs_unpack?(file_path)
+    temp_folder = File.join(VAR_LOCATION, "vcenter")
+    temp_file = File.join(temp_folder, File.basename(target_path))
+    FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
+
+    rc = system("#{downloader} #{file_path} #{temp_file}")
+    if !rc
+        STDERR.puts "Error downloading #{file_path}"
+        FileUtils.rm_rf(temp_file)
+        exit(-1)
+    end
+
+    delete_file = true
+    file_path = temp_file
+end
+
+info = vmdk_info(file_path)
+
+case info[:type]
+when :standalone
+    files_to_upload << info[:file]
+when :flat
+    files_to_upload = info[:flat_files]
+    files_to_upload << info[:file]
+end
+
+files_to_upload.each_with_index do |f, index|
+    path = "#{target_path}/#{File.basename(f)}"
+    if index == files_to_upload.size - 1
+        uploader_args = hostname + " " + ds_name + " " + path + " " + f
+    else
+        uploader_args = hostname + " " + ds_name + " " +
+                        path + " " + f + " &> /dev/null"
+    end
+
+    cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
+    rc = system(cmd)
+
+    if !rc
+        STDERR.puts "Can not upload file #{f}"
+        FileUtils.rm_rf(temp_file) if delete_file
+        exit(-1)
+    end
+end
+
+
+FileUtils.rm_rf(temp_file) if delete_file
+

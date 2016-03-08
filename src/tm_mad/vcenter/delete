@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vcenter_driver'
+
+hostname, img_path = ARGV[0].split(":")
+vmid               = ARGV[1]
+dsid               = ARGV[2]
+
+begin
+    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client    = VCenterDriver::VIClient.new host_id
+    ds_name      = VCenterDriver::VIClient.find_ds_name(dsid)
+
+    vi_client.delete_virtual_disk(img_path, ds_name)
+rescue Exception => e
+    STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
+                " Reason: #{e.message}"
+    exit -1
+end
