@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="reveal" data-reveal>
   <div class="row">
     <h3 class="subheader">{{tr "Clone Security Group"}}</h3>
   </div>
@@ -40,6 +40,8 @@
         {{tr "Clone"}}
       </button>
     </div>
-    <a class="close-reveal-modal">&#215;</a>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </form>
 </div>
