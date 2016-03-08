@@ -99,7 +99,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs')
     this.hostsTable.initialize();
     this.vnetsTable.initialize();
     this.datastoresTable.initialize();
