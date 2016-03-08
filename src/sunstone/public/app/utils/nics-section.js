@@ -387,7 +387,7 @@ define(function(require) {
       $(".provision_add_network_interface", context).click();
     }
 
-    $(document).foundation();
+    //TODO $(document).foundation();
   }
 
   function update_provision_networks_datatable(datatable) {

@@ -80,8 +80,7 @@ define(function(require) {
     });
   }
 
-  function _setup(context) {
-    context.foundation('abide', 'reflow');
+  function _setup(context) { 
   }
 
   function _submitWizard(context) {

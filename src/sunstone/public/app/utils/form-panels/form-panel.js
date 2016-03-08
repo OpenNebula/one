@@ -53,7 +53,7 @@ define(function(require) {
         Sunstone.hideFormPanelLoading(that.tabId);
       })
       .on('formvalid.zf.abide', function(ev, frm) {
-        that.submitWizard(this);
+        that.submitWizard(frm);
         return false;
       })
       .on("submit", function(ev) {
@@ -66,7 +66,7 @@ define(function(require) {
         Sunstone.hideFormPanelLoading(that.tabId);
       })
       .on('formvalid.zf.abide', function(ev, frm) {
-        that.submitAdvanced(this);
+        that.submitAdvanced(frm);
         return false;
       })
       .on("submit", function(ev) {

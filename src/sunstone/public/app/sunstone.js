@@ -600,7 +600,7 @@ define(function(require) {
     context.data('element', info[Object.keys(info)[0]]);
 
     var containerId = tabName + '-panels';
-    var activaTab = $("dd.active a", $("#" + containerId));
+    var activaTab = $("dd.is-active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
     }
@@ -867,9 +867,9 @@ define(function(require) {
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
-      if ($(".wizardForms.active", context).length > 0) {
+      if ($(".wizardForms.is-active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
-      } else if ($(".advancedForms.active", context).length > 0) {
+      } else if ($(".advancedForms.is-active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
       }
     }, 13)
