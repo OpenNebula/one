@@ -1,12 +1,28 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="row">
-  <div id="template_name_form"  class="large-6 columns">
+  <div id="template_name_form"  class="medium-6 columns">
     <label  for="NAME">
       {{tr "Name"}}
-      <span class="tip">{{tr "Name that the VM will get for description purposes."}}</span>
+      {{{tip (tr "Name that the VM will get for description purposes.")}}}
       <input type="text" wizard_field="NAME" id="NAME" name="name" required/>
     </label>
   </div>
-  <div  id="template_hypervisor_form" class="large-6 columns">
+  <div  id="template_hypervisor_form" class="medium-6 columns">
     <label>{{tr "Hypervisor"}}</label>
     <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="kvm" id="kvmRadio">
     <label for="kvmRadio">{{tr "KVM"}}</label>
@@ -19,60 +35,101 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <label  for="DESCRIPTION">
       {{tr "Description"}}
-      <span class="tip">{{tr "Description of the template"}}</span>
+      {{{tip (tr "Description of the template")}}}
     </label>
     <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>
   </div>
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label  for="LOGO">
           {{tr "Logo"}}
-          <span class="tip">{{tr "Logo for the template."}}</span>
+          {{{tip (tr "Logo for the template.")}}}
         </label>
         <select wizard_field="LOGO" id="LOGO" name="LOGO">
           <option value=""></option>
           {{#each logos}}
-          <option value="{{path}}">{{title}}</option>
+          <option value="{{path}}">{{name}}</option>
           {{/each}}
         </select>
       </div>
-      <div id="template_create_logo" class="text-center large-6 columns" style="margin-bottom: 15px"></div>
+      <div id="template_create_logo" class="text-center medium-6 columns" style="margin-bottom: 15px"></div>
       <br></div>
   </div>
 </div>
 <div class="row hypervisor only_vcenter" style="display: none;">
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <label  for="vcenter_template_uuid">
       {{tr "vCenter Template UUID"}}
       <span class="tip"></span>
     </label>
     <input type="text" id="vcenter_template_uuid" name="name"/>
   </div>
-</div>
-{{{capacityInputsHTML}}}
-<div class="row">
-  <div class="large-6 columns">
-    <input type="checkbox" id="sunstone_capacity_select" name="name"/>
-    <label  for="sunstone_capacity_select">
-      {{tr "Do not allow to change capacity"}}
-      <span class="tip">
-        {{tr "Users using the cloud view will not be able to select a new capacity for this template"}}
-      </span>
-    </label>
+  <div class="medium-6 columns">
+    <div class="row">
+      <div class="large-6 columns">
+        <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
+        <label  for="KEEP_DISKS">
+          {{tr "Keep VM disks"}}
+          {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
+        </label>
+      </div>
+    </div>
   </div>
 </div>
+<div class="row">
+  <div class="capacityCreate large-12 columns">
+    {{{capacityCreateHTML}}}
+  </div>
+</div>
+{{#isFeatureEnabled "showback"}}
+<div class="row">
+  <div class="medium-6 columns">
+    <fieldset>
+      <legend>{{tr "Cost"}}</legend>
+        <div class="medium-6 columns">
+          <label  for="MEMORY_COST">
+            {{tr "Memory"}}
+            {{{tip (tr "Cost of each MB per hour")}}}
+          </label>
+          <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
+        </div>
+        <div class="medium-6 columns">
+          <label  for="CPU_COST">
+            {{tr "CPU"}}
+            {{{tip (tr "Cost of each CPU per hour")}}}
+          </label>
+          <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
+        </div>
+        <div class="medium-6 columns left">
+          <label  for="DISK_COST">
+            {{tr "Disk"}}
+            {{{tip (tr "Cost of each MB per hour")}}}
+          </label>
+          <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
+        </div>
+    </fieldset>
+  </div>
+</div>
+{{/isFeatureEnabled}}
 <div class="row">
   <div class="large-6 columns">
     <input type="checkbox" id="sunstone_network_select" name="name"/>
     <label  for="sunstone_network_select">
       {{tr "Do not allow to modify network configuration"}}
-      <span class="tip">
-        {{tr "Users using the cloud view will not be able to remove or add new NICs"}}
-      </span>
+      {{{tip (tr "Users using the cloud view will not be able to remove or add new NICs")}}}
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 columns">
+    <input type="checkbox" wizard_field="VROUTER" id="VROUTER" value="YES"/>
+    <label  for="VROUTER">
+      {{tr "Make this template available for Virtual Router machines only"}}
+      {{{tip (tr "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard")}}}
     </label>
   </div>
 </div>

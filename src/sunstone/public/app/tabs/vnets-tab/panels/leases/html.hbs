@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <form id="leases_form">
   {{#isTabActionEnabled "vnets-tab" "Network.hold_lease"}}
     <div class="row collapse">
@@ -31,12 +47,12 @@
             <tr ip="{{IP}}" mac="{{MAC}}">
               <td class="key_td">{{{col0HTML}}}</td>
               <td>{{{col1HTML}}}</td>
-              <td style="white-space: nowrap" class="value_td">{{IP}}</td>
-              <td style="white-space: nowrap" class="value_td">{{MAC}}</td>
-              <td style="white-space: nowrap" class="value_td">{{IP6_LINK}}</td>
-              <td style="white-space: nowrap" class="value_td">{{IP6_ULA}}</td>
-              <td style="white-space: nowrap" class="value_td">{{IP6_GLOBAL}}</td>
-              <td style="white-space: nowrap" class="value_td">{{AR_ID}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault IP "--"}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault MAC "--"}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault IP6_LINK "--"}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault IP6_ULA "--"}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault IP6_GLOBAL "--"}}</td>
+              <td style="white-space: nowrap" class="value_td">{{valOrDefault AR_ID "--"}}</td>
             </tr>
           {{/each}}
         </tbody>

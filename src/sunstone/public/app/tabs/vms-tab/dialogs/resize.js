@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -51,24 +67,12 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    CapacityInputs.setup();
+    CapacityInputs.setup(context);
 
     Tips.setup(context);
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var templateJSON = WizardFields.retrieve(context);
-
-      if (templateJSON["CPU"] == that.element.TEMPLATE.CPU) {
-        delete templateJSON["CPU"];
-      };
-
-      if (templateJSON["MEMORY"] == that.element.TEMPLATE.MEMORY) {
-        delete templateJSON["MEMORY"];
-      };
-
-      if (templateJSON["VCPU"] == that.element.TEMPLATE.VCPU) {
-        delete templateJSON["VCPU"];
-      };
+      var templateJSON = CapacityInputs.retrieveChanges(context);
 
       var enforce = $("#enforce", this).is(":checked");
 
@@ -90,11 +94,10 @@ define(function(require) {
   function _onShow(context) {
     var that = this;
     $('#vm_id', context).text(that.element.ID);
-    $('#CPU', context).val(that.element.TEMPLATE.CPU);
-    $('#MEMORY_TMP', context).val(that.element.TEMPLATE.MEMORY);
-    if (that.element.VCPU) {
-      $('#VCPU', context).val(that.element.TEMPLATE.VCPU);
-    }
+    CapacityInputs.fill(context, that.element);
+
+    context.foundation('slider', 'reflow');
+    
     return false;
   }
 

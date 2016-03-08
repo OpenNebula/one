@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -379,13 +379,15 @@ public:
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
+     *    @param pci devices needed by th VM
      *    @return 0 on success
      */
-    void add_capacity(int vm_id, long long cpu, long long mem, long long disk)
+    void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
+            vector<VectorAttribute *> pci)
     {
-        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        if ( vm_collection.add(vm_id) == 0 )
         {
-            host_share.add(cpu,mem,disk);
+            host_share.add(vm_id, cpu, mem, disk, pci);
         }
         else
         {
@@ -404,13 +406,15 @@ public:
      *    @param cpu used by the VM (percentage)
      *    @param mem used by the VM (in KB)
      *    @param disk used by the VM
+     *    @param pci devices needed by th VM
      *    @return 0 on success
      */
-    void del_capacity(int vm_id, long long cpu, long long mem, long long disk)
+    void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
+            vector<VectorAttribute *> pci)
     {
-        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        if ( vm_collection.del(vm_id) == 0 )
         {
-            host_share.del(cpu,mem,disk);
+            host_share.del(cpu, mem, disk, pci);
         }
         else
         {
@@ -440,11 +444,26 @@ public:
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in Kb)
      *    @param disk needed by the VM
+     *    @param pci devices needed by the VM
+     *    @param error Returns the error reason, if any
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, long long disk)
+    bool test_capacity(long long cpu, long long mem, long long disk,
+                       vector<VectorAttribute *> &pci, string& error) const
     {
-        return host_share.test(cpu, mem, disk);
+        return host_share.test(cpu, mem, disk, pci, error);
+    }
+
+    /**
+     *  Tests whether a new VM can be hosted by the host or not, checking the
+     *  PCI devices only.
+     *    @param pci devices needed by the VM
+     *    @param error Returns the error reason, if any
+     *    @return true if the share can host the VM
+     */
+    bool test_capacity(vector<VectorAttribute *> &pci, string& error) const
+    {
+        return host_share.test(pci, error);
     }
 
     /**
@@ -452,7 +471,7 @@ public:
      */
     set<int> get_vm_ids()
     {
-        return vm_collection.get_collection_copy();
+        return vm_collection.clone();
     }
 
     /**

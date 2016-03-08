@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,9 +35,11 @@ int VirtualMachinePoolXML::set_up()
         {
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
-            oss << right << setw(8)  << "VM"        << " "
+            oss << right << setw(8)  << "ACTION"    << " "
+                << right << setw(8)  << "VM"        << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
+                << right << setw(3)  << "PCI"       << " "
                 << right << setw(11) << "System DS" << " "
                 << " Image DS"
                 << endl << setw(60) << setfill('-') << "-" << setfill(' ');
@@ -46,15 +48,29 @@ int VirtualMachinePoolXML::set_up()
             {
                 int cpu, mem;
                 long long disk;
+                vector<VectorAttribute *> pci;
+
+                string action = "DEPLOY";
 
                 VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
 
-                vm->get_requirements(cpu, mem, disk);
+                vm->get_requirements(cpu, mem, disk, pci);
+
+                if (vm->is_resched())
+                {
+                    action = "RESCHED";
+                }
+                else if (vm->is_resume())
+                {
+                    action = "RESUME";
+                }
 
                 oss << endl
+                    << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "
+                    << right << setw(3)  << pci.size()  << " "
                     << right << setw(11) << disk        << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();

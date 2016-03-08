@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L                                           #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -44,5 +44,8 @@ vm_monitor_info = vcenter_host.monitor_vms
 
 cluster_info << "\nVM_POLL=YES"
 cluster_info << "#{vm_monitor_info}" if !vm_monitor_info.empty?
+
+cluster_info << "\n"
+cluster_info << vcenter_host.monitor_customizations
 
 puts cluster_info

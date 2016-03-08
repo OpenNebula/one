@@ -1,6 +1,22 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <dl class="tabs vertical" id="{{linksContainerId}}" data-tab>
   <dt class="text-center">
-    <button href="#" class="button tiny radius" id="tf_btn_nics">
+    <button href="#" type="button" class="button tiny radius" id="tf_btn_nics">
       <span class="fa fa-plus"></span>
       {{tr "Add another interface"}}
     </button>
@@ -8,12 +24,10 @@
 </dl>
 <div class="tabs-content vertical" id="{{contentsContainerId}}"></div>
 <div class="row">
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <label for="DEFAULT_MODEL">
       {{tr "Default model"}}
-      <span class="tip">
-        {{tr "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif."}}
-      </span>
+      {{{tip (tr "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")}}}
     </label>
     <input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>
   </div>

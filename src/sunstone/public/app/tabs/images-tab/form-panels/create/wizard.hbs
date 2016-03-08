@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
     <div class="medium-4 columns">
@@ -20,7 +36,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="large-4 columns">
+    <div class="medium-4 columns">
       <label for="img_type">
         {{tr "Type"}}
         <span class="tip">
@@ -42,7 +58,7 @@
         <option value="DATABLOCK">{{tr "DATABLOCK"}}</option>
       </select>
     </div>
-    <div class="large-8 columns">
+    <div class="medium-8 columns">
       <label for="img_datastore">
         {{tr "Datastore"}}
         <span class="tip">{{tr "Select the datastore for this image"}}</span>
@@ -93,27 +109,43 @@
       </div>
     </div>
     <div class="img_size row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="img_size">
           {{tr "Size"}}
           <span class="tip">{{tr "Size of the datablock in MB."}}</span>
         </label>
         <input type="text" name="img_size" id="img_size" />
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="img_fstype">
           {{tr "FS type"}}
           <span class="tip">
             {{tr "Type of file system to be built."}}
-            <br>
-            <br>
             {{tr  "Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed."}}
-            <br>
-            <br>
             {{tr  "Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*."}}
           </span>
         </label>
         <input type="text" name="img_fstype" id="img_fstype" />
+      </div>
+      <div class="medium-6 columns">
+        <label for="adapter_type">
+          {{tr "Adapter type"}}
+          <span class="tip">
+            {{tr "Adapter type for the image. Only for vCenter images"}}
+            {{tr "Types of adapters used by virtual disks to plug into VMs. Values (careful with the case): lsiLogic, ide, busLogic."}}
+          </span>
+        </label>
+        <input type="text" name="adapter_type" id="adapter_type" />
+      </div>
+      <div class="medium-6 columns">
+        <label for="disk_type">
+          {{tr "Disk type"}}
+          <span class="tip">
+            {{tr "Parameter to instruct vCenter on the type of disk to be created"}}
+            {{tr "The type of disk has implications on performance and occupied space. Values (careful with the case): delta,eagerZeroedThick,flatMonolithic,preallocated,raw,rdm,rdmp,seSparse,sparse2Gb,sparseMonolithic,thick,thick2Gb,thin."}}
+          </span>
+        </label>
+        <input type="text" name="disk_type" id="disk_type" />
       </div>
     </div>
   </fieldset>

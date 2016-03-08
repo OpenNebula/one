@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,7 +37,7 @@ public:
                  time_t                    _monitor_period,
                  ImagePool *               _ipool,
                  DatastorePool *           _dspool,
-                 vector<const Attribute*>& _mads):
+                 vector<const VectorAttribute*>& _mads):
             MadManager(_mads),
             timer_period(_timer_period),
             monitor_period(_monitor_period),
@@ -115,10 +115,31 @@ public:
 
     /**
      *  Closes any cloning operation on the image, updating the state if needed
-     *    @param iid image id of the image to be released
-     *    @param clone_img_id image id of the image that was being cloned
+     *    @param iid image id of the image to that was being cloned
+     *    @param ot Object type, image or market app
+     *    @param clone_oid the cloned resource id
      */
-    void release_cloning_image(int iid, int clone_img_id);
+    void release_cloning_resource(int iid, PoolObjectSQL::ObjectType ot, int clone_oid);
+
+    /**
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to that was being cloned
+     *    @param clone_img_id the cloned image id
+     */
+    void release_cloning_image(int iid, int clone_img_id)
+    {
+        release_cloning_resource(iid, PoolObjectSQL::IMAGE, clone_img_id);
+    };
+
+    /**
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to that was being cloned
+     *    @param clone_oid the cloned marketplace app id
+     */
+    void release_cloning_app(int iid, int clone_oid)
+    {
+        release_cloning_resource(iid, PoolObjectSQL::MARKETPLACEAPP, clone_oid);
+    };
 
     /**
      *  Enables the image
@@ -133,11 +154,15 @@ public:
      *  Adds a new image to the repository copying or creating it as needed
      *    @param img pointer to the image
      *    @param ds_data data of the associated datastore in XML format
+     *    @param extra_data data to be sent to the driver
      *    @param error Error reason
      *
      *    @return 0 on success
      */
-    int register_image(int iid, const string& ds_data, string& error);
+    int register_image(int iid,
+                       const string& ds_data,
+                       const string& extra_data,
+                       string& error);
 
     /**
      * Checks if an image is ready to be cloned
@@ -147,22 +172,57 @@ public:
      *
      * @return 0 if the image can be cloned, -1 otherwise
      */
-    int can_clone_image(int             cloning_id,
-                        ostringstream&  oss_error);
+    int can_clone_image(int cloning_id, ostringstream&  oss_error);
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param ot Object type, image or market app
+     *   @param new_id for the target image or market app
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 on success
+     */
+    int set_clone_state(PoolObjectSQL::ObjectType ot, int new_id,
+            int cloning_id, std::string& error);
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param new_id for the target image
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 on success
+     */
+    int set_img_clone_state(int new_id, int cloning_id, std::string& error)
+    {
+        return set_clone_state(PoolObjectSQL::IMAGE, new_id, cloning_id, error);
+    };
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param new_id for the target market app
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 on success
+     */
+    int set_app_clone_state(int new_id, int cloning_id, std::string& error)
+    {
+        return set_clone_state(PoolObjectSQL::MARKETPLACEAPP, new_id, cloning_id, error);
+    };
 
     /**
      *  Clone an existing image to the repository
      *    @param new_id of the new image
      *    @param cloning_id of the image to be cloned
      *    @param ds_data data of the associated datastore in XML format
+     *    @param extra_data data to be sent to the driver
      *    @param error describing the error
      *    @return 0 on success
      */
     int clone_image(int new_id,
                     int cloning_id,
                     const string& ds_data,
+                    const string& extra_data,
                     string& error);
-
     /**
      *  Deletes an image from the repository and the DB. The Datastore image list
      *  is also updated
@@ -305,9 +365,12 @@ private:
      *
      *    @param img_data Image XML representation
      *    @param ds_data Datastore XML representation
+     *    @param extra_data additional XML formatted data for the driver
      *    @return the XML message
      */
-    static string * format_message(const string& img_data, const string& ds_data);
+    static string * format_message(const string& img_data,
+            const string& ds_data,
+            const string& extra_data);
 
     /**
      *  This function is executed periodically to monitor Datastores.

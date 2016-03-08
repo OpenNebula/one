@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -121,9 +121,11 @@ public:
      *      A vector containing just -1 means all VMs.
      *    @param vnet_ids list of VNET the user can access reservation info from.
      *      A vector containing just -1 means all VNETs.
+     *    @param vrs list of VRouter the user can access VNET usage info from.
+     *      A vector containing just -1 means all VRouters.
      */
     void to_xml(ostringstream &oss, const vector<int>& vms,
-        const vector<int>& vnets) const;
+        const vector<int>& vnets, const vector<int>& vrs) const;
 
     // *************************************************************************
     // Address allocation functions
@@ -344,7 +346,7 @@ public:
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs);
 
 private:
     /* ---------------------------------------------------------------------- */

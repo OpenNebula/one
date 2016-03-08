@@ -1,4 +1,8 @@
 ---
+:UID:
+  :desc: User ID
+  :size: 4
+
 :VID:
   :desc: Virtual Machine ID
   :size: 4
@@ -38,31 +42,27 @@
   :desc: Number of CPUs
   :size: 3
 
-:NET_RX:
+:NETRX:
   :desc: Data received from the network
   :size: 6
 
-:NET_TX:
+:NETTX:
   :desc: Data sent to the network
   :size: 6
 
-:DISK_ACTUAL:
-  :desc: Total disk size
-  :size: 6
-
-:DISK_VIRTUAL:
-  :desc: Total virtual disk size
+:DISK:
+  :desc: Total disk size used
   :size: 6
 
 :default:
 - :VID
 - :HOSTNAME
+- :ACTION
 - :REASON
 - :START_TIME
 - :END_TIME
 - :MEMORY
 - :CPU
-- :NET_RX
-- :NET_TX
-- :DISK_ACTUAL
-- :DISK_VIRTUAL
+- :NETRX
+- :NETTX
+- :DISK

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -80,15 +80,15 @@ class SunstoneViews
                 return available.uniq
             end
 
-            if group["TEMPLATE/SUNSTONE_VIEWS"]
-                views_array = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+            if group["TEMPLATE/SUNSTONE/VIEWS"]
+                views_array = group["TEMPLATE/SUNSTONE/VIEWS"].split(",")
                 available << views_array.each{|v| v.strip!}
             elsif @views_config['groups']
                 available << @views_config['groups'][group.name]
             end
 
             gadmins       = group.admin_ids
-            gadmins_views = group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+            gadmins_views = group["TEMPLATE/SUNSTONE/GROUP_ADMIN_VIEWS"]
 
             if gadmins && gadmins.include?(user.id) && gadmins_views
                 views_array = gadmins_views.split(",")
@@ -119,10 +119,6 @@ class SunstoneViews
 
     def get_all_views
         @views.keys
-    end
-
-    def available_tabs
-        @views_config['available_tabs']
     end
 
     def logo

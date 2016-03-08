@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,10 +26,8 @@ using namespace std;
 class GroupPool : public PoolSQL
 {
 public:
-    GroupPool(SqlDB * db,
-              vector<const Attribute *> hook_mads,
-              const string&             remotes_location,
-              bool                      is_federation_slave);
+    GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+          const string& remotes_location, bool is_federation_slave);
 
     ~GroupPool(){};
 
@@ -118,7 +116,7 @@ public:
      *    @param user pointer to Group
      *    @return 0 on success
      */
-    int update(Group * group);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular Group's Quotas

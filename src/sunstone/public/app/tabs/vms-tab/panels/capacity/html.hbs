@@ -1,13 +1,31 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="row">
   <div class="large-9 columns">
-    <table class="info_table dataTable extended_table">
+    <table class="info_table dataTable">
       <thead>
         <tr>
           <th>{{tr "CPU"}}</th>
           <th>{{tr "VCPU"}}</th>
           <th>{{tr "MEMORY"}}</th>
+          {{#isFeatureEnabled "showback"}}
           <th>{{tr "Cost / CPU"}}</th>
           <th>{{tr "Cost / MByte"}}</th>
+          {{/isFeatureEnabled}}
           <th></th>
         </tr>
       </thead>
@@ -16,8 +34,10 @@
           <td id="cpu_info">{{valOrDefault element.TEMPLATE.CPU '-'}}</td>
           <td id="vcpu_info">{{valOrDefault element.TEMPLATE.VCPU '-'}}</td>
           <td id="memory_info">{{humanizeSize "MB" element.TEMPLATE.MEMORY}}</td>
-          <td id="cpu_cost_info">{{valOrDefault element.TEMPLATE.CPU_COST '-'}}</td>
-          <td id="memory_cost_info" >{{valOrDefault element.TEMPLATE.MEMORY_COST '-'}}</td>
+          {{#isFeatureEnabled "showback"}}
+          <td id="cpu_cost_info">{{cpuCost}}</td>
+          <td id="memory_cost_info" >{{memoryCost}}</td>
+          {{/isFeatureEnabled}}
           <td>
           {{#isTabActionEnabled "vms-tab" "VM.resize"}}
           {{#if resizeStateEnabled}}
@@ -33,7 +53,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <div class="row text-center">
       <div class="large-12 columns">
         <h3 class="subheader">
@@ -51,7 +71,7 @@
       </div>
     </div>
   </div>
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <div class="row text-center">
       <h3 class="subheader">
         <small>{{tr "REAL MEMORY"}}</small>

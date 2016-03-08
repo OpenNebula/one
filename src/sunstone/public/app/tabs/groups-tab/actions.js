@@ -1,132 +1,48 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/group');
+  var CommonActions = require('utils/common-actions');
 
-  var RESOURCE = "Group";
-  var XML_ROOT = "GROUP";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
 
+  var RESOURCE = "Group";
+  var XML_ROOT = "GROUP";
+
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+
   var _actions = {
-    "Group.create" : {
-      type: "create",
-      call: OpenNebulaResource.create,
-      callback : function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-      notify: true
-    },
-
-    "Group.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "Group.list" : {
-      type: "list",
-      call: OpenNebulaResource.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "Group.show" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Group.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction(RESOURCE+".list", {force: true});
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Group.update" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request, response){
-        Sunstone.hideFormPanel(TAB_ID);
-      },
-      error: function(request, response){
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
-
-    "Group.update_template" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "Group.update_dialog" : {
-      type: "single",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) group to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction(RESOURCE+".show_to_update", resource_id);
-      }
-    },
-
-    "Group.show_to_update" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[XML_ROOT]);
-          });
-      },
-      error: Notifier.onError
-    },
-
-    "Group.delete" : {
-      type: "multiple",
-      call : OpenNebulaResource.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-    },
+    "Group.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "Group.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Group.list" : _commonActions.list(),
+    "Group.show" : _commonActions.show(),
+    "Group.refresh" : _commonActions.refresh(),
+    "Group.delete" : _commonActions.del(),
+    "Group.update" : _commonActions.update(),
+    "Group.update_template" : _commonActions.updateTemplate(),
+    "Group.append_template" : _commonActions.appendTemplate(),
+    "Group.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "Group.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 
     "Group.fetch_quotas" : {
       type: "single",

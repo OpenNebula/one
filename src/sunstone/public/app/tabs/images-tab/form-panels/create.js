@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -10,9 +26,11 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var OpenNebulaDatastore = require('opennebula/datastore');
   var ResourceSelect = require('utils/resource-select');
   var CustomTagsTable = require('utils/custom-tags-table');
   var BrowserInfo = require('utils/browser-info');
+  var Config = require('sunstone-config');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -76,15 +94,23 @@ define(function(require) {
     var ds_id = $('#img_datastore .resource_list_select', context).val();
     var ds_id_raw = $('#img_datastore_raw .resource_list_select', context).val();
 
-    // Filter out DS with type system (1) or file (2)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["1", "2"];
+    ResourceSelect.insert({
+        context: $('#img_datastore', context),
+        resourceName: 'Datastore',
+        initValue: ds_id,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.IMAGE_DS,
+        triggerChange: true
+      });
 
-    ResourceSelect.insert('div#img_datastore', context, "Datastore",
-                        ds_id, false, null, filter_att, filter_val);
-
-    ResourceSelect.insert('div#img_datastore_raw', context, "Datastore",
-                        ds_id_raw, false, null, filter_att, filter_val);
+    ResourceSelect.insert({
+        context: $('#img_datastore_raw', context),
+        resourceName: 'Datastore',
+        initValue: ds_id_raw,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.IMAGE_DS,
+        triggerChange: true
+      });
 
     return false;
   }
@@ -104,6 +130,45 @@ define(function(require) {
         $('#path_image', context).click();
 
       }
+    });
+
+    $('#img_datastore', context).off('change', '.resource_list_select');
+    $('#img_datastore', context).on('change', '.resource_list_select', function() {
+      var ds_id = $(this).val();
+      OpenNebulaDatastore.show({
+        data : {
+          id: ds_id
+        },
+        timeout: true,
+        success: function(request, ds){
+          var mad = ds["DATASTORE"]["DS_MAD"];
+          var pers_forced = false;
+
+          // Set the persistency
+          if (Config.onedConf.DS_MAD_CONF !== undefined) {
+            $.each(Config.onedConf.DS_MAD_CONF, function(i,e){
+                if (e["NAME"] == mad && !$.isEmptyObject(e["PERSISTENT_ONLY"])) {
+                  if (e["PERSISTENT_ONLY"] != undefined &&
+                      e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
+                      $('#img_persistent', context).prop('disabled', true);
+                      $('#img_persistent', context).prop('checked', true);
+                      pers_forced = true;
+                      return false;
+                  }
+                }
+              }
+            );
+          }
+
+          if (!pers_forced) {
+            $('#img_persistent', context).prop('disabled', false);
+          }
+
+        },
+        error: function(request, error_json, container){
+          Notifier.onError(request, error_json, container);
+        }
+      });
     });
 
     $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
@@ -180,7 +245,7 @@ define(function(require) {
       });
 
       that.uploader.on('progress', function() {
-        $('span.meter', $('div[id="' + fileName + 'progressBar"]')).css('width', that.uploader.progress() * 100.0 + '%')
+        $('span.meter', $('div[id="' + fileName + 'progressBar"]')).css('width', this.progress() * 100.0 + '%')
       });
     }
 
@@ -225,6 +290,14 @@ define(function(require) {
     var target = $('#img_target', context).val();
     if (target)
         img_json["TARGET"] = target;
+
+    var adapter_type = $('#adapter_type', context).val();
+    if (adapter_type)
+        img_json["ADAPTER_TYPE"] = adapter_type;
+
+    var disk_type = $('#disk_type', context).val();
+    if (disk_type)
+        img_json["DISK_TYPE"] = disk_type;
 
     switch ($('#src_path_select input:checked', context).val()){
     case "path":

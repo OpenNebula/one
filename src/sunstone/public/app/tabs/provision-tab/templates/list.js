@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   require('foundation.alert');
   var OpenNebula = require('opennebula');
@@ -6,10 +22,12 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
+  var LabelsUtils = require('utils/labels/utils');
 
   var TemplateTemplatesList = require('hbs!./list');
 
   var _accordionId = 0;
+  var TEMPLATE_LABELS_COLUMN = 4;
 
   return {
     'generate': generate_provision_templates_list,
@@ -32,7 +50,7 @@ define(function(require) {
 
   function html(opts_arg){
     opts = $.extend({
-        title: Locale.tr("Saved Templates"),
+        title: Locale.tr("Templates"),
         refresh: true,
         create: true,
         active: true,
@@ -74,6 +92,15 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
+            LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
+            var context = $('.labels-dropdown', datatable.closest('.content'));
+            LabelsUtils.insertLabelsMenu({
+              'context': context,
+              'dataTable': datatable,
+              'labelsColumn': TEMPLATE_LABELS_COLUMN,
+              'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS',
+              'placeholder': Locale.tr("No labels defined")
+            });
           }
         },
         error: Notifier.onError
@@ -93,7 +120,6 @@ define(function(require) {
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
           { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
           { "mDataProp": "VMTEMPLATE.UID" }
       ],
       "fnPreDrawCallback": function (oSettings) {
@@ -107,7 +133,7 @@ define(function(require) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              Locale.tr("There are no saved templates available")+
+              Locale.tr("There are no templates available")+
               '<br>'+
               Locale.tr("Create a template by saving a running Virtual Machine")+
             '</span>'+
@@ -124,30 +150,42 @@ define(function(require) {
           if (data.UID == config['user_id']) {
 
             if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" data-tooltip title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
               actions_html += '<span style="font-size:12px; color: #777">' + Locale.tr("SHARED") + '</span>';
             } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" data-tooltip title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
             }
           }
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" data-tooltip title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+        }
+
+        var cpu_txt = "";
+        var mem_txt = "";
+
+        if(data.TEMPLATE.CPU){
+          cpu_txt = 'x'+data.TEMPLATE.CPU;
+        }
+
+        if(data.TEMPLATE.MEMORY){
+          if (data.TEMPLATE.MEMORY > 1000){
+            mem_txt = Math.floor(data.TEMPLATE.MEMORY/1024)+'GB';
+          } else {
+            mem_txt = data.TEMPLATE.MEMORY+'MB';
+          }
         }
 
         $(".provision_templates_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
                 data.NAME +
               '</li>'+
               '<li class="provision-bullet-item text-left" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
-                'x'+data.TEMPLATE.CPU+' - '+
-                ((data.TEMPLATE.MEMORY > 1000) ?
-                  (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
-                ' - '+
+                cpu_txt+' - '+
+                mem_txt+' - '+
                 get_provision_disk_image(data) +
               '</li>'+
               '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
@@ -172,13 +210,7 @@ define(function(require) {
       }
     });
 
-    provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-
-    $('.provision_list_templates_search', context).keyup(function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_templates_search', context).change(function(){
+    $('.provision_list_templates_search', context).on('input',function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
 
@@ -195,23 +227,20 @@ define(function(require) {
 
     $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
       if ($(this).val() != "-2"){
-        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
+        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
       } else {
-        provision_templates_datatable.fnFilter("", 3);
+        provision_templates_datatable.fnFilter("", 2);
       }
     })
 
-    ResourceSelect.insert(
-      ".provision_list_templates_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
+    ResourceSelect.insert({
+        context: $('.provision_list_templates_filter', context),
+        resourceName: 'User',
+        initValue: (opts.filter_expression ? opts.filter_expression : "-2"),
+        extraOptions: '<option value="-2">' + Locale.tr("ALL") + '</option>',
+        triggerChange: true,
+        onlyName: true
+      });
 
     context.on("click", ".provision_templates_list_filter_button", function(){
       $(".provision_list_templates_filter", context).fadeIn();
@@ -222,7 +251,6 @@ define(function(require) {
       context.on("click", ".provision_confirm_delete_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -230,13 +258,13 @@ define(function(require) {
             '<div class="row">'+
             '<div class="large-9 columns">'+
               '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("Handle with care! This action will inmediately destroy the template")+
+                Locale.tr("Handle with care! This action will immediately destroy the template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated.") +
               '</span>'+
             '</div>'+
             '<div class="large-3 columns">'+
-              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
+              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -244,55 +272,25 @@ define(function(require) {
       });
 
       context.on("click", ".provision_delete_template_button", function(){
-        /* TODO SAVED_TO_IMAGE_ID does not exists anymore and now all the images of the template
-            are cloned instead of only the main disk, therefore all the images should be deleted now.
-            Probably this could be done in the core
 
         var button = $(this);
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
-        OpenNebula.Image.del({
+        OpenNebula.Template.delete_recursive({
           timeout: true,
           data : {
-            id : image_id
+            id : template_id
           },
           success: function (){
-            OpenNebula.Template.del({
-              timeout: true,
-              data : {
-                id : template_id
-              },
-              success: function (){
-                $(".provision_templates_list_refresh_button", context).trigger("click");
-              },
-              error: function (request,error_json, container) {
-                Notifier.onError(request, error_json, container);
-              }
-            })
+            $(".provision_templates_list_refresh_button", context).trigger("click");
           },
           error: function (request,error_json, container) {
-            if (error_json.error.http_status=="404") {
-              OpenNebula.Template.del({
-                timeout: true,
-                data : {
-                  id : template_id
-                },
-                success: function (){
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                },
-                error: function (request,error_json, container) {
-                  Notifier.onError(request, error_json, container);
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                }
-              })
-            } else {
-              Notifier.onError(request, error_json, container);
-            }
+            Notifier.onError(request, error_json, container);
+            $(".provision_templates_list_refresh_button", context).trigger("click");
           }
-        })*/
+        })
       });
     }
 
@@ -301,7 +299,6 @@ define(function(require) {
       context.on("click", ".provision_confirm_chmod_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -315,7 +312,7 @@ define(function(require) {
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
+              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -323,43 +320,31 @@ define(function(require) {
       });
 
       context.on("click", ".provision_chmod_template_button", function(){
-        /* TODO SAVED_TO_IMAGE_ID does not exists anymore and now all the images of the template
-            are cloned instead of only the main disk, therefore all the images should be chmod now.
-            Probably this could be done in the core
+
         var button = $(this);
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
         OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 1}
+            extra_param: {
+              'group_u': 1,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 1}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
           },
           error: Notifier.onError
-        })*/
+        })
       });
 
       context.on("click", ".provision_confirm_unshare_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).first().text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -373,7 +358,7 @@ define(function(require) {
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
+              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -385,27 +370,18 @@ define(function(require) {
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
         OpenNebula.Template.chmod({
           timeout: true,
           data : {
             id : template_id,
-            extra_param: {'group_u': 0}
+            extra_param: {
+              'group_u': 0,
+              'recursive' : true
+            }
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 0}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
           },
           error: Notifier.onError
         })

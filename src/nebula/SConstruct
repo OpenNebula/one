@@ -1,7 +1,7 @@
 # SConstruct for src/nebula
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,6 +64,8 @@ env.Prepend(LIBS=[
     'nebula_xml',
     'nebula_secgroup',
     'nebula_vdc',
+    'nebula_vrouter',
+    'nebula_marketplace',
     'crypto',
     'xml2'
 ])

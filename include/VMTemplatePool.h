@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -79,18 +79,6 @@ public:
     VMTemplate * get(const string& name, int uid, bool lock)
     {
         return static_cast<VMTemplate *>(PoolSQL::get(name,uid,lock));
-    };
-
-    /**
-     *  Updates the object's data in the data base. The object mutex SHOULD be
-     *  locked.
-     *    @param objsql a pointer to the object
-     *
-     *    @return 0 on success.
-     */
-    int update(VMTemplate * vm_template)
-    {
-        return vm_template->update(db);
     };
 
     /**

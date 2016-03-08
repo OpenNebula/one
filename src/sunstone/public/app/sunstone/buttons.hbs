@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="text-center">
   <span class="left">
 
@@ -13,6 +29,7 @@
   </span>
 
   <span class="right" style="margin-left: 20px">
+    <span id='{{customId}}labels_buttons' class='only-right-info only-right-list'></span>
     <button href='#' data-dropdown='{{customId}}user_buttons' class='only-right-info only-right-list top_button small  secondary button dropdown radius'>
       <i class='fa fa-user'/></button>
     <ul id='{{customId}}user_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
@@ -64,10 +81,10 @@
     </span>
     <dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">
       <dd id="wizard_mode" class="active">
-        <a style="padding: 0.3rem 1rem;" href="#wizardForms">{{tr "Wizard"}}</a>
+        <a style="padding: 0.3rem 1rem;" href="#{{customId}}-wizardForms">{{tr "Wizard"}}</a>
       </dd>
       <dd id="advanced_mode">
-        <a style="padding: 0.3rem 1rem;" id="advanced_mode_a" href="#advancedForms">{{tr "Advanced"}}</a>
+        <a style="padding: 0.3rem 1rem;" href="#{{customId}}-advancedForms">{{tr "Advanced"}}</a>
       </dd>
     </dl>
   </span>

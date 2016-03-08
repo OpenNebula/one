@@ -1,9 +1,25 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="row">
   <div class="large-12 columns">
     <fieldset class="hypervisor only_xen only_kvm only_vmware">
       <legend>{{tr "RAW data"}}</legend>
       <div class="row">
-        <div class="large-4 columns">
+        <div class="medium-4 columns">
           <label for="raw_type">{{tr "TYPE"}}</label>
           <select id="raw_type" name="raw_type">
             <option value=""></option>
@@ -12,22 +28,51 @@
             <option value="vmware">{{tr "vmware"}}</option>
           </select>
         </div>
-        <div class="large-8 columns">
+        <div class="medium-8 columns">
           <label class="" for="raw_data">
             {{tr "DATA"}}
-            <span class="tip">{{tr "Raw data to be passed directly to the hypervisor"}}.</span>
+            {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
           </label>
           <textarea rows="2" type="text" id="raw_data" name="raw_data" />
         </div>
       </div>
       <div id="data_vmx_div" class="row hidden">
-        <div class="large-4 columns"></div>
-        <div class="large-8 columns">
+        <div class="medium-4 columns"></div>
+        <div class="medium-8 columns">
           <label class="" for="raw_data_vmx">
             {{tr "DATA_VMX"}}
-            <span class="tip">{{tr "Raw data to be added directly to the .vmx file."}}.</span>
+            {{{tip (tr "Raw data to be added directly to the .vmx file.")}}}
           </label>
           <textarea rows="2" type="text" id="raw_data_vmx" name="raw_data_vmx" />
+        </div>
+      </div>
+    </fieldset>
+    <fieldset class="hypervisor only_kvm">
+      <legend>{{tr "PCI Devices"}}</legend>
+      <div class="row">
+        <div class="large-12 columns">
+          <table class="dataTable pci_devices">
+            <thead>
+              <tr>
+                <th style="width:50%">{{tr "Device name"}}</th>
+                <th>{{tr "Vendor"}}</th>
+                <th>{{tr "Device"}}</th>
+                <th>{{tr "Class"}}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">
+                  <a type="button" class="add_pci button small small-12 secondary radius">
+                    <i class="fa fa-plus"></i> {{tr "Add PCI device"}}
+                  </a>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </fieldset>

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -607,13 +607,53 @@ static string prolog_os_transfer_commands(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int TransferManager::prolog_context_command(
+        VirtualMachine *        vm,
+        const string&           token_password,
+        string&                 vm_tm_mad,
+        ostream&                xfr)
+{
+    string  files;
+    int     context_result;
+    int     disk_id;
+
+    context_result = vm->generate_context(files, disk_id, token_password);
+
+    if ( context_result == -1 )
+    {
+        return -1;
+    }
+
+    if ( context_result )
+    {
+        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
+        xfr << "CONTEXT "
+            << vm_tm_mad << " "
+            << vm->get_context_file() << " ";
+
+        if (!files.empty())
+        {
+            xfr << files << " ";
+        }
+
+        xfr << vm->get_hostname() << ":"
+            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_oid() << " "
+            << vm->get_ds_id()
+            << endl;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::prolog_action(int vid)
 {
     ofstream      xfr;
     ostringstream os("prolog, ");
     string        xfr_name;
-
-    const VectorAttribute * disk;
 
     string  files;
     string  vm_tm_mad;
@@ -626,11 +666,9 @@ void TransferManager::prolog_action(int vid)
 
     const TransferManagerDriver * tm_md;
 
-    vector<const Attribute *> attrs;
-    int                       num;
-    int                       disk_id;
-
-    int  context_result;
+    vector<const VectorAttribute *> disk;
+    const VectorAttribute * os_attr;
+    int num;
 
     string token_password;
 
@@ -645,7 +683,7 @@ void TransferManager::prolog_action(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
+    int uid = vm->get_created_by_uid();
     vm->unlock();
 
     User * user = Nebula::instance().get_upool()->get(uid, true);
@@ -689,19 +727,12 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Image Transfer Commands
     // -------------------------------------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0; i < num; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
         rc = prolog_transfer_command(vm,
-                                     disk,
+                                     disk[i],
                                      vm_tm_mad,
                                      opennebula_hostname,
                                      xfr,
@@ -715,37 +746,28 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Transfers for kernel and initrd files
     // -------------------------------------------------------------------------
-    attrs.clear();
+    os_attr = vm->get_template_attribute("OS");
 
-    num = vm->get_template_attribute("OS",attrs);
-
-    if ( num > 0 )
+    if ( os_attr != 0 )
     {
         string kernel;
         string initrd;
 
         bool update = false;
 
-        const VectorAttribute * os_attr;
+        kernel = prolog_os_transfer_commands(
+                    vm,
+                    os_attr,
+                    "KERNEL",
+                    opennebula_hostname,
+                    xfr);
 
-        os_attr = dynamic_cast<const VectorAttribute *>(attrs[0]);
-
-        if (os_attr != 0 )
-        {
-            kernel = prolog_os_transfer_commands(
-                        vm,
-                        os_attr,
-                        "KERNEL",
-                        opennebula_hostname,
-                        xfr);
-
-            initrd = prolog_os_transfer_commands(
-                        vm,
-                        os_attr,
-                        "INITRD",
-                        opennebula_hostname,
-                        xfr);
-        }
+        initrd = prolog_os_transfer_commands(
+                    vm,
+                    os_attr,
+                    "INITRD",
+                    opennebula_hostname,
+                    xfr);
 
         if ( !kernel.empty() )
         {
@@ -770,31 +792,14 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Generate context file
     // -------------------------------------------------------------------------
+    rc = prolog_context_command( vm,
+                                 token_password,
+                                 vm_tm_mad,
+                                 xfr);
 
-    context_result = vm->generate_context(files, disk_id, token_password);
-
-    if ( context_result == -1 )
+    if ( rc == -1 )
     {
         goto error_context;
-    }
-
-    if ( context_result )
-    {
-        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
-        xfr << "CONTEXT "
-            << vm_tm_mad << " "
-            << vm->get_context_file() << " ";
-
-        if (!files.empty())
-        {
-            xfr << files << " ";
-        }
-
-        xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << vm->get_ds_id()
-            << endl;
     }
 
     xfr.close();
@@ -844,14 +849,13 @@ void TransferManager::prolog_migr_action(int vid)
     ostringstream   os;
     string          xfr_name;
 
-    const VectorAttribute * disk;
     string tm_mad;
     string vm_tm_mad;
 
     int ds_id;
     int disk_id;
 
-    vector<const Attribute *> attrs;
+    vector<const VectorAttribute *> disk;
     int                       num;
 
     VirtualMachine *    vm;
@@ -894,28 +898,21 @@ void TransferManager::prolog_migr_action(int vid)
     // Move system directory and disks
     // ------------------------------------------------------------------------
 
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0 ; i < num ; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value_str("DISK_ID", disk_id);
-
-        if ( VirtualMachine::is_volatile(disk) == true )
+        if ( VirtualMachine::is_volatile(disk[i]) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = disk->vector_value("TM_MAD");
-            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk[i]->vector_value("TM_MAD");
+            int vv_rc = disk[i]->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -983,15 +980,16 @@ void TransferManager::prolog_resume_action(int vid)
     ostringstream   os;
     string          xfr_name;
 
-    const VectorAttribute * disk;
     string tm_mad;
     string vm_tm_mad;
+    string token_password;
 
     int ds_id;
     int disk_id;
+    int rc;
 
-    vector<const Attribute *> attrs;
-    int                       num;
+    vector<const VectorAttribute *> disk;
+    int num;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -1001,6 +999,24 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     // Setup & Transfer script
     // -------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1032,28 +1048,21 @@ void TransferManager::prolog_resume_action(int vid)
     // ------------------------------------------------------------------------
     // Move system directory and disks
     // ------------------------------------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0 ; i < num ; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value_str("DISK_ID", disk_id);
-
-        if ( VirtualMachine::is_volatile(disk) == true )
+        if ( VirtualMachine::is_volatile(disk[i]) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = disk->vector_value("TM_MAD");
-            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk[i]->vector_value("TM_MAD");
+            int vv_rc = disk[i]->vector_value("DATASTORE_ID", ds_id);
 
             if ( tm_mad.empty() || vv_rc == -1)
             {
@@ -1080,6 +1089,20 @@ void TransferManager::prolog_resume_action(int vid)
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
+    // -------------------------------------------------------------------------
+    // Generate context file
+    // -------------------------------------------------------------------------
+
+    rc = prolog_context_command( vm,
+                                 token_password,
+                                 vm_tm_mad,
+                                 xfr);
+
+    if ( rc == -1 )
+    {
+        goto error_context;
+    }
+
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -1100,6 +1123,12 @@ error_drivers:
 error_file:
     os.str("");
     os << "prolog_resume, could not open file: " << xfr_name;
+    goto error_common;
+
+error_context:
+    os << "prolog_resume, could not write context file for VM " << vid;
+
+    xfr.close();
     goto error_common;
 
 error_common:
@@ -1313,15 +1342,13 @@ void TransferManager::epilog_action(int vid)
     string vm_tm_mad;
     string error_str;
 
-    const VectorAttribute * disk;
-
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
 
     const TransferManagerDriver * tm_md;
 
-    vector<const Attribute *>   attrs;
-    int                         num;
+    vector<const VectorAttribute *> disk;
+    int num;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1357,18 +1384,11 @@ void TransferManager::epilog_action(int vid)
     // -------------------------------------------------------------------------
     // copy back VM image (DISK with SAVE="yes")
     // -------------------------------------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0; i < num; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        epilog_transfer_command(vm, disk, xfr);
+        epilog_transfer_command(vm, disk[i], xfr);
     }
 
     //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
@@ -1428,9 +1448,8 @@ void TransferManager::epilog_stop_action(int vid)
 
     const TransferManagerDriver * tm_md;
 
-    vector<const Attribute *> attrs;
-    const VectorAttribute *   disk;
-    int                       num;
+    vector<const VectorAttribute *> disk;
+    int num;
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -1466,28 +1485,21 @@ void TransferManager::epilog_stop_action(int vid)
     // ------------------------------------------------------------------------
     // Move system directory and disks
     // ------------------------------------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0 ; i < num ; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value_str("DISK_ID", disk_id);
-
-        if ( VirtualMachine::is_volatile(disk) == true )
+        if ( VirtualMachine::is_volatile(disk[i]) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm->get_ds_id();
         }
         else
         {
-            tm_mad    = disk->vector_value("TM_MAD");
-            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk[i]->vector_value("TM_MAD");
+            int vv_rc = disk[i]->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -1567,9 +1579,8 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
 
     Nebula& nd = Nebula::instance();
 
-    const VectorAttribute *   disk;
-    vector<const Attribute *> attrs;
-    int                       num;
+    vector<const VectorAttribute *> disk;
+    int num;
 
     // ------------------------------------------------------------------------
     // Setup transfer
@@ -1617,28 +1628,21 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
     // -------------------------------------------------------------------------
     // Delete disk images and the remote system Directory
     // -------------------------------------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0 ; i < num ; i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value_str("DISK_ID", disk_id);
-
-        if ( VirtualMachine::is_volatile(disk) == true )
+        if ( VirtualMachine::is_volatile(disk[i]) == true )
         {
             tm_mad = vm_tm_mad;
             ds_id  = vm_ds_id;
         }
         else
         {
-            tm_mad    = disk->vector_value("TM_MAD");
-            int vv_rc = disk->vector_value("DATASTORE_ID", ds_id);
+            tm_mad    = disk[i]->vector_value("TM_MAD");
+            int vv_rc = disk[i]->vector_value("DATASTORE_ID", ds_id);
 
             if (tm_mad.empty() || vv_rc == -1)
             {
@@ -2313,7 +2317,7 @@ int TransferManager::load_mads(int uid)
 
     if ( mad_conf.size() > 0 )
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+        vattr = mad_conf[0];
     }
 
     if ( vattr == 0 )
@@ -2322,7 +2326,7 @@ int TransferManager::load_mads(int uid)
         return -1;
     }
 
-    VectorAttribute tm_conf("TM_MAD",vattr->value());
+    VectorAttribute tm_conf("TM_MAD", vattr->value());
 
     tm_conf.replace("NAME",transfer_driver_name);
 

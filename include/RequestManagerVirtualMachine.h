@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -54,6 +54,7 @@ protected:
                           RequestAttributes&      att,
                           PoolObjectAuth *        host_perms,
                           PoolObjectAuth *        ds_perm,
+                          PoolObjectAuth *        img_perm,
                           AuthRequest::Operation  op);
 
     bool quota_resize_authorization(
@@ -81,7 +82,8 @@ protected:
         int ds_id,
         int& ds_cluster_id,
         string& tm_mad,
-        RequestAttributes& att);
+        RequestAttributes& att,
+        bool& ds_migr);
 
     int get_default_ds_information(
         int cluster_id,
@@ -89,10 +91,9 @@ protected:
         string& tm_mad,
         RequestAttributes& att);
 
-    bool check_host(int     hid,
-                    int     cpu,
-                    int     mem,
-                    int     disk,
+    bool check_host(int hid,
+                    bool enforce,
+                    VirtualMachine* vm,
                     string& error);
 
     int add_history(VirtualMachine * vm,
@@ -252,8 +253,16 @@ public:
 
     ~VirtualMachineAttachNic(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
+
+    /**
+     * Process a NIC attahment request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param tmpl with the new NIC description
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    static ErrorCode attach(int id, VirtualMachineTemplate& tmpl, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -271,6 +280,15 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+    /**
+     * Process a NIC detach request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param nic_id id of the NIC
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    static ErrorCode detach(int id, int nic_id, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -394,12 +412,18 @@ public:
     VirtualMachineDiskSnapshotCreate():
         RequestManagerVirtualMachine("VirtualMachineDiskSnapshotCreate",
                            "Creates a new virtual machine disk snapshot",
-                           "A:siis"){};
+                           "A:siis"){
+        Nebula& nd  = Nebula::instance();
+        ipool       = nd.get_ipool();
+    };
 
     ~VirtualMachineDiskSnapshotCreate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+private:
+    ImagePool* ipool;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -428,12 +452,18 @@ public:
     VirtualMachineDiskSnapshotDelete():
         RequestManagerVirtualMachine("VirtualMachineDiskSnapshotDelete",
                            "Deletes a disk snapshot",
-                           "A:siii"){};
+                           "A:siii"){
+        Nebula& nd  = Nebula::instance();
+        ipool       = nd.get_ipool();
+    };
 
     ~VirtualMachineDiskSnapshotDelete(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+private:
+    ImagePool* ipool;
 };
 
 #endif

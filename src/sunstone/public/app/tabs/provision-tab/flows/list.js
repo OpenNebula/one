@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   require('foundation.alert');
   var OpenNebula = require('opennebula');
@@ -150,9 +166,6 @@ define(function(require) {
 
         return true;
       },
-      "fnDrawCallback": function (oSettings) {
-        $(".provision_flows_ul", context).foundation('reflow', 'tooltip');
-      },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.DOCUMENT;
         var body = data.TEMPLATE.BODY;
@@ -181,7 +194,7 @@ define(function(require) {
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
                 '<a class="provision_info_flow_button" style="color:#555" href="#">'+
-                  '<span class="'+ state.color +'-color" data-tooltip title="'+ state.str +'">'+
+                  '<span class="'+ state.color +'-color" title="'+ state.str +'">'+
                     '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
                   '</span>'+
                   data.NAME +
@@ -204,11 +217,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_flows_search', context).keyup(function(){
-      provision_flows_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_flows_search', context).change(function(){
+    $('.provision_list_flows_search', context).on('input',function(){
       provision_flows_datatable.fnFilter( $(this).val() );
     })
 
@@ -230,17 +239,14 @@ define(function(require) {
       }
     })
 
-    ResourceSelect.insert(
-      ".provision_list_flows_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
+    ResourceSelect.insert({
+        context: $('.provision_list_flows_filter', context),
+        resourceName: 'User',
+        initValue: (opts.filter_expression ? opts.filter_expression : "-2"),
+        extraOptions: '<option value="-2">' + Locale.tr("ALL") + '</option>',
+        triggerChange: true,
+        onlyName: true
+      });
 
     context.on("click", ".provision_flows_list_filter_button", function(){
       $(".provision_list_flows_filter", context).fadeIn();
@@ -435,13 +441,16 @@ define(function(require) {
                   '<br>'+
                   '<span style="color: #999; font-size:20px">'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
                 '</div>'+
-                '<div class="large-8 columns text-center">'+
+                '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
                   '<br>'+
                   '<span class="left" style="color: #999;">'+min_vms+'</span>'+
                   '<span class="right" style="color: #999;">'+max_vms+'</span>'+
                   '<br>'+
-                  '<div class="cardinality_slider">'+
+                  '<div class="range-slider cardinality_slider" data-slider>'+
+                    '<span class="range-slider-handle" role="slider" tabindex="0"></span>'+
+                    '<span class="range-slider-active-segment"></span>'+
+                    '<input type="hidden">'+
                   '</div>'+
                   '<br>'+
                   '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
@@ -457,30 +466,16 @@ define(function(require) {
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
         '</div>');
 
-
+      context.foundation('slider', 'reflow');
       if (max_vms > min_vms) {
         $( ".cardinality_slider_div", context).show();
         $( ".cardinality_no_slider_div", context).hide();
 
-        var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [min_vms, max_vms],
-            step: 1,
-            start: role.cardinality,
-            value: role.cardinality,
-            slide: function(type) {
-                if ( type != "move"){
-                  if ($(this).val()) {
-                    $(".cardinality_value", context).html($(this).val());
-                  }
-                }
-            }
+        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';');
+        $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
+        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
+          $(".cardinality_value",context).html($(this).attr('data-slider'))
         });
-
-        provision_cardinality_slider.val(role.cardinality)
-
-        provision_cardinality_slider.addClass("noUiSlider");
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();
@@ -491,7 +486,7 @@ define(function(require) {
 
     context.on("click", ".provision_change_cardinality_button", function(){
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var cardinality = $(".cardinality_slider", context).val()
+      var cardinality = $(".cardinality_slider", context).attr('data-slider');
 
       OpenNebula.Role.update({
         data : {
@@ -514,7 +509,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Service")+
+              Locale.tr("Be careful, this action will immediately destroy your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -533,7 +528,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately shutdown your Service")+
+              Locale.tr("Be careful, this action will immediately shutdown your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -674,7 +669,7 @@ define(function(require) {
         state_str = Locale.tr("SCALING");
         break;
       case OpenNebula.Service.STATES.COOLDOWN:
-        state_color = 'error';
+        state_color = 'running';
         state_str = Locale.tr("COOLDOWN");
         break;
       case OpenNebula.Service.STATES.DONE:

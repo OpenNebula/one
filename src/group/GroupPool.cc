@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,11 +37,9 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db,
-                     vector<const Attribute *> hook_mads,
-                     const string&             remotes_location,
-                     bool                      is_federation_slave)
-    :PoolSQL(db, Group::table, !is_federation_slave, true)
+GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+    const string& remotes_location, bool is_federation_slave) :
+        PoolSQL(db, Group::table, !is_federation_slave, true)
 {
     ostringstream oss;
     string        error_str;
@@ -144,7 +142,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::update(Group * group)
+int GroupPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -155,7 +153,7 @@ int GroupPool::update(Group * group)
         return -1;
     }
 
-    return group->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -192,7 +190,7 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
         return -2;
     }
 
-    if( group->get_collection_size() > 0 )
+    if( group->users.size() > 0 )
     {
         ostringstream oss;
         oss << "Group " << group->get_oid() << " is not empty.";

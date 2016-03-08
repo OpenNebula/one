@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,6 +32,9 @@ require 'OpenNebulaJSON/DatastoreJSON'
 require 'OpenNebulaJSON/ZoneJSON'
 require 'OpenNebulaJSON/SecurityGroupJSON'
 require 'OpenNebulaJSON/VdcJSON'
+require 'OpenNebulaJSON/VirtualRouterJSON'
+require 'OpenNebulaJSON/MarketPlaceJSON'
+require 'OpenNebulaJSON/MarketPlaceAppJSON'
 
 module OpenNebula
     class Error

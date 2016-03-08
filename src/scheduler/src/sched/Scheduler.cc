@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -165,21 +165,16 @@ void Scheduler::start()
 
     try
     {
-        vector<const Attribute *> logs;
-        int rc;
-
         NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
         Log::MessageType   clevel     = Log::ERROR;;
 
-        rc = conf.get("LOG", logs);
+        const VectorAttribute * log = conf.get("LOG");
 
-        if ( rc != 0 )
+        if ( log != 0 )
         {
             string value;
             int    ilevel;
 
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
             value      = log->vector_value("SYSTEM");
             log_system = NebulaLog::str_to_type(value);
 
@@ -297,15 +292,13 @@ void Scheduler::start()
 
     NebulaLog::log("SCHED", Log::INFO, "oned successfully contacted.");
 
-    vector<const Attribute*> fed;
-
     zone_id = 0;
 
-    if (oned_conf.get("FEDERATION", fed) > 0)
-    {
-        const VectorAttribute * va=static_cast<const VectorAttribute *>(fed[0]);
+    const VectorAttribute * fed = oned_conf.get("FEDERATION");
 
-        if (va->vector_value("ZONE_ID", zone_id) != 0)
+    if (fed != 0)
+    {
+        if (fed->vector_value("ZONE_ID", zone_id) != 0)
         {
             zone_id = 0;
         }
@@ -321,6 +314,7 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
 
     hpool  = new HostPoolXML(client);
+    upool  = new UserPoolXML(client);
     clpool = new ClusterPoolXML(client);
     vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
 
@@ -430,8 +424,6 @@ int Scheduler::set_up_pools()
     //Cleans the cache and get the datastores
     //--------------------------------------------------------------------------
 
-    // TODO: Avoid two ds pool info calls to oned
-
     rc = dspool->set_up();
 
     if ( rc != 0 )
@@ -440,6 +432,17 @@ int Scheduler::set_up_pools()
     }
 
     rc = img_dspool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    //--------------------------------------------------------------------------
+    //Cleans the cache and get the hosts ids
+    //--------------------------------------------------------------------------
+
+    rc = upool->set_up();
 
     if ( rc != 0 )
     {
@@ -499,9 +502,12 @@ int Scheduler::set_up_pools()
  *    2. Meets user/policy requirements
  *    3. Have enough capacity to host the VM
  *
+ *  @param acl pool
+ *  @param users the user pool
  *  @param vm the virtual machine
  *  @param vm_memory vm requirement
  *  @param vm_cpu vm requirement
+ *  @param vm_pci vm requirement
  *  @param host to evaluate vm assgiment
  *  @param n_auth number of hosts authorized for the user, incremented if needed
  *  @param n_error number of requirement errors, incremented if needed
@@ -510,9 +516,9 @@ int Scheduler::set_up_pools()
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
-    HostXML * host, int &n_auth, int& n_error, int &n_fits, int &n_matched,
-    string &error)
+static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm,
+    int vmem, int vcpu, vector<VectorAttribute *>& vpci, HostXML * host,
+    int &n_auth, int& n_error, int &n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -543,10 +549,17 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
         hperms.cid      = host->get_cid();
         hperms.obj_type = PoolObjectSQL::HOST;
 
-        // Only include the VM group ID
+        UserXML * user = upool->get(vm->get_uid());
 
-        set<int> gids;
-        gids.insert(vm->get_gid());
+        if (user == 0)
+        {
+            error = "User does not exists.";
+            return false;
+        }
+
+        const vector<int> vgids = user->get_gids();
+
+        set<int> gids(vgids.begin(), vgids.end());
 
         if ( !acls->authorize(vm->get_uid(), gids, hperms, AuthRequest::MANAGE))
         {
@@ -560,7 +573,7 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
     // -------------------------------------------------------------------------
     // Check host capacity
     // -------------------------------------------------------------------------
-    if (host->test_capacity(vcpu,vmem,error) != true)
+    if (host->test_capacity(vcpu, vmem, vpci, error) != true)
     {
         return false;
     }
@@ -613,6 +626,8 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *    1. Meet user/policy requirements
  *    2. Have enough capacity to host the VM
  *
+ *  @param acl pool
+ *  @param users the user pool
  *  @param vm the virtual machine
  *  @param vdisk vm requirement
  *  @param ds to evaluate vm assgiment
@@ -623,9 +638,9 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdisk,
-    DatastoreXML * ds, int& n_auth, int& n_error, int& n_fits, int &n_matched,
-    string &error)
+static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
+    VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds, int& n_auth,
+    int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Check if user is authorized
@@ -634,14 +649,19 @@ static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdis
     {
         PoolObjectAuth dsperms;
 
-        dsperms.oid      = ds->get_oid();
-        dsperms.cid      = ds->get_cid();
-        dsperms.obj_type = PoolObjectSQL::DATASTORE;
+        ds->get_permissions(dsperms);
 
-        // Only include the VM group ID
+        UserXML * user = upool->get(vm->get_uid());
 
-        set<int> gids;
-        gids.insert(vm->get_gid());
+        if (user == 0)
+        {
+            error = "User does not exists.";
+            return false;
+        }
+
+        const vector<int> vgids = user->get_gids();
+
+        set<int> gids(vgids.begin(), vgids.end());
 
         if ( !acls->authorize(vm->get_uid(), gids, dsperms, AuthRequest::USE))
         {
@@ -654,9 +674,11 @@ static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdis
 
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
-    // checked in a per host basis during dispatch)
+    // checked in a per host basis during dispatch). Resume actions do not
+    // add to shared system DS usage, and are skipped also
     // -------------------------------------------------------------------------
-    if (ds->is_shared() && ds->is_monitored() && !ds->test_capacity(vdisk, error))
+    if (ds->is_shared() && ds->is_monitored() && !vm->is_resume() &&
+        !ds->test_capacity(vdisk, error))
     {
         return false;
     }
@@ -718,6 +740,7 @@ void Scheduler::match_schedule()
     int vm_memory;
     int vm_cpu;
     long long vm_disk;
+    vector<VectorAttribute *> vm_pci;
 
     int n_resources;
     int n_matched;
@@ -738,6 +761,7 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
+    const map<int, ObjectXML*> users       = upool->get_objects();
 
     double total_match_time = 0;
     double total_rank_time = 0;
@@ -748,7 +772,7 @@ void Scheduler::match_schedule()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        vm->get_requirements(vm_cpu,vm_memory,vm_disk);
+        vm->get_requirements(vm_cpu, vm_memory, vm_disk, vm_pci);
 
         n_resources = 0;
         n_fits    = 0;
@@ -757,9 +781,9 @@ void Scheduler::match_schedule()
         n_error   = 0;
 
         //----------------------------------------------------------------------
-        // Test Image Datastore capacity, but not for migrations
+        // Test Image Datastore capacity, but not for migrations or resume
         //----------------------------------------------------------------------
-        if (!vm->is_resched())
+        if (!vm->is_resched() && !vm->is_resume())
         {
             if (vm->test_image_datastore_capacity(img_dspool, m_error) == false)
             {
@@ -788,8 +812,8 @@ void Scheduler::match_schedule()
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            if (match_host(acls, vm, vm_memory, vm_cpu, host, n_auth, n_error,
-                    n_fits, n_matched, m_error))
+            if (match_host(acls, upool, vm, vm_memory, vm_cpu, vm_pci, host,
+                    n_auth, n_error, n_fits, n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
 
@@ -892,8 +916,8 @@ void Scheduler::match_schedule()
         {
             ds = static_cast<DatastoreXML *>(h_it->second);
 
-            if (match_system_ds(acls, vm, vm_disk, ds, n_auth, n_error, n_fits,
-                        n_matched, m_error))
+            if (match_system_ds(acls, upool, vm, vm_disk, ds, n_auth, n_error,
+                        n_fits, n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -1024,6 +1048,8 @@ void Scheduler::dispatch()
 
     int cpu, mem;
     long long dsk;
+    vector<VectorAttribute *> pci;
+
     int hid, dsid, cid;
     bool test_cap_result;
 
@@ -1054,10 +1080,10 @@ void Scheduler::dispatch()
 
         const vector<Resource *> resources = vm->get_match_hosts();
 
-        //--------------------------------------------------------------
-        // Test Image Datastore capacity, but not for migrations
-        //--------------------------------------------------------------
-        if (!resources.empty() && !vm->is_resched())
+        //----------------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations or resume
+        //----------------------------------------------------------------------
+        if (!resources.empty() && !vm->is_resched() && !vm->is_resume())
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
@@ -1072,7 +1098,7 @@ void Scheduler::dispatch()
             }
         }
 
-        vm->get_requirements(cpu,mem,dsk);
+        vm->get_requirements(cpu, mem, dsk, pci);
 
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
@@ -1092,7 +1118,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Test host capacity
             //------------------------------------------------------------------
-            if (host->test_capacity(cpu,mem) != true)
+            if (host->test_capacity(cpu, mem, pci) != true)
             {
                 continue;
             }
@@ -1157,7 +1183,16 @@ void Scheduler::dispatch()
                 {
                     if (ds->is_shared() && ds->is_monitored())
                     {
-                        test_cap_result = ds->test_capacity(dsk);
+                        // A resume action tests DS capacity only
+                        // for non-shared system DS
+                        if (vm->is_resume())
+                        {
+                            test_cap_result = true;
+                        }
+                        else
+                        {
+                            test_cap_result = ds->test_capacity(dsk);
+                        }
                     }
                     else
                     {
@@ -1199,7 +1234,11 @@ void Scheduler::dispatch()
             {
                 if (ds->is_shared() && ds->is_monitored())
                 {
-                    ds->add_capacity(dsk);
+                    // Resumed VMs do not add to shared system DS capacity
+                    if (!vm->is_resume())
+                    {
+                        ds->add_capacity(dsk);
+                    }
                 }
                 else
                 {
@@ -1209,7 +1248,7 @@ void Scheduler::dispatch()
                 vm->add_image_datastore_capacity(img_dspool);
             }
 
-            host->add_capacity(cpu,mem);
+            host->add_capacity(vm->get_oid(), cpu, mem, pci);
 
             host_vms[hid]++;
 

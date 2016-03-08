@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Locale = require('utils/locale');
 
@@ -147,9 +163,9 @@ define(function(require) {
     var str = ""
     if (!template_json) { return "Not defined";}
     if (!padding) {padding = 10};
-    if (!weight) {weight = "bold";}
-    if (!border_bottom) {border_bottom = "1px solid #efefef";}
-    if (!padding_top_bottom) {padding_top_bottom = 6;}
+    if (!weight) {weight = "none";}
+    if (!border_bottom) {border_bottom = "0px solid #efefef";}
+    if (!padding_top_bottom) {padding_top_bottom = 5;}
     var field = null;
 
     if (template_json.constructor == Array) {

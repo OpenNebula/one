@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -225,19 +225,17 @@ string& User::to_xml_extended(string& xml, bool extended) const
     string collection_xml;
     string token_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     int  enabled_int = enabled?1:0;
 
     oss <<
     "<USER>"
          "<ID>"          << oid         <<"</ID>"         <<
          "<GID>"         << gid         <<"</GID>"        <<
-         collection_xml  <<
+         groups.to_xml(collection_xml)  <<
          "<GNAME>"       << gname       <<"</GNAME>"      <<
          "<NAME>"        << name        <<"</NAME>"       <<
-         "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
-         "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
+         "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
+         "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         login_token.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);
@@ -314,7 +312,7 @@ int User::from_xml(const string& xml)
     }
 
     // Set of IDs
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += groups.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();

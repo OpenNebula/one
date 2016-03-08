@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,7 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "ImageManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,8 +37,10 @@ void  LifeCycleManager::save_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int                 cpu,mem,disk;
-        time_t              the_time = time(0);
+        int    cpu, mem, disk;
+        vector<VectorAttribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //                PROLOG_MIGRATE STATE
@@ -65,9 +68,9 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
         //----------------------------------------------------
 
@@ -153,8 +156,10 @@ void  LifeCycleManager::save_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int                     cpu,mem,disk;
-        time_t                  the_time = time(0);
+        int    cpu, mem, disk;
+        vector<VectorAttribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //           RUNNING STATE FROM SAVE_MIGRATE
@@ -170,9 +175,9 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         vm->set_previous_etime(the_time);
 
@@ -255,8 +260,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int     cpu,mem,disk;
-        time_t  the_time = time(0);
+        int    cpu,mem,disk;
+        vector<VectorAttribute *> pci;
+
+        time_t the_time = time(0);
 
         vm->set_running_stime(the_time);
 
@@ -274,9 +281,9 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -327,8 +334,10 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int     cpu,mem,disk;
-        time_t  the_time = time(0);
+        int    cpu, mem, disk;
+        vector<VectorAttribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //           RUNNING STATE FROM MIGRATE
@@ -356,9 +365,9 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         // --- Add new record by copying the previous one
 
@@ -630,6 +639,8 @@ void LifeCycleManager::prolog_success_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_FAILURE: //recover success
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
             switch (lcm_state)
             {
                 case VirtualMachine::PROLOG_RESUME:
@@ -652,6 +663,8 @@ void LifeCycleManager::prolog_success_action(int vid)
 
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_FAILURE: //recover success
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
                     action = VirtualMachineManager::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT);
                     break;
@@ -754,6 +767,11 @@ void  LifeCycleManager::prolog_failure_action(int vid)
             vmpool->update(vm);
             break;
 
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE);
+            vmpool->update(vm);
+            break;
+
         case VirtualMachine::PROLOG_RESUME:
             vm->set_state(VirtualMachine::PROLOG_RESUME_FAILURE);
             vmpool->update(vm);
@@ -767,6 +785,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover failure from failure state
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
         case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:
@@ -788,8 +807,10 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 void  LifeCycleManager::epilog_success_action(int vid)
 {
     VirtualMachine *    vm;
-    time_t              the_time = time(0);
-    int                 cpu,mem,disk;
+    vector<VectorAttribute *> pci;
+
+    time_t the_time = time(0);
+    int    cpu,mem,disk;
 
     VirtualMachine::LcmState state;
     DispatchManager::Actions action;
@@ -858,9 +879,9 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vmpool->update_history(vm);
 
-    vm->get_requirements(cpu,mem,disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     //----------------------------------------------------
 
@@ -1531,7 +1552,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1563,7 +1584,7 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
     {
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->attach_nic_failure(vid);
 
         vm = vmpool->get(vid,true);
 
@@ -1590,7 +1611,39 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
 
 void LifeCycleManager::detach_nic_success_action(int vid)
 {
-    attach_nic_failure_action(vid);
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        vm->unlock();
+
+        vmpool->detach_nic_success(vid);
+
+        vm = vmpool->get(vid,true);
+
+        if ( vm == 0 )
+        {
+            return;
+        }
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+
+        vm->unlock();
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_nic_success_action, VM in a wrong state");
+        vm->unlock();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1598,7 +1651,29 @@ void LifeCycleManager::detach_nic_success_action(int vid)
 
 void LifeCycleManager::detach_nic_failure_action(int vid)
 {
-    attach_nic_success_action(vid);
+    VirtualMachine * vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
+    {
+        vm->detach_nic_failure();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_nic_failure_action, VM in a wrong state");
+    }
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1722,9 +1797,16 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 {
     string tm_mad;
     int disk_id, ds_id, snap_id;
+    int img_id = -1;
 
-    Quotas::QuotaType qt;
-    Template *quotas = 0;
+    Template *ds_quotas = 0;
+    Template *vm_quotas = 0;
+
+    const VectorAttribute* disk;
+    Snapshots           snaps(-1);
+    const Snapshots*    tmp_snaps;
+    bool                has_snaps = false;
+    string              error_str;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1742,8 +1824,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
-    int gid = vm->get_gid();
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
@@ -1765,7 +1847,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
-            vm->delete_disk_snapshot(disk_id, snap_id, qt, &quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
+
             break;
 
         default:
@@ -1776,15 +1859,53 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->clear_snapshot_disk();
 
+    tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
+    if(tmp_snaps != 0)
+    {
+        has_snaps = true;
+        snaps = *tmp_snaps;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(disk_id);
+
+    disk->vector_value("IMAGE_ID", img_id);
+
+    bool is_persistent = VirtualMachine::is_persistent(disk);
+    string target      = VirtualMachine::disk_tm_target(disk);
+
     vmpool->update(vm);
 
     vm->unlock();
 
-    if ( quotas != 0 )
+    if ( ds_quotas != 0 )
     {
-        Quotas::quota_del(qt, uid, gid, quotas);
+        Image* img = ipool->get(img_id, true);
 
-        delete quotas;
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
+        }
+
+        delete ds_quotas;
+    }
+
+    if ( vm_quotas != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
+    }
+
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
+    {
+        imagem->set_image_snapshots(img_id, snaps);
     }
 
     switch (state)
@@ -1815,9 +1936,16 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 {
     string tm_mad;
     int disk_id, ds_id, snap_id;
+    int img_id = -1;
 
-    Quotas::QuotaType qt;
-    Template *quotas = 0;
+    Template *ds_quotas = 0;
+    Template *vm_quotas = 0;
+
+    const VectorAttribute* disk;
+    Snapshots           snaps(-1);
+    const Snapshots*    tmp_snaps;
+    bool                has_snaps = false;
+    string              error_str;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1835,8 +1963,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
-    int gid = vm->get_gid();
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
@@ -1847,7 +1975,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
-            vm->delete_disk_snapshot(disk_id, snap_id, qt, &quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_REVERT:
@@ -1868,15 +1996,53 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     vm->clear_snapshot_disk();
 
+    tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
+    if(tmp_snaps != 0)
+    {
+        has_snaps = true;
+        snaps = *tmp_snaps;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(disk_id);
+
+    disk->vector_value("IMAGE_ID", img_id);
+
+    bool is_persistent = VirtualMachine::is_persistent(disk);
+    string target      = VirtualMachine::disk_tm_target(disk);
+
     vmpool->update(vm);
 
     vm->unlock();
 
-    if ( quotas != 0 )
+    if ( ds_quotas != 0 )
     {
-        Quotas::quota_del(qt, uid, gid, quotas);
+        Image* img = ipool->get(img_id, true);
 
-        delete quotas;
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
+        }
+
+        delete ds_quotas;
+    }
+
+    if ( vm_quotas != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
+    }
+
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
+    {
+        imagem->set_image_snapshots(img_id, snaps);
     }
 
     switch (state)

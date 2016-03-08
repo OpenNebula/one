@@ -1,60 +1,59 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/user');
+  var CommonActions = require('utils/common-actions');
+  var TemplateUtils = require('utils/template-utils');
 
-  var RESOURCE = "User";
-  var XML_ROOT = "USER";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var PASSWORD_DIALOG_ID = require('./dialogs/password/dialogId');
   var AUTH_DRIVER_DIALOG_ID = require('./dialogs/auth-driver/dialogId');
   var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
+  var GROUPS_DIALOG_ID = require('./dialogs/groups/dialogId');
+
+  var RESOURCE = "User";
+  var XML_ROOT = "USER";
+
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
-    "User.create" : {
-      type: "create",
-      call: OpenNebulaResource.create,
-      callback : function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-      notify: true
-    },
+    "User.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "User.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "User.list" : _commonActions.list(),
+    "User.show" : _commonActions.show(),
+    "User.refresh" : _commonActions.refresh(),
+    "User.delete" : _commonActions.del(),
+    "User.chgrp": _commonActions.multipleAction('chgrp'),
+    "User.addgroup": _commonActions.multipleAction('addgroup'),
+    "User.delgroup": _commonActions.multipleAction('delgroup'),
+    "User.groups_dialog" : _commonActions.checkAndShow("groups"),
 
-    "User.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "User.list" : {
-      type: "list",
-      call: OpenNebulaResource.list,
+    "User.groups" : {
+      type: "single",
+      call: OpenNebulaResource.show,
       callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "User.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction(RESOURCE+".list", {force: true});
-        }
+        Sunstone.getDialog(GROUPS_DIALOG_ID).setParams({element: response[XML_ROOT]});
+        Sunstone.getDialog(GROUPS_DIALOG_ID).reset();
+        Sunstone.getDialog(GROUPS_DIALOG_ID).show();
       },
       error: Notifier.onError
     },
@@ -75,41 +74,6 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "User.chgrp" : {
-      type: "multiple",
-      call: OpenNebulaResource.chgrp,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".refresh");
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-    },
-
-    "User.addgroup" : {
-      type: "multiple",
-      call: OpenNebulaResource.addgroup,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".refresh");
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-    },
-
-    "User.delgroup" : {
-      type: "multiple",
-      call: OpenNebulaResource.delgroup,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-    },
 
     "User.change_authentication" : {
       type: "custom",
@@ -124,66 +88,102 @@ define(function(require) {
       error: Notifier.onError,
     },
 
-    "User.show" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "User.delete" : {
-      type: "multiple",
-      call : OpenNebulaResource.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-    },
-
     "User.update_template" : {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
+        var reqId = request.request.data[0][0];
+
+        Sunstone.runAction(RESOURCE+'.show',reqId);
+
+        if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              return false;
+            },
+            error: function(response) {
+            }
+          });
         }
       },
       error: Notifier.onError
     },
 
-    "User.update_language" : {
+    "User.append_template" : {
       type: "single",
-      call: OpenNebulaResource.update,
+      call: OpenNebulaResource.append,
       callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
+        var reqId = request.request.data[0][0];
+
+        Sunstone.runAction(RESOURCE+'.show',reqId);
+
+        if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              return false;
+            },
+            error: function(response) {
+            }
+          });
         }
-        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
       },
       error: Notifier.onError
     },
 
-    "User.update_view" : {
+    "User.append_template_refresh" : {
       type: "single",
-      call: OpenNebulaResource.update,
+      call: OpenNebulaResource.append,
       callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
-          Sunstone.runAction('Settings.refresh');
+        var reqId = request.request.data[0][0];
+
+        if (reqId == config['user_id'] || reqId == "-1") {
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              window.location.href = ".";
+            },
+            error: function(response) {
+            }
+          });
+        } else {
+          Sunstone.runAction(RESOURCE+'.show',reqId);
         }
-        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
       },
       error: Notifier.onError
+    },
+
+    "User.append_sunstone_setting_refresh" : {
+      type: "single",
+      call: function(params){
+        OpenNebulaResource.show({
+          data : {
+            id: params.data.id
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+
+            $.extend(sunstone_template, params.data.extra_param)
+            var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+            Sunstone.runAction("User.append_template_refresh", params.data.id, template_str);
+          },
+          error: Notifier.onError
+        });
+      }
     },
 
     "User.fetch_quotas" : {

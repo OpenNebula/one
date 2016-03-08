@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -257,18 +273,35 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    ResourceSelect.insert('div#applies_to_user', context, "User", null, true);
-    ResourceSelect.insert('div#applies_to_group', context, "Group", null, true);
+    ResourceSelect.insert({
+        context: $('#applies_to_user', context),
+        resourceName: 'User',
+        emptyValue: true
+      });
 
-    ResourceSelect.insert('div#belonging_to', context, "Group", null, true);
-    ResourceSelect.insert('#in_cluster',context, "Cluster", null, true);
+    ResourceSelect.insert({
+        context: $('#applies_to_group', context),
+        resourceName: 'Group',
+        emptyValue: true
+      });
 
-    // TODO BUG: doesn't work if the cluster.list callback is not finished yet
-    // Delete cluster -1 option
-    $('#in_cluster select option[value="-1"]',context).remove();
+    ResourceSelect.insert({
+        context: $('#belonging_to', context),
+        resourceName: 'Group',
+        emptyValue: true
+      });
 
-    ResourceSelect.insert('div#zones_applies', context, "Zone", "*", false,
-                        '<option value="*">'+Locale.tr("All")+'</option>');
+    ResourceSelect.insert({
+        context: $('#in_cluster', context),
+        resourceName: 'Cluster',
+        emptyValue: true
+      });
 
+    ResourceSelect.insert({
+        context: $('#zones_applies', context),
+        resourceName: 'Zone',
+        initValue: '*',
+        extraOptions: '<option value="*">' + Locale.tr("All") + '</option>'
+      });
   }
 });

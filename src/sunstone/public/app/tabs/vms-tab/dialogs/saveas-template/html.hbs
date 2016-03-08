@@ -1,0 +1,49 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<div id="{{dialogId}}" class="reveal-modal small" role="dialog" data-reveal >
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader" id="">{{tr "Save as Template"}}</h3>
+    </div>
+  </div>
+  <div class="reveal-body">
+    <form id="{{dialogId}}Form" action="">
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="vm_id">{{tr "Virtual Machine ID"}}:</label>
+          <input style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <label for="template_name">{{tr "Template name"}}:</label>
+          <input type="text" name="template_name" id="template_name" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <input type="checkbox" name="saveas_persistency" id="saveas_persistency" />
+          <label for="saveas_persistency">{{tr "Make the new images persistent"}}</label>
+        </div>
+      </div>
+      <div class="form_buttons">
+        <button class="button radius right success" type="submit">{{tr "Save As Template"}}</button>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </form>
+  </div>
+</div>

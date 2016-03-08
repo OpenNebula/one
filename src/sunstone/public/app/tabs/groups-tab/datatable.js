@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -8,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -16,6 +33,8 @@ define(function(require) {
   var RESOURCE = "Group";
   var XML_ROOT = "GROUP";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 7;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -27,6 +46,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -47,7 +67,8 @@ define(function(require) {
       Locale.tr("Users"),
       Locale.tr("VMs"),
       Locale.tr("Memory"),
-      Locale.tr("CPU")
+      Locale.tr("CPU"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -77,6 +98,8 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    this.totalGroups++;
+
     var element = element_json[XML_ROOT];
 
     var users_str = "0";
@@ -123,7 +146,8 @@ define(function(require) {
       users_str,
       vms,
       memory,
-      cpu
+      cpu,
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

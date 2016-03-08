@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,7 +43,6 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "cancel"       then self.cancel
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "finalize"     then self.finalize
                  when "hold"         then self.hold
@@ -61,7 +60,7 @@ module OpenNebulaJSON
                  when "disk_snapshot_create"  then self.disk_snapshot_create(action_hash['params'])
                  when "disk_snapshot_revert"  then self.disk_snapshot_revert(action_hash['params'])
                  when "disk_snapshot_delete"  then self.disk_snapshot_delete(action_hash['params'])
-                 when "shutdown"     then self.shutdown
+                 when "shutdown"     then self.shutdown(action_hash['params'])
                  when "reboot"       then self.reboot
                  when "poweroff"     then self.poweroff(action_hash['params'])
                  when "resubmit"     then self.resubmit
@@ -98,6 +97,10 @@ module OpenNebulaJSON
             super(params['hard'])
         end
 
+        def shutdown(params=Hash.new)
+            super(params['hard'])
+        end
+
         def poweroff(params=Hash.new)
             super(params['hard'])
         end
@@ -124,7 +127,7 @@ module OpenNebulaJSON
         end
 
         def disk_snapshot_create(params=Hash.new)
-            super(params['disk_id'].to_i, params['tag'])
+            super(params['disk_id'].to_i, params['snapshot_name'])
         end
 
         def disk_snapshot_revert(params=Hash.new)
@@ -170,7 +173,11 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['template_raw'])
+            if !params['append'].nil?
+                super(params['template_raw'], params['append'])
+            else
+                super(params['template_raw'])
+            end
         end
 
         def rename(params=Hash.new)
@@ -182,7 +189,9 @@ module OpenNebulaJSON
         end
 
         def save_as_template(params=Hash.new)
-            super(params['name'])
+            vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
+                                        @client)
+            vm_new.save_as_template(params['name'], params['persistent'])
         end
     end
 end

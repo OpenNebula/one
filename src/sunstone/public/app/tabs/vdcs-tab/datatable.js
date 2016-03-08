@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -6,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -14,6 +31,11 @@ define(function(require) {
   var RESOURCE = "Vdc";
   var XML_ROOT = "VDC";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 8;
+  var TEMPLATE_ATTR = 'TEMPLATE';
+
+  var Utils = require('./utils/common');
+  var VDC_ALL_RESOURCES = Utils.VDC_ALL_RESOURCES;
 
   /*
     CONSTRUCTOR
@@ -25,6 +47,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -45,7 +68,8 @@ define(function(require) {
       Locale.tr("Clusters"),
       Locale.tr("Hosts"),
       Locale.tr("VNets"),
-      Locale.tr("Datastores")
+      Locale.tr("Datastores"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -57,12 +81,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following VDCs:")
     };
 
+    this.totalElements = 0;
+
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -71,7 +99,18 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    this.totalElements++;
+
     var element = element_json[XML_ROOT];
+
+    var groupColumn = 0;
+
+    var gIds = element.GROUPS.ID;
+    if ($.isArray(gIds)){
+      groupColumn = gIds.length;
+    } else if (!$.isEmptyObject(gIds)){
+      groupColumn = 1;
+    }
 
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
@@ -79,21 +118,35 @@ define(function(require) {
                            element.ID + '"/>',
       element.ID,
       element.NAME,
-      _lengthOf(element.GROUPS.ID),
-      _lengthOf(element.CLUSTERS.CLUSTER),
-      _lengthOf(element.HOSTS.HOST),
-      _lengthOf(element.VNETS.VNET),
-      _lengthOf(element.DATASTORES.DATASTORE)
+      groupColumn,
+      _lengthOf(element.CLUSTERS.CLUSTER, "CLUSTER"),
+      _lengthOf(element.HOSTS.HOST, "HOST"),
+      _lengthOf(element.VNETS.VNET, "VNET"),
+      _lengthOf(element.DATASTORES.DATASTORE, "DATASTORE"),
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 
-  function _lengthOf(ids){
+  function _lengthOf(ids, res_name){
     var l = 0;
-    if ($.isArray(ids))
+    if ($.isArray(ids)){
       l = ids.length;
-    else if (!$.isEmptyObject(ids))
-      l = 1;
+    } else if (!$.isEmptyObject(ids)){
+      if (ids[res_name+"_ID"] == VDC_ALL_RESOURCES){
+        l = Locale.tr("All");
+      } else {
+        l = 1;
+      }
+    }
 
     return l;
+  }
+
+  function _preUpdateView() {
+    this.totalElements = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vdcs").text(this.totalElements);
   }
 });

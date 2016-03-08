@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,20 +35,37 @@ const char * DatastoreXML::ds_paths[] = {
 
 void DatastoreXML::init_attributes()
 {
-    oid        = atoi(((*this)["/DATASTORE/ID"] )[0].c_str() );
-    cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
-    free_mb    = atoll(((*this)["/DATASTORE/FREE_MB"])[0].c_str());
+    xpath(oid,        "/DATASTORE/ID",          -1);
+    xpath(cluster_id, "/DATASTORE/CLUSTER_ID",  -1);
 
-    long long total_mb  = atoll(((*this)["/DATASTORE/TOTAL_MB"])[0].c_str());
-    long long used_mb   = atoll(((*this)["/DATASTORE/USED_MB"])[0].c_str());
+    xpath(uid,      "/DATASTORE/UID",  -1);
+    xpath(gid,      "/DATASTORE/GID",  -1);
+
+    xpath(owner_u, "/DATASTORE/PERMISSIONS/OWNER_U", 0);
+    xpath(owner_m, "/DATASTORE/PERMISSIONS/OWNER_M", 0);
+    xpath(owner_a, "/DATASTORE/PERMISSIONS/OWNER_A", 0);
+
+    xpath(group_u, "/DATASTORE/PERMISSIONS/GROUP_U", 0);
+    xpath(group_m, "/DATASTORE/PERMISSIONS/GROUP_M", 0);
+    xpath(group_a, "/DATASTORE/PERMISSIONS/GROUP_A", 0);
+
+    xpath(other_u, "/DATASTORE/PERMISSIONS/OTHER_U", 0);
+    xpath(other_m, "/DATASTORE/PERMISSIONS/OTHER_M", 0);
+    xpath(other_a, "/DATASTORE/PERMISSIONS/OTHER_A", 0);
+
+    xpath<long long>(free_mb, "/DATASTORE/FREE_MB", 0);
+
+    long long total_mb, used_mb, limit_mb;
+
+    xpath<long long>(total_mb, "/DATASTORE/TOTAL_MB", 0);
+    xpath<long long>(used_mb,  "/DATASTORE/USED_MB",  0);
 
     monitored = (free_mb != 0 || total_mb != 0 || used_mb != 0);
 
-    vector<string> strings = ((*this)["/DATASTORE/TEMPLATE/LIMIT_MB"]);
+    int rc = xpath<long long>(limit_mb, "/DATASTORE/TEMPLATE/LIMIT_MB", 0);
 
-    if (!strings.empty())
+    if (rc == 0)
     {
-        long long limit_mb = atoll(strings[0].c_str());
         long long free_limited = limit_mb - used_mb;
 
         if (free_limited < 0)
@@ -100,3 +117,25 @@ bool DatastoreXML::test_capacity(long long vm_disk_mb, string & error) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void DatastoreXML::get_permissions(PoolObjectAuth& auth)
+{
+    auth.obj_type = PoolObjectSQL::DATASTORE;
+
+    auth.oid = oid;
+    auth.uid = uid;
+    auth.gid = gid;
+    auth.cid = cluster_id;
+
+    auth.owner_u = owner_u;
+    auth.owner_m = owner_m;
+    auth.owner_a = owner_a;
+
+    auth.group_u = group_u;
+    auth.group_m = group_m;
+    auth.group_a = group_a;
+
+    auth.other_u = other_u;
+    auth.other_m = other_m;
+    auth.other_a = other_a;
+}

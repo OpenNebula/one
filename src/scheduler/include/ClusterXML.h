@@ -45,7 +45,7 @@ private:
 
     void init_attributes()
     {
-        oid = atoi(((*this)["/CLUSTER/ID"] )[0].c_str() );
+        xpath(oid, "/CLUSTER/ID", -1);
     };
 };
 

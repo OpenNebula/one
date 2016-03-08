@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -339,15 +339,27 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
-                d["TAG"]
+            column :SIZE, "", :left, :size=>8 do |d|
+                if d["SIZE"]
+                    OpenNebulaHelper.unit_to_str(
+                                d['SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    "-"
+                end
+            end
+
+            column :NAME, "Snapshot Name", :left, :size=>37 do |d|
+                d["NAME"]
             end
 
             column :DATE, "Snapshot creation date", :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :PARENT, :DATE, :CHILDREN, :TAG
+            default :AC, :ID, :PARENT, :DATE, :SIZE, :NAME
         end
 
         # Convert snapshot data to an array

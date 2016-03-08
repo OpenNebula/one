@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,9 +45,10 @@ class VXLANDriver < VNMMAD::VLANDriver
         mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + @nic[:vlan_id].to_i
         mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : ""
+        ttl = CONF[:vxlan_ttl] ? "ttl #{CONF[:vxlan_ttl]}" : ""
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
-            " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs}"\
+            " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs} #{ttl}"\
             " dev #{@nic[:phydev]}")
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,7 +21,7 @@
 
 int Quotas::set(Template *tmpl, string& error)
 {
-    vector<Attribute *> vquotas;
+    vector<VectorAttribute *> vquotas;
 
     if ( tmpl->get(datastore_quota.get_quota_name(), vquotas) > 0 )
     {
@@ -166,6 +166,11 @@ void Quotas::quota_del(QuotaType type, Template *tmpl)
             vm_quota.del(tmpl);
             image_quota.del(tmpl);
         break;
+
+        case VIRTUALROUTER:
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            vr_net_quota.del(tmpl);
+        break;
     }
 }
 
@@ -211,6 +216,10 @@ bool Quotas::quota_check(QuotaType  type,
             }
 
             return true;
+
+        case VIRTUALROUTER:
+            QuotaNetworkVirtualRouter vr_net_quota(&network_quota);
+            return vr_net_quota.check(tmpl, default_quotas, error_str);
     }
 
     return false;
@@ -231,6 +240,7 @@ bool Quotas::quota_update(QuotaType  type,
         case NETWORK:
         case IMAGE:
         case VIRTUALMACHINE:
+        case VIRTUALROUTER:
             error_str = "Cannot update quota. Not implemented";
             return false;
 
@@ -281,3 +291,43 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Quotas::ds_del(map<int, Template *>& ds_quotas)
+{
+    Nebula&     nd    = Nebula::instance();
+    ImagePool * ipool = nd.get_ipool();
+
+    map<int, Template *>::iterator it;
+
+    for (it = ds_quotas.begin(); it != ds_quotas.end(); it++)
+    {
+        int        image_id = it->first;
+        Template * tmpl     = it->second;
+
+        if ( tmpl == 0 )
+        {
+            continue;
+        }
+
+        Image* img = ipool->get(image_id, true);
+
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            quota_del(DATASTORE, img_uid, img_gid, tmpl);
+        }
+
+        delete tmpl;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

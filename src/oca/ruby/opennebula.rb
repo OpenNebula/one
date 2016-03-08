@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -56,9 +56,15 @@ require 'opennebula/security_group_pool'
 require 'opennebula/vdc'
 require 'opennebula/vdc_pool'
 require 'opennebula/system'
+require 'opennebula/virtual_router'
+require 'opennebula/virtual_router_pool'
+require 'opennebula/marketplace'
+require 'opennebula/marketplace_pool'
+require 'opennebula/marketplaceapp'
+require 'opennebula/marketplaceapp_pool'
 
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '4.12.0'
+    VERSION = '4.14.1'
 end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,9 +40,8 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -78,9 +77,8 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 

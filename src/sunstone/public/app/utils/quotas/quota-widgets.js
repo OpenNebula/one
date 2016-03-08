@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   // Dependencies
   var ProgressBar = require('utils/progress-bar');
@@ -38,8 +54,8 @@ define(function(require) {
           CPU_USED    : 0,
           MEMORY      : QUOTA_LIMIT_DEFAULT,
           MEMORY_USED : 0,
-          VOLATILE_SIZE      : QUOTA_LIMIT_DEFAULT,
-          VOLATILE_SIZE_USED : 0
+          SYSTEM_DISK_SIZE      : QUOTA_LIMIT_DEFAULT,
+          SYSTEM_DISK_SIZE_USED : 0
         }
       };
     }
@@ -186,12 +202,12 @@ define(function(require) {
   }
 
   /**
-   * Returns a widget with the volatile disk quotas
+   * Returns a widget with the system disk quotas
    * @param  {Object} info User/Group object
    * @param  {Object} default_quotas default quotas for Users/Groups
    * @return {string} html string
    */
-  function _volatileWidget(info, default_quotas){
+  function _systemDiskWidget(info, default_quotas){
     var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
 
     var quotas_tab_html = "";
@@ -204,29 +220,29 @@ define(function(require) {
         '<fieldset>';
     }
 
-    var volatile_bar;
+    var system_bar;
 
     if (!empty_quotas){
-      volatile_bar = _editableQuotaBar(
-            info.VM_QUOTA.VM.VOLATILE_SIZE_USED,
-            info.VM_QUOTA.VM.VOLATILE_SIZE,
-            default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+      system_bar = _editableQuotaBar(
+            info.VM_QUOTA.VM.SYSTEM_DISK_SIZE_USED,
+            info.VM_QUOTA.VM.SYSTEM_DISK_SIZE,
+            default_quotas.VM_QUOTA.VM.SYSTEM_DISK_SIZE,
             {   mb: true,
-                quota_name: "VM_VOLATILE_SIZE"
+                quota_name: "VM_SYSTEM_DISK_SIZE"
             });
     } else {
-      volatile_bar = _editableQuotaBar(
+      system_bar = _editableQuotaBar(
             0,
             QUOTA_LIMIT_DEFAULT,
-            default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+            default_quotas.VM_QUOTA.VM.SYSTEM_DISK_SIZE,
             {   mb: true,
-                quota_name: "VM_VOLATILE_SIZE"
+                quota_name: "VM_SYSTEM_DISK_SIZE"
             });
     }
 
     quotas_tab_html +=
-        '<legend>' + Locale.tr("Volatile disks") + '</legend>\
-        <div>'+volatile_bar+'</div>\
+        '<legend>' + Locale.tr("System disks") + '</legend>\
+        <div>'+system_bar+'</div>\
         <br>\
         </fieldset>'
 
@@ -254,7 +270,7 @@ define(function(require) {
 
     quotas_tab_html +=
           '<legend>'+Locale.tr("Image")+'</legend>\
-          <table class="quota_table extended_table image_quota_table">\
+          <table class="quota_table image_quota_table">\
           <thead>\
               <tr>\
                   <th style="width:16%">'+Locale.tr("ID")+'</th>\
@@ -328,11 +344,11 @@ define(function(require) {
           <td class="rvms_bar"></td>\
         </tr>');
 
-      ResourceSelect.insert(
-        'td.image_select',
-        $(".image_quota_table tbody tr", context).last(),
-        "Image",
-        null, true);
+      ResourceSelect.insert({
+          context: $('.image_select', $(".image_quota_table tbody tr", context).last()),
+          resourceName: 'Image',
+          emptyValue: true
+        });
 
       $(".image_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
@@ -395,7 +411,7 @@ define(function(require) {
 
     quotas_tab_html +=
         '<legend>'+Locale.tr("Datastore")+'</legend>\
-        <table class="quota_table extended_table ds_quota_table">\
+        <table class="quota_table ds_quota_table">\
           <thead>\
               <tr>\
                 <th style="width:16%">'+Locale.tr("ID")+'</th>\
@@ -483,11 +499,11 @@ define(function(require) {
           <td class="size_bar"></td>\
         </tr>');
 
-      ResourceSelect.insert(
-        'td.ds_select',
-        $(".ds_quota_table tbody tr", context).last(),
-        "Datastore",
-        null, true);
+      ResourceSelect.insert({
+          context: $('.ds_select', $(".ds_quota_table tbody tr", context).last()),
+          resourceName: 'Datastore',
+          emptyValue: true
+        });
 
       $(".ds_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
@@ -562,7 +578,7 @@ define(function(require) {
 
     quotas_tab_html +=
         '<legend>'+Locale.tr("Network")+'</legend>\
-        <table class="quota_table extended_table network_quota_table">\
+        <table class="quota_table network_quota_table">\
             <thead>\
                 <tr>\
                     <th style="width:16%">'+Locale.tr("ID")+'</th>\
@@ -635,11 +651,11 @@ define(function(require) {
               <td class="leases_bar"></td>\
           </tr>');
 
-      ResourceSelect.insert(
-          'td.network_select',
-          $(".network_quota_table tbody tr", context).last(),
-          "Network",
-          null, true);
+      ResourceSelect.insert({
+          context: $('.network_select', $(".network_quota_table tbody tr", context).last()),
+          resourceName: 'Network',
+          emptyValue: true
+        });
 
       $(".network_quota_table tbody tr", context).last().off(
                                             "change", ".resource_list_select");
@@ -696,7 +712,7 @@ define(function(require) {
     var vms_quota = _vmsWidget(resource_info, default_quotas);
     var cpu_quota = _cpuWidget(resource_info, default_quotas);
     var memory_quota = _memoryWidget(resource_info, default_quotas);
-    var volatile_size_quota = _volatileWidget(resource_info, default_quotas);
+    var system_disk_size_quota = _systemDiskWidget(resource_info, default_quotas);
 
     var image_quota = _imageWidget(resource_info, default_quotas);
     var network_quota = _networkWidget(resource_info, default_quotas);
@@ -750,7 +766,7 @@ define(function(require) {
         </div>\
         <div class="row">\
           <div class="large-6 columns">' + memory_quota + '</div>\
-          <div class="large-6 columns">' + volatile_size_quota+ '</div>\
+          <div class="large-6 columns">' + system_disk_size_quota+ '</div>\
         </div>\
         <br><br>\
         <div class="row">\
@@ -855,7 +871,7 @@ define(function(require) {
       "CPU"           : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
       "MEMORY"        : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
       "VMS"           : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
-      "VOLATILE_SIZE" : input_val( $("div[quota_name=VM_VOLATILE_SIZE] input", parent_container) )
+      "SYSTEM_DISK_SIZE" : input_val( $("div[quota_name=VM_SYSTEM_DISK_SIZE] input", parent_container) )
     };
 
     $.each($("tr.image_quota_tr", parent_container), function(){
@@ -1184,7 +1200,7 @@ define(function(require) {
     var vms_quota = _vmsWidget(resource_info, default_quotas);
     var cpu_quota = _cpuWidget(resource_info, default_quotas);
     var memory_quota = _memoryWidget(resource_info, default_quotas);
-    var volatile_size_quota = _volatileWidget(resource_info, default_quotas);
+    var system_disk_size_quota = _systemDiskWidget(resource_info, default_quotas);
 
     var image_quota = _imageWidget(resource_info, default_quotas);
     var network_quota = _networkWidget(resource_info, default_quotas);
@@ -1194,7 +1210,7 @@ define(function(require) {
         '<div class="large-6 columns">' + vms_quota + '</div>\
         <div class="large-6 columns">' + cpu_quota + '</div>\
         <div class="large-6 columns">' + memory_quota + '</div>\
-        <div class="large-6 columns">' + volatile_size_quota+ '</div>');
+        <div class="large-6 columns">' + system_disk_size_quota+ '</div>');
 
     $("#datastore_quota", context).html(
         '<div class="large-12 columns">' + datastore_quota + '</div>');

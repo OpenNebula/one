@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -8,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var ProgressBar = require('utils/progress-bar');
   var Utils = require('./utils/common');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -16,6 +33,8 @@ define(function(require) {
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 10;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -27,6 +46,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -49,7 +69,8 @@ define(function(require) {
       Locale.tr("Cluster"),
       Locale.tr("Bridge"),
       Locale.tr("Leases"),
-      Locale.tr("VLAN ID")
+      Locale.tr("VLAN ID"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -106,7 +127,8 @@ define(function(require) {
       element.CLUSTER.length ? element.CLUSTER : "-",
       element.BRIDGE,
       ProgressBar.html(element.USED_LEASES, total_size),
-      element.VLAN_ID.length ? element.VLAN_ID : "-"
+      element.VLAN_ID.length ? element.VLAN_ID : "-",
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

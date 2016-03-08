@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -74,7 +74,7 @@ private:
      * VirtualMachineTemplate::check
      * @param rattrs Attributes to restrict
      */
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs)
+    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
     {
         Template::set_restricted_attributes(rattrs, restricted_attributes);
     };

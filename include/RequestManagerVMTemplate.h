@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -66,6 +66,24 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
+
+    /**
+     * Instantiates the VM Template, checking permissions, quotas, etc
+     * @param id VM Template ID
+     * @param name Name for the new VM. Can be empty
+     * @param on_hold True to start the VM on HOLD state
+     * @param str_uattrs Template supplied by user to merge with the original
+     * contents. Can be empty
+     * @param extra_attrs Template to be merged. It should contain internal
+     * configuration, and it won't be authenticated or checked for restricted
+     * attributes. Can be 0
+     * @param vmid on success of the new VM
+     * @param att the specific request attributes
+     *
+     * @return ErroCode for the request.
+     */
+    static ErrorCode instantiate(int id, string name, bool on_hold,
+            string str_uattrs, Template* extra_attrs, int& vid, RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

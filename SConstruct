@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -84,6 +84,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/client',
     cwd+'/src/secgroup',
     cwd+'/src/vdc',
+    cwd+'/src/vrouter',
+    cwd+'/src/market'
 ])
 
 # Compile flags
@@ -130,15 +132,6 @@ else:
     main_env.Append(new_xmlrpc='no')
     main_env.Append(CPPFLAGS=["-DOLD_XMLRPC"])
 
-# SysLog
-syslog=ARGUMENTS.get('syslog', 'no')
-if syslog=='yes':
-    main_env.Append(syslog='yes')
-    main_env.Append(CPPFLAGS=["-DSYSLOG_LOG"])
-    main_env.Append(LIBS=['pthread','log4cpp'])
-else:
-    main_env.Append(syslog='no')
-
 # xmlrpc
 xmlrpc_dir=ARGUMENTS.get('xmlrpc', 'none')
 if xmlrpc_dir!='none':
@@ -154,6 +147,9 @@ else:
 
 # Rubygem generation
 main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
+
+# Sunstone minified files generation
+main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 
 if not main_env.GetOption('clean'):
     try:
@@ -241,8 +237,11 @@ build_scripts=[
     'src/zone/SConstruct',
     'src/secgroup/SConstruct',
     'src/vdc/SConstruct',
+    'src/vrouter/SConstruct',
+    'src/market/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
+    'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct'

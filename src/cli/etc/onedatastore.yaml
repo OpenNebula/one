@@ -3,6 +3,16 @@
   :desc: ONE identifier for the Datastore
   :size: 4
 
+:USER:
+  :desc: Username of the Datastore owner
+  :size: 10
+  :left: true
+
+:GROUP:
+  :desc: Group of the Datastore
+  :size: 10
+  :left: true
+
 :NAME:
   :desc: Name of the Datastore
   :size: 13

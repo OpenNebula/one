@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+ * Copyright 2002-2015, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,9 @@ public class VirtualMachine extends PoolElement{
         "DISK_SNAPSHOT_DELETE_SUSPENDED",
         "DISK_SNAPSHOT",
         "DISK_SNAPSHOT_REVERT",
-        "DISK_SNAPSHOT_DELETE"
+        "DISK_SNAPSHOT_DELETE",
+        "PROLOG_MIGRATE_UNKNOWN",
+        "PROLOG_MIGRATE_UNKNOWN_FAILURE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -203,7 +205,9 @@ public class VirtualMachine extends PoolElement{
         "snap",     // DISK_SNAPSHOT_DELETE_SUSPENDED
         "snap",     // DISK_SNAPSHOT
         "snap",     // DISK_SNAPSHOT_REVERT
-        "snap"      // DISK_SNAPSHOT_DELETE
+        "snap",     // DISK_SNAPSHOT_DELETE
+        "migr",     // PROLOG_MIGRATE_UNKNOWN
+        "fail"      // PROLOG_MIGRATE_UNKNOWN_FAILURE
     };
 
     /**
@@ -518,13 +522,13 @@ public class VirtualMachine extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The VM id of the target VM.
      * @param diskId Id of the disk
-     * @param tag description for the snapshot
+     * @param name description for the snapshot
      * @return New snapshot Id, or the error message
      */
     public static OneResponse diskSnapshotCreate(Client client, int id,
-        int diskId, String tag)
+        int diskId, String name)
     {
-        return client.call(DISKSNAPSHOTCREATE, id, diskId, tag);
+        return client.call(DISKSNAPSHOTCREATE, id, diskId, name);
     }
 
     /**
@@ -956,12 +960,12 @@ public class VirtualMachine extends PoolElement{
      * Takes a new snapshot of a disk
      *
      * @param diskId Id of the disk
-     * @param tag description for the snapshot
+     * @param name description for the snapshot
      * @return New snapshot Id, or the error message
      */
-    public OneResponse diskSnapshotCreate(int diskId, String tag)
+    public OneResponse diskSnapshotCreate(int diskId, String name)
     {
-        return diskSnapshotCreate(client, id, diskId, tag);
+        return diskSnapshotCreate(client, id, diskId, name);
     }
 
     /**

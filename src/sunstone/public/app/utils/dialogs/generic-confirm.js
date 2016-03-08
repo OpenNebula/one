@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -46,22 +62,51 @@ define(function(require) {
    *        - params.header : Optional, html string
    *        - params.body : Optional, html string
    *        - params.question : Optional, html string
+   *        - params.buttons : Optional, html string for the button.
+   *                           Can be an array for multiple options
    *        - params.submit : Mandatory, function to call if user confirms
+   *                          If buttons is an array, it must be an array
+   *                          of the same size
    */
   function _setParams(params) {
     this.params = params;
+
+    if (this.params.buttons != undefined){
+      if (!$.isArray(this.params.buttons)){
+        this.params.buttons = [this.params.buttons];
+      }
+
+      if (this.params.submit != undefined){
+        if (!$.isArray(this.params.submit)){
+          this.params.submit = [this.params.submit];
+        }
+      }
+    }
   }
 
   function _setup(context) {
     var that = this;
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {
+      if (that.params.buttons != undefined){
+        e.preventDefault();
+        return false;
+      }
+
       Sunstone.getDialog(DIALOG_ID).hide();
 
-      if (that.params.submit){
+      if (that.params.submit != undefined){
         that.params.submit(this);
       }
 
+      return false;
+    });
+
+    $(context).on("click", ".custom_submit", function(){
+      var index = $(this).attr("submit");
+      that.params.submit[index]();
+
+      Sunstone.getDialog(DIALOG_ID).hide();
       return false;
     });
 
@@ -79,6 +124,16 @@ define(function(require) {
 
     if (this.params.question){
       $("#question", context).html(this.params.question);
+    }
+
+    if (this.params.buttons != undefined){
+      var html = "";
+
+      $.each(this.params.buttons, function(i, text){
+        html += '<button class="custom_submit radius button right" submit="'+i+'">'+text+'</button>';
+      });
+
+      $(".form_buttons", context).html(html);
     }
 
     return false;

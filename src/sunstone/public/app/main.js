@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 require.config({
   paths: {
     /* Almond */
@@ -51,9 +67,6 @@ require.config({
     'flot.time': '../bower_components/flot/jquery.flot.time',
     'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
 
-    /* noUiSlider */
-    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min',
-
     /* VNC */
     'vnc-util': '../bower_components/no-vnc/include/util',
     'vnc-webutil': '../bower_components/no-vnc/include/webutil',
@@ -96,9 +109,46 @@ require.config({
     'spice-sha1': '../bower_components/spice-html5/thirdparty/sha1',
     'spice-ticket': '../bower_components/spice-html5/ticket',
     'spice-resize': '../bower_components/spice-html5/resize',
-    'spice-filexfer': '../bower_components/spice-html5/filexfer'
+    'spice-filexfer': '../bower_components/spice-html5/filexfer',
+
+    /* vis.js */
+    'vis': '../bower_components/vis/dist/vis.min'
   },
   shim: {
+    /* Tabs */
+    'app': {
+      deps: [
+        'tabs/provision-tab',
+        'tabs/dashboard-tab',
+        'tabs/system-tab',
+        'tabs/users-tab',
+        'tabs/groups-tab',
+        'tabs/vdcs-tab',
+        'tabs/acls-tab',
+        'tabs/vresources-tab',
+        'tabs/vms-tab',
+        'tabs/templates-tab',
+        'tabs/images-tab',
+        'tabs/files-tab',
+        'tabs/infra-tab',
+        'tabs/clusters-tab',
+        'tabs/hosts-tab',
+        'tabs/datastores-tab',
+        'tabs/vnets-topology-tab',
+        'tabs/vnets-tab',
+        'tabs/secgroups-tab',
+        'tabs/vrouters-tab',
+        'tabs/zones-tab',
+        'tabs/oneflow-dashboard-tab',
+        'tabs/oneflow-services-tab',
+        'tabs/oneflow-templates-tab',
+        'tabs/marketplaces-tab',
+        'tabs/marketplaceapps-tab',
+        'tabs/settings-tab',
+        'tabs/support-tab'
+      ]
+    },
+    
     /* jQuery */
     'jquery': {
       exports: '$'
@@ -199,11 +249,6 @@ require.config({
       deps: ['flot']
     },
 
-    /* noUiSlider */
-    'nouislider': {
-      deps: ['jquery']
-    },
-
     /* VNC */
     'vnc-util': {
       exports: 'Util'
@@ -272,6 +317,12 @@ require.config({
         'spice-ticket',
         'spice-resize',
         'spice-filexfer'
+      ]
+    },
+
+    'spice-rng': {
+      deps: [
+        'spice-prng4'
       ]
     },
 

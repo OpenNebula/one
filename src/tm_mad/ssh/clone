@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,6 +38,8 @@ fi
 
 . $TMCOMMON
 
+DRIVER_PATH=$(dirname $0)
+
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
@@ -52,6 +54,25 @@ DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
 ssh_make_path $DST_HOST $DST_DIR
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+
+SIZE="${XPATH_ELEMENTS[j++]}"
+ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy files to the remote host
@@ -70,6 +91,12 @@ http://*)
     if [ -d "${SRC_PATH_SNAP}" ]; then
         exec_and_log "$SCP -r ${SRC_PATH_SNAP} ${DST_PATH_SNAP}" \
             "Error copying $SRC to $DST"
+    fi
+
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+       RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+       ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
+           "Error resizing image $DST"
     fi
     ;;
 esac

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,9 +32,9 @@ class TransferManager : public MadManager, public ActionListener
 public:
 
     TransferManager(
-        VirtualMachinePool *        _vmpool,
-        HostPool *                  _hpool,
-        vector<const Attribute*>&   _mads):
+        VirtualMachinePool * _vmpool,
+        HostPool *           _hpool,
+        vector<const VectorAttribute*>& _mads):
             MadManager(_mads),
             vmpool(_vmpool),
             hpool(_hpool)
@@ -122,6 +122,22 @@ public:
             string&                 opennebula_hostname,
             ostream&                xfr,
             ostringstream&          error);
+
+    /**
+     * Inserts a context command in the xfs stream
+     *
+     * @param vm The VM
+     * @param token_password Owner user's token password
+     * @param system_tm_mad The Transfer Manager for the system datastore
+     * @param xfr Stream where the transfer command will be written
+     *
+     * @return 0 on success
+     */
+    int prolog_context_command(
+            VirtualMachine *        vm,
+            const string&           token_password,
+            string&                 system_tm_mad,
+            ostream&                xfr);
 
     /**
      * Inserts a transfer command in the xfs stream

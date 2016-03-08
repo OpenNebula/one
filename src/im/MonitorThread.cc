@@ -1,6 +1,6 @@
 
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -150,30 +150,9 @@ void MonitorThread::do_message()
             continue;
         }
 
-        if (ds->get_type() == Datastore::SYSTEM_DS)
+        if (ds->get_type() == Datastore::SYSTEM_DS && !ds->is_shared())
         {
-            if (ds->is_shared())
-            {
-                float total = 0, free = 0, used = 0;
-                ostringstream oss;
-
-                (itm->second)->vector_value("TOTAL_MB", total);
-                (itm->second)->vector_value("FREE_MB", free);
-                (itm->second)->vector_value("USED_MB", used);
-
-                ds->update_monitor(total, free, used);
-
-                oss << "Datastore " << ds->get_name() << " (" << ds->get_oid()
-                    << ") successfully monitored.";
-
-                NebulaLog::log("ImM", Log::DEBUG, oss);
-
-                dspool->update(ds);
-            }
-            else
-            {
-                non_shared_ds.insert(itm->first);
-            }
+            non_shared_ds.insert(itm->first);
         }
 
         ds->unlock();

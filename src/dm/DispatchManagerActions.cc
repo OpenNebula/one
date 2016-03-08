@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,6 +78,7 @@ int DispatchManager::import (
     VirtualMachine *    vm)
 {
     ostringstream oss;
+    string import_state;
 
     if ( vm == 0 )
     {
@@ -92,14 +93,24 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
+    vector<VectorAttribute *> pci;
 
-    vm->get_requirements(cpu, mem, disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-    vm->set_state(VirtualMachine::ACTIVE);
+    import_state = vm->get_import_state();
 
-    vm->set_state(VirtualMachine::RUNNING);
+    if(import_state == "POWEROFF")
+    {
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::RUNNING);
+    }
 
     vmpool->update(vm);
 
@@ -768,9 +779,14 @@ int DispatchManager::finalize(
     string& error_str)
 {
     VirtualMachine * vm;
+    Host * host;
     ostringstream oss;
 
+    vector<VectorAttribute *> pci;
+
     VirtualMachine::VmState state;
+    bool is_public_host = false;
+    int  host_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -778,6 +794,32 @@ int DispatchManager::finalize(
     {
         return -1;
     }
+
+    if(vm->hasHistory())
+    {
+        host_id = vm->get_hid();
+    }
+
+    vm->unlock();
+
+    if(host_id != -1)
+    {
+        host = hpool->get(host_id,true);
+
+        if ( host == 0 )
+        {
+            oss << "Error getting host " << host_id;
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        is_public_host = host->is_public_cloud();
+
+        host->unlock();
+    }
+
+    vm = vmpool->get(vid,true);
 
     state = vm->get_state();
 
@@ -790,16 +832,32 @@ int DispatchManager::finalize(
         case VirtualMachine::POWEROFF:
             int cpu, mem, disk;
 
-            vm->get_requirements(cpu,mem,disk);
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+            vm->get_requirements(cpu, mem, disk, pci);
+            hpool->del_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
-            tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 
@@ -833,6 +891,11 @@ int DispatchManager::resubmit(
     ostringstream    oss;
     int              rc = 0;
 
+    Template *           vm_quotas = 0;
+    map<int, Template *> ds_quotas;
+
+    int vm_uid, vm_gid;
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -854,13 +917,18 @@ int DispatchManager::resubmit(
             rc = -2;
         break;
 
-        case VirtualMachine::INIT: // No need to do nothing here
+        case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         break;
 
-        case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
+            vm_uid = vm->get_uid();
+            vm_gid = vm->get_gid();
+
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas, ds_quotas);
+
+        case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
                 vm->set_action(History::DELETE_RECREATE_ACTION);
@@ -886,6 +954,18 @@ int DispatchManager::resubmit(
 
     vm->unlock();
 
+    if ( !ds_quotas.empty() )
+    {
+        Quotas::ds_del(ds_quotas);
+    }
+
+    if ( vm_quotas != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
+    }
+
     return rc;
 }
 
@@ -902,6 +982,7 @@ int DispatchManager::attach(int vid,
     int uid;
     int oid;
     int image_id;
+    int image_cluster_id;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -965,20 +1046,17 @@ int DispatchManager::attach(int vid,
 
     if ( vm == 0 )
     {
-        if ( image_id != -1 )
-        {
-            imagem->release_image(oid, image_id, false);
-        }
+		if ( disk != 0 )
+		{
+			imagem->release_image(oid, image_id, false);
 
-        delete snap;
-        delete disk;
+			delete snap;
+			delete disk;
+		}
 
-        oss << "Could not attach a new disk to VM " << vid
-            << ", VM does not exist after setting its state to HOTPLUG." ;
-        error_str = oss.str();
+        error_str = "VM does not exist after setting its state to HOTPLUG.";
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
-
         return -1;
     }
 
@@ -1000,6 +1078,37 @@ int DispatchManager::attach(int vid,
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
+    {
+      if (vm->get_cid() != image_cluster_id)
+      {
+          imagem->release_image(oid, image_id, false);
+
+          delete snap;
+          delete disk;
+
+          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+          {
+              vm->set_state(VirtualMachine::RUNNING);
+          }
+          else
+          {
+              vm->set_state(VirtualMachine::LCM_INIT);
+              vm->set_state(VirtualMachine::POWEROFF);
+          }
+
+          vmpool->update(vm);
+
+          vm->unlock();
+
+          error_str = "Could not attach disk because of cluster incompatibility.";
+
+          NebulaLog::log("DiM", Log::ERROR, error_str);
+          return -1;
+      }
     }
 
     // Set the VM info in the history before the disk is attached to the
@@ -1344,6 +1453,7 @@ int DispatchManager::attach_nic(
     int uid;
     int oid;
     int rc;
+    string tmp_error;
 
     set<int> vm_sgs;
 
@@ -1397,8 +1507,8 @@ int DispatchManager::attach_nic(
 
     vm->set_resched(false);
 
-    uid = vm->get_uid();
-    oid = vm->get_oid();
+    uid  = vm->get_uid();
+    oid  = vm->get_oid();
 
     vmpool->update(vm);
 
@@ -1415,8 +1525,6 @@ int DispatchManager::attach_nic(
 
     if ( vm == 0 )
     {
-        delete nic;
-
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
@@ -1427,6 +1535,8 @@ int DispatchManager::attach_nic(
                 delete *it;
             }
         }
+
+        delete nic;
 
         oss << "Could not attach a new NIC to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
@@ -1500,7 +1610,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->clear_attach_nic();
+        vm->attach_nic_success();
     }
 
     vmpool->update(vm);
@@ -1519,6 +1629,7 @@ int DispatchManager::detach_nic(
     string&  error_str)
 {
     ostringstream oss;
+    string        tmp_error;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1545,7 +1656,7 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    if ( vm->set_attach_nic(nic_id) == -1 )
+    if ( vm->set_detach_nic(nic_id) == -1 )
     {
         oss << "Could not detach NIC with NIC_ID " << nic_id
             << ", it does not exist.";
@@ -1599,9 +1710,11 @@ int DispatchManager::detach_nic(
     }
     else
     {
+        vmpool->update(vm);
+
         vm->unlock();
 
-        vmpool->delete_attach_nic(vid);
+        vmpool->detach_nic_success(vid);
 
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
     }
@@ -1615,11 +1728,12 @@ int DispatchManager::detach_nic(
 int DispatchManager::disk_snapshot_create(
         int           vid,
         int           did,
-        const string& tag,
+        const string& name,
         int&          snap_id,
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1652,7 +1766,10 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    snap_id = vm->new_disk_snapshot(did, tag, error_str);
+    // Set the VM info in the history before the snapshot is added to VM
+    vm->set_vm_info();
+
+    snap_id = vm->new_disk_snapshot(did, name, error_str);
 
     if (snap_id == -1)
     {
@@ -1692,6 +1809,29 @@ int DispatchManager::disk_snapshot_create(
             break;
 
         case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
             vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
             break;
 
@@ -1746,14 +1886,6 @@ int DispatchManager::disk_snapshot_revert(
 
     if (snaps == 0)
     {
-        vm->unlock();
-        return -1;
-    }
-
-    if (snaps->get_active_id() == snap_id)
-    {
-        error_str = "Snapshot is already the active one";
-
         vm->unlock();
         return -1;
     }
@@ -1815,6 +1947,7 @@ int DispatchManager::disk_snapshot_delete(
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1866,6 +1999,9 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
+    // Set the VM info in the history before the snapshot is removed from the VM
+    vm->set_vm_info();
+
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1892,9 +2028,32 @@ int DispatchManager::disk_snapshot_delete(
 
     switch(state)
     {
+        case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
-        case VirtualMachine::ACTIVE:
             tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
             break;
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,7 +30,6 @@ void VdcEditGroup::request_execute(
 
     string vdc_name;
     string group_name;
-    string error_str;
 
     Vdc* vdc;
 
@@ -53,9 +52,9 @@ void VdcEditGroup::request_execute(
 
     if ( rc == -1 && check_obj_exist )
     {
-        failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::GROUP),
-                group_id), att);
-
+        att.resp_obj = PoolObjectSQL::GROUP;
+        att.resp_id  = group_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -68,10 +67,8 @@ void VdcEditGroup::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
@@ -80,14 +77,12 @@ void VdcEditGroup::request_execute(
 
     if ( vdc  == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),vdc_id),
-                att);
-
+        att.resp_id = vdc_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_group(vdc, group_id, error_str);
+    rc = edit_group(vdc, group_id, att.resp_msg);
 
     if (rc == 0)
     {
@@ -98,10 +93,7 @@ void VdcEditGroup::request_execute(
 
     if (rc != 0)
     {
-        failure_response(INTERNAL,
-                request_error("Cannot edit VDC", error_str),
-                att);
-
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -144,7 +136,6 @@ void VdcEditResource::request_execute(
     string vdc_name;
     string zone_name;
     string res_name;
-    string error_str;
 
     Vdc* vdc;
 
@@ -156,8 +147,7 @@ void VdcEditResource::request_execute(
     // Authorize the action
     // -------------------------------------------------------------------------
 
-    rc = get_info(pool, vdc_id, PoolObjectSQL::VDC,
-                    att, vdc_perms, vdc_name, true);
+    rc = get_info(pool, vdc_id, PoolObjectSQL::VDC, att, vdc_perms, vdc_name, true);
 
     if ( rc == -1 )
     {
@@ -165,32 +155,30 @@ void VdcEditResource::request_execute(
     }
 
     rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE, att, zone_perms,
-                    zone_name, false);
+            zone_name, false);
 
     zone_exists = (rc == 0);
 
     if ( rc == -1 && check_obj_exist )
     {
-        failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::ZONE),
-                zone_id), att);
-
+        att.resp_obj = PoolObjectSQL::ZONE;
+        att.resp_id  = zone_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     // TODO: resource must exist in target zone, this code only checks locally
-
     if (res_id != Vdc::ALL_RESOURCES && zone_id == local_zone_id)
     {
-        rc = get_info(respool, res_id, res_obj_type, att,
-                        res_perms, res_name, false);
+        rc = get_info(respool, res_id, res_obj_type, att, res_perms, res_name, false);
 
         res_exists = (rc == 0);
 
         if ( rc == -1 && check_obj_exist )
         {
-            failure_response(NO_EXISTS, get_error(object_name(res_obj_type),
-                    res_id), att);
-
+            att.resp_obj = res_obj_type;
+            att.resp_id  = res_id;
+            failure_response(NO_EXISTS, att);
             return;
         }
     }
@@ -213,10 +201,8 @@ void VdcEditResource::request_execute(
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
-
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
             return;
         }
     }
@@ -225,14 +211,12 @@ void VdcEditResource::request_execute(
 
     if ( vdc  == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),vdc_id),
-                att);
-
+        att.resp_id = vdc_id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_resource(vdc, zone_id, res_id, error_str);
+    rc = edit_resource(vdc, zone_id, res_id, att.resp_msg);
 
     if (rc == 0)
     {
@@ -243,10 +227,7 @@ void VdcEditResource::request_execute(
 
     if (rc != 0)
     {
-        failure_response(INTERNAL,
-                request_error("Error updating the VDC", error_str),
-                att);
-
+        failure_response(INTERNAL, att);
         return;
     }
 

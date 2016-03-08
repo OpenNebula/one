@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -20,6 +36,7 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./network/panelId');
   var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -41,6 +58,8 @@ define(function(require) {
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
   Panel.prototype.onShow = _onShow;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -53,7 +72,7 @@ define(function(require) {
     var html = '<form id="tab_network_form" vmid="' + that.element.ID + '" >\
         <div class="row">\
         <div class="large-12 columns">\
-           <table class="nics_table no-hover info_table dataTable extended_table">\
+           <table class="nics_table no-hover info_table dataTable">\
              <thead>\
                <tr>\
                   <th></th>\
@@ -92,7 +111,7 @@ define(function(require) {
     if (!$.isEmptyObject(externalNetworkAttrs)) {
       html += '<div class="row">' +
         '<div class="large-12 columns">' +
-         '<table class="dataTable extended_table">' +
+         '<table class="dataTable">' +
             '<thead>' +
               '<tr>' +
                  '<th colspan=2>' + Locale.tr("Network Monitoring Attributes") + '</th>' +
@@ -117,7 +136,7 @@ define(function(require) {
     if (OpenNebulaVM.isNICGraphsSupported(that.element)) {
       html += '\
           <div class="row">\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET RX") + '</small></h3>\
                 </div>\
@@ -133,7 +152,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET TX") + '</small></h3>\
                 </div>\
@@ -149,7 +168,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET DOWNLOAD SPEED") + '</small></h3>\
                 </div>\
@@ -165,7 +184,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET UPLOAD SPEED") + '</small></h3>\
                 </div>\
@@ -229,27 +248,47 @@ define(function(require) {
         var secgroups = [];
 
         var nic_secgroups = {};
-        if (nic.SECURITY_GROUPS != undefined) {
+        if (!$.isEmptyObject(nic.SECURITY_GROUPS)) {
           $.each(nic.SECURITY_GROUPS.split(","), function() {
             nic_secgroups[this] = true;
           });
         }
 
-        if (that.element.TEMPLATE.SECURITY_GROUP_RULE != undefined) {
-          $.each(that.element.TEMPLATE.SECURITY_GROUP_RULE, function() {
+        var rules = that.element.TEMPLATE.SECURITY_GROUP_RULE;
+
+        if (rules != undefined) {
+          if (!$.isArray(rules)) {
+            rules = [rules];
+          }
+
+          $.each(rules, function() {
             if (nic_secgroups[this.SECURITY_GROUP_ID]) {
               secgroups.push(this);
             }
           });
         }
 
+        function ipTr(attr){
+          var v = "--";
+
+          if (nic[attr] != undefined){
+            v = nic[attr];
+
+            if (nic["VROUTER_"+attr] != undefined){
+              v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+            }
+          }
+
+          return v;
+        }
+
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : nic.NETWORK,
-          IP : (nic.IP ? nic.IP : "--"),
+          IP : ipTr("IP"),
           MAC : nic.MAC,
-          IP6_ULA : (nic.IP6_ULA ? nic.IP6_ULA : "--"),
-          IP6_GLOBAL : (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--"),
+          IP6_ULA : ipTr("IP6_ULA"),
+          IP6_GLOBAL : ipTr("IP6_GLOBAL"),
           ACTIONS : actions,
           SECURITY_GROUP_RULES : secgroups
         });
@@ -268,10 +307,10 @@ define(function(require) {
         },
         {"data": "NIC_ID",     "defaultContent": ""},
         {"data": "NETWORK",    "defaultContent": ""},
-        {"data": "IP",         "defaultContent": ""},
+        {"data": "IP",         "defaultContent": "", "class": "nowrap"},
         {"data": "MAC",        "defaultContent": ""},
-        {"data": "IP6_ULA",    "defaultContent": ""},
-        {"data": "IP6_GLOBAL", "defaultContent": ""},
+        {"data": "IP6_ULA",    "defaultContent": "", "class": "nowrap"},
+        {"data": "IP6_GLOBAL", "defaultContent": "", "class": "nowrap"},
         {"data": "ACTIONS",    "defaultContent": "", "orderable": false},
         {"defaultContent": "", "orderable": false}
       ],
@@ -301,7 +340,7 @@ define(function(require) {
         $(this).children("span").removeClass('fa-chevron-up');
       } else {
         var html = '<div style="padding-left: 30px;">\
-              <table class="extended_table dataTable">\
+              <table class="dataTable">\
                 <thead>\
                   <tr>\
                     <th colspan="2">' + Locale.tr("Security Group") + '</th>\
@@ -350,7 +389,20 @@ define(function(require) {
       context.off('click', '.detachnic');
       context.on('click', '.detachnic', function() {
         var nic_id = $(this).parents('tr').attr('nic_id');
-        Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will detach the nic immediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
         return false;
       });
     }
@@ -363,28 +415,28 @@ define(function(require) {
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "NET_TX,NET_RX"
+            monitor_resources : "MONITORING/NETTX,MONITORING/NETRX"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Network reception"),
-              monitor_resources : "NET_RX",
+              monitor_resources : "MONITORING/NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_rx_graph")
             },
             {
               labels : Locale.tr("Network transmission"),
-              monitor_resources : "NET_TX",
+              monitor_resources : "MONITORING/NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_tx_graph")
             },
             {
               labels : Locale.tr("Network reception speed"),
-              monitor_resources : "NET_RX",
+              monitor_resources : "MONITORING/NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -393,7 +445,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Network transmission speed"),
-              monitor_resources : "NET_TX",
+              monitor_resources : "MONITORING/NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -409,5 +461,25 @@ define(function(require) {
         error: Notifier.onError
       });
     }
+  }
+
+  function _getState(context) {
+    var state = {
+      openNicsDetails : []
+    };
+
+    $.each($("#tab_network_form .nics_table .fa-chevron-up", context), function(){
+      state.openNicsDetails.push($(this).closest("tr").attr("nic_id"));
+    });
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    $.each(state["openNicsDetails"], function(){
+      $('#tab_network_form .nics_table tr[nic_id="'+this+'"] td.open-control', context).click();
+    });
   }
 });

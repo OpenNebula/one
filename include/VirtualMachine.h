@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -166,7 +166,9 @@ public:
         DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
         DISK_SNAPSHOT        = 57,
         DISK_SNAPSHOT_REVERT = 58,
-        DISK_SNAPSHOT_DELETE = 59
+        DISK_SNAPSHOT_DELETE = 59,
+        PROLOG_MIGRATE_UNKNOWN = 60,
+        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -231,6 +233,8 @@ public:
         else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
         else if ( st == "DISK_SNAPSHOT_REVERT") { state = DISK_SNAPSHOT_REVERT; }
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
+        else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
+        else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -298,6 +302,8 @@ public:
             case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
             case DISK_SNAPSHOT_REVERT: st = "DISK_SNAPSHOT_REVERT"; break;
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
+            case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
+            case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
         }
 
         return st;
@@ -416,21 +422,24 @@ public:
     int update_info(const string& monitor_data);
 
     /**
-     *  Clears the VM monitor information: usage counters, last_poll,
-     *  custom attributes, and copies it to the history record for acct.
+     *  Clears the VM monitor information usage counters (MEMORY, CPU),
+     *  last_poll, custom attributes, and copies it to the history record
+     *  for acct.
      */
     void reset_info()
     {
         last_poll = time(0);
 
-        monitoring.clear();
+        monitoring.replace("CPU","0.0");
+
+        monitoring.replace("MEMORY","0");
 
         set_vm_info();
 
         clear_template_monitor_error();
     }
 
-    const VirtualMachineMonitorInfo& get_info() const
+    VirtualMachineMonitorInfo& get_info()
     {
         return monitoring;
     }
@@ -460,17 +469,12 @@ public:
      */
     void set_kernel(const string& kernel)
     {
-        vector<Attribute *> os_attr;
-        VectorAttribute *   os;
+        VectorAttribute * os = obj_template->get("OS");
 
-        int num = obj_template->get("OS", os_attr);
-
-        if ( num == 0 )
+        if ( os == 0 )
         {
             return;
         }
-
-        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
 
         os->replace("KERNEL", kernel);
     };
@@ -482,17 +486,12 @@ public:
      */
     void set_initrd(const string& initrd)
     {
-        vector<Attribute *> os_attr;
-        VectorAttribute *   os;
+        VectorAttribute * os = obj_template->get("OS");
 
-        int num = obj_template->get("OS", os_attr);
-
-        if ( num == 0 )
+        if ( os == 0 )
         {
             return;
         }
-
-        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
 
         os->replace("INITRD", initrd);
     };
@@ -827,6 +826,24 @@ public:
     int get_previous_hid()
     {
         return previous_history->hid;
+    }
+
+    /**
+     *  Get cluster id where the VM is or is going to execute. The hasHistory()
+     *  function MUST be called before this one.
+     */
+    int get_cid()
+    {
+        return history->cid;
+    }
+
+    /**
+     *  Get cluster id where the VM was executing. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     */
+    int get_previous_cid()
+    {
+        return previous_history->cid;
     }
 
     /**
@@ -1201,8 +1218,10 @@ public:
      *    @param cpu
      *    @param memory
      *    @param disk
+     *    @param pci_dev
      */
-    void get_requirements (int& cpu, int& memory, int& disk);
+    void get_requirements (int& cpu, int& memory, int& disk,
+            vector<VectorAttribute *>& pci_dev);
 
     /**
      *  Checks if the resize parameters are valid
@@ -1242,7 +1261,19 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    static int release_network_leases(VectorAttribute const * nic, int vmid);
+    static int release_network_leases(const VectorAttribute * nic, int vmid);
+
+    /**
+     * Returns a set of the security group IDs in use in this VM
+     * @param sgs a set of security group IDs
+     */
+    void get_security_groups(set<int>& sgs) const;
+
+    /**
+     *  Remove the rules associated to the given security group rules
+     *    @param sgid the security group ID
+     */
+    void remove_security_group(int sgid);
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -1255,35 +1286,64 @@ public:
     static bool is_volatile(const VectorAttribute * disk);
 
     /**
-     *  Check if the template contains a volatile disk
-     */
-    static bool is_volatile(const Template * tmpl);
-
-    /**
      *  Check if the disk is persistent
      */
     static bool is_persistent(const VectorAttribute * disk);
 
     /**
-     *  Check if the themplate is for an imported VM
+     *  Check if the VM is imported
      */
     bool is_imported() const;
 
     /**
-     *  Return the total SIZE of volatile disks
+     *  Return state of the VM right before import
      */
-    static long long get_volatile_disk_size(Template * tmpl);
+    string get_import_state();
 
     /**
-     * Returns a set of the security group IDs in use in this VM
-     * @param sgs a set of security group IDs
+     * Checks if the current VM MAD supports the given action for imported VMs
+     * @param action VM action to check
+     * @return true if the current VM MAD supports the given action for imported VMs
      */
-    void get_security_groups(set<int>& sgs) const;
+    bool is_imported_action_supported(History::VMAction action) const;
 
     /**
-     *
+     *  Return the total disk SIZE that the VM instance needs in the system DS
+     */
+    static long long get_system_disk_size(Template * tmpl);
+
+    /**
+     * Returns the disk CLONE_TARGET or LN_TARGET
+     * @param disk
+     * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
+     */
+    static string disk_tm_target(const VectorAttribute *  disk);
+
+    /**
+     * Returns the DISK attribute for a disk
+     *   @param disk_id of the DISK
+     *   @return pointer to the attribute ir null if not found
      */
     const VectorAttribute* get_disk(int disk_id) const;
+
+    const VectorAttribute* get_nic(int nic_id) const;
+
+    // ------------------------------------------------------------------------
+    // Virtual Router related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns the Virtual Router ID if this VM is a VR, or -1
+     * @return VR ID or -1
+     */
+    int get_vrouter_id();
+
+    /**
+     * Returns true if this VM is a Virtual Router
+     * @return true if this VM is a Virtual Router
+     */
+    bool is_vrouter();
+
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1296,7 +1356,18 @@ public:
      *    @param  token_password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, string& token_password);
+    int  generate_context(string &files, int &disk_id, const string& token_password);
+
+    const VectorAttribute* get_context() const
+    {
+        return obj_template->get("CONTEXT");
+    }
+
+    /**
+     * Returns the CREATED_BY template attribute, or the uid if it does not exist
+     * @return uid
+     */
+    int get_created_by_uid() const;
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1305,10 +1376,13 @@ public:
      *  Mark the disk that is going to be "save as"
      *    @param disk_id of the VM
      *    @param snap_id of the disk to save, -1 to select the active snapshot
-     *    @param err_str describing the error
-     *    @return -1 if the image cannot saveas or image_id of current disk
+     *    @param img_id The image id used by the disk
+     *    @param size The disk size. This may be different to the original
+     *    image size
+     *    @param err_str describing the error if any
+     *    @return -1 if the image cannot saveas, 0 on success
      */
-    int set_saveas_disk(int disk_id, int snap_id, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size, string& err_str);
 
     /**
      *  Set save attributes for the disk
@@ -1363,6 +1437,30 @@ public:
     static void set_auth_request(int uid,
                                  AuthRequest& ar,
                                  VirtualMachineTemplate *tmpl);
+
+    /**
+     *  Adds extra info to the given template:
+     *  DISK/IMAGE_ID and SIZE
+     *    @param  uid for template owner
+     *    @param  tmpl the virtual machine template
+     */
+    static void disk_extended_info(int uid,
+                                  VirtualMachineTemplate *tmpl);
+    /**
+     *  Adds extra info to the volatile disks of the given template, ds inherited
+     *  attributes and TYPE
+     *    @param  tmpl the virtual machine template
+     *    @return true if there at least one volatile disk was found
+     */
+    bool volatile_disk_extended_info(Template *tmpl);
+
+    /**
+     *  Adds extra info to the volatile disks of the given VM
+     */
+    bool volatile_disk_extended_info()
+    {
+        return volatile_disk_extended_info(obj_template);
+    }
 
     // -------------------------------------------------------------------------
     // Hotplug related functions
@@ -1492,18 +1590,6 @@ public:
                             string&                  error_str);
 
     /**
-     * Cleans the ATTACH = YES attribute from the NICs
-     */
-    void clear_attach_nic();
-
-    /**
-     * Deletes the NIC that was in the process of being attached
-     *
-     * @return the deleted NIC or 0 if none was deleted
-     */
-    VectorAttribute * delete_attach_nic();
-
-    /**
      *  Adds a new NIC to the virtual machine template. The NIC should be
      *  generated by the build_attach_nic
      *    @param new_nic must be allocated in the heap
@@ -1512,11 +1598,36 @@ public:
     void set_attach_nic(VectorAttribute * new_nic, vector<VectorAttribute*> &rules);
 
     /**
+     * Cleans the ATTACH = YES attribute from the NICs
+     */
+    void attach_nic_success();
+
+    /**
+     * Deletes the NIC that was in the process of being attached
+     *
+     * @return the deleted NIC or 0 if none was deleted
+     */
+    VectorAttribute * attach_nic_failure();
+
+    /**
      *  Sets the attach attribute to the given NIC
      *    @param nic_id of the NIC
      *    @return 0 if the nic_id was found, -1 otherwise
      */
-    int set_attach_nic(int nic_id);
+    int set_detach_nic(int nic_id);
+
+    /**
+     * Deletes the NIC that was in the process of being detached
+     *
+     * @return the deleted NIC or 0 if none was deleted
+     */
+    VectorAttribute * detach_nic_success();
+
+    /**
+     * Cleans the ATTACH = YES attribute from the NIC, restores the NIC context
+     * variables
+     */
+    void detach_nic_failure();
 
     // ------------------------------------------------------------------------
     // Snapshot related functions
@@ -1533,11 +1644,11 @@ public:
     /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk
-     *    @param tag a description for this snapshot
+     *    @param name a description for this snapshot
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int new_disk_snapshot(int disk_id, const string& tag, string& error);
+    int new_disk_snapshot(int disk_id, const string& name, string& error);
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
@@ -1549,15 +1660,23 @@ public:
     int revert_disk_snapshot(int disk_id, int snap_id);
 
     /**
-     *  Deletes the snap_id from the list, test_delete_disk_snapshot *MUST* be
-     *  called before actually deleting the snapshot.
+     *  Deletes the snap_id from the list
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
-     *    @param type of quota used by this snapshot
-     *    @param quotas template with snapshot usage
+     *    @param ds_quotas template with snapshot usage for the DS quotas
+     *    @param vm_quotas template with snapshot usage for the VM quotas
      */
-    void delete_disk_snapshot(int disk_id, int snap_id, Quotas::QuotaType& type,
-            Template **quotas);
+    void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
+            Template **vm_quotas);
+
+    /**
+     * Deletes all the disk snapshots for non-persistent disks and for persistent
+     * disks in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_disk_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas);
 
     /**
      *  Get information about the disk to take the snapshot from
@@ -1626,17 +1745,6 @@ public:
      * Deletes all SNAPSHOT attributes
      */
     void delete_snapshots();
-
-    // ------------------------------------------------------------------------
-    // Public cloud templates related functions
-    // ------------------------------------------------------------------------
-
-    /**
-     * Gets the list of public cloud hypervisors for which this VM has definitions
-     * @param list to store the cloud hypervisors in the template
-     * @return the number of public cloud hypervisors
-     */
-    int get_public_cloud_hypervisors(vector<string> &cloud_hypervisors) const;
 
 private:
 
@@ -1898,6 +2006,20 @@ private:
     int parse_defaults(string& error_str);
 
     /**
+     * Parse virtual router related attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_vrouter(string& error_str);
+
+    /**
+     * Known Virtual Router attributes, to be moved from the user template
+     * to the template
+     */
+    static const char* VROUTER_ATTRIBUTES[];
+    static const int   NUM_VROUTER_ATTRIBUTES;
+
+    /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
      *
@@ -1926,12 +2048,30 @@ private:
     static const int   NUM_NETWORK6_CONTEXT;
 
     /**
+     * Parse the "PCI" attribute of the template and checks mandatory attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_pci(string& error_str);
+
+    /**
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
     int parse_context(string& error_str);
+
+    /**
+     * Parses the current contents of the context vector attribute, without
+     * adding any attributes. Substitutes $VARIABLE, $VARIABLE[ATTR] and
+     * $VARIABLE[ATTR, ATTR = VALUE]
+     *   @param pointer to the context attribute. It will be updated to point
+     *   to the new parsed CONTEXT
+     *   @param error_str description in case of error
+     *   @return 0 on success
+     */
+    int parse_context_variables(VectorAttribute ** context, string& error_str);
 
     /**
      *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
@@ -1989,25 +2129,6 @@ private:
     int get_network_leases(string &error_str);
 
     /**
-     * Acquires the security groups of this NIC
-     *
-     * @param vm_id Virtual Machine oid
-     * @param sgs security group ID set
-     * @param rules Security Group rules will be added at the end of this vector
-     */
-    static void get_security_group_rules(int vm_id, set<int>& sgs,
-        vector<VectorAttribute*> &rules);
-
-    /**
-     * Releases the security groups of this NIC
-     *
-     * @param vm_id Virtual Machine oid
-     * @param nic NIC to release the security groups
-     * @return 0 on success, -1 otherwise
-     */
-    static void release_security_groups(int vm_id, const VectorAttribute * nic);
-
-    /**
      * Returns a set of the security group IDs of this NIC
      * @param nic NIC to get the security groups from
      * @param sgs a set of security group IDs
@@ -2035,6 +2156,63 @@ private:
                 static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
     };
 
+    /**
+     * Returns the NIC that is waiting for an attachment action
+     *
+     * @return the NIC waiting for an attachment action, or 0
+     */
+    VectorAttribute* get_attach_nic();
+
+    // ------------------------------------------------------------------------
+    // Public cloud templates related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Gets the list of public clouds defined in this VM.
+     * @param clouds list to store the cloud hypervisors in the template
+     * @return the number of public cloud hypervisors
+     */
+    int get_public_clouds(set<string> &clouds) const
+    {
+        get_public_clouds("PUBLIC_CLOUD", clouds);
+        get_public_clouds("EC2", clouds);
+
+        return clouds.size();
+    };
+
+    /**
+     * Same as above but specifies the attribute name to handle old versions
+     * @param name Attribute name
+     * @param clouds list to store the cloud hypervisors in the template
+     */
+    void get_public_clouds(const string& name, set<string> &clouds) const;
+
+    /**
+     *  Parse the public cloud attributes and subsititue variable definition
+     *  for the values in the template, i.e.:
+     *    INSTANCE_TYPE="m1-small"
+     *
+     *    PUBLIC_CLOUD=[ TYPE="ec2", INSTANCE="$INSTANCE_TYPE"...
+     *
+     *  @param error description if any
+     *  @return -1 in case of error
+     */
+    int parse_public_clouds(string& error)
+    {
+        int rc = parse_public_clouds("PUBLIC_CLOUD", error);
+
+        if (rc == 0)
+        {
+            rc = parse_public_clouds("EC2", error);
+        }
+
+        return rc;
+    };
+
+    /**
+     * Same as above but specifies the attribute name to handle old versions
+     */
+    int parse_public_clouds(const char *name, string& error);
 
 protected:
 

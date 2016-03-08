@@ -1,12 +1,30 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
 
   var OpenNebulaVM = require('opennebula/vm');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
+  var TEMPLATE_ATTR = 'USER_TEMPLATE';
 
   var _columns = [
     Locale.tr("ID") ,
@@ -20,7 +38,8 @@ define(function(require) {
     Locale.tr("IPs"),
     Locale.tr("Start Time"),
     "",
-    Locale.tr("Hidden Template")
+    Locale.tr("Hidden Template"),
+    Locale.tr("Labels")
   ];
 
   return {
@@ -50,22 +69,38 @@ define(function(require) {
       vncIcon = '';
     }
 
+    var cpuMonitoring = 0;
+    var memoryMonitoring = 0;
+    if (element.MONITORING) {
+      if (element.MONITORING.CPU) {
+        cpuMonitoring = element.MONITORING.CPU
+      }
+
+      if (element.MONITORING.MEMORY) {
+        memoryMonitoring = element.MONITORING.MEMORY
+      }
+    }
+    
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
-       element.ID,
-       element.UNAME,
-       element.GNAME,
-       element.NAME,
-       state,
-       "TODO", //TODO new monitoring path for element.CPU,
-       Humanize.size(element.MEMORY),
-       OpenNebulaVM.hostnameStr(element),
-       OpenNebulaVM.ipsStr(element),
-       Humanize.prettyTime(element.STIME),
-       vncIcon,
-       TemplateUtils.templateToString(element)
+      '<input class="check_item" '+
+        'type="checkbox" '+
+        'id="' + RESOURCE.toLowerCase() + '_' + element.ID + '" '+
+        'name="selected_items" '+
+        'value="' + element.ID + '" '+
+        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
+      element.ID,
+      element.UNAME,
+      element.GNAME,
+      element.NAME,
+      state,
+      cpuMonitoring,
+      Humanize.size(memoryMonitoring),
+      OpenNebulaVM.hostnameStr(element),
+      OpenNebulaVM.ipsStr(element),
+      Humanize.prettyTime(element.STIME),
+      vncIcon,
+      TemplateUtils.templateToString(element),
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 
@@ -75,6 +110,7 @@ define(function(require) {
                              vmId + '" name="selected_items" value="' +
                              vmId + '"/>',
        vmId,
+       "",
        "",
        "",
        "",

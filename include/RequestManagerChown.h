@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -268,7 +268,76 @@ public:
         return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
     };
 };
-/* -------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterChown: public RequestManagerChown
+{
+public:
+    VirtualRouterChown():
+        RequestManagerChown("VirtualRouterChown",
+                            "Changes ownership of a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceChown: public RequestManagerChown
+{
+public:
+    MarketPlaceChown():
+        RequestManagerChown("MarketPlaceChown",
+                            "Changes ownership of a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return 0;
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppChown: public RequestManagerChown
+{
+public:
+    MarketPlaceAppChown():
+        RequestManagerChown("MarketPlaceAppChown",
+                            "Changes ownership of a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlaceAppPool *>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

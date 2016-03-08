@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,56 +19,63 @@
 
 #include "PoolObjectAuth.h"
 
-string Request::format_str;
-
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* RequestLog Methods                                                         */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::execute(
-        xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value *   const  _retval)
+string Request::object_name(PoolObjectSQL::ObjectType ob)
 {
-    RequestAttributes att;
-
-    att.retval  = _retval;
-    att.session = xmlrpc_c::value_string (_paramList.getString(0));
-
-    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
-
-    Nebula& nd = Nebula::instance();
-    UserPool* upool = nd.get_upool();
-
-    bool authenticated = upool->authenticate(att.session,
-                                             att.password,
-                                             att.uid,
-                                             att.gid,
-                                             att.uname,
-                                             att.gname,
-                                             att.group_ids,
-                                             att.umask);
-
-    log_method_invoked(att, _paramList);
-
-    if ( authenticated == false )
+    switch (ob)
     {
-        failure_response(AUTHENTICATION, authenticate_error(), att);
-    }
-    else
-    {
-        request_execute(_paramList, att);
-    }
-
-    log_result(att);
+        case PoolObjectSQL::VM:
+            return "virtual machine";
+        case PoolObjectSQL::HOST:
+            return "host";
+        case PoolObjectSQL::NET:
+            return "virtual network";
+        case PoolObjectSQL::IMAGE:
+            return "image";
+        case PoolObjectSQL::USER:
+            return "user";
+        case PoolObjectSQL::TEMPLATE:
+            return "virtual machine template";
+        case PoolObjectSQL::GROUP:
+            return "group";
+        case PoolObjectSQL::ACL:
+            return "ACL";
+        case PoolObjectSQL::DATASTORE:
+            return "datastore";
+        case PoolObjectSQL::CLUSTER:
+            return "cluster";
+        case PoolObjectSQL::DOCUMENT:
+            return "document";
+        case PoolObjectSQL::ZONE:
+            return "zone";
+        case PoolObjectSQL::SECGROUP:
+            return "security group";
+        case PoolObjectSQL::VDC:
+            return "VDC";
+        case PoolObjectSQL::VROUTER:
+            return "virtual router";
+        case PoolObjectSQL::MARKETPLACE:
+            return "marketplace";
+        case PoolObjectSQL::MARKETPLACEAPP:
+            return "marketplaceapp";
+        default:
+            return "-";
+      }
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_method_invoked(
-        const RequestAttributes&    att,
-        const xmlrpc_c::paramList&  paramList)
+void Request::log_method_invoked(const RequestAttributes& att,
+        const xmlrpc_c::paramList&  paramList, const string& format_str,
+        const std::string& method_name, const std::set<int>& hidden_params)
 {
-    ostringstream oss;
+    std::ostringstream oss;
 
     for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
     {
@@ -141,16 +148,15 @@ void Request::log_method_invoked(
         }
     }
 
-    NebulaLog::log("ReM",Log::DEBUG, oss);
+    NebulaLog::log("ReM", Log::DEBUG, oss);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_result(
-        const RequestAttributes&    att)
+void Request::log_result(const RequestAttributes& att, const string& method_name)
 {
-    ostringstream oss;
+    std::ostringstream oss;
 
     oss << "Req:" << att.req_id << " UID:";
 
@@ -177,23 +183,21 @@ void Request::log_result(
             log_xmlrpc_value(vvalue[i], oss);
         }
 
-        NebulaLog::log("ReM",Log::DEBUG, oss);
+        NebulaLog::log("ReM", Log::DEBUG, oss);
     }
     else
     {
         oss << "FAILURE "
             << static_cast<string>(xmlrpc_c::value_string(vvalue[1]));
 
-        NebulaLog::log("ReM",Log::ERROR, oss);
+        NebulaLog::log("ReM", Log::ERROR, oss);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_xmlrpc_value(
-        const xmlrpc_c::value&  v,
-        ostringstream&          oss)
+void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
 {
     size_t st_limit = 20;
     size_t st_newline;
@@ -247,6 +251,53 @@ void Request::log_xmlrpc_value(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* Request Methods                                                            */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Request::format_str;
+
+/* -------------------------------------------------------------------------- */
+
+void Request::execute(
+        xmlrpc_c::paramList const& _paramList,
+        xmlrpc_c::value *   const  _retval)
+{
+    RequestAttributes att;
+
+    att.retval  = _retval;
+    att.session = xmlrpc_c::value_string (_paramList.getString(0));
+
+    att.req_id = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+
+    Nebula& nd = Nebula::instance();
+    UserPool* upool = nd.get_upool();
+
+    bool authenticated = upool->authenticate(att.session,
+                                             att.password,
+                                             att.uid,
+                                             att.gid,
+                                             att.uname,
+                                             att.gname,
+                                             att.group_ids,
+                                             att.umask);
+
+    log_method_invoked(att, _paramList, format_str, method_name, hidden_params);
+
+    if ( authenticated == false )
+    {
+        failure_response(AUTHENTICATION, att);
+    }
+    else
+    {
+        request_execute(_paramList, att);
+    }
+
+    log_result(att, method_name);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 bool Request::basic_authorization(int oid,
                                   AuthRequest::Operation op,
@@ -261,9 +312,8 @@ bool Request::basic_authorization(int oid,
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS,
-                             get_error(object_name(auth_object),oid),
-                             att);
+            att.resp_id = oid;
+            failure_response(NO_EXISTS, att);
             return false;
         }
 
@@ -293,9 +343,8 @@ bool Request::basic_authorization(int oid,
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION,
-                         authorization_error(ar.message, att),
-                         att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
         return false;
     }
@@ -449,15 +498,11 @@ bool Request::quota_authorization(Template *         tmpl,
                                   Quotas::QuotaType  qtype,
                                   RequestAttributes& att)
 {
-    string error_str;
-
-    bool auth = quota_authorization(tmpl, qtype, att, error_str);
+    bool auth = quota_authorization(tmpl, qtype, att, att.resp_msg);
 
     if ( auth == false )
     {
-        failure_response(AUTHORIZATION,
-                         request_error(error_str, ""),
-                         att);
+        failure_response(AUTHORIZATION, att);
     }
 
     return auth;
@@ -539,6 +584,86 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
 }
 
 /* -------------------------------------------------------------------------- */
+
+string Request::failure_message(ErrorCode ec, RequestAttributes& att)
+{
+    std::ostringstream oss;
+    std::string        obname;
+
+    if ( att.resp_obj == PoolObjectSQL::NONE )
+    {
+        obname = object_name(auth_object);
+    }
+    else
+    {
+        obname = object_name(att.resp_obj);
+    }
+
+    oss << "[" << method_name << "] ";
+
+    switch(ec)
+    {
+        case SUCCESS:
+            return "";
+
+        case AUTHORIZATION:
+            oss << "User [" << att.uid << "] ";
+
+            if (att.resp_msg.empty())
+            {
+                oss << "not authorized to perform action on " << obname << ".";
+            }
+            else
+            {
+                oss << ": " << att.resp_msg << ".";
+            }
+            break;
+
+        case AUTHENTICATION:
+            oss << "User couldn't be authenticated, aborting call.";
+            break;
+
+        case ACTION:
+        case XML_RPC_API:
+        case INTERNAL:
+            oss << att.resp_msg;
+            break;
+
+        case NO_EXISTS:
+            oss << "Error getting " << obname;
+
+            if ( att.resp_id != -1 )
+            {
+               oss << " [" << att.resp_id << "].";
+            }
+            else
+            {
+              oss << " Pool.";
+            }
+            break;
+
+        case ALLOCATE:
+            oss << "Error allocating a new " << obname << ".";
+
+            if (!att.resp_msg.empty())
+            {
+                oss << " " << att.resp_msg;
+            }
+            break;
+    }
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::failure_response(ErrorCode ec, RequestAttributes& att)
+{
+    failure_response(ec, failure_message(ec, att), att);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void Request::success_response(int id, RequestAttributes& att)
@@ -590,155 +715,6 @@ void Request::success_response(bool val, RequestAttributes& att)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Request::object_name(PoolObjectSQL::ObjectType ob)
-{
-    switch (ob)
-    {
-        case PoolObjectSQL::VM:
-            return "virtual machine";
-        case PoolObjectSQL::HOST:
-            return "host";
-        case PoolObjectSQL::NET:
-            return "virtual network";
-        case PoolObjectSQL::IMAGE:
-            return "image";
-        case PoolObjectSQL::USER:
-            return "user";
-        case PoolObjectSQL::TEMPLATE:
-            return "virtual machine template";
-        case PoolObjectSQL::GROUP:
-            return "group";
-        case PoolObjectSQL::ACL:
-            return "ACL";
-        case PoolObjectSQL::DATASTORE:
-            return "datastore";
-        case PoolObjectSQL::CLUSTER:
-            return "cluster";
-        case PoolObjectSQL::DOCUMENT:
-            return "document";
-        case PoolObjectSQL::ZONE:
-            return "zone";
-        case PoolObjectSQL::SECGROUP:
-            return "security group";
-        case PoolObjectSQL::VDC:
-            return "VDC";
-        default:
-            return "-";
-      }
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Request::authorization_error (const string &message,
-                                     RequestAttributes& att)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " User [" << att.uid << "] ";
-
-    if ( message.empty() )
-    {
-        oss << "not authorized to perform action on "
-            << object_name(auth_object) << ".";
-    }
-    else
-    {
-        oss << ": " << message << ".";
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-
-string Request::authenticate_error()
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " User couldn't be authenticated," <<
-           " aborting call.";
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-
-string Request::get_error (const string &object,
-                           int id)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " Error getting " <<
-           object;
-
-   if ( id != -1 )
-   {
-       oss << " [" << id << "].";
-   }
-   else
-   {
-      oss << " Pool.";
-   }
-
-   return oss.str();
-}
-/* -------------------------------------------------------------------------- */
-
-string Request::request_error (const string &err_desc, const string &err_detail)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "] " << err_desc;
-
-    if (!err_detail.empty())
-    {
-        oss << ". " << err_detail;
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Request::allocate_error(PoolObjectSQL::ObjectType obj,
-                               const string&             error)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " Error allocating a new "
-        << object_name(obj) << ".";
-
-    if (!error.empty())
-    {
-        oss << " " << error;
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Request::allocate_error (const string& error)
-{
-    ostringstream oss;
-
-    oss << "[" << method_name << "]" << " Error allocating a new "
-        << object_name(auth_object) << ".";
-
-    if (!error.empty())
-    {
-        oss << " " << error;
-    }
-
-    return oss.str();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Request::get_info(
         PoolSQL *                 pool,
         int                       id,
@@ -754,7 +730,9 @@ int Request::get_info(
     {
         if (throw_error)
         {
-            failure_response(NO_EXISTS, get_error(object_name(type), id), att);
+            att.resp_obj = type;
+            att.resp_id  = id;
+            failure_response(NO_EXISTS, att);
         }
 
         return -1;

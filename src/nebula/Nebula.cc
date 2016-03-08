@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,14 +32,6 @@
 #include <pthread.h>
 
 using namespace std;
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Nebula::bootstrap_db()
-{
-    start(true);
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -165,23 +157,16 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Init federation configuration
     // -----------------------------------------------------------
-
-    vector<const Attribute *> atts;
-
     federation_enabled  = false;
     federation_master   = false;
     zone_id             = 0;
     master_oned         = "";
 
-    rc = nebula_configuration->get("FEDERATION", atts);
+    const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
-    if (rc != 0)
+    if (vatt != 0)
     {
-        const VectorAttribute * vatt = static_cast<const VectorAttribute *>
-                                          (atts[0]);
-
-        string mode;
-        mode = vatt->vector_value("MODE");
+        string mode = vatt->vector_value("MODE");
         one_util::toupper(mode);
 
         if (mode == "STANDALONE")
@@ -233,10 +218,7 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     try
     {
-        vector<const Attribute *> dbs;
-        int  rc;
-
-        bool   db_is_sqlite = true;
+        bool db_is_sqlite = true;
 
         string server  = "localhost";
         string port_str;
@@ -245,20 +227,17 @@ void Nebula::start(bool bootstrap_only)
         string passwd  = "oneadmin";
         string db_name = "opennebula";
 
-        rc = nebula_configuration->get("DB", dbs);
+        const VectorAttribute * _db = nebula_configuration->get("DB");
 
-        if ( rc != 0 )
+        if ( _db != 0 )
         {
-            string value;
-            const  VectorAttribute * db = static_cast<const VectorAttribute *>
-                                              (dbs[0]);
-            value = db->vector_value("BACKEND");
+            string value = _db->vector_value("BACKEND");
 
             if (value == "mysql")
             {
                 db_is_sqlite = false;
 
-                value = db->vector_value("SERVER");
+                value = _db->vector_value("SERVER");
                 if (!value.empty())
                 {
                     server = value;
@@ -266,7 +245,7 @@ void Nebula::start(bool bootstrap_only)
 
                 istringstream   is;
 
-                port_str = db->vector_value("PORT");
+                port_str = _db->vector_value("PORT");
 
                 is.str(port_str);
                 is >> port;
@@ -276,19 +255,19 @@ void Nebula::start(bool bootstrap_only)
                     port = 0;
                 }
 
-                value = db->vector_value("USER");
+                value = _db->vector_value("USER");
                 if (!value.empty())
                 {
                     user = value;
                 }
 
-                value = db->vector_value("PASSWD");
+                value = _db->vector_value("PASSWD");
                 if (!value.empty())
                 {
                     passwd = value;
                 }
 
-                value = db->vector_value("DB_NAME");
+                value = _db->vector_value("DB_NAME");
                 if (!value.empty())
                 {
                     db_name = value;
@@ -298,15 +277,11 @@ void Nebula::start(bool bootstrap_only)
 
         if ( db_is_sqlite )
         {
-            string  db_name = var_location + "one.db";
-
-            db = new SqliteDB(db_name);
+            db = new SqliteDB(var_location + "one.db");
         }
         else
         {
-            ostringstream   oss;
-
-            db = new MySqlDB(server,port,user,passwd,db_name);
+            db = new MySqlDB(server, port, user, passwd, db_name);
         }
 
         // ---------------------------------------------------------------------
@@ -346,6 +321,7 @@ void Nebula::start(bool bootstrap_only)
             rc += UserQuotas::bootstrap(db);
             rc += GroupQuotas::bootstrap(db);
             rc += SecurityGroupPool::bootstrap(db);
+            rc += VirtualRouterPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -368,6 +344,8 @@ void Nebula::start(bool bootstrap_only)
             rc += AclManager::bootstrap(db);
             rc += ZonePool::bootstrap(db);
             rc += VdcPool::bootstrap(db);
+            rc += MarketPlacePool::bootstrap(db);
+            rc += MarketPlaceAppPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if ( rc == 0 )
@@ -399,18 +377,26 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Close stds, we no longer need them
     // -----------------------------------------------------------
+    if (NebulaLog::log_type() != NebulaLog::STD )
+    {
+        fd = open("/dev/null", O_RDWR);
 
-    fd = open("/dev/null", O_RDWR);
+        dup2(fd,0);
+        dup2(fd,1);
+        dup2(fd,2);
 
-    dup2(fd,0);
-    dup2(fd,1);
-    dup2(fd,2);
+        close(fd);
 
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-    fcntl(1,F_SETFD,0);
-    fcntl(2,F_SETFD,0);
+        fcntl(0, F_SETFD, 0); // Keep them open across exec funcs
+        fcntl(1, F_SETFD, 0);
+        fcntl(2, F_SETFD, 0);
+    }
+    else
+    {
+        fcntl(0, F_SETFD, FD_CLOEXEC);
+        fcntl(1, F_SETFD, FD_CLOEXEC);
+        fcntl(2, F_SETFD, FD_CLOEXEC);
+    }
 
     // -----------------------------------------------------------
     // Block all signals before creating any Nebula thread
@@ -470,34 +456,36 @@ void Nebula::start(bool bootstrap_only)
         float   mem_cost;
         float   disk_cost;
 
-        vector<const Attribute *> vm_hooks;
-        vector<const Attribute *> host_hooks;
-        vector<const Attribute *> vnet_hooks;
-        vector<const Attribute *> user_hooks;
-        vector<const Attribute *> group_hooks;
-        vector<const Attribute *> image_hooks;
+        vector<const VectorAttribute *> vm_hooks;
+        vector<const VectorAttribute *> host_hooks;
+        vector<const VectorAttribute *> vrouter_hooks;
+        vector<const VectorAttribute *> vnet_hooks;
+        vector<const VectorAttribute *> user_hooks;
+        vector<const VectorAttribute *> group_hooks;
+        vector<const VectorAttribute *> image_hooks;
 
-        vector<const Attribute *> vm_restricted_attrs;
-        vector<const Attribute *> img_restricted_attrs;
-        vector<const Attribute *> vnet_restricted_attrs;
+        vector<const SingleAttribute *> vm_restricted_attrs;
+        vector<const SingleAttribute *> img_restricted_attrs;
+        vector<const SingleAttribute *> vnet_restricted_attrs;
 
-        vector<const Attribute *> inherit_image_attrs;
-        vector<const Attribute *> inherit_datastore_attrs;
-        vector<const Attribute *> inherit_vnet_attrs;
+        vector<const SingleAttribute *> inherit_image_attrs;
+        vector<const SingleAttribute *> inherit_datastore_attrs;
+        vector<const SingleAttribute *> inherit_vnet_attrs;
 
-        vector<const Attribute *> default_cost;
+        vector<const VectorAttribute *> default_cost;
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
         zonepool= new ZonePool(db, is_federation_slave());
         vdcpool = new VdcPool(db, is_federation_slave());
 
-        nebula_configuration->get("VM_HOOK", vm_hooks);
-        nebula_configuration->get("HOST_HOOK",  host_hooks);
-        nebula_configuration->get("VNET_HOOK",  vnet_hooks);
-        nebula_configuration->get("USER_HOOK",  user_hooks);
-        nebula_configuration->get("GROUP_HOOK", group_hooks);
-        nebula_configuration->get("IMAGE_HOOK", image_hooks);
+        nebula_configuration->get("VM_HOOK",      vm_hooks);
+        nebula_configuration->get("HOST_HOOK",    host_hooks);
+        nebula_configuration->get("VROUTER_HOOK", vrouter_hooks);
+        nebula_configuration->get("VNET_HOOK",    vnet_hooks);
+        nebula_configuration->get("USER_HOOK",    user_hooks);
+        nebula_configuration->get("GROUP_HOOK",   group_hooks);
+        nebula_configuration->get("IMAGE_HOOK",   image_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
@@ -563,6 +551,10 @@ void Nebula::start(bool bootstrap_only)
                               remotes_location,
                               host_expiration);
 
+        vrouterpool = new VirtualRouterPool(db,
+                                            vrouter_hooks,
+                                            remotes_location);
+
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
         nebula_configuration->get("NETWORK_SIZE", size);
 
@@ -594,17 +586,19 @@ void Nebula::start(bool bootstrap_only)
                                img_restricted_attrs,
                                image_hooks,
                                remotes_location,
-                               inherit_image_attrs,
-                               inherit_datastore_attrs);
+                               inherit_image_attrs);
 
         tpool  = new VMTemplatePool(db);
 
-        dspool = new DatastorePool(db);
+        dspool = new DatastorePool(db, inherit_datastore_attrs);
 
         default_user_quota.select();
         default_group_quota.select();
 
         secgrouppool = new SecurityGroupPool(db);
+
+        marketpool  = new MarketPlacePool(db, is_federation_slave());
+        apppool     = new MarketPlaceAppPool(db, is_federation_slave());
     }
     catch (exception&)
     {
@@ -615,7 +609,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Virtual Machine Manager ----
     try
     {
-        vector<const Attribute *> vmm_mads;
+        vector<const VectorAttribute *> vmm_mads;
         int    vm_limit;
 
         bool   do_poll;
@@ -630,8 +624,6 @@ void Nebula::start(bool bootstrap_only)
         poll_period = monitor_period * 2.5;
 
         vmm = new VirtualMachineManager(
-            vmpool,
-            hpool,
             timer_period,
             poll_period,
             do_poll,
@@ -670,7 +662,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Information Manager ----
     try
     {
-        vector<const Attribute *>   im_mads;
+        vector<const VectorAttribute *> im_mads;
 
         int host_limit;
         int monitor_threads;
@@ -705,7 +697,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Transfer Manager ----
     try
     {
-        vector<const Attribute *> tm_mads;
+        vector<const VectorAttribute *> tm_mads;
 
         nebula_configuration->get("TM_MAD", tm_mads);
 
@@ -743,7 +735,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Hook Manager ----
     try
     {
-        vector<const Attribute *> hm_mads;
+        vector<const VectorAttribute *> hm_mads;
 
         nebula_configuration->get("HM_MAD", hm_mads);
 
@@ -764,7 +756,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Auth Manager ----
     try
     {
-        vector<const Attribute *> auth_mads;
+        vector<const VectorAttribute *> auth_mads;
 
         nebula_configuration->get("AUTH_MAD", auth_mads);
 
@@ -795,7 +787,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Image Manager ----
     try
     {
-        vector<const Attribute *> image_mads;
+        vector<const VectorAttribute *> image_mads;
 
         nebula_configuration->get("DATASTORE_MAD", image_mads);
 
@@ -815,6 +807,27 @@ void Nebula::start(bool bootstrap_only)
     if ( rc != 0 )
     {
        throw runtime_error("Could not start the Image Manager");
+    }
+
+    // ---- Marketplace Manager ----
+    try
+    {
+        vector<const VectorAttribute *> mmads ;
+
+        nebula_configuration->get("MARKET_MAD", mmads);
+
+        marketm = new MarketPlaceManager(timer_period, monitor_period, mmads);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = marketm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the Marketplace Manager");
     }
 
     // -----------------------------------------------------------
@@ -850,6 +863,11 @@ void Nebula::start(bool bootstrap_only)
         goto error_mad;
     }
 
+    if (marketm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
     if ( authm != 0 )
     {
         if (authm->load_mads(0) != 0)
@@ -871,8 +889,10 @@ void Nebula::start(bool bootstrap_only)
         string log_call_format;
         string rpc_filename = "";
         int  message_size;
+        string rm_listen_address = "0.0.0.0";
 
         nebula_configuration->get("PORT", rm_port);
+        nebula_configuration->get("LISTEN_ADDRESS", rm_listen_address);
         nebula_configuration->get("MAX_CONN", max_conn);
         nebula_configuration->get("MAX_CONN_BACKLOG", max_conn_backlog);
         nebula_configuration->get("KEEPALIVE_TIMEOUT", keepalive_timeout);
@@ -889,7 +909,7 @@ void Nebula::start(bool bootstrap_only)
 
         rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
             keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
-            log_call_format, message_size);
+            log_call_format, rm_listen_address, message_size);
     }
     catch (bad_alloc&)
     {
@@ -903,6 +923,8 @@ void Nebula::start(bool bootstrap_only)
     dm->init_managers();
 
     lcm->init_managers();
+
+    marketm->init_managers();
 
     // ---- Start the Request Manager ----
 
@@ -938,6 +960,7 @@ void Nebula::start(bool bootstrap_only)
     rm->finalize();
     hm->finalize();
     imagem->finalize();
+    marketm->finalize();
     aclm->finalize();
 
     //sleep to wait drivers???
@@ -968,4 +991,127 @@ error_mad:
     NebulaLog::log("ONE", Log::ERROR, "Could not load driver");
     throw runtime_error("Could not load an OpenNebula driver");
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Log::MessageType Nebula::get_debug_level() const
+{
+    Log::MessageType clevel = Log::ERROR;
+    int              log_level_int;
+
+    const VectorAttribute * log = nebula_configuration->get("LOG");
+
+    if ( log != 0 )
+    {
+        string value = log->vector_value("DEBUG_LEVEL");
+
+        log_level_int = atoi(value.c_str());
+
+        if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
+        {
+            clevel = static_cast<Log::MessageType>(log_level_int);
+        }
+    }
+
+    return clevel;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+NebulaLog::LogType Nebula::get_log_system() const
+{
+    NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
+
+    const VectorAttribute * log = nebula_configuration->get("LOG");
+
+    if ( log != 0 )
+    {
+        string value = log->vector_value("SYSTEM");
+        log_system   = NebulaLog::str_to_type(value);
+    }
+
+    return log_system;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Nebula::get_ds_location(int cluster_id, string& dsloc)
+{
+    if ( cluster_id != -1 )
+    {
+        Cluster * cluster = clpool->get(cluster_id, true);
+
+        if ( cluster == 0 )
+        {
+            return -1;
+        }
+
+        cluster->get_ds_location(dsloc);
+
+        cluster->unlock();
+    }
+    else
+    {
+        get_configuration_attribute("DATASTORE_LOCATION", dsloc);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Nebula::get_vm_log_filename(int oid)
+{
+    ostringstream oss;
+
+    if (nebula_location == "/")
+    {
+        oss << log_location << oid << ".log";
+    }
+    else
+    {
+        oss << vms_location << oid << "/vm.log";
+    }
+
+    return oss.str();
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Nebula::get_conf_attribute(
+    const std::string& key,
+    const std::string& name,
+    const VectorAttribute* &value) const
+{
+    std::vector<const VectorAttribute*>::const_iterator it;
+    std::vector<const VectorAttribute*> values;
+    std::string template_name;
+    std::string name_upper;
+
+    nebula_configuration->get(key, values);
+
+    for (it = values.begin(); it != values.end(); it ++)
+    {
+        value         = *it;
+        template_name = (*it)->vector_value("NAME");
+        name_upper    = name;
+
+        one_util::toupper(name_upper);
+        one_util::toupper(template_name);
+
+        if ( template_name == name_upper)
+        {
+            return 0;
+        }
+    }
+
+    value = 0;
+    return -1;
+};
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -94,7 +94,7 @@ class OpenNebulaDriver < ActionManager
         command = action_command_line(aname, params, options[:script_name])
 
         if action_is_local?(aname)
-            execution = LocalCommand.run(command, log_method(id))
+            execution = LocalCommand.run(command, log_method(id), Base64::encode64(options[:stdin].to_s.gsub("\n","")))
         elsif options[:ssh_stream]
             if options[:stdin]
                 cmdin = "cat << EOT | #{command}"

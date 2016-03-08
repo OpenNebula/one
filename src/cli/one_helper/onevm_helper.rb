@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,6 @@ $: << MAD_LOCATION
 
 require 'one_helper'
 require 'optparse/time'
-require 'one_tm'
 
 class String
     def red
@@ -45,6 +44,13 @@ private
         "\e[#{color_code}m#{self}\e[0m"
     end
 end
+
+EXTERNAL_IP_ATTRS = [
+    'GUEST_IP',
+    'AWS_IP_ADDRESS',
+    'AZ_IPADDRESS',
+    'SL_PRIMARYIPADDRESS'
+];
 
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
@@ -76,6 +82,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :proc   => lambda { |o, options|
             OpenNebulaHelper.rname_to_id(o, "VNET")
         }
+    }
+
+    IP={
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--ip ip",
+        :format => String,
+        :description => "IP address for the new NIC"
     }
 
     FILE = {
@@ -164,21 +178,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         vm_nics.each do |nic|
-            if nic.has_key?("IP")
-                ips.push(nic["IP"])
-            end
-
-            if nic.has_key?("IP6_GLOBAL")
-                ips.push(nic["IP6_GLOBAL"])
-            end
-
-            if nic.has_key?("IP6_ULA")
-                ips.push(nic["IP6_ULA"])
+            ["IP", "IP6_GLOBAL", "IP6_ULA",
+             "VROUTER_IP", "VROUTER_IP6_GLOBAL", "VROUTER_IP6_ULA"].each do |attr|
+                if nic.has_key?(attr)
+                    ips.push(nic[attr])
+                end
             end
         end
 
         VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
-            external_ip = vm["TEMPLATE"][attr]
+            external_ip = vm["MONITORING"][attr]
 
             if !external_ip.nil? && !ips.include?(external_ip)
                 ips.push(external_ip)
@@ -237,11 +246,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
-                d["CPU"]
+                cpu = d["MONITORING"]["CPU"]
+                cpu = "0" if cpu.nil?
+
+                cpu
             end
 
             column :UMEM, "Memory used by the VM", :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
+                OpenNebulaHelper.unit_to_str(d["MONITORING"]["MEMORY"].to_i, options)
             end
 
             column :HOST, "Host where the VM is running", :left, :size=>10 do |d|
@@ -324,6 +336,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :PROLOG_MIGRATE_FAILURE          => :migrate,
         :PROLOG_MIGRATE_POWEROFF_FAILURE => :migrate,
         :PROLOG_MIGRATE_SUSPEND_FAILURE  => :migrate,
+        :PROLOG_MIGRATE_UNKNOWN_FAILURE  => :migrate,
         :PROLOG_FAILURE                  => :prolog,
         :PROLOG_RESUME_FAILURE           => :resume,
         :PROLOG_UNDEPLOY_FAILURE         => :resume,
@@ -333,6 +346,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     }
 
     def recover_retry_interactive(vm)
+        begin
+            require 'one_tm'
+        rescue LoadError
+            STDERR.puts <<-EOT
+one_tm library not found. Make sure you execute recover --interactive
+in the frontend machine.
+            EOT
+            exit(-1)
+        end
+
         # Disable CTRL-C in the menu
         trap("SIGINT") { }
 
@@ -498,26 +521,51 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.time_to_str(vm['/VM/ETIME'])]
         value=vm['DEPLOY_ID']
         puts str % ["DEPLOY ID", value=="" ? "-" : value]
+        value=vm['TEMPLATE/VROUTER_ID']
+        puts str % ["VIRTUAL ROUTER ID", value] if value
 
         puts
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
-        poll_attrs = {
-            "MEMORY"          => "MONITORING/MEMORY",
-            "CPU"             => "MONITORING/CPU",
-            "NETTX"           => "MONITORING/NETTX",
-            "NETRX"           => "MONITORING/NETRX"
-        }
 
-        poll_attrs.each { |k,v|
-            if k == "CPU"
-                puts str % [k,vm[v]]
-            elsif k == "MEMORY"
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
-            else
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
+        vm_monitoring = vm.to_hash['VM']['MONITORING']
+
+        # Find out if it is a hybrid VM to avoid showing local IPs
+        isHybrid=false
+        vm_monitoring.each{|key, value|
+            if EXTERNAL_IP_ATTRS.include? key
+                isHybrid=true
             end
         }
+
+        order_attrs  = %w(CPU MEMORY NETTX NETRX)
+
+        vm_monitoring_sort = []
+        order_attrs.each do |key|
+            if (val = vm_monitoring.delete(key))
+                vm_monitoring_sort << [key, val]
+            end
+        end
+
+        vm_monitoring_sort.sort{|a,b| a[0]<=>b[0]}
+
+        filter_attrs = %w(STATE DISK_SIZE SNAPSHOT_SIZE)
+        vm_monitoring.each do |key, val|
+            if !filter_attrs.include?(key)
+                vm_monitoring_sort << [key, val]
+            end
+        end
+
+        vm_monitoring_sort.each do |k,v|
+            if k == "MEMORY"
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i, {})]
+            elsif k  =~ /NET.X/
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i/1024, {})]
+            else
+                puts str % [k, v]
+            end
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -590,9 +638,27 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
-                column :SIZE, "", :left, :size=>16 do |d|
-                    size         = d["SIZE"] || "-"
-                    monitor_size = d["MONITOR_SIZE"] || "-"
+                column :SIZE, "", :left, :size=>9 do |d|
+                    if d["SIZE"]
+                        size = OpenNebulaHelper.unit_to_str(
+                                    d['SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        size = "-"
+                    end
+
+                    if d["MONITOR_SIZE"]
+                        monitor_size = OpenNebulaHelper.unit_to_str(
+                                    d['MONITOR_SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        monitor_size = "-"
+                    end
+
                     "#{monitor_size}/#{size}"
                 end
 
@@ -641,7 +707,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC")
+        # This variable holds the extra IP's got from monitoring. Right
+        # now it adds GUEST_IP and GUEST_IP_ADDRESSES from vcenter
+        # monitoring. If other variables hold IPs just add them to this
+        # array. Duplicate IPs are not shown.
+        extra_ips = []
+
+        if val=vm["/VM/MONITORING/GUEST_IP"]
+            extra_ips << val if val && !val.empty?
+        end
+
+        if val=vm["/VM/MONITORING/GUEST_IP_ADDRESSES"]
+            extra_ips += val.split(',') if val && !val.empty?
+        end
+
+        extra_ips.uniq!
+
+        if vm.has_elements?("/VM/TEMPLATE/NIC") || !extra_ips.empty?
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
@@ -651,42 +733,59 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                            "VLAN"=>"no",
                            "BRIDGE"=>"-"}
 
+            shown_ips = []
+
             array_id = 0
-            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten.compact
             vm_nics.each {|nic|
 
                 next if nic.has_key?("CLI_DONE")
 
-                if nic.has_key?("IP6_LINK")
-                    ip6_link = {"IP"           => nic.delete("IP6_LINK"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
+                ["IP6_LINK", "IP6_ULA", "IP6_GLOBAL"].each do |attr|
+                    if nic.has_key?(attr)
+                        shown_ips << nic[attr]
 
-                    array_id += 1
+                        ipstr = {"IP"           => nic.delete(attr),
+                                 "CLI_DONE"     => true,
+                                 "DOUBLE_ENTRY" => true}
+                        vm_nics.insert(array_id+1,ipstr)
+
+                        array_id += 1
+                    end
                 end
 
-                if nic.has_key?("IP6_ULA")
-                    ip6_link = {"IP"           => nic.delete("IP6_ULA"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
+                ["VROUTER_IP", "VROUTER_IP6_LINK",
+                 "VROUTER_IP6_ULA", "VROUTER_IP6_GLOBAL"].each do |attr|
+                    if nic.has_key?(attr)
+                        shown_ips << nic[attr]
 
-                    array_id += 1
+                        ipstr = {"IP"           => nic.delete(attr) + " (VRouter)",
+                                 "CLI_DONE"     => true,
+                                 "DOUBLE_ENTRY" => true}
+                        vm_nics.insert(array_id+1,ipstr)
+
+                        array_id += 1
+                    end
                 end
 
-                if nic.has_key?("IP6_GLOBAL")
-                    ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
-                                "CLI_DONE"     => true,
-                                "DOUBLE_ENTRY" => true}
-                    vm_nics.insert(array_id+1,ip6_link)
-
-                    array_id += 1
-                end
+                shown_ips << nic["IP"] if nic.has_key?("IP")
 
                 nic.merge!(nic_default) {|k,v1,v2| v1}
                 array_id += 1
             }
+
+            extra_ips -= shown_ips
+
+            # Add extra IPs to the VM NICS table
+            extra_ips.each do |ip|
+                vm_nics << {
+                    "NIC_ID"        => "-",
+                    "IP"            => ip,
+                    "NETWORK"       => "Additional IP",
+                    "BRIDGE"        => "-",
+                    "VLAN"          => "-"
+                }
+            end
 
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>3 do |d|
@@ -744,7 +843,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm.delete_element("/VM/TEMPLATE/NIC")
         end if !options[:all]
 
-        if vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE")
+        if vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE") and !isHybrid
             puts
             CLIHelper.print_header(str_h1 % "SECURITY",false)
             puts
@@ -979,21 +1078,39 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :left, :size=>16 do |d|
-                size         = d["SIZE"] || "-"
-                monitor_size = d["MONITOR_SIZE"] || "-"
+            column :SIZE, "", :left, :size=>12 do |d|
+                if d["SIZE"]
+                    size = OpenNebulaHelper.unit_to_str(
+                                d['SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    size = "-"
+                end
+
+                if d["MONITOR_SIZE"]
+                    monitor_size = OpenNebulaHelper.unit_to_str(
+                                d['MONITOR_SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    monitor_size = "-"
+                end
+
                 "#{monitor_size}/#{size}"
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>26 do |d|
-                d["TAG"]
+            column :NAME, "Snapshot Name", :left, :size=>32 do |d|
+                d["NAME"]
             end
 
-            column :DATE, "Snapshot creation date", :size=>10 do |d|
+            column :DATE, "Snapshot creation date", :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :SIZE, :TAG
+            default :AC, :ID, :DISK, :PARENT, :DATE, :SIZE, :NAME
         end
 
         # Convert snapshot data to an array

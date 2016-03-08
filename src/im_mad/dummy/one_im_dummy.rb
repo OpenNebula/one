@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -68,6 +68,52 @@ class DummyInformationManager < OpenNebulaDriver
         results << "DS_LOCATION_USED_MB=9720\n"
         results << "DS_LOCATION_TOTAL_MB=20480\n"
         results << "DS_LOCATION_FREE_MB=20480\n"
+
+        results << "PCI = [
+                ADDRESS = \"0000:02:00:0\",\n
+                BUS = \"02\",\n
+                CLASS = \"0300\",\n
+                CLASS_NAME = \"VGA compatible controller\",\n
+                DEVICE = \"0863\",\n
+                DEVICE_NAME = \"C79 [GeForce 9400M]\",\n
+                DOMAIN = \"0000\",\n
+                FUNCTION = \"0\",\n
+                SHORT_ADDRESS = \"02:00.0\",\n
+                SLOT = \"00\",\n
+                TYPE = \"10de:0863:0300\",\n
+                VENDOR = \"10de\",\n
+                VENDOR_NAME = \"NVIDIA Corporation\"\n
+            ]\n
+            PCI = [
+                ADDRESS = \"0000:00:06:0\",\n
+                BUS = \"00\",\n
+                CLASS = \"0c03\",\n
+                CLASS_NAME = \"USB controller\",\n
+                DEVICE = \"0aa7\",\n
+                DEVICE_NAME = \"MCP79 OHCI USB 1.1 Controller\",\n
+                DOMAIN = \"0000\",\n
+                FUNCTION = \"0\",\n
+                SHORT_ADDRESS = \"00:06.0\",\n
+                SLOT = \"06\",\n
+                TYPE = \"10de:0aa7:0c03\",\n
+                VENDOR = \"10de\",\n
+                VENDOR_NAME = \"NVIDIA Corporation\"\n
+            ]\n
+            PCI = [
+                ADDRESS = \"0000:00:06:1\",\n
+                BUS = \"00\",\n
+                CLASS = \"0c03\",\n
+                CLASS_NAME = \"USB controller\",\n
+                DEVICE = \"0aa9\",\n
+                DEVICE_NAME = \"MCP79 EHCI USB 2.0 Controller\",\n
+                DOMAIN = \"0000\",\n
+                FUNCTION = \"1\",\n
+                SHORT_ADDRESS = \"00:06.1\",\n
+                SLOT = \"06\",\n
+                TYPE = \"10de:0aa9:0c03\",\n
+                VENDOR = \"10de\",\n
+                VENDOR_NAME = \"NVIDIA Corporation\"\n
+            ]\n"
 
         results = Base64::encode64(results).strip.delete("\n")
 

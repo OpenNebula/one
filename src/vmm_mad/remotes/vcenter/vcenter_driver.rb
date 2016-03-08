@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L                                           #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -41,6 +41,8 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'openssl'
+require 'VirtualMachineDriver'
 
 module VCenterDriver
 
@@ -50,7 +52,7 @@ module VCenterDriver
 # For the VCenter driver each OpenNebula host represents a VCenter cluster
 ################################################################################
 class VIClient
-    attr_reader :vim, :one, :root, :cluster, :user, :pass, :host
+    attr_reader :vim, :one, :root, :cluster, :user, :pass, :host, :dc
 
     def get_entities(folder, type, entities=[])
         return nil if folder == []
@@ -143,16 +145,44 @@ class VIClient
     end
 
     ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def cluster
+       @cluster
+    end
+
+    ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def rp_confined?
+       !@one_host["TEMPLATE/VCENTER_RESOURCE_POOL"].nil?
+    end
+
+    ########################################################################
     # The associated resource pool for this connection
+    # @return [ResourcePool] an array of resource pools including the default
+    #    resource pool. If the connection is confined to a particular
+    #    resource pool, then return just that one
     ########################################################################
     def resource_pool
         rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
 
        if rp_name.nil?
-          @cluster.resourcePool
+          rp_array = @cluster.resourcePool.resourcePool
+          rp_array << @cluster.resourcePool
+          rp_array
        else
-          find_resource_pool(rp_name)
+          [find_resource_pool(rp_name)]
        end
+    end
+
+    ########################################################################
+    # Get the default resource pool of the connection. Only valid if
+    # the connection is not confined in a resource pool
+    # @return ResourcePool the default resource pool
+    ########################################################################
+    def default_resource_pool
+        @cluster.resourcePool
     end
 
     ########################################################################
@@ -203,7 +233,7 @@ class VIClient
         return vms.find do |v|
             begin
                 v.config && v.config.uuid == uuid
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
@@ -220,10 +250,19 @@ class VIClient
         return vms.find do |v|
             begin
                 v.name == vm_name
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
+    end
+
+    ########################################################################
+    # Searches the associated datacenter for a particular datastore
+    # @param ds_name [String] name of the datastore
+    # @returns a RbVmomi::VIM::VirtualMachine or nil if not found
+    ########################################################################
+    def get_datastore(ds_name)
+        ds = @dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
     end
 
     ########################################################################
@@ -232,14 +271,22 @@ class VIClient
     # @return [Hash] in the form
     #   {dc_name [String] => ClusterComputeResources Names [Array - String]}
     ########################################################################
-    def hierarchy
+    def hierarchy(one_client=nil)
         vc_hosts = {}
 
         datacenters = get_entities(@root, 'Datacenter')
 
+        hpool = OpenNebula::HostPool.new((one_client||@one))
+        rc    = hpool.info
+
         datacenters.each { |dc|
             ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
-            vc_hosts[dc.name] = ccrs.collect { |c| c.name }
+            vc_hosts[dc.name] = []
+            ccrs.each { |c|
+                if !hpool["HOST[NAME=\"#{c.name}\"]"]
+                    vc_hosts[dc.name] << c.name
+                end
+              }
         }
 
         return vc_hosts
@@ -257,7 +304,9 @@ class VIClient
         tpool = OpenNebula::TemplatePool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
         rc = tpool.info
-        # TODO check error
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -274,10 +323,11 @@ class VIClient
                 if !tpool["VMTEMPLATE/TEMPLATE/PUBLIC_CLOUD[\
                         TYPE=\"vcenter\" \
                         and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
+                    hostname = vi_tmp.vm.runtime.host.parent.name
                     one_tmp << {
-                        :name => vi_tmp.vm.name,
+                        :name => "#{vi_tmp.vm.name} - #{hostname}",
                         :uuid => vi_tmp.vm.config.uuid,
-                        :host => vi_tmp.vm.runtime.host.parent.name,
+                        :host => hostname,
                         :one  => vi_tmp.to_one
                     }
                 end
@@ -287,91 +337,6 @@ class VIClient
         }
 
         return vm_templates
-    end
-
-    ########################################################################
-    # Builds a hash with the Datacenter / Virtual Machines for this VCenter
-    # @param one_client [OpenNebula::Client] Use this client instead of @one
-    # @return [Hash] in the form
-    #   { dc_name [String] => }
-    ########################################################################
-    def running_vms(one_client=nil)
-        running_vms = {}
-
-        vmpool = OpenNebula::VirtualMachinePool.new(
-            (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vmpool.info
-
-        hostpool = OpenNebula::HostPool.new((one_client||@one))
-        rc = hostpool.info
-        # TODO check error
-
-        datacenters = get_entities(@root, 'Datacenter')
-
-        datacenters.each { |dc|
-            vms     = get_entities(dc.vmFolder, 'VirtualMachine')
-            ccrs    = get_entities(dc.hostFolder, 'ClusterComputeResource')
-
-            vm_list = vms.select { |v|
-                # Get rid of VM Templates and VMs not in running state
-                v.config &&
-                v.config.template != true &&
-                v.summary.runtime.powerState == "poweredOn"
-            }
-
-            one_tmp = []
-
-            vm_list.each { |v|
-                vi_tmp = VCenterVm.new(self, v)
-
-                # Do not reimport VMs deployed by OpenNebula
-                # since the core will get confused with the IDs
-                next if vi_tmp.vm.name.match(/one-\d/)
-
-                container_hostname = vi_tmp.vm.runtime.host.parent.name
-
-                cluster_name = ccrs.collect { |c|
-                  found_host=c.host.select {|h|
-                           h.parent.name == container_hostname}
-                   found_host.first.parent.name if found_host.size > 0
-                }.first
-
-                if !vmpool["VM/USER_TEMPLATE/PUBLIC_CLOUD[\
-                        TYPE=\"vcenter\" \
-                        and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
-
-                    host_id = name_to_id(container_hostname,hostpool,"HOST")[1]
-
-                    one_tmp << {
-                        :name => vi_tmp.vm.name,
-                        :uuid => vi_tmp.vm.config.uuid,
-                        :host => container_hostname,
-                        :host_id => host_id,
-                        :one  => vi_tmp.vm_to_one
-                    }
-                end
-            }
-
-            running_vms[dc.name] = one_tmp
-        }
-
-        return running_vms
-    end
-
-    def name_to_id(name, pool, ename)
-            objects=pool.select {|object| object.name==name }
-
-            if objects.length>0
-                if objects.length>1
-                    return -1, "There are multiple #{ename}s with name #{name}."
-                else
-                    result = objects.first.id
-                end
-            else
-                return -1, "#{ename} named #{name} not found."
-            end
-
-            return 0, result
     end
 
     ########################################################################
@@ -386,9 +351,11 @@ class VIClient
 
         vnpool = OpenNebula::VirtualNetworkPool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vnpool.info
-        # TODO check error
-        #
+        rc     = vnpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
@@ -396,75 +363,249 @@ class VIClient
             one_nets = []
 
             networks.each { |n|
-                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
-                        TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
-                    one_nets << {
-                        :name   => n.name,
-                        :bridge => n.name,
-                        :type   => "Port Group",
-                        :one    => "NAME   = \"#{n[:name]}\"\n" \
-                                   "BRIDGE = \"#{n[:name]}\"\n" \
-                                   "VCENTER_TYPE = \"Port Group\""
-                    }
-                end
+                # Skip those not in cluster
+                next if !n[:host][0]
+
+                # Networks can be in several cluster, create one per cluster
+                Array(n[:host][0]).each{ |host_system|
+                    net_name = "#{n.name} - #{host_system.parent.name}"
+
+                    if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                            TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
+                        one_nets << {
+                            :name    => net_name,
+                            :bridge  => n.name,
+                            :cluster => host_system.parent.name,
+                            :type    => "Port Group",
+                            :one     => "NAME   = \"#{net_name}\"\n" \
+                                        "BRIDGE = \"#{n[:name]}\"\n" \
+                                        "VCENTER_TYPE = \"Port Group\""
+                        }
+                    end
+                }
             }
 
             networks = get_entities(dc.networkFolder,
                                     'DistributedVirtualPortgroup' )
 
             networks.each { |n|
-                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
-                        TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
-                    vnet_template = "NAME   = \"#{n[:name]}\"\n" \
-                                    "BRIDGE = \"#{n[:name]}\"\n" \
-                                    "VCENTER_TYPE = \"Distributed Port Group\""
+                # Skip those not in cluster
+                next if !n[:host][0]
+
+                # DistributedVirtualPortgroup can be in several cluster,
+                # create one per cluster
+                Array(n[:host][0]).each{ |host_system|
+                 net_name = "#{n.name} - #{n[:host][0].parent.name}"
+
+                 if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                         TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
+                     vnet_template = "NAME   = \"#{net_name}\"\n" \
+                                     "BRIDGE = \"#{n[:name]}\"\n" \
+                                     "VCENTER_TYPE = \"Distributed Port Group\""
 
 
-                    default_pc = n.config.defaultPortConfig
+                     default_pc = n.config.defaultPortConfig
 
-                    has_vlan = false
-                    vlan_str = ""
+                     has_vlan = false
+                     vlan_str = ""
 
-                    if default_pc.methods.include? :vlan
-                       has_vlan = default_pc.vlan.methods.include? :vlanId
-                    end
+                     if default_pc.methods.include? :vlan
+                        has_vlan = default_pc.vlan.methods.include? :vlanId
+                     end
 
-                    if has_vlan
-                        vlan     = n.config.defaultPortConfig.vlan.vlanId
+                     if has_vlan
+                         vlan     = n.config.defaultPortConfig.vlan.vlanId
 
-                        if vlan != 0
-                            if vlan.is_a? Array
-                                vlan.each{|v|
-                                    vlan_str += v.start.to_s + ".." +
-                                                v.end.to_s + ","
-                                }
-                                vlan_str.chop!
-                            else
-                                vlan_str = vlan.to_s
-                            end
-                        end
-                    end
+                         if vlan != 0
+                             if vlan.is_a? Array
+                                 vlan.each{|v|
+                                     vlan_str += v.start.to_s + ".." +
+                                                 v.end.to_s + ","
+                                 }
+                                 vlan_str.chop!
+                             else
+                                 vlan_str = vlan.to_s
+                             end
+                         end
+                     end
 
-                    if !vlan_str.empty?
-                        vnet_template << "VLAN=\"YES\"\n" \
-                                         "VLAN_ID=#{vlan_str}\n"
-                    end
+                     if !vlan_str.empty?
+                         vnet_template << "VLAN=\"YES\"\n" \
+                                          "VLAN_ID=#{vlan_str}\n"
+                     end
 
-                    one_net = {:name   => n.name,
-                               :bridge => n.name,
-                               :type   => "Distributed Port Group",
-                               :one    => vnet_template}
+                     one_net = {:name    => net_name,
+                                :bridge  => n.name,
+                                :cluster => host_system.parent.name,
+                                :type   => "Distributed Port Group",
+                                :one    => vnet_template}
 
-                    one_net[:vlan] = vlan_str if !vlan_str.empty?
+                     one_net[:vlan] = vlan_str if !vlan_str.empty?
 
-                    one_nets << one_net
-                end
+                     one_nets << one_net
+                 end
+                }
             }
 
             vcenter_networks[dc.name] = one_nets
         }
 
         return vcenter_networks
+    end
+
+
+    ########################################################################
+    # Builds a hash with the Datacenter / Datastores for this VCenter
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
+    # @return [Hash] in the form
+    #   { dc_name [String] => Datastore [Array] of DS templates}
+    ########################################################################
+    def vcenter_datastores(one_client=nil)
+        ds_templates = {}
+
+        dspool = OpenNebula::DatastorePool.new(
+            (one_client||@one))
+        rc = dspool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        hpool = OpenNebula::HostPool.new(
+            (one_client||@one))
+        rc = hpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+
+            one_tmp = []
+
+            dc.datastoreFolder.childEntity.each { |ds|
+                ds.host.each{|host|
+                    cluster_name = host.key.parent.name
+
+                    if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
+                       hpool["HOST[NAME=\"#{cluster_name}\"]"]
+                         one_tmp << {
+                             :name     => "#{ds.name}",
+                             :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                             :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                             :cluster  => cluster_name,
+                             :one  => "NAME=#{ds.name}\n"\
+                                      "DS_MAD=vcenter\n"\
+                                      "TM_MAD=vcenter\n"\
+                                      "VCENTER_CLUSTER=#{cluster_name}\n"
+                         }
+                     end
+                }
+            }
+
+            ds_templates[dc.name] = one_tmp
+        }
+
+        return ds_templates
+    end
+
+   #############################################################################
+    # Builds a hash with the Images for a particular datastore
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
+    # @return [Array] of image templates
+    ############################################################################
+    def vcenter_images(ds_name, one_client=nil)
+        img_types = ["FloppyImageFileInfo",
+                     "IsoImageFileInfo",
+                     "VmDiskFileInfo"]
+
+        img_templates = []
+
+        ipool = OpenNebula::ImagePool.new((one_client||@one))
+        rc = ipool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        dspool = OpenNebula::DatastorePool.new((one_client||@one))
+        rc = dspool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
+        ds_id = dspool["DATASTORE[NAME=\"#{ds_name}\"]/ID"]
+
+        if !ds_id
+            raise "Datastore not found in OpenNebula. Please import"\
+                  " it first and try again"
+        end
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+
+            # Find datastore within datacenter
+            ds=dc.datastoreFolder.childEntity.select{|ds|
+                                                     ds.name == ds_name}[0]
+
+            # Create Search Spec
+            spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
+            spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
+            spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
+                                                        :fileSize => true,
+                                                        :fileType => true,
+                                                        :modification => true)
+            spec.matchPattern=[]
+
+            search_params = {'datastorePath' => "[#{ds.name}]",
+                             'searchSpec'    => spec}
+
+            # Perform search task and return results
+            search_task=ds.browser.SearchDatastoreSubFolders_Task(search_params)
+            search_task.wait_for_completion
+
+            search_task.info.result.each { |image|
+                folderpath = ""
+                if image.folderPath[-1] != "]"
+                    folderpath = image.folderPath.sub(/^\[#{ds_name}\] /, "")
+                end
+
+                image = image.file[0]
+
+                # Skip not relevant files
+                next if !img_types.include? image.class.to_s
+
+                image_path = folderpath + image.path
+
+                image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
+
+                if !ipool["IMAGE[NAME=\"#{image_name}\"]"]
+                    img_templates << {
+                        :name        => "#{image_name}",
+                        :path        => image_path,
+                        :size        => (image.fileSize / 1024).to_s,
+                        :type        => image.class.to_s,
+                        :dsid        => ds_id,
+                        :one         => "NAME=\"#{image_name}\"\n"\
+                                        "PATH=\"vcenter://#{image_path}\"\n"\
+                                        "PERSISTENT=\"YES\"\n"\
+                    }
+
+                    if image.class.to_s == "VmDiskFileInfo"
+                        img_templates[-1][:one] += "TYPE=\"OS\"\n"
+                    else
+                        img_templates[-1][:one] += "TYPE=\"CDROM\"\n"
+                    end
+
+                    if image.class.to_s == "VmDiskFileInfo" &&
+                       !image.diskType.nil?
+                        img_templates[-1][:one] += "DISK_TYPE=#{image.diskType}\n"
+                    end
+                end
+            }
+        }
+
+        return img_templates
     end
 
     def self.translate_hostname(hostname)
@@ -474,6 +615,14 @@ class VIClient
 
         host = host_pool.select {|host_element| host_element.name==hostname }
         return host.first.id
+    end
+
+    def self.find_ds_name(ds_id)
+        ds = OpenNebula::Datastore.new_with_id(ds_id)
+        rc = ds.info
+        raise "Could not find datastore #{ds_id}" if OpenNebula.is_error?(rc)
+
+        return ds.name
     end
 
     ############################################################################
@@ -516,9 +665,171 @@ class VIClient
         begin
             @vim  = RbVmomi::VIM.connect(opts)
             @root = @vim.root
+            @vdm  = @vim.serviceContent.virtualDiskManager
+            @file_manager  = @vim.serviceContent.fileManager
         rescue Exception => e
             raise "Error connecting to #{@host}: #{e.message}"
         end
+    end
+
+    ######################### Datastore Operations #############################
+
+    ############################################################################
+    # Retrieve size for a VirtualDisk in a particular datastore
+    # @param ds_name [String] name of the datastore
+    # @param img_str [String] path to the VirtualDisk
+    # @return size of the file in Kb
+    ############################################################################
+    def stat(ds_name, img_str)
+        img_path = File.dirname img_str
+        img_name = File.basename img_str
+
+        # Find datastore within datacenter
+        ds = get_datastore(ds_name)
+
+        # Create Search Spec
+        spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
+        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
+        spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner    => true,
+                                                    :fileSize     => true,
+                                                    :fileType     => true,
+                                                    :modification => true)
+        spec.matchPattern=[img_name]
+
+        search_params = {'datastorePath' => "[#{ds_name}] #{img_path}",
+                         'searchSpec'    => spec}
+
+        # Perform search task and return results
+        search_task=ds.browser.SearchDatastoreSubFolders_Task(search_params)
+        search_task.wait_for_completion
+        (search_task.info.result[0].file[0].fileSize / 1024) / 1024
+    end
+
+    ############################################################################
+    # Returns Datastore information
+    # @param ds_name [String] name of the datastore
+    # @return [String] monitor information of the DS
+    ############################################################################
+    def monitor_ds(ds_name)
+        # Find datastore within datacenter
+        ds = get_datastore(ds_name)
+
+        total_mb = (ds.summary.capacity.to_i / 1024) / 1024
+        free_mb = (ds.summary.freeSpace.to_i / 1024) / 1024
+        used_mb = total_mb - free_mb
+        ds_type = ds.summary.type
+
+        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
+    end
+
+    ############################################################################
+    # Copy a VirtualDisk
+    # @param ds_name [String] name of the datastore
+    # @param img_str [String] path to the VirtualDisk
+    ############################################################################
+    def copy_virtual_disk(source_path, source_ds, target_path, target_ds=nil)
+        target_ds = source_ds if target_ds.nil?
+
+        copy_params= {:sourceName => "[#{source_ds}] #{source_path}",
+                      :sourceDatacenter => @dc,
+                      :destName => "[#{target_ds}] #{target_path}"}
+
+        @vdm.CopyVirtualDisk_Task(copy_params).wait_for_completion
+
+        target_path
+    end
+
+    ############################################################################
+    # Create a VirtualDisk
+    # @param img_name [String] name of the image
+    # @param ds_name  [String] name of the datastore on which the VD will be
+    #                         created
+    # @param size     [String] size of the new image in MB
+    # @param adapter_type [String] as described in
+    #   http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc/vim.VirtualDiskManager.VirtualDiskAdapterType.html
+    # @param disk_type [String] as described in
+    #   http://pubs.vmware.com/vsphere-60/index.jsp?topic=%2Fcom.vmware.wssdk.apiref.doc%2Fvim.VirtualDiskManager.VirtualDiskType.html
+    # @return name of the final image
+    ############################################################################
+    def create_virtual_disk(img_name, ds_name, size, adapter_type, disk_type)
+        vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
+            :adapterType => adapter_type,
+            :capacityKb  => size.to_i*1024,
+            :diskType    => disk_type
+        )
+
+        @vdm.CreateVirtualDisk_Task(
+          :datacenter => @dc,
+          :name       => "[#{ds_name}] #{img_name}.vmdk",
+          :spec       => vmdk_spec
+        ).wait_for_completion
+
+        "#{img_name}.vmdk"
+    end
+
+    ############################################################################
+    # Delete a VirtualDisk
+    # @param img_name [String] name of the image
+    # @param ds_name  [String] name of the datastore where the VD resides
+    ############################################################################
+    def delete_virtual_disk(img_name, ds_name)
+        @vdm.DeleteVirtualDisk_Task(
+          name: "[#{ds_name}] #{img_name}",
+          datacenter: @dc
+        ).wait_for_completion
+    end
+
+    ############################################################################
+    # Delete a VirtualDisk
+    # @param directory  [String] name of the new directory
+    # @param ds_name    [String] name of the datastore where to create the dir
+    ############################################################################
+    def create_directory(directory, ds_name)
+        begin
+            path = "[#{ds_name}] #{directory}"
+            @file_manager.MakeDirectory(:name => path,
+                                        :datacenter => @dc,
+                                        :createParentDirectories => true)
+        rescue RbVmomi::VIM::FileAlreadyExists => e
+        end
+    end
+
+    ############################################################################
+    # Silences standard output and error
+    ############################################################################
+    def self.in_silence
+        begin
+          orig_stderr = $stderr.clone
+          orig_stdout = $stdout.clone
+          $stderr.reopen File.new('/dev/null', 'w')
+          $stdout.reopen File.new('/dev/null', 'w')
+          retval = yield
+        rescue Exception => e
+          $stdout.reopen orig_stdout
+          $stderr.reopen orig_stderr
+          raise e
+        ensure
+          $stdout.reopen orig_stdout
+          $stderr.reopen orig_stderr
+        end
+       retval
+    end
+
+    ############################################################################
+    # Silences standard output and error
+    ############################################################################
+    def self.in_stderr_silence
+        begin
+          orig_stderr = $stderr.clone
+          $stderr.reopen File.new('/dev/null', 'w')
+          retval = yield
+        rescue Exception => e
+          $stderr.reopen orig_stderr
+          raise e
+        ensure
+          $stderr.reopen orig_stderr
+        end
+       retval
     end
 end
 
@@ -539,7 +850,7 @@ class VCenterHost < ::OpenNebula::Host
         @client  = client
         @cluster = client.cluster
 
-        @resource_pool = client.resource_pool
+        @resource_pools = client.resource_pool
     end
 
     ########################################################################
@@ -674,28 +985,66 @@ class VCenterHost < ::OpenNebula::Host
 
     def monitor_vms
         str_info = ""
-        @resource_pool.vm.each { |v|
-            name   = v.name
-            number = -1
-            number = name.split('-').last if (name =~ /^one-\d*$/)
+        @resource_pools.each{|rp|
+          rp.vm.each { |v|
+            begin
+                name   = v.name
+                number = -1
 
-            vm = VCenterVm.new(@client, v)
-            vm.monitor
+                # Extract vmid if possible
 
-            next if !vm.vm.config
+                matches = name.match(/^one-(\d*)(-(.*))?$/)
+                number  = matches[1] if matches
 
-            str_info << "\nVM = ["
-            str_info << "ID=#{number},"
-            str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-            str_info << "VM_NAME=\"#{name}\","
-            if number == -1
-             vm_template_to_one = Base64.encode64(vm.vm_to_one).gsub("\n","")
-             str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+                extraconfig_vmid = v.config.extraConfig.select{|val|
+                                           val[:key]=="opennebula.vm.id"}
+
+                if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
+                    number = extraconfig_vmid[0][:value]
+                end
+
+                vm = VCenterVm.new(@client, v)
+                vm.monitor
+
+                next if !vm.vm.config
+
+                str_info << "\nVM = ["
+                str_info << "ID=#{number},"
+                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+                str_info << "VM_NAME=\"#{name} - "\
+                            "#{v.runtime.host.parent.name}\","
+
+                if number == -1
+                    vm_template_to_one =
+                        Base64.encode64(vm.vm_to_one).gsub("\n","")
+                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+                end
+
+                str_info << "POLL=\"#{vm.info}\"]"
+            rescue Exception => e
+                STDERR.puts e.inspect
+                STDERR.puts e.backtrace
             end
-            str_info << "POLL=\"#{vm.info}\"]"
+          }
         }
 
         return str_info
+    end
+
+    def monitor_customizations
+        customizations = client.vim.serviceContent.customizationSpecManager.info
+
+        text = ''
+
+        customizations.each do |c|
+            t = "CUSTOMIZATION = [ "
+            t << %Q<NAME = "#{c.name}", >
+            t << %Q<TYPE = "#{c.type}" ]\n>
+
+            text << t
+        end
+
+        text
     end
 end
 
@@ -706,6 +1055,9 @@ end
 
 class VCenterVm
     attr_reader :vm
+
+    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
+    VM_STATE        = VirtualMachineDriver::VM_STATE
 
     ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
@@ -727,9 +1079,9 @@ class VCenterVm
     # Deploys a VM
     #  @xml_text XML repsentation of the VM
     ############################################################################
-    def self.deploy(xml_text, lcm_state, deploy_id, hostname)
+    def self.deploy(xml_text, lcm_state, deploy_id, hostname, datastore = nil)
         if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-            return clone_vm(xml_text)
+            return clone_vm(xml_text, hostname, datastore)
         else
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
@@ -738,7 +1090,7 @@ class VCenterVm
             # Find out if we need to reconfigure capacity
             xml = REXML::Document.new xml_text
 
-            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"].text
+            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
             expected_memory = xml.root.elements["//TEMPLATE/MEMORY"].text
             current_cpu     = vm.config.hardware.numCPU
             current_memory  = vm.config.hardware.memoryMB
@@ -759,23 +1111,36 @@ class VCenterVm
     # Cancels a VM
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
+    #  @param lcm_state state of the VM
+    #  @param keep_disks keep or not VM disks in datastore
+    #  @param disks VM attached disks
     ############################################################################
-    def self.cancel(deploy_id, hostname, lcm_state)
+    def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
-                shutdown(deploy_id, hostname, lcm_state)
-            when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT"
+                shutdown(deploy_id, hostname, lcm_state, keep_disks)
+            when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT", "SHUTDOWN", "CLEANUP_DELETE"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
                 vm          = connection.find_vm_template(deploy_id)
 
                 begin
-                    vm.PowerOffVM_Task.wait_for_completion
+                    if vm.summary.runtime.powerState == "poweredOn"
+                        vm.PowerOffVM_Task.wait_for_completion
+                    end
                 rescue
                 end
+                if keep_disks
+                    detach_all_disks(vm)
+                else
+                    detach_attached_disks(vm, disks, hostname) if disks
+                end
                 vm.Destroy_Task.wait_for_completion
+            else
+                raise "LCM_STATE #{lcm_state} not supported for cancel"
         end
     end
+
 
     ############################################################################
     # Saves a VM
@@ -840,8 +1205,11 @@ class VCenterVm
     # Shutdown a VM
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
+    #  @param lcm_state state of the VM
+    #  @param keep_disks keep or not VM disks in datastore
+    #  @param disks VM attached disks
     ############################################################################
-    def self.shutdown(deploy_id, hostname, lcm_state)
+    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks, disks)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
@@ -854,6 +1222,12 @@ class VCenterVm
                 rescue
                 end
                 vm.PowerOffVM_Task.wait_for_completion
+                if keep_disks
+                    detach_all_disks(vm)
+                else
+                    detach_attached_disks(vm, disks, hostname)
+                end
+                exit -1
                 vm.Destroy_Task.wait_for_completion
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
@@ -1002,6 +1376,34 @@ class VCenterVm
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
+    ############################################################################
+    # Reconfigures a VM (context data)
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)
+    #  @param xml_text XML repsentation of the VM
+    ############################################################################
+    def self.reconfigure(deploy_id, hostname, xml_text)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+        vm          = connection.find_vm_template(deploy_id)
+
+        xml = REXML::Document.new xml_text
+        context = xml.root.elements["//TEMPLATE/CONTEXT"]
+
+        if context
+            context_text = create_context(context)
+            context_spec = {
+                :extraConfig => [
+                    { :key=>"guestinfo.opennebula.context",
+                      :value=> Base64.encode64(context_text) }
+                ]
+            }
+
+            spec      = RbVmomi::VIM.VirtualMachineConfigSpec(context_spec)
+            vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+    end
+
     ########################################################################
     #  Initialize the vm monitor information
     ########################################################################
@@ -1009,7 +1411,7 @@ class VCenterVm
         @summary = @vm.summary
         @state   = state_to_c(@summary.runtime.powerState)
 
-        if @state != 'a'
+        if @state != VM_STATE[:active]
             @used_cpu    = 0
             @used_memory = 0
 
@@ -1039,7 +1441,15 @@ class VCenterVm
         @vmtools_ver    = @vm.guest.toolsVersion
         @vmtools_verst  = @vm.guest.toolsVersionStatus
 
+        guest_ip_addresses = []
 
+        @vm.guest.net.each do |net|
+            net.ipConfig.ipAddress.each do |ip|
+                guest_ip_addresses << ip.ipAddress
+            end if net.ipConfig && net.ipConfig.ipAddress
+        end if @vm.guest.net
+
+        @guest_ip_addresses = guest_ip_addresses.join(',')
     end
 
     ########################################################################
@@ -1051,11 +1461,15 @@ class VCenterVm
       str_info = ""
 
       str_info << "GUEST_IP=" << @guest_ip.to_s << " " if @guest_ip
-      str_info << "STATE="                      << @state                << " "
-      str_info << "CPU="                        << @used_cpu.to_s        << " "
-      str_info << "MEMORY="                     << @used_memory.to_s     << " "
-      str_info << "NETRX="                      << @netrx.to_s          << " "
-      str_info << "NETTX="                      << @nettx.to_s          << " "
+      if @guest_ip_addresses && !@guest_ip_addresses.empty?
+          str_info << "GUEST_IP_ADDRESSES=\\\"" <<
+              @guest_ip_addresses.to_s << "\\\" "
+      end
+      str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
+      str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
+      str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
+      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s          << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
@@ -1069,20 +1483,23 @@ class VCenterVm
     #
     ########################################################################
     def to_one
-        str = "NAME   = \"#{@vm.name}\"\n"\
+        cluster_name = @vm.runtime.host.parent.name
+
+        str = "NAME   = \"#{@vm.name} - #{cluster_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
-              "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+              "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
+              "  HOST        =\"#{cluster_name}\"\n"\
               "]\n"\
               "GRAPHICS = [\n"\
               "  TYPE     =\"vnc\",\n"\
               "  LISTEN   =\"0.0.0.0\"\n"\
               "]\n"\
-         "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+         "SCHED_REQUIREMENTS=\"NAME=\\\"#{cluster_name}\\\"\"\n"
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula"\
@@ -1120,22 +1537,31 @@ class VCenterVm
     def vm_to_one
         host_name = @vm.runtime.host.parent.name
 
-        str = "NAME   = \"#{@vm.name}\"\n"\
+        state = case state_to_c(@summary.runtime.powerState)
+                    when 'a'
+                        "RUNNING"
+                    when 'd'
+                        "POWEROFF"
+                end
+
+        str = "NAME   = \"#{@vm.name} - #{host_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
               "HYPERVISOR = \"vcenter\"\n"\
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
-              "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+              "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
+              "  HOST        =\"#{host_name}\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
+              "IMPORT_STATE   = \"#{state}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
 
         vp     = @vm.config.extraConfig.select{|v|
-                                           v[:key]=="remotedisplay.vnc.port"}
+                                           v[:key].downcase=="remotedisplay.vnc.port"}
         keymap = @vm.config.extraConfig.select{|v|
-                                           v[:key]=="remotedisplay.vnc.keymap"}
+                                           v[:key].downcase=="remotedisplay.vnc.keymap"}
 
         if vp.size > 0
             str << "GRAPHICS = [\n"\
@@ -1154,6 +1580,23 @@ class VCenterVm
             str << "DESCRIPTION = \"#{notes}\"\n"
         end
 
+        case @vm.guest.guestFullName
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png"
+        end
+
         return str
     end
 
@@ -1169,13 +1612,13 @@ private
     def state_to_c(state)
         case state
             when 'poweredOn'
-                'a'
+                VM_STATE[:active]
             when 'suspended'
-                'p'
+                VM_STATE[:paused]
             when 'poweredOff'
-                'd'
+                VM_STATE[:deleted]
             else
-                '-'
+                VM_STATE[:unknown]
         end
     end
 
@@ -1184,6 +1627,13 @@ private
     ########################################################################
     def self.is_nic?(device)
         !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
+    end
+
+    ########################################################################
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    ########################################################################
+    def self.is_disk?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualDisk).nil?
     end
 
     ########################################################################
@@ -1256,47 +1706,120 @@ private
     ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
     ########################################################################
-    def self.clone_vm(xml_text)
+    def self.clone_vm(xml_text, hostname, datastore)
+
+        host_id = VCenterDriver::VIClient.translate_hostname(hostname)
+        # Retrieve hostname
+        host  =  OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new())
+        host.info   # Not failing if host retrieval fails
+
+        if host["/HOST/TEMPLATE/VM_PREFIX"] and !host["/HOST/TEMPLATE/VM_PREFIX"].empty?
+            vmname_prefix = host["/HOST/TEMPLATE/VM_PREFIX"]
+        else # fall back to default value
+            vmname_prefix = "one-$i-"
+        end
 
         xml = REXML::Document.new xml_text
         pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
         raise "Cannot find VCenter element in VM template." if pcs.nil?
 
-        template = pcs.find { |t|
+        template = pcs.select { |t|
             type = t.elements["TYPE"]
             !type.nil? && type.text.downcase == "vcenter"
         }
+
+        # If there are multiple vcenter templates, find the right one
+        if template.is_a? Array
+            all_vcenter_templates = template.clone
+            # If there is more than one coincidence, pick the first one
+            template = template.select {|t|
+                cluster_name = t.elements["HOST"]
+                !cluster_name.nil? && cluster_name.text == hostname
+            }[0]
+            # The template may not reference any specific CLUSTER
+            # (referenced to as HOST in the OpenNebula template)
+            # Therefore, here take the first one that does not
+            # specify a CLUSTER to see if we are lucky
+            if template.nil?
+                template = all_vcenter_templates.select {|t|
+                    t.elements["HOST"].nil?
+                }[0]
+            end
+        end
 
         raise "Cannot find vCenter element in VM template." if template.nil?
 
         uuid = template.elements["VM_TEMPLATE"]
 
-        raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
+        raise "Cannot find VM_TEMPLATE in vCenter element." if uuid.nil?
 
-        uuid = uuid.text
-        vmid = xml.root.elements["/VM/ID"].text
-        hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
+        uuid         = uuid.text
+        vmid         =  xml.root.elements["/VM/ID"].text
+        vmname_prefix.gsub!("$i", vmid)
+        vcenter_name = "#{vmname_prefix}#{xml.root.elements["/VM/NAME"].text}"
+        hid          = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        context = xml.root.elements["//TEMPLATE/CONTEXT"]
+        context     = xml.root.elements["//TEMPLATE/CONTEXT"]
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
-        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
-                          :diskMoveType => :moveChildMostDiskBacking,
-                          :pool         => connection.resource_pool)
+        if connection.rp_confined?
+            rp = connection.resource_pool.first
+        else
+            rp = connection.default_resource_pool
+        end
 
-        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
-                      :location => relocate_spec,
-                      :powerOn  => false,
-                      :template => false)
+        if datastore
+            ds=connection.dc.datastoreFolder.childEntity.select{|ds|
+                                                        ds.name == datastore}[0]
+            raise "Cannot find datastore #{datastore}" if !ds
+        end
+
+        relocate_spec_params = {
+            :diskMoveType => :moveChildMostDiskBacking,
+            :pool         => rp
+        }
+
+        relocate_spec_params[:datastore] = ds if datastore
+
+        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+                                                         relocate_spec_params)
+
+        clone_parameters = {
+            :location => relocate_spec,
+            :powerOn  => false,
+            :template => false
+        }
+
+        customization = template.elements["CUSTOMIZATION_SPEC"]
+
+        vim = connection.vim
+
+        if !customization.nil?
+        begin
+            custom_spec = vim.serviceContent.customizationSpecManager.
+                GetCustomizationSpec(:name => customization.text)
+
+            if custom_spec && spec=custom_spec.spec
+                clone_parameters[:customization] = spec
+            else
+                raise "Error getting customization spec"
+            end
+
+        rescue
+            raise "Customization spec '#{customization.text}' not found"
+        end
+        end
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(clone_parameters)
 
         begin
             vm = vc_template.CloneVM_Task(
                    :folder => vc_template.parent,
-                   :name   => "one-#{vmid}",
+                   :name   => vcenter_name,
                    :spec   => clone_spec).wait_for_completion
         rescue Exception => e
 
@@ -1304,18 +1827,21 @@ private
                 raise "Cannot clone VM Template: #{e.message}"
             end
 
-            vm = connection.find_vm("one-#{vmid}")
+            vm = connection.find_vm(vcenter_name)
 
             raise "Cannot clone VM Template" if vm.nil?
 
             vm.Destroy_Task.wait_for_completion
             vm = vc_template.CloneVM_Task(
                 :folder => vc_template.parent,
-                :name   => "one-#{vmid}",
+                :name   => vcenter_name,
                 :spec   => clone_spec).wait_for_completion
         end
 
         vm_uuid = vm.config.uuid
+
+        # Add VMID to VM's extraConfig
+        config_array = [{:key=>"opennebula.vm.id",:value=>vmid}]
 
         # VNC Section
 
@@ -1329,7 +1855,6 @@ private
             vnc_listen = vnc_listen.text
         end
 
-        config_array     = []
         context_vnc_spec = {}
 
         if vnc_port
@@ -1345,12 +1870,53 @@ private
         # Context section
 
         if context
-            # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
-            context_text = "# Context variables generated by OpenNebula\n"
-            context.elements.each{|context_element|
-                context_text += context_element.name + "='" +
-                                context_element.text.gsub("'", "\\'") + "'\n"
-            }
+            context_text = create_context(context)
+
+            # OneGate
+            onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
+            if onegate_token_flag and onegate_token_flag.text == "YES"
+                # Create the OneGate token string
+                vmid_str  = xml.root.elements["/VM/ID"].text
+                stime_str = xml.root.elements["/VM/STIME"].text
+                str_to_encrypt = "#{vmid_str}:#{stime_str}"
+
+                user_id = xml.root.elements['//CREATED_BY'].text
+
+                if user_id.nil?
+                    STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
+                        " in the VM TEMPLATE"}
+                    return nil
+                end
+
+                user = OpenNebula::User.new_with_id(user_id,
+                                                    OpenNebula::Client.new)
+                rc   = user.info
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts {"VMID:#{vmid} user.info" \
+                        " error: #{rc.message}"}
+                    return nil
+                end
+
+                token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+                if token_password.nil?
+                    STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                        " in the USER:#{user_id} TEMPLATE"}
+                    return nil
+                end
+
+                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                cipher.encrypt
+                cipher.key = token_password
+                onegate_token = cipher.update(str_to_encrypt)
+                onegate_token << cipher.final
+
+                onegate_token_64 = Base64.encode64(onegate_token).chop
+
+                context_text += "ONEGATE_TOKEN='#{onegate_token_64}'\n"
+            end
+
             context_text = Base64.encode64(context_text.chop)
             config_array +=
                      [{:key=>"guestinfo.opennebula.context",
@@ -1378,15 +1944,32 @@ private
             nic_spec = {:deviceChange => nic_array}
         end
 
+        # DISK section, build the reconfig hash
+
+        disks     = xml.root.get_elements("//TEMPLATE/DISK")
+        disk_spec = {}
+
+        if !disks.nil?
+            disk_array = []
+            disks.each{|disk|
+               ds_name    = disk.elements["DATASTORE"].text
+               img_name   = disk.elements["SOURCE"].text
+
+               disk_array += attach_disk("", "", ds_name, img_name, 0, vm, connection)[:deviceChange]
+            }
+
+            disk_spec = {:deviceChange => disk_array}
+        end
+
         # Capacity section
 
-        cpu           = xml.root.elements["//TEMPLATE/VCPU"].text
+        cpu           = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
         memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
         capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
 
         # Perform the VM reconfiguration
-        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec)
+        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec).merge(disk_spec)
         spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
@@ -1394,6 +1977,245 @@ private
         vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
+    end
+
+    ############################################################################
+    # Attach disk to a VM
+    # @params hostname[String] vcenter cluster name in opennebula as host
+    # @params deploy_id[String] deploy id of the vm
+    # @params ds_name[String] name of the datastore
+    # @params img_name[String] path of the image
+    # @params size_kb[String] size in kb of the disk
+    # @params vm[RbVmomi::VIM::VirtualMachine] VM if called from instance
+    # @params connection[ViClient::conneciton] connection if called from instance
+    ############################################################################
+    def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb, vm=nil, connection=nil)
+        only_return = true
+        if !vm
+            hid         = VIClient::translate_hostname(hostname)
+            connection  = VIClient.new(hid)
+
+            vm          = connection.find_vm_template(deploy_id)
+            only_return = false
+        end
+
+        # Find datastore within datacenter
+        ds=connection.dc.datastoreFolder.childEntity.select{|ds|
+                                                         ds.name == ds_name}[0]
+
+        controller, new_number = find_free_controller(vm)
+
+        vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
+              :datastore => ds,
+              :diskMode  => 'persistent',
+              :fileName  => "[#{ds_name}] #{img_name}"
+        )
+
+        device = RbVmomi::VIM::VirtualDisk(
+          :backing       => vmdk_backing,
+          :capacityInKB  => size_kb,
+          :controllerKey => controller.key,
+          :key           => -1,
+          :unitNumber    => new_number
+        )
+
+        device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+          :device    => device,
+          :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+        )
+
+        vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
+          :deviceChange => [device_config_spec]
+        )
+
+        return vm_config_spec if only_return
+
+        vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
+    end
+
+    def self.find_free_controller(vm)
+        free_scsi_controllers = Array.new
+        available_controller  = nil
+        scsi_schema           = Hash.new
+
+        vm.config.hardware.device.each{ |dev|
+          if dev.is_a? RbVmomi::VIM::VirtualSCSIController
+            if scsi_schema[dev.controllerKey].nil?
+              scsi_schema[dev.key] = Hash.new
+              scsi_schema[dev.key][:lower] = Array.new
+            end
+            scsi_schema[dev.key][:device] = dev
+          end
+
+          next if dev.class != RbVmomi::VIM::VirtualDisk
+
+          if scsi_schema[dev.controllerKey].nil?
+            scsi_schema[dev.controllerKey]         = Hash.new
+            scsi_schema[dev.controllerKey][:lower] = Array.new
+          end
+
+          scsi_schema[dev.controllerKey][:lower] << dev
+        }
+
+        scsi_schema.keys.each{|controller|
+          if scsi_schema[controller][:lower].length < 15
+            free_scsi_controllers << scsi_schema[controller][:device].deviceInfo.label
+          end
+        }
+
+        available_controller_label = free_scsi_controllers.length > 0 ? free_scsi_controllers[0] : add_new_scsi(vm, scsi_schema)
+
+       # Get the controller resource from the label
+        controller = nil
+
+        vm.config.hardware.device.each { |device|
+          (controller = device ; break) if device.deviceInfo.label == available_controller_label
+        }
+
+        new_unit_number = find_new_unit_number(scsi_schema, controller)
+
+        return controller, new_unit_number
+    end
+
+
+    def self.find_new_unit_number(scsi_schema, controller)
+        used_numbers      =  Array.new
+        available_numbers =  Array.new
+
+        scsi_schema.keys.each { |c|
+          next if controller.key != scsi_schema[c][:device].key
+          used_numbers << scsi_schema[c][:device].scsiCtlrUnitNumber
+          scsi_schema[c][:lower].each { |disk|
+            used_numbers << disk.unitNumber
+          }
+        }
+
+        15.times{ |scsi_id|
+          available_numbers << scsi_id if used_numbers.grep(scsi_id).length <= 0
+        }
+
+        return available_numbers.sort[0]
+    end
+
+    def self.add_new_scsi(vm, scsi_schema)
+        controller = nil
+
+        if scsi_schema.keys.length < 4
+          scsi_key    = scsi_schema.keys.sort[-1] + 1
+          scsi_number = scsi_tree[scsi_tree.keys.sort[-1]][:device].busNumber + 1
+
+          controller_device = RbVmomi::VIM::VirtualLsiLogicController(
+            :key => scsi_key,
+            :busNumber => scsi_number,
+            :sharedBus => :noSharing
+          )
+
+          device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+            :device => controller_device,
+            :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+          )
+
+          vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
+            :deviceChange => [device_config_spec]
+          )
+
+          vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
+
+        else
+          raise "Cannot add a new controller, maximum is 4."
+        end
+
+        vm.config.hardware.device.each { |device|
+          if device.class == RbVmomi::VIM::VirtualLsiLogicController &&
+             device.key == scsi_key
+               controller = device.deviceInfo.label
+          end
+        }
+
+        return controller
+    end
+
+    ############################################################################
+    # Detach a specific disk from a VM
+    # Attach disk to a VM
+    # @params hostname[String] vcenter cluster name in opennebula as host
+    # @params deploy_id[String] deploy id of the vm
+    # @params ds_name[String] name of the datastore
+    # @params img_path[String] path of the image
+    ############################################################################
+    def self.detach_disk(hostname, deploy_id, ds_name, img_path)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        ds_and_img_name = "[#{ds_name}] #{img_path}"
+
+        disk  = vm.config.hardware.device.select { |d| is_disk?(d) &&
+                                 d.backing.fileName == ds_and_img_name }
+
+        raise "Disk #{img_path} not found." if disk.nil?
+
+        spec = { :deviceChange => [{
+                  :operation => :remove,
+                  :device => disk[0]
+               }]}
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    ############################################################################
+    # Detach all disks from a VM
+    # @params vm[VCenterVm] vCenter VM
+    ############################################################################
+    def self.detach_all_disks(vm)
+        disks  = vm.config.hardware.device.select { |d| is_disk?(d) }
+
+        return if disks.nil?
+
+        spec = { :deviceChange => [] }
+
+        disks.each{|disk|
+            spec[:deviceChange] <<  {
+                :operation => :remove,
+                :device => disk
+            }
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    def self.create_context(context)
+        # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
+        context_text = "# Context variables generated by OpenNebula\n"
+        context.elements.each{|context_element|
+            next if !context_element.text
+            context_text += context_element.name + "='" +
+                            context_element.text.gsub("'", "\\'") + "'\n"
+        }
+        context_text
+    end
+
+    ############################################################################
+    # Detach attached disks from a VM
+    ############################################################################
+    def self.detach_attached_disks(vm, disks, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        spec = { :deviceChange => [] }
+
+        disks.each{ |disk|
+          ds_and_img_name = "[#{disk['DATASTORE']}] #{disk['SOURCE']}"
+          vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) &&
+                                    d.backing.fileName == ds_and_img_name }[0]
+           spec[:deviceChange] <<  {
+                :operation => :remove,
+                :device => vcenter_disk
+            }
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 end
 end

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -182,7 +182,7 @@ module Instance
             merge_info = {}
             merge_info["DISK"] = []
             merge_info["DISK"] << {"IMAGE_ID" => img.to_i}
-
+            merge_info["IMAGE_ID"] = params['ImageId']
 
             template.each("TEMPLATE/DISK") { |e|
                 merge_info["DISK"] << e.to_hash["DISK"]

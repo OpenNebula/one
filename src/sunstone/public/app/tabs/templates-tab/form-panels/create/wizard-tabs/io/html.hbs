@@ -1,9 +1,27 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="row">
-  <div class="large-6 columns graphics">
+  <div class="medium-6 columns graphics">
     <fieldset>
       <legend>{{tr "Graphics"}}</legend>
       <div class="row">
         <div class="large-12 columns text-center">
+          <input type="radio" name="graphics_type" ID="radioNoneType" value="">
+          <label for="radioNoneType">{{tr "None"}}</label>
           <input type="radio" name="graphics_type" ID="radioVncType" value="VNC">
           <label for="radioVncType">VNC</label>
           <input type="radio" name="graphics_type" ID="radioSdlType" value="SDL" class="hypervisor only_kvm only_vmware only_xen" >
@@ -18,25 +36,23 @@
         <div class="large-12 columns">
           <label for="LISTEN">
             {{tr "Listen IP"}}
-            <span class="tip">{{tr "IP to listen on"}}</span>
+            {{{tip (tr "IP to listen on")}}}
           </label>
           <input type="text" wizard_field="LISTEN" id="LISTEN" name="graphics_ip" />
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="PORT">
             {{tr "Port"}}
-            <span class="tip">{{tr "Port for the VNC/SPICE server"}}</span>
+            {{{tip (tr "Port for the VNC/SPICE server")}}}
           </label>
           <input type="text" wizard_field="PORT" id="PORT" name="port" />
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="KEYMAP">
             {{tr "Keymap"}}
-            <span class="tip">
-              {{tr "Keyboard configuration locale to use in the VNC/SPICE display"}}
-            </span>
+            {{{tip (tr "Keyboard configuration locale to use in the VNC/SPICE display")}}}
           </label>
           <input type="text" wizard_field="KEYMAP" id="KEYMAP" name="keymap" />
         </div>
@@ -45,7 +61,7 @@
         <div class="large-12 columns">
           <label for="PASSWD">
             {{tr "Password"}}
-            <span class="tip">{{tr "Password for the VNC/SPICE server"}}</span>
+            {{{tip (tr "Password for the VNC/SPICE server")}}}
           </label>
           <input type="text" wizard_field="PASSWD" id="PASSWD" name="graphics_pw" />
         </div>
@@ -55,26 +71,24 @@
           <input type="checkbox" name="RANDOM_PASSWD" id="RANDOM_PASSWD">
           <label for="RANDOM_PASSWD">
             {{tr "Generate Random Password"}}
-            <span class="tip">
-              {{tr "A random password will be generated for each VM, and will be included in the VM information"}}
-            </span>
+            {{{tip (tr "A random password will be generated for each VM, and will be included in the VM information")}}}
           </label>
         </div>
       </div>
     </fieldset>
   </div>
-  <div class="large-6 columns inputs hypervisor only_kvm only_vmware only_xen">
+  <div class="medium-6 columns inputs hypervisor only_kvm only_vmware only_xen">
     <fieldset>
       <legend>{{tr "Inputs"}}</legend>
       <div class="row">
-        <div class="large-5 columns">
+        <div class="medium-5 columns">
           <select id="INPUT_TYPE" name="input_type">
             <option id="no_type" name="no_type" value=""></option>
             <option value="mouse">{{tr "Mouse"}}</option>
             <option value="tablet">{{tr "Tablet"}}</option>
           </select>
         </div>
-        <div class="large-4 columns">
+        <div class="medium-4 columns">
           <select id="INPUT_BUS" name="input_bus">
             <option id="no_input" name="no_input" value=""></option>
             <option value="usb">{{tr "USB"}}</option>
@@ -82,7 +96,7 @@
             <option value="xen">{{tr "XEN"}}</option>
           </select>
         </div>
-        <div class="large-3 columns">
+        <div class="medium-3 columns">
           <a href="#" class="button small radius secondary" id="add_input">{{tr "Add"}}</a>
         </div>
       </div>

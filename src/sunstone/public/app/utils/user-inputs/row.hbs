@@ -1,0 +1,85 @@
+<tr>
+  <td>
+    <label>{{tr "Name"}}
+      <input class="user_input_name" type="text" pattern="^\w+$"/>
+      <small class="error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
+    </label>
+  </td>
+  <td>
+    <label>{{tr "Type"}}
+      <select class="user_input_type" >
+        <option value="text">         {{tr "text"}}            </option>
+        <option value="text64">       {{tr "text (base64)"}}   </option>
+        <option value="password">     {{tr "password"}}        </option>
+        <option value="number">       {{tr "number"}}          </option>
+        <option value="number-float"> {{tr "number (float)"}}  </option>
+        <option value="range">        {{tr "range"}}           </option>
+        <option value="range-float">  {{tr "range (float)"}}   </option>
+        <option value="list">         {{tr "list"}}            </option>
+      </select>
+    </label>
+  </td>
+  <td>
+    <label>{{tr "Description"}}
+      <textarea class="user_input_description"/>
+    </label>
+    <div class="user_input_type_right number">
+      <label>{{tr "Default value"}}
+        <input type="number" class="user_input_initial" placeholder="42"/>
+      </label>
+    </div>
+    <div class="user_input_type_right number-float">
+      <label{{tr "Default value"}}
+        <input type="number" step="any" class="user_input_initial" placeholder="42.5"/>
+      </label>
+    </div>
+    <div class="user_input_type_right range">
+      <div class="row">
+        <div class="small-6 columns">
+          <label>{{tr "Min"}}
+            <input type="number" class="user_input_params_min" placeholder="2"/>
+          </label>
+        </div>
+        <div class="small-6 columns">
+          <label>{{tr "Max"}}
+            <input type="number" class="user_input_params_max" placeholder="16"/>
+          </label>
+        </div>
+      </div>
+      <label>{{tr "Default value"}}
+        <input type="number" class="user_input_initial" placeholder="8"/>
+      </label>
+    </div>
+    <div class="user_input_type_right range-float">
+      <div class="row">
+        <div class="small-6 columns">
+          <label>{{tr "Min"}}
+            <input type="number" step="any" class="user_input_params_min" placeholder="2"/>
+          </label>
+        </div>
+        <div class="small-6 columns">
+          <label>{{tr "Max"}}
+            <input type="number" step="any" class="user_input_params_max" placeholder="16"/>
+          </label>
+        </div>
+      </div>
+      <label>{{tr "Default value"}}
+        <input type="number" step="any" class="user_input_initial" placeholder="8.5"/>
+      </label>
+    </div>
+    <div class="user_input_type_right list">
+      <label>
+        {{tr "Options"}}
+        {{{tip (tr "Comma-separated list of options for the drop-down select input")}}}
+        <input type=text class="user_input_params" placeholder="optA,optB,optC"/>
+      </label>
+      <label>{{tr "Default value"}}
+        <input type=text class="user_input_initial" placeholder="optB"/>
+      </label>
+    </div>
+  </td>
+  <td>
+    </br>
+    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+  </td>
+</tr>

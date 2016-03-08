@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L.                                        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,8 +15,13 @@
 #--------------------------------------------------------------------------- #
 
 require 'treetop'
+require 'treetop/version'
 require 'grammar'
 require 'parse-cron'
+
+if !(Gem::Version.create(Treetop::VERSION::STRING) >= Gem::Version.create('1.6.3'))
+    raise "treetop gem version must be >= 1.6.3. Current version is #{Treetop::VERSION::STRING}"
+end
 
 module OpenNebula
     class Role
@@ -207,7 +212,8 @@ module OpenNebula
                     vm_state = node['vm_info']['VM']['STATE']
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
 
-                    running = vm_state == '3' && lcm_state >= '3'
+                    running = (!Role.vm_failure?(vm_state, lcm_state) &&
+                                vm_state == '3' && lcm_state >= '3')
 
                     if running && @service.ready_status_gate
                         running_status = node['vm_info']['VM']['USER_TEMPLATE']['READY'] || ""
@@ -458,6 +464,36 @@ module OpenNebula
                 error_msgs << log_msg
                 return [false, error_msgs.join('\n')]
             end
+        end
+
+        # Returns true if the VM state is failure
+        # @param [Integer] vm_state VM state
+        # @param [Integer] lcm_state VM LCM state
+        # @return [true,false] True if the lcm state is one of *_FAILURE
+        def self.vm_failure?(vm_state, lcm_state)
+            vm_state_str = VirtualMachine::VM_STATE[vm_state.to_i]
+            lcm_state_str = VirtualMachine::LCM_STATE[lcm_state.to_i]
+
+            if vm_state_str == 'ACTIVE' &&
+                (   lcm_state_str == 'BOOT_FAILURE' ||
+                    lcm_state_str == 'BOOT_MIGRATE_FAILURE' ||
+                    lcm_state_str == 'PROLOG_MIGRATE_FAILURE' ||
+                    lcm_state_str == 'PROLOG_FAILURE' ||
+                    lcm_state_str == 'EPILOG_FAILURE' ||
+                    lcm_state_str == 'EPILOG_STOP_FAILURE' ||
+                    lcm_state_str == 'EPILOG_UNDEPLOY_FAILURE' ||
+                    lcm_state_str == 'PROLOG_MIGRATE_POWEROFF_FAILURE' ||
+                    lcm_state_str == 'PROLOG_MIGRATE_SUSPEND_FAILURE' ||
+                    lcm_state_str == 'PROLOG_MIGRATE_UNKNOWN_FAILURE' ||
+                    lcm_state_str == 'BOOT_UNDEPLOY_FAILURE' ||
+                    lcm_state_str == 'BOOT_STOPPED_FAILURE' ||
+                    lcm_state_str == 'PROLOG_RESUME_FAILURE' ||
+                    lcm_state_str == 'PROLOG_UNDEPLOY_FAILURE')
+
+                return true
+            end
+
+            return false
         end
 
         ########################################################################
@@ -848,23 +884,7 @@ module OpenNebula
                     # Store the VM id in the array of disposed nodes
                     disposed_nodes << vm_id
 
-                elsif ( vm_state_str == 'FAILED' ||
-                        vm_state_str == 'ACTIVE' &&
-                        (   lcm_state_str == 'FAILURE' ||
-                            lcm_state_str == 'BOOT_FAILURE' ||
-                            lcm_state_str == 'BOOT_MIGRATE_FAILURE' ||
-                            lcm_state_str == 'PROLOG_MIGRATE_FAILURE' ||
-                            lcm_state_str == 'PROLOG_FAILURE' ||
-                            lcm_state_str == 'EPILOG_FAILURE' ||
-                            lcm_state_str == 'EPILOG_STOP_FAILURE' ||
-                            lcm_state_str == 'EPILOG_UNDEPLOY_FAILURE' ||
-                            lcm_state_str == 'PROLOG_MIGRATE_POWEROFF_FAILURE' ||
-                            lcm_state_str == 'PROLOG_MIGRATE_SUSPEND_FAILURE' ||
-                            lcm_state_str == 'PROLOG_UNDEPLOY_FAILURE' ||
-                            lcm_state_str == 'PROLOG_RESUME_FAILURE' ||
-                            lcm_state_str == 'BOOT_UNDEPLOY_FAILURE' ||
-                            lcm_state_str == 'BOOT_STOPPED_FAILURE' ))
-
+                elsif ( Role.vm_failure?(vm_state, lcm_state) )
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                     rc = vm.finalize
 

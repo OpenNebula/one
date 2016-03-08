@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -160,12 +160,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     delete_desc = <<-EOT.unindent
-        Deletes the given Image
+        Deletes the given Template
     EOT
 
-    command :delete, delete_desc, [:range, :templateid_list] do
+    command :delete, delete_desc, [:range, :templateid_list],
+            :options =>OneTemplateHelper::RECURSIVE do 
+
+        recursive = (options[:recursive] == true)
+
         helper.perform_actions(args[0],options,"deleted") do |t|
-            t.delete
+            t.delete(recursive)
         end
     end
 
@@ -208,17 +212,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 if args[1]
                     extra_template = File.read(args[1])
-                elsif options[:userdata]
-                    if t.has_elements?('TEMPLATE/EC2')
-                        t.add_element(
-                            'TEMPLATE/EC2',
-                            'USERDATA' => options[:userdata])
-
-                        extra_template = t.template_like_str(
-                            'TEMPLATE', false, 'EC2')
-                    end
                 else
-                    res = OpenNebulaHelper.create_template(options)
+                    res = OpenNebulaHelper.create_template(options, t)
 
                     if res.first != 0
                         STDERR.puts res.last
@@ -228,7 +223,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     extra_template = res.last
                 end
 
-                user_inputs = helper.get_user_inputs(t.to_hash) unless user_inputs
+                user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash) unless user_inputs
 
                 extra_template << "\n" << user_inputs
 
@@ -273,9 +268,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Template permissions
     EOT
 
-    command :chmod, chmod_desc, [:range, :templateid_list], :octet do
+    command :chmod, chmod_desc, [:range, :templateid_list], :octet,
+            :options =>OneTemplateHelper::RECURSIVE do
+
+        recursive = (options[:recursive] == true)
+
         helper.perform_actions(args[0],options, "Permissions changed") do |t|
-            t.chmod_octet(args[1])
+            t.chmod_octet(args[1], recursive)
         end
     end
 
@@ -292,6 +291,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             else
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
+
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
 
             obj.update(str, options[:append])
         end
@@ -319,7 +321,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Template
     EOT
 
-    command :show, show_desc, :templateid, :options=>OpenNebulaHelper::XML do
+    command :show, show_desc, :templateid,
+        :options=>[OpenNebulaHelper::XML,OneTemplateHelper::EXTENDED] do
+
         helper.show_resource(args[0],options)
     end
 

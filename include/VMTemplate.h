@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,6 +37,17 @@ public:
      */
     string& to_xml(string& xml) const;
 
+
+    /**
+     * Function to print the VMTemplate object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @param tmpl a template to replace the internal obj_template. It is only
+     *  used to create the resulting xml string, the internal obj_template is
+     *  not altered
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml, const Template* tmpl) const;
+
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------
@@ -58,6 +69,34 @@ public:
         return new VirtualMachineTemplate(
                 *(static_cast<VirtualMachineTemplate *>(obj_template)));
     };
+
+    /**
+     * Returns a copy of the DISK attributes of this template, the attributes
+	 * are copied and must be freed by the calling function.
+	 *   @param a vector to store the disks.
+     */
+    void get_disks(vector<VectorAttribute *>& disks)
+    {
+		vector<const VectorAttribute *> _disks;
+
+		obj_template->get("DISK", _disks);
+
+		for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
+				i != _disks.end() ; ++i)
+		{
+			disks.push_back(new VectorAttribute(*i));
+		}
+    }
+
+    // ------------------------------------------------------------------------
+    // Virtual Router
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if this Template is a Virtual Router Template
+     * @return true if this Template is a Virtual Router Template
+     */
+    bool is_vrouter();
 
 private:
     // -------------------------------------------------------------------------

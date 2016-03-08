@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,6 +31,7 @@ rescue LoadError
 end
 
 ENV['LANG']='C'
+ENV['LC_ALL']='C'
 
 ################################################################################
 #
@@ -317,12 +318,15 @@ module KVM
 
         doc  = REXML::Document.new(xml)
         size = 0
+        systemds = doc.elements['domain/metadata/system_datastore'] rescue nil
+        systemds = systemds.text.gsub(/\/+/, '/') if systemds
 
         data = {
             :disk_size       => [],
             :snapshot_size   => []
         }
 
+        begin
         doc.elements.each('domain/devices/disk/source') do |ele|
             # read the disk path (for regular disks)
             file = ele.attributes['file'] rescue nil
@@ -356,7 +360,34 @@ module KVM
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
                 end
-            else file
+            elsif file
+                # Search the disk in system datastore when the source
+                # is a persistent image with snapshots
+                source = nil
+                current_snap_id = nil
+
+                if !file.match(/.*disk\.\d+$/) && systemds
+                    source = file.gsub(%r{/+}, '/')
+
+                    disks = Dir["#{systemds}/disk.*"]
+
+                    disks.each do |disk|
+                        next if !File.symlink?(disk)
+                        link = File.readlink(disk).gsub(%r{/+}, '/')
+
+                        if link == source
+                            file = disk
+                            current_snap_id = link.split('/').last
+                            break
+                        end
+                    end
+                else
+                    if File.symlink?(file)
+                        link = File.readlink(file)
+                        current_snap_id = link.split('/').last
+                    end
+                end
+
                 # Regular Disk
                 text = `qemu-img info --output=json #{file}`
                 next if !$? || !$?.success?
@@ -368,9 +399,33 @@ module KVM
                 disk_size = json['actual-size'].to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
+
+                # Get snapshots
+                Dir[file + '.snap/*'].each do |snap|
+                    if current_snap_id
+                        next if snap.split('/').last == current_snap_id
+                    else
+                        next if source == snap
+                    end
+
+                    text = `qemu-img info --output=json #{snap}`
+                    next if !$? || !$?.success?
+
+                    json = JSON.parse(text)
+
+                    snap_id = snap.split("/")[-1]
+
+                    snap_size = json['actual-size'].to_f/1024/1024
+
+                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snap_size.round}
+                end
             end
         end
-
+        rescue Exception => e
+            STDERR.puts "Error getting disk information."
+            STDERR.puts e.message
+            STDERR.puts e.backtrace.join("\n  ")
+        end
 
         data
     end

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -76,16 +76,17 @@ public:
      */
     enum DiskType
     {
-        FILE          = 0, /** < File-based disk */
-        CD_ROM        = 1, /** < An ISO9660 disk */
-        BLOCK         = 2, /** < Block-device disk */
-        RBD           = 3, /** < CEPH RBD disk */
-        RBD_CDROM     = 4, /** < CEPH RBD CDROM disk */
-        GLUSTER       = 5, /** < Gluster Block Device */
-        GLUSTER_CDROM = 6, /** < Gluster CDROM Device Device */
-        SHEEPDOG      = 7, /** < Sheepdog Block Device */
+        FILE           = 0, /** < File-based disk */
+        CD_ROM         = 1, /** < An ISO9660 disk */
+        BLOCK          = 2, /** < Block-device disk */
+        RBD            = 3, /** < CEPH RBD disk */
+        RBD_CDROM      = 4, /** < CEPH RBD CDROM disk */
+        GLUSTER        = 5, /** < Gluster Block Device */
+        GLUSTER_CDROM  = 6, /** < Gluster CDROM Device Device */
+        SHEEPDOG       = 7, /** < Sheepdog Block Device */
         SHEEPDOG_CDROM = 8, /** < Sheepdog CDROM Device Device */
-        NONE          = 255 /** < No disk type, error situation */
+        ISCSI          = 9, /** < iSCSI Volume (Devices Datastore) */
+        NONE           = 255 /** < No disk type, error situation */
     };
 
     /**
@@ -106,6 +107,7 @@ public:
             case GLUSTER_CDROM:  return "GLUSTER_CDROM" ; break;
             case SHEEPDOG:       return "SHEEPDOG" ; break;
             case SHEEPDOG_CDROM: return "SHEEPDOG_CDROM" ; break;
+            case ISCSI:          return "ISCSI" ; break;
             default:             return "";
         }
     };
@@ -292,7 +294,7 @@ public:
 
     int dec_running (int vm_id)
     {
-        if ( vm_collection.del_collection_id(vm_id) == 0 )
+        if ( vm_collection.del(vm_id) == 0 )
         {
             running_vms--;
         }
@@ -302,7 +304,7 @@ public:
 
     int inc_running(int vm_id)
     {
-        if ( vm_collection.add_collection_id(vm_id) == 0 )
+        if ( vm_collection.add(vm_id) == 0 )
         {
             running_vms++;
         }
@@ -320,9 +322,20 @@ public:
         return cloning_ops;
     }
 
-    int dec_cloning(int img_id)
+    int dec_cloning(PoolObjectSQL::ObjectType ot, int oid)
     {
-        if ( img_clone_collection.del_collection_id(img_id) == 0 )
+        int rc = -1;
+
+        if (ot == PoolObjectSQL::IMAGE)
+        {
+            rc = img_clone_collection.del(oid);
+        }
+        else //if (ot == PoolObjectSQL::MARKETPLACEAPP)
+        {
+            rc = app_clone_collection.del(oid);
+        }
+
+        if ( rc == 0 )
         {
             cloning_ops--;
         }
@@ -330,9 +343,20 @@ public:
         return cloning_ops;
     }
 
-    int inc_cloning(int img_id)
+    int inc_cloning(PoolObjectSQL::ObjectType ot, int oid)
     {
-        if ( img_clone_collection.add_collection_id(img_id) == 0 )
+        int rc = -1;
+
+        if (ot == PoolObjectSQL::IMAGE)
+        {
+            rc = img_clone_collection.add(oid);
+        }
+        else //if (ot == PoolObjectSQL::MARKETPLACEAPP)
+        {
+            rc = app_clone_collection.add(oid);
+        }
+
+        if ( rc == 0 )
         {
             cloning_ops++;
         }
@@ -416,9 +440,8 @@ public:
      * @param inherit_attrs Attributes to be inherited from the image template
      *   into the disk
      *
-     * @return 0 on success, -1 otherwise
      */
-    int disk_attribute( VectorAttribute *       disk,
+    void disk_attribute(VectorAttribute *       disk,
                         ImageType&              img_type,
                         string&                 dev_prefix,
                         const vector<string>&   inherit_attrs);
@@ -580,7 +603,7 @@ private:
     int running_vms;
 
     /**
-     * Number of pending cloning operations
+     * Number of pending cloning operations, for both images and apps
      */
     int cloning_ops;
 
@@ -609,6 +632,11 @@ private:
      *  Stores a collection with the Images cloning this image
      */
     ObjectCollection img_clone_collection;
+
+    /**
+     *  Stores a collection with the Marketplace apps cloning this image
+     */
+    ObjectCollection app_clone_collection;
 
     /**
      * Snapshot list for this image

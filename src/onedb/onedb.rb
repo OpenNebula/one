@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,6 +20,8 @@ require 'onedb_backend'
 LOG_TIME = false
 
 class OneDB
+    attr_accessor :backend
+
     def initialize(ops)
         if ops[:backend] == :sqlite
             begin
@@ -69,6 +71,8 @@ class OneDB
     end
 
     def backup(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
+
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
@@ -451,6 +455,103 @@ is preserved.
         end
     end
 
+    def patch(file, ops)
+        ret = @backend.read_db_version
+
+        if ops[:verbose]
+            pretty_print_db_version(ret)
+            puts ""
+        end
+
+        if File.exists? file
+
+            load(file)
+            @backend.extend OneDBPatch
+
+            if (!@backend.is_hot_patch(ops))
+                one_not_running()
+            end
+
+            @backend.check_db_version(ops)
+
+            ops[:backup] = @backend.bck_file if ops[:backup].nil?
+
+            if (!@backend.is_hot_patch(ops))
+                backup(ops[:backup], ops)
+            end
+
+            begin
+                puts "  > Running patch #{file}" if ops[:verbose]
+
+                time0 = Time.now
+
+                result = @backend.patch(ops)
+
+                if !result
+                    raise "Error running patch #{file}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                time1 = Time.now
+
+                puts "  > Total time: #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
+
+                return 0
+            rescue Exception => e
+                puts
+                puts e.message
+                puts e.backtrace.join("\n")
+                puts
+
+                puts "Error running patch #{file}"
+                if (!@backend.is_hot_patch(ops))
+                    puts "The database will be restored"
+
+                    ops[:force] = true
+
+                    restore(ops[:backup], ops)
+                end
+
+                return -1
+            end
+        else
+            raise "File was not found: #{file}"
+        end
+    end
+
+    def sqlite2mysql(options, sqlite)
+        one_not_running()
+
+        sqlite_v = sqlite.backend.read_db_version
+        mysql_v  = @backend.read_db_version
+
+        match = true
+        match = false if sqlite_v[:version] != mysql_v[:version]
+        match = false if sqlite_v[:local_version] != mysql_v[:local_version]
+
+        if !match
+            err_msg =  "SQLite version: #{sqlite_v[:version]}\n"
+            err_msg << "SQLite local version: #{sqlite_v[:local_version]}\n"
+            err_msg << "MySQL version: #{mysql_v[:version]}\n"
+            err_msg << "MySQL local version: #{mysql_v[:local_version]}\n"
+            err_msg << "The MySQL and SQLite versions do not match. Please run "
+            err_msg << "'onedb -i' in order to bootstrap a blank OpenNebula DB."
+
+            raise err_msg
+        end
+
+        backup(options[:backup], options)
+
+        file = "#{RUBY_LIB_LOCATION}/onedb/sqlite2mysql.rb"
+        load(file)
+        @backend.extend Sqlite2MySQL
+
+        @backend.convert(sqlite.backend.db)
+
+        return 0
+    end
 
     private
 

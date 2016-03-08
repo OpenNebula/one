@@ -1,10 +1,10 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEDB" "1" "March 2015" "" "onedb(1) -- OpenNebula database migration tool"
+.TH "ONEDB" "1" "October 2015" "" "onedb(1) -- OpenNebula database migration tool"
 .
 .SH "NAME"
-\fBonedb\fR
+\fBonedb\fR \- OpenNebula database migration tool
 .
 .P
 This command enables the user to manage the OpenNebula database\. It provides information about the DB version, means to upgrade it to the latest version, and backup tools\.
@@ -58,6 +58,9 @@ fsck Checks the consistency of the DB, and fixes the problems found valid option
 .
 .IP "\(bu" 4
 import\-slave Imports an existing federation slave into the federation master database valid options: force, backup, slave\-server, slave\-port, slave\-username, slave\-password, slave\-dbname, slave\-backup
+.
+.IP "\(bu" 4
+patch \fIfile\fR Applies a database patch file valid options: backup
 .
 .IP "" 0
 .

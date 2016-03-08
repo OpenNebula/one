@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,9 +36,9 @@ module OpenNebula
             super('DATASTORE_POOL','DATASTORE',client)
         end
 
-        # Factory method to create User objects
+        # Factory method to create datastore objects
         def factory(element_xml)
-            OpenNebula::Group.new(element_xml,@client)
+            OpenNebula::Datastore.new(element_xml,@client)
         end
 
         #######################################################################

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,6 +34,9 @@
 #include "ZonePool.h"
 #include "SecurityGroupPool.h"
 #include "VdcPool.h"
+#include "VirtualRouterPool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -45,6 +48,7 @@
 #include "AuthManager.h"
 #include "AclManager.h"
 #include "ImageManager.h"
+#include "MarketPlaceManager.h"
 
 #include "DefaultQuotas.h"
 
@@ -136,6 +140,21 @@ public:
         return vdcpool;
     };
 
+    VirtualRouterPool * get_vrouterpool()
+    {
+        return vrouterpool;
+    };
+
+    MarketPlacePool * get_marketpool()
+    {
+        return marketpool;
+    };
+
+    MarketPlaceAppPool * get_apppool()
+    {
+        return apppool;
+    };
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -185,6 +204,11 @@ public:
         return aclm;
     };
 
+    MarketPlaceManager * get_marketm()
+    {
+        return marketm;
+    };
+
     // --------------------------------------------------------------
     // Environment & Configuration
     // --------------------------------------------------------------
@@ -193,57 +217,13 @@ public:
      *  Returns the value of LOG->DEBUG_LEVEL in oned.conf file
      *      @return the debug level, to instantiate Log'ers
      */
-    Log::MessageType get_debug_level() const
-    {
-        Log::MessageType            clevel = Log::ERROR;
-        vector<const Attribute *>   logs;
-        int                         rc;
-        int                         log_level_int;
-
-        rc = nebula_configuration->get("LOG", logs);
-
-        if ( rc != 0 )
-        {
-            string value;
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
-            value = log->vector_value("DEBUG_LEVEL");
-
-            log_level_int = atoi(value.c_str());
-
-            if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
-            {
-                clevel = static_cast<Log::MessageType>(log_level_int);
-            }
-        }
-
-        return clevel;
-    }
+    Log::MessageType get_debug_level() const;
 
     /**
      *  Returns the value of LOG->SYSTEM in oned.conf file
      *      @return the logging system CERR, FILE_TS or SYSLOG
      */
-    NebulaLog::LogType get_log_system() const
-    {
-        vector<const Attribute *> logs;
-        int                       rc;
-        NebulaLog::LogType        log_system = NebulaLog::UNDEFINED;
-
-        rc = nebula_configuration->get("LOG", logs);
-
-        if ( rc != 0 )
-        {
-            string value;
-            const VectorAttribute * log = static_cast<const VectorAttribute *>
-                                                          (logs[0]);
-
-            value      = log->vector_value("SYSTEM");
-            log_system = NebulaLog::str_to_type(value);
-        }
-
-        return log_system;
-    };
+    NebulaLog::LogType get_log_system() const;
 
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
@@ -301,28 +281,7 @@ public:
      *
      *
      */
-    int get_ds_location(int cluster_id, string& dsloc)
-    {
-        if ( cluster_id != -1 )
-        {
-            Cluster * cluster = clpool->get(cluster_id, true);
-
-            if ( cluster == 0 )
-            {
-                return -1;
-            }
-
-            cluster->get_ds_location(dsloc);
-
-            cluster->unlock();
-        }
-        else
-        {
-            get_configuration_attribute("DATASTORE_LOCATION", dsloc);
-        }
-
-        return 0;
-    }
+    int get_ds_location(int cluster_id, string& dsloc);
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
@@ -344,21 +303,7 @@ public:
      *     /var/log/one/$VM_ID.log
      *  @return the log location for the VM.
      */
-    string get_vm_log_filename(int oid)
-    {
-        ostringstream oss;
-
-        if (nebula_location == "/")
-        {
-            oss << log_location << oid << ".log";
-        }
-        else
-        {
-            oss << vms_location << oid << "/vm.log";
-        }
-
-        return oss.str();
-    };
+    string get_vm_log_filename(int oid);
 
     /**
      *  Returns the name of the host running oned
@@ -384,7 +329,7 @@ public:
      */
     static string code_version()
     {
-        return "4.12.0"; // bump version
+        return "4.14.1"; // bump version
     }
 
     /**
@@ -402,7 +347,7 @@ public:
      */
     static string local_db_version()
     {
-        return "4.13.80";
+        return "4.13.85";
     }
 
     /**
@@ -413,7 +358,10 @@ public:
     /**
      *  Initialize the database
      */
-    void bootstrap_db();
+    void bootstrap_db()
+    {
+        start(true);
+    }
 
     // --------------------------------------------------------------
     // Federation
@@ -454,47 +402,20 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_configuration_attribute(
-        const char * name,
-        string& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (long long version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        long long& value) const
-    {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
-    };
-
-    /**
-     *  Gets a configuration attribute for oned (time_t version)
-     */
-    void get_configuration_attribute(
-        const char * name,
-        time_t& value) const
+    template<typename T>
+    void get_configuration_attribute(const string& name, T& value) const
     {
         nebula_configuration->get(name, value);
     };
 
     /**
-     *  Gets a configuration attribute for oned, bool version
+     *  Gets a DS configuration attribute
      */
-    void get_configuration_attribute(
-        const char * name,
-        bool& value) const
+    int get_ds_conf_attribute(
+        const std::string& ds_name,
+        const VectorAttribute* &value) const
     {
-        string _name(name);
-
-        nebula_configuration->Template::get(_name, value);
+        return get_conf_attribute("DS_MAD_CONF", ds_name, value);
     };
 
     /**
@@ -504,30 +425,18 @@ public:
         const string& tm_name,
         const VectorAttribute* &value) const
     {
-        vector<const Attribute*>::const_iterator it;
-        vector<const Attribute*> values;
-
-        nebula_configuration->Template::get("TM_MAD_CONF", values);
-
-        for (it = values.begin(); it != values.end(); it ++)
-        {
-            value = dynamic_cast<const VectorAttribute*>(*it);
-
-            if (value == 0)
-            {
-                continue;
-            }
-
-            if (value->vector_value("NAME") == tm_name)
-            {
-                return 0;
-            }
-        }
-
-        value = 0;
-        return -1;
+        return get_conf_attribute("TM_MAD_CONF", tm_name, value);
     };
 
+    /**
+     *  Gets a Market configuration attribute
+     */
+    int get_market_conf_attribute(
+        const string& mk_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
+    };
 
     /**
      *  Gets an XML document with all of the configuration attributes
@@ -658,9 +567,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
         system_db(0), db(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
-        dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0), vdcpool(0),
+        dspool(0), clpool(0), docpool(0), zonepool(0),
+        secgrouppool(0), vdcpool(0), vrouterpool(0), marketpool(0), apppool(0),
         lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
-        aclm(0), imagem(0)
+        aclm(0), imagem(0), marketm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -708,6 +618,9 @@ private:
         delete zonepool;
         delete secgrouppool;
         delete vdcpool;
+        delete vrouterpool;
+        delete marketpool;
+        delete apppool;
         delete vmm;
         delete lcm;
         delete im;
@@ -718,6 +631,7 @@ private:
         delete authm;
         delete aclm;
         delete imagem;
+        delete marketm;
         delete nebula_configuration;
         delete db;
         delete system_db;
@@ -787,6 +701,9 @@ private:
     ZonePool           * zonepool;
     SecurityGroupPool  * secgrouppool;
     VdcPool            * vdcpool;
+    VirtualRouterPool  * vrouterpool;
+    MarketPlacePool    * marketpool;
+    MarketPlaceAppPool * apppool;
 
     // ---------------------------------------------------------------
     // Nebula Managers
@@ -802,12 +719,31 @@ private:
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;
+    MarketPlaceManager *    marketm;
 
     // ---------------------------------------------------------------
     // Implementation functions
     // ---------------------------------------------------------------
 
     friend void nebula_signal_handler (int sig);
+
+    // ---------------------------------------------------------------
+    // Helper functions
+    // ---------------------------------------------------------------
+
+    /**
+     *  Gets a Generic configuration attribute
+     *  @param key String that identifies the configuration parameter group name
+     *  @param name Name of the specific configuration parameter
+     *  @param value Value of the specific configuration parameter
+     *  @return a reference to the generated string
+     */
+
+    int get_conf_attribute(
+        const std::string& key,
+        const std::string& name,
+        const VectorAttribute* &value) const;
+
 };
 
 #endif /*NEBULA_H_*/

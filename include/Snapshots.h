@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,7 +37,7 @@ class VectorAttribute;
  *   <ACTIVE>: the current snapshot in use by the VM. 0 for the original DISK
  *   <SNAPSHOT>
  *     <ID>
- *     <TAG>: Description
+ *     <NAME>: Description
  *     <DATE>: the snapshot was taken
  *     <PARENT>: backing for this snapshot, -1 for the original image
  *     <CHILDREN>: comma separated list of children snapshots
@@ -75,11 +75,11 @@ public:
 
     /**
      * Creates a new (empty) snapshot of the active disk
-     *   @param tag description of this snapshot (optional)
+     *   @param name description of this snapshot (optional)
      *   @param size_mb of the snapshot (virtual size)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& tag, unsigned int size_mb);
+    int create_snapshot(const string& name, long long size_mb);
 
     /**
      *  Check if an snapshot can be deleted (no children, no active)
@@ -172,14 +172,14 @@ public:
     /**
      *  @return total snapshot size (virtual) in mb
      */
-    unsigned int get_total_size() const;
+    long long get_total_size() const;
 
     /**
      *  Get the size (virtual) in mb of the given snapshot
      *    @param id of the snapshot
      *    @return size or 0 if not found
      */
-	unsigned int get_snapshot_size(int id) const;
+    long long get_snapshot_size(int id) const;
 
     /**
      *  Get Attribute from the given snapshot

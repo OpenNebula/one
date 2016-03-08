@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
@@ -5,13 +21,26 @@ define(function(require) {
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
+  var CommonActions = require('utils/common-actions');
 
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+
   var _actions = {
+    "Cluster.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Cluster.list" : _commonActions.list(),
+    "Cluster.show" : _commonActions.show(),
+    "Cluster.refresh" : _commonActions.refresh(),
+    "Cluster.delete" : _commonActions.del(),
+    "Cluster.update_template" : _commonActions.updateTemplate(),
+    "Cluster.append_template" : _commonActions.appendTemplate(),
+    "Cluster.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "Cluster.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    "Cluster.rename": _commonActions.singleAction('rename'),
 
     "Cluster.create" : {
       type: "create",
@@ -33,61 +62,10 @@ define(function(require) {
 
         Notifier.notifyCustom(Locale.tr("Cluster created"), " ID: " + response[XML_ROOT].ID, false);
       },
-      error: Notifier.onError
-    },
-
-    "Cluster.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
       }
-    },
-
-    "Cluster.list" : {
-      type: "list",
-      call: OpenNebulaResource.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "Cluster.show" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Cluster.show_to_update" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[XML_ROOT]);
-          });
-      },
-      error: Notifier.onError
-    },
-
-    "Cluster.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction(RESOURCE+".list", {force: true});
-        }
-      },
-      error: Notifier.onError
     },
 
     "Cluster.addhost" : {
@@ -148,50 +126,6 @@ define(function(require) {
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
-    },
-
-    "Cluster.delete" : {
-      type: "multiple",
-      call: OpenNebulaResource.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError
-    },
-
-    "Cluster.update_template" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "Cluster.update_dialog" : {
-      type: "single",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) cluster to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction(RESOURCE+'.show_to_update', resource_id);
-      }
-    },
-
-    "Cluster.rename" : {
-      type: "single",
-      call: OpenNebulaResource.rename,
-      callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-      },
-      error: Notifier.onError
     }
   };
 

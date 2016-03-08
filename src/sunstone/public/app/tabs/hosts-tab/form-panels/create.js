@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -12,6 +28,7 @@ define(function(require) {
   var VCenterClusters = require('utils/vcenter/clusters');
   var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -45,6 +62,22 @@ define(function(require) {
     this.vCenterNetworks = new VCenterNetworks();
     this.vCenterTemplates = new VCenterTemplates();
 
+    var that = this;
+
+    that.vmMadNameList = [];
+    if (Config.onedConf.VM_MAD !== undefined) {
+      $.each(Config.onedConf.VM_MAD, function(index, vmMad) {
+        that.vmMadNameList.push(vmMad["NAME"]);
+      });
+    }
+
+    that.imMadNameList = [];
+    if (Config.onedConf.IM_MAD !== undefined) {
+      $.each(Config.onedConf.IM_MAD, function(index, imMad) {
+        that.imMadNameList.push(imMad["NAME"]);
+      });
+    }
+
     BaseFormPanel.call(this);
   };
 
@@ -67,7 +100,9 @@ define(function(require) {
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
       'vCenterTemplatesHTML': this.vCenterTemplates.html(),
-      'vCenterNetworksHTML': this.vCenterNetworks.html()
+      'vCenterNetworksHTML': this.vCenterNetworks.html(),
+      'vmMadNameList': this.vmMadNameList,
+      'imMadNameList': this.imMadNameList
     });
   }
 
@@ -232,7 +267,12 @@ define(function(require) {
     var cluster_id = $("#host_cluster_id .resource_list_select", context).val();
     if (!cluster_id) cluster_id = "-1";
 
-    ResourceSelect.insert('#host_cluster_id', context, "Cluster", cluster_id, false);
+    ResourceSelect.insert({
+        context: $('#host_cluster_id', context),
+        resourceName: 'Cluster',
+        initValue: cluster_id,
+        includeDefaultCluster: true
+      });
 
     $("#host_type_mad", context).change();
 

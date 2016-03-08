@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -91,7 +91,9 @@ VNC_STATES = [
         #56, #DISK_SNAPSHOT_DELETE_SUSPENDED
         #57, #DISK_SNAPSHOT
         #58, #DISK_SNAPSHOT_REVERT
-        #59  #DISK_SNAPSHOT_DELETE
+        #59, #DISK_SNAPSHOT_DELETE
+        #60, #PROLOG_MIGRATE_UNKNOWN
+        #61  #PROLOG_MIGRATE_UNKNOWN_FAILURE
 ]
 
 class OpenNebulaVNC
@@ -203,8 +205,8 @@ class OpenNebulaVNC
         vnc_port   = vm_resource['TEMPLATE/GRAPHICS/PORT']
         vnc_pw     = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
 
-        if vm_resource['TEMPLATE/ESX_HOST'] # It is behind a vCenter
-            host       = vm_resource['TEMPLATE/ESX_HOST']
+        if vm_resource['MONITORING/ESX_HOST'] # It is behind a vCenter
+            host       = vm_resource['MONITORING/ESX_HOST']
         end
 
         # Generate token random_str: host:port

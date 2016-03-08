@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -100,6 +100,15 @@ AclManager::AclManager(
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
                     PoolObjectSQL::ZONE,
+                 AuthRequest::USE,
+                 AclRule::ALL_ID,
+                 error_str);
+
+        // * MARKETPLACE+MARKETPLACEAPP/* USE *
+        add_rule(AclRule::ALL_ID,
+                 AclRule::ALL_ID |
+                    PoolObjectSQL::MARKETPLACE |
+                    PoolObjectSQL::MARKETPLACEAPP,
                  AuthRequest::USE,
                  AclRule::ALL_ID,
                  error_str);

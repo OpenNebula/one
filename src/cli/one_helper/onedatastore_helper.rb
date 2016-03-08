@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,6 +44,16 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
+            column :USER, "Username of the Datastore owner", :left,
+                    :size=>10 do |d|
+                helper.user_name(d, options)
+            end
+
+            column :GROUP, "Group of the Datastore", :left,
+                    :size=>10 do |d|
+                helper.group_name(d, options)
+            end
+
             column :NAME, "Name of the Datastore", :left, :size=>13 do |d|
                 d["NAME"]
             end
@@ -73,7 +83,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 if d["IMAGES"]["ID"].nil?
                     "0"
                 else
-                    d["IMAGES"]["ID"].size
+                    [d["IMAGES"]["ID"]].flatten.size
                 end
             end
 
@@ -95,7 +105,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 Datastore::SHORT_DATASTORE_STATES[state]
             end
 
-            default :ID, :NAME, :SIZE, :AVAIL, :CLUSTER, :IMAGES,
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :CLUSTER, :IMAGES,
                     :TYPE, :DS, :TM, :STAT
         end
 
@@ -114,7 +124,6 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
     end
 
     def factory_pool(user_flag=-2)
-        #TBD OpenNebula::UserPool.new(@client, user_flag)
         OpenNebula::DatastorePool.new(@client)
     end
 

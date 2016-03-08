@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -300,26 +300,26 @@ string& History::to_xml(string& xml, bool database) const
 
     oss <<
         "<HISTORY>" <<
-          "<OID>"               << oid               << "</OID>"   <<
-          "<SEQ>"               << seq               << "</SEQ>"   <<
-          "<HOSTNAME>"          << hostname          << "</HOSTNAME>"<<
-          "<HID>"               << hid               << "</HID>"   <<
-          "<CID>"               << cid               << "</CID>"   <<
-          "<STIME>"             << stime             << "</STIME>" <<
-          "<ETIME>"             << etime             << "</ETIME>" <<
-          "<VMMMAD>"            << vmm_mad_name      << "</VMMMAD>"<<
-          "<VNMMAD>"            << vnm_mad_name      << "</VNMMAD>"<<
-          "<TMMAD>"             << tm_mad_name       << "</TMMAD>" <<
-          "<DS_LOCATION>"       << ds_location       << "</DS_LOCATION>" <<
-          "<DS_ID>"             << ds_id             << "</DS_ID>" <<
-          "<PSTIME>"            << prolog_stime      << "</PSTIME>"<<
-          "<PETIME>"            << prolog_etime      << "</PETIME>"<<
-          "<RSTIME>"            << running_stime     << "</RSTIME>"<<
-          "<RETIME>"            << running_etime     << "</RETIME>"<<
-          "<ESTIME>"            << epilog_stime      << "</ESTIME>"<<
-          "<EETIME>"            << epilog_etime      << "</EETIME>"<<
-          "<REASON>"            << reason            << "</REASON>"<<
-          "<ACTION>"            << action            << "</ACTION>";
+          "<OID>"         << oid               << "</OID>"   <<
+          "<SEQ>"         << seq               << "</SEQ>"   <<
+          "<HOSTNAME>"    << hostname          << "</HOSTNAME>"<<
+          "<HID>"         << hid               << "</HID>"   <<
+          "<CID>"         << cid               << "</CID>"   <<
+          "<STIME>"       << stime             << "</STIME>" <<
+          "<ETIME>"       << etime             << "</ETIME>" <<
+          "<VMMMAD>"      << one_util::escape_xml(vmm_mad_name) << "</VMMMAD>"<<
+          "<VNMMAD>"      << one_util::escape_xml(vnm_mad_name) << "</VNMMAD>"<<
+          "<TMMAD>"       << one_util::escape_xml(tm_mad_name)  << "</TMMAD>" <<
+          "<DS_LOCATION>" << one_util::escape_xml(ds_location)  << "</DS_LOCATION>" <<
+          "<DS_ID>"       << ds_id             << "</DS_ID>" <<
+          "<PSTIME>"      << prolog_stime      << "</PSTIME>"<<
+          "<PETIME>"      << prolog_etime      << "</PETIME>"<<
+          "<RSTIME>"      << running_stime     << "</RSTIME>"<<
+          "<RETIME>"      << running_etime     << "</RETIME>"<<
+          "<ESTIME>"      << epilog_stime      << "</ESTIME>"<<
+          "<EETIME>"      << epilog_etime      << "</EETIME>"<<
+          "<REASON>"      << reason            << "</REASON>"<<
+          "<ACTION>"      << action            << "</ACTION>";
 
     if ( database )
     {
@@ -346,19 +346,19 @@ int History::rebuild_attributes()
     rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
     rc += xpath(hid              , "/HISTORY/HID",         -1);
     rc += xpath(cid              , "/HISTORY/CID",         -1);
-    rc += xpath(stime            , "/HISTORY/STIME",       0);
-    rc += xpath(etime            , "/HISTORY/ETIME",       0);
+    rc += xpath<time_t>(stime    , "/HISTORY/STIME",       0);
+    rc += xpath<time_t>(etime    , "/HISTORY/ETIME",       0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");
           xpath(vnm_mad_name     , "/HISTORY/VNMMAD",      "dummy");
     rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",       "not_found");
     rc += xpath(ds_location      , "/HISTORY/DS_LOCATION", "not_found");
     rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);
-    rc += xpath(prolog_stime     , "/HISTORY/PSTIME",      0);
-    rc += xpath(prolog_etime     , "/HISTORY/PETIME",      0);
-    rc += xpath(running_stime    , "/HISTORY/RSTIME",      0);
-    rc += xpath(running_etime    , "/HISTORY/RETIME",      0);
-    rc += xpath(epilog_stime     , "/HISTORY/ESTIME",      0);
-    rc += xpath(epilog_etime     , "/HISTORY/EETIME",      0);
+    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME",      0);
+    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME",      0);
+    rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME",      0);
+    rc += xpath<time_t>(running_etime, "/HISTORY/RETIME",      0);
+    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME",      0);
+    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME",      0);
     rc += xpath(int_reason       , "/HISTORY/REASON",      0);
     rc += xpath(int_action       , "/HISTORY/ACTION",      0);
 

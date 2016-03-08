@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -37,3 +37,11 @@ export SHUTDOWN_TIMEOUT=300
 
 # Uncomment this line to set options for the virsh migrate command
 #MIGRATE_OPTIONS=--unsafe
+
+# IDE and SCSI disks always have the ability to issue "discard"
+# (aka TRIM or UNMAP) commands. However, by default "discard" commands are
+# silently ignored as they can cause performance degradation and fragmentation.
+# To enable them, the "-drive" option now supports a "discard" suboption; the
+# default value is "ignore" (or its synonym "off"), and the other valid value
+# is "unmap" (or "on").
+#DEFAULT_ATTACH_DISCARD=unmap

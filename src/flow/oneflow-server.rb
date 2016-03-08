@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L.                                        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -245,6 +245,8 @@ post '/service/:id/action' do
                 OpenNebula::Error.new("Action #{action['perform']}: " <<
                         "You have to specify an OCTET")
             end
+        when 'rename'
+            service.rename(opts['name'])
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")
         end
@@ -258,7 +260,7 @@ post '/service/:id/action' do
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
-    status 201
+    status 204
 end
 
 put '/service/:id/role/:name' do
@@ -472,24 +474,24 @@ post '/service_template/:id/action' do
             args << opts['owner_id'].to_i
             args << (opts['group_id'].to_i || -1)
 
-            service_template.chown(*args)
             status 204
+            service_template.chown(*args)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a UID")
         end
     when 'chgrp'
         if opts && opts['group_id']
-            service_template.chown(-1, opts['group_id'].to_i)
             status 204
+            service_template.chown(-1, opts['group_id'].to_i)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a GID")
         end
     when 'chmod'
         if opts && opts['octet']
-            service_template.chmod_octet(opts['octet'])
             status 204
+            service_template.chmod_octet(opts['octet'])
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify an OCTET")
@@ -506,6 +508,23 @@ post '/service_template/:id/action' do
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to provide a template")
         end
+    when 'rename'
+        status 204
+        service_template.rename(opts['name'])
+    when 'clone'
+        rc = service_template.clone(opts['name'])
+        if OpenNebula.is_error?(rc)
+            error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        end
+
+        new_stemplate = OpenNebula::ServiceTemplate.new_with_id(rc, @client)
+        new_stemplate.info
+        if OpenNebula.is_error?(new_stemplate)
+            error CloudServer::HTTP_ERROR_CODE[new_stemplate.errno], new_stemplate.message
+        end
+
+        status 201
+        body new_stemplate.to_json
     else
         OpenNebula::Error.new("Action #{action['perform']} not supported")
     end

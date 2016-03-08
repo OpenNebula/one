@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,7 +18,6 @@
 
 require "erb"
 
-KEYS = [:MISC , :NET , :LVM , :ISCSI , :OVS , :XEN]
 
 CMDS = {
     :MISC  => %w(dd mkfs sync),
@@ -26,8 +25,11 @@ CMDS = {
     :LVM   => %w(lvcreate lvremove lvrename lvs vgdisplay),
     :ISCSI => %w(iscsiadm tgt-admin tgtadm),
     :OVS   => %w(ovs-ofctl ovs-vsctl),
-    :XEN   => %w(xentop xl xm)
+    :XEN   => %w(xentop xl xm),
+    :CEPH  => %w(rbd)
 }
+
+KEYS = CMDS.keys
 
 abs_cmds = {}
 not_found_cmds = []

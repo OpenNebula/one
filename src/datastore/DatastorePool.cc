@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,11 +38,21 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-DatastorePool::DatastorePool(SqlDB * db):
-                        PoolSQL(db, Datastore::table, true, true)
+DatastorePool::DatastorePool(
+        SqlDB * db,
+        const vector<const SingleAttribute *>& _inherit_attrs) :
+    PoolSQL(db, Datastore::table, true, true)
+
 {
     ostringstream oss;
     string        error_str;
+
+    vector<const SingleAttribute *>::const_iterator it;
+
+    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    {
+        inherit_attrs.push_back((*it)->value());
+    }
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
@@ -241,7 +251,7 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     int rc;
 
-    if( datastore->get_collection_size() > 0 )
+    if( datastore->images_size() > 0 )
     {
         ostringstream oss;
         oss << "Datastore " << datastore->get_oid() << " is not empty.";
@@ -261,3 +271,23 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DatastorePool::disk_attribute(int ds_id, VectorAttribute * disk)
+{
+    Datastore * ds = get(ds_id, true);
+
+    if (ds == 0)
+    {
+        return -1;
+    }
+
+    ds->disk_attribute(disk, inherit_attrs);
+
+    ds->unlock();
+
+    return 0;
+}
+

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -56,11 +72,13 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
-
     $("input[name='graphics_type']", context).change(function() {
-      $("#TYPE", context).val($(this).attr("value"))
-      $("#LISTEN", context).val("0.0.0.0")
+      $("#TYPE", context).val($(this).attr("value"));
+      if ($(this).attr("value") !== '') {
+        $("#LISTEN", context).val("0.0.0.0");
+      } else {
+        $("#LISTEN", context).val('');
+      }
     });
 
     context.off("click", '#add_input');
@@ -114,7 +132,7 @@ define(function(require) {
       }
     });
 
-    if (!$.isEmptyObject(inputsJSON)) { templateJSON['INPUTS'] = inputsJSON; };
+    if (!$.isEmptyObject(inputsJSON)) { templateJSON['INPUT'] = inputsJSON; };
 
     return templateJSON;
   }
@@ -135,7 +153,7 @@ define(function(require) {
       delete templateJSON['GRAPHICS']
     }
 
-    var inputsJSON = templateJSON['INPUTS'];
+    var inputsJSON = templateJSON['INPUT'];
     if (inputsJSON) {
       if (!(inputsJSON instanceof Array)) {
         inputsJSON = [inputsJSON];
@@ -164,7 +182,7 @@ define(function(require) {
         cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
       });
 
-      delete templateJSON['INPUTS']
+      delete templateJSON['INPUT']
     }
   }
 });

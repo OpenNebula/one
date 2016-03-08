@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
@@ -14,12 +30,12 @@ define(function(require) {
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   function roleElements() {
     var selected_nodes = [];
 
-    var dataTable = $('#datatable_service_roles', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var dataTable = $('table[id^=datatable_roles]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
     var nodes = $('tbody input.check_item:checked', dataTable);
     $.each(nodes, function() {
       selected_nodes.push($(this).val());
@@ -31,7 +47,7 @@ define(function(require) {
   function roleVMElements() {
     var selected_nodes = [];
 
-    var dataTable = $('table[id^=datatable_service_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var dataTable = $('table[id^=datatable_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
     var nodes = $('tbody input.check_item:checked', dataTable);
     $.each(nodes, function() {
       selected_nodes.push($(this).val());
@@ -47,10 +63,13 @@ define(function(require) {
   var _actions = {
     "Service.show" : _commonActions.show(),
     "Service.refresh" : _commonActions.refresh(),
-    "Service.delete" : _commonActions.delete(),
+    "Service.delete" : _commonActions.del(),
     "Service.chown": _commonActions.multipleAction('chown'),
     "Service.chgrp": _commonActions.multipleAction('chgrp'),
     "Service.chmod": _commonActions.singleAction('chmod'),
+    "Service.rename": _commonActions.singleAction('rename'),
+    "Service.shutdown":    _commonActions.multipleAction('shutdown'),
+    "Service.recover":    _commonActions.multipleAction('recover'),
 
     "Service.list" : {
       type: "list",
@@ -62,26 +81,6 @@ define(function(require) {
       error: function(request, error_json) {
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
-    },
-
-    "Service.shutdown" : {
-      type: "multiple",
-      call: OpenNebulaResource.shutdown,
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Service.recover" : {
-      type: "multiple",
-      call: OpenNebulaResource.recover,
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
     },
 
     //--------------------------------------------------------------------------
@@ -240,7 +239,7 @@ define(function(require) {
 
     "Role.shutdown_hard" : {
       type: "multiple",
-      call: OpenNebulaRole.cancel,
+      call: OpenNebulaRole.shutdown_hard,
       callback: roleCallback,
       elements: roleElements,
       error: Notifier.onError,
@@ -413,7 +412,7 @@ define(function(require) {
 
     "RoleVM.shutdown_hard" : {
       type: "multiple",
-      call: OpenNebulaVM.cancel,
+      call: OpenNebulaVM.shutdown_hard,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,

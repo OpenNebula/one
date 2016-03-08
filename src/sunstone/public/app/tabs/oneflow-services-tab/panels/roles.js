@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -12,6 +28,9 @@ define(function(require) {
   var DomDataTable = require('utils/dom-datatable');
   var VMsTableUtils = require('tabs/vms-tab/utils/datatable-common');
   var SunstoneConfig = require('sunstone-config');
+  var Vnc = require('utils/vnc');
+  var Spice = require('utils/spice');
+  var Notifier = require('utils/notifier');
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
@@ -55,6 +74,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
   Panel.prototype.roleHTML = _roleHTML;
   Panel.prototype.roleSetup = _roleSetup;
 
@@ -87,6 +108,46 @@ define(function(require) {
       'servicePanel': this.servicePanel,
       'roleList': roleList
     });
+  }
+
+  function _getState(context) {
+    var state = {};
+
+    if (this.servicerolesDataTable){
+      var selectedCheck = $(".check_item:checked", this.servicerolesDataTable.dataTable);
+
+      if (selectedCheck.length > 0){
+        state["selectedRole"] = selectedCheck.attr("id");
+
+        if(this.serviceroleVMsDataTable){
+          var selectedVMs = [];
+
+          $.each($(".check_item:checked", this.serviceroleVMsDataTable.dataTable), function(){
+            selectedVMs.push($(this).attr("id"));
+          });
+
+          if (selectedVMs.length > 0){
+            state["selectedVMs"] = selectedVMs;
+          }
+        }
+      }
+    }
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    if (this.servicerolesDataTable && state["selectedRole"]){
+      $('.check_item[id="'+state["selectedRole"]+'"]', this.servicerolesDataTable.dataTable).closest('tr').click();
+    }
+
+    if (this.serviceroleVMsDataTable && state["selectedVMs"]){
+      $.each(state["selectedVMs"], function(){
+        $('.check_item[id="'+this+'"]', that.serviceroleVMsDataTable.dataTable).closest('tr').click();
+      });
+    }
   }
 
   function _setup(context) {
@@ -126,30 +187,7 @@ define(function(require) {
 
       this.servicerolesDataTable.initialize();
 
-      Sunstone.insertButtonsInTab("oneflow-services", "service_roles_tab", roles_buttons, $('#role_actions', context));
-
-      // TODO: global var, see Service.refresh
-      /*
-      if(selected_row_role_id) {
-        $.each($(this.servicerolesDataTable.dataTable.fnGetNodes()),function(){
-          if($($('td',this)[1]).html()==selected_row_role_id) {
-            $('td',this)[2].click();
-          }
-        });
-      }
-
-      if(checked_row_rolevm_ids.length!=0) {
-        $.each($(serviceroleVMsDataTable.fnGetNodes()),function(){
-          var current_id = $($('td',this)[1]).html();
-          if (current_id) {
-            if(jQuery.inArray(current_id, checked_row_rolevm_ids)!=-1) {
-              $('input.check_item',this).first().click();
-              $('td',this).addClass('markrowchecked');
-            }
-          }
-        });
-      }
-      //*/
+      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", roles_buttons, $('#role_actions', context));
     }
   }
 
@@ -176,10 +214,10 @@ define(function(require) {
 
         if (that.element.TEMPLATE.BODY.ready_status_gate) {
           if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
-            info.push('<span data-tooltip class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
 
           } else {
-            info.push('<span data-tooltip class="has-tip" title="'+tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
           }
         } else {
           info.push("");
@@ -206,6 +244,34 @@ define(function(require) {
     if(this.servicePanel) {
       var role = this.element.TEMPLATE.BODY.roles[role_index];
 
+      $(".vnc", context).off("click");
+      $(".vnc", context).on("click", function() {
+        var vmId = $(this).attr('vm_id');
+
+        if (!Vnc.lockStatus()) {
+          Vnc.lock();
+          Sunstone.runAction("VM.startvnc_action", vmId);
+        } else {
+          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+        }
+
+        return false;
+      });
+
+      $(".spice", context).off("click");
+      $(".spice", context).on("click", function() {
+        var vmId = $(this).attr('vm_id');
+
+        if (!Spice.lockStatus()) {
+          Spice.lock();
+          Sunstone.runAction("VM.startspice_action", vmId);
+        } else {
+          Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
+        }
+
+        return false;
+      });
+
       // This table has 2 more columns to the left compared to the normal VM table
       // The visibility index array needs to be adjusted
       var visibleColumns = [0,1].concat(
@@ -231,23 +297,9 @@ define(function(require) {
           }
         });
 
-      // TODO: global vars, see Service.refresh
-      /*
-      if(last_selected_row_rolevm) {
-          last_selected_row_rolevm.children().each(function(){
-              $(this).removeClass('markrowchecked');
-          });
-      }
-
-      last_selected_row_rolevm = $(this);
-      $(this).children().each(function(){
-          $(this).addClass('markrowchecked');
-      });
-      */
-
       this.serviceroleVMsDataTable.initialize();
       Sunstone.insertButtonsInTab(
-        "oneflow-services",
+        TAB_ID,
         "service_roles_tab",
         roles_vm_buttons,
         $('div#role_vms_actions', context));

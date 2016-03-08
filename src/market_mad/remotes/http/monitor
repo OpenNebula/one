@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to monitor the free and used space of a marketplace
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../../datastore/libfs.sh
+
+UTILS_PATH="${DRIVER_PATH}/../../datastore"
+
+# -------- Get arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BRIDGE_LIST \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR)
+unset i
+
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
+
+# ------------ Compute datastore usage -------------
+
+MONITOR_SCRIPT=$(cat <<EOF
+USED_MB=\$(df -B1M -P ${PUBLIC_DIR} 2>/dev/null | tail -n 1 | awk '{print \$3}')
+TOTAL_MB=\$(df -B1M -P ${PUBLIC_DIR} 2>/dev/null | tail -n 1 | awk '{print \$2}')
+FREE_MB=\$(expr \$TOTAL_MB - \$USED_MB)
+
+if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
+    msg="Empty value found"
+    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
+    exit 1
+fi
+
+echo "USED_MB=\$USED_MB"
+echo "FREE_MB=\$FREE_MB"
+echo "TOTAL_MB=\$TOTAL_MB"
+EOF
+)
+
+if [ -n "$BRIDGE_LIST" ]; then
+    HOST=`get_destination_host`
+    MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+else
+    MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+fi
+
+MONITOR_STATUS=$?
+
+if [ "$MONITOR_STATUS" = "0" ]; then
+    echo "$MONITOR_DATA" | tr ' ' '\n'
+    exit 0
+else
+    echo "$MONITOR_DATA"
+    exit $MONITOR_STATUS
+fi

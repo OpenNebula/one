@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,22 +28,86 @@
 using namespace std;
 
 /**
+ * This class represents the dynamic attributes: specific for a request of the
+ * same method.
+ */
+struct RequestAttributes
+{
+public:
+    int uid;                  /**< id of the user */
+    int gid;                  /**< id of the user's group */
+
+    string uname;             /**< name of the user */
+    string gname;             /**< name of the user's group */
+
+    string password;          /**< password of the user */
+
+    set<int> group_ids;       /**< set of user's group ids */
+
+    string session;           /**< Session from ONE XML-RPC API */
+    int    req_id;            /**< Request ID for log messages */
+
+    int umask;                /**< User umask for new objects */
+
+    xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+
+    PoolObjectSQL::ObjectType resp_obj; /**< object type */
+    int                       resp_id;  /**< Id of the object */
+    string                    resp_msg; /**< Additional response message */
+
+    RequestAttributes()
+    {
+        resp_obj = PoolObjectSQL::NONE;
+    };
+
+    RequestAttributes(const RequestAttributes& ra)
+    {
+        uid = ra.uid;
+        gid = ra.gid;
+
+        uname = ra.uname;
+        gname = ra.gname;
+
+        password = ra.password;
+
+        session  = ra.session;
+        retval   = ra.retval;
+
+        umask = ra.umask;
+
+        resp_obj = ra.resp_obj;
+        resp_id  = ra.resp_id;
+        resp_msg = ra.resp_msg;
+    };
+
+    RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
+    {
+        uid = _uid;
+        gid = _gid;
+
+        password = "";
+
+        uname = "";
+        gname = "";
+
+        umask = 0;
+
+        session  = ra.session;
+        retval   = ra.retval;
+
+        resp_obj = PoolObjectSQL::NONE;
+        resp_id  = -1;
+        resp_msg = "";
+    };
+};
+
+/**
  *  The Request Class represents the basic abstraction for the OpenNebula
  *  XML-RPC API. This interface must be implemented by any XML-RPC API call
  */
 class Request: public xmlrpc_c::method
 {
 public:
-    /**
-     *  Wraps the actual execution function by authorizing the user
-     *  and calling the request_execute virtual function
-     *    @param _paramlist list of XML parameters
-     *    @param _retval value to be returned to the client
-     */
-    virtual void execute(
-        xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value *   const  _retval);
-
     /**
      *  Error codes for the XML-RPC API
      */
@@ -55,7 +119,16 @@ public:
         ACTION         = 0x0800,
         XML_RPC_API    = 0x1000,
         INTERNAL       = 0x2000,
+        ALLOCATE       = 0x4000
     };
+
+    /**
+     *  Gets a string representation for the Auth object in the
+     *  request.
+     *    @param ob object for the auth operation
+     *    @return string equivalent of the object
+     */
+    static string object_name(PoolObjectSQL::ObjectType ob);
 
     /**
      *  Sets the format string to log xml-rpc method calls. The format string
@@ -77,69 +150,9 @@ public:
     }
 
 protected:
-
-    /* ---------------------------------------------------------------------*/
-    /*                     Attributes of the Request                        */
-    /* ---------------------------------------------------------------------*/
-
-    /* -------- Dynamic (specific for a request of the same method) -------- */
-
-    struct RequestAttributes
-    {
-        int uid;                  /**< id of the user */
-        int gid;                  /**< id of the user's group */
-
-        string uname;             /**< name of the user */
-        string gname;             /**< name of the user's group */
-
-        string password;          /**< password of the user */
-
-        set<int> group_ids;       /**< set of user's group ids */
-
-        string session;           /**< Session from ONE XML-RPC API */
-        int    req_id;            /**< Request ID for log messages */
-
-        int umask;                /**< User umask for new objects */
-
-        xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
-
-        RequestAttributes(){};
-
-        RequestAttributes(const RequestAttributes& ra)
-        {
-            uid = ra.uid;
-            gid = ra.gid;
-
-            uname = ra.uname;
-            gname = ra.gname;
-
-            password = ra.password;
-
-            session  = ra.session;
-            retval   = ra.retval;
-
-            umask = ra.umask;
-        };
-
-        RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
-        {
-            uid = _uid;
-            gid = _gid;
-
-            password = "";
-
-            uname = "";
-            gname = "";
-
-            umask = 0;
-
-            session  = ra.session;
-            retval   = ra.retval;
-        };
-    };
-
-    /* -------- Static (shared among request of the same method) -------- */
-
+    /* ---------------------------------------------------------------------- */
+    /* Static Request Attributes: shared among request of the same method     */
+    /* ---------------------------------------------------------------------- */
     PoolSQL * pool;           /**< Pool of objects */
     string    method_name;    /**< The name of the XML-RPC method */
 
@@ -150,11 +163,11 @@ protected:
 
     static string format_str;
 
-    /* -------------------- Constructors ---------------------------------- */
-
-    Request(const string& mn,
-            const string& signature,
-            const string& help): pool(0),method_name(mn)
+    /* ---------------------------------------------------------------------- */
+    /* Class Constructors                                                     */
+    /* ---------------------------------------------------------------------- */
+    Request(const string& mn, const string& signature, const string& help):
+        pool(0),method_name(mn)
     {
         _signature = signature;
         _help      = help;
@@ -164,9 +177,97 @@ protected:
 
     virtual ~Request(){};
 
-    /* -------------------------------------------------------------------- */
-    /* -------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+    /* Methods to execute the request when received at the server             */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Wraps the actual execution function by authorizing the user
+     *  and calling the request_execute virtual function
+     *    @param _paramlist list of XML parameters
+     *    @param _retval value to be returned to the client
+     */
+    virtual void execute(xmlrpc_c::paramList const& _paramList,
+        xmlrpc_c::value * const _retval);
 
+    /**
+     *  Actual Execution method for the request. Must be implemented by the
+     *  XML-RPC requests
+     *    @param _paramlist of the XML-RPC call (complete list)
+     *    @param att the specific request attributes
+     */
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
+                                 RequestAttributes& att) = 0;
+    /**
+     * Locks the requested object, gets information, and unlocks it
+     *
+     * @param pool object pool
+     * @param id of the object
+     * @param type of the object
+     * @param att the specific request attributes
+     *
+     * @param perms returns the object's permissions
+     * @param name returns the object's name
+     * @param throw_error send error response to client if object not found
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int get_info(PoolSQL *                 pool,
+                 int                       id,
+                 PoolObjectSQL::ObjectType type,
+                 RequestAttributes&        att,
+                 PoolObjectAuth&           perms,
+                 string&                   name,
+                 bool                      throw_error);
+
+    /* ---------------------------------------------------------------------- */
+    /* Methods to send response to xml-rpc client                             */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return
+     *    @param val to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(int val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return
+     *    @param val string to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(const string& val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc execute method should return
+     *    @param val to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(bool val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return. A descriptive error message
+     *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and
+     *  the ErrorCode
+     *    @param ec error code for this call
+     *    @param ra the specific request attributes
+     */
+    void failure_response(ErrorCode ec, RequestAttributes& ra);
+
+    /**
+     *  Builds an error response. A descriptive error message
+     *  is constructed using att.resp_obj, att.resp_id and/or att.resp_msg and
+     *  the ErrorCode
+     *    @param ec error code for this call
+     *    @param att the specific request attributes
+     */
+    string failure_message(ErrorCode ec, RequestAttributes& att);
+
+    /* ---------------------------------------------------------------------- */
+    /* Authorization methods for requests                                     */
+    /* ---------------------------------------------------------------------- */
     /**
      *  Performs a basic authorization for this request using the uid/gid
      *  from the request. The function gets the object from the pool to get
@@ -196,7 +297,7 @@ protected:
      *    @return true if the user is authorized.
      */
     bool basic_authorization(int oid, AuthRequest::Operation op,
-                             RequestAttributes& att);
+        RequestAttributes& att);
 
     /**
      *  Performs a basic quota check for this request using the uid/gid
@@ -209,10 +310,8 @@ protected:
      *
      *    @return true if the user is authorized.
      */
-    bool quota_authorization(
-            Template *          tmpl,
-            Quotas::QuotaType   qtype,
-            RequestAttributes&  att);
+    bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
+        RequestAttributes&  att);
 
     /**
      *  Performs a basic quota check for this request using the uid/gid
@@ -227,11 +326,8 @@ protected:
      *    @param error_str Error reason, if any
      *    @return true if the user is authorized.
      */
-    bool quota_authorization(
-            Template *          tmpl,
-            Quotas::QuotaType   qtype,
-            RequestAttributes&  att,
-            string&             error_str);
+    static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
+        RequestAttributes& att, string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -239,136 +335,53 @@ protected:
      *    @param tmpl describing the object
      *    @param att the specific request attributes
      */
-    void quota_rollback(Template *         tmpl,
-                        Quotas::QuotaType  qtype,
-                        RequestAttributes& att);
+    static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
+        RequestAttributes& att);
 
-    /**
-     *  Actual Execution method for the request. Must be implemented by the
-     *  XML-RPC requests
-     *    @param _paramlist of the XML-RPC call (complete list)
-     *    @param att the specific request attributes
-     */
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att) = 0;
+private:
+    /* ---------------------------------------------------------------------- */
+    /* Functions to manage user and group quotas                              */
+    /* ---------------------------------------------------------------------- */
+    static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
+        RequestAttributes& att, string& error_str);
 
-    /**
-     *  Builds an XML-RPC response updating retval. After calling this function
-     *  the xml-rpc excute method should return
-     *    @param val to be returned to the client
-     *    @param att the specific request attributes
-     */
-    void success_response(int val, RequestAttributes& att);
+    static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
+        RequestAttributes& att, string& error_str);
 
-    /**
-     *  Builds an XML-RPC response updating retval. After calling this function
-     *  the xml-rpc excute method should return
-     *    @param val string to be returned to the client
-     *    @param att the specific request attributes
-     */
-    void success_response(const string& val, RequestAttributes& att);
+    static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
+        RequestAttributes& att);
 
-    /**
-     *  Builds an XML-RPC response updating retval. After calling this function
-     *  the xml-rpc execute method should return
-     *    @param val to be returned to the client
-     *    @param att the specific request attributes
-     */
-    void success_response(bool val, RequestAttributes& att);
+    static void group_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
+        RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return
      *    @param ec error code for this call
-     *    @param val string representation of the error
-     *    @param att the specific request attributes
+     *    @param va string representation of the error
+     *    @param ra the specific request attributes
      */
-    void failure_response(ErrorCode ec,
-                          const string& val,
-                          RequestAttributes& att);
+    void failure_response(ErrorCode ec, const string& va, RequestAttributes& ra);
 
     /**
-     *  Gets a string representation for the Auth object in the
-     *  request.
-     *    @param ob object for the auth operation
-     *    @return string equivalent of the object
-     */
-    static string object_name(PoolObjectSQL::ObjectType ob);
-
-    /**
-     *  Logs authorization errors
-     *    @param message with the authorization error details
-     *    @return string for logging
-     *    @param att the specific request attributes
-     */
-    string authorization_error (const string &message, RequestAttributes& att);
-
-    /**
-     *  Logs authenticate errors
-     *    @return string for logging
-     */
-    string authenticate_error ();
-
-    /**
-     *  Logs get object errors
-     *    @param object over which the get failed
-     *    @param id of the object over which the get failed
-     *    @return string for logging
-     */
-    string get_error (const string &object, int id);
-
-    /**
-     *  Logs action errors
-     *    @param err_desc brief description of the error
-     *    @param err_detail additional error details from Managers & Pools
-     *    @return string for logging
-     */
-    string request_error (const string &err_desc, const string &err_detail);
-
-    /**
-     *  Logs allocate errors
-     *    @param message with the allocate error details
-     *    @return string for logging
-     */
-    string allocate_error (const string& error);
-
-    /**
-     *  Logs allocate errors for a given resource
-     *    @param obj the resource
-     *    @param message with the allocate error details
-     *    @return string for logging
-     */
-    string allocate_error (PoolObjectSQL::ObjectType obj, const string& error);
-
-    /**
-     * Locks the requested object, gets information, and unlocks it
-     *
-     * @param pool object pool
-     * @param id of the object
-     * @param type of the object
+     * Logs the method invocation, including the arguments
      * @param att the specific request attributes
-     *
-     * @param perms returns the object's permissions
-     * @param name returns the object's name
-     * @param throw_error send error response to client if object not found
-     *
-     * @return 0 on success, -1 otherwise
+     * @param paramList list of XML parameters
+     * @param format_str for the log
+     * @param hidden_params params not to be shown
      */
-    int get_info (PoolSQL *                 pool,
-                  int                       id,
-                  PoolObjectSQL::ObjectType type,
-                  RequestAttributes&        att,
-                  PoolObjectAuth&           perms,
-                  string&                   name,
-                  bool                      throw_error);
+    static void log_method_invoked(const RequestAttributes& att,
+        const xmlrpc_c::paramList&  paramList, const string& format_str,
+        const std::string& method_name, const std::set<int>& hidden_params);
 
     /**
      * Logs the method result, including the output data or error message
      *
      * @param att the specific request attributes
+     * @param method_name that produced the error
      */
-    virtual void log_result(
-            const RequestAttributes&    att);
+    static void log_result(const RequestAttributes& att,
+            const std::string& method_name);
 
     /**
      * Formats and adds a xmlrpc_c::value to oss.
@@ -376,41 +389,7 @@ protected:
      * @param v value to format
      * @param oss stream to write v
      */
-    virtual void log_xmlrpc_value(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss);
-
-private:
-
-    /**
-     * Logs the method invocation, including the arguments
-     *
-     * @param att the specific request attributes
-     * @param paramList list of XML parameters
-     */
-    void log_method_invoked(
-            const RequestAttributes&    att,
-            const xmlrpc_c::paramList&  paramList);
-
-    /* ------------- Functions to manage user and group quotas -------------- */
-
-    bool user_quota_authorization(Template * tmpl,
-                                  Quotas::QuotaType  qtype,
-                                  RequestAttributes& att,
-                                  string& error_str);
-
-    bool group_quota_authorization(Template * tmpl,
-                                   Quotas::QuotaType  qtype,
-                                   RequestAttributes& att,
-                                   string& error_str);
-
-    void user_quota_rollback(Template * tmpl,
-                             Quotas::QuotaType  qtype,
-                             RequestAttributes& att);
-
-    void group_quota_rollback(Template * tmpl,
-                              Quotas::QuotaType  qtype,
-                              RequestAttributes& att);
+    static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss);
 };
 
 /* -------------------------------------------------------------------------- */

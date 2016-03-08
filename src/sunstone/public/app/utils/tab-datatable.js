@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -11,6 +27,8 @@ define(function(require) {
   var Tips = require('utils/tips');
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
+  var OpenNebulaUser = require('opennebula/user');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     TEMPLATES
@@ -136,7 +154,9 @@ define(function(require) {
     'idInput': _idInput,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'updateFn': _updateFn,
-    'list': _list
+    'list': _list,
+    'clearLabelsFilter': _clearLabelsFilter,
+    'setLabelsFilter': _setLabelsFilter
   }
 
   return TabDatatable;
@@ -152,16 +172,30 @@ define(function(require) {
       }
 
       this.initSelectResourceTableSelect();
+    } else {
+      this.dataTableOptions.pageLength = parseInt(config['page_length']);
     }
 
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
 
-    var that = this;
-    $('#' + this.dataTableId + 'Search').keyup(function() {
-      that.dataTable.fnFilter($(this).val());
-    })
+    // Remember page length only for non selectable datatables
+    if (!this.conf.select) {
+      this.dataTable.on( 'length.dt', function ( e, settings, len ) {
+        config['page_length'] = len;
 
-    this.dataTable.on('draw', function() {
+        var template_str = 'TABLE_DEFAULT_PAGE_LENGTH = "'+len+'"';
+
+        Sunstone.runAction("User.append_template", config['user_id'], template_str);
+       });
+    }
+
+    var that = this;
+    $('#' + this.dataTableId + 'Search').on('input', function() {
+      that.dataTable.fnFilter($(this).val());
+      return false;
+    });
+
+    this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
     })
 
@@ -185,8 +219,8 @@ define(function(require) {
       this.infoListener(_defaultTrListener);
     } else if (this.conf.customTrListener) {
       this.infoListener(this.conf.customTrListener);
-    } else {
-      //this.infoListener();
+    } else if (!this.conf.select){
+      this.infoListener();
     }
 
     if (this.conf.select) {
@@ -224,7 +258,7 @@ define(function(require) {
         $('.check_item', this).trigger('click');
       }
 
-      return false;
+      return true;
     });
   }
 
@@ -234,9 +268,9 @@ define(function(require) {
     this.dataTable.fnAddData(element);
   }
 
-  //deletes an element with id 'tag' from a dataTable
-  function _deleteElement(req) {
-    var tag = '#' + this.resource.toLowerCase() + '_' + req.request.data;
+  //deletes an element with id 'elementId' from a dataTable
+  function _deleteElement(elementId) {
+    var tag = '#' + this.resource.toLowerCase() + '_' + elementId;
     var tr = $(tag, this.dataTable).parents('tr')[0];
     this.dataTable.fnDeleteRow(tr);
     this.recountCheckboxes();
@@ -254,10 +288,10 @@ define(function(require) {
     this.dataTable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
       if ($(this).is(":checked")) { //check all
-        $('tbody input.check_item', table).prop('checked', true);
+        $('tbody input.check_item', table).prop('checked', true).change();
         $('td', table).addClass('markrowchecked');
       } else { //uncheck all
-        $('tbody input.check_item', table).prop('checked', false);
+        $('tbody input.check_item', table).prop('checked', false).change();
         $('td', table).removeClass('markrowchecked');
       };
 
@@ -362,7 +396,7 @@ define(function(require) {
     var row_id_index = this.dataTable.attr("row_id");
 
     if (row_id_index != undefined) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
         if ($('td.markrow', this).length != 0) {
           var aData = that.dataTable.fnGetData(this);
 
@@ -372,7 +406,7 @@ define(function(require) {
       });
     }
 
-    $.each($(this.dataTable.fnGetNodes()), function() {
+    $.each($(that.dataTable.fnGetNodes()), function() {
       if ($('td.markrowchecked', this).length != 0) {
         if (!isNaN($($('td', $(this))[1]).html())) {
           checked_row_ids.push($($('td', $(this))[1]).html());
@@ -385,11 +419,11 @@ define(function(require) {
     // dataTable.fnSettings is undefined when the table has been detached from
     // the DOM
 
-    if (this.dataTable && this.dataTable.fnSettings()) {
-      var dTable_settings = this.dataTable.fnSettings();
+    if (that.dataTable && that.dataTable.fnSettings()) {
+      var dTable_settings = that.dataTable.fnSettings();
       var prev_start = dTable_settings._iDisplayStart;
 
-      this.dataTable.fnClearTable(false);
+      that.dataTable.fnClearTable(false);
 
       var item_list;
       if (fromArray) {
@@ -404,7 +438,6 @@ define(function(require) {
         });
       }
 
-      var that = this;
       if (item_list.length > 0) {
         that.dataTable.fnAddData(item_list, false);
       }
@@ -420,11 +453,11 @@ define(function(require) {
 
       dTable_settings.iInitDisplayStart = new_start;
 
-      this.dataTable.fnDraw(true);
+      that.dataTable.fnDraw(true);
     };
 
     if (selected_row_id != undefined) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
 
         var aData = that.dataTable.fnGetData(this);
 
@@ -435,7 +468,7 @@ define(function(require) {
     }
 
     if (checked_row_ids.length != 0) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
         var current_id = $($('td', this)[1]).html();
 
         if (isNaN(current_id)) {
@@ -451,31 +484,42 @@ define(function(require) {
       });
     }
 
+    if (that.labelsColumn) {
+      LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
+      LabelsUtils.insertLabelsDropdown(that.tabId);
+    }
+
     if (that.postUpdateView) {
       that.postUpdateView();
     }
   }
 
   //replaces an element with id 'tag' in a dataTable with a new one
-  function _updateElement(request, element_json) {
-    var id = element_json[this.xmlRoot].ID;
-    var element = this.elementArray(element_json);
-    var tag = '#' + this.resource.toLowerCase() + '_' + id;
-    // fnGetData should be used instead, otherwise it depends on the visible columns
-    var nodes = this.dataTable.fnGetNodes();
-    var tr = $(tag, nodes).parents('tr')[0];
-    if (tr) {
-      var checked_val = $('input.check_item', tr).prop('checked');
-      var position = this.dataTable.fnGetPosition(tr);
-      this.dataTable.fnUpdate(element, position, undefined, false);
-      $('input.check_item', tr).prop('checked', checked_val);
-      this.recountCheckboxes();
-    }
+  function _updateElement(request, elementJSON) {
+    var that = this;
+    var elementId = elementJSON[that.xmlRoot].ID;
+    var element = that.elementArray(elementJSON);
+
+    $.each(that.dataTable.fnGetData(), function(index, aData) {
+      if (aData[that.selectOptions.id_index] === elementId) {
+        var nodes = that.dataTable.fnGetNodes();
+        var checkId = '#' + that.resource.toLowerCase() + '_' + elementId;
+        var checkVal = $(checkId, nodes).prop('checked');
+        that.dataTable.fnUpdate(element, index, undefined, false);
+        if (checkVal) {
+          $(checkId, nodes).prop('checked', checkVal);
+        }
+        that.recountCheckboxes();
+        return false;
+      }
+    });
   }
 
   function _getElementData(id, resource_tag) {
+    // TODO If the element is not included in the visible rows of 
+    // the table, it will not be included in the fnGetNodes response
     var nodes = this.dataTable.fnGetNodes();
-    var tr = $(resource_tag + '_' + id, nodes).parents('tr')[0];
+    var tr = $('#' + resource_tag + '_' + id, nodes).closest('tr');
     return this.dataTable.fnGetData(tr);
   }
 
@@ -568,8 +612,9 @@ define(function(require) {
       return false;
     });
 
-    $('#' + that.dataTableId + '_search', section).keyup(function() {
+    $('#' + that.dataTableId + '_search', section).on('input', function() {
       that.dataTable.fnFilter($(this).val());
+      return false;
     })
 
     if (that.selectOptions.read_only) {
@@ -582,7 +627,6 @@ define(function(require) {
       $('#select_resource_multiple_' + that.dataTableId, section).show();
     }
 
-    $('#selected_resource_id_' + that.dataTableId, section).hide();
     $('#selected_resource_name_' + that.dataTableId, section).hide();
 
     $('#selected_ids_row_' + that.dataTableId, section).data("options", that.selectOptions);
@@ -691,7 +735,6 @@ define(function(require) {
         $('input.check_item', this).prop('checked', true);
 
         $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
-        $('#selected_resource_id_' + that.dataTableId, section).hide();
 
         $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
         $('#selected_resource_name_' + that.dataTableId, section).show();
@@ -716,10 +759,9 @@ define(function(require) {
     $("td.markrow", that.dataTable).removeClass('markrow');
     $('tbody input.check_item', that.dataTable).prop('checked', false);
 
-    $('#' + that.dataTableId + '_search', section).val("").trigger("keyup");
+    $('#' + that.dataTableId + '_search', section).val("").trigger("input");
     $('#refresh_button_' + that.dataTableId).click();
 
-    $('#selected_resource_id_' + that.dataTableId, section).val("").hide();
     $('#selected_resource_name_' + that.dataTableId, section).text("").hide();
 
     $('#selected_resource_' + that.dataTableId, section).hide();
@@ -872,7 +914,6 @@ define(function(require) {
       //        $('input.check_item', this).prop('checked', true);
 
       $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
-      $('#selected_resource_id_' + that.dataTableId, section).hide();
 
       $('#selected_resource_name_' + that.dataTableId, section).text(row_name).change();
       $('#selected_resource_name_' + that.dataTableId, section).show();
@@ -972,5 +1013,13 @@ define(function(require) {
       },
       error: Notifier.onError
     });
+  }
+
+  function _setLabelsFilter(regExp) {
+    LabelsUtils.setLabelsFilter(this.dataTable, this.labelsColumn, regExp);
+  }
+
+  function _clearLabelsFilter() {
+    LabelsUtils.clearLabelsFilter(this.dataTable, this.labelsColumn);
   }
 })

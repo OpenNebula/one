@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -308,6 +308,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     "V:#{d['VM']}"
                 elsif d['VNET']
                     "N:#{d['VNET']}"
+                elsif d['VROUTER']
+                    "R:#{d['VROUTER']}"
                 end
             end
 
@@ -323,6 +325,13 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
+
+        puts
+
+        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS")
+        vn.vrouter_ids.each do |id|
+            puts "%-15s" % [id]
+        end
 
         if options[:show_ar]
             ar_list.each do |ar_id|

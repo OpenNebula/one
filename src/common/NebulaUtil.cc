@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@
 
 #include <string>
 #include <sstream>
+#include <cstring>
 #include <iomanip>
 #include <algorithm>
 #include <math.h>
@@ -282,4 +283,53 @@ int one_util::regex_match(const char *pattern, const char *subject)
     regfree(&re);
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static bool not_space(int c)
+{
+    return std::isspace(c) == 0;
+};
+
+std::string one_util::trim(const std::string& str)
+{
+    std::string::const_iterator        wfirst;
+    std::string::const_reverse_iterator rwlast;
+
+    wfirst = find_if(str.begin(), str.end(), not_space);
+    rwlast = find_if(str.rbegin(),str.rend(),not_space);
+
+    std::string::const_iterator wlast(rwlast.base());
+
+	std::string tstr(wfirst, wlast);
+
+	return tstr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string one_util::gsub(const std::string& st, const std::string& sfind,
+    const std::string& srepl)
+{
+    std::string result = st;
+
+    std::string::size_type pos = 0;
+
+    size_t srepl_len = srepl.length();
+    size_t sfind_len = sfind.length();
+
+    pos = result.find(sfind, pos);
+
+    while(pos != std::string::npos)
+    {
+        result.replace(pos, sfind_len , srepl);
+        pos += srepl_len;
+
+        pos = result.find(sfind, pos);
+    }
+
+    return result;
 }

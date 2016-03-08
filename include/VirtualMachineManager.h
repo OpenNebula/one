@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@
 #include "VirtualMachineManagerDriver.h"
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
+#include "DatastorePool.h"
 #include "NebulaTemplate.h"
 
 using namespace std;
@@ -33,13 +34,11 @@ class VirtualMachineManager : public MadManager, public ActionListener
 public:
 
     VirtualMachineManager(
-        VirtualMachinePool *      _vmpool,
-        HostPool *                _hpool,
         time_t                    _timer_period,
         time_t                    _poll_period,
         bool                      _do_vm_poll,
         int                       _vm_limit,
-        vector<const Attribute*>& _mads);
+        vector<const VectorAttribute*>& _mads);
 
     ~VirtualMachineManager(){};
 
@@ -108,6 +107,33 @@ public:
      */
     int load_mads(int uid);
 
+    /**
+     *  Check if action is supported for imported VMs
+     *    @param mad name of the driver
+     *    @param action
+     *    @return True if it is supported
+     */
+    bool is_imported_action_supported(const string& mad,History::VMAction action)
+    {
+        const VirtualMachineManagerDriver * vmd = get(mad);
+
+        if ( vmd == 0 )
+        {
+            return false;
+        }
+
+        return vmd->is_imported_action_supported(action);
+    }
+
+    /**
+     * Updates firewall rules of a VM
+     *   @param vm pointer to VM, needs to be locked
+     *   @param sgid the id of the security group
+     *
+     *   @return 0 on success
+     */
+    int updatesg(VirtualMachine * vm, int sgid);
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager
@@ -123,6 +149,11 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
+
+    /**
+     *  Pointer to the Datastore Pool
+     */
+    DatastorePool *         ds_pool;
 
     /**
      *  Timer period for the Virtual Machine Manager.
@@ -208,6 +239,9 @@ private:
      *      <VM>
      *          VM representation in XML
      *      </VM>
+     *      <DATASTORE>
+     *          System DS information in XML
+     *      </DATASTORE>
      *  </VMM_DRIVER_ACTION_DATA>
      *
      *    @param hostname of the host to perform the action
@@ -222,6 +256,8 @@ private:
      *    @param tm_command_rollback TM command in case of attach failure
      *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
+     *    @param ds_id of the system datastore
+     *    @param id of the security group
      */
     string * format_message(
         const string& hostname,
@@ -235,7 +271,9 @@ private:
         const string& tm_command,
         const string& tm_command_rollback,
         const string& disk_target_path,
-        const string& tmpl);
+        const string& tmpl,
+        int ds_id,
+        int sgid);
 
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on

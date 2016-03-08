@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,11 +27,13 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
    ostringstream oss;
 
    vector<string>::iterator it;
+   vector<string> ids;
 
    ObjectXML oxml(node);
 
    oss << "/" << collection_name << "/ID";
-   vector<string> ids = oxml[oss.str().c_str()];
+
+   oxml.xpaths(ids, oss.str().c_str());
 
    for (it = ids.begin(); it != ids.end(); it++)
    {
@@ -78,7 +80,7 @@ string& ObjectCollection::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectCollection::add_collection_id(int id)
+int ObjectCollection::add(int id)
 {
     pair<set<int>::iterator,bool> ret;
 
@@ -95,7 +97,7 @@ int ObjectCollection::add_collection_id(int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectCollection::del_collection_id(int id)
+int ObjectCollection::del(int id)
 {
     if( collection_set.erase(id) != 1 )
     {
@@ -105,3 +107,37 @@ int ObjectCollection::del_collection_id(int id)
     return 0;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectCollection::pop(int& elem)
+{
+    if (collection_set.empty())
+    {
+        return -1;
+    }
+
+    set<int>::iterator it = collection_set.begin();
+
+    elem = *it;
+
+    collection_set.erase(it);
+
+    return 0;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ObjectCollection& ObjectCollection::operator<<(const ObjectCollection& r)
+{
+    set<int>::const_iterator i;
+
+    for (i = r.collection_set.begin(); i != r.collection_set.end(); ++i)
+    {
+        collection_set.insert(*i);
+    }
+
+    return *this;
+}

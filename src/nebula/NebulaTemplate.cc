@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -72,8 +72,11 @@ int NebulaTemplate::load_configuration()
         }
     }
 
+    set_multiple_conf_default();
+
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -82,22 +85,221 @@ const char * OpenNebulaTemplate::conf_name="oned.conf";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void OpenNebulaTemplate::set_conf_default()
+void OpenNebulaTemplate::set_multiple_conf_default()
+{
+/*
+#*******************************************************************************
+# Transfer Manager Configuration
+#*******************************************************************************
+# dummy
+# lvm
+# shared
+# fs_lvm
+# qcow2
+# ssh
+# vmfs
+# ceph
+# dev
+#*******************************************************************************
+*/
+    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES");
+    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO");
+    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES");
+    set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO");
+    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO");
+    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES");
+    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO");
+    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO");
+    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO");
+
+    register_multiple_conf_default("TM_MAD_CONF");
+/*
+#*******************************************************************************
+# Datastore Manager Configuration
+#*******************************************************************************
+# ceph
+# dev
+# dummy
+# fs
+# lvm
+# shared
+# ssh
+# vmfs
+#******
+*/
+    set_conf_ds("dev",    "DISK_TYPE",            "YES");
+    set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
+    set_conf_ds("dummy",  "",                     "NO");
+    set_conf_ds("fs",     "",                     "NO");
+    set_conf_ds("lvm",    "DISK_TYPE",            "NO");
+    set_conf_ds("shared", "",                     "NO");
+    set_conf_ds("ssh",    "",                     "NO");
+    set_conf_ds("vmfs",   "BRIDGE_LIST",          "NO");
+    set_conf_ds("ceph",
+                "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
+                "NO");
+
+    register_multiple_conf_default("DS_MAD_CONF");
+/*
+#*******************************************************************************
+# Marketplace Manager Configuration
+#*******************************************************************************
+# http
+# s3
+#******
+*/
+    set_conf_market("one",  "");
+    set_conf_market("http", "BASE_URL,PUBLIC_DIR");
+    set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
+
+    register_multiple_conf_default("MARKET_MAD_CONF");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::register_multiple_conf_default(
+                                                const std::string& conf_section)
+{
+    std::string d_name;
+
+    bool found;
+
+    VectorAttribute* d_attr;
+
+    std::map<std::string, Attribute *>::iterator i, prev;
+
+    std::vector<const VectorAttribute*>::const_iterator j;
+    std::vector<const VectorAttribute*> attrs;
+
+    get(conf_section.c_str(), attrs);
+
+    for(i = conf_default.begin(); i != conf_default.end(); )
+    {
+        if ( i->first == conf_section )
+        {
+            found = false;
+
+            d_attr = dynamic_cast<VectorAttribute*>(i->second);
+
+            if (d_attr == 0)
+            {
+                continue;
+            }
+
+            d_name = d_attr->vector_value("NAME");
+
+            for (j = attrs.begin(); j != attrs.end(); j++)
+            {
+                if ( (*j)->vector_value("NAME") == d_name )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( !found )
+            {
+                // insert into attributes
+                attributes.insert(make_pair(conf_section, d_attr));
+                i++;
+            }
+            else
+            {
+                // remove from conf_defaults
+                delete i->second;
+                prev = i++;
+                conf_default.erase(prev);
+            }
+        }
+        else
+        {
+            i++;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_single(const std::string& attr,
+                                         const std::string& value)
 {
     SingleAttribute *   attribute;
+
+    attribute = new SingleAttribute(attr, value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_ds(const std::string& name,
+                                     const std::string& required_attrs,
+                                     const std::string& persistent_only)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+    vvalue.insert(make_pair("PERSISTENT_ONLY", persistent_only));
+
+    vattribute = new VectorAttribute("DS_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_tm(const std::string& name,
+                                     const std::string& ln_target,
+                                     const std::string& clone_target,
+                                     const std::string& shared,
+                                     const std::string& ds_migrate)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("LN_TARGET", ln_target));
+    vvalue.insert(make_pair("CLONE_TARGET", clone_target));
+    vvalue.insert(make_pair("SHARED", shared));
+    vvalue.insert(make_pair("DS_MIGRATE", ds_migrate));
+
+    vattribute = new VectorAttribute("TM_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_market(const std::string& name,
+                                         const std::string& required_attrs)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+
+    vattribute = new VectorAttribute("MARKET_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_default()
+{
     VectorAttribute *   vattribute;
     string              value;
     map<string,string>  vvalue;
 
-    // MANAGER_TIMER
-    value = "15";
-
-    attribute = new SingleAttribute("MANAGER_TIMER",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Daemon configuration attributes
 #-------------------------------------------------------------------------------
+#  MANAGER_TIMER
 #  MONITORING_INTERVAL
 #  MONITORING_THREADS
 #  HOST_PER_INTERVAL
@@ -105,6 +307,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  VM_INDIVIDUAL_MONITORING
 #  VM_PER_INTERVAL
 #  VM_MONITORING_EXPIRATION_TIME
+#  LISTEN_ADDRESS
 #  PORT
 #  DB
 #  VNC_BASE_PORT
@@ -112,83 +315,25 @@ void OpenNebulaTemplate::set_conf_default()
 #  VM_SUBMIT_ON_HOLD
 #*******************************************************************************
 */
-    // MONITORING_INTERVAL
-    value = "60";
-
-    attribute = new SingleAttribute("MONITORING_INTERVAL",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // MONITORING_THREADS
-    value = "50";
-
-    attribute = new SingleAttribute("MONITORING_THREADS",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // HOST_PER_INTERVAL
-    value = "15";
-
-    attribute = new SingleAttribute("HOST_PER_INTERVAL",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // HOST_MONITORING_EXPIRATION_TIME
-    value = "43200";
-
-    attribute = new SingleAttribute("HOST_MONITORING_EXPIRATION_TIME",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // VM_INDIVIDUAL_MONITORING
-    value = "no";
-
-    attribute = new SingleAttribute("VM_INDIVIDUAL_MONITORING",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // VM_PER_INTERVAL
-    value = "5";
-
-    attribute = new SingleAttribute("VM_PER_INTERVAL",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // VM_MONITORING_EXPIRATION_TIME
-    value = "14400";
-
-    attribute = new SingleAttribute("VM_MONITORING_EXPIRATION_TIME",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //XML-RPC Server PORT
-    value = "2633";
-
-    attribute = new SingleAttribute("PORT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
+    set_conf_single("MANAGER_TIMER", "15");
+    set_conf_single("MONITORING_INTERVAL", "60");
+    set_conf_single("MONITORING_THREADS", "50");
+    set_conf_single("HOST_PER_INTERVAL", "15");
+    set_conf_single("HOST_MONITORING_EXPIRATION_TIME", "43200");
+    set_conf_single("VM_INDIVIDUAL_MONITORING", "no");
+    set_conf_single("VM_PER_INTERVAL", "5");
+    set_conf_single("VM_MONITORING_EXPIRATION_TIME", "14400");
+    set_conf_single("PORT", "2633");
+    set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
+    set_conf_single("VNC_BASE_PORT", "5900");
+    set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
+    set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
 
     vattribute = new VectorAttribute("DB",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
-
-    //VNC_BASE_PORT
-    value = "5900";
-
-    attribute = new SingleAttribute("VNC_BASE_PORT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //XML-RPC Server PORT
-    value = "2633";
-
-    attribute = new SingleAttribute("PORT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //SCRIPTS_REMOTE_DIR
-    value = "/var/tmp/one";
-
-    attribute = new SingleAttribute("SCRIPTS_REMOTE_DIR",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // VM_SUBMIT_ON_HOLD
-    value = "NO";
-
-    attribute = new SingleAttribute("VM_SUBMIT_ON_HOLD",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 
     // LOG CONFIGURATION
     vvalue.clear();
@@ -243,53 +388,15 @@ void OpenNebulaTemplate::set_conf_default()
 #  LOG_CALL_FORMAT
 #*******************************************************************************
 */
-    // MAX_CONN
-    value = "15";
+    set_conf_single("MAX_CONN", "15");
+    set_conf_single("MAX_CONN_BACKLOG", "15");
+    set_conf_single("KEEPALIVE_TIMEOUT", "15");
+    set_conf_single("KEEPALIVE_MAX_CONN", "30");
+    set_conf_single("TIMEOUT", "15");
+    set_conf_single("RPC_LOG", "NO");
+    set_conf_single("MESSAGE_SIZE", "1073741824");
+    set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u %m invoked %l");
 
-    attribute = new SingleAttribute("MAX_CONN",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // MAX_CONN_BACKLOG
-    value = "15";
-
-    attribute = new SingleAttribute("MAX_CONN_BACKLOG",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // KEEPALIVE_TIMEOUT
-    value = "15";
-
-    attribute = new SingleAttribute("KEEPALIVE_TIMEOUT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // KEEPALIVE_MAX_CONN
-    value = "30";
-
-    attribute = new SingleAttribute("KEEPALIVE_MAX_CONN",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // TIMEOUT
-    value = "15";
-
-    attribute = new SingleAttribute("TIMEOUT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // RPC_LOG
-    value = "NO";
-
-    attribute = new SingleAttribute("RPC_LOG",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //MESSAGE_SIZE
-    value = "1073741824";
-
-    attribute = new SingleAttribute("MESSAGE_SIZE",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //LOG_CALL_FORMAT
-    value = "Req:%i UID:%u %m invoked %l";
-
-    attribute = new SingleAttribute("LOG_CALL_FORMAT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Physical Networks configuration
@@ -298,17 +405,9 @@ void OpenNebulaTemplate::set_conf_default()
 #  MAC_PREFIX
 #*******************************************************************************
 */
-    //MAC_PREFIX
-    value = "02:00";
 
-    attribute = new SingleAttribute("MAC_PREFIX",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //NETWORK_SIZE
-    value = "254";
-
-    attribute = new SingleAttribute("NETWORK_SIZE",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
+    set_conf_single("MAC_PREFIX", "02:00");
+    set_conf_single("NETWORK_SIZE", "254");
 
 /*
 #*******************************************************************************
@@ -322,37 +421,13 @@ void OpenNebulaTemplate::set_conf_default()
 #  DEFAULT_CDROM_DEVICE_PREFIX
 #*******************************************************************************
 */
-    //DATASTORE_LOCATION
-    attribute = new SingleAttribute("DATASTORE_LOCATION",
-                                     var_location + "/datastores");
-    conf_default.insert(make_pair(attribute->name(),attribute));
+    set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
+    set_conf_single("DATASTORE_BASE_PATH", var_location + "/datastores");
+    set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
+    set_conf_single("DEFAULT_IMAGE_TYPE", "OS");
+    set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
+    set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
-    //DATASTORE_BASE_PATH
-    attribute = new SingleAttribute("DATASTORE_BASE_PATH",
-                                     var_location + "/datastores");
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //DATASTORE_CAPACITY_CHECK
-    value = "YES";
-
-    attribute = new SingleAttribute("DATASTORE_CAPACITY_CHECK",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //DEFAULT_IMAGE_TYPE
-    value = "OS";
-
-    attribute = new SingleAttribute("DEFAULT_IMAGE_TYPE",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //DEFAULT_DEVICE_PREFIX
-    value = "hd";
-
-    attribute = new SingleAttribute("DEFAULT_DEVICE_PREFIX",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //DEFAULT_CDROM_DEVICE_PREFIX
-    attribute = new SingleAttribute("DEFAULT_CDROM_DEVICE_PREFIX",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************
 # Auth Manager Configuration
@@ -363,29 +438,10 @@ void OpenNebulaTemplate::set_conf_default()
 # DEFAULT_UMASK
 #*******************************************************************************
 */
-    // DEFAULT_AUTH
-    value = "default";
-
-    attribute = new SingleAttribute("DEFAULT_AUTH",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // SESSION_EXPIRATION_TIME
-    value = "0";
-
-    attribute = new SingleAttribute("SESSION_EXPIRATION_TIME",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // ENABLE_OTHER_PERMISSIONS
-    value = "YES";
-
-    attribute = new SingleAttribute("ENABLE_OTHER_PERMISSIONS",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // DEFAULT_UMASK
-    value = "177";
-
-    attribute = new SingleAttribute("DEFAULT_UMASK",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
+    set_conf_single("DEFAULT_AUTH", "default");
+    set_conf_single("SESSION_EXPIRATION_TIME", "0");
+    set_conf_single("ENABLE_OTHER_PERMISSIONS", "YES");
+    set_conf_single("DEFAULT_UMASK", "177");
 }
 
 /* -------------------------------------------------------------------------- */

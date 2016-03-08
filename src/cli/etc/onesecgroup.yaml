@@ -5,7 +5,7 @@
 
 :NAME:
   :desc: Name of the Security Group
-  :size: 27
+  :size: 20
   :left: true
 
 :USER:
@@ -18,8 +18,27 @@
   :size: 15
   :left: true
 
+:UPDATED:
+  :desc: Number of VMs with updated rules
+  :size: 8
+  :left: false
+
+
+:OUTDATED:
+  :desc: Number of VMs with outdated rules
+  :size: 8
+  :left: false
+
+:ERROR:
+  :desc: Number of VMs that failed to update rules 
+  :size: 8
+  :left: false
+
 :default:
 - :ID
 - :USER
 - :GROUP
 - :NAME
+- :UPDATED
+- :OUTDATED
+- :ERROR

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -10,6 +26,8 @@ define(function(require) {
   var StateActions = require('../utils/state-actions');
   var OpenNebulaVM = require('opennebula/vm');
   var Tree = require('utils/tree');
+  var TemplateHtml = require('hbs!./storage/html');
+  var DiskDetailsHtml = require('hbs!./storage/disk-details');
 
   /*
     CONSTANTS
@@ -41,6 +59,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -49,45 +69,16 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;
-    var html = '<form id="tab_storage_form" vmid="' + that.element.ID + '" >\
-       <div class="row">\
-       <div class="large-12 columns">\
-          <table class="disks_table no-hover info_table dataTable extended_table">\
-            <thead>\
-              <tr>\
-                 <th></th>\
-                 <th>' + Locale.tr("ID") + '</th>\
-                 <th>' + Locale.tr("Target") + '</th>\
-                 <th>' + Locale.tr("Image / Format-Size") + '</th>\
-                 <th>' + Locale.tr("Persistent") + '</th>\
-                 <th>' + Locale.tr("Actions");
+    var diskCost = this.element.TEMPLATE.DISK_COST;
 
-    if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
-      if (StateActions.enabledStateAction("VM.attachdisk", that.element.STATE, that.element.LCM_STATE)) {
-        html += '\
-          <span class="right">\
-            <button id="attach_disk" class="button tiny success right radius" >' + Locale.tr("Attach disk") + '</button>\
-          </span>';
-      } else {
-        html += '\
-          <span class="right">\
-            <button id="attach_disk" class="button tiny success right radius" disabled="disabled">' + Locale.tr("Attach disk") + '</button>\
-          </span>';
-      }
+    if (diskCost == undefined){
+      diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
     }
 
-    html +=     '</th>\
-              </tr>\
-            </thead>\
-            <tbody>\
-            </tbody>\
-          </table>\
-        </div>\
-      </div>\
-    </form>';
-
-    return html;
+    return TemplateHtml({
+        element: this.element,
+        diskCost: diskCost
+      });
   }
 
   function _setup(context) {
@@ -100,6 +91,21 @@ define(function(require) {
       snapshots = [this.element.SNAPSHOTS];
     }
 
+    var snapshotsSize = {};
+    var monitoringSnapshots = [];
+    if ($.isArray(that.element.MONITORING.SNAPSHOT_SIZE))
+      monitoringSnapshots = that.element.MONITORING.SNAPSHOT_SIZE;
+    else if (!$.isEmptyObject(that.element.MONITORING.SNAPSHOT_SIZE))
+      monitoringSnapshots = [that.element.MONITORING.SNAPSHOT_SIZE];
+
+    $.each(monitoringSnapshots, function(index, monitoringSnap){
+      if(snapshotsSize[monitoringSnap.DISK_ID] == undefined){
+        snapshotsSize[monitoringSnap.DISK_ID] = {};
+      }
+
+      snapshotsSize[monitoringSnap.DISK_ID][monitoringSnap.ID] = monitoringSnap.SIZE;
+    })
+
     var snapshotsHtml = {};
 
     $.each(snapshots, function(){
@@ -108,6 +114,12 @@ define(function(require) {
 
       if (!$.isArray(diskSnapshots)){
         diskSnapshots = [diskSnapshots];
+      }
+
+      var indexedSize = snapshotsSize[diskId];
+
+      if(indexedSize == undefined){
+        indexedSize = {};
       }
 
       var treeRoot = {
@@ -128,7 +140,7 @@ define(function(require) {
 
       $.each(noParent, function(){
         treeRoot.subTree.push(
-          _makeTree(indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots, indexedSize)
         );
       });
 
@@ -149,6 +161,17 @@ define(function(require) {
 
       disks.push(context_disk);
     }
+
+    var disksSize = {};
+    var monitoringDisks = [];
+    if ($.isArray(that.element.MONITORING.DISK_SIZE))
+      monitoringDisks = that.element.MONITORING.DISK_SIZE;
+    else if (!$.isEmptyObject(that.element.MONITORING.DISK_SIZE))
+      monitoringDisks = [that.element.MONITORING.DISK_SIZE];
+
+    $.each(monitoringDisks, function(index, monitoringDisk){
+      disksSize[monitoringDisk.ID] = monitoringDisk.SIZE;
+    })
 
     var disk_dt_data = [];
     if (disks.length) {
@@ -188,7 +211,7 @@ define(function(require) {
             if (disk.IMAGE_ID &&
                  StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
               actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+              <i class="fa fa-save fa-fw"></i>' + Locale.tr("Save as") + '</a> &emsp;';
             }
           }
 
@@ -196,26 +219,39 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times"></i>' + Locale.tr("Detach") +
+              <i class="fa fa-times fa-fw"></i>' + Locale.tr("Detach") +
               '</a> &emsp;');
             }
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
-            // TODO: set disk_snapshot_create in state-actions.js
-            //if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
-            if (!disk.CONTEXT) {
+            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera"></i>' + Locale.tr("Snapshot") +
+              <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
               '</a>');
             }
           }
+        }
+
+        var sizeStr = "";
+        if (disksSize[disk.DISK_ID]) {
+          sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
+        } else {
+          sizeStr += '-';
+        }
+
+        sizeStr += '/';
+        if (disk.SIZE) {
+          sizeStr += Humanize.sizeFromMB(disk.SIZE);
+        } else {
+          sizeStr += '-';
         }
 
         disk_dt_data.push({
           DISK_ID : disk.DISK_ID,
           TARGET : disk.TARGET,
           IMAGE : (disk.IMAGE ? disk.IMAGE : (Humanize.sizeFromMB(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : ''))),
+          SIZE: sizeStr,
           SAVE : ((disk.SAVE && disk.SAVE == 'YES') ? Locale.tr('YES') : Locale.tr('NO')),
           ACTIONS : actions,
           SNAPSHOTS : snapshotsHtml[disk.DISK_ID]
@@ -236,6 +272,7 @@ define(function(require) {
         {"data": "DISK_ID",   "defaultContent": ""},
         {"data": "TARGET",    "defaultContent": ""},
         {"data": "IMAGE",     "defaultContent": "", "orderable": false},
+        {"data": "SIZE",      "defaultContent": ""},
         {"data": "SAVE",      "defaultContent": "", "orderable": false},
         {"data": "ACTIONS",   "defaultContent": "", "orderable": false}
       ],
@@ -264,10 +301,10 @@ define(function(require) {
         $(this).children("span").addClass('fa-chevron-down');
         $(this).children("span").removeClass('fa-chevron-up');
       } else {
-        var html = '<div class="snapshots" disk_id='+row.data().DISK_ID+
-                   ' style="padding-left: 30px; width:900px; overflow-x:auto">'+
-          row.data().SNAPSHOTS+
-          '</div>';
+        var html = DiskDetailsHtml({
+          diskId: row.data().DISK_ID,
+          snapshotsHTML: row.data().SNAPSHOTS
+        });
 
         row.child(html).show();
         $(this).children("span").removeClass('fa-chevron-down');
@@ -290,26 +327,13 @@ define(function(require) {
         dialog.show();
         return false;
       });
-
-      context.off('click', '.disk_snapshot_saveas');
-      context.on('click', '.disk_snapshot_saveas', function() {
-        var disk_id = $(this).parents('.snapshots').attr('disk_id');
-        var snapshot_id = $(this).parents('.snapshot_row').attr('snapshot_id');
-
-        var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
-        dialog.setParams(
-          { element: that.element,
-            diskId: disk_id,
-            snapshotId: snapshot_id
-          });
-
-        dialog.reset();
-        dialog.show();
-        return false;
-      });
     }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
+      if (!StateActions.enabledStateAction("VM.attachdisk", that.element.STATE, that.element.LCM_STATE)){
+        $('#attach_disk', context).attr("disabled", "disabled");
+      }
+
       context.off('click', '#attach_disk');
       context.on('click', '#attach_disk', function() {
         var dialog = Sunstone.getDialog(ATTACH_DISK_DIALOG_ID);
@@ -323,7 +347,20 @@ define(function(require) {
       context.off('click', '.detachdisk');
       context.on('click', '.detachdisk', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
-        Sunstone.runAction('VM.detachdisk', that.element.ID, disk_id);
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will detach the disk immediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('VM.detachdisk', that.element.ID, disk_id);
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
         return false;
       });
     }
@@ -345,11 +382,55 @@ define(function(require) {
       });
     }
 
+    context.off("change", ".snapshot_check_item");
+    context.on("change", ".snapshot_check_item", function() {
+      var snapshotsSection = $(this).closest('.snapshots');
+
+      // Unselect other check inputs
+      var checked = $(this).is(':checked');
+      $('.snapshot_check_item:checked', snapshotsSection).prop('checked', false);
+      $(this).prop('checked', checked);
+
+      // Enable/disable buttons
+      if ($(this).is(":checked")) {
+        $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', false);
+        $(".disk_snapshot_revert", snapshotsSection).prop('disabled', false);
+        $(".disk_snapshot_delete", snapshotsSection).prop('disabled', false);
+      } else {
+        $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', true);
+        $(".disk_snapshot_revert", snapshotsSection).prop('disabled', true);
+        $(".disk_snapshot_delete", snapshotsSection).prop('disabled', true);
+      }
+    });
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
+      context.off('click', '.disk_snapshot_saveas');
+      context.on('click', '.disk_snapshot_saveas', function() {
+        var snapshotsSection = $(this).closest('.snapshots');
+
+        var disk_id = snapshotsSection.attr('disk_id');
+        var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
+
+        var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id,
+            snapshotId: snapshot_id
+          });
+
+        dialog.reset();
+        dialog.show();
+        return false;
+      });
+    }
+
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {
       context.off('click', '.disk_snapshot_revert');
       context.on('click', '.disk_snapshot_revert', function() {
-        var disk_id = $(this).parents('.snapshots').attr('disk_id');
-        var snapshot_id = $(this).parents('.snapshot_row').attr('snapshot_id');
+        var snapshotsSection = $(this).closest('.snapshots');
+
+        var disk_id = snapshotsSection.attr('disk_id');
+        var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
 
         Sunstone.runAction(
           'VM.disk_snapshot_revert',
@@ -365,8 +446,10 @@ define(function(require) {
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
       context.off('click', '.disk_snapshot_delete');
       context.on('click', '.disk_snapshot_delete', function() {
-        var disk_id = $(this).parents('.snapshots').attr('disk_id');
-        var snapshot_id = $(this).parents('.snapshot_row').attr('snapshot_id');
+        var snapshotsSection = $(this).closest('.snapshots');
+
+        var disk_id = snapshotsSection.attr('disk_id');
+        var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
@@ -392,7 +475,40 @@ define(function(require) {
     Tree.setup(context);
   }
 
-  function _makeTree(snapshot, indexedSnapshots){
+  function _getState(context) {
+    var state = {
+      openDisksDetails : [],
+      checkedSnapshots : []
+    };
+
+    $.each($("#tab_storage_form .disks_table .fa-chevron-up", context), function(){
+      state.openDisksDetails.push($(this).closest("tr").attr("disk_id"));
+    });
+
+    $.each($('#tab_storage_form .disks_table .snapshot_check_item:checked', context), function(){
+      state.checkedSnapshots.push({
+        snapshot_id : $(this).attr("snapshot_id"),
+        disk_id : $(this).closest(".snapshots").attr('disk_id')
+      });
+    });
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    $.each(state["openDisksDetails"], function(){
+      $('#tab_storage_form .disks_table tr[disk_id="'+this+'"] td.open-control', context).click();
+    });
+
+    $.each(state["checkedSnapshots"], function(){
+      $('#tab_storage_form .disks_table .snapshots[disk_id="'+this.disk_id+'"] '+
+        '.snapshot_check_item[snapshot_id="'+this.snapshot_id+'"]', context).click();
+    });
+  }
+
+  function _makeTree(that, snapshot, indexedSnapshots, indexedSize){
     var SPACE = '&nbsp;&nbsp;&nbsp;&nbsp;';
 
     var subTree = [];
@@ -400,38 +516,38 @@ define(function(require) {
     if (snapshot.CHILDREN){
       $.each(snapshot.CHILDREN.split(","), function(){
         subTree.push(
-          _makeTree(indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots, indexedSize)
         );
       });
     }
 
-    var html = '<div class="snapshot_row nowrap" snapshot_id='+snapshot.ID+'>';
+    var html = '<div class="snapshot_row nowrap">'+
+      '<input class="snapshot_check_item" type="checkbox" snapshot_id="'+snapshot.ID+'"/>'+
+      SPACE + snapshot.ID + SPACE;
 
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += snapshot.ID + SPACE + '<i class="fa fa-play-circle-o fa-lg" data-tooltip title="'+Locale.tr("Active")+'"/>' + SPACE;
+      html += '<i class="fa fa-play-circle-o fa-lg" title="'+
+                Locale.tr("Active")+'"/>' + SPACE;
+    }
+
+    var sizeStr = "";
+    if (indexedSize[snapshot.ID]) {
+      sizeStr += Humanize.sizeFromMB(indexedSize[snapshot.ID]);
     } else {
-      html += snapshot.ID + SPACE;
+      sizeStr += '-';
     }
 
-    html += Humanize.prettyTime(snapshot.DATE) + SPACE +
-            (snapshot.TAG ? snapshot.TAG + SPACE : '');
-
-    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
-      html += '<a href="" class="disk_snapshot_saveas" >\
-              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+    sizeStr += '/';
+    if (snapshot.SIZE) {
+      sizeStr += Humanize.sizeFromMB(snapshot.SIZE);
+    } else {
+      sizeStr += '-';
     }
 
-    if(!active){
-      if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {
-        html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply"/>' + Locale.tr("Revert") + '</a> &emsp;';
-      }
-
-      if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
-        html += '<a href="VM.disk_snapshot_delete" class="disk_snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>';
-      }
-    }
+    html += Humanize.prettyTime(snapshot.DATE) + SPACE + sizeStr + SPACE +
+            (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     html += '</div>';
 

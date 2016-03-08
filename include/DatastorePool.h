@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,7 +26,7 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db);
+    DatastorePool(SqlDB * db, const vector<const SingleAttribute *>& _inherit_attrs);
 
     ~DatastorePool(){};
 
@@ -135,15 +135,6 @@ public:
         return name;
     };
 
-    /** Update a particular Datastore
-     *    @param user pointer to Datastore
-     *    @return 0 on success
-     */
-    int update(Datastore * datastore)
-    {
-        return datastore->update(db);
-    };
-
     /**
      *  Drops the Datastore data in the data base. The object mutex SHOULD be
      *  locked.
@@ -189,7 +180,20 @@ public:
         return PoolSQL::list(oids, Datastore::table);
      }
 
+     /**
+      *  Adds to the disk the datastore inherit attributes and conf values
+      *    @param ds_id of the datastore to use
+      *    @para disk vector attribute for the disk
+      *
+      *    @return -1 if the DS does not exists
+      */
+    int disk_attribute(int ds_id, VectorAttribute * disk);
+
 private:
+    /**
+     * Datastore attributes to be inherited into the VM disk
+     */
+    vector<string> inherit_attrs;
 
     /**
      *  Factory method to produce objects

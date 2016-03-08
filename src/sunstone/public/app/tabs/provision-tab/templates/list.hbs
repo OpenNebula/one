@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <dl class="accordion accordion_list provision_list_templates" data-accordion="dfsaf">
   <dd class="{{#if opts.active}}active{{/if}} accordion-navigation">
     <a class="right only-not-active" href="#provision_list_template_accordion{{accordionId}}">
@@ -7,10 +23,10 @@
     <h3 class="subheader">
       {{!opts.title}}
       <span href"#" class="right only-active button small radius secondary provision_templates_list_refresh_button" 
-          {{#unless opts.refresh}}style="display:none"{{/unless}} data-tooltip title=" {{tr "Refresh"}}">
+          {{#unless opts.refresh}}style="display:none"{{/unless}} title=" {{tr "Refresh"}}">
         <i class="fa fa-fw fa-lg fa-refresh"/></span>
       <span href"#" class="right only-active button small radius secondary provision_templates_list_filter_button" 
-          {{#unless opts.filter}}style="display:none"{{/unless}} data-tooltip title=" {{tr "Filter by User"}}">
+          {{#unless opts.filter}}style="display:none"{{/unless}} title=" {{tr "Filter by User"}}">
         <i class="fa fa-fw fa-lg fa-filter"/>
       </span>
       <span class="right only-active provision_list_templates_filter" style="display: none"></span>
@@ -25,10 +41,9 @@
           <table class="provision_templates_table">
             <thead class="hidden">
               <tr>
-                <th>{{tr "ID"}}</th>
-                <th>{{tr "Name"}}</th>
-                <th>{{tr "Saved"}}</th>
-                <th>{{tr "User ID"}}</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>User ID</th>
               </tr>
             </thead>
             <tbody class="hidden"></tbody>

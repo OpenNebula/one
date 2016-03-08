@@ -1,9 +1,26 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/securitygroup');
+  var CommonActions = require('utils/common-actions');
 
   var RESOURCE = "SecurityGroup";
   var XML_ROOT = "SECURITY_GROUP";
@@ -11,164 +28,24 @@ define(function(require) {
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
 
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+
   var _actions = {
-
-    "SecurityGroup.create" : {
-      type: "create",
-      call: OpenNebulaResource.create,
-      callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-      notify: true
-    },
-
-    "SecurityGroup.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "SecurityGroup.list" : {
-      type: "list",
-      call: OpenNebulaResource.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "SecurityGroup.show" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "SecurityGroup.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction(RESOURCE+".list", {force: true});
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "SecurityGroup.delete" : {
-      type: "multiple",
-      call : OpenNebulaResource.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "SecurityGroup.update_dialog" : {
-      type: "custom",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) Security Group to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction(RESOURCE+".show_to_update", resource_id);
-      }
-    },
-
-    "SecurityGroup.show_to_update" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[XML_ROOT]);
-          });
-      },
-      error: Notifier.onError
-    },
-
-    "SecurityGroup.update" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request, response){
-        Sunstone.hideFormPanel(TAB_ID);
-        Notifier.notifyMessage(Locale.tr("Security Group updated correctly"));
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
-
-    "SecurityGroup.update_template" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request,response){
-         Sunstone.runAction('SecurityGroup.show',request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "SecurityGroup.chown" : {
-      type: "multiple",
-      call: OpenNebulaResource.chown,
-      callback:  function (req) {
-        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "SecurityGroup.chgrp" : {
-      type: "multiple",
-      call: OpenNebulaResource.chgrp,
-      callback:  function (req) {
-        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "SecurityGroup.chmod" : {
-      type: "single",
-      call: OpenNebulaResource.chmod,
-      callback:  function (req) {
-        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
+    "SecurityGroup.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "SecurityGroup.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "SecurityGroup.list" : _commonActions.list(),
+    "SecurityGroup.show" : _commonActions.show(),
+    "SecurityGroup.refresh" : _commonActions.refresh(),
+    "SecurityGroup.delete" : _commonActions.del(),
+    "SecurityGroup.chown": _commonActions.multipleAction('chown'),
+    "SecurityGroup.chgrp": _commonActions.multipleAction('chgrp'),
+    "SecurityGroup.chmod": _commonActions.singleAction('chmod'),
+    "SecurityGroup.rename": _commonActions.singleAction('rename'),
+    "SecurityGroup.update" : _commonActions.update(),
+    "SecurityGroup.update_template" : _commonActions.updateTemplate(),
+    "SecurityGroup.append_template" : _commonActions.appendTemplate(),
+    "SecurityGroup.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "SecurityGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 
     "SecurityGroup.clone_dialog" : {
       type: "custom",
@@ -184,16 +61,6 @@ define(function(require) {
         Sunstone.getDialog(CLONE_DIALOG_ID).hide();
         Sunstone.getDialog(CLONE_DIALOG_ID).reset();
         Sunstone.runAction('SecurityGroup.refresh');
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "SecurityGroup.rename" : {
-      type: "single",
-      call: OpenNebulaResource.rename,
-      callback: function(request) {
-          Sunstone.runAction('SecurityGroup.show',request.request.data[0][0]);
       },
       error: Notifier.onError,
       notify: true

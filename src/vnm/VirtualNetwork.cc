@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,7 +46,8 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
             Clusterable(_cluster_id, _cluster_name),
             bridge(""),
-            parent_vid(_pvid)
+            parent_vid(_pvid),
+            vrouters("VROUTERS")
 {
     if (_vn_template != 0)
     {
@@ -102,7 +103,7 @@ const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    vector<Attribute *> ars;
+    vector<VectorAttribute *> ars;
     ostringstream       ose;
 
     string sg_str;
@@ -409,26 +410,28 @@ string& VirtualNetwork::to_xml(string& xml) const
 {
     const vector<int> empty;
 
-    return to_xml_extended(xml,false, empty, empty);
+    return to_xml_extended(xml,false, empty, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets) const
+        const vector<int>& vnets, const vector<int>& vrs) const
 {
-    return to_xml_extended(xml,true, vms, vnets);
+    return to_xml_extended(xml,true, vms, vnets, vrs);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
-    const vector<int>& vms, const vector<int>& vnets) const
+    const vector<int>& vms, const vector<int>& vnets,
+    const vector<int>& vrs) const
 {
     ostringstream   os;
 
+    string vrouters_xml;
     string template_xml;
     string leases_xml;
     string perm_str;
@@ -444,8 +447,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             perms_to_xml(perm_str)     <<
             "<CLUSTER_ID>"<< cluster_id<< "</CLUSTER_ID>"<<
             "<CLUSTER>"   << cluster   << "</CLUSTER>"   <<
-            "<BRIDGE>"    << bridge    << "</BRIDGE>"    <<
-            "<VLAN>"      << vlan      << "</VLAN>";
+            "<BRIDGE>"    << one_util::escape_xml(bridge)<< "</BRIDGE>" <<
+            "<VLAN>"      << one_util::escape_xml(vlan)  << "</VLAN>";
 
     if (parent_vid != -1)
     {
@@ -467,7 +470,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     if (!phydev.empty())
     {
-        os << "<PHYDEV><![CDATA[" << phydev << "]]></PHYDEV>";
+        os << "<PHYDEV>" << one_util::escape_xml(phydev) << "</PHYDEV>";
     }
     else
     {
@@ -476,7 +479,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     if (!vlan_id.empty())
     {
-        os << "<VLAN_ID><![CDATA[" << vlan_id << "]]></VLAN_ID>";
+        os << "<VLAN_ID>" << one_util::escape_xml(vlan_id) << "</VLAN_ID>";
     }
     else
     {
@@ -484,9 +487,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     }
     os  << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
+    os << vrouters.to_xml(vrouters_xml);
+
     os  << obj_template->to_xml(template_xml);
 
-    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets);
+    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
 
     os << "</VNET>";
 
@@ -526,6 +531,18 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(phydev, "/VNET/PHYDEV", "");
     xpath(vlan_id,"/VNET/VLAN_ID","");
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
+
+    ObjectXML::get_nodes("/VNET/VROUTERS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vrouters.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
 
     // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
@@ -639,15 +656,15 @@ int VirtualNetwork::nic_attribute(
 
     if (!ip.empty())
     {
-        rc = allocate_by_ip(vid, ip, nic, inherit_attrs);
+        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic, inherit_attrs);
     }
     else if (!mac.empty())
     {
-        rc = allocate_by_mac(vid, mac, nic, inherit_attrs);
+        rc = allocate_by_mac(PoolObjectSQL::VM, vid, mac, nic, inherit_attrs);
     }
     else
     {
-        rc = allocate_addr(vid, nic, inherit_attrs);
+        rc = allocate_addr(PoolObjectSQL::VM, vid, nic, inherit_attrs);
     }
 
     //--------------------------------------------------------------------------
@@ -674,6 +691,57 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetwork::vrouter_nic_attribute(
+        VectorAttribute *       nic,
+        int                     vrid,
+        const vector<string>&   inherit_attrs)
+{
+    int     rc = 0;
+    bool    floating;
+    vector<string>::const_iterator it;
+
+    //--------------------------------------------------------------------------
+    //  Set default values from the Virtual Network
+    //--------------------------------------------------------------------------
+
+    nic->replace("NETWORK", name);
+    nic->replace("NETWORK_ID", oid);
+
+    //--------------------------------------------------------------------------
+    //  Get the lease from the Virtual Network
+    //--------------------------------------------------------------------------
+    nic->vector_value("FLOATING_IP", floating);
+
+    if (floating)
+    {
+        string ip  = nic->vector_value("IP");
+        string mac = nic->vector_value("MAC");
+
+        if (!ip.empty())
+        {
+            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip, nic, inherit_attrs);
+        }
+        else if (!mac.empty())
+        {
+            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac, nic, inherit_attrs);
+        }
+        else
+        {
+            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid, nic, inherit_attrs);
+        }
+    }
+
+    if (rc == 0)
+    {
+        vrouters.add(vrid);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualNetwork::process_security_rule(
         VectorAttribute *        rule,
         vector<VectorAttribute*> &new_rules)
@@ -684,19 +752,11 @@ void VirtualNetwork::process_security_rule(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
+int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
-    for (vector<Attribute *>::iterator it=var.begin(); it!=var.end(); it++)
+    for (vector<VectorAttribute *>::iterator it=var.begin(); it!=var.end(); it++)
     {
-        VectorAttribute * oar = dynamic_cast<VectorAttribute *>(*it);
-
-        if (oar == 0)
-        {
-            error_msg = "Invalid format for address range";
-            return -1;
-        }
-
-        VectorAttribute * ar = oar->clone();
+        VectorAttribute * ar = (*it)->clone();
 
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
@@ -712,18 +772,11 @@ int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
 
 int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
-    vector<Attribute *> var;
+    const VectorAttribute * ar = ars_tmpl->get("AR");
 
-    if (ars_tmpl->get("AR", var) <= 0)
+    if ( ar == 0 )
     {
-        return 0;
-    }
-
-    const VectorAttribute * ar = dynamic_cast<const VectorAttribute *>(var[0]);
-
-    if (ar == 0)
-    {
-        error_msg = "Wrong AR definition";
+        error_msg = "Wrong AR definition. AR vector attribute is missing.";
         return -1;
     }
 
@@ -746,12 +799,11 @@ int VirtualNetwork::update_ar(
         bool                    keep_restricted,
         string&                 error_msg)
 {
-    vector<Attribute *> tmp_ars;
+    vector<VectorAttribute *> tmp_ars;
 
     if(ars_tmpl->get("AR", tmp_ars) == 0)
     {
         error_msg = "Wrong AR definition. AR vector attribute is missing.";
-
         return -1;
     }
 
@@ -774,16 +826,7 @@ int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
 int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {
-    vector<const Attribute *> vleases;
-    const VectorAttribute *   lease = 0;
-
-    if (leases_template->get("LEASES", vleases) <= 0)
-    {
-        error_msg = "Empty lease description.";
-        return -1;
-    }
-
-   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+    const VectorAttribute * lease = leases_template->get("LEASES");
 
     if ( lease == 0 )
     {
@@ -841,17 +884,7 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
 int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {
-
-    vector<const Attribute *> vleases;
-    const VectorAttribute *   lease = 0;
-
-    if (leases_template->get("LEASES", vleases) <= 0)
-    {
-        error_msg = "Empty lease description.";
-        return -1;
-    }
-
-   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+    const VectorAttribute * lease = leases_template->get("LEASES");
 
     if ( lease == 0 )
     {
@@ -863,7 +896,6 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
     string  ip  = lease->vector_value("IP");
     string  mac = lease->vector_value("MAC");
-
 
     if (ip.empty() && mac.empty())
     {

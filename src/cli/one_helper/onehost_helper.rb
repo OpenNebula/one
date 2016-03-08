@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -413,25 +413,34 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         wilds = host.wilds
 
+        begin
+            pcis = [host.to_hash['HOST']['HOST_SHARE']['PCI_DEVICES']['PCI']]
+            pcis = pcis.flatten.compact
+        rescue
+            pcis = nil
+        end
+
         host.delete_element("TEMPLATE/VM")
         host.delete_element("TEMPLATE_WILDS")
 
         puts host.template_str
 
+        if pcis && !pcis.empty?
+            print_pcis(pcis)
+        end
+
         puts
         CLIHelper.print_header("WILD VIRTUAL MACHINES", false)
         puts
 
-        format = "%30s %36s %4s %10s"
+        format = "%-30.30s %36s %4s %10s"
         CLIHelper.print_header(format % ["NAME", "IMPORT_ID", "CPU", "MEMORY"],
                                true)
 
         wilds.each do |wild|
           if wild['IMPORT_TEMPLATE']
             wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
-            name   = wild_tmplt.select { |line|
-                      line[/^NAME/]
-                     }[0].split("=")[1].gsub("\"", " ").strip
+            name   = wild['VM_NAME']
             import = wild_tmplt.select { |line|
                        line[/^IMPORT_VM_ID/]
                      }[0].split("=")[1].gsub("\"", " ").strip
@@ -456,5 +465,46 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         onevm_helper=OneVMHelper.new
         onevm_helper.client=@client
         onevm_helper.list_pool({:filter=>["HOST=#{host.name}"]}, false)
+    end
+
+    def print_pcis(pcis)
+        puts
+        CLIHelper.print_header("PCI DEVICES", false)
+        puts
+
+        table=CLIHelper::ShowTable.new(nil, self) do
+            column :VM, "Used by VM", :size => 5, :left => false do |d|
+                if d["VMID"] == "-1"
+                    ""
+                else
+                    d["VMID"]
+                end
+            end
+
+            column :ADDR, "PCI Address", :size => 7, :left => true do |d|
+                d["SHORT_ADDRESS"]
+            end
+
+            column :TYPE, "Type", :size => 14, :left => true do |d|
+                d["TYPE"]
+            end
+
+            column :CLASS, "Class", :size => 12, :left => true do |d|
+                d["CLASS_NAME"]
+            end
+
+            column :NAME, "Name", :size => 50, :left => true do |d|
+                d["DEVICE_NAME"]
+            end
+
+            column :VENDOR, "Vendor", :size => 8, :left => true do |d|
+                d["VENDOR_NAME"]
+            end
+
+            default :VM, :ADDR, :TYPE, :NAME
+
+        end
+
+        table.show(pcis)
     end
 end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -123,6 +123,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                     lcm_action = LifeCycleManager::PROLOG_SUCCESS;
                     break;
 
@@ -188,6 +189,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                     lcm_action = LifeCycleManager::PROLOG_FAILURE;
                     break;
 

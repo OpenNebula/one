@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,12 +33,30 @@ protected:
                         const string& help)
         :Request(method_name, "A:siiiiiiiiii", help){};
 
+    RequestManagerChmod(const string& method_name,
+                        const string& params,
+                        const string& help)
+        :Request(method_name, params, help){};
+
     ~RequestManagerChmod(){};
 
     /* -------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
+
+    static ErrorCode chmod( PoolSQL * pool,
+                            int oid,
+                            int owner_u,
+                            int owner_m,
+                            int owner_a,
+                            int group_u,
+                            int group_m,
+                            int group_a,
+                            int other_u,
+                            int other_m,
+                            int other_a,
+                            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -67,6 +85,7 @@ class TemplateChmod : public RequestManagerChmod
 public:
     TemplateChmod():
         RequestManagerChmod("TemplateChmod",
+                            "A:siiiiiiiiiib"
                             "Changes permission bits of a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -75,6 +94,9 @@ public:
     };
 
     ~TemplateChmod(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -113,6 +135,17 @@ public:
 
     ~ImageChmod(){};
 
+    static ErrorCode chmod( int oid,
+                            int owner_u,
+                            int owner_m,
+                            int owner_a,
+                            int group_u,
+                            int group_m,
+                            int group_a,
+                            int other_u,
+                            int other_m,
+                            int other_a,
+                            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -171,7 +204,62 @@ public:
 
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterChmod: public RequestManagerChmod
+{
+public:
+    VirtualRouterChmod():
+        RequestManagerChmod("VirtualRouterChmod",
+                            "Changes permission bits of a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterChmod(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceChmod: public RequestManagerChmod
+{
+public:
+    MarketPlaceChmod():
+        RequestManagerChmod("MarketPlaceChmod",
+                           "Changes permission bits of a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceChmod(){};
+
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppChmod: public RequestManagerChmod
+{
+public:
+    MarketPlaceAppChmod():
+        RequestManagerChmod("MarketPlaceAppChmod",
+                           "Changes permission bits of a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppChmod(){};
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

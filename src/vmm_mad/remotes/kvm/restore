@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,16 +16,41 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+DRIVER_PATH=$(dirname $0)
 
-# Checkpoint file: /var/lib/one//datastores/<DS_ID>/<VM_ID>/checkpoint
+source $DRIVER_PATH/kvmrc
+source $DRIVER_PATH/../../scripts_common.sh
+
 FILE=$1
-FILE_XML=${FILE}.xml
-
 HOST=$2
 DEPLOY_ID=$3
-VMID=$4
+
+VM_ID=$4
+DS_ID=$5
+
+FILE_XML=${FILE}.xml
+
+#-------------------------------------------------------------------------------
+# Handle DRV_MESSAGE coming from stdin
+#-------------------------------------------------------------------------------
+
+if [ ! -t 0 ]; then
+    # There is data in stdin, read it
+    DRV_MESSAGE=$(cat)
+
+    # The data is the driver message. Extracting the System DS TM_MAD
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
+
+    # If there is a specific hook for this TM_MAD call it:
+    RESTORE_TM_FILE="${DRIVER_PATH}/restore.${TM_MAD}"
+
+    if [ -x "$RESTORE_TM_FILE" ]; then
+        echo "$DRV_MESSAGE" | $RESTORE_TM_FILE $@
+    fi
+fi
+
+# Checkpoint file: /var/lib/one//datastores/<DS_ID>/<VM_ID>/checkpoint
 
 DS_ID=$(basename $(dirname $(dirname $FILE)))
 DS_LOCATION=$(dirname $(dirname $(dirname $FILE)))
@@ -41,7 +66,7 @@ virsh --connect $LIBVIRT_URI save-image-dumpxml $FILE > $FILE_XML
 # DS_ID where the checkpoint is placed. This is done in case there was a
 # system DS migration
 
-sed -i "s%$DS_LOCATION/[0-9]\+/$VMID/%$DS_LOCATION/$DS_ID/$VMID/%g" $FILE_XML
+sed -i "s%$DS_LOCATION/[0-9]\+/$VM_ID/%$DS_LOCATION/$DS_ID/$VM_ID/%g" $FILE_XML
 EOF
 )
 

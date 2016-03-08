@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -173,6 +173,14 @@ error_common:
 
 string& VMTemplate::to_xml(string& xml) const
 {
+    return to_xml(xml, obj_template);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
+{
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
@@ -186,7 +194,7 @@ string& VMTemplate::to_xml(string& xml) const
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << obj_template->to_xml(template_xml)
+            << tmpl->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
     xml = oss.str();
@@ -212,7 +220,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(uname,      "/VMTEMPLATE/UNAME",   "not_found");
     rc += xpath(gname,      "/VMTEMPLATE/GNAME",   "not_found");
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
-    rc += xpath(regtime,    "/VMTEMPLATE/REGTIME", 0);
+    rc += xpath<time_t>(regtime, "/VMTEMPLATE/REGTIME", 0);
 
     // Permissions
     rc += perms_from_xml();
@@ -236,6 +244,18 @@ int VMTemplate::from_xml(const string& xml)
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+bool VMTemplate::is_vrouter()
+{
+    bool vr;
+
+    get_template_attribute("VROUTER", vr);
+
+    return vr;
 }
 
 /* ------------------------------------------------------------------------ */

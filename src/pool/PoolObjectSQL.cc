@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -526,9 +526,9 @@ string& PoolObjectSQL::lock_db_to_xml(string& xml) const
     int locked_int = locked ? 1 : 0;
 
     oss << "<LOCK>"
-            << "<LOCKED>"           << locked_int   << "</LOCKED>"
-            << "<OWNER><![CDATA["   << lock_owner   << "]]></OWNER>"
-            << "<EXPIRES>"          << lock_expires << "</EXPIRES>"
+            << "<LOCKED>"  << locked_int   << "</LOCKED>"
+            << "<OWNER>"   << one_util::escape_xml(lock_owner) << "</OWNER>"
+            << "<EXPIRES>" << lock_expires << "</EXPIRES>"
         << "</LOCK>";
 
     xml = oss.str();
@@ -545,7 +545,7 @@ int PoolObjectSQL::lock_db_from_xml()
 
     rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
     rc += xpath(lock_owner,   "/*/LOCK/OWNER", "");
-    rc += xpath(lock_expires, "/*/LOCK/EXPIRES", 0);
+    rc += xpath<time_t>(lock_expires, "/*/LOCK/EXPIRES", 0);
 
     locked = locked_int;
 

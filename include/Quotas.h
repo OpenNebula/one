@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,7 +35,8 @@ public:
         VM,             /**< Checks VM usage (MEMORY, CPU and VMS) */
         NETWORK,        /**< Checks Network usage (leases) */
         IMAGE,          /**< Checks Image usage (RVMs using it) */
-        VIRTUALMACHINE  /**< Checks all VM associated resources VM, NETWORK, IMAGE */
+        VIRTUALMACHINE, /**< Checks all VM associated resources VM, NETWORK, IMAGE */
+        VIRTUALROUTER   /**< Checks the Virtual Router NETWORK usage (leases) */
     };
 
     /**
@@ -67,17 +68,6 @@ public:
      int ds_get(const string& id, VectorAttribute **va)
      {
          return datastore_quota.get_quota(id, va);
-     }
-
-    /**
-     *  Delete VM related usage (network, image and compute) from quota counters.
-     *    @param tmpl template for the image, with usage
-     */
-     void vm_del(Template * tmpl)
-     {
-        network_quota.del(tmpl);
-        vm_quota.del(tmpl);
-        image_quota.del(tmpl);
      }
 
      /**
@@ -190,6 +180,14 @@ public:
     {
         quota_del(DATASTORE, uid, gid, tmpl);
     }
+
+     /**
+      *  Delete a set of Datastore usage attributes from quota counters. Each
+      *  quota datastore is associate to a given image. NOTE: The templates
+      *  *ARE FREED* by this function
+      *    @param ds_quotas a map with image_id and a tmpl with usage attributes
+      */
+    static void ds_del(map<int, Template *>& ds_quotas);
 
     /**
      *  Delete usage from the given quota counters.

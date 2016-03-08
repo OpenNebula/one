@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to import a file into the marketplace. The source file
+# is an opaque representation of an OpenNebula object, like a image file or a
+# tar.gz with several vm template or flow disk images
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../../datastore/libfs.sh
+
+UTILS_PATH="${DRIVER_PATH}/../../datastore"
+
+# -------- Get arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /MARKET_DRIVER_ACTION_DATA/IMPORT_SOURCE \
+                    /MARKET_DRIVER_ACTION_DATA/FORMAT \
+                    /MARKET_DRIVER_ACTION_DATA/DISPOSE \
+                    /MARKET_DRIVER_ACTION_DATA/SIZE \
+                    /MARKET_DRIVER_ACTION_DATA/MD5 \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BASE_URL \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BRIDGE_LIST \
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR)
+unset i
+
+IMPORT_SOURCE="${XPATH_ELEMENTS[i++]}"
+FORMAT="${XPATH_ELEMENTS[i++]}"
+DISPOSE="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
+MD5="${XPATH_ELEMENTS[i++]}"
+BASE_URL="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
+
+# -------- Copy source to public folder an generarte App data ------------
+
+APPNAME=`generate_image_hash`
+DST_PATH="${PUBLIC_DIR%/}/${APPNAME}"
+SOURCE="${BASE_URL%/}/${APPNAME}"
+
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=`get_destination_host $ID`
+    CP_CMD="$UTILS_PATH/downloader.sh '${IMPORT_SOURCE}' -"
+
+    exec_and_log "eval $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
+                 "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
+
+    #if [ "${DISPOSE}" = "YES" ]; then
+    #TODO This should call a ds operation
+    #fi
+else
+    CP_CMD="$UTILS_PATH/downloader.sh ${IMPORT_SOURCE} ${DST_PATH}"
+    exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
+
+    if [ "${DISPOSE}" = "YES" ]; then
+        #TODO This should call a ds operation
+        exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
+    fi
+fi
+
+cat << EOF
+SOURCE="$SOURCE"
+MD5="$MD5"
+SIZE="$SIZE"
+FORMAT="$FORMAT"
+EOF

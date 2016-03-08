@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,9 +50,8 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -68,17 +67,109 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    VMTemplatePool *         tpool   = static_cast<VMTemplatePool *>(pool);
+    VirtualMachineTemplate * extended_tmpl = 0;
+    VMTemplate *             vm_tmpl;
+
+    PoolObjectAuth perms;
+
+    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool            extended = false;
+    string          str;
+
+    if ( paramList.size() > 2 )
+    {
+        extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    vm_tmpl = tpool->get(oid,true);
+
+    if ( vm_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if (extended)
+    {
+        extended_tmpl = vm_tmpl->clone_template();
+    }
+
+    vm_tmpl->get_permissions(perms);
+
+    vm_tmpl->unlock();
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+    if (extended)
+    {
+        VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (UserPool::authorize(ar) == -1)
+        {
+            att.resp_msg = ar.message;
+            failure_response(AUTHORIZATION, att);
+
+            delete extended_tmpl;
+            return;
+        }
+    }
+
+    vm_tmpl = tpool->get(oid,true);
+
+    if ( vm_tmpl == 0 )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    if (extended)
+    {
+        vm_tmpl->to_xml(str, extended_tmpl);
+
+        delete extended_tmpl;
+    }
+    else
+    {
+        vm_tmpl->to_xml(str);
+    }
+
+    vm_tmpl->unlock();
+
+    success_response(str, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     string& str)
 {
     vector<int> vms;
     vector<int> vnets;
+    vector<int> vrs;
 
     string where_vnets;
     string where_vms;
+    string where_vrs;
 
     bool all_reservations;
     bool all_vms;
+    bool all_vrs;
 
     PoolObjectAuth perms;
 
@@ -92,6 +183,7 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     {
         all_reservations = true;
         all_vms = true;
+        all_vrs = true;
     }
     else
     {
@@ -100,6 +192,9 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
 
         all_vms = RequestManagerPoolInfoFilter::use_filter(att,
                 PoolObjectSQL::VM, false, false, false, "", where_vms);
+
+        all_vrs = RequestManagerPoolInfoFilter::use_filter(att,
+                PoolObjectSQL::VROUTER, false, false, false, "", where_vrs);
     }
 
     if ( all_reservations == true )
@@ -120,5 +215,14 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
         Nebula::instance().get_vmpool()->search(vms, where_vms);
     }
 
-    static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets);
+    if ( all_vrs == true )
+    {
+        vrs.push_back(-1);
+    }
+    else
+    {
+        Nebula::instance().get_vrouterpool()->search(vrs, where_vrs);
+    }
+
+    static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets, vrs);
 };

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,23 +31,22 @@ unsigned int VirtualNetworkPool::_mac_prefix;
 unsigned int VirtualNetworkPool::_default_size;
 
 /* -------------------------------------------------------------------------- */
-
 VirtualNetworkPool::VirtualNetworkPool(
     SqlDB *                             db,
     const string&                       prefix,
     int                                 __default_size,
-    vector<const Attribute *>&          restricted_attrs,
-    vector<const Attribute *>           hook_mads,
+    vector<const SingleAttribute *>&    restricted_attrs,
+    vector<const VectorAttribute *>&    hook_mads,
     const string&                       remotes_location,
-    const vector<const Attribute *>&    _inherit_attrs):
-    PoolSQL(db, VirtualNetwork::table, true, true)
+    const vector<const SingleAttribute *>& _inherit_attrs):
+        PoolSQL(db, VirtualNetwork::table, true, true)
 {
     istringstream iss;
     size_t        pos   = 0;
     int           count = 0;
     unsigned int  tmp;
 
-    vector<const Attribute *>::const_iterator it;
+    vector<const SingleAttribute *>::const_iterator it;
 
     string mac = prefix;
 
@@ -82,9 +81,7 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
-        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
-
-        inherit_attrs.push_back(sattr->value());
+        inherit_attrs.push_back((*it)->value());
     }
 }
 
@@ -239,24 +236,27 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s,
     return vnet;
 }
 
-int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
-                                      int     nic_id,
-                                      int     uid,
-                                      int     vid,
-                                      string& error)
+int VirtualNetworkPool::nic_attribute(
+        PoolObjectSQL::ObjectType   ot,
+        VectorAttribute*            nic,
+        int                         nic_id,
+        int                         uid,
+        int                         vid,
+        string&                     error)
 {
+    int              rc;
     string           network;
     VirtualNetwork * vnet = 0;
 
     nic->replace("NIC_ID", nic_id);
 
-    if (!(network = nic->vector_value("NETWORK")).empty())
-    {
-        vnet = get_nic_by_name (nic, network, uid, error);
-    }
-    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    if (!(network = nic->vector_value("NETWORK_ID")).empty())
     {
         vnet = get_nic_by_id(network, error);
+    }
+    else if (!(network = nic->vector_value("NETWORK")).empty())
+    {
+        vnet = get_nic_by_name (nic, network, uid, error);
     }
     else //Not using a pre-defined network
     {
@@ -268,7 +268,14 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
         return -1;
     }
 
-    int rc = vnet->nic_attribute(nic, vid, inherit_attrs);
+    if (ot == PoolObjectSQL::VM)
+    {
+        rc = vnet->nic_attribute(nic, vid, inherit_attrs);
+    }
+    else // (ot == PoolObjectSQL::VROUTER)
+    {
+        rc = vnet->vrouter_nic_attribute(nic, vid, inherit_attrs);
+    }
 
     if ( rc == 0 )
     {
@@ -291,16 +298,22 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
-                                       int uid,
-                                       AuthRequest * ar)
+void VirtualNetworkPool::authorize_nic(
+        PoolObjectSQL::ObjectType   ot,
+        VectorAttribute *           nic,
+        int                         uid,
+        AuthRequest *               ar)
 {
     string           network;
     VirtualNetwork * vnet = 0;
     PoolObjectAuth   perm;
     string           error;
 
-    if (!(network = nic->vector_value("NETWORK")).empty())
+    if (!(network = nic->vector_value("NETWORK_ID")).empty())
+    {
+        vnet = get_nic_by_id(network, error);
+    }
+    else if (!(network = nic->vector_value("NETWORK")).empty())
     {
         vnet = get_nic_by_name (nic, network, uid, error);
 
@@ -308,10 +321,6 @@ void VirtualNetworkPool::authorize_nic(VectorAttribute * nic,
         {
             nic->replace("NETWORK_ID", vnet->get_oid());
         }
-    }
-    else if (!(network = nic->vector_value("NETWORK_ID")).empty())
-    {
-        vnet = get_nic_by_id(network, error);
     }
     else //Not using a pre-defined network
     {

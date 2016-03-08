@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -12,6 +28,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
   var BrowserInfo = require('utils/browser-info');
+  var OpenNebulaDatastore = require('opennebula/datastore');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -76,15 +93,21 @@ define(function(require) {
     var ds_id = $('#file_datastore .resource_list_select', context).val();
     var ds_id_raw = $('#file_datastore_raw .resource_list_select', context).val();
 
-    // Filter out DS with type image (0) or system (1)
-    var filter_att = ["TYPE", "TYPE"];
-    var filter_val = ["0", "1"];
+    ResourceSelect.insert({
+        context: $('#file_datastore', context),
+        resourceName: 'Datastore',
+        initValue: ds_id,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.FILE_DS
+      });
 
-    ResourceSelect.insert('div#file_datastore', context, "Datastore",
-                        ds_id, false, null, filter_att, filter_val);
-
-    ResourceSelect.insert('div#file_datastore_raw', context, "Datastore",
-                        ds_id_raw, false, null, filter_att, filter_val);
+    ResourceSelect.insert({
+        context: $('#file_datastore_raw', context),
+        resourceName: 'Datastore',
+        initValue: ds_id_raw,
+        filterKey: 'TYPE',
+        filterValue: '' + OpenNebulaDatastore.TYPES.FILE_DS
+      });
 
     return false;
   }
@@ -156,7 +179,7 @@ define(function(require) {
       });
 
       that.uploader.on('progress', function() {
-        $('span.meter', $('div[id="files-' + fileName + 'progressBar"]')).css('width', that.uploader.progress() * 100.0 + '%')
+        $('span.meter', $('div[id="files-' + fileName + 'progressBar"]')).css('width', this.progress() * 100.0 + '%')
       });
     }
 

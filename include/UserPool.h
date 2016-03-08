@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ public:
 
     UserPool(SqlDB * db,
              time_t  __session_expiration_time,
-             vector<const Attribute *> hook_mads,
+             vector<const VectorAttribute *> hook_mads,
              const string&             remotes_location,
              bool                      is_federation_slave);
 
@@ -114,7 +114,7 @@ public:
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(User * user);
+    int update(PoolObjectSQL * objsql);
 
     /**
      * Update a particular User's Quotas

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -6,7 +22,7 @@ define(function(require) {
   require('foundation-datatables');
   var Locale = require('utils/locale');
   var CanImportWilds = require('../utils/can-import-wilds');
-  var OpenNebulaVM = require('opennebula/vm');
+  var OpenNebulaHost = require('opennebula/host');
   var OpenNebulaAction = require('opennebula/action');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
@@ -69,31 +85,28 @@ define(function(require) {
     });
 
     if (that.element.TEMPLATE.VM) {
-      wilds = that.element.TEMPLATE.VM;
+      var wilds = that.element.TEMPLATE.VM;
 
       if (!$.isArray(wilds)) { // If only 1 VM convert to array
         wilds = [wilds];
       }
 
-      i = 0;
+      $.each(wilds, function(index, elem) {
+        var name      = elem.VM_NAME;
+        var deploy_id = elem.DEPLOY_ID;
+        var template = elem.IMPORT_TEMPLATE;
 
-      $.each(wilds, function() {
-        var name      = this.VM_NAME;
-        var safe_name = i;
-        i += 1;
-        var deploy_id = this.DEPLOY_ID;
+        if (name && deploy_id && template) {
+          var wilds_list_array = [
+            [
+              '<input type="checkbox" class="import_wild_checker import_' + index + '" unchecked/>',
+              name,
+              deploy_id
+            ]
+          ];
 
-        var wilds_list_array = [
-          [
-            '<input type="checkbox" class="import_wild_checker import_' + safe_name + '" unchecked/>',
-            name,
-            deploy_id
-          ]
-        ];
-
-        that.dataTableWildHosts.fnAddData(wilds_list_array);
-
-        $(".import_" + safe_name, that.dataTableWildHosts).data("wild_template", atob(this.IMPORT_TEMPLATE));
+          that.dataTableWildHosts.fnAddData(wilds_list_array);
+        }
       });
     }
 
@@ -103,8 +116,8 @@ define(function(require) {
     // Enable the import button when at least a VM is selected
     $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
 
-    $(".import_wild_checker", context).off("change");
-    $(".import_wild_checker", context).on("change", function(){
+    context.off("change", ".import_wild_checker");
+    context.on("change", ".import_wild_checker", function(){
       if ($(".import_wild_checker:checked", context).length == 0){
         $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
       } else {
@@ -119,34 +132,25 @@ define(function(require) {
       $("#import_wilds", context).html('<i class="fa fa-spinner fa-spin"></i>');
 
       $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-        var vm_json = {
-          "vm": {
-            "vm_raw": $(this).data("wild_template")
+        var importHostId = that.element.ID;
+        var wild_row       = $(this).closest('tr');
+
+        var aData = that.dataTableWildHosts.fnGetData(wild_row);
+        var vmName = aData[1];
+
+        var dataJSON = {
+          'id': importHostId,
+          'extra_param': {
+            'name': vmName
           }
         };
 
-        var import_host_id = that.element.ID;
-        var wild_row       = $(this).closest('tr');
-
         // Create the VM in OpenNebula
-        OpenNebulaVM.create({
+        OpenNebulaHost.import_wild({
           timeout: true,
-          data: vm_json,
+          data: dataJSON,
           success: function(request, response) {
             OpenNebulaAction.clear_cache("VM");
-
-            var extra_info = {};
-
-            extra_info['host_id'] = import_host_id;
-            extra_info['ds_id']   = -1;
-            extra_info['enforce'] = false;
-
-            // Deploy the VM
-            Sunstone.runAction("VM.silent_deploy_action",
-                               response.VM.ID,
-                               extra_info);
-
-            // Notify
             Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
 
             // Delete row (shouldn't be there in next monitorization)

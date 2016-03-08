@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,6 +31,8 @@ fi
 . $LIB_LOCATION/sh/scripts_common.sh
 
 DRIVER_PATH=$(dirname $0)
+CEPH_UTILS=${DRIVER_PATH}/ceph_utils.sh
+
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/ceph.conf
 
@@ -49,7 +51,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 unset i
 
@@ -58,6 +61,7 @@ POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 RBD_SRC="${XPATH_ELEMENTS[i++]}"
 SNAP_ID="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
+CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -70,21 +74,30 @@ if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
 SNAP_DELETE_CMD=$(cat <<EOF
-    set -e
+    RBD="${RBD}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    rbd_check_2 $RBD_SRC
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
+    RBD_TGT=\$(rbd_find_snap $RBD_SRC $SNAP_ID)
+
+    if [ -z "\$RBD_TGT" ]; then
+        echo "Target RBD not found." >&2
         exit 1
     fi
 
-    $RBD snap unprotect $RBD_SRC-$SNAP_ID@$SNAP_ID
-    $RBD snap rm $RBD_SRC-$SNAP_ID@$SNAP_ID
-    $RBD rm $RBD_SRC-$SNAP_ID
+    $RBD snap unprotect \${RBD_TGT}@$SNAP_ID
+    $RBD snap rm \${RBD_TGT}@$SNAP_ID
+
+    if [ "\${RBD_TGT}" != "$RBD_SRC" ]; then
+        rbd_rename_rm $RBD_SRC \${RBD_TGT}
+    fi
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$SNAP_DELETE_CMD" \
+ssh_exec_and_log_stdin "$DST_HOST" "$SNAP_DELETE_CMD" "$CEPH_UTILS" \
                  "Error deleting snapshot $RBD_SRC-$SNAP_ID@$SNAP_ID"

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -6,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -14,6 +31,8 @@ define(function(require) {
   var RESOURCE = "Zone";
   var XML_ROOT = "ZONE";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 4;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -25,6 +44,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -42,6 +62,7 @@ define(function(require) {
       Locale.tr("ID"),
       Locale.tr("Name"),
       Locale.tr("Endpoint"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -75,7 +96,8 @@ define(function(require) {
                              element.ID + '"/>',
         element.ID,
         element.NAME,
-        element.TEMPLATE.ENDPOINT
+        element.TEMPLATE.ENDPOINT,
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });

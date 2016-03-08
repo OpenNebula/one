@@ -28,7 +28,7 @@
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
         <!-- STATE values,
-        see http://opennebula.org/_media/documentation:rel3.6:states-complete.png
+        see http://docs.opennebula.org/stable/user/references/vm_states.html
 
           INIT      = 0
           PENDING   = 1
@@ -105,7 +105,9 @@
           DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
           DISK_SNAPSHOT        = 57,
           DISK_SNAPSHOT_REVERT = 58,
-          DISK_SNAPSHOT_DELETE = 59
+          DISK_SNAPSHOT_DELETE = 59,
+          PROLOG_MIGRATE_UNKNOWN = 60,
+          PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="PREV_STATE" type="xs:integer"/>
@@ -114,25 +116,25 @@
         <xs:element name="STIME" type="xs:integer"/>
         <xs:element name="ETIME" type="xs:integer"/>
         <xs:element name="DEPLOY_ID" type="xs:string"/>
+        <xs:element name="MONITORING">
+        <!--
+          <xs:complexType>
+            <xs:all>
+              <- Percentage of 1 CPU consumed (two fully consumed cpu is 200) ->
+              <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
 
-        <!-- MEMORY consumption in kilobytes -->
-        <xs:element name="MEMORY" type="xs:integer"/>
+              <- MEMORY consumption in kilobytes ->
+              <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 
-        <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 200) -->
-        <xs:element name="CPU" type="xs:integer"/>
+              <- NETTX: Sent bytes to the network ->
+              <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 
-        <!-- NET_TX: Sent bytes to the network -->
-        <xs:element name="NET_TX" type="xs:integer"/>
-
-        <!-- NET_RX: Received bytes from the network -->
-        <xs:element name="NET_RX" type="xs:integer"/>
-
-        <!-- DISK_ACTUAL_SIZE: Real storage usage for the VM (mb) -->
-        <xs:element name="DISK_ACTUAL_SIZE" type="xs:integer"/>
-
-        <!-- DISK_VIRTUAL_SIZE: Virtual storage usage for the VM (mb) -->
-        <xs:element name="DISK_VIRTUAL_SIZE" type="xs:integer"/>
-
+              <- NETRX: Received bytes from the network ->
+              <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        -->
+        </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
         <xs:element name="HISTORY_RECORDS">
@@ -193,8 +195,30 @@
                       DISK_DETACH_ACTION      = 22
                       NIC_ATTACH_ACTION       = 23
                       NIC_DETACH_ACTION       = 24
+                      DISK_SNAPSHOT_CREATE_ACTION = 25
+                      DISK_SNAPSHOT_DELETE_ACTION = 26
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="DISK_ID" type="xs:integer"/>
+              <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="DATE" type="xs:integer"/>
+                    <xs:element name="ID" type="xs:integer"/>
+                    <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="PARENT" type="xs:integer"/>
+                    <xs:element name="SIZE" type="xs:integer"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

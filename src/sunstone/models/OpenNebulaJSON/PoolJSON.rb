@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,4 +30,7 @@ module OpenNebulaJSON
     class ZonePoolJSON < OpenNebula::ZonePool; include JSONUtils; end
     class SecurityGroupPoolJSON < OpenNebula::SecurityGroupPool; include JSONUtils; end
     class VdcPoolJSON < OpenNebula::VdcPool; include JSONUtils; end
+    class VirtualRouterPoolJSON < OpenNebula::VirtualRouterPool; include JSONUtils; end
+    class MarketPlacePoolJSON < OpenNebula::MarketPlacePool; include JSONUtils; end
+    class MarketPlaceAppPoolJSON < OpenNebula::MarketPlaceAppPool; include JSONUtils; end
 end

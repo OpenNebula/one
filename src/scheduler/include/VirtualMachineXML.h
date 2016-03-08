@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -91,6 +91,11 @@ public:
         return (resched == 1);
     }
 
+    bool is_resume() const
+    {
+        return resume;
+    }
+
     const string& get_rank()
     {
         return rank;
@@ -111,7 +116,8 @@ public:
         return ds_requirements;
     }
 
-    void get_requirements (int& cpu, int& memory, long long& disk);
+    void get_requirements (int& cpu, int& memory, long long& disk,
+        vector<VectorAttribute *> &pci);
 
     map<int,long long> get_storage_usage();
 
@@ -335,6 +341,7 @@ protected:
     int   dsid;
 
     int   resched;
+    bool  resume;
 
     int         memory;
     float       cpu;

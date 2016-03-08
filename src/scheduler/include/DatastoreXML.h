@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 #define DATASTORE_XML_H_
 
 #include "ObjectXML.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 
@@ -92,11 +93,32 @@ public:
         return monitored;
     };
 
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auth);
 
 private:
 
     int oid;
     int cluster_id;
+
+    int uid;
+    int gid;
+
+    int owner_u;
+    int owner_m;
+    int owner_a;
+
+    int group_u;
+    int group_m;
+    int group_a;
+
+    int other_u;
+    int other_m;
+    int other_a;
 
     long long free_mb; /**< Free disk for VMs (in MB). */
 

@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="row" name="str_ar_tab_id" str_ar_tab_id="{{str_ar_tab_id}}">
   <div class="large-12 columns">
     <input wizard_field="TYPE" type="radio" name="{{str_ar_tab_id}}_ar_type" id="{{str_ar_tab_id}}_ar_type_ip4" value="IP4"/><label for="{{str_ar_tab_id}}_ar_type_ip4">{{tr "IPv4"}}</label>
@@ -7,7 +23,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-6 columns">
+  <div class="medium-6 columns">
     <div class="row collapse ar_input type_ip4 type_ip4_6">
       <label for="{{str_ar_tab_id}}_ip_start">{{tr "IP Start"}}:
         <span class="tip">{{tr "First IP address"}}</span>
@@ -21,7 +37,7 @@
       <input wizard_field="MAC" type="text" name="MAC" id="{{str_ar_tab_id}}_mac_start" />
     </div>
   </div>
-  <div class="large-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
     <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}:
       <span class="tip">{{tr "Number of addresses in the range"}}</span>
     </label>
@@ -29,13 +45,13 @@
   </div>
 </div>
 <div class="row">
-  <div class="large-6 columns ar_input type_ip4_6 type_ip6">
+  <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
     <label for="{{str_ar_tab_id}}_global_prefix">{{tr "Global prefix"}}:
       <span class="tip">{{tr "IPv6 global address prefix to create leases"}}</span>
     </label>
     <input wizard_field="GLOBAL_PREFIX" type="text" name="GLOBAL_PREFIX" id="{{str_ar_tab_id}}_global_prefix"/>
   </div>
-  <div class="large-6 columns ar_input type_ip4_6 type_ip6">
+  <div class="medium-6 columns ar_input type_ip4_6 type_ip6">
     <label for="{{str_ar_tab_id}}_ula_prefix">{{tr "ULA prefix"}}:
       <span class="tip">{{tr "IPv6 unique local address (ULA) prefix to create leases"}}</span>
     </label>

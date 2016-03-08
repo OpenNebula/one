@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     This module insert a row with the name of the resource.
@@ -69,8 +85,11 @@ define(function(require) {
     if (Config.isTabActionEnabled(tabName, resourceType + '.chown')) {
       context.off("click", "#div_edit_chg_owner_link");
       context.on("click", "#div_edit_chg_owner_link", function() {
-          var tr_context = $(this).parents("tr");
-          ResourceSelect.insert("#value_td_owner", context, "User", element.UID, false);
+          ResourceSelect.insert({
+              context: $('#value_td_owner', context),
+              resourceName: 'User',
+              initValue: element.UID
+            });
         });
 
       context.off("change", "#value_td_owner .resource_list_select");
@@ -85,7 +104,11 @@ define(function(require) {
     if (Config.isTabActionEnabled(tabName, resourceType + '.chgrp')) {
       context.off("click", "#div_edit_chg_group_link");
       context.on("click", "#div_edit_chg_group_link", function() {
-          ResourceSelect.insert("#value_td_group", context, "Group", element.GID, false);
+          ResourceSelect.insert({
+              context: $('#value_td_group', context),
+              resourceName: 'Group',
+              initValue: element.GID
+            });
         });
 
       context.off("change", "#value_td_group .resource_list_select");

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,7 +65,11 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['template_raw'])
+            if !params['append'].nil?
+                super(params['template_raw'], params['append'])
+            else
+                super(params['template_raw'])
+            end
         end
 
         def set_quota(params=Hash.new)

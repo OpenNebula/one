@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -73,8 +89,7 @@ define(function(require) {
 
   function _setup(context) {
     var  that = this;
-    Tips.setup(context);
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
 
     context.on("change", "input[name='req_select']", function() {
       if ($("input[name='req_select']:checked").val() == "host_select") {
@@ -203,11 +218,11 @@ define(function(require) {
       var selected_clusters = this.clustersTable.retrieveResourceTableSelect();
 
       $.each(selected_hosts, function(index, hostId) {
-        req_string.push('ID=\\"'+hostId+'\\"');
+        req_string.push('ID="'+hostId+'"');
       });
 
       $.each(selected_clusters, function(index, clusterId) {
-        req_string.push('CLUSTER_ID=\\"'+clusterId+'\\"');
+        req_string.push('CLUSTER_ID="'+clusterId+'"');
       });
 
       $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));

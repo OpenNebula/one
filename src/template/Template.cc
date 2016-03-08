@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -264,28 +264,6 @@ int Template::replace(const string& name, const string& value)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Template::remove(const string& name, vector<Attribute *>& values)
-{
-    multimap<string, Attribute *>::iterator         i;
-    pair<multimap<string, Attribute *>::iterator,
-    multimap<string, Attribute *>::iterator>        index;
-    int                                             j;
-
-    index = attributes.equal_range(name);
-
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    {
-        values.push_back(i->second);
-    }
-
-    attributes.erase(index.first, index.second);
-
-    return j;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Template::erase(const string& name)
 {
     multimap<string, Attribute *>::iterator         i;
@@ -342,196 +320,44 @@ Attribute * Template::remove(Attribute * att)
     return 0;
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Template::get(
-    const string& name,
-    vector<const Attribute*>& values) const
+bool Template::get(const string& name, string& value) const
 {
-    multimap<string, Attribute *>::const_iterator       i;
-    pair<multimap<string, Attribute *>::const_iterator,
-    multimap<string, Attribute *>::const_iterator>      index;
-    int                                                 j;
+    const SingleAttribute * s = __get<SingleAttribute>(name);
 
-    index = attributes.equal_range(name);
-
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    {
-        values.push_back(i->second);
-    }
-
-    return j;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Template::get(
-    const string& name,
-    vector<Attribute*>& values)
-{
-    multimap<string, Attribute *>::iterator       i;
-    pair<multimap<string, Attribute *>::iterator,
-    multimap<string, Attribute *>::iterator>      index;
-    int                                           j;
-
-    index = attributes.equal_range(name);
-
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
-    {
-        values.push_back(i->second);
-    }
-
-    return j;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Template::get(
-        const string& name,
-        string& value) const
-{
-    vector<const Attribute *>   attrs;
-    const SingleAttribute *     sattr;
-    int                         rc;
-    rc = get(name,attrs);
-
-    if  (rc == 0)
+    if ( s == 0 )
     {
         value = "";
-        return;
+        return false;
     }
 
-    sattr = dynamic_cast<const SingleAttribute *>(attrs[0]);
+    value = s->value();
 
-    if ( sattr != 0 )
-    {
-        value = sattr->value();
-    }
-    else
-    {
-        value="";
-    }
+	return true;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Template::get(
-        const string& name,
-        int&    value) const
+bool Template::get(const string& name, bool& value) const
 {
-    string sval;
+    const SingleAttribute * s = __get<SingleAttribute>(name);
 
-    get(name, sval);
+    value = false;
 
-    if ( sval == "" )
+    if ( s == 0 )
     {
-        value = 0;
         return false;
     }
 
-    istringstream iss(sval);
+    string sval = s->value();
 
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = 0;
-        return false;
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool Template::get(
-        const string& name,
-        long long&    value) const
-{
-    string sval;
-
-    get(name, sval);
-
-    if ( sval == "" )
-    {
-        value = 0;
-        return false;
-    }
-
-    istringstream iss(sval);
-
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = 0;
-        return false;
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool Template::get(
-        const string&   name,
-        float&          value) const
-{
-    string sval;
-
-    get(name, sval);
-
-    if ( sval == "" )
-    {
-        value = 0;
-        return false;
-    }
-
-    istringstream iss(sval);
-
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = 0;
-        return false;
-    }
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool Template::get(
-        const string&   name,
-        bool&           value) const
-{
-    string sval;
-
-    get(name, sval);
-
-    if ( sval == "" )
-    {
-        value = false;
-        return false;
-    }
-
-    one_util::toupper(sval);
-
-    if ( sval == "YES" )
+    if (one_util::toupper(sval) == "YES")
     {
         value = true;
-    }
-    else
-    {
-        value = false;
     }
 
     return true;
@@ -774,25 +600,37 @@ void Template::rebuild_attributes(const xmlNode * root_element)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Template::set_restricted_attributes( vector<const Attribute *>& rattrs,
-                                vector<string>& restricted_attributes)
+void Template::set_restricted_attributes(vector<const SingleAttribute *>& rattrs,
+    vector<string>& restricted_attributes)
 {
-    const SingleAttribute * sattr;
-    string attr;
-
     for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
     {
-        sattr = static_cast<const SingleAttribute *>(rattrs[i]);
-
-        attr = sattr->value();
-        transform (attr.begin(),attr.end(),attr.begin(),(int(*)(int))toupper);
-
-        restricted_attributes.push_back(attr);
+        string va = rattrs[i]->value();
+        restricted_attributes.push_back(one_util::toupper(va));
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+static int get_attributes(
+        multimap<string, Attribute *>& attributes,
+        const string& name, vector<const Attribute*>& values)
+{
+    multimap<string, Attribute *>::const_iterator       i;
+    pair<multimap<string, Attribute *>::const_iterator,
+    multimap<string, Attribute *>::const_iterator>      index;
+    int                                           j;
+
+    index = attributes.equal_range(name);
+
+    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+    {
+        values.push_back(i->second);
+    }
+
+    return j;
+}
 
 bool Template::check(string& rs_attr, const vector<string> &restricted_attributes)
 {
@@ -811,7 +649,8 @@ bool Template::check(string& rs_attr, const vector<string> &restricted_attribute
             avector = restricted_attributes[i].substr(0,pos);
             vattr   = restricted_attributes[i].substr(pos+1);
 
-            if ((num = get(avector,values)) > 0 ) //Template contains the attr
+            //Template contains the attr
+            if ((num = get_attributes(attributes, avector, values)) > 0 )
             {
                 const VectorAttribute * attr;
 
@@ -834,7 +673,7 @@ bool Template::check(string& rs_attr, const vector<string> &restricted_attribute
         }
         else //Single Attribute
         {
-            if (get(restricted_attributes[i],values) > 0 )
+            if (get_attributes(attributes, restricted_attributes[i], values) > 0)
             {
                 rs_attr = restricted_attributes[i];
                 return true;
@@ -868,6 +707,25 @@ bool Template::has_restricted()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int get_attributes(
+        multimap<string, Attribute *>& attributes,
+        const string& name, vector<Attribute*>& values)
+{
+    multimap<string, Attribute *>::iterator       i;
+    pair<multimap<string, Attribute *>::iterator,
+    multimap<string, Attribute *>::iterator>      index;
+    int                                           j;
+
+    index = attributes.equal_range(name);
+
+    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+    {
+        values.push_back(i->second);
+    }
+
+    return j;
+}
+
 void Template::remove_restricted(const vector<string> &restricted_attributes)
 {
     size_t pos;
@@ -885,7 +743,8 @@ void Template::remove_restricted(const vector<string> &restricted_attributes)
             avector = restricted_attributes[i].substr(0,pos);
             vattr   = restricted_attributes[i].substr(pos+1);
 
-            if ((num = get(avector,values)) > 0 ) //Template contains the attr
+            //Template contains the attr
+            if ((num = get_attributes(attributes, avector,values)) > 0 )
             {
                 VectorAttribute * attr;
 
@@ -931,7 +790,8 @@ void Template::remove_all_except_restricted(const vector<string> &restricted_att
             avector = restricted_attributes[i].substr(0,pos);
             vattr   = restricted_attributes[i].substr(pos+1);
 
-            if ((num = get(avector,values)) > 0 ) //Template contains the attr
+            //Template contains the attr
+            if ((num = get_attributes(attributes, avector,values)) > 0 )
             {
                 VectorAttribute * attr;
 
@@ -953,7 +813,7 @@ void Template::remove_all_except_restricted(const vector<string> &restricted_att
         }
         else //Single Attribute
         {
-            this->get(restricted_attributes[i], restricted);
+            get_attributes(attributes, restricted_attributes[i], restricted);
         }
     }
 

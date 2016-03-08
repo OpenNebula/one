@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,7 +21,7 @@ require 'tmpdir'
 
 
 DEFAULTS={
-    :version => "4.12.0",
+    :version => "4.14.1",
     :date => Time.now.strftime("%Y-%m-%d"),
     :dependencies => []
 }
@@ -55,6 +55,7 @@ GEM_DESCRIPTION={
             ['src/oca/ruby/opennebula.rb', '/lib'],
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
+            ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],

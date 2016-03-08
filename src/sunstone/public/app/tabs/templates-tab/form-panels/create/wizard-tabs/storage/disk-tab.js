@@ -1,9 +1,24 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
    */
 
-  require('nouislider');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -56,7 +71,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    Tips.setup(context);
     that.imageTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
@@ -92,96 +106,6 @@ define(function(require) {
 
     $("[wizard_field]", imageContext).prop('wizard_field_disabled', false);
     $("[wizard_field]", volatileContext).prop('wizard_field_disabled', true);
-
-    // Define the size slider
-    var final_size_input = $("#SIZE", context);
-    var size_input = $("#SIZE_TMP", context);
-    var size_unit  = $("#size_unit", context);
-
-    var current_size_unit = size_unit.val();
-
-    var update_final_size_input = function() {
-      if (current_size_unit == 'MB') {
-        final_size_input.val(Math.floor(size_input.val()));
-      } else {
-        final_size_input.val(Math.floor(size_input.val() * 1024));
-      }
-    }
-
-    var size_slider_change = function(type) {
-      if (type != "move") {
-        var values = $(this).val();
-
-        size_input.val(values / 100);
-
-        update_final_size_input();
-      }
-    };
-
-    var size_slider = $("#size_slider", context).noUiSlider({
-      handles: 1,
-      connect: "lower",
-      range: [0, 5000],
-      start: 1,
-      step: 50,
-      slide: size_slider_change,
-    });
-
-    size_slider.addClass("noUiSlider");
-
-    size_input.change(function() {
-      size_slider.val(this.value * 100)
-
-      update_final_size_input();
-    });
-
-    size_input.val(10);
-    update_final_size_input();
-
-    // init::start is ignored for some reason
-    size_slider.val(1000);
-
-    size_unit.change(function() {
-      var size_unit_val = $('#size_unit :selected', context).val();
-
-      if (current_size_unit != size_unit_val) {
-        current_size_unit = size_unit_val
-
-        if (size_unit_val == 'GB') {
-
-          size_slider.empty().noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [0, 5000],
-            start: 1,
-            step: 50,
-            slide: size_slider_change,
-          });
-
-          var new_val = size_input.val() / 1024;
-
-          size_input.val(new_val);
-          size_slider.val(new_val * 100);
-        } else if (size_unit_val == 'MB') {
-
-          size_slider.empty().noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [0, 204800],
-            start: 1,
-            step: 12800,
-            slide: size_slider_change,
-          });
-
-          var new_val = Math.round(size_input.val() * 1024);
-
-          size_input.val(new_val);
-          size_slider.val(new_val * 100);
-        }
-
-        update_final_size_input();
-      }
-    });
   }
 
   function _retrieve(context) {
@@ -212,11 +136,6 @@ define(function(require) {
       WizardFields.fill($(".image", context), templateJSON);
     } else {
       $('input#' + this.diskTabId + 'radioVolatile', context).click();
-
-      if (templateJSON.SIZE) {
-        $('#SIZE_TMP', context).val(templateJSON.SIZE / 1024)
-      }
-
       WizardFields.fill($(".volatile", context), templateJSON);
     }
 

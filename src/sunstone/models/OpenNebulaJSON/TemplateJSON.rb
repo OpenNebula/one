@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -50,6 +50,7 @@ module OpenNebulaJSON
                  when "instantiate" then self.instantiate(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "delete_recursive" then self.delete_recursive(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -57,15 +58,20 @@ module OpenNebulaJSON
                  end
         end
 
-        def update(params=Hash.new)
-            template_hash = parse_json(params, 'vmtemplate')
-            if template_hash['template_raw']
-                template = template_hash['template_raw']
-            else
-                template = template_to_str(template_hash)
-            end
+        def info(extended=false)
+          if extended
+            super(true)
+          else
+            super()
+          end
+        end
 
-            super(template)
+        def update(params=Hash.new)
+            if !params['append'].nil?
+                super(params['template_raw'], params['append'])
+            else
+                super(params['template_raw'])
+            end
         end
 
         def chown(params=Hash.new)
@@ -73,8 +79,10 @@ module OpenNebulaJSON
         end
 
         def chmod_json(params=Hash.new)
+            recursive = (params['recursive'] == true)
+
             if params['octet']
-                self.chmod_octet(params['octet'])
+                self.chmod_octet(params['octet'], recursive)
             else
                 self.chmod((params['owner_u']||-1),
                     (params['owner_m']||-1),
@@ -84,19 +92,14 @@ module OpenNebulaJSON
                     (params['group_a']||-1),
                     (params['other_u']||-1),
                     (params['other_m']||-1),
-                    (params['other_a']||-1))
+                    (params['other_a']||-1),
+                    recursive)
             end
         end
 
         def instantiate(params=Hash.new)
             if params['template']
-                select_capacity = self['TEMPLATE/SUNSTONE_CAPACITY_SELECT']
-                if (select_capacity && select_capacity.upcase == "NO")
-                    params['template'].delete("CPU")
-                    params['template'].delete("MEMORY")
-                end
-
-                select_network = self['TEMPLATE/SUNSTONE_NETWORK_SELECT']
+                select_network = self['TEMPLATE/SUNSTONE/NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
                 end
@@ -109,11 +112,22 @@ module OpenNebulaJSON
         end
 
         def clone(params=Hash.new)
-            super(params['name'])
+            rc = super(params['name'])
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                return TemplateJSON.new_with_id(rc, @client)
+            end
         end
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def delete_recursive(params=Hash.new)
+            recursive = (params['recursive'] == true)
+            self.delete(recursive)
         end
     end
 end

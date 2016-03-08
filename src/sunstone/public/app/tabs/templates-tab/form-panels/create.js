@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -105,7 +121,7 @@ define(function(require) {
       wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
 
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
   }
 
   function _onShow(context) {
@@ -123,14 +139,26 @@ define(function(require) {
       $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
     });
 
+    // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
+    // part of an array, and it is filled in different tabs, the $.extend deep
+    // merge can't work. We define an auxiliary attribute for it.
+
+    if (templateJSON["VCENTER_PUBLIC_CLOUD"]) {
+      if (templateJSON['PUBLIC_CLOUD'] == undefined) {
+        templateJSON['PUBLIC_CLOUD'] = [];
+      }
+
+      templateJSON['PUBLIC_CLOUD'].push(templateJSON["VCENTER_PUBLIC_CLOUD"]);
+
+      delete templateJSON["VCENTER_PUBLIC_CLOUD"];
+    }
+
     if (this.action == "create") {
       Sunstone.runAction("Template.create",
                           {'vmtemplate': templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update",
-                          this.resourceId,
-                          JSON.stringify({'vmtemplate': templateJSON}));
+      Sunstone.runAction("Template.update", this.resourceId, TemplateUtils.templateToString(templateJSON));
       return false;
     }
   }
@@ -143,9 +171,7 @@ define(function(require) {
       return false;
 
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update",
-                          this.resourceId,
-                          JSON.stringify({"vmtemplate": {"template_raw": template}}));
+      Sunstone.runAction("Template.update", this.resourceId, template);
       return false;
     }
   }

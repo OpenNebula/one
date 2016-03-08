@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,7 +27,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-MadManager::MadManager(vector<const Attribute*>& _mads):mad_conf(_mads)
+MadManager::MadManager(vector<const VectorAttribute*>& _mads):mad_conf(_mads)
 {
     pthread_mutex_init(&mutex,0);
 }

@@ -21,16 +21,18 @@ else
     ZENDESK_API='zendesk_api'
 end
 
+TREETOP = 'treetop --version ">= 1.6.3"'
 DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 
 GROUPS={
     :quota      => [SQLITE, 'sequel'],
-    :sunstone   => ['json', 'rack', 'sinatra', 'thin', ZENDESK_API, SQLITE],
+    :sunstone   => ['json', 'rack', 'sinatra', 'thin', 'memcache-client',
+                     ZENDESK_API, SQLITE],
     :cloud      => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :hybrid     => %w{softlayer_api configparser azure},
     :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
-    :oneflow    => %w{sinatra json treetop parse-cron},
+    :oneflow    => ['sinatra', 'json', TREETOP, 'parse-cron'],
     :ec2_hybrid => 'aws-sdk --version "= 1.33"',
     :oca        => 'ox',
     :onedb      => "mysql"
@@ -51,7 +53,7 @@ DISTRIBUTIONS={
             SQLITE      => ['gcc', 'libsqlite3-dev'],
             'mysql'     => ['gcc', 'libmysqlclient-dev'],
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
-            $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev},
+            $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev patch},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
             'thin'      => ['g++'],
             'json'      => ['gcc']
@@ -66,9 +68,9 @@ DISTRIBUTIONS={
         :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
-            'mysql'     => ['gcc', 'mysql-devel'],
+            'mysql'     => ['gcc', 'mysql-devel', 'openssl-devel'],
             'curb'      => ['gcc', 'curl-devel'],
-            $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel},
+            $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel patch},
             'xmlparser' => ['gcc', 'expat-devel'],
             'thin'      => ['gcc-c++'],
             'json'      => ['gcc']

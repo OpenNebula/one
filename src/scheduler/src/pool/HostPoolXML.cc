@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,11 +29,13 @@ int HostPoolXML::set_up()
         {
             oss << "Discovered Hosts (enabled):" << endl;
 
-            map<int,ObjectXML*>::iterator it;
+            map<int, ObjectXML*>::iterator it;
 
             for (it=objects.begin();it!=objects.end();it++)
             {
-                oss << " " << it->first;
+                HostXML * h = dynamic_cast<HostXML *>(it->second);
+
+                oss << *h << endl;
             }
         }
         else

@@ -1,7 +1,23 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <form>
   <h4>{{tr "Role"}} - {{role.name}}</h4>
   <div class='large-12 columns'>
-    <table class='dataTable extended_table policies_table'>
+    <table class='dataTable policies_table'>
       <thead>
         <tr>
           <th colspan='8'>{{tr "Information"}}</th>
@@ -60,7 +76,7 @@
   <div class='large-12 columns'>
     <br>
     {{#if role.elasticity_policies}}
-    <table class="dataTable extended_table policies_table">
+    <table class="dataTable policies_table">
       <thead style="background:#dfdfdf">
         <tr>
           <th colspan="7">{{tr "Elasticity policies"}}</th>
@@ -68,28 +84,28 @@
       </thead>
       <thead>
         <tr>
-          <th class="has-tip" data-tooltip title="{{tr "Type of adjustment."}}<br><br>
+          <th class="has-tip" title="{{tr "Type of adjustment."}}<br><br>
             {{tr "CHANGE: Add/substract the given number of VMs."}}<br>
             {{tr "CARDINALITY: Set the cardinality to the given number."}}<br>
             {{tr "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."}}
             " style="width:14%">{{tr "Type"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}<br><br>
+          <th class="has-tip" title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}<br><br>
             {{tr "CHANGE: -2, will substract 2 VMs from the role"}}<br>
             {{tr "CARDINALITY: 8, will set carditanilty to 8"}}<br>
             {{tr "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"}}" style="width:12%">{{tr "Adjust"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type."}}<br>
+          <th class="has-tip" title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type."}}<br>
             {{tr " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."}}" style="width:9%">{{tr "Min"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Expression to trigger the elasticity"}}<br><br>
+          <th class="has-tip" title="{{tr "Expression to trigger the elasticity"}}<br><br>
             {{tr "Example: ATT < 20"}}" style="width:30%">{{tr "Expression"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Number of periods that the expression must be true before the elasticity is triggered"}}" style="width:8%">#
+          <th class="has-tip" title="{{tr "Number of periods that the expression must be true before the elasticity is triggered"}}" style="width:8%">#
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Duration, in seconds, of each period in '# Periods'"}}" style="width:9%">{{tr "Period"}}
+          <th class="has-tip" title="{{tr "Duration, in seconds, of each period in '# Periods'"}}" style="width:9%">{{tr "Period"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Cooldown period duration after a scale operation, in seconds"}}" style="width:15%">{{tr "Cooldown"}}
+          <th class="has-tip" title="{{tr "Cooldown period duration after a scale operation, in seconds"}}" style="width:15%">{{tr "Cooldown"}}
           </th>
           <th style="width:3%"></th>
         </tr>
@@ -103,7 +119,7 @@
           <td>{{valOrDefault expression_evaluated this.expression}}</td>
           <td>
             {{#if period_number}}
-            {{#if servicePanel}}
+            {{#if ../../servicePanel}}
             {{valOrDefault true_evals "0"}}/{{period_number}}
             {{else}}
             {{period_number}}
@@ -121,7 +137,7 @@
     {{/if}}
     <br>
     {{#if role.scheduled_policies}}
-    <table class="dataTable extended_table policies_table">
+    <table class="dataTable policies_table">
       <thead style="background:#dfdfdf">
         <tr>
           <th colspan="5">{{tr "Scheduled policies"}}</th>
@@ -129,23 +145,23 @@
       </thead>
       <thead>
         <tr>
-          <th class="has-tip" data-tooltip title="{{tr "Type of adjustment."}}<br><br>
-            {{tr "CHANGE: Add/substract the given number of VMs."}}<br>
-            {{tr "CARDINALITY: Set the cardinality to the given number."}}<br>
+          <th class="has-tip" title="{{tr "Type of adjustment."}}
+            {{tr "CHANGE: Add/substract the given number of VMs."}}
+            {{tr "CARDINALITY: Set the cardinality to the given number."}}
             {{tr "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."}}" style="width:14%">{{tr "Type"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}<br><br>
-            {{tr "CHANGE: -2, will substract 2 VMs from the role"}}<br>
-            {{tr "CARDINALITY: 8, will set carditanilty to 8"}}<br>
+          <th class="has-tip" title="{{tr "Positive or negative adjustment. Its meaning depends on 'type'"}}
+            {{tr "CHANGE: -2, will substract 2 VMs from the role"}}
+            {{tr "CARDINALITY: 8, will set carditanilty to 8"}}
             {{tr "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"}}" style="width:12%">{{tr "Adjust"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."}}" style="width:9%">{{tr "Min"}}
+          <th class="has-tip" title="{{tr "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."}}" style="width:9%">{{tr "Min"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"}}<br><br>
+          <th class="has-tip" title="{{tr "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"}}
             {{tr "Start time: Exact time for the adjustement"}}" style="width:28%">{{tr "Time format"}}
           </th>
-          <th class="has-tip" data-tooltip title="{{tr "Time expression depends on the the time formar selected"}}<br><br>
-            {{tr "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"}}<br>
+          <th class="has-tip" title="{{tr "Time expression depends on the the time formar selected"}}
+            {{tr "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"}}
             {{tr "Start time: Exact time for the adjustement"}}" style="width:33%">{{tr "Time expression"}}
           </th>
           <th style="width:3%"></th>

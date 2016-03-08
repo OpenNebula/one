@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,7 @@
 #include <cstring>
 
 #include "Attribute.h"
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include "NebulaUtil.h"
 
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
@@ -101,8 +100,9 @@ void VectorAttribute::to_xml(ostringstream &oss) const
         }
         else
         {
-            oss << "<" << it->first << "><![CDATA[" << it->second
-                << "]]></"<< it->first << ">";
+            oss << "<" << it->first << ">"
+                << one_util::escape_xml(it->second)
+                << "</" << it->first << ">";
         }
     }
 
@@ -294,7 +294,7 @@ int VectorAttribute::vector_value(const char *name, bool& value) const
 
     string tmp = it->second;
 
-    TO_UPPER(tmp);
+    one_util::toupper(tmp);
 
     if (tmp == "YES")
     {
@@ -307,188 +307,3 @@ int VectorAttribute::vector_value(const char *name, bool& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const char *name, int & value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        return -1;
-    }
-
-    if ( it->second.empty() )
-    {
-        return -1;
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VectorAttribute::vector_value(const char *name, unsigned int & value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        return -1;
-    }
-
-    if ( it->second.empty() )
-    {
-        return -1;
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VectorAttribute::vector_value(const char *name, long long& value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        return -1;
-    }
-
-    if ( it->second.empty() )
-    {
-        return -1;
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VectorAttribute::vector_value(const char *name, float & value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        return -1;
-    }
-
-    if ( it->second.empty() )
-    {
-        return -1;
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string VectorAttribute::vector_value_str(const char *name, int& value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        value = -1;
-        return  "";
-    }
-
-    if ( it->second.empty() )
-    {
-        value = -1;
-        return "";
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = -1;
-        return "";
-    }
-
-    return it->second;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string VectorAttribute::vector_value_str(const char *name, float& value) const
-{
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
-
-    if ( it == attribute_value.end() )
-    {
-        value = -1;
-        return  "";
-    }
-
-    if ( it->second.empty() )
-    {
-        value = -1;
-        return "";
-    }
-
-    istringstream iss(it->second);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = -1;
-        return "";
-    }
-
-    return it->second;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

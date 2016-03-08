@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,18 +22,30 @@
 #include "NebulaUtil.h"
 #include <sstream>
 
+
+const string VirtualMachineManagerDriver::imported_actions_default =
+    "shutdown, shutdown-hard, hold, release, suspend, resume, delete, reboot, "
+    "reboot-hard, resched, unresched, disk-attach, disk-detach, nic-attach, "
+    "nic-detach, snap-create, snap-delete";
+
+const string VirtualMachineManagerDriver::imported_actions_default_public =
+    "shutdown, shutdown-hard, hold, release, suspend, resume, delete, reboot, "
+    "reboot-hard, resched, unresched, disk-attach, disk-detach, nic-attach, "
+    "nic-detach, snap-create, snap-delete, poweroff, poweroff-hard";
+
 VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     int                         userid,
     const map<string,string>&   attrs,
     bool                        sudo,
     VirtualMachinePool *        pool):
-        Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
+        Mad(userid,attrs,sudo), driver_conf(true), vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = 0;
     const char *    cfile;
     string          file;
     int             rc;
+    string          action_defaults;
 
     it = attrs.find("DEFAULT");
 
@@ -72,56 +84,54 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
             NebulaLog::log("VMM", Log::ERROR, oss);
         }
     }
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    it = attrs.find("IMPORTED_VMS_ACTIONS");
 
-void VirtualMachineManagerDriver::get_default(
-    const char *  name,
-    const char *  vname,
-    string&       value) const
-{
-    vector<const Attribute *>   attrs;
-    string                      sn = name;
-
-    if ( driver_conf.get(sn,attrs) == 1 )
+    if (it != attrs.end())
     {
-        const VectorAttribute * vattr;
-
-        vattr = static_cast<const VectorAttribute *>(attrs[0]);
-
-        value = vattr->vector_value(vname);
+        action_defaults = it->second;
     }
     else
     {
-        value = "";
+		NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
+
+		it = attrs.find("NAME");
+
+		if (it != attrs.end())
+		{
+			if ( it->second == "kvm" || it->second == "xen3" ||
+                 it->second == "xen" || it->second == "vmware" )
+			{
+				action_defaults = imported_actions_default;
+			}
+			else if ( it->second == "sl" || it->second == "ec2" ||
+			          it->second == "az" || it->second == "vcenter" )
+			{
+                action_defaults = imported_actions_default_public;
+			}
+		}
     }
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+    vector<string> actions;
+    vector<string>::iterator vit;
 
-bool VirtualMachineManagerDriver::get_default(
-    const char *  name,
-    const char *  vname,
-    bool&         value) const
-{
-    string st;
+    string action;
+    History::VMAction id;
 
-    get_default(name, vname, st);
+    actions = one_util::split(action_defaults, ',');
 
-    if ( st == "" )
+    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
     {
-        value = false;
-        return false;
+        action = one_util::trim(*vit);
+
+        if ( History::action_from_str(action, id) != 0 )
+        {
+            NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
+            continue;
+        }
+
+        imported_actions.set(id);
     }
-
-    one_util::toupper(st);
-
-    value = ( st == "YES" );
-
-    return true;
 }
 
 /* ************************************************************************** */
@@ -190,20 +200,32 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     int              id;
     VirtualMachine * vm;
 
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
 
     os << "Message received: " << message;
     NebulaLog::log("VMM", Log::DEBUG, os);
 
-    // Parse the driver message
+    // -------------------------------------------------------------------------
+    // Parse the driver message: action, result and VM id
+    // -------------------------------------------------------------------------
     if ( is.good() )
+    {
         is >> action >> ws;
+    }
     else
+    {
         return;
+    }
 
     if ( is.good() )
+    {
         is >> result >> ws;
+    }
     else
+    {
         return;
+    }
 
     if ( is.good() )
     {
@@ -224,9 +246,72 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         }
     }
     else
+    {
         return;
+    }
 
-    // Get the VM from the pool
+    // -------------------------------------------------------------------------
+    // VMM actions not associated to a single VM: UPDATESG
+    // -------------------------------------------------------------------------
+    if ( action == "UPDATESG" )
+    {
+        int sgid;
+
+        is >> sgid >> ws;
+
+        if ( is.fail() )
+        {
+            NebulaLog::log("VMM", Log::ERROR, "Missing or wrong security group"
+                    " id in driver message");
+            return;
+        }
+
+        SecurityGroupPool* sgpool = ne.get_secgrouppool();
+        SecurityGroup*     sg     = sgpool->get(sgid, true);
+
+        if ( sg != 0 )
+        {
+            sg->del_updating(id);
+
+            if ( result == "SUCCESS" )
+            {
+                sg->add_vm(id);
+            }
+            else
+            {
+                sg->add_error(id);
+            }
+
+            sgpool->update(sg);
+
+            sg->unlock();
+        }
+
+        vm = vmpool->get(id,true);
+
+        if ( vm != 0 )
+        {
+            if ( result == "SUCCESS" )
+            {
+                vm->log("VMM", Log::INFO, "VM security group updated.");
+            }
+            else
+            {
+                log_error(vm, os, is, "Error updating security groups.");
+
+                vmpool->update(vm);
+            }
+
+            vm->unlock();
+        }
+
+        lcm->trigger(LifeCycleManager::UPDATESG, sgid);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // VMM actions associated to a single VM
+    // -------------------------------------------------------------------------
     vm = vmpool->get(id,true);
 
     if ( vm == 0 )
@@ -244,11 +329,9 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         return;
     }
 
-    // Driver Actions
     if ( action == "DEPLOY" )
     {
-        Nebula              &ne = Nebula::instance();
-        LifeCycleManager *  lcm = ne.get_lcm();
+        LifeCycleManager::Actions action = LifeCycleManager::DEPLOY_SUCCESS;
 
         if (result == "SUCCESS")
         {
@@ -256,25 +339,28 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 
             is >> deploy_id;
 
-            vm->set_deploy_id(deploy_id);
-
-            vmpool->update(vm);
-
-            lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
+            if ( !deploy_id.empty() )
+            {
+                vm->set_deploy_id(deploy_id);
+            }
+            else
+            {
+                action = LifeCycleManager::DEPLOY_FAILURE;
+                log_error(vm,os,is,"Empty deploy ID for virtual machine");
+            }
         }
         else
         {
+            action = LifeCycleManager::DEPLOY_FAILURE;
             log_error(vm,os,is,"Error deploying virtual machine");
-            vmpool->update(vm);
-
-            lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, id);
         }
+
+        vmpool->update(vm);
+
+        lcm->trigger(action, id);
     }
     else if (action == "SHUTDOWN" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::SHUTDOWN_SUCCESS, id);
@@ -289,9 +375,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "CANCEL" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::CANCEL_SUCCESS, id);
@@ -306,9 +389,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "SAVE" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::SAVE_SUCCESS, id);
@@ -323,9 +403,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "RESTORE" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
@@ -340,9 +417,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "MIGRATE" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if (result == "SUCCESS")
         {
             lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
@@ -381,9 +455,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "ATTACHDISK" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
@@ -400,9 +471,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "DETACHDISK" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM",Log::INFO,"VM Disk successfully detached.");
@@ -419,9 +487,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "ATTACHNIC" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM", Log::INFO, "VM NIC Successfully attached.");
@@ -438,9 +503,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "DETACHNIC" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM",Log::INFO, "VM NIC Successfully detached.");
@@ -457,9 +519,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "SNAPSHOTCREATE" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             string hypervisor_id;
@@ -484,9 +543,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "SNAPSHOTREVERT" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
@@ -503,9 +559,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "SNAPSHOTDELETE" )
     {
-        Nebula              &ne  = Nebula::instance();
-        LifeCycleManager    *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM",Log::INFO,"VM Snapshot successfully deleted.");
@@ -522,9 +575,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "DISKSNAPSHOTCREATE" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM", Log::INFO, "VM disk snapshot successfully created.");
@@ -541,9 +591,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "DISKSNAPSHOTREVERT" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM", Log::INFO, "VM disk state reverted.");
@@ -560,9 +607,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
     }
     else if ( action == "CLEANUP" )
     {
-        Nebula           &ne  = Nebula::instance();
-        LifeCycleManager *lcm = ne.get_lcm();
-
         if ( result == "SUCCESS" )
         {
             vm->log("VMM", Log::INFO, "Host successfully cleaned.");
@@ -588,9 +632,6 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         }
         else
         {
-            Nebula            &ne = Nebula::instance();
-            LifeCycleManager* lcm = ne.get_lcm();
-
             log_monitor_error(vm, os, is, "Error monitoring VM");
 
             lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
@@ -656,9 +697,9 @@ void VirtualMachineManagerDriver::process_poll(
 
         vmpool->update(vm);
 
-        const VirtualMachineMonitorInfo &minfo = vm->get_info();
+        VirtualMachineMonitorInfo &minfo = vm->get_info();
 
-        state = minfo.get_state();
+        state = minfo.remove_state();
     }
     else
     {
@@ -677,7 +718,7 @@ void VirtualMachineManagerDriver::process_poll(
             return;
         };
 
-        state = minfo.get_state();
+        state = minfo.remove_state();
     }
 
     /* ---------------------------------------------------------------------- */

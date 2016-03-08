@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -53,7 +53,7 @@ string UserPool::oneadmin_name;
 
 UserPool::UserPool(SqlDB * db,
                    time_t  __session_expiration_time,
-                   vector<const Attribute *> hook_mads,
+                   vector<const VectorAttribute *> hook_mads,
                    const string&             remotes_location,
                    bool                      is_federation_slave):
                        PoolSQL(db, User::table, !is_federation_slave, true)
@@ -330,7 +330,7 @@ int UserPool::allocate (
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Add the primary group to the collection
-    user->add_collection_id(gid);
+    user->groups.add(gid);
 
     // Set a password for the OneGate tokens
     user->add_template_attribute("TOKEN_PASSWORD", one_util::random_password());
@@ -399,7 +399,7 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserPool::update(User * user)
+int UserPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
@@ -410,7 +410,7 @@ int UserPool::update(User * user)
         return -1;
     }
 
-    return user->update(db);
+    return PoolSQL::update(objsql);
 }
 
 /* -------------------------------------------------------------------------- */

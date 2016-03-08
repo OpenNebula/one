@@ -1,4 +1,21 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
+  var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
@@ -8,11 +25,12 @@ define(function(require) {
   var Spice = require('utils/spice');
 
   var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
-  var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
-  var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
-  var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
+  var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
+  var DEPLOY_DIALOG_ID           = require('./dialogs/deploy/dialogId');
+  var MIGRATE_DIALOG_ID          = require('./dialogs/migrate/dialogId');
+  var VNC_DIALOG_ID              = require('./dialogs/vnc/dialogId');
+  var SPICE_DIALOG_ID            = require('./dialogs/spice/dialogId');
+  var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -21,9 +39,23 @@ define(function(require) {
 
   var _actions = {
     "VM.list":    _commonActions.list(),
-    "VM.show":    _commonActions.show(),
+    "VM.show": {
+      type: "single",
+      call: OpenNebulaVM.show,
+      callback: function(request, response) {
+        if (Config.isTabEnabled("provision-tab")) {
+          $(".provision_refresh_info", ".provision_list_vms").click();
+        } else {
+          Sunstone.getDataTable(TAB_ID).updateElement(request, response);
+          if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+            Sunstone.insertPanels(TAB_ID, response);
+          }
+        }
+      },
+      error: Notifier.onError
+    },
     "VM.refresh": _commonActions.refresh(),
-    "VM.delete":  _commonActions.delete(),
+    "VM.delete":  _commonActions.del(),
     "VM.chown": _commonActions.multipleAction('chown'),
     "VM.chgrp": _commonActions.multipleAction('chgrp'),
 
@@ -47,7 +79,8 @@ define(function(require) {
 
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),
-    "VM.update_template": _commonActions.singleAction('update'),
+    "VM.update_template": _commonActions.updateTemplate(),
+    "VM.append_template": _commonActions.appendTemplate(),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
@@ -163,7 +196,18 @@ define(function(require) {
         Spice.unlock();
       },
       notify: true
-    }
+    },
+    "VM.saveas_template" : {
+      type: "single",
+      call: function() {
+       var dialog = Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID);
+       dialog.show();
+       },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+      notify: false
+    },
   };
 
   return _actions;

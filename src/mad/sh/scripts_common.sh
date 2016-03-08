@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,43 +18,44 @@ export LANG=C
 
 # Paths for utilities
 export PATH=/bin:/sbin:/usr/bin:$PATH
-AWK=awk
-BASH=bash
-CUT=cut
-CEPH=ceph
-DATE=date
-DD=dd
-DF=df
-DU=du
-GREP=grep
-ISCSIADM=iscsiadm
-LVCREATE=lvcreate
-LVREMOVE=lvremove
-LVRENAME=lvrename
-LVS=lvs
-LN=ln
-MD5SUM=md5sum
-MKFS=mkfs
-MKISOFS=genisoimage
-MKSWAP=mkswap
-QEMU_IMG=qemu-img
-RADOS=rados
-RBD=rbd
-READLINK=readlink
-RM=rm
-SCP=scp
-SED=sed
-SSH=ssh
-SUDO=sudo
-SYNC=sync
-TAR=tar
-TGTADM=tgtadm
-TGTADMIN=tgt-admin
-TGTSETUPLUN=tgt-setup-lun-one
-TR=tr
-VGDISPLAY=vgdisplay
-VMKFSTOOLS=vmkfstools
-WGET=wget
+AWK=${AWK:-awk}
+BASH=${BASH:-bash}
+CUT=${CUT:-cut}
+CEPH=${CEPH:-ceph}
+DATE=${DATE:-date}
+DD=${DD:-dd}
+DF=${DF:-df}
+DU=${DU:-du}
+GREP=${GREP:-grep}
+ISCSIADM=${ISCSIADM:-iscsiadm}
+LVCREATE=${LVCREATE:-lvcreate}
+LVREMOVE=${LVREMOVE:-lvremove}
+LVRENAME=${LVRENAME:-lvrename}
+LVS=${LVS:-lvs}
+LN=${LN:-ln}
+MD5SUM=${MD5SUM:-md5sum}
+MKFS=${MKFS:-mkfs}
+MKISOFS=${MKISOFS:-genisoimage}
+MKSWAP=${MKSWAP:-mkswap}
+QEMU_IMG=${QMEMU_IMG:-qemu-img}
+RADOS=${RADOS:-rados}
+RBD=${RBD:-rbd}
+READLINK=${READLINK:-readlink}
+RM=${RM:-rm}
+CP=${CP:-cp}
+SCP=${SCP:-scp}
+SED=${SED:-sed}
+SSH=${SSH:-ssh}
+SUDO=${SUDO:-sudo}
+SYNC=${SYNC:-sync}
+TAR=${TAR:-tar}
+TGTADM=${TGTADM:-tgtadm}
+TGTADMIN=${TGTADMIN:-tgt-admin}
+TGTSETUPLUN=${TGTSETUPLUN:-tgt-setup-lun-one}
+TR=${TR:-tr}
+VGDISPLAY=${VGDISPLAY:-vgdisplay}
+VMKFSTOOLS=${VMKFSTOOLS:-vmkfstools}
+WGET=${WGET:-wget}
 
 if [ "x$(uname -s)" = "xLinux" ]; then
     SED="$SED -r"
@@ -387,6 +388,36 @@ EOF`
     fi
 }
 
+# Remote command execution over SSH preloading a local file
+# $1: HOSTNAME
+# $2: COMMAND
+# $3: file to be loaded into the script
+# $4: ERROR_REPORT
+function ssh_exec_and_log_stdin
+{
+    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+$(cat $3)
+
+$2
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
+
+        if [ -n "$4" ]; then
+            error_message "$4"
+        else
+            error_message "Error executing $2: $SSH_EXEC_ERR"
+        fi
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
 # This function executes $2 at $1 host and returns stdout
 # If $3 is present, it is used as the error message when
 # the command fails
@@ -423,7 +454,7 @@ fi
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $? -ne 0 ]; then
+    if [ $SSH_EXEC_RC -ne 0 ]; then
         error_message "Error creating directory $2 at $1: $SSH_EXEC_ERR"
 
         exit $SSH_EXEC_RC
@@ -562,4 +593,37 @@ function iqn_get_host {
     LV_NAME=$(iqn_get_lv_name "$IQN")
     VG_NAME=$(iqn_get_vg_name "$IQN")
     echo ${TARGET%%.$VG_NAME.$LV_NAME}
+}
+
+# ------------------------------------------------------------------------------
+# VMM helpers
+# ------------------------------------------------------------------------------
+
+# This function builds the XML necessary for attach-disk operations
+# that require declaration of host sources
+#   @param $1 - Space separated list of hosts
+#   @return The XML via STDOUT
+function get_source_xml {
+    for host in $1 ; do
+        BCK_IFS=$IFS
+        IFS=':'
+
+        unset k HOST_PARTS SOURCE_HOST
+
+        for part in $host ; do
+            HOST_PARTS[k++]="$part"
+        done
+
+        SOURCE_HOST="$SOURCE_HOST<host name='${HOST_PARTS[0]}'"
+
+        if [ -n "${HOST_PARTS[1]}" ]; then
+            SOURCE_HOST="$SOURCE_HOST port='${HOST_PARTS[1]}'"
+        fi
+
+        SOURCE_HOST="$SOURCE_HOST/>"
+
+        IFS=$BCK_IFS
+    done
+
+    echo "$SOURCE_HOST"
 }

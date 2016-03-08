@@ -1,7 +1,5 @@
-
-
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,15 +31,16 @@ int LibVirtDriver::deployment_description_vmware(
         const VirtualMachine *  vm,
         const string&           file_name) const
 {
-    ofstream                    file;
+    ofstream file;
 
-    int                         num;
-    vector<const Attribute *>   attrs;
+    int num;
 
     string  vcpu;
     string  memory;
 
     int     memory_in_kb = 0;
+
+    const VectorAttribute * os;
 
     string  arch       = "";
     string  guestOS    = "";
@@ -52,7 +51,7 @@ int LibVirtDriver::deployment_description_vmware(
 
     const VectorAttribute * features;
 
-    const VectorAttribute * disk;
+    vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
     string  type       = "";
@@ -64,7 +63,7 @@ int LibVirtDriver::deployment_description_vmware(
     string  default_driver = "";
     bool    readonly;
 
-    const VectorAttribute * nic;
+    vector<const VectorAttribute *> nic;
 
     string  network_id = "";
     string  mac        = "";
@@ -81,7 +80,7 @@ int LibVirtDriver::deployment_description_vmware(
     string  passwd     = "";
     string  keymap     = "";
 
-    const VectorAttribute * raw;
+    vector<const VectorAttribute *> raw;
     string data;
     string default_raw;
     string data_vmx    = "";
@@ -145,22 +144,13 @@ int LibVirtDriver::deployment_description_vmware(
     // ------------------------------------------------------------------------
     //  OS and boot options
     // ------------------------------------------------------------------------
+    os = vm->get_template_attribute("OS");
 
-    num = vm->get_template_attribute("OS",attrs);
-
-    // Get values & defaults
-    if ( num > 0 )
+    if( os != 0 )
     {
-        const VectorAttribute * os;
-
-        os = dynamic_cast<const VectorAttribute *>(attrs[0]);
-
-        if( os != 0 )
-        {
-            arch    = os->vector_value("ARCH");
-            guestOS = os->vector_value("GUESTOS");
-            boot    = os->vector_value("BOOT");
-        }
+        arch    = os->vector_value("ARCH");
+        guestOS = os->vector_value("GUESTOS");
+        boot    = os->vector_value("BOOT");
     }
 
     if ( arch.empty() )
@@ -201,30 +191,20 @@ int LibVirtDriver::deployment_description_vmware(
 
     file << "\t</os>" << endl;
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Features
     // ------------------------------------------------------------------------
+    features = vm->get_template_attribute("FEATURES");
 
-    num = vm->get_template_attribute("FEATURES",attrs);
-
-    if ( num > 0 )
+    if ( features != 0 )
     {
-        features = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        pciBridge = features->vector_value("PCIBRIDGE");
 
-        if ( features != 0 )
+        if (!pciBridge.empty())
         {
-            pciBridge = features->vector_value("PCIBRIDGE");
-
-            if (!pciBridge.empty())
-            {
-                metadata << "<pcibridge>" << pciBridge << "</pcibridge>";
-            }
+            metadata << "<pcibridge>" << pciBridge << "</pcibridge>";
         }
     }
-
-    attrs.clear();
 
     // ------------------------------------------------------------------------
     // Disks
@@ -234,23 +214,16 @@ int LibVirtDriver::deployment_description_vmware(
 
     get_default("DISK","DRIVER",default_driver);
 
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disk);
 
     for (int i=0; i < num ;i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
-        {
-         continue;
-        }
-
-        type   = disk->vector_value("TYPE");
-        target = disk->vector_value("TARGET");
-        ro     = disk->vector_value("READONLY");
-        source = disk->vector_value("SOURCE");
-        driver = disk->vector_value("DRIVER");
-        disk->vector_value_str("DISK_ID", disk_id);
+        type   = disk[i]->vector_value("TYPE");
+        target = disk[i]->vector_value("TARGET");
+        ro     = disk[i]->vector_value("READONLY");
+        source = disk[i]->vector_value("SOURCE");
+        driver = disk[i]->vector_value("DRIVER");
+        disk[i]->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
         {
@@ -261,7 +234,7 @@ int LibVirtDriver::deployment_description_vmware(
 
         if ( !ro.empty() )
         {
-            transform(ro.begin(),ro.end(),ro.begin(),(int(*)(int))toupper);
+            one_util::toupper(ro);
 
             if ( ro == "YES" )
             {
@@ -269,7 +242,7 @@ int LibVirtDriver::deployment_description_vmware(
             }
         }
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         // ---- Disk type and source for the image ----
 
@@ -321,15 +294,13 @@ int LibVirtDriver::deployment_description_vmware(
         file << "\t\t</disk>" << endl;
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Context Device
     // ------------------------------------------------------------------------
+    context = vm->get_template_attribute("CONTEXT");
 
-    if ( vm->get_template_attribute("CONTEXT",attrs) == 1 )
+    if ( context != 0 )
     {
-        context = dynamic_cast<const VectorAttribute *>(attrs[0]);
         target  = context->vector_value("TARGET");
 
         context->vector_value_str("DISK_ID", disk_id);
@@ -350,30 +321,20 @@ int LibVirtDriver::deployment_description_vmware(
         }
     }
 
-    attrs.clear();
-
     // ------------------------------------------------------------------------
     // Network interfaces
     // ------------------------------------------------------------------------
-
     get_default("NIC", "MODEL", default_model);
 
-    num = vm->get_template_attribute("NIC",attrs);
+    num = vm->get_template_attribute("NIC", nic);
 
     for(int i=0; i<num; i++)
     {
-        nic = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
-
-        network_id = nic->vector_value("NETWORK_ID");
-        mac        = nic->vector_value("MAC");
-        target     = nic->vector_value("TARGET");
-        script     = nic->vector_value("SCRIPT");
-        model      = nic->vector_value("MODEL");
+        network_id = nic[i]->vector_value("NETWORK_ID");
+        mac        = nic[i]->vector_value("MAC");
+        target     = nic[i]->vector_value("TARGET");
+        script     = nic[i]->vector_value("SCRIPT");
+        model      = nic[i]->vector_value("MODEL");
 
         if (vm->get_vnm_mad() == LibVirtDriver::vmware_vnm_name)
         {
@@ -382,7 +343,7 @@ int LibVirtDriver::deployment_description_vmware(
         }
         else
         {
-            bridge = nic->vector_value("BRIDGE");
+            bridge = nic[i]->vector_value("BRIDGE");
         }
 
         file << "\t\t<interface type='bridge'>" << endl;
@@ -420,90 +381,73 @@ int LibVirtDriver::deployment_description_vmware(
         }
 
         file << "\t\t</interface>" << endl;
-
     }
-
-    attrs.clear();
 
     // ------------------------------------------------------------------------
     // Graphics
     // ------------------------------------------------------------------------
+    graphics = vm->get_template_attribute("GRAPHICS");
 
-    if ( vm->get_template_attribute("GRAPHICS",attrs) > 0 )
+    if ( graphics != 0 )
     {
-        graphics = dynamic_cast<const VectorAttribute *>(attrs[0]);
+        type   = graphics->vector_value("TYPE");
+        listen = graphics->vector_value("LISTEN");
+        port   = graphics->vector_value("PORT");
+        passwd = graphics->vector_value("PASSWD");
+        keymap = graphics->vector_value("KEYMAP");
 
-        if ( graphics != 0 )
+        if ( type == "vnc" || type == "VNC" )
         {
-            type   = graphics->vector_value("TYPE");
-            listen = graphics->vector_value("LISTEN");
-            port   = graphics->vector_value("PORT");
-            passwd = graphics->vector_value("PASSWD");
-            keymap = graphics->vector_value("KEYMAP");
+            file << "\t\t<graphics type='vnc'";
 
-            if ( type == "vnc" || type == "VNC" )
+            if ( !listen.empty() )
             {
-                file << "\t\t<graphics type='vnc'";
-
-                if ( !listen.empty() )
-                {
-                    file << " listen='" << listen << "'";
-                }
-
-                if ( !port.empty() )
-                {
-                    file << " port='" << port << "'";
-                }
-
-                if ( !passwd.empty() )
-                {
-                    file << " passwd='" << passwd << "'";
-                }
-
-                if ( !keymap.empty() )
-                {
-                    file << " keymap='" << keymap << "'";
-                }
-
-                file << "/>" << endl;
+                file << " listen='" << listen << "'";
             }
-            else
+
+            if ( !port.empty() )
             {
-                vm->log("VMM", Log::WARNING,
-                        "Not supported graphics type, ignored.");
+                file << " port='" << port << "'";
             }
+
+            if ( !passwd.empty() )
+            {
+                file << " passwd='" << passwd << "'";
+            }
+
+            if ( !keymap.empty() )
+            {
+                file << " keymap='" << keymap << "'";
+            }
+
+            file << "/>" << endl;
+        }
+        else
+        {
+            vm->log("VMM", Log::WARNING,
+                    "Not supported graphics type, ignored.");
         }
     }
-
-    attrs.clear();
 
     file << "\t</devices>" << endl;
 
     // ------------------------------------------------------------------------
     // Raw VMware attributes
     // ------------------------------------------------------------------------
-
-    num = vm->get_template_attribute("RAW",attrs);
+    num = vm->get_template_attribute("RAW", raw);
 
     for(int i=0; i<num;i++)
     {
-        raw = dynamic_cast<const VectorAttribute *>(attrs[i]);
+        type = raw[i]->vector_value("TYPE");
 
-        if ( raw == 0 )
-        {
-            continue;
-        }
-
-        type = raw->vector_value("TYPE");
-
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "VMWARE" )
         {
-            data = raw->vector_value("DATA");
+            data = raw[i]->vector_value("DATA");
             file << "\t" << data << endl;
 
-            data_vmx = raw->vector_value("DATA_VMX");
+            data_vmx = raw[i]->vector_value("DATA_VMX");
             if ( !data_vmx.empty() )
             {
                 metadata << "<datavmx>" << data_vmx << "</datavmx>";

@@ -1,7 +1,26 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
 
   var Locale = require('utils/locale');
   var TemplateHTML = require('hbs!./custom-tags-table/html');
+  var RowTemplateHTML = require('hbs!./custom-tags-table/row');
+  var VectorRowTemplateHTML = require('hbs!./custom-tags-table/vector-row');
+  var VectorAttributeRowTemplateHTML = require('hbs!./custom-tags-table/vector-attribute-row');
   var TemplateUtils = require('utils/template-utils');
 
   function _html(){
@@ -9,31 +28,22 @@ define(function(require) {
   }
 
   function _setup(context){
-    $('#add_custom', context).click(function() {
-      var table = $('#custom_tags', context)[0];
-      var rowCount = table.rows.length;
-      var row = table.insertRow(rowCount);
-
-      var cell1 = row.insertCell(0);
-      var element1 = document.createElement("input");
-      element1.id = "KEY";
-      element1.type = "text";
-      element1.value = $('input#KEY', context).val();
-      cell1.appendChild(element1);
-
-      var cell2 = row.insertCell(1);
-      var element2 = document.createElement("input");
-      element2.id = "VALUE";
-      element2.type = "text";
-      element2.value = $('input#VALUE', context).val();
-      cell2.appendChild(element2);
-
-      var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    context.off("click", ".add_custom_tag");
+    context.on("click", ".add_custom_tag", function(){
+      $("tbody.custom_tags", context).append(RowTemplateHTML());
     });
 
-    context.on("click", "i.remove-tab", function() {
-      $(this).closest("tr").remove();
+    context.off("click", ".add_vector_attribute");
+    context.on("click", ".add_vector_attribute", function(){
+      var tbody = $("tbody.custom_vector_attributes", $(this).closest('table'));
+      tbody.append(VectorAttributeRowTemplateHTML());
+    });
+
+    $(".add_custom_tag", context).trigger("click");
+
+    context.on("click", "tbody.custom_tags i.remove-tab", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
     });
   }
 
@@ -41,9 +51,24 @@ define(function(require) {
   function _retrieveCustomTags(context){
     var template_json = {};
 
-    $('#custom_tags tr', context).each(function(){
-      if ($('#KEY', $(this)).val()) {
-        template_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
+    $('tbody.custom_tags tr', context).each(function(){
+      if ($('.custom_tag_key', $(this)).val()) {
+        template_json[$('.custom_tag_key', $(this)).val()] = $('.custom_tag_value', $(this)).val();
+      }
+
+      if ($('.custom_vector_key', $(this)).val()) {
+        var vectorAttributes = {};
+
+        $('tbody.custom_vector_attributes tr', $(this)).each(function(){
+          var key = $('.custom_vector_attribute_key', $(this)).val();
+          if (key) {
+            vectorAttributes[key] = $('.custom_vector_attribute_value', $(this)).val();
+          }
+        });
+
+        if (!$.isEmptyObject(vectorAttributes)){
+          template_json[$('.custom_vector_key', $(this)).val()] = vectorAttributes;
+        }
       }
     });
 
@@ -53,27 +78,20 @@ define(function(require) {
   // context is the container div of customTagsHtml()
   // template_json are the key:values that will be put into the table
   function _fillCustomTags(context, template_json){
+    $("tbody.custom_tags i.remove-tab", context).trigger("click");
+
     $.each(template_json, function(key, value){
-      var table = $('#custom_tags', context)[0];
-      var rowCount = table.rows.length;
-      var row = table.insertRow(rowCount);
-
-      var cell1 = row.insertCell(0);
-      var element1 = document.createElement("input");
-      element1.id = "KEY";
-      element1.type = "text";
-      element1.value = TemplateUtils.htmlDecode(key);
-      cell1.appendChild(element1);
-
-      var cell2 = row.insertCell(1);
-      var element2 = document.createElement("input");
-      element2.id = "VALUE";
-      element2.type = "text";
-      element2.value = TemplateUtils.htmlDecode(value);
-      cell2.appendChild(element2);
-
-      var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+      if (typeof value == 'object') {
+        $("tbody.custom_tags", context).append(
+                              VectorRowTemplateHTML({key: key, value: value}));
+      } else {
+        $("tbody.custom_tags", context).append(
+                            RowTemplateHTML({
+                                key: key,
+                                value: TemplateUtils.escapeDoubleQuotes(value)
+                              })
+                            );
+      }
     });
   }
 

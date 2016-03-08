@@ -21,14 +21,93 @@ digraph OpenNebula {
 
     running [ width = 2.5, height = 1 ]
 
-    subgraph { rank = min; user}
-    subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
-    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; boot_undeploy_failure, boot_stopped_failure; color="white"}
-    subgraph { rank = same; running; unknown; color="white"}
-    subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_migrate_poweroff; prolog_migrate_poweroff_failure; prolog_migrate_suspend; prolog_migrate_suspend_failure; prolog_undeploy; color="white" }
-    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; epilog_stop_failure; epilog_failure; epilog_undeploy_failure; hotplug_epilog_poweroff; color="white" }
-    subgraph { rank = sink; done; failure; ANY; color="white" }
+    subgraph {
+        rank = min;
+        user
+    }
+    subgraph {
+        rank = same;
+        suspended;
+        stopped;
+        undeployed;
+        poweroff;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        boot;
+        boot_stopped;
+        boot_undeploy;
+        boot_suspended;
+        boot_unknown;
+        boot_poweroff;
+        boot_migrate;
+        boot_failure;
+        boot_migrate_failure;
+        boot_undeploy_failure, boot_stopped_failure;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        running;
+        unknown;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        pending;
+        hold;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        prolog;
+        prolog_failure;
+        prolog_resume;
+        prolog_migrate;
+        prolog_migrate_failure;
+        prolog_migrate_poweroff;
+        prolog_migrate_poweroff_failure;
+        prolog_migrate_suspend;
+        prolog_migrate_suspend_failure;
+        prolog_undeploy;
+        prolog_migrate_unknown;
+        prolog_migrate_unknown_failure;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        hotplug_prolog_poweroff;
+        hotplug_saveas_poweroff;
+        hotplug_saveas_suspended;
+        disk_snapshot_suspended;
+        disk_snapshot_revert_suspended;
+        disk_snapshot_delete_suspended;
+        epilog_stop;
+        epilog;
+        epilog_undeploy;
+        epilog_stop_failure;
+        epilog_failure;
+        epilog_undeploy_failure;
+        hotplug_epilog_poweroff;
+        disk_snapshot_poweroff;
+        disk_snapshot_revert_poweroff;
+        disk_snapshot_delete_poweroff;
+        color="white"
+    }
+    subgraph {
+        rank = sink;
+        done;
+        failure;
+        ANY;
+        color="white"
+    }
+
+
+    ### TODO: missing lcm states
+    # PROLOG_RESUME_FAILURE
+    # PROLOG_UNDEPLOY_FAILURE
+
 
 #   create
     user -> pending [label="create"];
@@ -77,7 +156,8 @@ digraph OpenNebula {
     prolog_migrate  -> boot_migrate [style="dashed", color="blue"];
     boot_migrate    -> running [style="dashed", color="blue"];
 
-    unknown         -> boot [label="migrate"];
+    unknown         -> prolog_migrate_unknown [label="migrate"];
+    prolog_migrate_unknown  -> boot [style="dashed", color="blue"];
 
     poweroff                -> prolog_migrate_poweroff [label="migrate"];
     prolog_migrate_poweroff -> poweroff [style="dashed", color="blue"];
@@ -147,6 +227,36 @@ digraph OpenNebula {
     poweroff                -> hotplug_epilog_poweroff [label="disk-detach"]
     hotplug_epilog_poweroff -> poweroff [style="dashed", color="blue"];
 
+#   disk-snapshot-create
+    running                 -> disk_snapshot [label="disk-snapshot-create"];
+    disk_snapshot           -> running [style="dashed", color="blue"];
+
+    poweroff                -> disk_snapshot_poweroff [label="disk-snapshot-create"];
+    disk_snapshot_poweroff  -> poweroff [style="dashed", color="blue"];
+
+    suspended               -> disk_snapshot_suspended [label="disk-snapshot-create"];
+    disk_snapshot_suspended -> suspended [style="dashed", color="blue"];
+
+#   disk-snapshot-revert
+    running                 -> disk_snapshot_revert [label="disk-snapshot-revert"];
+    disk_snapshot_revert    -> running [style="dashed", color="blue"];
+
+    poweroff                        -> disk_snapshot_revert_poweroff [label="disk-snapshot-revert"];
+    disk_snapshot_revert_poweroff   -> poweroff [style="dashed", color="blue"];
+
+    suspended                       -> disk_snapshot_revert_suspended [label="disk-snapshot-revert"];
+    disk_snapshot_revert_suspended  -> suspended [style="dashed", color="blue"];
+
+#   disk-snapshot-delete
+    running                 -> disk_snapshot_delete [label="disk-snapshot-delete"];
+    disk_snapshot_delete    -> running [style="dashed", color="blue"];
+
+    poweroff                        -> disk_snapshot_delete_poweroff [label="disk-snapshot-delete"];
+    disk_snapshot_delete_poweroff   -> poweroff [style="dashed", color="blue"];
+
+    suspended                       -> disk_snapshot_delete_suspended [label="disk-snapshot-delete"];
+    disk_snapshot_delete_suspended  -> suspended [style="dashed", color="blue"];
+
 #   nic-attach
     running     -> hotplug_nic [label="nic-attach /\n-detach"]
     hotplug_nic -> running [style="dashed", color="blue"];
@@ -157,20 +267,15 @@ digraph OpenNebula {
     running             -> hotplug_snapshot [label="snapshot-create /\n-revert /\n-delete"]
     hotplug_snapshot    -> running [style="dashed", color="blue"];
 
-#   disk-snapshot
-    running         -> hotplug_saveas [label="disk-snapshot"]
+#   disk-saveas
+    running         -> hotplug_saveas [label="disk-saveas"]
     hotplug_saveas  -> running [style="dashed", color="blue"];
 
-    poweroff                -> hotplug_saveas_poweroff [label="disk-snapshot"]
+    poweroff                -> hotplug_saveas_poweroff [label="disk-saveas"]
     hotplug_saveas_poweroff -> poweroff [style="dashed", color="blue"];
 
-    suspended                -> hotplug_saveas_suspended [label="disk-snapshot"]
+    suspended                -> hotplug_saveas_suspended [label="disk-saveas"]
     hotplug_saveas_suspended -> suspended [style="dashed", color="blue"];
-
-#   disk-snapshot-cancel
-    running     -> running [label="disk-snapshot-cancel"]
-    poweroff    -> poweroff [label="disk-snapshot-cancel"]
-    suspended   -> suspended [label="disk-snapshot-cancel"]
 
 #   failures and misc.
     boot_failure         -> boot [label="recover"];
@@ -201,6 +306,9 @@ digraph OpenNebula {
 
     prolog_resume   -> stopped [style="dotted", color="red"];
     prolog_undeploy -> undeployed [style="dotted", color="red"];
+
+    prolog_migrate_unknown          -> prolog_migrate_unknown_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_unknown_failure  -> prolog_migrate_unknown [label="migrate"];
 
     boot            -> boot_failure [label=" ", style="dotted", color="red"];
     boot_migrate    -> boot_migrate_failure [label=" ", style="dotted", color="red"];

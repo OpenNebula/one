@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -51,6 +51,7 @@ public:
             int _timeout,
             const string _xml_log_file,
             const string call_log_format,
+            const string _listen_address,
             int message_size);
 
     ~RequestManager(){};
@@ -140,6 +141,11 @@ private:
      *  Filename for the log of the xmlrpc server that listens
      */
     string xml_log_file;
+
+    /**
+     *  Specifies the address xmlrpc server will bind to
+     */
+    string listen_address;
 
     /**
      *  Action engine for the Manager

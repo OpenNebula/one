@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Locale = require('utils/locale');
 
@@ -39,11 +55,10 @@ define(function(require) {
       tip: Locale.tr("This will migrate the selected VMs to the chosen host"),
       layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
-
     },
     "VM.migrate_live" : {
       type: "action",
-      text: Locale.tr("Migrate") + ' <span class="label secondary radius">live</span>',
+      text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
       tip: Locale.tr("This will live-migrate the selected VMs to the chosen host"),
       layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
@@ -92,7 +107,7 @@ define(function(require) {
     },
     "VM.reboot_hard" : {
       type: "action",
-      text: Locale.tr("Reboot") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Reboot") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsrepeat_buttons",
       tip: Locale.tr("This will perform a hard reboot on selected VMs"),
       custom_classes : "state-dependent"
@@ -106,7 +121,7 @@ define(function(require) {
     },
     "VM.poweroff_hard" : {
       type: "action",
-      text: Locale.tr("Power Off") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Power Off") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmspause_buttons",
       tip: Locale.tr("This will send a forced power off signal to running VMs. They can be resumed later."),
       custom_classes : "state-dependent"
@@ -120,7 +135,7 @@ define(function(require) {
     },
     "VM.undeploy_hard" : {
       type: "action",
-      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsstop_buttons",
       tip: Locale.tr("Shuts down the given VM. The VM is saved in the system Datastore."),
       custom_classes : "state-dependent"
@@ -134,7 +149,7 @@ define(function(require) {
     },
     "VM.shutdown_hard" : {
       type: "confirm",
-      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsdelete_buttons",
       tip: Locale.tr("This will initiate the shutdown-hard (forced) process in the selected VMs"),
       custom_classes : "state-dependent"
@@ -149,7 +164,7 @@ define(function(require) {
     },
     "VM.delete_recreate" : {
       type: "confirm",
-      text: Locale.tr("Delete") + ' <span class="label secondary radius">recreate</span>',
+      text: Locale.tr("Delete") + ' <span class="label secondary radius">' + Locale.tr("recreate") + '</span>',
       layout: "vmsrepeat_buttons",
       tip: Locale.tr("This will delete and recreate VMs to PENDING state"),
       custom_classes : "state-dependent"
@@ -194,7 +209,13 @@ define(function(require) {
       text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("SPICE"),
       custom_classes: "only-right-info spice-right-info",
       tip: Locale.tr("SPICE")
-    }
+    },
+    "VM.saveas_template" : {
+      type: "action",
+      text: '<i class="fa fa-save"/>',
+      tip: Locale.tr("This Virtual Machine will be saved in a new Template. You can then create a new Virtual Machine using this Template"),
+      custom_classes : "state-dependent"
+    },
   }
 
   return Buttons;

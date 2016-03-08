@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L                                           #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -35,10 +35,14 @@ file      = ARGV[1]
 host      = ARGV[2]
 vm_id     = ARGV[-2]
 
-vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
-vm.info
+drv_action_enc = STDIN.read.gsub("\n","")
 
-lcm_state = vm.lcm_state_str
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'VMM_DRIVER_ACTION_DATA')
+
+lcm_state_num = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i
+lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 
 begin
     puts VCenterDriver::VCenterVm.save(deploy_id, host, lcm_state)

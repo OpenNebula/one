@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
 #include "ImagePool.h"
+#include "SecurityGroupPool.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ extern "C" void * lcm_action_loop(void *arg);
 class TransferManager;
 class DispatchManager;
 class VirtualMachineManager;
+class ImageManager;
 
 /**
  *  The Virtual Machine Life-cycle Manager module. This class is responsible for
@@ -40,7 +42,7 @@ class LifeCycleManager : public ActionListener
 public:
 
     LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0)
+        vmpool(0), hpool(0), ipool(0), sgpool(0), tm(0), vmm(0), dm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -100,7 +102,8 @@ public:
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
-        FINALIZE
+        FINALIZE,
+        UPDATESG          /**< Sent by RM/VMM to trigger the secgroup update  */
     };
 
     /**
@@ -171,6 +174,11 @@ private:
     ImagePool *             ipool;
 
     /**
+     *  Pointer to the SecurityGroup Pool
+     */
+    SecurityGroupPool *     sgpool;
+
+    /**
      * Pointer to TransferManager
      */
     TransferManager *       tm;
@@ -189,6 +197,12 @@ private:
      *  Action engine for the Manager
      */
     ActionManager           am;
+
+    /**
+     * Pointer to ImageManager
+     */
+    ImageManager *          imagem;
+
 
     /**
      *  Function to execute the Manager action loop method within a new pthread
@@ -305,6 +319,8 @@ private:
     void poweroff_hard_action(int vid);
 
     void poweroff_action(int vid, bool hard);
+
+    void updatesg_action(int sgid);
 
     void restart_action(int vid);
 

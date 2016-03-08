@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -9,6 +25,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var UserCreation = require('tabs/users-tab/utils/user-creation');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -63,30 +80,25 @@ define(function(require) {
 
     this.userCreation.setup(context);
 
+    context.foundation('abide', 'reflow');
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
 
     context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
     }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
       var inputs = that.userCreation.retrieve(context);
 
       Sunstone.runAction('User.passwd', that.selectedElements, inputs.password);
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
-      Sunstone.runAction('User.refresh');
+      if (Config.isTabEnabled("users-tab")){
+        Sunstone.runAction('User.refresh');
+      }
 
       return false;
     });
-
-    context.foundation('reflow', 'abide');
 
     return false;
   }

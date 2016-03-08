@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,6 +17,15 @@
 require 'one_helper'
 
 class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
+    RECOVER = {
+        :name   => "recover",
+        :short  => "-r",
+        :large  => "--recover" ,
+        :description => "If set the commit operation will only operate on "\
+            "outdated and error VMs. This is intended for retrying updates of "\
+            "VMs or reinitialize the updating process if oned stopped or fail.",
+    }
+
     def self.rname
         "SECURITY_GROUP"
     end
@@ -33,7 +42,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the Security Group", :left, :size=>27 do |d|
+            column :NAME, "Name of the Security Group", :left, :size=>20 do |d|
                 d["NAME"]
             end
 
@@ -46,7 +55,31 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
-            default :ID, :USER, :GROUP, :NAME
+            column :UPDATED, "Number of VMs with updated rules", :size=>8 do |d|
+                if d["UPDATED_VMS"]["ID"].nil?
+                    "0"
+                else
+                    [d["UPDATED_VMS"]["ID"]].flatten.size
+                end
+            end
+
+            column :OUTDATED, "Number of VMs with outdated rules", :size=>8 do |d|
+                if d["OUTDATED_VMS"]["ID"].nil?
+                    "0"
+                else
+                    [d["OUTDATED_VMS"]["ID"]].flatten.size
+                end
+            end
+
+            column :ERROR, "Number of VMs that failed to update rules", :size=>8 do |d|
+                if d["ERROR_VMS"]["ID"].nil?
+                    "0"
+                else
+                    [d["ERROR_VMS"]["ID"]].flatten.size
+                end
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :UPDATED, :OUTDATED, :ERROR
         end
 
         table
@@ -88,6 +121,16 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
+
+        puts
+
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINES", false)
+
+        updated, outdated, error = secgroup.vm_ids
+
+        puts str % ["UPDATED", updated.join(',') ]
+        puts str % ["OUTDATED", outdated.join(',') ]
+        puts str % ["ERROR", error.join(',') ]
 
         puts
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -133,9 +133,11 @@ int get_image_path(VirtualMachine * vm,
     }
     else if ( var1 == "IMAGE_ID" )
     {
-        iid = ImagePool::get_disk_id(val1);
+        istringstream is(val1);
 
-        if ( iid != -1 )
+        is >> iid;
+
+        if ( !is.fail() )
         {
             img = ipool->get(iid, true);
         }

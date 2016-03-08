@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
@@ -56,8 +56,15 @@ class DatastoreDriver < OpenNebulaDriver
         :snap_flatten=> "SNAP_FLATTEN"
     }
 
+    # Default System datastores for OpenNebula, override in oned.conf
+    SYSTEM_DS_TYPES = [
+      "shared",
+      "ssh",
+      "ceph"
+    ]
+
     # Register default actions for the protocol
-    def initialize(ds_type, options={})
+    def initialize(ds_type, sys_ds_type, options={})
         @options={
             :concurrency => 10,
             :threaded => true,
@@ -87,6 +94,16 @@ class DatastoreDriver < OpenNebulaDriver
             @types = ds_type
         end
 
+        if sys_ds_type == nil
+            @sys_types = SYSTEM_DS_TYPES
+        elsif sys_ds_type.class == String
+            @sys_types = [sys_ds_type]
+        else
+            @sys_types = sys_ds_type
+        end
+
+        @local_tm_scripts_path = File.join(@local_scripts_base_path, 'tm/')
+
         register_action(ACTION[:cp].to_sym, method("cp"))
         register_action(ACTION[:rm].to_sym, method("rm"))
         register_action(ACTION[:mkfs].to_sym, method("mkfs"))
@@ -103,47 +120,47 @@ class DatastoreDriver < OpenNebulaDriver
     ############################################################################
 
     def cp(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :cp, "#{drv_message} #{id}")
     end
 
     def rm(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :rm, "#{drv_message} #{id}")
     end
 
     def mkfs(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
     end
 
     def stat(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :stat, "#{drv_message} #{id}")
     end
 
     def clone(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :clone, "#{drv_message} #{id}")
     end
 
     def monitor(id, drv_message)
-        ds = get_ds_type(drv_message)
-        do_image_action(id, ds, :monitor, "#{drv_message} #{id}", true)
+        ds, sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :monitor, "#{drv_message} #{id}", sys, true)
     end
 
     def snap_delete(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_delete, "#{drv_message} #{id}")
     end
 
     def snap_revert(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_revert, "#{drv_message} #{id}")
     end
 
     def snap_flatten(id, drv_message)
-        ds = get_ds_type(drv_message)
+        ds, sys = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_flatten, "#{drv_message} #{id}")
     end
 
@@ -159,12 +176,27 @@ class DatastoreDriver < OpenNebulaDriver
         end
     end
 
-    def do_image_action(id, ds, action, arguments, encode64=false)
-        return if not is_available?(ds,id,action)
+    def is_sys_available?(sys, id, action)
+        if @sys_types.include?(sys)
+            return true
+        else
+            send_message(ACTION[action], RESULT[:failure], id,
+                "System datastore driver '#{sys}' not available")
+            return false
+        end
+    end
 
-        path = File.join(@local_scripts_path, ds)
+    def do_image_action(id, ds, action, arguments, sys='', encode64=false)
+
+        if !sys.empty?
+            return if not is_sys_available?(sys, id, action)
+            path = File.join(@local_tm_scripts_path, sys)
+        else
+            return if not is_available?(ds, id, action)
+            path = File.join(@local_scripts_path, ds)
+        end
+
         cmd  = File.join(path, ACTION[action].downcase)
-
         cmd << " " << arguments
 
         rc = LocalCommand.run(cmd, log_method(id))
@@ -180,10 +212,19 @@ class DatastoreDriver < OpenNebulaDriver
         message = Base64.decode64(drv_message)
         xml_doc = REXML::Document.new(message)
 
+        dstxt = dssys = ''
+
         dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/DS_MAD']
         dstxt = dsxml.text if dsxml
 
-        return dstxt
+        dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TYPE']
+
+        if dsxml && dsxml.text == '1'
+          dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD']
+          dssys = dsxml.text if dsxml
+        end
+
+        return dstxt, dssys
     end
 end
 
@@ -194,12 +235,14 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--threads',  '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--ds-types', '-d', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
-ds_type = nil
-threads = 15
+ds_type     = nil
+sys_ds_type = nil
+threads     = 15
 
 begin
     opts.each do |opt, arg|
@@ -208,11 +251,13 @@ begin
                 threads = arg.to_i
             when '--ds-types'
                 ds_type = arg.split(',').map {|a| a.strip }
+            when '--system-ds-types'
+                sys_ds_type = arg.split(',').map {|a| a.strip }
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-ds_driver = DatastoreDriver.new(ds_type, :concurrency => threads)
+ds_driver = DatastoreDriver.new(ds_type, sys_ds_type, :concurrency => threads)
 ds_driver.start_driver

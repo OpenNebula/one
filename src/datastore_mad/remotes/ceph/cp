@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,6 +40,8 @@ source ${DRIVER_PATH}/ceph.conf
 DRV_ACTION=$1
 ID=$2
 
+export DRV_ACTION
+
 UTILS_PATH="${DRIVER_PATH}/.."
 
 XPATH="$UTILS_PATH/xpath.rb -b $DRV_ACTION"
@@ -61,7 +63,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 unset i
 
@@ -79,6 +82,7 @@ SHA1="${XPATH_ELEMENTS[i++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
+CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -89,6 +93,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
@@ -133,7 +141,7 @@ fi
 REGISTER_CMD=$(cat <<EOF
     set -e
 
-    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
+    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}')
 
     if [ "\$FORMAT" != "raw" ]; then
         $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw

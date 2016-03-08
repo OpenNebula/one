@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -74,7 +74,7 @@ const char * Host::db_names =
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name))";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER)";
 
 
 const char * Host::monit_table = "host_monitoring";
@@ -182,13 +182,11 @@ int Host::extract_ds_info(
             Template        &tmpl,
             map<int, const VectorAttribute*> &ds)
 {
-    char *    error_msg;
-    int       rc;
+    char * error_msg;
+    int    rc;
 
-    const VectorAttribute *  vatt;
-    vector<const Attribute*> ds_att;
-
-    vector<const Attribute*>::const_iterator it;
+    vector<const VectorAttribute*> ds_att;
+    vector<const VectorAttribute*>::const_iterator it;
 
     // -------------------------------------------------------------------------
     // Parse Template
@@ -223,18 +221,11 @@ int Host::extract_ds_info(
     {
         int dsid;
 
-        vatt = dynamic_cast<const VectorAttribute*>(*it);
-
-        if (vatt == 0)
-        {
-            continue;
-        }
-
-        rc = vatt->vector_value("ID", dsid);
+        rc = (*it)->vector_value("ID", dsid);
 
         if (rc == 0 && dsid != -1)
         {
-            ds.insert(make_pair(dsid, vatt));
+            ds.insert(make_pair(dsid, *it));
         }
     }
 
@@ -256,7 +247,8 @@ int Host::update_info(Template        &tmpl,
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
     vector<Attribute*>           ds_att;
-    vector<Attribute*>           local_ds_att;
+    vector<VectorAttribute*>     pci_att;
+    vector<VectorAttribute*>     local_ds_att;
 
     int   rc;
     int   vmid;
@@ -333,7 +325,7 @@ int Host::update_info(Template        &tmpl,
 
     obj_template->remove("VM", vm_att);
 
-    tmp_lost_vms = vm_collection.get_collection_copy();
+    tmp_lost_vms = vm_collection.clone();
 
     tmp_zombie_vms.clear();
 
@@ -465,6 +457,10 @@ int Host::update_info(Template        &tmpl,
 
     host_share.set_ds_monitorization(local_ds_att);
 
+    obj_template->remove("PCI", pci_att);
+
+    host_share.set_pci_monitorization(pci_att);
+
     return 0;
 }
 
@@ -501,7 +497,7 @@ void Host::error_info(const string& message, set<int> &vm_ids)
 {
     ostringstream oss;
 
-    vm_ids = vm_collection.get_collection_copy();
+    vm_ids = vm_collection.clone();
 
     oss << "Error monitoring Host " << get_name() << " (" << get_oid() << ")"
         << ": " << message;
@@ -596,9 +592,9 @@ string& Host::to_xml(string& xml) const
        "<ID>"               << oid              << "</ID>"              <<
        "<NAME>"             << name             << "</NAME>"            <<
        "<STATE>"            << state            << "</STATE>"           <<
-       "<IM_MAD><![CDATA["  << im_mad_name      << "]]></IM_MAD>"       <<
-       "<VM_MAD><![CDATA["  << vmm_mad_name     << "]]></VM_MAD>"       <<
-       "<VN_MAD><![CDATA["  << vnm_mad_name     << "]]></VN_MAD>"       <<
+       "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
+       "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
+       "<VN_MAD>"        << one_util::escape_xml(vnm_mad_name) << "</VN_MAD>" <<
        "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
        "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
        "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
@@ -634,7 +630,7 @@ int Host::from_xml(const string& xml)
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
     rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
 
-    rc += xpath(last_monitored, "/HOST/LAST_MON_TIME", 0);
+    rc += xpath<time_t>(last_monitored, "/HOST/LAST_MON_TIME", 0);
 
     rc += xpath(cluster_id, "/HOST/CLUSTER_ID", -1);
     rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");

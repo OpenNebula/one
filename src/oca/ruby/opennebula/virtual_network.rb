@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -322,6 +322,17 @@ module OpenNebula
             else
                 false
             end
+        end
+
+        # Returns an array with the numeric virtual router ids
+        def vrouter_ids
+            array = Array.new
+
+            self.each("VROUTERS/ID") do |id|
+                array << id.text.to_i
+            end
+
+            return array
         end
 
     private

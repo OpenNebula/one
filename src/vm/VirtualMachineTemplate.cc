@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,19 +34,14 @@ int VirtualMachineTemplate::replace_disk_image(int target_id, const string&
     string tmp_name;
     string tmp_uname;
 
-    vector<Attribute  *> disks;
+    vector<VectorAttribute  *> disks;
     VectorAttribute *    disk = 0;
 
     num_disks = get("DISK", disks);
 
     for(int i=0; i<num_disks; i++)
     {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
+        disk = disks[i];
 
         if (disk->vector_value("IMAGE_ID", tmp_id) == 0) //DISK has IMAGE_ID
         {

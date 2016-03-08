@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -9,6 +25,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Notifier = require('utils/notifier');
   var OpenNebulaImage = require('opennebula/image');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -17,10 +34,8 @@ define(function(require) {
   var RESOURCE = "File";
   var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
-  var COLUMN_IDS = {
-    "DATASTORE": 5,
-    "TYPE": 7
-  };
+  var LABELS_COLUMN = 13;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -32,6 +47,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -58,13 +74,14 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("#VMS"),
       Locale.tr("Target"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
       "id_index": 1,
       "name_index": 4,
       "uname_index": 2,
-      "select_resource": Locale.tr("Please select an file from the list"),
+      "select_resource": Locale.tr("Please select a file from the list"),
       "you_selected": Locale.tr("You selected the following file:"),
       "select_resource_multiple": Locale.tr("Please select one or more files from the list"),
       "you_selected_multiple": Locale.tr("You selected the following files:")
@@ -76,7 +93,6 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
-  Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
 
@@ -108,7 +124,8 @@ define(function(require) {
       parseInt(element.PERSISTENT) ? "yes" : "no",
       OpenNebulaImage.stateStr(element.STATE),
       element.RUNNING_VMS,
-      element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--'
+      element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--',
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -51,7 +51,7 @@ public:
      */
     int add_host(int id, string& error_msg)
     {
-        int rc = hosts.add_collection_id(id);
+        int rc = hosts.add(id);
 
         if ( rc < 0 )
         {
@@ -69,7 +69,7 @@ public:
      */
     int del_host(int id, string& error_msg)
     {
-        int rc = hosts.del_collection_id(id);
+        int rc = hosts.del(id);
 
         if ( rc < 0 )
         {
@@ -101,7 +101,7 @@ public:
      */
     set<int> get_datastores()
     {
-        return datastores.get_collection_copy();
+        return datastores.clone();
     };
 
     /**
@@ -118,7 +118,7 @@ public:
      */
     int add_vnet(int id, string& error_msg)
     {
-        int rc = vnets.add_collection_id(id);
+        int rc = vnets.add(id);
 
         if ( rc < 0 )
         {
@@ -136,7 +136,7 @@ public:
      */
     int del_vnet(int id, string& error_msg)
     {
-        int rc = vnets.del_collection_id(id);
+        int rc = vnets.del(id);
 
         if ( rc < 0 )
         {
@@ -151,7 +151,7 @@ public:
      */
     set<int> get_host_ids()
     {
-        return hosts.get_collection_copy();
+        return hosts.clone();
     }
 
     /**
@@ -159,7 +159,7 @@ public:
      */
     set<int> get_datastore_ids()
     {
-        return datastores.get_collection_copy();
+        return datastores.clone();
     }
 
     /**
@@ -167,7 +167,7 @@ public:
      */
     set<int> get_vnet_ids()
     {
-        return vnets.get_collection_copy();
+        return vnets.clone();
     }
 
     /**

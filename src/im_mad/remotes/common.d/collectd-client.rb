@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,9 +65,9 @@ class CollectdClient
     end
 
     def run_probes
-        data   = `#{@run_probes_cmd}`
+        data   = `#{@run_probes_cmd} 2>&1`
         code   = $?.exitstatus == 0
-        data   = "Error executing probes" if !code
+
         data64 = Base64::encode64(data).strip.delete("\n")
 
         [data64, code]

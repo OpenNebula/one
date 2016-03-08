@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -49,7 +65,7 @@ define(function(require) {
    */
 
   function _html() {
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     var rules = Utils.getRules(this.element);
@@ -81,8 +97,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     // TODO: simplify interface?

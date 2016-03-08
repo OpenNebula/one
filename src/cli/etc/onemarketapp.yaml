@@ -1,0 +1,43 @@
+---
+:ID:
+  :desc: ONE identifier for the MarketPlaceApp
+  :size: 4
+
+:NAME:
+  :desc: Name of the MarketPlaceApp
+  :size: 25
+  :left: true
+
+:VERSION:
+  :desc: Version of the MarketPlaceApp
+  :size: 10
+
+:SIZE:
+  :desc: MarketPlaceApp size (M)
+  :size: 5
+
+:STAT:
+  :desc: State of the app
+  :size: 4
+
+:TYPE:
+  :desc: MarketPlaceApp type
+  :size: 4
+
+:REGTIME:
+  :desc: Registration time of the MarketplaceApp
+  :size: 8
+
+:MARKET:
+  :desc: Name of the MarketPlace
+  :size: 20
+
+:default:
+- :ID
+- :NAME
+- :VERSION
+- :SIZE
+- :STAT
+- :TYPE
+- :REGTIME
+- :MARKET

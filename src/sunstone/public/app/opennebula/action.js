@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError = require('./error');
@@ -37,10 +53,10 @@ define(function(require) {
       type: "POST",
       contentType: "application/json; charset=utf-8",
       data: JSON.stringify(action),
-      success: function() {
+      success: function(response) {
         _clearCache(cache_name);
 
-        return callback ? callback(request) : null;
+        return callback ? callback(request, response) : null;
       },
       error: function(response) {
         return callbackError ?
@@ -229,11 +245,12 @@ define(function(require) {
       });
     },
 
-    //Subresource examples: "fetch_template", "log"...
+    //Subresource examples: "log"...
     "show": function(params, resource, subresource, path) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
+      var data = params.data;
       var request = subresource ?
           OpenNebulaHelper.request(resource, subresource, id) :
           OpenNebulaHelper.request(resource, "show", id);
@@ -246,6 +263,7 @@ define(function(require) {
         url: url,
         type: "GET",
         dataType: "json",
+        data: data,
         success: function(response) {
           return callback ? callback(request, response) : null;
         },

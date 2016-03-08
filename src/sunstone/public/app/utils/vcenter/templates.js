@@ -1,8 +1,26 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaError = require('opennebula/error');
+  var DomDataTable = require('utils/dom-datatable');
+  var Notifier = require('utils/notifier');
 
   var TemplateHTML = require('hbs!./templates/html');
 
@@ -83,26 +101,81 @@ define(function(require) {
                   '</div>' +
                 '</div>').appendTo($(".content", context))
           } else {
-            $.each(templates, function(id, template){
-              var trow = $('<div class="vcenter_template">' +
-                  '<div class="row">' +
-                    '<div class="large-10 columns">' +
-                      '<label>' +
-                        '<input type="checkbox" class="template_name" checked/> ' +
-                        template.name + '&emsp;<span style="color: #999">' + template.host + '</span>' +
-                      '</label>' +
-                      '<div class="large-12 columns vcenter_template_response">'+
-                      '</div>'+
-                    '</div>' +
-                    '<div class="large-2 columns vcenter_template_result">'+
-                    '</div>'+
-                  '</div>'+
-                '</div>').appendTo($(".content", context))
+            var newdiv = $(
+                '<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<table class="dataTable vcenter_template_table" id="vcenter_template_table_' + datacenter_name + '">' +
+                      '<thead>' +
+                        '<th class="check">' +
+                          '<input type="checkbox" class="check_all"/>' +
+                        '</th>' +
+                        '<th>' + Locale.tr("Name") + '</th>' +
+                        '<th>' + Locale.tr("Datacenter") + '</th>' +
+                        '<th/>' +
+                        '<th/>' +
+                      '</thead>' +
+                      '<tbody/>' +
+                    '</table>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", context));
 
-              $(".template_name", trow).data("template_name", template.name)
-              $(".template_name", trow).data("one_template", template.one)
+            var tbody = $('tbody', newdiv);
+
+            $.each(templates, function(id, template){
+              var trow = $(
+                '<tr class="vcenter_template">' +
+                  '<td><input type="checkbox" class="check_item" checked/></td>' +
+                  '<td>' + template.name + '</td>' +
+                  '<td>' + template.host + '</td>' +
+                  '<td><div class="vcenter_template_response"/></td>' +
+                  '<td><div class="vcenter_template_result"/></td>' +
+                '</tr>').appendTo(tbody);
+
+              $(".check_item", trow).data("template_name", template.name)
+              $(".check_item", trow).data("one_template", template.one)
             });
-          };
+
+            var tmplDataTable = new DomDataTable(
+              'vcenter_template_table_' + datacenter_name,
+              {
+                actions: false,
+                info: false,
+                dataTableOptions: {
+                  "bAutoWidth": false,
+                  "bSortClasses" : false,
+                  "bDeferRender": false,
+                  //"ordering": true,
+                  "order": [],
+                  "aoColumnDefs": [
+                    {"bSortable": false, "aTargets": [0]},
+                    {"bSortable": true, "aTargets": [1,2]},
+                    {"sWidth": "35px", "aTargets": [0]},
+                  ]
+                },
+                customTrListener: function(tableObj, tr){
+                  $("input.check_item", tr).click();
+                }
+              });
+
+            tmplDataTable.initialize();
+
+            newdiv.on("change", '.check_all', function() {
+              var table = $(this).closest('table');
+              if ($(this).is(":checked")) { //check all
+                $('tbody input.check_item', table).prop('checked', true).change();
+              } else { //uncheck all
+                $('tbody input.check_item', table).prop('checked', false).change();
+              }
+            });
+
+            $('table', newdiv).on('draw.dt', function(){
+              _recountCheckboxes(this);
+            });
+
+            $(".check_item", newdiv).on('change', function(){
+              _recountCheckboxes($('table', newdiv));
+            });
+          }
         });
       },
       error: function(response){
@@ -112,46 +185,54 @@ define(function(require) {
     });
   }
 
+  function _recountCheckboxes(table) {
+    var total_length = $('input.check_item', table).length;
+    var checked_length = $('input.check_item:checked', table).length;
+    $('.check_all', table).prop('checked', (total_length == checked_length));
+  }
+
   function _import(context) {
-    $.each($(".template_name:checked", context), function() {
-      var template_context = $(this).closest(".vcenter_template");
+    $.each($("table.vcenter_template_table", context), function() {
+      $.each($(this).DataTable().$(".check_item:checked"), function() {
+        var template_context = $(this).closest(".vcenter_template");
 
-      $(".vcenter_template_result:not(.success)", template_context).html(
-          '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-            '<i class="fa fa-cloud fa-stack-2x"></i>' +
-            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-          '</span>');
+        $(".vcenter_template_result:not(.success)", template_context).html(
+            '<span class="fa-stack" style="color: #dfdfdf">' +
+              '<i class="fa fa-cloud fa-stack-2x"></i>' +
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+            '</span>');
 
-      var template_json = {
-        "vmtemplate": {
-          "template_raw": $(this).data("one_template")
-        }
-      };
+        var template_json = {
+          "vmtemplate": {
+            "template_raw": $(this).data("one_template")
+          }
+        };
 
-      OpenNebulaTemplate.create({
-        timeout: true,
-        data: template_json,
-        success: function(request, response) {
-          $(".vcenter_template_result", template_context).addClass("success").html(
-              '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-              '</span>');
+        OpenNebulaTemplate.create({
+          timeout: true,
+          data: template_json,
+          success: function(request, response) {
+            $(".vcenter_template_result", template_context).addClass("success").html(
+                '<span class="fa-stack" style="color: #dfdfdf">' +
+                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
+                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
+                '</span>');
 
-          $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">' +
-                Locale.tr("Template created successfully") + ' ID:' + response.VMTEMPLATE.ID +
-              '</p>');
-        },
-        error: function (request, error_json) {
-          $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-              '</span>');
+            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">' +
+                  Locale.tr("Template created successfully") + ' ID:' + response.VMTEMPLATE.ID +
+                '</p>');
+          },
+          error: function (request, error_json) {
+            $(".vcenter_template_result", template_context).html('<span class="fa-stack" style="color: #dfdfdf">' +
+                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
+                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
+                '</span>');
 
-          $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">' +
-                (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-              '</p>');
-        }
+            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">' +
+                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
+                '</p>');
+          }
+        });
       });
     });
   }

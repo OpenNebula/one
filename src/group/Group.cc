@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -217,14 +217,12 @@ string& Group::to_xml_extended(string& xml, bool extended) const
     string          admins_xml;
     string          template_xml;
 
-    ObjectCollection::to_xml(collection_xml);
-
     oss <<
     "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"        <<
         "<NAME>" << name << "</NAME>"      <<
         obj_template->to_xml(template_xml) <<
-        collection_xml                     <<
+        users.to_xml(collection_xml) <<
         admins.to_xml(admins_xml);
 
     if (extended)
@@ -273,7 +271,7 @@ int Group::from_xml(const string& xml)
         return -1;
     }
 
-    rc += ObjectCollection::from_xml_node(content[0]);
+    rc += users.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -320,7 +318,7 @@ int Group::add_admin(int user_id, string& error_msg)
     int rc;
     ostringstream oss;
 
-    if ( collection_contains(user_id) == false )
+    if ( users.contains(user_id) == false )
     {
         oss << "User " << user_id << " is not part of Group "
             << oid << ".";
@@ -330,7 +328,7 @@ int Group::add_admin(int user_id, string& error_msg)
         return -1;
     }
 
-    rc = admins.add_collection_id(user_id);
+    rc = admins.add(user_id);
 
     if (rc == -1)
     {
@@ -380,7 +378,7 @@ void Group::add_admin_rules(int user_id)
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
-    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid> USE+MANAGE *
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
     rc = aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
@@ -391,6 +389,7 @@ void Group::add_admin_rules(int user_id)
             PoolObjectSQL::TEMPLATE |
             PoolObjectSQL::DOCUMENT |
             PoolObjectSQL::SECGROUP |
+            PoolObjectSQL::VROUTER |
             AclRule::GROUP_ID |
             oid,
 
@@ -412,7 +411,7 @@ void Group::add_admin_rules(int user_id)
 
 int Group::del_admin(int user_id, string& error_msg)
 {
-    int rc = admins.del_collection_id(user_id);
+    int rc = admins.del(user_id);
 
     if (rc == -1)
     {
@@ -463,7 +462,7 @@ void Group::del_admin_rules(int user_id)
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
-    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid> USE+MANAGE *
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
     rc = aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
@@ -474,6 +473,7 @@ void Group::del_admin_rules(int user_id)
             PoolObjectSQL::TEMPLATE |
             PoolObjectSQL::DOCUMENT |
             PoolObjectSQL::SECGROUP |
+            PoolObjectSQL::VROUTER |
             AclRule::GROUP_ID |
             oid,
 

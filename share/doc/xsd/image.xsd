@@ -48,6 +48,7 @@
         <xs:element name="RUNNING_VMS" type="xs:integer"/>
         <xs:element name="CLONING_OPS" type="xs:integer"/>
         <xs:element name="CLONING_ID" type="xs:integer"/>
+        <xs:element name="TARGET_SNAPSHOT" type="xs:integer"/>
         <xs:element name="DATASTORE_ID" type="xs:integer"/>
         <xs:element name="DATASTORE" type="xs:string"/>
         <xs:element name="VMS">
@@ -64,7 +65,33 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
+        <xs:element name="APP_CLONES">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="SNAPSHOTS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="DATE" type="xs:integer"/>
+                    <xs:element name="ID" type="xs:integer"/>
+                    <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="PARENT" type="xs:integer"/>
+                    <xs:element name="SIZE" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

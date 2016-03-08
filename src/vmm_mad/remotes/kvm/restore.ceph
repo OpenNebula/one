@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+DRIVER_PATH=$(dirname $0)
+
+source $DRIVER_PATH/kvmrc
+source $DRIVER_PATH/../../scripts_common.sh
+
+FILE=$1
+HOST=$2
+DEPLOY_ID=$3
+
+VM_ID=$4
+DS_ID=$5
+
+#-------------------------------------------------------------------------------
+# Ceph
+#-------------------------------------------------------------------------------
+
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(cat | $XPATH \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
+
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
+RBD_SOURCE="${POOL_NAME}/one-sys-${VM_ID}-checkpoint"
+
+exec_and_log "$RBD export $RBD_SOURCE $FILE" "Error exporting checkpoint into from $RBD_SOURCE to $FILE"
+exec_and_log "$RBD rm $RBD_SOURCE" "Error removing checkpoint $RBD_SOURCE"

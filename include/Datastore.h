@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -26,7 +26,7 @@
 /**
  *  The Datastore class.
  */
-class Datastore : public PoolObjectSQL, ObjectCollection, public Clusterable
+class Datastore : public PoolObjectSQL, public Clusterable
 {
 public:
     /**
@@ -108,7 +108,7 @@ public:
      */
     int add_image(int id)
     {
-        return add_collection_id(id);
+        return images.add(id);
     };
 
     /**
@@ -118,7 +118,7 @@ public:
      */
     int del_image(int id)
     {
-        return del_collection_id(id);
+        return images.del(id);
     };
 
     /**
@@ -126,7 +126,15 @@ public:
      */
     set<int> get_image_ids()
     {
-        return get_collection_copy();
+        return images.clone();
+    }
+
+    /**
+     *  Returns the number of images
+     */
+    int images_size()
+    {
+        return images.size();
     }
 
     /**
@@ -181,9 +189,8 @@ public:
      * @param disk
      * @param inherit_attrs Attributes to be inherited from the DS template
      *   into the disk
-     * @return 0 on success
      */
-    int disk_attribute(
+    void disk_attribute(
             VectorAttribute *       disk,
             const vector<string>&   inherit_attrs);
 
@@ -223,6 +230,12 @@ public:
 
         return shared;
     };
+
+    /**
+     * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
+     * @return true if persistent only
+     */
+    bool is_persistent_only();
 
     /**
      * Enable or disable the DS. Only for System DS.
@@ -290,6 +303,11 @@ private:
      */
     DatastoreState state;
 
+    /**
+     *  Collection of image ids in this datastore
+     */
+    ObjectCollection images;
+
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -305,6 +323,18 @@ private:
             const string&       cluster_name);
 
     virtual ~Datastore();
+
+    /**
+     *  Sets the DISK_TYPE attribute for the datastore. This function will
+     *  check the type against the supported DiskTypes for each datastore type
+     *  (SYSTEM, IMAGE and FILE).
+     *    @param s_dt DISK_TYPE in string form. If empty Image::FILE will be used
+     *    @param error description if any. The string is upcased
+     *
+     *    @return -1 if an inconsistent assigment is found
+     *
+     */
+    int set_ds_disk_type(string& s_dt, string& error);
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -362,6 +392,17 @@ private:
         return new DatastoreTemplate;
     }
 
+    /**
+     *  Verify the proper definition of the DS_MAD by checking the attributes
+     *  related to the DS defined in DS_MAD_CONF specified in the Datastore
+     *  template
+     */
+    int set_ds_mad(string &ds_mad, string &error_str);
+
+    /**
+     *  Verify the proper definition of the TM_MAD by checking the attributes
+     *  related to the TM defined in TM_MAD_CONF
+     */
     int set_tm_mad(string &tm_mad, string &error_str);
 
     /**

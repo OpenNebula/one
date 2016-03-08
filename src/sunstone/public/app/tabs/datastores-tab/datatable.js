@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -8,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('./utils/datastore-capacity-bar');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -16,6 +33,8 @@ define(function(require) {
   var RESOURCE = "Datastore";
   var XML_ROOT = "DATASTORE";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 12;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -41,6 +60,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -67,6 +87,7 @@ define(function(require) {
       Locale.tr("DS MAD"),
       Locale.tr("Type"),
       Locale.tr("Status"),
+      Locale.tr("Labels")
     ]
 
     this.selectOptions = {
@@ -109,7 +130,8 @@ define(function(require) {
         element.TM_MAD,
         element.DS_MAD,
         OpenNebulaDatastore.typeStr(element.TYPE),
-        OpenNebulaDatastore.stateStr(element.STATE)
+        OpenNebulaDatastore.stateStr(element.STATE),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });

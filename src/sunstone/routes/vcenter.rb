@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L.                                        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -99,6 +99,45 @@ get '/vcenter/networks' do
         end
 
         [200, networks.to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+get '/vcenter/images/:ds_name' do
+    begin
+        images = vcenter_client.vcenter_images(params[:ds_name],
+            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+
+        if images.nil?
+            msg = "No datastore found"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        [200, images.to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end
+
+get '/vcenter/datastores' do
+    begin
+        datastores = vcenter_client.vcenter_datastores(
+            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        if datastores.nil?
+            msg = "No datacenter found"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        [200, datastores.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)

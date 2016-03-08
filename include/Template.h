@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -89,6 +89,9 @@ public:
      */
     virtual ~Template();
 
+    /* ---------------------------------------------------------------------- */
+    /* Functions to create a Template parsing a file, stream in txt or XML    */
+    /* ---------------------------------------------------------------------- */
     /**
      *  Parse a string representing the template, each attribute is inserted
      *  in the template class.
@@ -120,6 +123,30 @@ public:
     int parse_str_or_xml(const string &parse_str, string& error_msg);
 
     /**
+     *  Rebuilds the template from a xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
+
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
+
+    /**
+     *  Writes the Template into a output stream in txt format
+     */
+    friend ostream& operator<<(ostream& os, const Template& t);
+
+    /* ---------------------------------------------------------------------- */
+    /* Functions to render a Template in a str, or xml                        */
+    /* ---------------------------------------------------------------------- */
+    /**
      *  Marshall a template. This function generates a single string with the
      *  template attributes ("VAR=VAL<delim>...").
      *    @param str_tempalte string that hold the template
@@ -150,6 +177,9 @@ public:
      */
     string& to_str(string& str) const;
 
+    /* ---------------------------------------------------------------------- */
+    /* Functions to add, remove and change attributes from a Template         */
+    /* ---------------------------------------------------------------------- */
     /**
      *  Clears all the attributes from the template
      */
@@ -162,99 +192,54 @@ public:
      */
     virtual void set(Attribute * attr);
 
+    virtual void set(vector<SingleAttribute *>& values)
+    {
+        _set<SingleAttribute>(values);
+    }
+
+    virtual void set(vector<VectorAttribute *>& values)
+    {
+        _set<VectorAttribute>(values);
+    }
+
     /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined)
+     *  Adds a new attribute to the template (replacing it if already defined)
      *    @param name of the new attribute
      *    @param value of the new attribute
      *    @return 0 on success
      */
+    template<typename T>
+    int replace(const string& name, const T& value)
+    {
+        std::ostringstream oss;
+
+        oss << value;
+
+        return replace(name, oss.str());
+    }
+
     int replace(const string& name, const string& value);
 
     /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined)
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace(const string& name, int value)
-    {
-        ostringstream oss;
-
-        oss << value;
-
-        return replace(name, oss.str());
-    }
-
-    /**
-     *  Adds a new attribute to the template (replacing it if
-     *  already defined)
-     *    @param name of the new attribute
-     *    @param value of the new attribute
-     *    @return 0 on success
-     */
-    int replace(const string& name, long long value)
-    {
-        ostringstream oss;
-
-        oss << value;
-
-        return replace(name, oss.str());
-    }
-
-    /*
      *  Adds a new single attribute to the template. It will replace an existing
      *  one if replace_mode was set to true
      *    @param name of the attribute
      *    @param value of the attribute
      */
-     void add(const string& name, const string& value)
-     {
-        set(new SingleAttribute(name, value));
-     }
-
-    /**
-     *  Adds a new single attribute to the template.
-     *    @param name of the attribute
-     *    @param value of the attribute
-     */
-     void add(const string& name, int value)
-     {
-        ostringstream oss;
+    template<typename T>
+    void add(const string& name, const T& value)
+    {
+        std::ostringstream oss;
 
         oss << value;
 
         set(new SingleAttribute(name, oss.str()));
-     }
+	}
 
-     /**
-      *  Adds a new single attribute to the template.
-      *    @param name of the attribute
-      *    @param value of the attribute
-      */
-     void add(const string& name, long long value)
-     {
-         ostringstream oss;
-
-         oss << value;
-
-         set(new SingleAttribute(name, oss.str()));
-     }
-
-    /**
-     *  Adds a new single attribute to the template.
-     *    @param name of the attribute
-     *    @param value of the attribute
-     */
-     void add(const string& name, float value)
-     {
-        ostringstream oss;
-
-        oss << value;
-
-        set(new SingleAttribute(name, oss.str()));
-     }
+	void add(const string& name, const string& value)
+	{
+		set(new SingleAttribute(name, value));
+	}
 
     /**
      *  Removes an attribute from the template. The attributes are returned. The
@@ -263,9 +248,27 @@ public:
      *    @param values a vector containing a pointer to the attributes
      *    @return the number of attributes removed
      */
-    virtual int remove(
-        const string&        name,
-        vector<Attribute *>& values);
+    template<typename T>
+    int remove(const string& name, vector<T *>& values)
+    {
+        pair<multimap<string, Attribute *>::iterator,
+             multimap<string, Attribute *>::iterator> index;
+
+        multimap<string, Attribute *>::iterator i;
+
+        int j;
+
+        index = attributes.equal_range(name);
+
+        for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+        {
+            values.push_back(static_cast<T *>(i->second));
+        }
+
+        attributes.erase(index.first, index.second);
+
+        return j;
+    }
 
     /**
      *  Removes an attribute from the template, but it DOES NOT free the
@@ -283,94 +286,90 @@ public:
      */
     virtual int erase(const string& name);
 
+    /* ---------------------------------------------------------------------- */
+    /* Functions get attributes from a template                               */
+    /* ---------------------------------------------------------------------- */
     /**
-     *  Gets all the attributes with the given name.
+     *  Gets the all the attributes of the given name and stores a reference
+     *  to them in a vector. If the selected attribute does not match the
+     *  requested type it will not be included
      *    @param name the attribute name.
+     *    @param values vector with the values
+     *
      *    @return the number of elements in the vector
      */
-    virtual int get(
-        const string& name,
-        vector<const Attribute*>& values) const;
-
-    /**
-     *  Gets all the attributes with the given name,  non-const version
-     *    @param name the attribute name.
-     *    @return the number of elements in the vector
-     */
-    virtual int get(
-        const string& name,
-        vector<Attribute*>& values);
-
-    /**
-     *  Gets the value of a Single attributes (string) with the given name.
-     *    @param name the attribute name.
-     *    @param value the attribute value, a string, "" if the attribute is not
-     *    defined or not Single
-     */
-    virtual void get(
-        const string& name,
-        string& value) const;
-
-    /**
-     *  Gets the value of a Single attributes (int) with the given name.
-     *    @param name the attribute name.
-     *    @param value the attribute value, an int, 0 if the attribute is not
-     *    defined or not Single
-     *
-     *    @return True if the Single attribute was found and is a valid integer
-     *    value
-     */
-    virtual bool get(
-        const string& name,
-        int&    value) const;
-
-    /**
-     *  Gets the value of a Single attributes (long long) with the given name.
-     *    @param name the attribute name.
-     *    @param value the attribute value, a long long, 0 if the attribute is not
-     *    defined or not Single
-     *
-     *    @return True if the Single attribute was found and is a valid integer
-     *    value
-     */
-    virtual bool get(
-        const string& name,
-        long long&    value) const;
-
-    /**
-     *  Gets the value of a Single attributes (float) with the given name.
-     *    @param name the attribute name.
-     *    @param value the attribute value, an int, 0 if the attribute is not
-     *    defined or not Single
-     *
-     *    @return True if the Single attribute was found and is a valid float
-     *    value
-     */
-    virtual bool get(
-        const string&   name,
-        float&          value) const;
-
-    /**
-     *  Gets the value of a Single attributes (bool) with the given name.
-     *    @param name the attribute name.
-     *    @param value the attribute value, a bool, false if the attribute is not
-     *    defined or not Single
-     *
-     *    @return True if the Single attribute was found and is a valid bool
-     *    value
-     */
-    virtual bool get(
-        const string&   name,
-        bool&           value) const;
-
-    /**
-     *  Trims the trailing spaces in the NAME attribute
-     *    @return True if the attribute was found and trimmed
-     */
-    virtual bool trim_name()
+    inline virtual int get(const string& n, vector<const VectorAttribute*>& v) const
     {
-        return trim("NAME");
-    };
+        return __get<VectorAttribute>(n, v);
+    }
+
+    inline virtual int get( const string& n, vector<VectorAttribute*>& v)
+    {
+        return __get<VectorAttribute>(n, v);
+    }
+
+    inline virtual int get(const string& n, vector<const SingleAttribute*>& s) const
+    {
+        return __get<SingleAttribute>(n, s);
+    }
+
+    inline virtual int get( const string& n, vector<SingleAttribute*>& s)
+    {
+        return __get<SingleAttribute>(n, s);
+    }
+
+    /**
+     *  Gets the first Attribute of the specified type with the given name.
+     *  Const and non-const versions of this method is provided
+     *    @param name the attribute name.
+     *    @return true first attribute or 0 if not found or wrong type
+     */
+	inline const VectorAttribute * get(const string& name) const
+	{
+		return __get<VectorAttribute>(name);
+	}
+
+	inline VectorAttribute * get(const string& name)
+	{
+		return __get<VectorAttribute>(name);
+	}
+
+    /**
+     *  Gets the value of a SingleAttribute with the given name and converts
+     *  it to the target value format
+     *    @param name the attribute name.
+     *    @param value the attribute value
+     *
+     *    @return true if a SingleAttribute was found and it stores a valid
+     *    value, false otherwise.
+     */
+    template<typename T>
+    bool get(const string& name, T& value) const
+    {
+        const SingleAttribute * s = __get<SingleAttribute>(name);
+
+        value = 0;
+
+        if ( s == 0 )
+        {
+            return false;
+        }
+
+        istringstream iss(s->value());
+
+        iss >> value;
+
+        if (iss.fail() || !iss.eof())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    virtual bool get(const string& name, bool& value) const;
+
+    virtual bool get(const string& name, string& value) const;
 
     /**
      *  Trims the trailing spaces in the attribute
@@ -379,23 +378,14 @@ public:
      */
     virtual bool trim(const string& name);
 
-    friend ostream& operator<<(ostream& os, const Template& t);
-
     /**
-     *  Rebuilds the template from a xml formatted string
-     *    @param xml_str The xml-formatted string
-     *
-     *    @return 0 on success, -1 otherwise
+     *  Trims the trailing spaces in the NAME attribute
+     *    @return True if the attribute was found and trimmed
      */
-    int from_xml(const string &xml_str);
-
-    /**
-     *  Rebuilds the object from an xml node
-     *    @param node The xml node pointer
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml_node(const xmlNodePtr node);
+    inline virtual bool trim_name()
+    {
+        return trim("NAME");
+    };
 
     /**
      *  Merges another Template, adding the new attributes and
@@ -452,7 +442,7 @@ protected:
      * @param restricted_attributes The attributes will be stored here
      */
     static void set_restricted_attributes(
-            vector<const Attribute *>& rattrs,
+            vector<const SingleAttribute *>& rattrs,
             vector<string>& restricted_attributes);
 
     /**
@@ -505,6 +495,107 @@ private:
      *    @param root_element The xml element to build the template from.
      */
     void rebuild_attributes(const xmlNode * root_element);
+
+    /**
+     *  Gets the all the attributes of the given name and stores a reference
+     *  to them in a vector. If the selected attribute does not match the
+     *  requested type it will not be included
+     *    @param name the attribute name.
+     *    @param values vector with the values
+     *
+     *    @return the number of elements in the vector
+     */
+    template<typename T>
+    int __get(const string& name, vector<const T *>& values) const
+    {
+        pair<multimap<string, Attribute *>::const_iterator,
+             multimap<string, Attribute *>::const_iterator> index;
+
+        multimap<string, Attribute *>::const_iterator i;
+
+        int j;
+
+        index = attributes.equal_range(name);
+
+        for (i = index.first, j = 0 ; i != index.second ; i++, j++)
+        {
+            const T * vatt = dynamic_cast<const T *>(i->second);
+
+            if ( vatt == 0 )
+            {
+                continue;
+            }
+
+            values.push_back(vatt);
+        }
+
+        return j;
+    }
+
+    /* Non-const version of get for all attributes  */
+    template<typename T>
+    int __get(const string& name, vector<T *>& values)
+    {
+        pair<multimap<string, Attribute *>::iterator,
+             multimap<string, Attribute *>::iterator> index;
+
+        multimap<string, Attribute *>::iterator i;
+
+        int j;
+
+        index = attributes.equal_range(name);
+
+        for (i = index.first, j = 0 ; i != index.second ; i++, j++)
+        {
+            T * vatt = dynamic_cast<T *>(i->second);
+
+            if ( vatt == 0 )
+            {
+                continue;
+            }
+
+            values.push_back(vatt);
+        }
+
+        return j;
+    }
+
+    /**
+     *  Gets the first Attribute of the specified type with the given name.
+     *  Const and non-const versions of this method is provided
+     *    @param name the attribute name.
+     *    @return true first attribute or 0 if not found or wrong type
+     */
+    template<typename T>
+    const T * __get(const string& s) const
+    {
+        vector<const T*> atts;
+
+        if (__get<T>(s, atts) < 1)
+        {
+            return 0;
+        }
+
+        return atts[0];
+    }
+
+    template<typename T>
+    T * __get(const string& s)
+    {
+        return const_cast<T *>(
+                static_cast<const Template&>(*this).__get<T>(s));
+    }
+
+    template<typename T>
+    void _set(vector<T *>& values)
+    {
+        typename vector<T *>::iterator it;
+
+        for(it = values.begin(); it != values.end(); it++ )
+        {
+            set(*it);
+        }
+    }
 };
 
 /* -------------------------------------------------------------------------- */

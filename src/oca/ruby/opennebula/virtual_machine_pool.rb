@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -132,18 +132,18 @@ module OpenNebula
         #   and an Array of 'timestamp, value'.
         #
         # @example
-        #   vm_pool.monitoring( ['MONITORING/USEDCPU', 'MONITORING/NETTX'] )
+        #   vm_pool.monitoring( ['MONITORING/CPU', 'MONITORING/NETTX'] )
         #
         #   {"3"=>
         #     {
-        #     "MONITORING/USEDCPU"=>[["1435085098", "47"], ["1435085253", "5"],
+        #     "MONITORING/CPU"=>[["1435085098", "47"], ["1435085253", "5"],
         #       ["1435085410", "48"], ["1435085566", "3"], ["1435088136", "2"]],
         #     "MONITORING/NETTX"=>[["1435085098", "0"], ["1435085253", "50"],
         #     ["1435085410", "50"], ["1435085566", "50"], ["1435085723", "50"]]
         #     },
         #    "43" =>
         #     {
-        #     "MONITORING/USEDCPU"=>[["1435085098", "47"], ["1435085253", "5"],
+        #     "MONITORING/CPU"=>[["1435085098", "47"], ["1435085253", "5"],
         #       ["1435085410", "48"], ["1435085566", "3"], ["1435088136", "2"]],
         #     "MONITORING/NETTX"=>[["1435085098", "0"], ["1435085253", "50"],
         #     ["1435085410", "50"], ["1435085566", "50"], ["1435085723", "50"]]

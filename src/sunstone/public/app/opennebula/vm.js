@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var OpenNebulaAction = require('./action'),
       OpenNebulaHelper = require('./helper'),
@@ -93,6 +109,8 @@ define(function(require) {
     "DISK_SNAPSHOT",
     "DISK_SNAPSHOT_REVERT",
     "DISK_SNAPSHOT_DELETE",
+    "PROLOG_MIGRATE_UNKNOWN",
+    "PROLOG_MIGRATE_UNKNOWN_FAILURE",
   ];
 
   var LCM_STATES = {
@@ -155,7 +173,9 @@ define(function(require) {
     DISK_SNAPSHOT_DELETE_SUSPENDED  : 56,
     DISK_SNAPSHOT                   : 57,
     DISK_SNAPSHOT_REVERT            : 58,
-    DISK_SNAPSHOT_DELETE            : 59
+    DISK_SNAPSHOT_DELETE            : 59,
+    PROLOG_MIGRATE_UNKNOWN          : 60,
+    PROLOG_MIGRATE_UNKNOWN_FAILURE  : 61
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -219,6 +239,8 @@ define(function(require) {
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_REVERT
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE
+    Locale.tr("MIGRATE"),   // PROLOG_MIGRATE_UNKNOWN
+    Locale.tr("FAILURE"),   // PROLOG_MIGRATE_UNKNOWN_FAILURE
   ];
 
   var VNC_STATES = [
@@ -239,13 +261,24 @@ define(function(require) {
 
   var EXTERNAL_IP_ATTRS = [
     'GUEST_IP',
+    'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
   ];
 
+  var NIC_IP_ATTRS = [
+    "IP",
+    "IP6_GLOBAL",
+    "IP6_ULA",
+    "VROUTER_IP",
+    "VROUTER_IP6_GLOBAL",
+    "VROUTER_IP6_ULA"
+  ];
+
   var EXTERNAL_NETWORK_ATTRIBUTES = [
     'GUEST_IP',
+    'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
     'AWS_DNS_NAME',
     'AWS_PRIVATE_IP_ADDRESS',
@@ -286,7 +319,9 @@ define(function(require) {
     "disk-attach",
     "disk-detach",
     "nic-attach",
-    "nic-detach"
+    "nic-detach",
+    "snap-create",
+    "snap-delete"
   ];
 
   var VM = {
@@ -314,7 +349,8 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
     },
     "shutdown": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown");
+      var action_obj = {"hard": false};
+      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
     },
     "shutdown_hard" : function(params) {
       var action_obj = {"hard": true};
@@ -329,11 +365,11 @@ define(function(require) {
     "stop": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "stop");
     },
-    "cancel": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "cancel");
-    },
     "suspend": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "suspend");
+    },
+    "save_as_template": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template");
     },
     "resume": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resume");
@@ -429,6 +465,10 @@ define(function(require) {
         }
       });
     },
+    "append": function(params) {
+      var action_obj = {"template_raw" : params.data.extra_param, append : true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
+    },
     "update": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
@@ -509,6 +549,7 @@ define(function(require) {
         case LCM_STATES.BOOT_STOPPED_FAILURE:
         case LCM_STATES.PROLOG_RESUME_FAILURE:
         case LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+        case LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE:
           return true;
 
         default:
@@ -562,7 +603,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VMMMAD, ['vcenter', 'ec2', 'az', 'sl']) == -1;
+      return $.inArray(history.VMMMAD, ['vcenter', 'az', 'sl']) == -1;
     } else {
       return false;
     }
@@ -578,12 +619,12 @@ define(function(require) {
   }
 
   function retrieveExternalIPs(element) {
-    var template = element.TEMPLATE;
+    var monitoring = element.MONITORING;
     var ips = {};
     var externalIP;
 
     $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
+      externalIP = monitoring[IPAttr];
       if (externalIP) {
         ips[IPAttr] = externalIP;
       }
@@ -593,16 +634,18 @@ define(function(require) {
   }
 
   function retrieveExternalNetworkAttrs(element) {
-    var template = element.TEMPLATE;
     var ips = {};
     var externalAttr;
 
-    $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
-      externalAttr = template[attr];
-      if (externalAttr) {
-        ips[attr] = externalAttr;
-      }
-    });
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+        externalAttr = monitoring[attr];
+        if (externalAttr) {
+          ips[attr] = externalAttr;
+        }
+      });
+    }
 
     return ips;
   }
@@ -613,34 +656,40 @@ define(function(require) {
     var nic = element.TEMPLATE.NIC;
     var ips = [];
 
-    if (nic != undefined) {
-      if (!$.isArray(nic)) {
-        nic = [nic];
-      }
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      var externalIP;
+      $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
+        externalIP = monitoring[IPAttr];
 
-      $.each(nic, function(index, value) {
-        if (value.IP) {
-          ips.push(value.IP);
-        }
+        if (externalIP) {
+          var splitArr = externalIP.split(',');
 
-        if (value.IP6_GLOBAL) {
-          ips.push(value.IP6_GLOBAL);
+          $.each(splitArr, function(i,ip){
+            if (ip && ($.inArray(ip, ips) == -1)) {
+              ips.push(ip);
+            }
+          });
         }
-
-        if (value.IP6_ULA) {
-          ips.push(value.IP6_ULA);
-        }
-      });
+      })
     }
 
-    var template = element.TEMPLATE;
-    var externalIP;
-    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
-      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
-        ips.push(externalIP);
+    if(ips.length==0)
+    {
+      if (nic != undefined) {
+        if (!$.isArray(nic)) {
+          nic = [nic];
+        }
+
+        $.each(nic, function(index, value) {
+          $.each(NIC_IP_ATTRS, function(j, attr){
+            if (value[attr]) {
+              ips.push(value[attr]);
+            }
+          });
+        });
       }
-    })
+    }
 
     if (ips.length > 0) {
       return ips.join(divider);

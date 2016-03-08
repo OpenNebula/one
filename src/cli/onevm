@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -63,20 +63,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Overrides the DEV_PREFIX of the image"
     }
 
-    IP={
-        :name => "ip",
-        :short => "-i ip",
-        :large => "--ip ip",
-        :format => String,
-        :description => "IP address for the new NIC"
-    }
-
     CACHE={
         :name => "cache",
         :large => "--cache cache_mode",
         :format => String,
         :description => "Hypervisor cache mode: default, none, writethrough,"<<
             " writeback, directsync or unsafe. (Only KVM driver)"
+    }
+
+    DISCARD={
+        :name => "discard",
+        :large => "--discard discard_mode",
+        :format => String,
+        :description => "Hypervisor discard mode: ignore or unmap."<<
+            " (Only KVM driver)"
     }
 
     ENFORCE={
@@ -117,6 +117,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :large => "--snapshot snapshot",
         :format => String,
         :description => "ID of the Snapshot to save."
+    }
+
+    PERSISTENT={
+        :name  => "persistent",
+        :large => "--persistent",
+        :description => "Make the new images persistent"
     }
 
     ########################################################################
@@ -248,6 +254,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             else
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1], 'USER_TEMPLATE')
             end
+
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
 
             obj.update(str, options[:append])
         end
@@ -590,7 +599,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-attach", disk_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
-                         TARGET, CACHE, PREFIX] do
+                         TARGET, CACHE, DISCARD, PREFIX] do
 
         if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
@@ -604,18 +613,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         else
             image_id = options[:image]
             target   = options[:target]
-            prefix   = options[:prefix] || "sd"
+            prefix   = options[:prefix]
 
             if target
                 template =
                     "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target}"
             else
                 template = "DISK = [ IMAGE_ID = #{image_id}"
-                template << ", DEV_PREFIX = #{prefix}"
+                template << ", DEV_PREFIX = #{prefix}" if prefix
             end
 
             if options[:cache]
                 template<<", CACHE = \"#{options[:cache]}\""
+            end
+
+            if options[:discard]
+                template<<", DISCARD = \"#{options[:discard]}\""
             end
 
             template << " ]"
@@ -648,7 +661,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
-            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, IP] do
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, OneVMHelper::IP] do
 
         if options[:file].nil? and options[:network].nil?
             STDERR.puts "Provide a template file or a network:"
@@ -800,11 +813,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Takes a new snapshot of the given disk. This operation needs support
         from the Datastore drivers: QCOW2 or Ceph.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
 
     command :"disk-snapshot-create", disk_snapshot_create_desc,
-      :vmid, :diskid, :tag do
+      :vmid, :diskid, :name do
         helper.perform_action(args[0],options,"disk snapshot created") do |o|
           o.disk_snapshot_create(args[1].to_i, args[2])
         end
@@ -813,7 +826,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_snapshot_revert_desc = <<-EOT.unindent
         Reverts disk state to a previously taken snapshot.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
@@ -826,7 +839,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_snapshot_delete_desc = <<-EOT.unindent
         Deletes a disk snapshot.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
       :vmid, :diskid, :snapshot_id do
@@ -904,9 +917,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: POWEROFF
     EOT
 
-    command :save, save_desc, :vmid, :name do
+    command :save, save_desc, :vmid, :name, :options=>[PERSISTENT] do
         helper.perform_action(args[0],options,"Saving VM") do |vm|
-            res = vm.save_as_template(args[1])
+            res = vm.save_as_template(args[1], options[:persistent] )
 
             if !OpenNebula.is_error?(res)
                 puts "Template ID: #{res}"
@@ -920,7 +933,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     deprecated_command(:attachdisk, 'disk-attach')
     deprecated_command(:detachdisk, 'disk-detach')
-    deprecated_command(:saveas, 'disk-snapshot')
+    deprecated_command(:'disk-snapshot', 'disk-saveas')
     deprecated_command(:livemigrate, 'migrate --live')
     deprecated_command(:cancel, 'shutdown --hard')
     deprecated_command(:reset, 'reboot --hard')

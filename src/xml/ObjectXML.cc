@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,10 +19,13 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ObjectXML::ObjectXML(const string &xml_doc):paths(0),num_paths(0),xml(0),ctx(0)
+ObjectXML::ObjectXML(const std::string &xml_doc):paths(0),num_paths(0),xml(0),ctx(0)
 {
     try
     {
@@ -85,21 +88,19 @@ ObjectXML::~ObjectXML()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-vector<string> ObjectXML::operator[] (const char * xpath_expr)
+void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
 {
     xmlXPathObjectPtr obj;
-    vector<string>    content;
 
-    ostringstream oss;
+    std::ostringstream oss;
     xmlNodePtr    cur;
     xmlChar *     str_ptr;
 
-    obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+    obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr), ctx);
 
     if (obj == 0)
     {
-        return content;
+        return;
     }
 
     switch (obj->type)
@@ -124,9 +125,9 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
 
                 if (str_ptr != 0)
                 {
-                    string element_content = reinterpret_cast<char *>(str_ptr);
+                    std::string ncontent = reinterpret_cast<char *>(str_ptr);
 
-                    content.push_back(element_content);
+                    content.push_back(ncontent);
 
                     xmlFree(str_ptr);
                 }
@@ -146,8 +147,6 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
     }
 
     xmlXPathFreeObject(obj);
-
-    return content;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -158,7 +157,7 @@ int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
     vector<string> values;
     int rc = 0;
 
-    values = (*this)[xpath_expr];
+    xpaths(values, xpath_expr);
 
     if ( values.empty() == true )
     {
@@ -176,215 +175,28 @@ int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
-{
-    vector<string> values;
-    int rc = 0;
-
-    values = (*this)[xpath_expr];
-
-    if (values.empty() == true)
-    {
-        value = def;
-        rc = -1;
-    }
-    else
-    {
-        istringstream iss;
-
-        iss.str(values[0]);
-
-        iss >> dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            rc    = -1;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath(float& value, const char * xpath_expr, const float& def)
-{
-    vector<string> values;
-    int rc = 0;
-
-    values = (*this)[xpath_expr];
-
-    if (values.empty() == true)
-    {
-        value = def;
-        rc = -1;
-    }
-    else
-    {
-        istringstream iss;
-
-        iss.str(values[0]);
-
-        iss >> dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            rc    = -1;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath(unsigned int& value, const char * xpath_expr,
-                     const unsigned int& def)
-{
-    vector<string> values;
-    int rc = 0;
-
-    values = (*this)[xpath_expr];
-
-    if (values.empty() == true)
-    {
-        value = def;
-        rc = -1;
-    }
-    else
-    {
-        istringstream iss;
-
-        iss.str(values[0]);
-
-        iss >> dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            rc    = -1;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath(long long& value, const char * xpath_expr,
-                     const long long& def)
-{
-    vector<string> values;
-    int rc = 0;
-
-    values = (*this)[xpath_expr];
-
-    if (values.empty() == true)
-    {
-        value = def;
-        rc = -1;
-    }
-    else
-    {
-        istringstream iss;
-
-        iss.str(values[0]);
-
-        iss >> dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            rc    = -1;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath(unsigned long long& value, const char * xpath_expr,
-                     const unsigned long long& def)
-{
-    vector<string> values;
-    int rc = 0;
-
-    values = (*this)[xpath_expr];
-
-    if (values.empty() == true)
-    {
-        value = def;
-        rc = -1;
-    }
-    else
-    {
-        istringstream iss;
-
-        iss.str(values[0]);
-
-        iss >> dec >> value;
-
-        if (iss.fail() == true)
-        {
-            value = def;
-            rc    = -1;
-        }
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ObjectXML::xpath(time_t& value, const char * xpath_expr, const time_t& def)
-{
-    unsigned long long int_val;
-    unsigned long long int_def = static_cast<time_t>(def);
-    int rc;
-
-    rc = xpath(int_val, xpath_expr, int_def);
-    value = static_cast<time_t>(int_val);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 {
-    int rc = 0;
-
     try
     {
         ObjectXML      obj(doc);
         vector<string> values;
 
-        values = obj[the_xpath];
+        obj.xpaths(values, the_xpath);
 
         if (values.empty() == true)
         {
-            rc = -1;
+            return -1;
         }
-        else
-        {
-            value = values[0];
-        }
+
+        value = values[0];
     }
     catch(runtime_error& re)
     {
-        rc = -1;
+        return -1;
     }
 
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -731,110 +543,3 @@ error_yy:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ObjectXML::search(const char* name, vector<string>& results)
-{
-
-    if (name[0] == '/')
-    {
-        results = (*this)[name];
-    }
-    else if (num_paths == 0)
-    {
-        results.clear();
-    }
-    else
-    {
-        ostringstream  xpath;
-
-        xpath << paths[0] << name;
-
-        for (int i = 1; i < num_paths ; i++)
-        {
-            xpath << '|' << paths[i] << name;
-        }
-
-        results = (*this)[xpath.str().c_str()];
-    }
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, string& value)
-{
-    vector<string> results;
-
-    value = "";
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        value = results[0];
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, int& value)
-{
-    vector<string> results;
-
-    value = 0;
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> value;
-
-        if (iss.fail())
-        {
-            value = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, float& value)
-{
-    vector<string> results;
-
-    value = 0.0;
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> value;
-
-        if (iss.fail())
-        {
-            value = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */

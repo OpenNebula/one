@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,14 +19,6 @@
 
 using namespace std;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string RequestManagerVirtualNetwork::leases_error (const string& error)
-{
-    return request_error("Error modifying network leases", error);
-}
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
@@ -40,19 +32,18 @@ void RequestManagerVirtualNetwork::
     VirtualNetworkTemplate tmpl;
     VirtualNetwork *       vn;
 
-    string error_str;
-    int    rc;
+    int rc;
 
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL, leases_error(error_str), att);
+        failure_response(INTERNAL, att);
         return;
     }
 
@@ -60,17 +51,16 @@ void RequestManagerVirtualNetwork::
 
     if ( vn == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = leases_action(vn, &tmpl, att, error_str);
+    rc = leases_action(vn, &tmpl, att, att.resp_msg);
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL,
-                request_error("Error modifying network leases",error_str),
-                att);
+        failure_response(INTERNAL, att);
 
         vn->unlock();
         return;
@@ -95,12 +85,9 @@ void VirtualNetworkRmAddressRange::
 
     VirtualNetwork * vn;
 
-    string error_str;
-
     // -------------------------------------------------------------------------
     // Authorize the operation VNET:MANAGE
     // -------------------------------------------------------------------------
-
     if (basic_authorization(id, att) == false)
     {
         return;
@@ -109,12 +96,12 @@ void VirtualNetworkRmAddressRange::
     // -------------------------------------------------------------------------
     // Get VNET and data for reservations
     // -------------------------------------------------------------------------
-
     vn = static_cast<VirtualNetwork *>(pool->get(id,true));
 
     if ( vn == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
@@ -131,11 +118,9 @@ void VirtualNetworkRmAddressRange::
 
     vn->get_template_attribute("MAC" , mac  , ar_id);
 
-    if ( vn->rm_ar(ar_id, error_str) < 0 )
+    if ( vn->rm_ar(ar_id, att.resp_msg) < 0 )
     {
-        failure_response(INTERNAL,
-                request_error("Error removing address range",error_str),
-                att);
+        failure_response(INTERNAL, att);
 
         vn->unlock();
 
@@ -173,7 +158,7 @@ void VirtualNetworkRmAddressRange::
                     oss << " NIC = [ NETWORK_ID = " << parent << " ]" << endl;
                 }
 
-                tmpl.parse_str_or_xml(oss.str(), error_str);
+                tmpl.parse_str_or_xml(oss.str(), att.resp_msg);
 
                 Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
             }
@@ -198,21 +183,19 @@ void VirtualNetworkReserve::request_execute(
     VirtualNetwork * vn  = 0;
     VirtualNetwork * rvn = 0;
 
-    string error_str;
-    int    rc;
-    int    cluster_id;
+    int rc;
+    int cluster_id;
 
     PoolObjectAuth reserv_perms;
 
     // -------------------------------------------------------------------------
     // Process the Reservation Template
     // -------------------------------------------------------------------------
-    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-            request_error("Error in reservation request", error_str), att);
+        failure_response(ACTION, att);
         return;
     }
 
@@ -222,8 +205,8 @@ void VirtualNetworkReserve::request_execute(
 
     if ( !tmpl.get("SIZE", size) || size <= 0 )
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-                "Reservation SIZE must be a greater than 0"), att);
+        att.resp_msg = "Reservation SIZE must be a greater than 0";
+        failure_response(ACTION,  att);
         return;
     }
 
@@ -238,15 +221,15 @@ void VirtualNetworkReserve::request_execute(
 
         if (rid < 0)
         {
-            failure_response(ACTION, request_error("Error in reservation request",
-                "NETWORK_ID must be equal or greater than 0"), att);
+            att.resp_msg = "NETWORK_ID must be equal or greater than 0";
+            failure_response(ACTION, att);
             return;
         }
 
         if (rid == id)
         {
-            failure_response(ACTION, request_error("Error in reservation request",
-                "Cannot add a reservation from the same network"), att);
+            att.resp_msg = "Cannot add a reservation from the same network";
+            failure_response(ACTION, att);
             return;
         }
 
@@ -254,9 +237,8 @@ void VirtualNetworkReserve::request_execute(
 
         if (rvn == 0)
         {
-            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
-                att);
-
+            att.resp_id = rid;
+            failure_response(NO_EXISTS, att);
             return;
         }
 
@@ -264,8 +246,8 @@ void VirtualNetworkReserve::request_execute(
 
         if (parent == -1)
         {
-            failure_response(ACTION, request_error("Error in reservation request",
-                "Cannot add reservations to a non-reservation VNET"), att);
+            att.resp_msg = "Cannot add reservations to a non-reservation VNET";
+            failure_response(ACTION, att);
 
             rvn->unlock();
 
@@ -279,8 +261,8 @@ void VirtualNetworkReserve::request_execute(
             oss << "New reservations for virtual network " << rid
                 << " have to be from network " << parent;
 
-            failure_response(ACTION, request_error("Error in reservation request",
-                oss.str()), att);
+            att.resp_msg = oss.str();
+            failure_response(ACTION, att);
 
             rvn->unlock();
 
@@ -300,8 +282,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (name.empty() && !on_exisiting)
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-            "NAME for reservation has to be set"), att);
+        att.resp_msg = "NAME for reservation has to be set";
+        failure_response(ACTION, att);
         return;
     }
 
@@ -312,8 +294,8 @@ void VirtualNetworkReserve::request_execute(
 
     if ( with_ar_id && (ar_id < 0))
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-            "AR_ID must be equal or greater than 0"), att);
+        att.resp_msg = "AR_ID must be equal or greater than 0";
+        failure_response(ACTION, att);
         return;
     }
 
@@ -325,8 +307,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (!with_ar_id && (!ip.empty()||!mac.empty()))
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-            "AR_ID must be specified for IP/MAC based reservations"), att);
+        att.resp_msg = "AR_ID must be specified for IP/MAC based reservations";
+        failure_response(ACTION, att);
         return;
     }
 
@@ -337,14 +319,15 @@ void VirtualNetworkReserve::request_execute(
 
     if ( vn == 0 )
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
+        att.resp_msg = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     if (vn->get_parent() != -1)
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-            "Cannot reserve addresses from a reserved VNET"), att);
+        att.resp_msg = "Cannot reserve addresses from a reserved VNET";
+        failure_response(ACTION, att);
 
         vn->unlock();
 
@@ -365,8 +348,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (UserPool::authorize(ar) == -1)
     {
-        failure_response(AUTHORIZATION, authorization_error(ar.message, att),
-            att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
         vn->unlock();
 
@@ -385,12 +368,11 @@ void VirtualNetworkReserve::request_execute(
         cluster_id = vn->get_cluster_id();
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                id, vtmpl, &rid, cluster_id, vn->get_cluster_name(), error_str);
+                id, vtmpl, &rid, cluster_id, vn->get_cluster_name(), att.resp_msg);
 
         if (rc < 0)
         {
-            failure_response(INTERNAL,
-                request_error("Cannot create a reservation VNET",error_str),att);
+            failure_response(INTERNAL, att);
 
             vn->unlock();
 
@@ -402,9 +384,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (rvn == 0)
     {
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
-            att);
-
+        att.resp_id = rid;
+        failure_response(NO_EXISTS, att);
         vn->unlock();
 
         return;
@@ -423,7 +404,7 @@ void VirtualNetworkReserve::request_execute(
         qtmpl_s << "NIC = [ NETWORK_ID = " << id << "]" << endl;
     }
 
-    qtmpl.parse_str_or_xml(qtmpl_s.str(), error_str);
+    qtmpl.parse_str_or_xml(qtmpl_s.str(), att.resp_msg);
 
     if (quota_authorization(&qtmpl, Quotas::NETWORK, reservation_att) == false)
     {
@@ -441,31 +422,31 @@ void VirtualNetworkReserve::request_execute(
     {
         if (!ip.empty())
         {
-            rc = vn->reserve_addr_by_ip(rvn, size, ar_id, ip, error_str);
+            rc = vn->reserve_addr_by_ip(rvn, size, ar_id, ip, att.resp_msg);
         }
         else if (!mac.empty())
         {
-            rc = vn->reserve_addr_by_mac(rvn, size, ar_id, mac, error_str);
+            rc = vn->reserve_addr_by_mac(rvn, size, ar_id, mac, att.resp_msg);
         }
         else
         {
-            rc = vn->reserve_addr(rvn, size, ar_id, error_str);
+            rc = vn->reserve_addr(rvn, size, ar_id, att.resp_msg);
         }
     }
     else
     {
-        rc = vn->reserve_addr(rvn, size, error_str);
+        rc = vn->reserve_addr(rvn, size, att.resp_msg);
     }
 
     if (rc != 0 )
     {
         quota_rollback(&qtmpl, Quotas::NETWORK, reservation_att);
 
-        failure_response(ACTION, request_error(error_str,""), att);
+        failure_response(ACTION, att);
 
         if (!on_exisiting)
         {
-            pool->drop(rvn, error_str);
+            pool->drop(rvn, att.resp_msg);
         }
 
         rvn->unlock();
@@ -495,7 +476,7 @@ void VirtualNetworkReserve::request_execute(
 
         if ( cluster != 0 )
         {
-            cluster->add_vnet(rid, error_str);
+            cluster->add_vnet(rid, att.resp_msg);
 
             clpool->update(cluster);
 

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -6,6 +22,7 @@ define(function(require) {
   var TemplateInfo = require('hbs!./info/html');
   var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
   var ResourceSelect = require('utils/resource-select');
+  var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
   var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
@@ -52,23 +69,10 @@ define(function(require) {
   function _html() {
     var groupTrHTML = TemplateChgrpTr({'element': this.element});
 
-    // TODO
-    //$(".resource-info-header", $("#users-tab")).html(this.element.NAME);
-
-    var secondaryGroups;
-
-    if (typeof this.element.GROUPS.ID == "object") {
-      secondaryGroups = this.element.GROUPS.ID.join(",");
-    } else {
-      secondaryGroups = "-";
-    }
-
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["LANG"];
-    delete strippedTemplate["TABLE_ORDER"];
-    delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["SUNSTONE"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -76,8 +80,8 @@ define(function(require) {
 
     return TemplateInfo({
       'element': this.element,
+      'sunstone_template': this.element.TEMPLATE.SUNSTONE||{},
       'groupTrHTML': groupTrHTML,
-      'secondaryGroups': secondaryGroups,
       'templateTableHTML': templateTableHTML
     });
   }
@@ -85,29 +89,19 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
-
     // Template update
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["LANG"];
-    delete strippedTemplate["TABLE_ORDER"];
-    delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["SUNSTONE"];
 
     var hiddenValues = {};
 
     if (this.element.TEMPLATE.SSH_PUBLIC_KEY != undefined) {
       hiddenValues.SSH_PUBLIC_KEY = this.element.TEMPLATE.SSH_PUBLIC_KEY;
     }
-    if (this.element.TEMPLATE.LANG != undefined) {
-      hiddenValues.LANG = this.element.TEMPLATE.LANG;
-    }
-    if (this.element.TEMPLATE.TABLE_ORDER != undefined) {
-      hiddenValues.TABLE_ORDER = this.element.TEMPLATE.TABLE_ORDER;
-    }
-    if (this.element.TEMPLATE.DEFAULT_VIEW != undefined) {
-      hiddenValues.DEFAULT_VIEW = this.element.TEMPLATE.DEFAULT_VIEW;
+    if (this.element.TEMPLATE.SUNSTONE != undefined) {
+      hiddenValues.SUNSTONE = this.element.TEMPLATE.SUNSTONE;
     }
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
@@ -116,7 +110,11 @@ define(function(require) {
     // Chgrp
     context.off("click", "#div_edit_chg_group_link");
     context.on("click", "#div_edit_chg_group_link", function() {
-      ResourceSelect.insert("#value_td_group", context, "Group", that.element.GID, false);
+      ResourceSelect.insert({
+        context: $('#value_td_group', context),
+        resourceName: 'Group',
+        initValue: that.element.GID
+      });
     });
 
     context.off("change", "#value_td_group .resource_list_select");
@@ -146,27 +144,9 @@ define(function(require) {
 
     context.off("change", "#user_ssh_public_key_textarea");
     context.on("change", "#user_ssh_public_key_textarea", function() {
-      var user_id = that.element.ID;
+      var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes($(this).val())+'"';
 
-      // TODO: use update --append instead of a show + update
-
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
-
-          template["SSH_PUBLIC_KEY"] = $("#user_ssh_public_key_textarea", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", user_id, template_str);
-        }
-      });
+      Sunstone.runAction("User.append_template", that.element.ID, template_str);
     });
 
     context.off("focusout", "#user_ssh_public_key_textarea");
@@ -183,31 +163,15 @@ define(function(require) {
          '<option value="desc">' + Locale.tr("descending") + '</option>' +
        '</select>');
 
-      if (that.element.TEMPLATE.TABLE_ORDER) {
-        $('#table_order_select', context).val(that.element.TEMPLATE.TABLE_ORDER);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.TABLE_ORDER) {
+        $('#table_order_select', context).val(that.element.TEMPLATE.SUNSTONE.TABLE_ORDER);
       }
     });
 
     context.off("change", "#table_order_select")
     context.on("change", "#table_order_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
-
-          template["TABLE_ORDER"] = $("#table_order_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", user_id, template_str);
-        }
-      });
+      var sunstone_setting = {TABLE_ORDER : $(this).val()};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
 
     // Change language
@@ -217,31 +181,15 @@ define(function(require) {
          Locale.language_options +
        '</select>');
 
-      if (that.element.TEMPLATE.LANG) {
-        $('#language_select', context).val(that.element.TEMPLATE.LANG);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.LANG) {
+        $('#language_select', context).val(that.element.TEMPLATE.SUNSTONE.LANG);
       }
     });
 
     context.off("change", "#language_select")
     context.on("change", "#language_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
-
-          template["LANG"] = $("#language_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_language", user_id, template_str);
-        }
-      });
+      var sunstone_setting = {LANG : $(this).val()};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
 
     // Change view
@@ -256,31 +204,15 @@ define(function(require) {
          options +
        '</select>');
 
-      if (that.element.TEMPLATE.DEFAULT_VIEW) {
-        $('#view_select', context).val(that.element.TEMPLATE.DEFAULT_VIEW);
+      if (that.element.TEMPLATE.SUNSTONE && that.element.TEMPLATE.SUNSTONE.DEFAULT_VIEW) {
+        $('#view_select', context).val(that.element.TEMPLATE.SUNSTONE.DEFAULT_VIEW);
       }
     });
 
     context.off("change", "#view_select")
     context.on("change", "#view_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
-
-          template["DEFAULT_VIEW"] = $("#view_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_view", user_id, template_str);
-        }
-      });
+      var sunstone_setting = {DEFAULT_VIEW : $(this).val()};
+      Sunstone.runAction("User.append_sunstone_setting_refresh", that.element.ID, sunstone_setting);
     });
 
     return false;

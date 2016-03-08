@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -62,9 +78,22 @@ define(function(require) {
     var resizeStateEnabled =
       (RESIZE_STATES.indexOf(parseInt(this.element.STATE)) > -1);
 
+    var cpuCost    = this.element.TEMPLATE.CPU_COST;
+    var memoryCost = this.element.TEMPLATE.MEMORY_COST;
+
+    if (cpuCost == undefined){
+      cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
+    }
+
+    if (memoryCost == undefined){
+      memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
+    }
+
     return TemplateInfo({
       'element': this.element,
-      'resizeStateEnabled': resizeStateEnabled
+      'resizeStateEnabled': resizeStateEnabled,
+      'cpuCost': cpuCost,
+      'memoryCost': memoryCost
     });
   }
 
@@ -87,19 +116,19 @@ define(function(require) {
       data: {
         id: that.element.ID,
         monitor: {
-          monitor_resources : "CPU,MEMORY"
+          monitor_resources : "MONITORING/CPU,MONITORING/MEMORY"
         }
       },
       success: function(req, response) {
         var vmGraphs = [
           {
-            monitor_resources : "CPU",
+            monitor_resources : "MONITORING/CPU",
             labels : Locale.tr("Real CPU"),
             humanize_figures : false,
             div_graph : $(".vm_cpu_graph")
           },
           {
-            monitor_resources : "MEMORY",
+            monitor_resources : "MONITORING/MEMORY",
             labels : Locale.tr("Real MEM"),
             humanize_figures : true,
             div_graph : $(".vm_memory_graph")

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -243,7 +243,8 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::release_cloning_image(int iid, int clone_img_id)
+void ImageManager::release_cloning_resource(
+        int iid, PoolObjectSQL::ObjectType ot, int clone_oid)
 {
     Image * img = ipool->get(iid,true);
 
@@ -272,7 +273,7 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
     {
         case Image::USED:
         case Image::CLONE:
-            if (img->dec_cloning(clone_img_id) == 0  && img->get_running() == 0)
+            if (img->dec_cloning(ot, clone_oid) == 0  && img->get_running() == 0)
             {
                 img->set_state(Image::READY);
             }
@@ -287,12 +288,8 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
         case Image::ERROR:
         case Image::USED_PERS:
         case Image::LOCKED:
-            ostringstream oss;
-
-            oss << "Releasing image in wrong state: "
-                << Image::state_to_str(img->get_state());
-
-            NebulaLog::log("ImM", Log::ERROR, oss.str());
+            NebulaLog::log("ImM", Log::ERROR, "Release cloning image"
+                " in wrong state");
             break;
     }
 
@@ -379,6 +376,7 @@ int ImageManager::delete_image(int iid, string& error_str)
     int uid;
     int gid;
     int cloning_id = -1;
+    int vm_saving_id = -1;
 
     ostringstream oss;
 
@@ -452,6 +450,11 @@ int ImageManager::delete_image(int iid, string& error_str)
 
         case Image::LOCKED:
             cloning_id = img->get_cloning_id();
+
+            if ( img->is_saving() )
+            {
+                img->get_template_attribute("SAVED_VM_ID", vm_saving_id);
+            }
         break;
 
     }
@@ -468,7 +471,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
     source  = img->get_source();
     size    = img->get_size();
     ds_id   = img->get_ds_id();
@@ -498,7 +501,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         ipool->update(img);
     }
 
-    unsigned int snap_size = (img->get_snapshots()).get_total_size();
+    long long snap_size = (img->get_snapshots()).get_total_size();
 
     img->unlock();
 
@@ -530,14 +533,35 @@ int ImageManager::delete_image(int iid, string& error_str)
         ds->unlock();
     }
 
+    /* --------------- Release VM in hotplug -------------------------------- */
+
+    // This is only needed if the image is deleted before the mkfs action
+    // is completed
+
+    if ( vm_saving_id != -1 )
+    {
+        VirtualMachine*     vm;
+        VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+
+        if ((vm = vmpool->get(vm_saving_id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+
+            vm->clear_saveas_disk();
+
+            vmpool->update(vm);
+
+            vm->unlock();
+        }
+    }
+
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::can_clone_image(  int             cloning_id,
-                                    ostringstream&  oss_error)
+int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
 {
     Image *       img;
 
@@ -579,9 +603,64 @@ int ImageManager::can_clone_image(  int             cloning_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ImageManager::set_clone_state(
+        PoolObjectSQL::ObjectType ot, int new_id, int cloning_id, string& error)
+{
+    int     rc  = 0;
+    Image * img = ipool->get(cloning_id, true);
+
+    if (img == 0)
+    {
+        error = "Cannot clone image, it does not exist";
+        return -1;
+    }
+
+    switch(img->get_state())
+    {
+        case Image::READY:
+            img->inc_cloning(ot, new_id);
+
+            if (img->is_persistent())
+            {
+                img->set_state(Image::CLONE);
+            }
+            else
+            {
+                img->set_state(Image::USED);
+            }
+
+            ipool->update(img);
+            break;
+
+        case Image::USED:
+        case Image::CLONE:
+            img->inc_cloning(ot, new_id);
+            ipool->update(img);
+            break;
+
+        case Image::USED_PERS:
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::ERROR:
+        case Image::DELETE:
+        case Image::LOCKED:
+            error = "Cannot clone image in current state";
+            rc    = -1;
+            break;
+    }
+
+    img->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::clone_image(int   new_id,
                               int   cloning_id,
                               const string& ds_data,
+                              const string& extra_data,
                               string& error)
 {
     const ImageManagerDriver* imd = get();
@@ -601,66 +680,22 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    img = ipool->get(cloning_id, true);
-
-    if (img == 0)
+    if ( set_img_clone_state(new_id, cloning_id, error) == -1 )
     {
-        error = "Cannot clone image, it does not exist";
         return -1;
-    }
-
-    switch(img->get_state())
-    {
-        case Image::READY:
-            img->inc_cloning(new_id);
-
-            if (img->is_persistent())
-            {
-                img->set_state(Image::CLONE);
-            }
-            else
-            {
-                img->set_state(Image::USED);
-            }
-
-            ipool->update(img);
-
-            img->unlock();
-        break;
-
-        case Image::USED:
-        case Image::CLONE:
-            img->inc_cloning(new_id);
-
-            ipool->update(img);
-
-            img->unlock();
-        break;
-
-        case Image::USED_PERS:
-        case Image::INIT:
-        case Image::DISABLED:
-        case Image::ERROR:
-        case Image::DELETE:
-        case Image::LOCKED:
-            oss << "Cannot clone image in state: "
-                << Image::state_to_str(img->get_state());
-
-            error = oss.str();
-            img->unlock();
-            return -1;
-        break;
     }
 
     img = ipool->get(new_id,true);
 
-    if (img == 0) //TODO: Rollback cloning counter
+    if (img == 0)
     {
+        release_cloning_image(cloning_id, new_id);
+
         error = "Target image deleted during cloning operation";
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, extra_data);
 
     imd->clone(img->get_oid(), *drv_msg);
 
@@ -679,7 +714,10 @@ int ImageManager::clone_image(int   new_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::register_image(int iid, const string& ds_data, string& error)
+int ImageManager::register_image(int iid,
+                                 const string& ds_data,
+                                 const string& extra_data,
+                                 string& error)
 {
     const ImageManagerDriver* imd = get();
 
@@ -706,7 +744,7 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, extra_data);
     path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH
@@ -831,7 +869,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     add_request(&sr);
 
-    drv_msg = format_message(img_data.str(), ds_data);
+    drv_msg = format_message(img_data.str(), ds_data, "");
 
     imd->stat(sr.id, *drv_msg);
 
@@ -854,13 +892,15 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
 string * ImageManager::format_message(
     const string& img_data,
-    const string& ds_data)
+    const string& ds_data,
+    const string& extra_data)
 {
     ostringstream oss;
 
     oss << "<DS_DRIVER_ACTION_DATA>"
         << img_data
         << ds_data
+        << extra_data
         << "</DS_DRIVER_ACTION_DATA>";
 
     return one_util::base64_encode(oss.str());
@@ -983,7 +1023,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_delete(iid, *drv_msg);
 
@@ -1087,7 +1127,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_revert(iid, *drv_msg);
 
@@ -1184,7 +1224,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_flatten(iid, *drv_msg);
 

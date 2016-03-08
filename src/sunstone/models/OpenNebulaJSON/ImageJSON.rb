@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -71,7 +71,11 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
-            super(params['template_raw'])
+            if !params['append'].nil?
+                super(params['template_raw'], params['append'])
+            else
+                super(params['template_raw'])
+            end
         end
 
         def remove_attr(params=Hash.new)
@@ -104,9 +108,15 @@ module OpenNebulaJSON
 
         def clone(params=Hash.new)
             if params['target_ds']
-                super(params['name'], params['target_ds'].to_i)
+                rc = super(params['name'], params['target_ds'].to_i)
             else
-                super(params['name'])
+                rc = super(params['name'])
+            end
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            else
+                return ImageJSON.new_with_id(rc, @client)
             end
         end
 

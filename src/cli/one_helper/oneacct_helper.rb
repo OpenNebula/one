@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -114,7 +114,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
     ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
     SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP, XML, JSON]
 
-    ACCT_TABLE = CLIHelper::ShowTable.new("oneacct.yaml", nil) do
+    ACCT_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneacct.yaml"), nil) do
         column :UID, "User ID", :size=>4 do |d|
             d["UID"]
         end
@@ -165,7 +165,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETTX"].to_i / 1024.0, {})
         end
 
-        column :TOTAL_DISK_SIZE, "Total disk size used", :size=>6 do |d|
+        column :DISK, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
             total_disk_size = 0
 
@@ -187,10 +187,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
         end
 
-        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :TOTAL_DISK_SIZE
+        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK
     end
 
-    SHOWBACK_TABLE = CLIHelper::ShowTable.new("oneshowback.yaml", nil) do
+    SHOWBACK_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneshowback.yaml"), nil) do
         column :UID, "User ID", :size=>4 do |d|
             d["UID"]
         end

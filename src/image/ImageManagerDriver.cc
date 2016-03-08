@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -408,6 +408,14 @@ static int mkfs_action(istringstream& is,
 
         return ds_id;
     }
+    else if ( image->get_state() == Image::DELETE )
+    {
+        NebulaLog::log("ImM", Log::INFO, "Ignoring mkfs callback, image is "
+                "being deleted");
+
+        image->unlock();
+        return ds_id;
+    }
 
     is_saving = image->is_saving();
     ds_id     = image->get_ds_id();
@@ -693,8 +701,8 @@ static void snap_delete_action(istringstream& is,
     ostringstream oss;
     string info;
 
-    unsigned int snap_size;
-    int          ds_id, uid, gid;
+    long long   snap_size;
+    int         ds_id, uid, gid;
 
     Image * image = ipool->get(id, true);
 
@@ -753,7 +761,7 @@ static void snap_delete_action(istringstream& is,
         Template quotas;
 
         quotas.add("DATASTORE", ds_id);
-        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("SIZE", snap_size);
         quotas.add("IMAGES",0 );
 
         Quotas::ds_del(uid, gid, &quotas);
@@ -828,8 +836,8 @@ static void snap_flatten_action(istringstream& is,
     ostringstream oss;
     string info;
 
-    unsigned int snap_size;
-    int          ds_id, uid, gid;
+    long long   snap_size;
+    int         ds_id, uid, gid;
 
     Image * image = ipool->get(id, true);
 
@@ -876,7 +884,7 @@ static void snap_flatten_action(istringstream& is,
         Template quotas;
 
         quotas.add("DATASTORE", ds_id);
-        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("SIZE", snap_size);
         quotas.add("IMAGES",0 );
 
         Quotas::ds_del(uid, gid, &quotas);

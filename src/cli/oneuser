@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,7 +40,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     helper = OneUserHelper.new
 
     before_proc do
-        helper.set_client(options) if @comm_name != :login
+        helper.set_client(options) if ![:login, :key].include?(@comm_name)
     end
 
     ########################################################################
@@ -210,6 +210,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
 
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
+
             obj.update(str, options[:append])
         end
     end
@@ -348,8 +351,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     key_desc = <<-EOT.unindent
-        DEPRECATED, use login to generate auth files.
-
         Shows a public key from a private SSH key. Use it as password
         for the SSH authentication mechanism.
     EOT

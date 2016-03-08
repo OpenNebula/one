@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -98,6 +98,6 @@ void LoginToken::from_xml_node(const xmlNodePtr node)
 {
     ObjectXML oxml(node);
 
-    oxml.xpath(token, "/LOGIN_TOKEN/TOKEN", "" );
-    oxml.xpath(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0 );
+    oxml.xpath(token, "/LOGIN_TOKEN/TOKEN", "");
+    oxml.xpath<time_t>(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0);
 }

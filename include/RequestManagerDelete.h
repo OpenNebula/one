@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,18 @@ class RequestManagerDelete: public Request
 {
 protected:
     RequestManagerDelete(const string& method_name,
+                         const string& params,
+                         const string& help)
+        :Request(method_name, params, help)
+    {
+        auth_op = AuthRequest::MANAGE;
+
+        Nebula& nd  = Nebula::instance();
+        clpool      = nd.get_clpool();
+        aclm        = nd.get_aclm();
+    };
+
+    RequestManagerDelete(const string& method_name,
                          const string& help)
         :Request(method_name, "A:si", help)
     {
@@ -45,11 +57,14 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att);
 
-    bool delete_authorization(int                           oid,
-                              RequestAttributes&            att);
+    static ErrorCode delete_authorization(
+            PoolSQL*                pool,
+            int                     oid,
+            AuthRequest::Operation  auth_op,
+            RequestAttributes&      att);
 
     /* -------------------------------------------------------------------- */
 
@@ -79,6 +94,7 @@ class TemplateDelete : public RequestManagerDelete
 public:
     TemplateDelete():
         RequestManagerDelete("TemplateDelete",
+                             "A:sib"
                              "Deletes a virtual machine template")
     {
         Nebula& nd  = Nebula::instance();
@@ -87,6 +103,9 @@ public:
     };
 
     ~TemplateDelete(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -137,10 +156,10 @@ public:
 
     ~ImageDelete(){};
 
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 
-    /* -------------------------------------------------------------------- */
-
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    static ErrorCode delete_img(int oid, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -354,7 +373,63 @@ public:
     ~VdcDelete(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterDelete : public RequestManagerDelete
+{
+public:
+    VirtualRouterDelete():
+        RequestManagerDelete("VirtualRouterDelete",
+                             "Deletes a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterDelete(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceDelete():
+        RequestManagerDelete("MarketPlaceDelete",
+                             "Deletes a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppDelete : public RequestManagerDelete
+{
+public:
+    MarketPlaceAppDelete():
+        RequestManagerDelete("MarketPlaceAppDelete",
+                             "Deletes a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

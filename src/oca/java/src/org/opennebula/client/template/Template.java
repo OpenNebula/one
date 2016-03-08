@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+ * Copyright 2002-2015, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,22 @@ public class Template extends PoolElement
      */
     public static OneResponse info(Client client, int id)
     {
-        return client.call(INFO, id);
+        return info(client, id, false);
+    }
+
+    /**
+     * Retrieves the information of the given Template.
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id for the template to retrieve the information from
+     * @param extended optional flag to process the template and include
+     * extended information, such as the SIZE for each DISK
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean extended)
+    {
+        return client.call(INFO, id, extended);
     }
 
     /**
@@ -251,7 +266,20 @@ public class Template extends PoolElement
      */
     public OneResponse info()
     {
-        OneResponse response = info(client, id);
+        return info(false);
+    }
+
+    /**
+     * Retrieves the information of the given Template.
+     *
+     * @param extended optional flag to process the template and include
+     * extended information, such as the SIZE for each DISK
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse info(boolean extended)
+    {
+        OneResponse response = info(client, id, extended);
         super.processInfo(response);
         return response;
     }

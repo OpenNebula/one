@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
@@ -58,8 +58,14 @@ end
 xml = REXML::Document.new(tmp).root
 
 ARGV.each do |xpath|
-    element = xml.elements[xpath.dup]
-    values << element.text.to_s if !element.nil?
+    if xpath.match(/^%m%/)
+        xpath = xpath[3..-1]
+        ar = xml.elements.to_a(xpath).map {|t| t.text }
+        values << ar.join(' ')
+    else
+        element = xml.elements[xpath.dup]
+        values << element.text.to_s if !element.nil?
+    end
     values << "\0"
 end
 

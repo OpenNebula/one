@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +53,15 @@ function set_up_datastore {
 }
 
 #-------------------------------------------------------------------------------
-# Generates an unique image hash. Requires BASE_PATH to be set
+# Get file format using qemu-img
+#   @return string representation of the format, empty if error
+#-------------------------------------------------------------------------------
+function image_format {
+    echo "$($QEMU_IMG info $1 2>/dev/null | grep -Po '(?<=file format: )\w+')"
+}
+
+#-------------------------------------------------------------------------------
+# Generates an unique image hash. Requires ID to be set
 #   @return hash for the image (empty if error)
 #-------------------------------------------------------------------------------
 function generate_image_hash {
@@ -64,11 +72,10 @@ function generate_image_hash {
 $CANONICAL_STR
 EOF
 )
-    IMAGE_HASH=$(echo $CANONICAL_MD5 | cut -d ' ' -f1)
-    IMAGE_HASH=$(basename "$IMAGE_HASH")
+    IMAGE_HASH="$(echo $CANONICAL_MD5 | cut -d ' ' -f1)"
 
-    if [ -z "$IMAGE_HASH" -o -z "$BASE_PATH" ]; then
-        log_error "Error generating the path in generate_image_path."
+    if [ -z "$IMAGE_HASH" ]; then
+        log_error "Error generating the path in generate_image_hash."
         exit 1
     fi
 
@@ -81,6 +88,12 @@ EOF
 #-------------------------------------------------------------------------------
 function generate_image_path {
     IMAGE_HASH=`generate_image_hash`
+
+    if [ -z "$BASE_PATH" ]; then
+        log_error "Error generating the path in generate_image_path."
+        exit 1
+    fi
+
     echo "${BASE_PATH}/${IMAGE_HASH}"
 }
 
@@ -223,9 +236,10 @@ function check_restricted {
 }
 
 #-------------------------------------------------------------------------------
-# Gets the ESX host to be used as bridge to register a VMware disk
+# Gets the host to be used as bridge to talk to the storage system
 # Implements a round robin for the bridges
-#   @param $1 - Image ID to be used to round-robin between ESX Bridges
+#   @param $1 - ID to be used to round-robin between host bridges. Random if
+#   not defined
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {

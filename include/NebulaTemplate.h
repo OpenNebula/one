@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,98 +26,12 @@
 class NebulaTemplate : public Template
 {
 public:
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
-
     NebulaTemplate(const string& etc_location, const char * _conf_name)
     {
         conf_file = etc_location + _conf_name;
     }
 
     virtual ~NebulaTemplate(){};
-
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
-
-    int get(const char * name, vector<const Attribute*>& values) const
-    {
-        string _name(name);
-
-        return Template::get(_name,values);
-    };
-
-    void get(const char * name, string& values) const
-    {
-        string _name(name);
-
-        Template::get(_name,values);
-    };
-
-    void get(const char * name, int& values) const
-    {
-        string _name(name);
-
-        Template::get(_name,values);
-    };
-
-    void get(const char *name, unsigned int& values) const
-    {
-        int ival;
-
-        NebulaTemplate::get(name, ival);
-
-        values = static_cast<unsigned int>(ival);
-    };
-
-    void get(const char * name, time_t& values) const
-    {
-        const SingleAttribute *   sattr;
-        vector<const Attribute *> attr;
-
-        string _name(name);
-
-        if ( Template::get(_name,attr) == 0 )
-        {
-            values = 0;
-            return;
-        }
-
-        sattr = dynamic_cast<const SingleAttribute *>(attr[0]);
-
-        if ( sattr != 0 )
-        {
-            istringstream   is;
-
-            is.str(sattr->value());
-            is >> values;
-        }
-        else
-            values = 0;
-    };
-
-    void get(const char *name, float& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    };
-
-    void get(const char *name, bool& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    };
-
-    void get(const char *name, long long& value) const
-    {
-        string _name(name);
-
-        Template::get(_name,value);
-    }
-
-    // -----------------------------------------------------------------------
-    // -----------------------------------------------------------------------
 
     /**
      *  Parse and loads the configuration in the template
@@ -133,12 +47,17 @@ protected:
     /**
      *  Defaults for the configuration file
      */
-    map<string, Attribute*> conf_default;
+    multimap<string, Attribute*> conf_default;
 
     /**
      *  Sets the defaults value for the template
      */
     virtual void set_conf_default() = 0;
+
+    /**
+     *  Sets the defaults value for multiple attributes
+     */
+    virtual void set_multiple_conf_default() = 0;
 };
 
 // -----------------------------------------------------------------------------
@@ -176,6 +95,44 @@ private:
      *  Sets the defaults value for the template
      */
     void set_conf_default();
+
+    /**
+     *  Sets the defaults value for multiple attributes
+     */
+    void set_multiple_conf_default();
+
+    /**
+     *  register the multiple configuration attributes and clean the
+     *  conf_default hash
+     */
+    void register_multiple_conf_default(const std::string& conf_section);
+
+    /**
+     *  Sets a default single attribute value
+     */
+    void set_conf_single(const std::string& attr, const std::string& value);
+
+    /**
+     *  Sets a the defaults for a DS
+     */
+    void set_conf_ds(const std::string& name,
+                     const std::string& required_attrs,
+                     const std::string& persistent_only);
+
+    /**
+     *  Sets a the defaults for a TM
+     */
+    void set_conf_tm(const std::string& name,
+                     const std::string& ln_target,
+                     const std::string& clone_target,
+                     const std::string& shared,
+                     const std::string& ds_migrate);
+
+    /**
+     *  Sets a the defaults for a Market
+     */
+    void set_conf_market(const std::string& name,
+                         const std::string& required_attrs);
 };
 
 

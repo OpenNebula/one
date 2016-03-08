@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -61,7 +61,9 @@ public:
         DISK_ATTACH_ACTION     = 21,
         DISK_DETACH_ACTION     = 22,
         NIC_ATTACH_ACTION      = 23,
-        NIC_DETACH_ACTION      = 24
+        NIC_DETACH_ACTION      = 24,
+        DISK_SNAPSHOT_CREATE_ACTION = 25,
+        DISK_SNAPSHOT_DELETE_ACTION = 26
     };
 
     static string action_to_str(VMAction action)
@@ -138,6 +140,12 @@ public:
             break;
             case NIC_DETACH_ACTION:
                 st = "nic-detach";
+            break;
+            case DISK_SNAPSHOT_CREATE_ACTION:
+                st = "snap-create";
+            break;
+            case DISK_SNAPSHOT_DELETE_ACTION:
+                st = "snap-delete";
             break;
             case NONE_ACTION:
             case BOOT_ACTION:
@@ -241,6 +249,14 @@ public:
         else if (st == "nic-detach")
         {
             action = NIC_DETACH_ACTION;
+        }
+        else if (st == "snap-create")
+        {
+            action = DISK_SNAPSHOT_CREATE_ACTION;
+        }
+        else if (st == "snap-delete")
+        {
+            action = DISK_SNAPSHOT_DELETE_ACTION;
         }
         else //BOOT_ACTION and others
         {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -400,7 +400,7 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
-        const vector<int>& vns) const
+        const vector<int>& vns, const vector<int>& vrs) const
 {
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
@@ -411,6 +411,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     bool all_vms = (vms.size() == 1 && vms[0] == -1);
     bool all_vns = (vns.size() == 1 && vns[0] == -1);
+    bool all_vrs = (vrs.size() == 1 && vrs[0] == -1);
 
     oss << "<AR>";
 
@@ -421,14 +422,15 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             continue;
         }
 
-        oss << "<" << it->first << "><![CDATA[" << it->second
-                << "]]></"<< it->first << ">";
+        oss << "<" << it->first << ">"
+            << one_util::escape_xml(it->second)
+            << "</"<< it->first << ">";
     }
 
     mac_end[1] = mac[1];
     mac_end[0] = (mac[0] + size - 1);
 
-    oss << "<MAC_END><![CDATA[" << mac_to_s(mac_end) << "]]></MAC_END>";
+    oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
     aux_st = attr->vector_value("IP");
 
@@ -440,7 +442,8 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         if (rc == 0)
         {
-            oss << "<IP_END><![CDATA[" << ip_to_s(ip_i + size - 1) << "]]></IP_END>";
+            oss << "<IP_END>" << one_util::escape_xml(ip_to_s(ip_i + size - 1))
+                << "</IP_END>";
         }
     }
 
@@ -451,19 +454,19 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
         {
             ip6_to_s(ula6, mac, ip6_s);
-            oss << "<IP6_ULA><![CDATA[" << ip6_s << "]]></IP6_ULA>";
+            oss << "<IP6_ULA>" << one_util::escape_xml(ip6_s) << "</IP6_ULA>";
 
             ip6_to_s(ula6, mac_end, ip6_s);
-            oss << "<IP6_ULA_END><![CDATA[" << ip6_s << "]]></IP6_ULA_END>";
+            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s) << "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
         {
             ip6_to_s(global6, mac, ip6_s);
-            oss << "<IP6_GLOBAL><![CDATA[" << ip6_s << "]]></IP6_GLOBAL>";
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL>";
 
             ip6_to_s(global6, mac_end, ip6_s);
-            oss << "<IP6_GLOBAL_END><![CDATA[" << ip6_s << "]]></IP6_GLOBAL_END>";
+            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL_END>";
         }
     }
 
@@ -505,6 +508,16 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
                 if (all_vns || (find(vns.begin(),vns.end(),vnid) != vns.end()))
                 {
                     lease.replace("VNET", vnid);
+                    is_in = true;
+                }
+            }
+            else if (it->second & PoolObjectSQL::VROUTER)
+            {
+                int oid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vrs || (find(vrs.begin(),vrs.end(),oid) != vrs.end()))
+                {
+                    lease.replace("VROUTER", oid);
                     is_in = true;
                 }
             }
@@ -1497,8 +1510,7 @@ bool AddressRange::check(string& rs_attr) const
     return false;
 };
 
-void AddressRange::set_restricted_attributes(
-    vector<const Attribute *>& rattrs)
+void AddressRange::set_restricted_attributes(vector<const SingleAttribute *>& rattrs)
 {
     if (restricted_set)
     {
@@ -1509,8 +1521,7 @@ void AddressRange::set_restricted_attributes(
 
     for (unsigned int i = 0 ; i < rattrs.size() ; i++ )
     {
-        const SingleAttribute * sattr = static_cast<const SingleAttribute *>(rattrs[i]);
-        string attr_s = sattr->value();
+        string attr_s = rattrs[i]->value();
 
         restricted_attributes.insert(one_util::toupper(attr_s));
     }

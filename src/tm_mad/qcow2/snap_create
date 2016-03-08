@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -52,60 +52,37 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE )
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 
-
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
-IMAGE_DS_PATH=$(dirname ${DISK_SRC})
-
+SYSTEM_DS_DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
 
 if [ "$CLONE" = "YES" ]; then
-    DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+    DISK_PATH="${SYSTEM_DS_DISK_PATH}"
 else
     DISK_PATH=$DISK_SRC
 fi
 
-SNAP_DIR="${DISK_PATH}.snap"
-SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
+NEXT_SNAP_ID=$(($SNAP_ID+1))
 
-CMD=$(cat <<EOT
+SNAP_DIR="${DISK_PATH}.snap"
+SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
+
+SNAP_CMD=$(cat <<EOT
 set -ex
 
-if [ ! -d "${SNAP_DIR}" ]; then
-    mkdir "${SNAP_DIR}"
-fi
+mkdir -p "${SNAP_DIR}"
 
-# Move save current snapshot and create a new one. The snapshot uses
-# absolute path name as the qemu-img has problems with relative backing
-# file paths and symlinks
-mv "${CURRENT_PATH}" "${SNAP_PATH}"
-qemu-img create -f qcow2 -b "${SNAP_PATH}" "${CURRENT_PATH}"
+PREVIOUS_SNAP=$(readlink $SYSTEM_DS_DISK_PATH)
 
-# TODO: Check that the new snapshot can be created. Roll back in case
-# of error
-
-# Convert backing file absolute path to relative path so it works outside
-# the system directory. Do not do this for snapshot one as:
-# * It could be a non backed file (persistent)
-# * The backing file is in images directory, is not relative
-if [ "$SNAP_ID" != "0" ]; then
-    BACKING_FILE=\$(qemu-img info ${SNAP_PATH} | grep '^backing file:' | \
-        cut -d: -f2 | sed 's/^ //')
-
-    if [ -n "\$BACKING_FILE" ]; then
-        RELATIVE_BACKING_FILE="\$(basename \${BACKING_FILE})"
-
-        qemu-img rebase -u -b "\${RELATIVE_BACKING_FILE}" "${SNAP_PATH}"
-    fi
-fi
+qemu-img create -f qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
+ln -sf $SNAP_PATH $SYSTEM_DS_DISK_PATH
 EOT
 )
 
-ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+ssh_exec_and_log "${SRC_HOST}" "${SNAP_CMD}" \
                  "Error creating snapshot ${SNAP_PATH}"
 

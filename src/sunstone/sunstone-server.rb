@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -38,6 +38,7 @@ SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
 
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
+LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
@@ -48,7 +49,38 @@ $: << SUNSTONE_ROOT_DIR+'/models'
 
 SESSION_EXPIRE_TIME = 60*60
 
-DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE_DISPLAY_NAME'
+DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
+TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
+DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
+GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
+TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
+LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
+
+ONED_CONF_OPTS = {
+    # If no costs are defined in oned.conf these values will be used
+    'DEFAULT_COST' => {
+        'CPU_COST' => 0,
+        'MEMORY_COST' => 0,
+        'DISK_COST' => 0
+    },
+    # Only these values will be shown when retrieving oned.conf from the browser
+    'ALLOWED_KEYS' => [
+        'DEFAULT_COST',
+        'DS_MAD_CONF',
+        'MARKET_MAD_CONF',
+        'VM_MAD',
+        'IM_MAD',
+        'AUTH_MAD'
+    ],
+    # Generate an array if there is only 1 element
+    'ARRAY_KEYS' => [
+        'DS_MAD_CONF',
+        'MARKET_MAD_CONF',
+        'VM_MAD',
+        'IM_MAD',
+        'AUTH_MAD'
+    ]
+}
 
 ##############################################################################
 # Required libraries
@@ -109,9 +141,9 @@ when 'memcache-dalli'
     STDERR.puts memcache_server
 
     use Rack::Session::Dalli,
-      memcache_server: memcache_server,
-      namespace: $conf[:memcache_namespace],
-      cache: Dalli::Client.new
+      :memcache_server => memcache_server,
+      :namespace => $conf[:memcache_namespace],
+      :cache => Dalli::Client.new
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
@@ -150,6 +182,7 @@ configure do
 end
 
 DEFAULT_TABLE_ORDER = "desc"
+DEFAULT_PAGE_LENGTH = 10
 
 ##############################################################################
 # Helpers
@@ -223,10 +256,16 @@ helpers do
             # - WSS CONECTION
             # - TABLE ORDER
 
-            if user['TEMPLATE/LANG']
-                session[:lang] = user['TEMPLATE/LANG']
+            if user[LANG_XPATH]
+                session[:lang] = user[LANG_XPATH]
             else
                 session[:lang] = $conf[:lang]
+            end
+
+            if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+                session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+            else
+                session[:page_length] = DEFAULT_PAGE_LENGTH
             end
 
             wss = $conf[:vnc_proxy_support_wss]
@@ -234,18 +273,18 @@ helpers do
             session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
                              "yes" : "no")
 
-            if user['TEMPLATE/TABLE_ORDER']
-                session[:table_order] = user['TEMPLATE/TABLE_ORDER']
+            if user[TABLE_ORDER_XPATH]
+                session[:table_order] = user[TABLE_ORDER_XPATH]
             else
                 session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
             end
 
-            if user['TEMPLATE/DEFAULT_VIEW']
-                session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
-            elsif group.contains_admin(user.id) && group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
-                session[:default_view] = group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
-            elsif group['TEMPLATE/DEFAULT_VIEW']
-                session[:default_view] = group['TEMPLATE/DEFAULT_VIEW']
+            if user[DEFAULT_VIEW_XPATH]
+                session[:default_view] = user[DEFAULT_VIEW_XPATH]
+            elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+                session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+            elsif group[DEFAULT_VIEW_XPATH]
+                session[:default_view] = group[DEFAULT_VIEW_XPATH]
             else
                 session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
             end
@@ -274,10 +313,6 @@ helpers do
     def destroy_session
         session.clear
         return [204, ""]
-    end
-
-    def cloud_view_instance_types
-        $conf[:instance_types] || []
     end
 end
 
@@ -366,9 +401,47 @@ get '/' do
         return erb :login
     end
 
+    logos_conf = nil
+
+    begin
+        logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
+    rescue Exception => e
+        logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+        error 500, ""
+    end
+
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    rc = OpenNebula::System.new(serveradmin_client).get_configuration
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    oned_conf_template = rc.to_hash()['TEMPLATE']
+
+    oned_conf = {}
+    ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
+        value = oned_conf_template[key]
+        if key == 'DEFAULT_COST'
+            if value
+                oned_conf[key] = value
+            else
+                oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
+            end
+        else
+            if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
+                oned_conf[key] = [value]
+            else
+                oned_conf[key] = value
+            end
+        end
+    end
+
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index
+    erb :index, :locals => {:logos_conf => logos_conf, :oned_conf => oned_conf}
 end
 
 get '/login' do
@@ -441,13 +514,53 @@ post '/config' do
         error 500, ""
     end
 
-    session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
-    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
-    session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
-    session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
+    session[:lang]         = user[LANG_XPATH] if user[LANG_XPATH]
+    session[:default_view] = user[DEFAULT_VIEW_XPATH] if user[DEFAULT_VIEW_XPATH]
+    session[:table_order]  = user[TABLE_ORDER_XPATH] if user[TABLE_ORDER_XPATH]
+    session[:page_length]  = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH] if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
-    [200, ""]
+    [204, ""]
+end
+
+get '/infrastructure' do
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    hpool = OpenNebula::HostPool.new(serveradmin_client)
+
+    rc = hpool.info
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    infrastructure = {}
+
+    set = Set.new
+
+    xml = XMLElement.new
+    xml.initialize_xml(hpool.to_xml, 'HOST_POOL')
+    xml.each('HOST/HOST_SHARE/PCI_DEVICES/PCI') do |pci|
+        set.add({
+            :device => pci['DEVICE'],
+            :class  => pci['CLASS'],
+            :vendor => pci['VENDOR'],
+            :device_name => pci['DEVICE_NAME']
+        })
+    end
+
+    infrastructure[:pci_devices] = set.to_a
+
+    set = Set.new
+
+    xml.each('HOST/TEMPLATE/CUSTOMIZATION') do |customization|
+        set.add(customization['NAME'])
+    end
+
+    infrastructure[:vcenter_customizations] = set.to_a
+
+    [200, infrastructure.to_json]
 end
 
 get '/vm/:id/log' do
@@ -497,17 +610,6 @@ get '/vm/showback' do
 end
 
 ##############################################################################
-# Marketplace
-##############################################################################
-get '/marketplace' do
-    @SunstoneServer.get_appliance_pool
-end
-
-get '/marketplace/:id' do
-    @SunstoneServer.get_appliance(params[:id])
-end
-
-##############################################################################
 # GET Pool information
 ##############################################################################
 get '/:pool' do
@@ -538,7 +640,11 @@ get '/:resource/:id/template' do
 end
 
 get '/:resource/:id' do
-    @SunstoneServer.get_resource(params[:resource], params[:id])
+    if params[:extended]
+        @SunstoneServer.get_resource(params[:resource], params[:id], true)
+    else
+        @SunstoneServer.get_resource(params[:resource], params[:id])
+    end
 end
 
 ##############################################################################
@@ -636,4 +742,3 @@ post '/:resource/:id/action' do
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))
-

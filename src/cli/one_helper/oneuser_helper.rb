@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -260,8 +260,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q
@@ -299,8 +299,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q
@@ -341,8 +341,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,11 +35,9 @@ using namespace std;
 class HostPool : public PoolSQL
 {
 public:
-    HostPool(SqlDB *                   db,
-             vector<const Attribute *> hook_mads,
-             const string&             hook_location,
-             const string&             remotes_location,
-             time_t                    expire_time);
+    HostPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
+        const string& hook_location, const string& remotes_location,
+        time_t expire_time);
 
     ~HostPool(){};
 
@@ -123,17 +121,19 @@ public:
      *   @param cpu amount of CPU, in percentage
      *   @param mem amount of main memory, in KB
      *   @param disk amount of disk
+     *   @param pci devices requested by the VM
      *
      *   @return 0 on success -1 in case of failure
      */
-    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk)
+    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk,
+            vector<VectorAttribute *> pci)
     {
         int rc = 0;
         Host * host = get(oid, true);
 
         if ( host != 0 )
         {
-          host->add_capacity(vm_id, cpu, mem, disk);
+          host->add_capacity(vm_id, cpu, mem, disk, pci);
 
           update(host);
 
@@ -154,14 +154,16 @@ public:
      *   @param cpu amount of CPU
      *   @param mem amount of main memory
      *   @param disk amount of disk
+     *   @param pci devices requested by the VM
      */
-    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk)
+    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk,
+            vector<VectorAttribute *> pci)
     {
         Host *  host = get(oid, true);
 
         if ( host != 0 )
         {
-            host->del_capacity(vm_id, cpu, mem, disk);
+            host->del_capacity(vm_id, cpu, mem, disk, pci);
 
             update(host);
 

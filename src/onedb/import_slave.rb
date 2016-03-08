@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -29,7 +29,7 @@ include OpenNebula
 
 module OneDBImportSlave
     VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.80"
+    LOCAL_VERSION = "4.13.85"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||
@@ -322,6 +322,9 @@ EOT
 
         @slave_db.run "ALTER TABLE secgroup_pool RENAME TO old_secgroup_pool;"
         @slave_db.run "CREATE TABLE secgroup_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
+
+        @slave_db.run "ALTER TABLE vrouter_pool RENAME TO old_vrouter_pool;"
+        @slave_db.run "CREATE TABLE vrouter_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
         @slave_db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
         @slave_db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
@@ -853,6 +856,7 @@ EOT
         @slave_db.run "DROP TABLE old_template_pool;"
         @slave_db.run "DROP TABLE old_vm_pool;"
         @slave_db.run "DROP TABLE old_secgroup_pool;"
+        @slave_db.run "DROP TABLE old_vrouter_pool;"
 
         @slave_db.run "DROP TABLE old_group_quotas;"
         @slave_db.run "DROP TABLE old_user_quotas;"
@@ -1130,6 +1134,39 @@ EOT
             doc.root.at_xpath("GNAME").content  = new_group[:name]
 
             db[:secgroup_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_vrouter_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            if (new_user.nil?)
+                new_user = users[0]
+                log("User ##{row[:uid]} does not exist anymore. Virtual Router ##{row[:oid]} will be assigned to user ##{new_user[:oid]}, #{new_user[:name]}")
+            end
+
+            if (new_group.nil?)
+                new_group = groups[0]
+                log("Group ##{row[:gid]} does not exist anymore. Virtual Router ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
+            end
+
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:vrouter_pool].insert(
                 :oid        => row[:oid],
                 :name       => row[:name],
                 :body       => doc.root.to_s,

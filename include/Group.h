@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -28,7 +28,7 @@ using namespace std;
 /**
  *  The Group class.
  */
-class Group : public PoolObjectSQL, ObjectCollection
+class Group : public PoolObjectSQL
 {
 public:
 
@@ -62,7 +62,7 @@ public:
      */
     int add_user(int id)
     {
-        return add_collection_id(id);
+        return users.add(id);
     }
 
     /**
@@ -72,7 +72,7 @@ public:
      */
     int del_user(int id)
     {
-        return del_collection_id(id);
+        return users.del(id);
     }
 
     /**
@@ -132,8 +132,8 @@ private:
 
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
-        ObjectCollection("USERS"),
         quota(),
+        users("USERS"),
         admins("ADMINS")
     {
         // Allow users in this group to see it
@@ -150,6 +150,11 @@ private:
     // *************************************************************************
     // Administrators
     // *************************************************************************
+
+    /**
+     *  Stores a collection with the regular users
+     */
+    ObjectCollection users;
 
     /**
      *  Stores a collection with the admin users

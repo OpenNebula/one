@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   require('jquery');
 
@@ -12,7 +28,6 @@ define(function(require) {
       Group           = require('./opennebula/group'),
       Host            = require('./opennebula/host'),
       Image           = require('./opennebula/image'),
-      Marketplace     = require('./opennebula/marketplace'),
       Network         = require('./opennebula/network'),
       Role            = require('./opennebula/role'),
       securitygroup   = require('./opennebula/securitygroup'),
@@ -23,7 +38,10 @@ define(function(require) {
       User            = require('./opennebula/user'),
       Vdc             = require('./opennebula/vdc'),
       Vm              = require('./opennebula/vm'),
-      Zone            = require('./opennebula/zone')
+      Zone            = require('./opennebula/zone'),
+      VirtualRouter   = require('./opennebula/virtualrouter');
+      MarketPlace     = require('./opennebula/marketplace');
+      MarketPlaceApp  = require('./opennebula/marketplaceapp');
 
   if (typeof(csrftoken) != "undefined") {
     $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
@@ -61,7 +79,6 @@ define(function(require) {
     'Host': Host,
     'Image': Image,
     'File': Image,
-    'Marketplace': Marketplace,
     'Network': Network,
     'Role': Role,
     'SecurityGroup': securitygroup,
@@ -72,8 +89,11 @@ define(function(require) {
     'User': User,
     'Vdc': Vdc,
     'VM': Vm,
-    'Zone': Zone
-  }
+    'Zone': Zone,
+    'VirtualRouter': VirtualRouter,
+    'MarketPlace': MarketPlace,
+    'MarketPlaceApp': MarketPlaceApp
+  };
 
   return OpenNebula;
 });

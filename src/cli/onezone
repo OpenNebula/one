@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -104,6 +104,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             else
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
+
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
 
             obj.update(str, options[:append])
         end

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,24 +44,34 @@ done < <($XPATH     /VMM_DRIVER_ACTION_DATA/VM/ID \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
                     $DISK_XPATH/CACHE \
+                    $DISK_XPATH/DISCARD \
                     $DISK_XPATH/SOURCE \
                     $DISK_XPATH/DISK_ID \
                     $DISK_XPATH/CLONE \
                     $DISK_XPATH/CEPH_HOST \
                     $DISK_XPATH/CEPH_SECRET \
-                    $DISK_XPATH/CEPH_USER)
+                    $DISK_XPATH/CEPH_USER \
+                    $DISK_XPATH/ISCSI_HOST \
+                    $DISK_XPATH/ISCSI_USAGE \
+                    $DISK_XPATH/ISCSI_USER \
+                    $DISK_XPATH/ISCSI_IQN)
 
 VMID="${XPATH_ELEMENTS[j++]}"
 DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 READONLY="${XPATH_ELEMENTS[j++]}"
 CACHE="${XPATH_ELEMENTS[j++]}"
+DISCARD="${XPATH_ELEMENTS[j++]}"
 IMG_SRC="${XPATH_ELEMENTS[j++]}"
 DISK_ID="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_HOST="${XPATH_ELEMENTS[j++]}"
 CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+ISCSI_HOST="${XPATH_ELEMENTS[j++]}"
+ISCSI_USAGE="${XPATH_ELEMENTS[j++]}"
+ISCSI_USER="${XPATH_ELEMENTS[j++]}"
+ISCSI_IQN="${XPATH_ELEMENTS[j++]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -70,6 +80,26 @@ block)
     TYPE_SOURCE="dev"
     TYPE_XML="block"
     DEVICE="disk"
+    ;;
+iscsi)
+    TYPE_SOURCE="protocol"
+    TYPE_XML="network"
+    SOURCE="iscsi"
+    DEVICE="disk"
+
+    if [ -n "$ISCSI_IQN" ]; then
+        SOURCE_ARGS="name='${ISCSI_IQN}'"
+    else
+        SOURCE_ARGS="name='${IMG_SRC}'"
+    fi
+
+    SOURCE_HOST=$(get_source_xml $ISCSI_HOST)
+
+    if [ -n "$ISCSI_USAGE" -a -n "$ISCSI_USER" ]; then
+        AUTH="<auth username='$ISCSI_USER'>\
+                <secret type='iscsi' usage='$ISCSI_USAGE'/>\
+              </auth>"
+    fi
     ;;
 cdrom)
     TYPE_SOURCE="file"
@@ -88,26 +118,7 @@ rbd)
         SOURCE_ARGS="name='${IMG_SRC}'"
     fi
 
-    for host in $CEPH_HOST ; do
-        BCK_IFS=$IFS
-        IFS=':'
-
-        unset k HOST_PARTS
-
-        for part in $host ; do
-            HOST_PARTS[k++]="$part"
-        done
-
-        SOURCE_HOST="$SOURCE_HOST<host name='${HOST_PARTS[0]}'"
-
-        if [ -n "${HOST_PARTS[1]}" ]; then
-            SOURCE_HOST="$SOURCE_HOST port='${HOST_PARTS[1]}'"
-        fi
-
-        SOURCE_HOST="$SOURCE_HOST/>"
-
-        IFS=$BCK_IFS
-    done
+    SOURCE_HOST=$(get_source_xml $CEPH_HOST)
 
     if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
         AUTH="<auth username='$CEPH_USER'>\
@@ -127,6 +138,10 @@ esac
     CACHE="$DEFAULT_ATTACH_CACHE"
 [ -n "$CACHE" ] && CACHE="cache='$CACHE'"
 
+[ -z "$DISCARD" ] && [ -n "$DEFAULT_ATTACH_DISCARD" ] && \
+    DISCARD="$DEFAULT_ATTACH_DISCARD"
+[ -n "$DISCARD" ] && DISCARD="discard='$DISCARD'"
+
 if [ "$READONLY" = "YES" ]; then
     READONLY="<readonly/>"
 else
@@ -135,7 +150,7 @@ fi
 
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
-  <driver name='qemu' type='$DRIVER' $CACHE/>
+  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>
   <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
   $SOURCE_HOST
   </source>

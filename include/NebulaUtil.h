@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,6 +160,33 @@ namespace one_util
     std::string float_to_str(const float &num);
 
     /**
+     *  Returns a scaped version of a value in the from "<op><val><cl>"
+     *    @param v the value to be escaped
+     *    @param op the opening escape string
+     *    @param cl the closing escape string
+     */
+    template <typename ValueType> inline
+    std::string escape(const ValueType& v, const char * op, const char * cl)
+    {
+        std::ostringstream oss;
+
+        oss << op << v << cl;
+
+        return oss.str();
+    }
+
+    template <typename ValueType> inline
+    std::string escape_xml(const ValueType &v)
+    {
+        return escape(v, "<![CDATA[", "]]>");
+    }
+
+    template <typename ValueType> inline
+    std::string escape_xml_attr(const ValueType &v)
+    {
+        return escape(v, "'", "'");
+    }
+    /**
      * Checks if a strings matches a regular expression
      *
      * @param pattern PCRE extended pattern
@@ -167,6 +194,24 @@ namespace one_util
      * @return 0 on match, another value otherwise
      */
     int regex_match(const char *pattern, const char *subject);
+
+    /**
+     * Trim an string using the isspace function
+     * @param the string
+     * @return trimed string
+     */
+    std::string trim(const std::string& str);
+
+    /**
+     * Returns a copy of st with the all occurrences of "find" substituted
+     * for "replacement"
+     * @param st string input
+     * @param sfind string to search for
+     * @param replacement string to replace occurrences with
+     * @return a string copy
+     */
+    std::string gsub(const std::string& st, const std::string& sfind,
+            const std::string& replacement);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

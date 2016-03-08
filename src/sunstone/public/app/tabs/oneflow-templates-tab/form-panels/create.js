@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -88,8 +104,8 @@ define(function(require) {
       $(".service_networks tbody").append(
         '<tr>\
           <td>\
-            <input class="service_network_name" type="text" pattern="[\\w]+"/>\
-            <small class="error">'+Locale.tr("Only word characters are allowed")+'</small>\
+            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
+            <small class="error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
@@ -183,10 +199,11 @@ define(function(require) {
     });
 
 
+    $(document).foundation('tab', 'reflow');
+
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
 
-    $(document).foundation('reflow', 'tab');
     Tips.setup(context);
     return false;
   }

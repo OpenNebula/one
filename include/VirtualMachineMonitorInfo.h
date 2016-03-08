@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -57,11 +57,13 @@ public:
         return rc;
     };
 
-    char get_state() const
+    char remove_state()
     {
         string state_str;
 
         get("STATE", state_str);
+
+        erase("STATE");
 
         if (state_str.empty())
         {

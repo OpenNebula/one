@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -54,14 +54,14 @@ module VNMMAD
 
         # Activate the rules, bootstrap iptables chains and set filter rules for
         # each VM NIC
-        def activate
-            deactivate
+        def activate(do_all=false)
+            deactivate(do_all)
             lock
 
             # Global Bootstrap
             SGIPTables.global_bootstrap
 
-            attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+            attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
 
             # Process the rules
             @vm.nics.each do |nic|
@@ -83,7 +83,7 @@ module VNMMAD
                         sg.run!
                     rescue Exception => e
                         unlock
-                        deactivate
+                        deactivate(do_all)
                         raise e
                     end
                 end
@@ -95,11 +95,11 @@ module VNMMAD
         end
 
         # Clean iptables rules and chains
-        def deactivate
+        def deactivate(do_all=false)
             lock
 
             begin
-                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
 
                 @vm.nics.each do |nic|
                     next if attach_nic_id && attach_nic_id != nic[:nic_id]

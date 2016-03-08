@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,16 +23,12 @@ require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils
 
-require 'SunstoneMarketplace'
-
 class SunstoneServer < CloudServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
 
     # Secs to sleep between checks to see if image upload to repo is finished
     IMAGE_POLL_SLEEP_TIME = 5
-
-    include SunstoneMarketplace
 
     def initialize(client, config, logger)
         super(config, logger)
@@ -52,19 +48,22 @@ class SunstoneServer < CloudServer
         end
 
         pool = case kind
-            when "group"      then GroupPoolJSON.new(client)
-            when "cluster"    then ClusterPoolJSON.new(client)
-            when "host"       then HostPoolJSON.new(client)
-            when "image"      then ImagePoolJSON.new(client, user_flag)
-            when "vmtemplate" then TemplatePoolJSON.new(client, user_flag)
-            when "vm"         then VirtualMachinePoolJSON.new(client, user_flag)
-            when "vnet"       then VirtualNetworkPoolJSON.new(client, user_flag)
-            when "user"       then UserPoolJSON.new(client)
-            when "acl"        then AclPoolJSON.new(client)
-            when "datastore"  then DatastorePoolJSON.new(client)
-            when "zone"       then ZonePoolJSON.new(client)
+            when "group"            then GroupPoolJSON.new(client)
+            when "cluster"          then ClusterPoolJSON.new(client)
+            when "host"             then HostPoolJSON.new(client)
+            when "image"            then ImagePoolJSON.new(client, user_flag)
+            when "vmtemplate"       then TemplatePoolJSON.new(client, user_flag)
+            when "vm"               then VirtualMachinePoolJSON.new(client, user_flag)
+            when "vnet"             then VirtualNetworkPoolJSON.new(client, user_flag)
+            when "user"             then UserPoolJSON.new(client)
+            when "acl"              then AclPoolJSON.new(client)
+            when "datastore"        then DatastorePoolJSON.new(client)
+            when "zone"             then ZonePoolJSON.new(client)
             when "security_group"   then SecurityGroupPoolJSON.new(client, user_flag)
-            when "vdc"        then VdcPoolJSON.new(client)
+            when "vdc"              then VdcPoolJSON.new(client)
+            when "vrouter"          then VirtualRouterPoolJSON.new(client, user_flag)
+            when "marketplace"      then MarketPlacePoolJSON.new(client)
+            when "marketplaceapp"   then MarketPlaceAppPoolJSON.new(client, user_flag)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -82,8 +81,8 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def get_resource(kind, id)
-        resource = retrieve_resource(kind, id)
+    def get_resource(kind, id, extended=false)
+        resource = retrieve_resource(kind, id, extended)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         else
@@ -109,19 +108,22 @@ class SunstoneServer < CloudServer
     ############################################################################
     def create_resource(kind, template)
         resource = case kind
-            when "group"      then GroupJSON.new(Group.build_xml, @client)
-            when "cluster"    then ClusterJSON.new(Group.build_xml, @client)
-            when "host"       then HostJSON.new(Host.build_xml, @client)
-            when "image"      then ImageJSON.new(Image.build_xml, @client)
-            when "vmtemplate" then TemplateJSON.new(Template.build_xml, @client)
-            when "vm"         then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
-            when "vnet"       then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
-            when "user"       then UserJSON.new(User.build_xml, @client)
-            when "acl"        then AclJSON.new(Acl.build_xml, @client)
-            when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
-            when "zone"       then ZoneJSON.new(Zone.build_xml, @client)
+            when "group"            then GroupJSON.new(Group.build_xml, @client)
+            when "cluster"          then ClusterJSON.new(Group.build_xml, @client)
+            when "host"             then HostJSON.new(Host.build_xml, @client)
+            when "image"            then ImageJSON.new(Image.build_xml, @client)
+            when "vmtemplate"       then TemplateJSON.new(Template.build_xml, @client)
+            when "vm"               then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
+            when "vnet"             then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
+            when "user"             then UserJSON.new(User.build_xml, @client)
+            when "acl"              then AclJSON.new(Acl.build_xml, @client)
+            when "datastore"        then DatastoreJSON.new(Datastore.build_xml, @client)
+            when "zone"             then ZoneJSON.new(Zone.build_xml, @client)
             when "security_group"   then SecurityGroupJSON.new(SecurityGroup.build_xml, @client)
-            when "vdc"        then VdcJSON.new(Vdc.build_xml, @client)
+            when "vdc"              then VdcJSON.new(Vdc.build_xml, @client)
+            when "vrouter"          then VirtualRouterJSON.new(VirtualRouter.build_xml, @client)
+            when "marketplace"      then MarketPlaceJSON.new(MarketPlace.build_xml, @client)
+            when "marketplaceapp"   then MarketPlaceAppJSON.new(MarketPlaceApp.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -204,7 +206,11 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            return [204, resource.to_json]
+            if rc.nil?
+                return [204, resource.to_json]
+            else
+                return [201, rc.to_json]
+            end
         end
     end
 
@@ -428,27 +434,30 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def retrieve_resource(kind, id)
+    def retrieve_resource(kind, id, extended=false)
         resource = case kind
-            when "group"      then GroupJSON.new_with_id(id, @client)
-            when "cluster"    then ClusterJSON.new_with_id(id, @client)
-            when "host"       then HostJSON.new_with_id(id, @client)
-            when "image"      then ImageJSON.new_with_id(id, @client)
-            when "vmtemplate" then TemplateJSON.new_with_id(id, @client)
-            when "vm"         then VirtualMachineJSON.new_with_id(id, @client)
-            when "vnet"       then VirtualNetworkJSON.new_with_id(id, @client)
-            when "user"       then UserJSON.new_with_id(id, @client)
-            when "acl"        then AclJSON.new_with_id(id, @client)
-            when "datastore"  then DatastoreJSON.new_with_id(id, @client)
-            when "zone"       then ZoneJSON.new_with_id(id, @client)
+            when "group"            then GroupJSON.new_with_id(id, @client)
+            when "cluster"          then ClusterJSON.new_with_id(id, @client)
+            when "host"             then HostJSON.new_with_id(id, @client)
+            when "image"            then ImageJSON.new_with_id(id, @client)
+            when "vmtemplate"       then TemplateJSON.new_with_id(id, @client)
+            when "vm"               then VirtualMachineJSON.new_with_id(id, @client)
+            when "vnet"             then VirtualNetworkJSON.new_with_id(id, @client)
+            when "user"             then UserJSON.new_with_id(id, @client)
+            when "acl"              then AclJSON.new_with_id(id, @client)
+            when "datastore"        then DatastoreJSON.new_with_id(id, @client)
+            when "zone"             then ZoneJSON.new_with_id(id, @client)
             when "security_group"   then SecurityGroupJSON.new_with_id(id, @client)
-            when "vdc"        then VdcJSON.new_with_id(id, @client)
+            when "vdc"              then VdcJSON.new_with_id(id, @client)
+            when "vrouter"          then VirtualRouterJSON.new_with_id(id, @client)
+            when "marketplace"      then MarketPlaceJSON.new_with_id(id, @client)
+            when "marketplaceapp"   then MarketPlaceAppJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error
         end
 
-        rc = resource.info
+        rc = extended ? resource.info(true) : resource.info
         if OpenNebula.is_error?(rc)
             return rc
         else

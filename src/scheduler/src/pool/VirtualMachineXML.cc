@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,92 +20,51 @@
 #include "DatastoreXML.h"
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
+#include "History.h"
 
 void VirtualMachineXML::init_attributes()
 {
-    vector<string>     result;
     vector<xmlNodePtr> nodes;
+
+    int rc;
+    int action;
 
     string automatic_requirements;
 
-    oid = atoi(((*this)["/VM/ID"] )[0].c_str());
-    uid = atoi(((*this)["/VM/UID"])[0].c_str());
-    gid = atoi(((*this)["/VM/GID"])[0].c_str());
+    xpath(oid, "/VM/ID", -1);
+    xpath(uid, "/VM/UID", -1);
+    xpath(gid, "/VM/GID", -1);
 
-    result = ((*this)["/VM/TEMPLATE/MEMORY"]);
-
-    if (result.size() > 0)
-    {
-        memory = atoi(result[0].c_str());
-    }
-    else
-    {
-        memory = 0;
-    }
-
-    result = ((*this)["/VM/TEMPLATE/CPU"]);
-
-    if (result.size() > 0)
-    {
-        istringstream   iss;
-        iss.str( result[0] );
-        iss >> cpu;
-    }
-    else
-    {
-        cpu = 0;
-    }
+    xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
+    xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
 
     // ------------------------ RANK & DS_RANK ---------------------------------
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_RANK"]);
+    rc = xpath(rank, "/VM/USER_TEMPLATE/SCHED_RANK", "");
 
-    if (result.size() > 0)
-    {
-        rank = result[0];
-    }
-    else
+    if (rc != 0)
     {
         // Compatibility with previous versions
-        result = ((*this)["/VM/USER_TEMPLATE/RANK"]);
-
-        if (result.size() > 0)
-        {
-            rank = result[0];
-        }
+        xpath(rank, "/VM/USER_TEMPLATE/RANK", "");
     }
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_RANK"]);
-
-    if (result.size() > 0)
-    {
-        ds_rank = result[0];
-    }
+    xpath(ds_rank, "/VM/USER_TEMPLATE/SCHED_DS_RANK", "");
 
     // ------------------- HOST REQUIREMENTS -----------------------------------
 
-    result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
+    xpath(automatic_requirements, "/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS", "");
 
-    if (result.size() > 0)
-    {
-        automatic_requirements = result[0];
-    }
+    rc = xpath(requirements, "/VM/USER_TEMPLATE/SCHED_REQUIREMENTS", "");
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
-
-    if (result.size() > 0)
+    if (rc == 0)
     {
         if ( !automatic_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << automatic_requirements << " & ( " << result[0] << " )";
+            oss << automatic_requirements << " & ( " << requirements << " )";
 
             requirements = oss.str();
-        }
-        else
-        {
-            requirements = result[0];
         }
     }
     else if ( !automatic_requirements.empty() )
@@ -115,21 +74,17 @@ void VirtualMachineXML::init_attributes()
 
     // ------------------- DS REQUIREMENTS -------------------------------------
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS"]);
+    rc = xpath(ds_requirements, "/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS", "");
 
-    if (result.size() > 0)
+    if (rc == 0)
     {
         if ( !automatic_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << automatic_requirements << " & ( " << result[0] << " )";
+            oss << automatic_requirements << " & ( " << ds_requirements << " )";
 
             ds_requirements = oss.str();
-        }
-        else
-        {
-            ds_requirements = result[0];
         }
     }
     else if ( !automatic_requirements.empty() )
@@ -139,38 +94,16 @@ void VirtualMachineXML::init_attributes()
 
     // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------
 
-    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
+    xpath(hid,  "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
+    xpath(dsid, "/VM/HISTORY_RECORDS/HISTORY/DS_ID", -1);
 
-    if (result.size() > 0)
-    {
-        hid = atoi(result[0].c_str());
-    }
-    else
-    {
-        hid = -1;
-    }
+    xpath(resched, "/VM/RESCHED", 0);
 
-    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/DS_ID"]);
+    xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
 
-    if (result.size() > 0)
-    {
-        dsid = atoi(result[0].c_str());
-    }
-    else
-    {
-        dsid = -1;
-    }
-
-    result = ((*this)["/VM/RESCHED"]);
-
-    if (result.size() > 0)
-    {
-        resched = atoi(result[0].c_str());
-    }
-    else
-    {
-        resched = 0;
-    }
+    resume = (action == History::STOP_ACTION ||
+              action == History::UNDEPLOY_ACTION ||
+              action == History::UNDEPLOY_HARD_ACTION );
 
     if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
@@ -209,17 +142,14 @@ void VirtualMachineXML::init_attributes()
         system_ds_usage = 0;
     }
 
-    vector<Attribute*> attrs;
-    user_template->get("PUBLIC_CLOUD", attrs);
+    vector<VectorAttribute*> attrs;
 
-    public_cloud = (attrs.size() > 0);
+    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
 
     if (public_cloud == false)
     {
         attrs.clear();
-        user_template->get("EC2", attrs);
-
-        public_cloud = (attrs.size() > 0);
+        public_cloud = (user_template->get("EC2", attrs) > 0);
     }
 
     only_public_cloud = false;
@@ -269,8 +199,16 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::get_requirements (int& cpu, int& memory, long long& disk)
+void VirtualMachineXML::get_requirements (int& cpu, int& memory,
+    long long& disk, vector<VectorAttribute *> &pci)
 {
+    pci.clear();
+
+    if (vm_template != 0)
+    {
+        vm_template->get("PCI", pci);
+    }
+
     if (this->memory == 0 || this->cpu == 0)
     {
         cpu    = 0;
@@ -309,6 +247,7 @@ void VirtualMachineXML::init_storage_usage()
     vector<Attribute*>::iterator    it;
 
     long long   size;
+    long long   snapshot_size;
     string      st;
     int         ds_id;
     bool        clone;
@@ -329,6 +268,11 @@ void VirtualMachineXML::init_storage_usage()
         if (disk->vector_value("SIZE", size) != 0)
         {
             continue;
+        }
+
+        if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
+        {
+            size += snapshot_size;
         }
 
         if (isVolatile(disk))

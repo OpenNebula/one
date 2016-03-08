@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,7 @@
 
 #include <map>
 #include "ObjectXML.h"
+#include "HostShare.h"
 
 using namespace std;
 
@@ -50,21 +51,24 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed by the VM
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, string & error) const;
+    bool test_capacity(long long cpu, long long mem, vector<VectorAttribute *> &pci,
+        string & error);
 
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem) const
+    bool test_capacity(long long cpu,long long mem,vector<VectorAttribute *> &p)
     {
         string tmp_st;
-        return test_capacity(cpu, mem, tmp_st);
+        return test_capacity(cpu, mem, p, tmp_st);
     };
 
     /**
@@ -74,10 +78,13 @@ public:
      *    @param mem needed by the VM (in KB)
      *    @return 0 on success
      */
-    void add_capacity(long long cpu, long long mem)
+    void add_capacity(int vmid, long long cpu, long long mem,
+        vector<VectorAttribute *> &p)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
+
+        pci.add(p, vmid);
 
         running_vms++;
     };
@@ -115,12 +122,26 @@ public:
 
     /**
      *  Search the Object for a given attribute in a set of object specific
-     *  routes. Overwrite ObjectXML function to deal with pseudo-attributes
-     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
-     *    running VMs in the host. If the VM_ID is found value is not modified
-     *    otherwise is set to -1
+     *  routes.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return -1 if the element was not found
      */
-    int search(const char *name, int& value);
+    virtual int search(const char *name, std::string& value)
+    {
+        return __search(name, value);
+    }
+
+    virtual int search(const char *name, int& value)
+    {
+        return __search(name, value);
+    }
+
+    virtual int search(const char *name, float& value)
+    {
+        return __search(name, value);
+    }
 
     /**
      *  Checks if the host is a remote public cloud
@@ -130,6 +151,12 @@ public:
     {
         return public_cloud;
     }
+
+    /**
+     *  Prints the Host information to an output stream. This function is used
+     *  for logging purposes.
+     */
+    friend ostream& operator<<(ostream& o, const HostXML& p);
 
 private:
     int oid;
@@ -150,12 +177,51 @@ private:
 
     bool public_cloud;
 
+    HostSharePCI pci;
+
     // Configuration attributes
     static const char *host_paths[]; /**< paths for search function */
 
     static int host_num_paths; /**< number of paths*/
 
     void init_attributes();
+
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. Overrite ObjectXML function to deal with pseudo-attributes
+     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
+     *    running VMs in the host. If the VM_ID is found value is not modified
+     *    otherwise is set to -1
+     */
+    template<typename T>
+    int __search(const char *name, T& value)
+    {
+        string s_name(name);
+
+        if (s_name == "CURRENT_VMS")
+        {
+            typename std::vector<T>::iterator it;
+            std::vector<T> results;
+
+            xpaths(results, "/HOST/VMS/ID");
+
+            for (it=results.begin(); it!=results.end(); it++)
+            {
+                if (*it == value)
+                {
+                    return 0; //VMID found in VMS value is VMID
+                }
+            }
+
+            value = -1; //VMID not found in VMS value is -1
+
+            return 0;
+        }
+        else
+        {
+            return ObjectXML::search(name, value);
+        }
+    };
 };
 
 #endif /* HOST_XML_H_ */

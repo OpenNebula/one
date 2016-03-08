@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   require('jquery');
   require('foundation.reveal');
@@ -7,6 +23,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
+  var Menu = require('utils/menu');
 
   var TOP_INTERVAL = 10000; //ms
   var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
@@ -19,9 +36,11 @@ define(function(require) {
     "tabs" : {}
   };
 
-  var _addMainTab = function(tabObj) {
-    var _tabId = tabObj.tabId;
-    if (Config.isTabEnabled(_tabId)) {
+  var _addMainTabs = function() {
+    $.each(Config.enabledTabs, function(i, tabName){
+      var name = './tabs/' + tabName;
+      var tabObj = require(name);
+      var _tabId = tabObj.tabId;
       SunstoneCfg["tabs"][_tabId] = tabObj;
 
       var actions = tabObj.actions;
@@ -34,6 +53,11 @@ define(function(require) {
         _addPanels(_tabId, panels)
       }
 
+      var panelsHooks = tabObj.panelsHooks;
+      if (panelsHooks) {
+        _addPanelsHooks(_tabId, panelsHooks);
+      }
+
       var dialogs = tabObj.dialogs;
       if (dialogs) {
         _addDialogs(dialogs)
@@ -43,7 +67,7 @@ define(function(require) {
       if (formPanels) {
         _addFormPanels(_tabId, formPanels)
       }
-    }
+    });
   }
 
   var _addActions = function(actions) {
@@ -57,6 +81,11 @@ define(function(require) {
     $.each(dialogs, function(index, dialog) {
       SunstoneCfg['dialogs'][dialog.DIALOG_ID] = dialog
     })
+    return false;
+  }
+
+  var _addPanelsHooks = function(tabId, hooks) {
+    SunstoneCfg["tabs"][tabId]['panelsHooks'] = hooks;
     return false;
   }
 
@@ -102,8 +131,15 @@ define(function(require) {
   }
 
   var _setupDataTable = function(tabName) {
-    if (SunstoneCfg['tabs'][tabName].dataTable) {
-      SunstoneCfg['tabs'][tabName].dataTable.initialize();
+    var dataTable = SunstoneCfg['tabs'][tabName].dataTable;
+    if (dataTable) {
+      dataTable.initialize();
+      if (dataTable.labelsColumn) {
+        $('#' + tabName + 'labels_buttons').html(
+          '<button href="#" data-dropdown="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button small secondary button dropdown radius">' +
+            '<i class="fa fa-tags"/></button>' +
+          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown f-dropdown" data-dropdown-content></ul>');
+      }
     }
   }
 
@@ -414,7 +450,7 @@ define(function(require) {
       return false;
     });
 
-    $(document).foundation('reflow', 'dropdown');
+    $(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "a[href='back']", function(e) {
@@ -425,13 +461,13 @@ define(function(require) {
 
   var _setupTabs = function() {
     var topTabs = $(".left-content ul li.topTab");
-    var subTabs = $(".left-content ul li.subTab");
+    var subTabs = $(".left-content ul li.subTab > a");
 
     subTabs.on("click", function() {
-      if ($(this).hasClass('topTab')) {
+      if ($(this).closest('li').hasClass('topTab')) {
         return false;
       } else {
-        var tabName = $(this).attr('id').substring(3);
+        var tabName = $(this).closest('li').attr('id').substring(3);
         _showTab(tabName);
         return false;
       }
@@ -485,6 +521,9 @@ define(function(require) {
       return false;
     }
 
+    // Hide the menu in small windows
+    Menu.entryClick();
+
     // TODO check if necessary
     // last_selected_row = null;
 
@@ -495,6 +534,7 @@ define(function(require) {
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
+    $('.tree', '#navigation').remove();
 
     var tab = $('#' + tabName);
     //show tab
@@ -502,6 +542,9 @@ define(function(require) {
 
     var dataTable = SunstoneCfg['tabs'][tabName]['dataTable'];
     if (dataTable) {
+      if (dataTable.clearLabelsFilter) {
+        dataTable.clearLabelsFilter();
+      }
       dataTable.recountCheckboxes();
     }
 
@@ -528,18 +571,47 @@ define(function(require) {
     $('.top_button, .list_button', context).attr('disabled', false);
   }
 
+  // Returns the element that is currently shown in the right info
+  var _getElementRightInfo = function(tabName, context) {
+    var context = context || $(".right-info", $("#" + tabName));
+    return context.data('element');
+  }
+
   var _insertPanels = function(tabName, info, contextTabId, context) {
     var context = context || $(".right-info", $("#" + tabName));
+
+    context.data('element', info[Object.keys(info)[0]]);
+
     var containerId = tabName + '-panels';
     var activaTab = $("dd.active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
     }
 
+    var isRefresh = (activaTabHref != undefined);
+    var prevPanelInstances = SunstoneCfg['tabs'][tabName]["panelInstances"];
+    var prevPanelStates = {};
+
+    if(isRefresh && prevPanelInstances != undefined){
+      $.each(prevPanelInstances, function(panelName, panel) {
+        if(panel.getState){
+          prevPanelStates[panelName] = panel.getState(context);
+        }
+      });
+    }
+
+    var hooks = SunstoneCfg['tabs'][tabName].panelsHooks;
+
+    if (hooks) {
+      $.each(hooks, function(i, hook){
+        hook.pre(info, (contextTabId||tabName));
+      });
+    }
+
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
     var templatePanelsParams = []
-    var panelInstances = []
+    SunstoneCfg['tabs'][tabName]["panelInstances"] = {};
 
     $.each(panels, function(panelName, Panel) {
       if (Config.isTabPanelEnabled((contextTabId||tabName), panelName)) {
@@ -554,7 +626,7 @@ define(function(require) {
 
         try {
           var panelInstance = new Panel(info, contextTabId);
-          panelInstances.push(panelInstance);
+          SunstoneCfg['tabs'][tabName]["panelInstances"][panelName] = panelInstance;
           templatePanelsParams.push({
             'panelName': panelName,
             'icon': panelInstance.icon,
@@ -578,8 +650,12 @@ define(function(require) {
 
     context.html(html);
 
-    $.each(panelInstances, function(index, panel) {
+    $.each(SunstoneCfg['tabs'][tabName]["panelInstances"], function(panelName, panel) {
       panel.setup(context);
+
+      if(isRefresh && prevPanelStates[panelName] && panel.setState){
+        panel.setState( prevPanelStates[panelName], context );
+      }
 
       if (panel.onShow) {
         context.off('click', '[href="#' + panel.panelId + '"]');
@@ -589,8 +665,14 @@ define(function(require) {
       }
     });
 
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     $('[href=' + activaTabHref + ']', context).trigger("click");
+
+    if (hooks) {
+      $.each(hooks, function(i, hook){
+        hook.post(info, (contextTabId||tabName));
+      });
+    }
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
@@ -708,8 +790,8 @@ define(function(require) {
       if (!formPanelInstance) {
         formContext =
         $('<div class="tabs-content tabs-contentForm" form-panel-id="'+formPanelId+'">\
-          <div class="content active" id="wizardForms"></div>\
-          <div class="content" id="advancedForms"></div>\
+          <div class="wizardForms content active" id="'+tab.tabName+'-wizardForms"></div>\
+          <div class="advancedForms content" id="'+tab.tabName+'-advancedForms"></div>\
         </div>').appendTo( $(".contentForm", context) );
 
         // Create panelInstance, insert in the DOM and setup
@@ -720,6 +802,7 @@ define(function(require) {
         } // Panel not defined
 
         formPanelInstance = new formPanel();
+        formPanelInstance.setAction(formContext, action);
         tab["formPanelInstances"][formPanelId] = formPanelInstance;
         formPanelInstance.insert(formContext);
       }
@@ -732,6 +815,7 @@ define(function(require) {
         $(".wizard_tabs", context).show();
       } else {
         $(".wizard_tabs", context).hide();
+        $('a[href="#'+tab.tabName+'-wizardForms"]', context).click();
       }
 
       // Hide reset button if not defined
@@ -741,25 +825,30 @@ define(function(require) {
         $(".reset_button", context).hide();
       }
 
+      _hideFormPanelLoading(tabId);
+
       formPanelInstance.onShow(formContext);
       if (onShow2) {
         onShow2(formPanelInstance, formContext);
       }
-
-      _hideFormPanelLoading(tabId);
     }, 13)
   }
 
   var _submitFormPanel = function(tabId) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(tabId);
+    //_popFormPanelLoading(tabId);
+    // Workaround until Foundation.abide support hidden forms
+    
+    var context = $("#" + tabId);
+    $(".right-form-title", context).text(Locale.tr("Submitting..."));
+    $(".submit_button", context).text(Locale.tr("Submitting..."));
 
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
-      if ($("#wizardForms.active", context).length > 0) {
+      if ($(".wizardForms.active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
-      } else if ($("#advancedForms.active", context).length > 0) {
+      } else if ($(".advancedForms.active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
       }
     }, 13)
@@ -783,15 +872,31 @@ define(function(require) {
         formPanelId = formPanelInstance.formPanelId;
 
         formPanelInstance.reset(context);
-        formPanelInstance.onShow(context);
       }
 
       _hideFormPanelLoading(tabId);
+
+      if (formPanelInstance) {
+        formPanelInstance.onShow(context);
+      }
     }, 13)
   }
 
+  /**
+   * Hides the form panel loading (spinning icon on submit), and resets
+   * the header and submit button texts
+   *
+   * @param  {String} tabId TAB_ID. Optional, if it is not provided the current
+   *                        tab will be used
+   */
   function _hideFormPanelLoading(tabId) {
-    var context = $("#" + tabId);
+    var context;
+    if (tabId){
+      context = $("#" + tabId);
+    } else {
+      context = $(".tab:visible");  // current tab
+      tabId = context.attr("id");
+    }
     //$(".right-form", context).html(content);
 
     $(".loadingForm", context).hide();
@@ -886,6 +991,12 @@ define(function(require) {
     }
   }
 
+  var _getResource = function(tabName) {
+    if (SunstoneCfg['tabs'][tabName]) {
+      return SunstoneCfg['tabs'][tabName].resource;
+    }
+  }
+
   var _getDialogInstance = function(dialogId) {
     var dialogInstance = SunstoneCfg['dialogInstances'][dialogId];
     if (dialogInstance == undefined) {
@@ -899,11 +1010,12 @@ define(function(require) {
   }
 
   var Sunstone = {
-    "addMainTab": _addMainTab,
+    "addMainTabs": _addMainTabs,
     "addDialogs": _addDialogs,
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
+    "getElementRightInfo": _getElementRightInfo,
 
     'showTab': _showTab,
     "showElement" : _showElement,
@@ -926,6 +1038,7 @@ define(function(require) {
     "getAction": _getAction,
     "getButton": _getButton,
     "getDataTable": _getDataTable,
+    "getResource": _getResource,
     "getDialog": _getDialogInstance,
 
     "insertButtonsInTab": _insertButtonsInTab,

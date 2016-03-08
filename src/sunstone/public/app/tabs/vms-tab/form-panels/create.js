@@ -1,10 +1,26 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
    */
 
   require('foundation.tab');
-  var BaseFormPanel = require('utils/form-panels/form-panel');
+  var InstantiateTemplateFormPanel = require('tabs/templates-tab/form-panels/instantiate');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -13,13 +29,6 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var OpenNebulaTemplate = require('opennebula/template');
   var TemplatesTable = require('tabs/templates-tab/datatable');
-
-  /*
-    TEMPLATES
-   */
-
-  var TemplateWizardHTML = require('hbs!./create/wizard');
-
   /*
     CONSTANTS
    */
@@ -32,6 +41,8 @@ define(function(require) {
    */
 
   function FormPanel() {
+    InstantiateTemplateFormPanel.call(this);
+
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
@@ -43,134 +54,49 @@ define(function(require) {
     };
 
     this.templatesTable = new TemplatesTable('vm_create', {'select': true});
-
-    BaseFormPanel.call(this);
   }
 
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
-  FormPanel.prototype = Object.create(BaseFormPanel.prototype);
+  FormPanel.prototype = Object.create(InstantiateTemplateFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
-  FormPanel.prototype.htmlWizard = _htmlWizard;
-  FormPanel.prototype.setup = _setup;
   FormPanel.prototype.onShow = _onShow;
-  FormPanel.prototype.submitWizard = _submitWizard;
+  FormPanel.prototype.setup = _setup;
 
   return FormPanel;
 
   /*
     FUNCTION DEFINITIONS
    */
-
-  function _htmlWizard() {
-
-    return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'templatesTableHTML': this.templatesTable.dataTableHTML
-    });
-  }
-
   function _setup(context) {
-    $("#create_vm_template_proceed", context).attr("disabled", "disabled");
-    $("#create_vm_inputs_step", context).hide();
+    var that = this;
+    InstantiateTemplateFormPanel.prototype.setup.call(this, context);
+
+    $(".selectTemplateTable", context).html(
+      '<fieldset>' +
+        '<legend>' + Locale.tr("Select a template") + '</legend>' +
+        this.templatesTable.dataTableHTML +
+      '</fieldset>');
 
     this.templatesTable.initialize();
 
     $("#selected_resource_id_vm_create", context).on("change", function(){
+        $(".nameContainer", context).show();
+
+         var templatesContext = $(".list_of_templates", context);
+        templatesContext.html("");
+        templatesContext.show();
+
         var template_id = $(this).val();
-
-        $("#create_vm_inputs_step", context).hide();
-        $("#create_vm_user_inputs", context).empty();
-
-        OpenNebulaTemplate.show({
-            data : {
-                id: template_id
-            },
-            timeout: true,
-            success: function (request, template_json){
-                $("#create_vm_inputs_step", context).hide();
-                $("#create_vm_user_inputs", context).empty();
-
-                var has_inputs = UserInputs.vmTemplateInsert(
-                    $("#create_vm_user_inputs", context),
-                    template_json,
-                    {text_header: ""});
-
-                if(has_inputs){
-                    $("#create_vm_inputs_step", context).show();
-                }
-
-                $("#create_vm_template_proceed", context).removeAttr("disabled");
-            },
-            error: function(request,error_json, container){
-                Notifier.onError(request,error_json, container);
-            }
-        });
+        that.setTemplateIds(context, [template_id]);
     });
 
     Tips.setup(context);
   }
 
   function _onShow(context) {
-    $("input#vm_name", context).focus();
     this.templatesTable.resetResourceTableSelect();
-  }
+    InstantiateTemplateFormPanel.prototype.onShow.call(this, context);
 
-  function _submitWizard(context) {
-    var vm_name = $('#create_vm_name', context).val();
-    var template_id = $("#selected_resource_id_vm_create", context).val();
-    var n_times = $('#create_vm_n_times', context).val();
-    var n_times_int = 1;
-    var hold = $('#create_vm_hold', context).prop("checked");
-
-    if (!template_id.length) {
-      Notifier.notifyError(tr("You have not selected a template"));
-      return false;
-    }
-
-    if (n_times.length) {
-      n_times_int = parseInt(n_times, 10);
-    }
-
-    var extra_msg = "";
-    if (n_times_int > 1) {
-      extra_msg = n_times_int + " times";
-    }
-
-    Notifier.notifySubmit("Template.instantiate", template_id, extra_msg);
-
-    var extra_info = {
-      'hold': hold
-    };
-
-    var tmp_json = WizardFields.retrieve(context);
-
-    extra_info['template'] = tmp_json;
-
-    if (!vm_name.length) { //empty name use OpenNebula core default
-      for (var i = 0; i < n_times_int; i++) {
-        extra_info['vm_name'] = "";
-        Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-      }
-    } else {
-      if (vm_name.indexOf("%i") == -1) {//no wildcard, all with the same name
-        for (var i = 0; i < n_times_int; i++) {
-          extra_info['vm_name'] = vm_name;
-          Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-        }
-      } else { //wildcard present: replace wildcard
-        for (var i = 0; i < n_times_int; i++) {
-          extra_info['vm_name'] = vm_name.replace(/%i/gi, i);
-          Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-        }
-      }
-    }
-
-    setTimeout(function() {
-      Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
-      Sunstone.hideFormPanel(TAB_ID);
-      Sunstone.runAction("VM.list");
-    }, 1500);
-
-    return false;
+    $(".nameContainer", context).hide();
   }
 });

@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -9,7 +25,8 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
   var OpenNebulaVM = require('opennebula/vm');
-  var StateActions = require('../utils/state-actions');
+  var Sunstone = require('sunstone');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -50,7 +67,7 @@ define(function(require) {
    */
 
   function _html() {
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var prettyStartTime = Humanize.prettyTime(this.element.STIME);
 
@@ -58,9 +75,35 @@ define(function(require) {
     var lcmStateStr = OpenNebulaVM.lcmStateStr(this.element.LCM_STATE);
     var hostname = OpenNebulaVM.hostnameStr(this.element);
 
-    var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "-" : this.element.DEPLOY_ID);
+    var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
-    var templateTableHTML = TemplateTable.html(this.element.USER_TEMPLATE, RESOURCE, Locale.tr("Attributes"));
+
+    // Get rid of the unwanted (for show) SCHED_* keys
+    var that = this;
+    var strippedTemplate = {};
+    var unshownValues = {};
+    $.each(that.element.USER_TEMPLATE, function(key, value) {
+      if (!key.match(/^SCHED_*/)) {
+        strippedTemplate[key] = value;
+      } else {
+        unshownValues[key] = value;
+      }
+    })
+
+    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), unshownValues);
+
+    var monitoring = $.extend({}, this.element.MONITORING);
+    delete monitoring.CPU;
+    delete monitoring.MEMORY;
+    delete monitoring.NETTX;
+    delete monitoring.NETRX;
+    delete monitoring.STATE;
+    delete monitoring.DISK_SIZE;
+    delete monitoring.SNAPSHOT_SIZE;
+    var monitoringTableContentHTML;
+    if (!$.isEmptyObject(monitoring)) {
+      monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
+    }
 
     return TemplateInfo({
       'element': this.element,
@@ -73,39 +116,23 @@ define(function(require) {
       'resched': resched,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML,
+      'monitoringTableContentHTML': monitoringTableContentHTML,
       'renameTrHTML': renameTrHTML
     });
   }
 
   function _setup(context) {
-    var state;
-    if (this.element.STATE == OpenNebulaVM.STATES.ACTIVE) {
-      state = OpenNebulaVM.shortLcmStateStr(this.element.LCM_STATE);
-    } else {
-      state = OpenNebulaVM.stateStr(this.element.STATE);
-    }
-
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
-    $('.resource-info-header-small', '#' + TAB_ID).text(state);
-
-    // Enable only action buttons for the current state
-    StateActions.disableAllStateActions();
-    StateActions.enableStateActions(this.element.STATE, this.element.LCM_STATE);
-    // Enable / disable vnc button
-    if (OpenNebulaVM.isVNCSupported(this.element)) {
-      $(".vnc-right-info").show();
-    } else {
-      $(".vnc-right-info").hide();
-    }
-
-    if (OpenNebulaVM.isSPICESupported(this.element)) {
-      $(".spice-right-info").show()
-    } else {
-      $(".spice-right-info").hide();;
-    }
-
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+    $("a.vrid", context).on("click", function(){
+      // TODO: this should be checked internally in showElement,
+      // but it won't work because of bug #4198
+
+      if (Config.isTabEnabled("vrouters-tab")){
+        Sunstone.showElement("vrouters-tab", "VirtualRouter.show", $(this).text());
+      }
+    });
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;

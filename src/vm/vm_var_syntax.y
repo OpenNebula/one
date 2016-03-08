@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -87,8 +87,7 @@ void get_image_attribute(VirtualMachine * vm,
     int         iid = -1;
 
     int num;
-    vector<const Attribute *> attrs;
-    const VectorAttribute *   disk;
+    vector<const VectorAttribute *> disks;
 
     attr_value.clear();
 
@@ -101,20 +100,13 @@ void get_image_attribute(VirtualMachine * vm,
     // Check that the image is in the template, so
     // are sure that we can access the image template
     // ----------------------------------------------
-    num = vm->get_template_attribute("DISK",attrs);
+    num = vm->get_template_attribute("DISK", disks);
 
     for (int i=0; i < num ;i++)
     {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
+        if ( disks[i]->vector_value(img_name.c_str()) == img_value )
         {
-            continue;
-        }
-
-        if ( disk->vector_value(img_name.c_str()) == img_value )
-        {
-            string        iid_str = disk->vector_value("IMAGE_ID");
+            string        iid_str = disks[i]->vector_value("IMAGE_ID");
             istringstream iss(iid_str);
 
             iss >> iid;
@@ -149,7 +141,7 @@ void get_image_attribute(VirtualMachine * vm,
     }
     else
     {
-        img->get_template_attribute(attr_name.c_str(),attr_value);
+        img->get_template_attribute(attr_name.c_str(), attr_value);
     }
 
     img->unlock();
@@ -171,8 +163,7 @@ void get_network_attribute(VirtualMachine * vm,
     int                  ar_id, vnet_id = -1;
 
     int num;
-    vector<const Attribute *> attrs;
-    const VectorAttribute *   net;
+    vector<const VectorAttribute *> nets;
 
     attr_value.clear();
 
@@ -186,25 +177,18 @@ void get_network_attribute(VirtualMachine * vm,
     // Check that the network is in the template, so
     // are sure that we can access its template
     // ----------------------------------------------
-    num = vm->get_template_attribute("NIC",attrs);
+    num = vm->get_template_attribute("NIC", nets);
 
     for (int i=0; i < num ;i++)
     {
-        net = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( net == 0 )
+        if ( nets[i]->vector_value(net_name.c_str()) == net_value )
         {
-            continue;
-        }
-
-        if ( net->vector_value(net_name.c_str()) == net_value )
-        {
-            if (net->vector_value("NETWORK_ID", vnet_id) != 0)
+            if (nets[i]->vector_value("NETWORK_ID", vnet_id) != 0)
             {
                 vnet_id = -1;
             }
 
-            if (net->vector_value("AR_ID", ar_id) != 0)
+            if (nets[i]->vector_value("AR_ID", ar_id) != 0)
             {
                 vnet_id = -1;
             }
@@ -335,7 +319,7 @@ void insert_vector(VirtualMachine * vm,
                    const string&    vval)
 
 {
-    vector<const Attribute*> values;
+    vector<const VectorAttribute*> values;
     const VectorAttribute *  vattr = 0;
 
     int    num;
@@ -381,14 +365,14 @@ void insert_vector(VirtualMachine * vm,
     }
     else
     {
-        if ( ( num = vm->get_template_attribute(name.c_str(),values) ) <= 0 )
+        if ( ( num = vm->get_template_attribute(name.c_str(), values) ) <= 0 )
         {
             return;
         }
 
         if ( vvar.empty() )
         {
-            vattr = dynamic_cast<const VectorAttribute *>(values[0]);
+            vattr = values[0];
         }
         else
         {
@@ -396,9 +380,7 @@ void insert_vector(VirtualMachine * vm,
 
             for (int i=0 ; i < num ; i++)
             {
-                tmp = dynamic_cast<const VectorAttribute *>(values[i]);
-
-                if ( tmp && ( tmp->vector_value(vvar.c_str()) == vval ))
+                if (tmp->vector_value(vvar.c_str()) == vval)
                 {
                     vattr = tmp;
                     break;

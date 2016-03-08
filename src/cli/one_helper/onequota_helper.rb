@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,10 +34,10 @@ class OneQuotaHelper
         #  ]
         #
         #  VM = [
-        #    VMS           = <Max. number of VMs>
-        #    MEMORY        = <Max. allocated memory (MB)>
-        #    CPU           = <Max. allocated CPU>
-        #    VOLATILE_SIZE = <Max. allocated volatile disks (MB)>
+        #    VMS              = <Max. number of VMs>
+        #    MEMORY           = <Max. allocated memory (MB)>
+        #    CPU              = <Max. allocated CPU>
+        #    SYSTEM_DISK_SIZE = <Max. allocated system disk (MB)>
         #  ]
         #
         #  NETWORK = [
@@ -216,8 +216,8 @@ class OneQuotaHelper
                 "CPU_USED"    => "0",
                 "MEMORY"      => limit,
                 "MEMORY_USED" => "0",
-                "VOLATILE_SIZE"      => limit,
-                "VOLATILE_SIZE_USED" => "0"
+                "SYSTEM_DISK_SIZE"      => limit,
+                "SYSTEM_DISK_SIZE_USED" => "0"
             }]
         end
 
@@ -273,20 +273,20 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"VOLATILE_SIZE", "", :right, :size=>20 do |d|
+                column :"SYSTEM_DISK_SIZE", "", :right, :size=>20 do |d|
                     if !d.nil?
-                        elem = 'VOLATILE_SIZE'
+                        elem = 'SYSTEM_DISK_SIZE'
                         limit = d[elem]
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
                             "%8s /        -" % [
-                                OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M")
+                                OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M")
                             ]
                         else
                             "%8s / %8s" % [
-                                OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M"),
+                                OpenNebulaHelper.unit_to_str(d["SYSTEM_DISK_SIZE_USED"].to_i,{},"M"),
                                 OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
                             ]
                         end

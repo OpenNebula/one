@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -335,6 +335,43 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         begin
             helper = OneDB.new(options)
             helper.import_slave(options)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
+
+    ###########################################################################
+    # Patch
+    ###########################################################################
+    patch_desc = <<-EOT.unindent
+        Applies a database patch file
+    EOT
+
+    command :patch , patch_desc, :file, :options=>[BACKUP] do
+        begin
+            helper = OneDB.new(options)
+            helper.patch(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
+
+    ###########################################################################
+    # Migrate SQLite to MySQL
+    ###########################################################################
+    sqlite2mysql_desc = <<-EOT.unindent
+        Migrates a SQLite OpenNebula Database to MySQL
+    EOT
+
+    command :sqlite2mysql , sqlite2mysql_desc, :options=>[BACKUP] do
+        begin
+            options[:backend] = :sqlite
+            sqlite = OneDB.new(options)
+
+            options[:backend] = :mysql
+            mysql = OneDB.new(options)
+
+            mysql.sqlite2mysql(options, sqlite)
         rescue Exception => e
             [-1, e.message]
         end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,13 +65,15 @@ void LifeCycleManager::init_managers()
 {
     Nebula& nd = Nebula::instance();
 
-    tm  = nd.get_tm();
-    vmm = nd.get_vmm();
-    dm  = nd.get_dm();
+    tm      = nd.get_tm();
+    vmm     = nd.get_vmm();
+    dm      = nd.get_dm();
+    imagem  = nd.get_imagem();
 
     vmpool = nd.get_vmpool();
     hpool  = nd.get_hpool();
     ipool  = nd.get_ipool();
+    sgpool = nd.get_secgrouppool();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -292,6 +294,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case POWEROFF_HARD:
         aname = "POWEROFF_HARD";
+        break;
+
+    case UPDATESG:
+        aname = "UPDATESG";
         break;
 
     default:
@@ -522,6 +528,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "POWEROFF_HARD")
     {
         poweroff_hard_action(vid);
+    }
+    else if (action == "UPDATESG")
+    {
+        updatesg_action(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

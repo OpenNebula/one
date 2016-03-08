@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -98,6 +114,11 @@ define(function(require) {
         name: "SECURITYGROUPS",
         label: Locale.tr("Security Groups"),
         tooltip: Locale.tr("Name of the security group. You can specify more than one security group (comma separated).")
+      },
+      {
+        name: "SECURITYGROUPIDS",
+        label: Locale.tr("Security Group Ids"),
+        tooltip: Locale.tr("Id of the security group. You can specify more than one security group (comma separated).")
       },
       {
         name: "SUBNETID",
@@ -340,7 +361,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     that.numberOfProviders = 0;
 
     // close icon: removing the tab on click
@@ -375,18 +396,6 @@ define(function(require) {
     var templateJSON = {};
     var publicCloudJSON = [];
     var ec2JSON = [];
-
-    /* TODO Check if vCenter is defined
-    if ($.isEmptyObject(vm_json["PUBLIC_CLOUD"])) {
-      vm_json["PUBLIC_CLOUD"] = [];
-    }*/
-
-    if ($("[wizard_field='HYPERVISOR']:checked").val() == 'vcenter') {
-      publicCloudJSON.push({
-        'TYPE': 'vcenter',
-        'VM_TEMPLATE': $("#vcenter_template_uuid").val()
-      });
-    }
 
     $('.provider', context).each(function() {
       var hash  = WizardFields.retrieve(this);
@@ -480,56 +489,50 @@ define(function(require) {
     var providerSection = $('#' + htmlId + 'Tab', context);
 
     providerSection.on("change", "input.hybridRadio", function() {
-        $(".hybrid_inputs", providerSection).html("");
+      $(".hybrid_inputs", providerSection).html("");
 
-        var required_str = "";
-        var not_required_str = "";
+      var required_str = "";
+      var not_required_str = "";
 
-        $.each(HYBRID_INPUTS[this.value], function(index, obj) {
-          if (obj.required) {
-            required_str += '<div class="large-6 columns">' +
-              '<label>' +
-                obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
-              '</label>' +
-              '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-            '</div>'
-          } else {
-            not_required_str += '<div class="large-6 columns">' +
-              '<label>' +
-                obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
-              '</label>' +
-              '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-            '</div>'
-          }
-        });
+      $.each(HYBRID_INPUTS[this.value], function(index, obj) {
+        if (obj.required) {
+          required_str += '<div class="large-6 columns">' +
+            '<label>' +
+              obj.label + ' ' +
+              Tips.html(obj.tooltip) +
+            '</label>' +
+            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
+          '</div>'
+        } else {
+          not_required_str += '<div class="large-6 columns">' +
+            '<label>' +
+              obj.label + ' ' +
+              Tips.html(obj.tooltip) +
+            '</label>' +
+            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
+          '</div>'
+        }
+      });
 
-        $(".hybrid_inputs", providerSection).append(
-          required_str +
-          '<br><hr><br>' +
-          not_required_str)
-
-        Tips.setup($(".hybrid_inputs", providerSection));
-      })
+      $(".hybrid_inputs", providerSection).append(
+        required_str +
+        '<br><hr><br>' +
+        not_required_str);
+    })
   }
 
   function _fillProviderTab(context, provider, providerType, clickButton) {
     var that = this;
     if (providerType == "vcenter") {
-      $("#vcenter_template_uuid").val(provider["VM_TEMPLATE"])
-    } else {
-      if (clickButton) {
-        $("#tf_btn_hybrid", context).trigger("click");
-      }
-
-      var providerContext = $(".provider", context).last();
-      $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
-      WizardFields.fill(providerContext, provider);
+      return false;
     }
+
+    if (clickButton) {
+      $("#tf_btn_hybrid", context).trigger("click");
+    }
+
+    var providerContext = $(".provider", context).last();
+    $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
+    WizardFields.fill(providerContext, provider);
   }
 });

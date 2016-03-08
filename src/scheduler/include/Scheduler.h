@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "Log.h"
 #include "HostPoolXML.h"
+#include "UserPoolXML.h"
 #include "ClusterPoolXML.h"
 #include "DatastorePoolXML.h"
 #include "VirtualMachinePoolXML.h"
@@ -54,6 +55,7 @@ protected:
         vmapool(0),
         dspool(0),
         img_dspool(0),
+        upool(0),
         acls(0),
         timer(0),
         url(""),
@@ -76,6 +78,8 @@ protected:
         delete dspool;
         delete img_dspool;
 
+        delete upool;
+
         delete acls;
 
         delete client;
@@ -92,6 +96,7 @@ protected:
     VirtualMachineActionsPoolXML* vmapool;
     SystemDatastorePoolXML * dspool;
     ImageDatastorePoolXML * img_dspool;
+    UserPoolXML * upool;
 
     AclXML * acls;
 

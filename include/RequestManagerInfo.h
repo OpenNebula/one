@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,7 +40,7 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
+    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
     /* -------------------------------------------------------------------- */
@@ -93,6 +93,11 @@ public:
     };
 
     ~TemplateInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -313,7 +318,59 @@ public:
     ~VdcInfo(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterInfo : public RequestManagerInfo
+{
+public:
+    VirtualRouterInfo():
+        RequestManagerInfo("VirtualRouterInfo",
+                           "Returns virtual router information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceInfo():
+        RequestManagerInfo("MarketPlaceInfo",
+                           "Returns marketplace information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceInfo(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppInfo : public RequestManagerInfo
+{
+public:
+    MarketPlaceAppInfo():
+        RequestManagerInfo("MarketPlaceAppInfo",
+                           "Returns marketplace app information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppInfo(){};
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

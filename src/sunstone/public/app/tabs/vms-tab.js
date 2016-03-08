@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var Locale = require('utils/locale');
   var Buttons = require('./vms-tab/buttons');
@@ -17,7 +33,13 @@ define(function(require) {
     require('./vms-tab/dialogs/attach-nic'),
     require('./vms-tab/dialogs/snapshot'),
     require('./vms-tab/dialogs/vnc'),
-    require('./vms-tab/dialogs/spice')
+    require('./vms-tab/dialogs/spice'),
+    require('./vms-tab/dialogs/saveas-template')
+  ];
+
+  var _panelsHooks = [
+    require('./vms-tab/hooks/header'),
+    require('./vms-tab/hooks/state')
   ];
 
   var _panels = [
@@ -53,6 +75,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

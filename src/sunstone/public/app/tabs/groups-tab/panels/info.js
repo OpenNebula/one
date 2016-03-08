@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -47,20 +63,23 @@ define(function(require) {
    */
 
   function _html() {
-    var adminViews = _processViews(
-      this.element.TEMPLATE.GROUP_ADMIN_VIEWS,
-      this.element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW);
+    var adminViews = [];
+    var userViews = [];
 
-    var userViews = _processViews(
-      this.element.TEMPLATE.SUNSTONE_VIEWS,
-      this.element.TEMPLATE.DEFAULT_VIEW);
+    var sunstone_template = this.element.TEMPLATE.SUNSTONE;
+    if (sunstone_template) {
+      adminViews = _processViews(
+        sunstone_template.GROUP_ADMIN_VIEWS,
+        sunstone_template.GROUP_ADMIN_DEFAULT_VIEW);
+
+      userViews = _processViews(
+        sunstone_template.VIEWS,
+        sunstone_template.DEFAULT_VIEW);
+    }
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["GROUP_ADMIN_VIEWS"];
-    delete strippedTemplate["SUNSTONE_VIEWS"];
-    delete strippedTemplate["GROUP_ADMIN_DEFAULT_VIEW"];
-    delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["SUNSTONE"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -77,17 +96,13 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
-
     Tips.setup(context);
 
     // Template update
     // TODO: simplify interface?
     var hiddenKeys = [
-      "GROUP_ADMIN_VIEWS",
-      "SUNSTONE_VIEWS",
-      "GROUP_ADMIN_DEFAULT_VIEW",
-      "DEFAULT_VIEW"];
+      "SUNSTONE",
+      "TABLE_DEFAULT_PAGE_LENGTH"];
 
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
 

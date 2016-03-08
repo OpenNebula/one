@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,6 +16,7 @@
 
 require 'time'
 require 'rubygems'
+require 'cgi'
 
 begin
     require 'sequel'
@@ -231,13 +232,13 @@ class BackEndMySQL < OneDBBacKEnd
 
     def bck_file
         t = Time.now
-        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql_"<<
-        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.bck"
+        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}_"<<
+        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.sql"
     end
 
     def backup(bck_file)
         cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " +
-              "-P #{@port} #{@db_name} > #{bck_file}"
+              "-P #{@port} --add-drop-table #{@db_name} > #{bck_file}"
 
         rc = system(cmd)
         if !rc
@@ -258,22 +259,7 @@ class BackEndMySQL < OneDBBacKEnd
                   " use -f to overwrite."
         end
 
-        mysql_cmd = "mysql -u #{@user} -p'#{@passwd}' -h #{@server} -P #{@port} "
-
-        drop_cmd = mysql_cmd + "-e 'DROP DATABASE IF EXISTS #{@db_name};'"
-        rc = system(drop_cmd)
-        if !rc
-            raise "Error dropping MySQL DB #{@db_name} at #{@server}."
-        end
-
-        create_cmd = mysql_cmd+"-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'"
-        rc = system(create_cmd)
-        if !rc
-            raise "Error creating MySQL DB #{@db_name} at #{@server}."
-        end
-
-        restore_cmd = mysql_cmd + "#{@db_name} < #{bck_file}"
-        rc = system(restore_cmd)
+        rc = system("mysql -u #{@user} -p'#{@passwd}' -h #{@server} -P #{@port} #{@db_name} < #{bck_file}")
         if !rc
             raise "Error while restoring MySQL DB #{@db_name} at #{@server}."
         end
@@ -284,7 +270,9 @@ class BackEndMySQL < OneDBBacKEnd
     private
 
     def connect_db
-        endpoint = "mysql://#{@user}:#{@passwd}@#{@server}:#{@port}/#{@db_name}"
+        passwd = CGI.escape(@passwd)
+
+        endpoint = "mysql://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
 
         begin
             @db = Sequel.connect(endpoint)
@@ -298,7 +286,11 @@ class BackEndSQLite < OneDBBacKEnd
     require 'fileutils'
 
     def initialize(file)
-        @sqlite_file = file
+        if !file.nil?
+            @sqlite_file = file
+        else
+            raise "SQLite database path not supplied."
+        end
     end
 
     def bck_file

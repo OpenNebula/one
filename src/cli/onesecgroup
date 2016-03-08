@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -166,6 +166,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 str = OpenNebulaHelper.update_template(args[0], obj, args[1])
             end
 
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
+
             obj.update(str, options[:append])
         end
     end
@@ -177,6 +180,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :rename, rename_desc, :secgroupid, :name do
         helper.perform_action(args[0],options,"renamed") do |o|
             o.rename(args[1])
+        end
+    end
+
+    commit_desc = <<-EOT.unindent
+        Commit SG changes to associated VMs. This command is to propagate
+        security group rules to VMs when they are updated. This operation takes
+        time to iterate over all VMs in the security group, progress can be
+        checked through the outdated, updating and error VM sets.
+    EOT
+
+    command :commit, rename_desc, :secgroupid,
+        :options =>[OneSecurityGroupHelper::RECOVER] do
+        helper.perform_action(args[0], options, "commit") do |o|
+            o.commit(options[:recover]==true)
         end
     end
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -81,26 +81,17 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::update_ar(
-        vector<Attribute *>     ars,
-        bool                    keep_restricted,
-        string&                 error_msg)
+int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
+        string& error_msg)
 {
-    vector<Attribute *>::iterator               it;
+    vector<VectorAttribute *>::iterator it;
     map<unsigned int, AddressRange *>::iterator ar_it;
 
     unsigned int arid;
 
     for (it = ars.begin(); it != ars.end(); it++)
     {
-        VectorAttribute * va = dynamic_cast<VectorAttribute *>(*it);
-
-        if (va == 0)
-        {
-            continue;
-        }
-
-        if (va->vector_value("AR_ID", arid) != 0)
+        if ((*it)->vector_value("AR_ID", arid) != 0)
         {
             error_msg = "AR/AR_ID attribute is missing.";
             return -1;
@@ -118,7 +109,7 @@ int AddressRangePool::update_ar(
             return -1;
         }
 
-        return ar_it->second->update_attributes(va, keep_restricted, error_msg);
+        return ar_it->second->update_attributes(*it, keep_restricted, error_msg);
     }
 
     error_msg = "Wrong AR definition. AR vector attribute is missing.";
@@ -137,17 +128,15 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
         return -1;
     }
 
-    vector<Attribute*> var;
+    vector<VectorAttribute *> var;
 
     int num_ar = ar_template.get("AR", var);
 
     for (int i = 0; i < num_ar; i++)
     {
-        VectorAttribute * va = static_cast<VectorAttribute *>(var[i]);
-
         AddressRange * ar = new AddressRange(0);
 
-        if (ar->from_vattr_db(va)!= 0)
+        if (ar->from_vattr_db(var[i])!= 0)
         {
             return -1;
         }
@@ -192,27 +181,20 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
     delete ar_ptr;
 
-    vector<Attribute*> ars;
-    vector<Attribute*>::iterator it_ar;
+    vector<VectorAttribute *> ars;
+    vector<VectorAttribute *>::iterator it_ar;
 
-    Attribute * the_ar = 0;
+    VectorAttribute * the_ar = 0;
 
-    unsigned int ar_id_templ;
+    unsigned int ar_id_tpl;
 
     ar_template.get("AR", ars);
 
     for (it_ar=ars.begin(); it_ar!=ars.end(); it_ar++)
     {
-        VectorAttribute *ar = dynamic_cast<VectorAttribute *>(*it_ar);
-
-        if (ar == 0)
+        if (((*it_ar)->vector_value("AR_ID",ar_id_tpl)==0) && (ar_id_tpl==ar_id))
         {
-            continue;
-        }
-
-        if ((ar->vector_value("AR_ID",ar_id_templ)==0) && (ar_id_templ==ar_id))
-        {
-            the_ar = ar;
+            the_ar = *it_ar;
             break;
         }
     }
@@ -229,7 +211,8 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 string& AddressRangePool::to_xml(string& sstream, bool extended,
-    const vector<int>& vms, const vector<int>& vnets) const
+    const vector<int>& vms, const vector<int>& vnets,
+    const vector<int>& vrs) const
 {
     if (extended)
     {
@@ -240,7 +223,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended,
 
         for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
         {
-            it->second->to_xml(oss, vms, vnets);
+            it->second->to_xml(oss, vms, vnets, vrs);
         }
 
         oss << "</AR_POOL>";

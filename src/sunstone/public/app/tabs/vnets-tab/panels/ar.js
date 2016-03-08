@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -26,6 +42,7 @@ define(function(require) {
 
   var ADD_AR_DIALOG_ID = require('../dialogs/add-ar/dialogId');
   var UPDATE_AR_DIALOG_ID = require('../dialogs/update-ar/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
     CONSTRUCTOR
@@ -47,6 +64,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -150,11 +169,22 @@ define(function(require) {
     if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
       context.off("click", 'button#rm_ar_button');
       context.on("click", 'button#rm_ar_button', function(){
-        // TODO: confirm?
         var ar_id = $(this).attr('ar_id');
 
-        var obj = {ar_id: ar_id};
-        Sunstone.runAction('Network.rm_ar',that.element.ID,obj);
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will delete all the addresses in this range"),
+          //question :
+          submit : function(){
+            var obj = {ar_id: ar_id};
+            Sunstone.runAction('Network.rm_ar',that.element.ID,obj);
+
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
         return false;
       });
@@ -214,6 +244,23 @@ define(function(require) {
     return false;
   }
 
+  function _getState(context) {
+    var state = {};
+
+    if(this.last_selected_row_ar){
+      state["ar"] = this.last_selected_row_ar.attr("ar");
+    }
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    if(state.ar){
+      $('#ar_list_datatable tr[ar="'+state.ar+'"]',context).click();
+    }
+  }
 
   //============================================================================
   //============================================================================

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,32 +27,33 @@ const int QuotaNetwork::NUM_NET_METRICS  = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
+bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
+        Quotas& default_quotas, string& error)
 {
-    vector<Attribute*> nics;
-    VectorAttribute *  nic;
+    vector<VectorAttribute*> nic;
 
     string net_id;
     int num;
+    bool uses_lease;
 
     map<string, float> net_request;
 
     net_request.insert(make_pair("LEASES",1));
 
-    num = tmpl->get("NIC", nics);
+    num = tmpl->get("NIC", nic);
 
     for (int i = 0 ; i < num ; i++)
     {
-        nic = dynamic_cast<VectorAttribute *>(nics[i]);
+        net_id = nic[i]->vector_value("NETWORK_ID");
 
-        if ( nic == 0 )
+        uses_lease = true;
+
+        if ( otype == PoolObjectSQL::VROUTER )
         {
-            continue;
+            nic[i]->vector_value("FLOATING_IP", uses_lease);
         }
 
-        net_id = nic->vector_value("NETWORK_ID");
-
-        if ( !net_id.empty() )
+        if ( !net_id.empty() && uses_lease )
         {
             if ( !check_quota(net_id, net_request, default_quotas, error) )
             {
@@ -67,33 +68,36 @@ bool QuotaNetwork::check(Template * tmpl, Quotas& default_quotas, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void QuotaNetwork::del(Template * tmpl)
+void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
 {
 
-    vector<Attribute*> nics;
-    VectorAttribute *  nic;
+    vector<VectorAttribute *> nic;
 
     string net_id;
     int num;
+    bool uses_lease;
 
     map<string, float> net_request;
 
     net_request.insert(make_pair("LEASES",1));
 
-    num = tmpl->get("NIC", nics);
+    num = tmpl->get("NIC", nic);
 
     for (int i = 0 ; i < num ; i++)
     {
-        nic = dynamic_cast<VectorAttribute *>(nics[i]);
+        net_id = nic[i]->vector_value("NETWORK_ID");
 
-        if ( nic == 0 )
+        uses_lease = true;
+
+        if ( otype == PoolObjectSQL::VROUTER )
         {
-            continue;
+            nic[i]->vector_value("FLOATING_IP", uses_lease);
         }
 
-        net_id = nic->vector_value("NETWORK_ID");
-
-        del_quota(net_id, net_request);
+        if (uses_lease)
+        {
+            del_quota(net_id, net_request);
+        }
     }
 }
 

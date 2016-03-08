@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -174,6 +174,15 @@ class DummyDriver < VirtualMachineDriver
         result = retrieve_result("cleanup")
 
         send_message(ACTION[:cleanup],result,id)
+    end
+
+    def update_sg(id, drv_message)
+        result = retrieve_result("update_sg")
+
+        xml_data = decode(drv_message)
+        sg_id    = xml_data.elements['SECURITY_GROUP_ID'].text
+
+        send_message(ACTION[:update_sg],result,id,sg_id)
     end
 
     def poll(id, drv_message)

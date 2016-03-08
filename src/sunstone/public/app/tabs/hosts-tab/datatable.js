@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   /*
     DEPENDENCIES
@@ -9,7 +25,9 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var CPUBars = require('./utils/cpu-bars');
   var MemoryBars = require('./utils/memory-bars');
-  var OpenNebulaHost = require('opennebula/host')
+  var OpenNebulaHost = require('opennebula/host');
+  var LabelsUtils = require('utils/labels/utils');
+
 
   /*
     CONSTANTS
@@ -18,6 +36,8 @@ define(function(require) {
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 13;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -29,6 +49,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -54,7 +75,8 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("IM MAD"),
       Locale.tr("VM MAD"),
-      Locale.tr("Last monitored on")
+      Locale.tr("Last monitored on"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -141,7 +163,8 @@ define(function(require) {
         OpenNebulaHost.simpleStateStr(element.STATE),
         element.IM_MAD,
         element.VM_MAD,
-        Humanize.prettyTime(element.LAST_MON_TIME)
+        Humanize.prettyTime(element.LAST_MON_TIME),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 

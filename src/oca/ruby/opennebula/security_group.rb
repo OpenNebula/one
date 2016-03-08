@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,7 +32,8 @@ module OpenNebula
             :chown       => "secgroup.chown",
             :chmod       => "secgroup.chmod",
             :clone       => "secgroup.clone",
-            :rename      => "secgroup.rename"
+            :rename      => "secgroup.rename",
+            :commit      => "secgroup.commit"
         }
 
         # Creates a SecurityGroup description with just its identifier
@@ -147,9 +148,49 @@ module OpenNebula
             return call(SECGROUP_METHODS[:rename], @pe_id, name)
         end
 
+        # Commit SG changes to associated VMs
+        #
+        # @param recover [Bool] If true will only operate on outdated and error
+        # VMs. This is intended for retrying updates of VMs or reinitialize the
+        # updating process if oned stopped or fail.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def commit(recover)
+            return call(SECGROUP_METHODS[:commit], @pe_id, recover)
+        end
+
         #######################################################################
         # Helpers to get SecurityGroup information
         #######################################################################
+
+        # Returns three arrays with the numeric vm ids for vms updated,
+        # outdated (include updating) and error
+        def vm_ids
+            updated = Array.new
+
+            self.each("UPDATED_VMS/ID") do |id|
+                updated << id.text.to_i
+            end
+
+            outdated = Array.new
+
+            self.each("OUTDATED_VMS/ID") do |id|
+                outdated << id.text.to_i
+            end
+
+            self.each("UPDATING_VMS/ID") do |id|
+                outdated << id.text.to_i
+            end
+
+            error = Array.new
+
+            self.each("ERROR_VMS/ID") do |id|
+                error << id.text.to_i
+            end
+
+            return [updated, outdated, error]
+        end
 
         # Returns the group identifier
         # [return] _Integer_ the element's group ID

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -61,7 +61,8 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
     }
     catch(exception const& e)
     {
-        failure_response(INTERNAL, request_error("Could not connect to the federation master oned", ""), att);
+        att.resp_msg = "Could not connect to the federation master oned";
+        failure_response(INTERNAL, att);
     }
 }
 

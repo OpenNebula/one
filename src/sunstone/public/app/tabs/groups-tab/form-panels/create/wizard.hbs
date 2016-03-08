@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
     <div class="columns medium-5">
@@ -26,13 +42,13 @@
     <div class="row">
       <div class="large-12 columns">
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="user_view_default">{{tr "Default Users View"}}
             </label>
             <select id="user_view_default">
             </select>
           </div>
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="admin_view_default">{{tr "Default Admin View"}}
             </label>
             <select id="admin_view_default">
@@ -48,7 +64,7 @@
               <span class="tip">{{description}}</span>
               {{/if}}
             </h4>
-            <table class="dataTable extended_table">
+            <table class="dataTable">
               <tr>
                 <th style='width: 60%;'></th>
                 <th>{{tr "Group Users"}}</th>
@@ -128,6 +144,7 @@
             <th>{{tr "VMs"}}</th>
             <th>{{tr "VNets"}}</th>
             <th>{{tr "Security Groups"}}</th>
+            <th>{{tr "Virtual Routers"}}</th>
             <th>{{tr "Images"}}</th>
             <th>{{tr "Templates"}}</th>
             <th>{{tr "Documents"}}<span class="tip">{{tr "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."}}</span></th>
@@ -137,6 +154,7 @@
               <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>
               <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>
               <td><input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"></input></td>
+              <td><input type="checkbox" id="group_res_vr" name="group_res_vr" class="resource_cb" value="VROUTER"></input></td>
               <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>
               <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>
               <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>

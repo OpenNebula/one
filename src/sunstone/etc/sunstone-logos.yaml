@@ -1,0 +1,11 @@
+# You can add custom logos here, or disable any of the default ones commenting
+# out its line
+- { 'name': "Arch Linux",         'path': "images/logos/arch.png"}
+- { 'name': "CentOS",             'path': "images/logos/centos.png"}
+- { 'name': "Debian",             'path': "images/logos/debian.png"}
+- { 'name': "Fedora",             'path': "images/logos/fedora.png"}
+- { 'name': "Linux",              'path': "images/logos/linux.png"}
+- { 'name': "Redhat",             'path': "images/logos/redhat.png"}
+- { 'name': "Ubuntu",             'path': "images/logos/ubuntu.png"}
+- { 'name': "Windows XP/2003",    'path': "images/logos/windowsxp.png"}
+- { 'name': "Windows 8",          'path': "images/logos/windows8.png"}

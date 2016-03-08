@@ -1,5 +1,22 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   require('foundation.alert');
+  var Sunstone = require('sunstone');
   var OpenNebula = require('opennebula');
   var OpenNebulaVM = require('opennebula/vm');
   var Locale = require('utils/locale');
@@ -11,6 +28,7 @@ define(function(require) {
 
   var TemplateVmsList = require('hbs!./list');
 
+  var TAB_ID = require('../tabId');
   var _accordionId = 0;
 
   return {
@@ -134,11 +152,6 @@ define(function(require) {
 
         return true;
       },
-      "fnDrawCallback": function (oSettings) {
-        $(".provision_vms_ul", context).foundation('reflow', 'tooltip');
-
-        return true;
-      },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
         var state = get_provision_vm_state(data);
@@ -147,7 +160,7 @@ define(function(require) {
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#">'+
-                '<span class="'+ state.color +'-color"  data-tooltip title="'+state.str+'">'+
+                '<span class="'+ state.color +'-color" title="'+state.str+'">'+
                   '<i class="fa fa-fw fa-square"/> '+
                 '</span>'+
                 data.NAME + '</a>'+
@@ -182,11 +195,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_vms_search', context).keyup(function(){
-      provision_vms_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_vms_search', context).change(function(){
+    $('.provision_list_vms_search', context).on('input',function(){
       provision_vms_datatable.fnFilter( $(this).val() );
     })
 
@@ -204,17 +213,14 @@ define(function(require) {
       }
     })
 
-    ResourceSelect.insert(
-      ".provision_list_vms_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
+    ResourceSelect.insert({
+        context: $('.provision_list_vms_filter', context),
+        resourceName: 'User',
+        initValue: (opts.filter_expression ? opts.filter_expression : "-2"),
+        extraOptions: '<option value="-2">' + Locale.tr("ALL") + '</option>',
+        triggerChange: true,
+        onlyName: true
+      });
 
     context.on("click", ".provision_vms_list_filter_button", function(){
       $(".provision_list_vms_filter", context).fadeIn();
@@ -240,6 +246,8 @@ define(function(require) {
         },
         error: Notifier.onError,
         success: function(request, response){
+          Sunstone.insertPanels(TAB_ID, response, TAB_ID, $(".provision-right-info", context));
+
           var data = response.VM
           var state = get_provision_vm_state(data);
 
@@ -247,6 +255,7 @@ define(function(require) {
             case "deploying":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -258,6 +267,7 @@ define(function(require) {
             case "running":
               $(".provision_reboot_confirm_button", context).show();
               $(".provision_poweroff_confirm_button", context).show();
+              $(".provision_undeploy_confirm_button", context).show();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).hide();
               $(".provision_shutdownhard_confirm_button", context).show();
@@ -269,10 +279,23 @@ define(function(require) {
             case "off":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).show();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
+              $(".provision_delete_confirm_button", context).hide();
+              $(".provision_shutdownhard_confirm_button", context).show();
               $(".provision_snapshot_button", context).show();
+              $(".provision_vnc_button", context).hide();
+              $(".provision_snapshot_button_disabled", context).hide();
+              $(".provision_vnc_button_disabled", context).show();
+              break;
+            case "undeployed":
+              $(".provision_reboot_confirm_button", context).hide();
+              $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
+              $(".provision_poweron_button", context).show();
+              $(".provision_delete_confirm_button", context).hide();
+              $(".provision_shutdownhard_confirm_button", context).show();
+              $(".provision_snapshot_button", context).hide();
               $(".provision_vnc_button", context).hide();
               $(".provision_snapshot_button_disabled", context).hide();
               $(".provision_vnc_button_disabled", context).show();
@@ -281,6 +304,7 @@ define(function(require) {
             case "error":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -293,6 +317,7 @@ define(function(require) {
               color = 'secondary';
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -312,6 +337,35 @@ define(function(require) {
           $(".provision_info_vm", context).data("vm", data);
 
           $(".provision_info_vm_name", context).text(data.NAME);
+
+          if (Config.isTabActionEnabled("provision-tab", 'VM.rename')) {
+            context.off("click", ".provision_info_vm_rename a");
+            context.on("click", ".provision_info_vm_rename a", function() {
+              var valueStr = $(".provision_info_vm_name", context).text();
+              $(".provision_info_vm_name", context).html('<input class="input_edit_value_rename" type="text" value="' + valueStr + '"/>');
+            });
+
+            context.off("change", ".input_edit_value_rename");
+            context.on("change", ".input_edit_value_rename", function() {
+              var valueStr = $(".input_edit_value_rename", context).val();
+              if (valueStr != "") {
+                OpenNebula.VM.rename({
+                  data : {
+                    id: vm_id,
+                    extra_param: {
+                      "name" : valueStr
+                    }
+                  },
+                  success: function(request, response){
+                    update_provision_vm_info(vm_id, context);
+                  },
+                  error: function(request, response){
+                    Notifier.onError(request, response);
+                  }
+                });
+              }
+            });
+          }
 
           $(".provision-pricing-table_vm_info", context).html(
               '<li class="text-left provision-bullet-item">'+
@@ -376,54 +430,54 @@ define(function(require) {
               timeout: true,
               id: data.ID,
               monitor: {
-                monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"
+                monitor_resources : "MONITORING/CPU,MONITORING/MEMORY,MONITORING/NETTX,MONITORING/NETRX"
               }
             },
             success: function(request, response){
               var vm_graphs = [
                   {
-                      monitor_resources : "CPU",
+                      monitor_resources : "MONITORING/CPU",
                       labels : "Real CPU",
                       humanize_figures : false,
-                      div_graph : $(".vm_cpu_graph", context)
+                      div_graph : $(".vm_cpu_provision_graph", context)
                   },
                   {
-                      monitor_resources : "MEMORY",
+                      monitor_resources : "MONITORING/MEMORY",
                       labels : "Real MEM",
                       humanize_figures : true,
-                      div_graph : $(".vm_memory_graph", context)
+                      div_graph : $(".vm_memory_provision_graph", context)
                   },
                   {
                       labels : "Network reception",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_rx_graph", context)
+                      div_graph : $(".vm_net_rx_provision_graph", context)
                   },
                   {
                       labels : "Network transmission",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_tx_graph", context)
+                      div_graph : $(".vm_net_tx_provision_graph", context)
                   },
                   {
                       labels : "Network reception speed",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_rx_speed_graph", context)
+                      div_graph : $(".vm_net_rx_speed_provision_graph", context)
                   },
                   {
                       labels : "Network transmission speed",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_tx_speed_graph", context)
+                      div_graph : $(".vm_net_tx_speed_provision_graph", context)
                   }
               ];
 
@@ -439,16 +493,16 @@ define(function(require) {
       })
     }
 
-    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       context.on("click", ".provision_snapshot_button", function(){
         $(".provision_confirm_action:first", context).html(
           '<div data-alert class="alert-box secondary radius">'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
                 '<span style="font-size: 14px; line-height: 20px">'+
-                  Locale.tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+                  Locale.tr("This Virtual Machine will be saved in a new Template.")+
                 '<br>'+
-                  Locale.tr("You can then create a new Virtual Machine using this Template")+
+                  Locale.tr("You can then create a new Virtual Machine using this Template.")+
                 '</span>'+
               '</div>'+
             '</div>'+
@@ -456,6 +510,27 @@ define(function(require) {
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<span style="font-size: 14px; line-height: 20px">'+
+                  Locale.tr("The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks.")+
+                '</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
+                  ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
+                '</label>'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
+                  ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
+                '</label>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -475,22 +550,32 @@ define(function(require) {
 
         var vm_id = context.attr("vm_id");
         var template_name = $('.provision_snapshot_name', context).val();
+        var persistent =
+          ($('input[name=provision_snapshot_radio]:checked').val() == "persistent");
 
         OpenNebula.VM.save_as_template({
           data : {
             id: vm_id,
             extra_param: {
-              name : template_name
+              name : template_name,
+              persistent : persistent
             }
           },
+          timeout: false,
           success: function(request, response){
             OpenNebula.Action.clear_cache("VMTEMPLATE");
-            Notifier.notifyMessage(Locale.tr("Image") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
+            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
             update_provision_vm_info(vm_id, context);
             button.removeAttr("disabled");
           },
           error: function(request, response){
-            Notifier.onError(request, response);
+            if(response.error.http_status == 0){   // Failed due to cloning template taking too long
+                OpenNebula.Action.clear_cache("VMTEMPLATE");
+                update_provision_vm_info(vm_id, context);
+                Notifier.notifyMessage(Locale.tr("VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."));
+            } else {
+                Notifier.onError(request, response);
+            }
             button.removeAttr("disabled");
           }
         })
@@ -505,7 +590,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -524,7 +609,7 @@ define(function(require) {
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span style="font-size: 14px; line-height: 20px">'+
-              Locale.tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
@@ -561,6 +646,37 @@ define(function(require) {
             '<label class="left" style="margin-left: 25px">'+
               '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
               ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal")+
+            '</label>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+    });
+
+    context.on("click", ".provision_undeploy_confirm_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-11 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              Locale.tr("This action will power off this Virtual Machine and will be undeployed from the physical machine")+
+              '<br>'+
+              '<br>'+
+              Locale.tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer).")+
+            '</span>'+
+          '</div>'+
+          '</div>'+
+          '<br>'+
+          '<div class="row">'+
+          '<div class="large-12 columns">'+
+            '<a href"#" class="provision_undeploy_button button radius right" style="margin-right: 15px">'+Locale.tr("Power off and undeploy")+'</a>'+
+            '<label class="left" style="margin-left: 25px">'+
+              '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
+              ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
+            '</label>'+
+            '<label class="left" style="margin-left: 25px">'+
+              '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
+              ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
             '</label>'+
           '</div>'+
           '</div>'+
@@ -627,7 +743,7 @@ define(function(require) {
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
-      OpenNebula.VM.cancel({
+      OpenNebula.VM.shutdown_hard({
         data : {
           id: vm_id
         },
@@ -652,6 +768,29 @@ define(function(require) {
       var poweroff_action = $('input[name=provision_poweroff_radio]:checked').val()
 
       OpenNebula.VM[poweroff_action]({
+        data : {
+          id: vm_id
+        },
+        success: function(request, response){
+          update_provision_vm_info(vm_id, context);
+          button.removeAttr("disabled");
+        },
+        error: function(request, response){
+          Notifier.onError(request, response);
+          button.removeAttr("disabled");
+        }
+      })
+
+      return false;
+    });
+
+    context.on("click", ".provision_undeploy_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+      var vm_id = $(".provision_info_vm", context).attr("vm_id");
+      var undeploy_action = $('input[name=provision_undeploy_radio]:checked').val()
+
+      OpenNebula.VM[undeploy_action]({
         data : {
           id: vm_id
         },
@@ -737,7 +876,11 @@ define(function(require) {
             url += "host=" + proxy_host;
             url += "&port=" + proxy_port;
             url += "&token=" + token;
-            url += "&password=" + pw;
+
+            if (!Config.requestVNCPassword) {
+              url += "&password=" + pw;
+            }
+
             url += "&encrypt=" + config['user_config']['vnc_wss'];
             url += "&title=" + vm_name;
 
@@ -860,6 +1003,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN:
             state_color = 'running';
             state_str = Locale.tr("RUNNING");
             break;
@@ -887,6 +1031,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE:
             state_color = 'error';
             state_str = Locale.tr("ERROR");
             break;
@@ -919,10 +1064,14 @@ define(function(require) {
       case OpenNebulaVM.STATES.STOPPED:
       case OpenNebulaVM.STATES.SUSPENDED:
       case OpenNebulaVM.STATES.POWEROFF:
-      case OpenNebulaVM.STATES.UNDEPLOYED:
       case OpenNebulaVM.STATES.DONE:
         state_color = 'off';
         state_str = Locale.tr("OFF");
+
+        break;
+      case OpenNebulaVM.STATES.UNDEPLOYED:
+        state_color = 'undeployed';
+        state_str = Locale.tr("UNDEPLOYED");
 
         break;
       default:
@@ -945,14 +1094,14 @@ define(function(require) {
         disks = [data.TEMPLATE.DISK]
 
     if (disks.length > 0) {
-      return disks[0].IMAGE;
+      return disks[0].IMAGE != undefined ? disks[0].IMAGE : '';
     } else {
       return '';
     }
   }
 
   function get_provision_ips(data) {
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data);
+    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data, ', ');
   }
 
   // @params

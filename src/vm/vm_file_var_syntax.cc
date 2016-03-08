@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -188,9 +188,11 @@ int get_image_path(VirtualMachine * vm,
     }
     else if ( var1 == "IMAGE_ID" )
     {
-        iid = ImagePool::get_disk_id(val1);
+        istringstream is(val1);
 
-        if ( iid != -1 )
+        is >> iid;
+
+        if ( !is.fail() )
         {
             img = ipool->get(iid, true);
         }
@@ -250,7 +252,7 @@ int get_image_path(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 
 
-#line 254 "vm_file_var_syntax.cc" /* yacc.c:339  */
+#line 256 "vm_file_var_syntax.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -299,17 +301,19 @@ extern int vm_file_var__debug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE YYSTYPE;
+
 union YYSTYPE
 {
-#line 206 "vm_file_var_syntax.y" /* yacc.c:355  */
+#line 208 "vm_file_var_syntax.y" /* yacc.c:355  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 312 "vm_file_var_syntax.cc" /* yacc.c:355  */
+#line 314 "vm_file_var_syntax.cc" /* yacc.c:355  */
 };
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -336,7 +340,7 @@ int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> * 
 
 /* Copy the second part of user declarations.  */
 
-#line 340 "vm_file_var_syntax.cc" /* yacc.c:358  */
+#line 344 "vm_file_var_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -636,7 +640,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   230,   230,   231,   235,   253
+       0,   232,   232,   233,   237,   255
 };
 #endif
 
@@ -1516,7 +1520,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 236 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 238 "vm_file_var_syntax.y" /* yacc.c:1646  */
     {
         string file((yyvsp[-6].val_str));
         string var1((yyvsp[-4].val_str));
@@ -1534,11 +1538,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1538 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1542 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 254 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 256 "vm_file_var_syntax.y" /* yacc.c:1646  */
     {
         string file((yyvsp[-10].val_str));
         string var1((yyvsp[-8].val_str));
@@ -1559,11 +1563,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1563 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1567 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1567 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1571 "vm_file_var_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1798,7 +1802,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 275 "vm_file_var_syntax.y" /* yacc.c:1906  */
+#line 277 "vm_file_var_syntax.y" /* yacc.c:1906  */
 
 
 extern "C" void vm_file_var__error(

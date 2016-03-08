@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs      */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -57,6 +57,7 @@ Image::Image(int             _uid,
         ds_name(""),
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
+        app_clone_collection("APP_CLONES"),
         snapshots(-1),
         target_snapshot(-1)
 {
@@ -337,6 +338,7 @@ string& Image::to_xml(string& xml) const
     ostringstream oss;
     string        vm_collection_xml;
     string        clone_collection_xml;
+    string        app_clone_collection_xml;
     string        snapshots_xml;
 
     oss <<
@@ -352,9 +354,9 @@ string& Image::to_xml(string& xml) const
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
-            "<SOURCE><![CDATA["<< source          << "]]></SOURCE>"   <<
-            "<PATH><![CDATA["  << path            << "]]></PATH>"     <<
-            "<FSTYPE><![CDATA["<< fs_type         << "]]></FSTYPE>"   <<
+            "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
+            "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
+            "<FSTYPE>"         << one_util::escape_xml(fs_type)<< "</FSTYPE>" <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
@@ -365,6 +367,7 @@ string& Image::to_xml(string& xml) const
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             vm_collection.to_xml(vm_collection_xml)                   <<
             img_clone_collection.to_xml(clone_collection_xml)         <<
+            app_clone_collection.to_xml(app_clone_collection_xml)     <<
             obj_template->to_xml(template_xml)                        <<
             snapshots.to_xml(snapshots_xml)                           <<
         "</IMAGE>";
@@ -402,14 +405,15 @@ int Image::from_xml(const string& xml)
     rc += xpath(int_type,       "/IMAGE/TYPE",      0);
     rc += xpath(int_disk_type,  "/IMAGE/DISK_TYPE", 0);
     rc += xpath(persistent_img, "/IMAGE/PERSISTENT",0);
-    rc += xpath(regtime,        "/IMAGE/REGTIME",   0);
+    rc += xpath<time_t>(regtime,"/IMAGE/REGTIME",   0);
 
-    rc += xpath(source,         "/IMAGE/SOURCE",        "not_found");
-    rc += xpath(size_mb,        "/IMAGE/SIZE",          0);
-    rc += xpath(int_state,      "/IMAGE/STATE",         0);
-    rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
-    rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
-    rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
+    rc += xpath<long long>(size_mb, "/IMAGE/SIZE", 0);
+
+    rc += xpath(source,     "/IMAGE/SOURCE",     "not_found");
+    rc += xpath(int_state,  "/IMAGE/STATE",      0);
+    rc += xpath(running_vms,"/IMAGE/RUNNING_VMS",-1);
+    rc += xpath(cloning_ops,"/IMAGE/CLONING_OPS",-1);
+    rc += xpath(cloning_id, "/IMAGE/CLONING_ID", -1);
 
     rc += xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
 
@@ -467,6 +471,19 @@ int Image::from_xml(const string& xml)
 
     content.clear();
 
+    ObjectXML::get_nodes("/IMAGE/APP_CLONES", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += app_clone_collection.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
     ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
 
     if (!content.empty())
@@ -488,7 +505,7 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(  VectorAttribute *       disk,
+void Image::disk_attribute( VectorAttribute *       disk,
                             ImageType&              img_type,
                             string&                 dev_prefix,
                             const vector<string>&   inherit_attrs)
@@ -500,19 +517,20 @@ int Image::disk_attribute(  VectorAttribute *       disk,
 
     bool ro;
 
-    ostringstream iid;
-
     vector<string>::const_iterator it;
 
     img_type   = type;
     target     = disk->vector_value("TARGET");
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
-    iid << oid;
+
+    long long size = -1;
+    long long snap_size;
 
     string template_target;
     string template_driver;
     string template_ptype;
+    string template_size;
 
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
@@ -546,9 +564,20 @@ int Image::disk_attribute(  VectorAttribute *       disk,
     //                       BASE DISK ATTRIBUTES
     //--------------------------------------------------------------------------
     disk->replace("IMAGE",    name);
-    disk->replace("IMAGE_ID", iid.str());
+    disk->replace("IMAGE_ID", oid);
     disk->replace("SOURCE",   source);
-    disk->replace("SIZE",     size_mb);
+
+    if ( disk->vector_value("SIZE", size) == 0 && size != size_mb)
+    {
+        disk->replace("ORIGINAL_SIZE", size_mb);
+    }
+    else
+    {
+        disk->replace("SIZE", size_mb);
+    }
+
+    snap_size = snapshots.get_total_size();
+    disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
@@ -570,7 +599,7 @@ int Image::disk_attribute(  VectorAttribute *       disk,
         }
         else
         {
-            disk->replace("READONLY", "NO");
+            disk->replace("READONLY", false);
         }
     }
 
@@ -663,8 +692,6 @@ int Image::disk_attribute(  VectorAttribute *       disk,
             disk->replace(*it, inherit_val);
         }
     }
-
-    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -800,6 +827,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     else if (s_disk_type == "BLOCK")
     {
         type = Image::BLOCK;
+    }
+    else if (s_disk_type == "ISCSI")
+    {
+        type = Image::ISCSI;
     }
     else if (s_disk_type == "CDROM")
     {

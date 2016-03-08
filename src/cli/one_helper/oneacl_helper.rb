@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,7 +44,7 @@ private
     def self.resource_mask(str)
         resource_type=str.split("/")[0]
 
-        mask = "-------------"
+        mask = "----------------"
 
         resource_type.split("+").each{|type|
             case type
@@ -74,6 +74,12 @@ private
                     mask[11] = "S"
                 when "VDC"
                     mask[12] = "v"
+                when "VROUTER"
+                    mask[13] = "R"
+                when "MARKETPLACE"
+                    mask[14] = "M"
+                when "MARKETPLACEAPP"
+                    mask[15] = "A"
             end
         }
         mask
@@ -113,8 +119,8 @@ private
                 d['STRING'].split(" ")[0]
             end
 
-            column :RES_VHNIUTGDCOZSv, "Resource to which the rule applies",
-                            :size => 17 do |d|
+            column :RES_VHNIUTGDCOZSvRMA, "Resource to which the rule applies",
+                            :size => 20 do |d|
                OneAclHelper::resource_mask d['STRING'].split(" ")[1]
             end
 
@@ -131,7 +137,7 @@ private
                 OneAclHelper::right_mask d['STRING'].split(" ")[2]
             end
 
-            default :ID, :USER, :RES_VHNIUTGDCOZSv, :RID, :OPE_UMAC, :ZONE
+            default :ID, :USER, :RES_VHNIUTGDCOZSvRMA, :RID, :OPE_UMAC, :ZONE
         end
 
         table

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -334,7 +334,74 @@ public:
     ~VdcRename(){};
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterRename: public RequestManagerRename
+{
+public:
+    VirtualRouterRename():
+        RequestManagerRename("VirtualRouterRename", "Renames a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceRename: public RequestManagerRename
+{
+public:
+    MarketPlaceRename():
+        RequestManagerRename("MarketPlaceRename", "Renames a marketplace")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_marketpool();
+        auth_object = PoolObjectSQL::MARKETPLACE;
+    };
+
+    ~MarketPlaceRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlacePool*>(pool)->get(name, lock);
+    };
+
+    void batch_rename(int oid);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class MarketPlaceAppRename: public RequestManagerRename
+{
+public:
+    MarketPlaceAppRename():
+        RequestManagerRename("MarketPlaceRename", "Renames a marketplace app")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_apppool();
+        auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    };
+
+    ~MarketPlaceAppRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<MarketPlaceAppPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

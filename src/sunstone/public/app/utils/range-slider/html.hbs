@@ -1,0 +1,40 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<label class="" for="{{name}}">
+  {{label}}
+  {{#if tip}}
+    {{{tip tip}}}  
+  {{/if}}
+</label>
+<div class="medium-10 columns">
+  <div id="{{name}}Slider" class="range-slider radius" data-slider data-options="start: {{start}}; end: {{end}}; step: {{step}};">
+    <span class="range-slider-handle"></span>
+    <span class="range-slider-active-segment"></span>
+    <input type="hidden"></div>
+</div>
+<div class="medium-2 columns">
+  {{#if unitLabel}}
+    <div class="small-9 columns">
+      <input type="text" id="{{name}}" name="{{name}}"/>
+    </div>
+    <div class="small-3 columns">
+      <span style="font-size: 18px; color: #999;">{{unitLabel}}</span>
+    </div>
+  {{else}}
+    <input type="text" wizard_field="{{name}}" id="{{name}}" name="{{name}}"/>
+  {{/if}}
+</div>

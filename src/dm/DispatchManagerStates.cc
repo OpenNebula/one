@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -273,7 +273,7 @@ void  DispatchManager::done_action(int vid)
 
 void  DispatchManager::resubmit_action(int vid)
 {
-    VirtualMachine *    vm;
+    VirtualMachine * vm;
 
     vm = vmpool->get(vid,true);
 
@@ -284,7 +284,6 @@ void  DispatchManager::resubmit_action(int vid)
 
     if (vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT)
     {
-
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vm->set_state(VirtualMachine::PENDING);
@@ -293,8 +292,6 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->unlock();
     }
-
-    return;
 }
 
 /* -------------------------------------------------------------------------- */

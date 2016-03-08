@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L                                           #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -140,7 +140,8 @@ class OpenNebula::LdapAuth
                     [nil, nil]
                 end
             end
-        rescue
+        rescue Exception => e
+            STDERR.puts e.message
             [nil, nil]
         end
     end
@@ -148,7 +149,7 @@ class OpenNebula::LdapAuth
     def is_in_group?(user, group)
         result=@ldap.search(
                     :base   => group,
-                    :attributes => @options[:group_field],
+                    :attributes => [@options[:group_field]],
                     :filter => "(#{@options[:group_field]}=#{user.first})")
 
         if result && result.first
@@ -180,8 +181,6 @@ class OpenNebula::LdapAuth
         [@user['memberOf']].flatten.each do |group|
             if @mapping[group]
                 groups << @mapping[group]
-            else
-                groups << @options[:mapping_default]
             end
         end
 

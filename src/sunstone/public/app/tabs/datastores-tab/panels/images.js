@@ -1,10 +1,28 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require){
   /*
     DEPENDENCIES
    */
 
   var Locale = require('utils/locale');
+  var OpenNebulaDatastore = require('opennebula/datastore');
   var ImagesTable = require('tabs/images-tab/datatable');
+  var FilesTable = require('tabs/files-tab/datatable');
 
   /*
     CONSTANTS
@@ -23,7 +41,10 @@ define(function(require){
     this.icon = "fa-upload";
 
     this.element = info[RESOURCE.toUpperCase()];
-    this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, {info: true});
+
+    if (this.element.TYPE == OpenNebulaDatastore.TYPES.SYSTEM_DS){
+      throw "Images panel is not available for system DS";
+    }
 
     return this;
   };
@@ -39,13 +60,37 @@ define(function(require){
    */
 
   function _html() {
+    var imgs = [];
+
+    if (this.element.IMAGES.ID != undefined){
+      imgs = this.element.IMAGES.ID;
+
+      if (!$.isArray(imgs)){
+        imgs = [imgs];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: imgs
+      }
+    };
+
+    if (this.element.TYPE == OpenNebulaDatastore.TYPES.FILE_DS){
+      this.imagesDataTable = new FilesTable(IMAGES_TABLE_ID, opts);
+    } else {
+      this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, opts);
+    }
+
     return this.imagesDataTable.dataTableHTML;
   }
 
   function _setup(context) {
     this.imagesDataTable.initialize();
-    this.imagesDataTable.filter(this.element.NAME, ImagesTable.COLUMN_IDS.DATASTORE);
-    this.imagesDataTable.list();
+    this.imagesDataTable.refreshResourceTableSelect();
 
     return false;
   }

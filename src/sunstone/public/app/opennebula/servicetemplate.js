@@ -1,3 +1,19 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
 define(function(require) {
   var OpenNebulaAction = require('./action');
 
@@ -46,6 +62,15 @@ define(function(require) {
       params.cache_name = CACHE_NAME;
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj, PATH);
+    },
+    "rename" : function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj, PATH);
+    },
+    "clone" : function(params) {
+      var name = params.data.extra_param ? params.data.extra_param : "";
+      var action_obj = {"name" : name};
+      OpenNebulaAction.simple_action(params, RESOURCE, "clone", action_obj, PATH);
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);

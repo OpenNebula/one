@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -94,4 +94,21 @@ function disk_type
     DISK_TYPE="${XPATH_ELEMENTS[0]}"
 
     echo $DISK_TYPE
+}
+
+#Return LCM_STATE
+function lcm_state
+{
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+    unset i XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onevm show -x $VMID| $XPATH \
+                        /VM/LCM_STATE )
+
+    LCM_STATE="${XPATH_ELEMENTS[0]}"
+
+    echo $LCM_STATE
 }

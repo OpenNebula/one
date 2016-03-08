@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -26,14 +26,14 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         "onevdc.yaml"
     end
 
-    def id_list_size(list)
+    def id_list_size(list, resource)
         case list
         when NilClass
             return 0
         when Array
             return list.size
         when Hash
-            return 1
+            return list["#{resource}_ID"] == Vdc::ALL_RESOURCES ? 'ALL' : 1
         end
     end
 
@@ -62,19 +62,19 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "Number of Clusters", :size=>8 do |d|
-                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"])
+                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"], "CLUSTER")
             end
 
             column :HOSTS, "Number of Hosts", :size=>5 do |d|
-                @ext.id_list_size(d["HOSTS"]["HOST"])
+                @ext.id_list_size(d["HOSTS"]["HOST"], "HOST")
             end
 
             column :VNETS, "Number of Networks", :size=>5 do |d|
-                @ext.id_list_size(d["VNETS"]["VNET"])
+                @ext.id_list_size(d["VNETS"]["VNET"], "VNET")
             end
 
             column :DATASTORES, "Number of Datastores", :size=>10 do |d|
-                @ext.id_list_size(d["DATASTORES"]["DATASTORE"])
+                @ext.id_list_size(d["DATASTORES"]["DATASTORE"], "DATASTORE")
             end
 
             default :ID, :NAME, :GROUPS, :CLUSTERS, :HOSTS, :VNETS, :DATASTORES

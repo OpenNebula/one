@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,7 +28,7 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+Copyright 2002-2015, OpenNebula Project, OpenNebula Systems
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
@@ -226,14 +226,20 @@ EOT
             :name   => 'disk',
             :large  => '--disk image0,image1',
             :description => "Disks to attach. To use an image owned by"<<
-                            " other user use user[disk]",
+                            " other user use user[disk]. Add any additional"<<
+                            " attributes separated by ':' and in the shape of"<<
+                            " KEY=VALUE. For example, if the disk must be"<<
+                            " resized, use image0:size=1000 . Or"<<
+                            " image0:size=1000:target=vda,image1:target=vdb",
             :format => Array
         },
         {
             :name   => 'nic',
             :large  => '--nic network0,network1',
             :description => "Networks to attach. To use a network owned by"<<
-                            " other user use user[network]",
+                            " other user use user[network]. Additional"<<
+                            " attributes are supported like with the --disk"<<
+                            " option.",
             :format => Array
         },
         {
@@ -649,21 +655,21 @@ user         #{self.rname} of the user identified by the username
 EOT
         end
 
-        def self.table_conf
-            path = "#{ENV["HOME"]}/.one/cli/#{self.conf_file}"
+        def self.table_conf(conf_file=self.conf_file)
+            path = "#{ENV["HOME"]}/.one/cli/#{conf_file}"
 
             if File.exists?(path)
                 return path
             else
-                return "#{TABLE_CONF_PATH}/#{self.conf_file}"
+                return "#{TABLE_CONF_PATH}/#{conf_file}"
             end
         end
-
-        private
 
         def retrieve_resource(id)
             factory(id)
         end
+
+        private
 
         def pool_to_array(pool)
             if !pool.instance_of?(Hash)
@@ -708,16 +714,17 @@ EOT
         client=OneHelper.client
 
         pool = case poolname
-        when "HOST"      then OpenNebula::HostPool.new(client)
-        when "GROUP"     then OpenNebula::GroupPool.new(client)
-        when "USER"      then OpenNebula::UserPool.new(client)
-        when "DATASTORE" then OpenNebula::DatastorePool.new(client)
-        when "CLUSTER"   then OpenNebula::ClusterPool.new(client)
-        when "VNET"      then OpenNebula::VirtualNetworkPool.new(client)
-        when "IMAGE"     then OpenNebula::ImagePool.new(client)
-        when "VMTEMPLATE" then OpenNebula::TemplatePool.new(client)
-        when "VM"        then OpenNebula::VirtualMachinePool.new(client)
-        when "ZONE"      then OpenNebula::ZonePool.new(client)
+        when "HOST"        then OpenNebula::HostPool.new(client)
+        when "GROUP"       then OpenNebula::GroupPool.new(client)
+        when "USER"        then OpenNebula::UserPool.new(client)
+        when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"     then OpenNebula::ClusterPool.new(client)
+        when "VNET"        then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"       then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE"  then OpenNebula::TemplatePool.new(client)
+        when "VM"          then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"        then OpenNebula::ZonePool.new(client)
+        when "MARKETPLACE" then OpenNebula::MarketPlacePool.new(client)
         end
 
         rc = pool.info
@@ -822,39 +829,46 @@ EOT
     end
 
     def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
-        unless path
-            require 'tempfile'
+        if path
+            return File.read(path)
+        elsif append
+            return editor_input()
+        else
+            if update
+                rc = resource.info
 
-            tmp  = Tempfile.new(id.to_s)
-            path = tmp.path
-
-            if !append
-                if update
-                    rc = resource.info
-
-                    if OpenNebula.is_error?(rc)
-                        puts rc.message
-                        exit -1
-                    end
+                if OpenNebula.is_error?(rc)
+                    puts rc.message
+                    exit -1
                 end
-
-                tmp << resource.template_like_str(xpath)
-                tmp.flush
             end
 
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
-            system("#{editor_path} #{path}")
+            return editor_input(resource.template_like_str(xpath))
+        end
+    end
 
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
-            end
+    def OpenNebulaHelper.editor_input(contents=nil)
+        require 'tempfile'
 
-            tmp.close
+        tmp  = Tempfile.new("one_cli")
+
+        if contents
+            tmp << contents
+            tmp.flush
         end
 
-        str = File.read(path)
-        str
+        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+        system("#{editor_path} #{tmp.path}")
+
+        unless $?.exitstatus == 0
+            puts "Editor not defined"
+            exit -1
+        end
+
+        tmp.close
+
+        str = File.read(tmp.path)
+        return str
     end
 
     def self.parse_user_object(user_object)
@@ -879,12 +893,17 @@ EOT
         template=''
 
         objects.each do |obj|
+            obj, *extra_attributes = obj.split(":")
             res=parse_user_object(obj)
             return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
             template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+            extra_attributes.each do |extra_attribute|
+                key, value = extra_attribute.split("=")
+                template<<"  #{key.upcase}=\"#{value}\",\n"
+            end
             if object.match(/^\d+$/)
                 template<<"  #{name.upcase}_ID=#{object}\n"
             else
@@ -945,7 +964,7 @@ EOT
         end
     end
 
-    def self.create_template(options)
+    def self.create_template(options, template_obj=nil)
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
@@ -1001,6 +1020,17 @@ EOT
 
         context=create_context(options)
         template<<context if context
+
+        if options[:userdata] && !template_obj.nil?
+            if template_obj.has_elements?('TEMPLATE/EC2')
+                template_obj.add_element(
+                    'TEMPLATE/EC2',
+                    'USERDATA' => options[:userdata])
+
+                template << template_obj.template_like_str(
+                    'TEMPLATE', false, 'EC2')
+            end
+        end
 
         [0, template]
     end

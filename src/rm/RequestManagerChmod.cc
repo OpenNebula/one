@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,7 +16,6 @@
 
 #include "RequestManagerChmod.h"
 
-#include "NebulaLog.h"
 #include "Nebula.h"
 
 /* -------------------------------------------------------------------------- */
@@ -39,8 +38,40 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
     int other_m = xmlrpc_c::value_int(paramList.getInt(9));
     int other_a = xmlrpc_c::value_int(paramList.getInt(10));
 
+    ErrorCode ec = chmod(pool, oid,
+                        owner_u, owner_m, owner_a,
+                        group_u, group_m, group_a,
+                        other_u, other_m, other_a,
+                        att);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(oid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode RequestManagerChmod::chmod(
+        PoolSQL * pool,
+        int oid,
+        int owner_u,
+        int owner_m,
+        int owner_a,
+        int group_u,
+        int group_m,
+        int group_a,
+        int other_u,
+        int other_m,
+        int other_a,
+        RequestAttributes& att)
+{
     PoolObjectSQL * object;
-    string          error_str;
 
     if ( att.uid != 0 && att.gid != 0)
     {
@@ -51,10 +82,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
         if ( object == 0 )
         {
-            failure_response(NO_EXISTS,
-                             get_error(object_name(auth_object),oid),
-                             att);
-            return;
+            att.resp_id = oid;
+            return NO_EXISTS;
         }
 
         object->get_permissions(perms);
@@ -100,11 +129,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
             if ( !enable_other )
             {
-                failure_response(AUTHORIZATION,
-                         "Management of 'other' permissions is disabled in oned.conf",
-                         att);
-
-                return;
+                att.resp_msg = "'other' permissions is disabled in oned.conf";
+                return AUTHORIZATION;
             }
         }
 
@@ -114,11 +140,8 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (UserPool::authorize(ar) == -1)
         {
-            failure_response(AUTHORIZATION,
-                             authorization_error(ar.message, att),
-                             att);
-
-            return;
+            att.resp_msg = ar.message;
+            return AUTHORIZATION;
         }
     }
 
@@ -128,33 +151,145 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( object == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(auth_object),oid),
-                att);
-        return;
+        att.resp_id = oid;
+        return NO_EXISTS;
     }
 
     int rc = object->set_permissions(owner_u, owner_m, owner_a, group_u,
-                        group_m, group_a, other_u, other_m, other_a, error_str);
+                    group_m, group_a, other_u, other_m, other_a, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,
-                request_error("Error updating permissions",error_str),
-                att);
-
         object->unlock();
-        return;
+        return INTERNAL;
     }
 
     pool->update(object);
 
     object->unlock();
 
-    success_response(oid, att);
-
-    return;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int oid     = xmlrpc_c::value_int(paramList.getInt(1));
+
+    int owner_u = xmlrpc_c::value_int(paramList.getInt(2));
+    int owner_m = xmlrpc_c::value_int(paramList.getInt(3));
+    int owner_a = xmlrpc_c::value_int(paramList.getInt(4));
+
+    int group_u = xmlrpc_c::value_int(paramList.getInt(5));
+    int group_m = xmlrpc_c::value_int(paramList.getInt(6));
+    int group_a = xmlrpc_c::value_int(paramList.getInt(7));
+
+    int other_u = xmlrpc_c::value_int(paramList.getInt(8));
+    int other_m = xmlrpc_c::value_int(paramList.getInt(9));
+    int other_a = xmlrpc_c::value_int(paramList.getInt(10));
+
+    bool recursive = false;
+
+    if (paramList.size() > 11)
+    {
+        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
+    }
+
+    ErrorCode ec = chmod(pool, oid,
+            owner_u, owner_m, owner_a,
+            group_u, group_m, group_a,
+            other_u, other_m, other_a,
+            att);
+
+    if ( ec != SUCCESS )
+    {
+        failure_response(ec, att);
+        return;
+    }
+
+    if (recursive)
+    {
+        VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
+
+        vector<VectorAttribute *> disks;
+
+        int rc = 0;
+
+        set<int> error_ids;
+        set<int> img_ids;
+
+        Nebula&   nd     = Nebula::instance();
+        ImagePool* ipool = nd.get_ipool();
+
+        if ( tmpl == 0 )
+        {
+            att.resp_id = oid;
+            failure_response(NO_EXISTS, att);
+            return;
+        }
+
+        tmpl->get_disks(disks);
+
+        tmpl->unlock();
+
+        ipool->get_image_ids(disks, img_ids, att.uid);
+
+        for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
+        {
+            if ( ImageChmod::chmod(*it, owner_u, owner_m, owner_a, group_u,
+                    group_m, group_a, other_u, other_m, other_a, att) != SUCCESS)
+            {
+                NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
+
+                error_ids.insert(*it);
+                rc = -1;
+            }
+        }
+
+        for (vector<VectorAttribute *>::iterator i = disks.begin();
+                i != disks.end() ; i++)
+        {
+            delete *i;
+        }
+
+        if ( rc != 0 )
+        {
+            att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
+                ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+                error_ids.end(), ',');
+
+            failure_response(ACTION, att);
+            return;
+        }
+    }
+
+    success_response(oid, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode ImageChmod::chmod(
+        int oid,
+        int owner_u,
+        int owner_m,
+        int owner_a,
+        int group_u,
+        int group_m,
+        int group_a,
+        int other_u,
+        int other_m,
+        int other_a,
+        RequestAttributes& att)
+{
+    return RequestManagerChmod::chmod(
+            Nebula::instance().get_ipool(),
+            oid,
+            owner_u, owner_m, owner_a,
+            group_u, group_m, group_a,
+            other_u, other_m, other_a,
+            att);
+}

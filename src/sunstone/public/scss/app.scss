@@ -1,6 +1,6 @@
 @import "../bower_components/fontawesome/css/font-awesome.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
-@import "../vendor/4.0/nouislider/nouislider.css";
+@import "../bower_components/vis/dist/vis.min.css";
 @import "settings";
 @import "foundation";
 
@@ -47,7 +47,7 @@
   font-style: normal;
   font-weight: 400;
   font-stretch: condensed;
-  src: local('Open Sans'), local('OpenSans'), url('opensans.woff') format('woff');
+  src: local('Open Sans'), local('OpenSans'), url('opensans/opensans.woff') format('woff');
 }
 
 .hidden {
@@ -172,26 +172,17 @@ input.search {
 
 
 // User settings and zone
-.user-zone-container {
-    position: relative;
 
-    .user-zone-info {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        z-index: 1;
+.user-zone-info {
+    .button {
+        background: #fff;
+        border: none;
+    }
 
-        .button {
-            background: #fff;
-            border: none;
-        }
-
-        .button:hover {
-            background: #F5F5F5;
-        }
+    .button:hover {
+        background: #F5F5F5;
     }
 }
-
 
 .white_button {
     background-color: #fff !important;
@@ -235,6 +226,10 @@ input.search {
               color: #555 !important;
             }
         }
+
+        .labels-tree {
+          display: none;
+        }
     }
 
     li {
@@ -250,6 +245,11 @@ input.search {
             color: #222 !important;
         }
 
+        .labels-tree {
+          display: block;
+        }
+
+        background: rgba(0,0,0,0.025);
         border-left: 2px solid #008cba !important;
     }
 
@@ -264,7 +264,6 @@ input.search {
 
 .header-row {
   margin-bottom: 20px !important;
-  margin-top: 25px !important;
 
   .resource-id {
     color: #999;
@@ -320,11 +319,10 @@ select {
 
 .value_td {
     text-overflow:ellipsis;
-    word-break: break-all;
 }
 
 .key_td {
-  color: #777 !important;
+  color: #999 !important;
 }
 
 .configuration_attrs {
@@ -505,6 +503,10 @@ fieldset {
           border-bottom: 2px solid #999;
         }
       }
+
+      dd {
+        border-bottom: 2px solid transparent;
+      }
     }
 
     dd.active {
@@ -573,7 +575,6 @@ fieldset {
 // Reveal
 
 .reveal-modal h3 {
-    margin-left: -20px;
     margin-bottom: 25px !important;
 }
 
@@ -817,6 +818,9 @@ div.dataTables_scrollFoot table {
   .provision-description   {
     @include pricing-table-description;
     font-size: rem-calc(13px);
+  }
+  .provision-description:hover {
+    white-space: normal;
   }
   .provision-bullet-item {
     @include pricing-table-bullet;
@@ -1181,13 +1185,19 @@ hr {
   }
 }
 
-#user_ssh_public_key_text, #config_ssh_public_key_text {
+#user_ssh_public_key_text, 
+#config_ssh_public_key_text {
   font-size: 0.875rem;
   color: #777;
   padding: 0px 10px;
   overflow-x:hidden;
-  text-overflow:
-  ellipsis; height: 120px;
+  text-overflow: ellipsis;
+  height: 120px;
+}
+
+.info_text {
+  color: #777;
+  padding: 0px 10px;
 }
 
 .vm-action-disabled {
@@ -1303,4 +1313,177 @@ hr {
 
 .tree ul:last-child li:last-child:after{
   height:1em;
+}
+
+.diskSlider {
+  label {
+    font-size: 24px;
+    color: #777;
+    padding: 0 0.5rem;
+  }
+}
+
+.menu-small {
+  position: absolute;
+  z-index: 20;
+  box-shadow: 5px 10px 15px 5px rgba(0,0,0,.1);
+}
+
+#menu-wrapper {
+  padding-top: 5px;
+  background-color: white
+}
+
+#menu-toggle {
+  padding: 0px
+}
+
+.custom_tags td {
+  vertical-align: top; 
+}
+
+// Overwrite vis.js tooltip css
+div.vis-network-tooltip {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: condensed;
+
+  background-color: #ffffff;
+}  
+
+.labels-tree input[type="checkbox"] {
+  margin: 0px;
+}
+
+.labels-tree {
+  font: inherit;
+  list-style-type: none;
+  padding-right: 1em;
+  margin-left: 0;
+  margin-bottom: 0;
+
+  & > li:last-child {
+    padding-bottom: 1em;
+  }
+
+  .fa-angle-down, .fa-angle-right {
+    padding: 3px;
+    cursor: pointer;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
+
+  .fa-tag {
+    color: #999;
+  }
+
+  .one-label {
+    cursor: pointer;
+
+    &:hover, &.active {
+      font-weight: bold;
+    }
+  }
+}
+
+.labels-tree ul{
+  font: inherit;
+  list-style-type: none;
+  margin-left: 1em;
+  padding: 0;
+  position: relative;
+}
+
+.labels-tree li{
+  margin: 0;
+  padding: 0 0 0 1em;
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.labels-tree li:before, .labels-tree li:after{
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+/* horizontal line on inner list items */
+.labels-tree li:before{
+  //border-top: 1px solid #999;
+  top: 0.5em;
+  width: 10px;
+  height: 0;
+}
+
+/* vertical line on list items */
+.labels-tree li:after{
+  //border-left: 1px solid #999;
+  height: 100%;
+  width: 0px;
+  top: -0.5em;
+}
+
+/* lower line on list items from the first level because they don't have parents */
+/*.labels-tree > li::after{
+  top: 0.5em;
+}*/
+
+/* hide line from the last of the first level list items */
+/*.labels-tree > li:last-child::after{
+  display: none;
+}*/
+
+.labels-tree li:last-child:after{
+  height:1em;
+}
+
+.labels-dropdown {
+  margin: 0px;
+  padding-top: 1em;
+
+  h6 {
+    margin: 0.5em 1em;
+    border-bottom: 1px solid #efefef;
+  }
+
+  .input-container {
+    margin: 0 1em;
+  }
+
+  li {
+    cursor: auto;
+
+    &:hover {
+      background: none;
+    }
+  }
+
+  .fa-check-square-o,
+  .fa-square-o,
+  .fa-minus-square-o {
+    position: absolute;
+    right: 0;
+    padding: 2px;
+    background: #fff;
+
+    &:hover {
+      cursor: pointer;
+      background: #bfbfbf;
+    }
+  }
+}
+
+// For abide validation
+
+.error input {
+  border-bottom-color: $alert-color !important;
+}
+
+.error textarea {
+  border-bottom-color: $alert-color !important;
 }

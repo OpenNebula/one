@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    MadManager(vector<const Attribute *>& _mads);
+    MadManager(vector<const VectorAttribute *>& _mads);
 
     virtual ~MadManager();
 
@@ -72,7 +72,7 @@ protected:
      *  Vector containing Mad configuration for this Manager, as described in
      *  the nebula location
      */
-    vector<const Attribute *> mad_conf;
+    vector<const VectorAttribute *> mad_conf;
 
     /**
      *  This function initialize the communication pipes to register new MADs

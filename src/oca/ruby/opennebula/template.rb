@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,8 +65,22 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Template.
-        def info()
-            super(TEMPLATE_METHODS[:info], 'VMTEMPLATE')
+        # @param extended [true,false] optional flag to process the template and
+        # include extended information, such as the SIZE for each DISK
+        def info(extended=false)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended)
+
+            if !OpenNebula.is_error?(rc)
+                initialize_xml(rc, 'VMTEMPLATE')
+                rc   = nil
+
+                @pe_id = self['ID'].to_i if self['ID']
+                @name  = self['NAME'] if self['NAME']
+            end
+
+            return rc
         end
 
         alias_method :info!, :info
@@ -82,8 +96,15 @@ module OpenNebula
         end
 
         # Deletes the Template
-        def delete()
-            super(TEMPLATE_METHODS[:delete])
+        # 
+        # @param recursive [true,false] optional, deletes the template plus
+        # any image defined in DISK/IMAGE_ID. Images defined by name are
+        # not affected
+        # 
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def delete(recursive=false)
+            return call(TEMPLATE_METHODS[:delete], @pe_id, recursive)
         end
 
         # Creates a VM instance from a Template
@@ -143,21 +164,40 @@ module OpenNebula
         # Changes the Template permissions.
         #
         # @param octet [String] Permissions octed , e.g. 640
+        # @param recursive [true,false] optional, chmods the template plus
+        # any image defined in DISK/IMAGE_ID. Images defined by name are
+        # not affected
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def chmod_octet(octet)
-            super(TEMPLATE_METHODS[:chmod], octet)
+        def chmod_octet(octet, recursive=false)
+            owner_u = octet[0..0].to_i & 4 != 0 ? 1 : 0
+            owner_m = octet[0..0].to_i & 2 != 0 ? 1 : 0
+            owner_a = octet[0..0].to_i & 1 != 0 ? 1 : 0
+            group_u = octet[1..1].to_i & 4 != 0 ? 1 : 0
+            group_m = octet[1..1].to_i & 2 != 0 ? 1 : 0
+            group_a = octet[1..1].to_i & 1 != 0 ? 1 : 0
+            other_u = octet[2..2].to_i & 4 != 0 ? 1 : 0
+            other_m = octet[2..2].to_i & 2 != 0 ? 1 : 0
+            other_a = octet[2..2].to_i & 1 != 0 ? 1 : 0
+
+            chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
+                other_m, other_a, recursive)
         end
 
         # Changes the Template permissions.
         # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
         #
+        # @param recursive [true,false] optional, chmods the template plus
+        # any image defined in DISK/IMAGE_ID. Images defined by name are
+        # not affected
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
-                other_m, other_a)
-            super(TEMPLATE_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
-                group_m, group_a, other_u, other_m, other_a)
+                other_m, other_a, recursive=false)
+            return call(TEMPLATE_METHODS[:chmod], @pe_id, owner_u, owner_m, owner_a, group_u,
+                group_m, group_a, other_u, other_m, other_a, recursive)
         end
 
         # Clones this Template into a new one

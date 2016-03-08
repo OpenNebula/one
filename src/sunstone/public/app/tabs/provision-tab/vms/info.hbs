@@ -1,3 +1,19 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
 <div class="text-center provision_info_vm_loading">
   <span class="fa-stack fa-5x" style="color: #dfdfdf"> <i class="fa fa-cloud fa-stack-2x"></i> <i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>
   </span>
@@ -10,35 +26,50 @@
     <div class="large-12 large-centered columns">
       <ul class="inline-list provision_action_icons">
         <li>
-          <a href"#" data-tooltip title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
+          <a href"#" title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          <a data-tooltip title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
+          <a title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          {{#isTabPanelEnabled "provision-tab" "templates"}}
-          <a href"#" data-tooltip title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
+          {{#isProvisionTabEnabled "provision-tab" "templates"}}
+          <a href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
-          <a data-tooltip title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
+          <a title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
-          {{/isTabPanelEnabled}}
+          {{/isProvisionTabEnabled}}
         </li>
         <li class="right">
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
+          {{#isTabActionEnabled "provision-tab" "VM.delete"}}
+          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.shutdown_hard"}}
+          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.poweroff"}}
+          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-power-off"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.undeploy"}}
+          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_undeploy_confirm_button tip-top right">
+            <i class="fa fa-fw fa-lg fa-power-off"/>
+          </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.resume"}}
+          <a href"#" title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
             <i class="fa fa-fw fa-lg fa-play"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.reboot"}}
+          <a href"#" title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-repeat"/>
           </a>
+          {{/isTabActionEnabled}}
         </li>
       </ul>
     </div>
@@ -62,7 +93,7 @@
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_cpu_graph" style="height: 100px;"></div>
+              <div class="large-12 columns centered graph vm_cpu_provision_graph" style="height: 100px;"></div>
             </div>
           </div>
           <div class="row graph_legend">
@@ -79,7 +110,7 @@
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_memory_graph" style="height: 100px;"></div>
+              <div class="large-12 columns centered graph vm_memory_provision_graph" style="height: 100px;"></div>
             </div>
           </div>
           <div class="row graph_legend">
@@ -91,75 +122,80 @@
     <div class="large-12 columns">
       <br>
       <div class="row">
-      <div class="large-3 medium-6 columns">
-        <div class="row text-center">
-          <div class="large-12 columns">
-            <h4 class="subheader" style="margin: 0px">
-              <small>{{tr "Net RX"}}</small>
-            </h4>
+        <div class="large-3 medium-6 columns">
+          <div class="row text-center">
+            <div class="large-12 columns">
+              <h4 class="subheader" style="margin: 0px">
+                <small>{{tr "Net RX"}}</small>
+              </h4>
+            </div>
+          </div>
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="large-12 columns centered graph vm_net_rx_provision_graph" style="height: 100px;"></div>
+            </div>
+          </div>
+          <div class="row graph_legend">
+            <div class="large-12 columns centered vm_net_rx_legend"></div>
           </div>
         </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <div class="large-12 columns centered graph vm_net_rx_graph" style="height: 100px;"></div>
+        <div class="large-3 medium-6  columns">
+          <div class="row text-center">
+            <div class="large-12 columns">
+              <h4 class="subheader" style="margin: 0px">
+                <small>{{tr "Net TX"}}</small>
+              </h4>
+            </div>
+          </div>
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="large-12 columns centered graph vm_net_tx_provision_graph" style="height: 100px;"></div>
+            </div>
+          </div>
+          <div class="row graph_legend">
+            <div class="large-12 columns centered vm_net_tx_legend"></div>
           </div>
         </div>
-        <div class="row graph_legend">
-          <div class="large-12 columns centered vm_net_rx_legend"></div>
-        </div>
-      </div>
-      <div class="large-3 medium-6  columns">
-        <div class="row text-center">
-          <div class="large-12 columns">
-            <h4 class="subheader" style="margin: 0px">
-              <small>{{tr "Net TX"}}</small>
-            </h4>
+        <div class="large-3 medium-6  columns">
+          <div class="row text-center">
+            <div class="large-12 columns">
+              <h4 class="subheader" style="margin: 0px">
+                <small>{{tr "Net Download Speed"}}</small>
+              </h4>
+            </div>
+          </div>
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="large-12 columns centered graph vm_net_rx_speed_provision_graph" style="height: 100px;"></div>
+            </div>
+          </div>
+          <div class="row graph_legend">
+            <div class="large-12 columns centered vm_net_rx_speed_legend"></div>
           </div>
         </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <div class="large-12 columns centered graph vm_net_tx_graph" style="height: 100px;"></div>
+        <div class="large-3 medium-6 columns">
+          <div class="row text-center">
+            <div class="large-12 columns">
+              <h4 class="subheader" style="margin: 0px">
+                <small>{{tr "Net Upload Speed"}}</small>
+              </h4>
+            </div>
           </div>
-        </div>
-        <div class="row graph_legend">
-          <div class="large-12 columns centered vm_net_tx_legend"></div>
-        </div>
-      </div>
-      <div class="large-3 medium-6  columns">
-        <div class="row text-center">
-          <div class="large-12 columns">
-            <h4 class="subheader" style="margin: 0px">
-              <small>{{tr "Net Download Speed"}}</small>
-            </h4>
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="large-12 columns centered graph vm_net_tx_speed_provision_graph" style="height: 100px;"></div>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <div class="large-12 columns centered graph vm_net_rx_speed_graph" style="height: 100px;"></div>
+          <div class="row graph_legend">
+            <div class="large-12 columns centered vm_net_tx_speed_legend"></div>
           </div>
-        </div>
-        <div class="row graph_legend">
-          <div class="large-12 columns centered vm_net_rx_speed_legend"></div>
-        </div>
-      </div>
-      <div class="large-3 medium-6 columns">
-        <div class="row text-center">
-          <div class="large-12 columns">
-            <h4 class="subheader" style="margin: 0px">
-              <small>{{tr "Net Upload Speed"}}</small>
-            </h4>
-          </div>
-        </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <div class="large-12 columns centered graph vm_net_tx_speed_graph" style="height: 100px;"></div>
-          </div>
-        </div>
-        <div class="row graph_legend">
-          <div class="large-12 columns centered vm_net_tx_speed_legend"></div>
         </div>
       </div>
     </div>
   </div>
   <br>
-  <br></div>
+  <br>
+  <div class="row">
+    <div class="large-12 columns provision-right-info"></div>
+  </div>
+</div>

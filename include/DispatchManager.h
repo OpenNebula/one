@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -368,7 +368,7 @@ public:
      *
      * @param vid VirtualMachine identification
      * @param did DISK identification
-     * @param tag Description for the new snapshot
+     * @param name Description for the new snapshot
      * @param snap_id Will contain the new snapshot ID
      * @param error_str Error reason, if any
      *
@@ -377,7 +377,7 @@ public:
     int disk_snapshot_create(
         int           vid,
         int           did,
-        const string& tag,
+        const string& name,
         int&          snap_id,
         string&       error_str);
 
