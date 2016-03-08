@@ -75,7 +75,7 @@ SOURCE="${BASE_URL%/}/${APPNAME}"
 
 if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
-    CP_CMD="$UTILS_PATH/downloader.sh ${IMPORT_SOURCE} -"
+    CP_CMD="$UTILS_PATH/downloader.sh '${IMPORT_SOURCE}' -"
 
     exec_and_log "eval $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=64k" \
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"

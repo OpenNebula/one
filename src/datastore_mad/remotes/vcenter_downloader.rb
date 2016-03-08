@@ -51,30 +51,30 @@ begin
 
     if ds.is_descriptor? img_src
         descriptor_name = File.basename u.path
-        temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name
+        temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
         FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
 
         # Build array of files to download
         files_to_download = [descriptor_name]
         descriptor = ds.get_text_file img_src
         flat_files = descriptor.select{|l| l.start_with?("RW")}
-        flat_files.each{|file| 
-              files_to_download << file.split(" ")[-1].chomp.chomp('"').reverse.chomp('"').reverse
-        }
+        flat_files.each do |file|
+            files_to_download << file.split(" ")[3].chomp.chomp('"').reverse.chomp('"').reverse
+        end
 
-        # Dowload files
+        # Download files
         url_prefix = u.host + "/"
-        
+
         VCenterDriver::VIClient.in_silence do
             files_to_download.each{|file|
-            ds.download(url_prefix + file, temp_folder + file) 
+                ds.download(url_prefix + file, temp_folder + file)
             }
         end
 
         # Create tar.gz
         rs = system("cd #{temp_folder} && tar czf #{descriptor_name}.tar.gz #{files_to_download.join(' ')} >& /dev/null")
         (FileUtils.rm_rf(temp_folder) ; raise "Error creating tar file for #{descriptor_name}") unless rs
-        
+
         # Cat file to stdout
         rs = system("cat #{temp_folder + descriptor_name}.tar.gz")
         (FileUtils.rm_rf(temp_folder) ; raise "Error reading tar for #{descriptor_name}") unless rs
