@@ -367,18 +367,18 @@ define(function(require) {
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {
       var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
       var content = $(target);
 
-      dd.remove();
+      li.remove();
       content.remove();
 
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
+      if (li.attr("class") == 'active') {
+        $('a', ul.children('li').last()).click();
       }
 
-      $("dl#template_create_hybrid_tabs dd", context).each(function(index) {
+      $("ul#template_create_hybrid_tabs li", context).each(function(index) {
           $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
         })
     });
@@ -476,15 +476,15 @@ define(function(require) {
     '</div>'
     $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", context));
 
-    var a = $("<dd class='tabs-title'>\
+    var a = $("<li class='tabs-title'>\
         <a id='provider_tab" + htmlId + "' href='#" + htmlId + "Tab'>" + Locale.tr("PROVIDER") + "</a>\
-      </dd>").appendTo($("dl#template_create_hybrid_tabs", context));
+      </li>").appendTo($("ul#template_create_hybrid_tabs", context));
 
-    $("dl#template_create_hybrid_tabs dd", context).each(function(index) {
+    $("ul#template_create_hybrid_tabs li", context).each(function(index) {
         $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
       })
 
-    Foundation.reInit($("dl#template_create_hybrid_tabs", context));
+    Foundation.reInit($("ul#template_create_hybrid_tabs", context));
 
     $("a", a).trigger("click");
 

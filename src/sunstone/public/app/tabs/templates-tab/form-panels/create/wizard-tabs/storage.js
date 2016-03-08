@@ -91,18 +91,18 @@ define(function(require) {
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {
       var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
       var content = $(target);
 
-      dd.remove();
+      li.remove();
       content.remove();
 
       var diskId = content.attr("diskId");
       delete that.diskTabObjects[diskId];
 
-      if (dd.attr("class") == 'is-active') {
-        $('a', dl.children('dd').last()).click();
+      if (li.attr("class") == 'is-active') {
+        $('a', ul.children('li').last()).click();
       }
 
       that.renameTabLinks(context);
@@ -162,9 +162,9 @@ define(function(require) {
         diskTab.html() +
       '</div>').appendTo($("#" + CONTENTS_CONTAINER_ID, context));
 
-    var a = $("<dd class='tabs-title'>" +
+    var a = $("<li class='tabs-title'>" +
        "<a href='#" + diskTab.diskTabId + "'>" + Locale.tr("DISK") + "</a>" +
-      "</dd>").appendTo($("#" + LINKS_CONTAINER_ID, context));
+      "</li>").appendTo($("#" + LINKS_CONTAINER_ID, context));
 
     Foundation.reInit($("#" + LINKS_CONTAINER_ID, context));
 
@@ -178,7 +178,7 @@ define(function(require) {
   }
 
   function _renameTabLinks(context) {
-    $("#" + LINKS_CONTAINER_ID + " dd", context).each(function(index) {
+    $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
     })
   }
