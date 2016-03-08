@@ -1179,6 +1179,7 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
+                             src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
@@ -1256,7 +1257,8 @@ DATASTORE_DRIVER_VCENTER_SCRIPTS="src/datastore_mad/remotes/vcenter/cp \
                          src/datastore_mad/remotes/vcenter/snap_delete \
                          src/datastore_mad/remotes/vcenter/snap_revert \
                          src/datastore_mad/remotes/vcenter/snap_flatten \
-                         src/datastore_mad/remotes/vcenter/clone"
+                         src/datastore_mad/remotes/vcenter/clone \
+                         src/datastore_mad/remotes/vcenter/export"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
