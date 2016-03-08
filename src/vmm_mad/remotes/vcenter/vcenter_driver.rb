@@ -666,6 +666,7 @@ class VIClient
             @vim  = RbVmomi::VIM.connect(opts)
             @root = @vim.root
             @vdm  = @vim.serviceContent.virtualDiskManager
+            @file_manager  = @vim.serviceContent.fileManager
         rescue Exception => e
             raise "Error connecting to #{@host}: #{e.message}"
         end
@@ -779,8 +780,23 @@ class VIClient
     end
 
     ############################################################################
+    # Delete a VirtualDisk
+    # @param directory  [String] name of the new directory
+    # @param ds_name    [String] name of the datastore where to create the dir
+    ############################################################################
+    def create_directory(directory, ds_name)
+        begin
+            path = "[#{ds_name}] #{directory}"
+            @file_manager.MakeDirectory(:name => path,
+                                        :datacenter => @dc,
+                                        :createParentDirectories => true)
+        rescue RbVmomi::VIM::FileAlreadyExists => e
+        end
+    end
+
+    ############################################################################
     # Silences standard output and error
-    ############################################################################   
+    ############################################################################
     def self.in_silence
         begin
           orig_stderr = $stderr.clone
@@ -801,7 +817,7 @@ class VIClient
 
     ############################################################################
     # Silences standard output and error
-    ############################################################################   
+    ############################################################################
     def self.in_stderr_silence
         begin
           orig_stderr = $stderr.clone
