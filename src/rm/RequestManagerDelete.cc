@@ -527,9 +527,20 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     MarketPlaceApp * app = static_cast<MarketPlaceApp *>(object);
 
-    int mp_id = app->get_market_id();
+    int mp_id   = app->get_market_id();
+    int zone_id = app->get_zone_id();
 
     app->unlock();
+
+    if ( zone_id != nd.get_zone_id() )
+    {
+        std::ostringstream oss;
+
+        oss << "Marketapp can only be deleted from zone " << zone_id;
+        emsg = oss.str();
+
+        return -1;
+    }
 
     MarketPlace * mp = marketpool->get(mp_id, true);
 

@@ -16,8 +16,57 @@
 
 #include "MarketPlaceAppPool.h"
 #include "Nebula.h"
+#include "Client.h"
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int master_allocate(MarketPlaceApp * mp, string& error)
+{
+    Client * client = Client::client();
+
+    xmlrpc_c::value         result;
+    vector<xmlrpc_c::value> values;
+
+    std::string        mp_xml;
+    std::ostringstream oss("Cannot allocate marketapp at federation master: ");
+
+    mp->to_xml(mp_xml);
+
+    try
+    {
+        client->call(client->get_endpoint(),
+                "one.marketapp.allocatedb",
+                "ss",
+                &result,
+                client->get_oneauth().c_str(),
+                mp_xml.c_str());
+    }
+    catch (exception const& e)
+    {
+        oss << e.what();
+        error = oss.str();
+
+        return -1;
+    }
+
+    values = xmlrpc_c::value_array(result).vectorValueValue();
+
+    if ( xmlrpc_c::value_boolean(values[0]) == false )
+    {
+        std::string error_xml = xmlrpc_c::value_string(values[1]);
+
+        oss << error_xml;
+        error = oss.str();
+
+        return -1;
+    }
+
+    int oid = xmlrpc_c::value_int(values[1]);
+
+    return oid;
+}
+
 /* -------------------------------------------------------------------------- */
 
 int MarketPlaceAppPool:: allocate(
@@ -29,41 +78,27 @@ int MarketPlaceAppPool:: allocate(
             MarketPlaceAppTemplate * apptemplate,
             int                mp_id,
             const std::string& mp_name,
-            const std::string& mp_data,
             int *              oid,
             std::string&       error_str)
 {
     MarketPlaceApp * mp;
     MarketPlaceApp * mp_aux = 0;
 
-    Nebula&                   nd = Nebula::instance();
-    MarketPlaceManager * marketm = nd.get_marketm();
-
     std::string name;
 
     std::ostringstream oss;
 
-    if (Nebula::instance().is_federation_slave())
-    {
-        NebulaLog::log("ONE",Log::ERROR,
-                "MarketPlaceAppPool::allocate called, but this "
-                "OpenNebula is a federation slave");
-
-        return -1;
-    }
-
+    // -------------------------------------------------------------------------
+    // Build the marketplace app object
+    // -------------------------------------------------------------------------
     mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
 
     mp->market_id   = mp_id;
     mp->market_name = mp_name;
+    mp->zone_id     = Nebula::instance().get_zone_id();
 
     mp->state = MarketPlaceApp::INIT;
 
-    mp->remove_template_attribute("IMPORTED");
-
-    // -------------------------------------------------------------------------
-    // Check name & duplicates
-    // -------------------------------------------------------------------------
     mp->get_template_attribute("NAME", name);
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
@@ -78,26 +113,24 @@ int MarketPlaceAppPool:: allocate(
         goto error_duplicated;
     }
 
-    *oid = PoolSQL::allocate(mp, error_str);
-
-    if ( *oid != -1 )
+    if ( mp->parse_template(error_str) != 0 )
     {
-        if (marketm->import_app(*oid, mp_data, error_str) == -1)
-        {
-            MarketPlaceApp * app = get(*oid, true);
-
-            if ( app != 0 )
-            {
-                string aux_str;
-
-                drop(app, aux_str);
-
-                app->unlock();
-            }
-
-            *oid = -1;
-        }
+        goto error_template;
     }
+
+    // -------------------------------------------------------------------------
+    // Insert the object in the Database
+    // -------------------------------------------------------------------------
+    if (Nebula::instance().is_federation_slave())
+    {
+        *oid = master_allocate(mp, error_str);
+
+        delete mp;
+
+        return *oid;
+    }
+
+    *oid = PoolSQL::allocate(mp, error_str);
 
     return *oid;
 
@@ -106,6 +139,7 @@ error_duplicated:
     error_str = oss.str();
 
 error_name:
+error_template:
     delete mp;
     *oid = -1;
 
@@ -119,11 +153,43 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "MarketPlaceAppPool::drop called, but this "
-                "OpenNebula is a federation slave");
+        Client * client = Client::client();
 
-        return -1;
+        xmlrpc_c::value result;
+        vector<xmlrpc_c::value> values;
+
+        std::ostringstream oss("Cannot drop marketapp at federation master: ");
+
+        try
+        {
+            client->call(client->get_endpoint(),
+                    "one.marketapp.dropdb",
+                    "si",
+                    &result,
+                    client->get_oneauth().c_str(),
+                    objsql->get_oid());
+        }
+        catch (exception const& e)
+        {
+            oss << e.what();
+
+            error_msg = oss.str();
+            return -1;
+        }
+
+        values = xmlrpc_c::value_array(result).vectorValueValue();
+
+        if ( xmlrpc_c::value_boolean(values[0]) == false )
+        {
+            std::string error = xmlrpc_c::value_string(values[1]);
+
+            oss << error;
+
+            error_msg = oss.str();
+            return -1;
+        }
+
+        return 0;
     }
 
     return PoolSQL::drop(objsql, error_msg);
@@ -135,13 +201,14 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         const std::string& mp_name, std::string& error_str)
 {
+    // -------------------------------------------------------------------------
+    // Build the marketplace app object
+    // -------------------------------------------------------------------------
     MarketPlaceApp * app = new MarketPlaceApp(UserPool::ONEADMIN_ID,
-        GroupPool::ONEADMIN_ID, UserPool::oneadmin_name,
-        GroupPool::ONEADMIN_NAME, 0133, 0);
+        GroupPool::ONEADMIN_ID, UserPool::oneadmin_name, GroupPool::ONEADMIN_NAME
+        ,0133, 0);
 
-    int rc = app->from_template64(t64, error_str);
-
-    if ( rc != 0 )
+    if ( app->from_template64(t64, error_str) != 0 )
     {
         delete app;
         return -1;
@@ -149,6 +216,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     app->market_id   = mp_id;
     app->market_name = mp_name;
+	app->zone_id     = Nebula::instance().get_zone_id();
 
     if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
     {
@@ -166,11 +234,22 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     MarketPlaceApp * mp_aux = get(app->name, 0, false);
 
-    if( mp_aux != 0 )
+    if( mp_aux != 0 ) //Marketplace app already imported
     {
-        //Marketplace app already imported
         delete app;
         return -2;
+    }
+
+    // -------------------------------------------------------------------------
+    // Insert the object in the Database
+    // -------------------------------------------------------------------------
+    if (Nebula::instance().is_federation_slave())
+    {
+        int oid = master_allocate(app, error_str);
+
+        delete app;
+
+        return oid;
     }
 
     return PoolSQL::allocate(app, error_str);
@@ -183,11 +262,45 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "MarketPlaceAppPool::update called, but this "
-                "OpenNebula is a federation slave");
+        std::string tmpl_xml;
+        Client * client = Client::client();
 
-        return -1;
+        xmlrpc_c::value result;
+        vector<xmlrpc_c::value> values;
+
+        std::ostringstream oss("Cannot update marketapp at federation master: ");
+
+        try
+        {
+            client->call(client->get_endpoint(),
+                    "one.marketapp.updatedb",
+                    "sis",
+                    &result,
+                    client->get_oneauth().c_str(),
+                    objsql->get_oid(),
+                    objsql->to_xml(tmpl_xml).c_str());
+        }
+        catch (exception const& e)
+        {
+            oss << e.what();
+            NebulaLog::log("MKP", Log::ERROR, oss);
+
+            return -1;
+        }
+
+        values = xmlrpc_c::value_array(result).vectorValueValue();
+
+        if ( xmlrpc_c::value_boolean(values[0]) == false )
+        {
+            std::string error = xmlrpc_c::value_string(values[1]);
+
+            oss << error;
+            NebulaLog::log("MKP", Log::ERROR, oss);
+
+            return -1;
+        }
+
+        return 0;
     }
 
     return PoolSQL::update(objsql);

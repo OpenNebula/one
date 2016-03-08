@@ -20,34 +20,6 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-RequestManagerProxy::RequestManagerProxy(string _method)
-    :Request("RequestManagerProxy", "?",
-            "Forwards the request to another OpenNebula")
-{
-    Nebula& nd = Nebula::instance();
-
-    long long msg_size;
-    const string& master_endpoint = nd.get_master_oned();
-
-    nd.get_configuration_attribute("MESSAGE_SIZE", msg_size);
-
-    method = _method;
-    client = new Client("none", master_endpoint, msg_size);
-
-    method_name = ("RequestManagerProxy." + method);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-RequestManagerProxy::~RequestManagerProxy()
-{
-    delete client;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
         RequestAttributes& att)
 {
@@ -55,6 +27,8 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
 
     try
     {
+        Client * client = Client::client();
+
         client->call(client->get_endpoint(), method, _paramList, &return_value);
 
         *(att.retval) = return_value;
@@ -68,10 +42,4 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-void RequestManagerProxy::hide_argument(int arg)
-{
-    hidden_params.insert(arg);
-}
-
 

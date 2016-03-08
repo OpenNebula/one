@@ -30,108 +30,90 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+Client * Client::_client = 0;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Client::set_one_auth(string secret)
+Client::Client(const string& secret, const string& endpoint, size_t message_size)
 {
-    if (secret.empty())
+    string error;
+    char * xmlrpc_env;
+
+    if (!secret.empty())
     {
-        read_oneauth(secret);
+        one_auth = secret;
+    }
+    else if (read_oneauth(one_auth, error) != 0 )
+    {
+        NebulaLog::log("XMLRPC", Log::ERROR, error);
+        throw runtime_error(error);
     }
 
-    one_auth = secret;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Client::read_oneauth(string &secret)
-{
-    ostringstream oss;
-    string        one_auth_file;
-
-    const char *  one_auth_env;
-    ifstream      file;
-
-    int rc = -1;
-
-    // Read $ONE_AUTH file and copy its contents into secret.
-    one_auth_env = getenv("ONE_AUTH");
-
-    if (!one_auth_env)
+    if(!endpoint.empty())
     {
-        // If $ONE_AUTH doesn't exist, read $HOME/.one/one_auth
+        one_endpoint = endpoint;
+    }
+    else if ( (xmlrpc_env = getenv("ONE_XMLRPC"))!= 0 )
+    {
+        one_endpoint = xmlrpc_env;
+    }
+    else
+    {
+        one_endpoint = "http://localhost:2633/RPC2";
+    }
+
+    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Client::read_oneauth(string &secret, string& error_msg)
+{
+    string   one_auth_file;
+    ifstream file;
+
+    const char *  one_auth_env = getenv("ONE_AUTH");
+
+    if (!one_auth_env) //No $ONE_AUTH, read $HOME/.one/one_auth
+    {
         struct passwd * pw_ent;
 
         pw_ent = getpwuid(getuid());
 
-        if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
+        if ((pw_ent == NULL) || (pw_ent->pw_dir == NULL))
         {
-            one_auth_file = pw_ent->pw_dir;
-            one_auth_file += "/.one/one_auth";
+            error_msg = "Could not get one_auth file location";
+            return -1;
+        }
 
-            one_auth_env = one_auth_file.c_str();
-        }
-        else
-        {
-            oss << "Could not get one_auth file location";
-        }
+        one_auth_file = pw_ent->pw_dir;
+        one_auth_file += "/.one/one_auth";
+
+        one_auth_env = one_auth_file.c_str();
     }
 
     file.open(one_auth_env);
 
-    if (file.good())
+    if (!file.good())
     {
-        getline(file, secret);
-
-        if (file.fail())
-        {
-            oss << "Error reading file: " << one_auth_env;
-        }
-        else
-        {
-            rc = 0;
-        }
+        error_msg = "Could not open file " + one_auth_file;
+        return -1;
     }
-    else
+
+    getline(file, secret);
+
+    if (file.fail())
     {
-        oss << "Could not open file: " << one_auth_env;
+        error_msg = "Error reading file " + one_auth_file;
+
+        file.close();
+        return -1;
     }
 
     file.close();
 
-    if (rc != 0)
-    {
-        NebulaLog::log("XMLRPC",Log::ERROR,oss);
-        throw runtime_error( oss.str() );
-    }
+    return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Client::set_one_endpoint(string endpoint)
-{
-    one_endpoint = "http://localhost:2633/RPC2";
-
-    if(endpoint != "")
-    {
-        one_endpoint = endpoint;
-    }
-    else
-    {
-        char *  xmlrpc_env;
-        xmlrpc_env = getenv("ONE_XMLRPC");
-
-        if ( xmlrpc_env != 0 )
-        {
-            one_endpoint = xmlrpc_env;
-        }
-    }
-
-    // TODO Check url format, and log error (if any)
-}
-
-
 

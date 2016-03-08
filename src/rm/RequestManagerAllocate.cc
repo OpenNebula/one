@@ -896,11 +896,17 @@ int MarketPlaceAppAllocate::pool_allocate(
         int&                        id,
         RequestAttributes&          att)
 {
-    MarketPlaceAppPool *     appool = static_cast<MarketPlaceAppPool *>(pool);
-    MarketPlaceAppTemplate * ttmpl  = static_cast<MarketPlaceAppTemplate *>(tmpl);
+    MarketPlaceManager*    marketm = Nebula::instance().get_marketm();
 
-    int mp_id = xmlrpc_c::value_int(paramList.getInt(2));
+    MarketPlaceAppPool*     appool = static_cast<MarketPlaceAppPool *>(pool);
+    MarketPlaceAppTemplate* ttmpl  = static_cast<MarketPlaceAppTemplate *>(tmpl);
 
+    int         mp_id = xmlrpc_c::value_int(paramList.getInt(2));
+    std::string mp_data;
+
+    // ---------------------------------------------------------------------- //
+    // Get Marketplace information for this app                               //
+    // ---------------------------------------------------------------------- //
     MarketPlace * mp = mppool->get(mp_id, true);
 
     if ( mp == 0 )
@@ -910,7 +916,6 @@ int MarketPlaceAppAllocate::pool_allocate(
     }
 
     std::string mp_name = mp->get_name();
-    std::string mp_data;
 
     if ( !mp->is_action_supported(MarketPlaceApp::CREATE) )
     {
@@ -920,28 +925,63 @@ int MarketPlaceAppAllocate::pool_allocate(
         return -1;
     }
 
+    if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
+    {
+        att.resp_msg = "Marketplace is not in this OpenNebula zone";
+        mp->unlock();
+
+        return -1;
+    }
+
     mp->to_xml(mp_data);
 
     mp->unlock();
 
+    // ---------------------------------------------------------------------- //
+    // Allocate MarketPlaceApp request is forwarded to master for slaves      //
+    // ---------------------------------------------------------------------- //
     int rc = appool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        ttmpl, mp_id, mp_name, mp_data, &id, att.resp_msg);
+                ttmpl, mp_id, mp_name, &id, att.resp_msg);
 
-	if (rc < 0)
-	{
-		return rc;
-	}
+    if (rc < 0)
+    {
+        return rc;
+    }
 
     mp = mppool->get(mp_id, true);
 
-    if ( mp != 0 )  // TODO: error otherwise or leave app in ERROR?
+    if ( mp == 0 )
     {
-        mp->add_marketapp(id);
+        att.resp_msg = "Marketplace no longer exists";
 
-        mppool->update(mp);
+        MarketPlaceApp * app = appool->get(id, true);
 
-        mp->unlock();
+        if ( app != 0 )
+        {
+            string aux_str;
+
+            appool->drop(app, aux_str);
+
+            app->unlock();
+        }
+
+        return -1;
     }
 
-    return rc;
+    mp->add_marketapp(id);
+
+    mppool->update(mp);
+
+    mp->unlock();
+
+    // ---------------------------------------------------------------------- //
+    // Send request operation to market driver                                //
+    // ---------------------------------------------------------------------- //
+    if (marketm->import_app(id, mp_data, att.resp_msg) == -1)
+    {
+        return -1;
+    }
+
+    return 0;
 }
+

@@ -128,7 +128,7 @@ static void monitor_action(
         return;
     }
 
-    name = market->get_name();
+    name    = market->get_name();
 
     market->update_monitor(monitor_data);
 
@@ -153,11 +153,14 @@ static void monitor_action(
         {
             MarketPlace * market = marketpool->get(id, true);
 
-            market->add_marketapp(rc);
+            if ( market != 0 )
+            {
+                market->add_marketapp(rc);
 
-            marketpool->update(market);
+                marketpool->update(market);
 
-            market->unlock();
+                market->unlock();
+            }
         }
     }
 
@@ -333,7 +336,7 @@ error_parse_template:
 
 error_attributes:
     app_failure_action(0, apppool, id,
-        "Error importing app into marketplace. Missing app atributes.");
+        "Error importing app into marketplace. Missing app attributes.");
     return -1;
 
 error_app:
