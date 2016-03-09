@@ -90,7 +90,7 @@ define(function(require) {
     }
   }
 
-  $(document).foundation();
+  //$(document).foundation();
 
   function generate_cardinality_selector(context, role_template, template_json) {
     context.off();
@@ -209,18 +209,18 @@ define(function(require) {
       }
 
       if (max_vms > min_vms) {
-        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
-        context.foundation();
-        $( ".cardinality_slider_div", context).show();
-        $( ".cardinality_no_slider_div", context).hide();
-
-        $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
-
-        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-          $(".cardinality_value",context).html($(this).attr('data-slider'))
-          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
-          $(".cost_value", context).html(cost_value.toFixed(2));
-        });
+//TODO        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
+//TODO        context.foundation();
+//TODO        $( ".cardinality_slider_div", context).show();
+//TODO        $( ".cardinality_no_slider_div", context).hide();
+//TODO
+//TODO        $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
+//TODO
+//TODO        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
+//TODO          $(".cardinality_value",context).html($(this).attr('data-slider'))
+//TODO          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
+//TODO          $(".cost_value", context).html(cost_value.toFixed(2));
+//TODO        });
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();
@@ -1267,7 +1267,7 @@ define(function(require) {
 
             })
 
-            $(document).foundation();
+            //$(document).foundation();
           }
         })
 
