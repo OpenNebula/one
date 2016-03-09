@@ -45,6 +45,7 @@ define(function(require) {
   function generate_provision_templates_list(context, opts) {
     context.off();
     context.html(html(opts));
+    Foundation.reflow(context, 'accordion');
     setup_provision_templates_list(context, opts);
   }
 
@@ -390,7 +391,7 @@ define(function(require) {
 
     OpenNebula.Action.clear_cache("VMTEMPLATE");
     update_provision_templates_datatable(provision_templates_datatable, 0);
-    context.foundation();
+    // context.foundation();
   }
 
   function get_provision_disk_image(data) {

@@ -49,6 +49,8 @@ define(function(require) {
     context.off();
     context.html(html(opts));
 
+    Foundation.reflow(context, 'accordion');
+    
     if (opts.data) {
       $(".provision_vms_table", context).data("opennebula", opts.data)
     }
@@ -230,7 +232,7 @@ define(function(require) {
     OpenNebula.Action.clear_cache("VM");
     update_provision_vms_datatable(provision_vms_datatable, 0);
 
-    $(document).foundation();
+    // $(document).foundation();
   }
 
   function setup_info_vm(context) {

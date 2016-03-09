@@ -45,6 +45,7 @@ define(function(require) {
   function generate_provision_flows_list(context, opts) {
     context.off();
     context.html(html(opts));
+    Foundation.reflow(context, 'accordion');
     setup_provision_flows_list(context, opts);
     setup_info_flow(context);
   }
@@ -256,7 +257,7 @@ define(function(require) {
     OpenNebula.Action.clear_cache("SERVICE");
     update_provision_flows_datatable(provision_flows_datatable, 0);
 
-    $(document).foundation();
+    //$(document).foundation();
   }
 
   function setup_info_flow(context) {
@@ -466,16 +467,16 @@ define(function(require) {
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
         '</div>');
 
-      context.foundation('slider', 'reflow');
+      //TODO context.foundation('slider', 'reflow');
       if (max_vms > min_vms) {
-        $( ".cardinality_slider_div", context).show();
-        $( ".cardinality_no_slider_div", context).hide();
-
-        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';');
-        $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
-        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-          $(".cardinality_value",context).html($(this).attr('data-slider'))
-        });
+// TODO        $( ".cardinality_slider_div", context).show();
+// TODO        $( ".cardinality_no_slider_div", context).hide();
+// TODO
+// TODO        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';');
+// TODO        $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
+// TODO        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
+// TODO          $(".cardinality_value",context).html($(this).attr('data-slider'))
+// TODO        });
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();

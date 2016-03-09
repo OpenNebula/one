@@ -1,0 +1,25 @@
+.accordion_list {
+  .accordion-item {
+    &.is-active {
+      .only-not-active {
+        display: none;
+      }
+    }
+    &:not(.is-active) {
+      .only-active {
+        display: none;
+      }
+    }
+  }
+
+  .provision-search-input {
+    width: 25%;
+    vertical-align: middle;
+    display: inline;
+  }
+
+  .resource_list_select {
+    width: auto;
+    vertical-align: middle;
+  }
+}
