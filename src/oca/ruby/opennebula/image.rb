@@ -254,56 +254,6 @@ module OpenNebula
         end
 
         #######################################################################
-        # OCA specific methods
-        #######################################################################
-
-        # Invokes 'download.sh' to copy the image to the specified path
-        # It calls the <ds_mad>/export action and downloader.sh
-        #
-        # @param path The destination of the downloader.sh action
-        # @param client The request client
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success or Error
-        def download(path, client)
-            rc = info
-            return rc if OpenNebula.is_error?(rc)
-
-            ds_id = self['DATASTORE_ID']
-            ds    = Datastore.new(Datastore.build_xml(ds_id), client)
-
-            rc = ds.info
-            return rc if OpenNebula.is_error?(rc)
-
-            drv_message    = "<DS_DRIVER_ACTION_DATA>" <<
-                             "#{to_xml}#{ds.to_xml}" <<
-                             "</DS_DRIVER_ACTION_DATA>"
-
-            drv_message_64 = Base64::strict_encode64(drv_message)
-
-            export = "#{VAR_LOCATION}/remotes/datastore/#{ds['DS_MAD']}/export"
-
-            export_stdout = `#{export} #{drv_message_64} #{id}`
-            doc = REXML::Document.new(export_stdout).root
-
-            import_source = doc.elements['IMPORT_SOURCE'].text rescue nil
-
-            if import_source.nil? || import_source.empty?
-                return OpenNebula::Error.new("Cannot find image source.")
-            end
-
-            download_cmd = "#{VAR_LOCATION}/remotes/datastore/downloader.sh " <<
-                           "#{import_source} #{path}"
-
-            system(download_cmd)
-
-            if (status = $?.exitstatus) != 0
-                error_msg = "Error executing '#{download_cmd}'. " <<
-                            "Exit status: #{status}"
-                return OpenNebula::Error.new(error_msg)
-            end
-        end
-
-        #######################################################################
         # Helpers to get Image information
         #######################################################################
 

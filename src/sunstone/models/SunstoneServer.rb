@@ -215,6 +215,82 @@ class SunstoneServer < CloudServer
     end
 
     ############################################################################
+    #
+    ############################################################################
+    def download_resource(kind, id)
+        case kind
+        when "image"
+            # Get Image
+            image = Image.new(Image.build_xml(id.to_i), @client)
+            rc    = image.info
+
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+
+            # Get Datastore
+            ds_id = image['DATASTORE_ID']
+
+            ds = Datastore.new(Datastore.build_xml(ds_id), @client)
+            rc = ds.info
+
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+
+            # Build Driver message
+            drv_message    = "<DS_DRIVER_ACTION_DATA>" <<
+                             "#{image.to_xml}#{ds.to_xml}" <<
+                             "</DS_DRIVER_ACTION_DATA>"
+
+            drv_message_64 = Base64::strict_encode64(drv_message)
+
+            begin
+                export = "#{VAR_LOCATION}/remotes/datastore/#{ds['DS_MAD']}/export"
+
+                export_stdout = `#{export} #{drv_message_64} #{id}`
+
+                doc = REXML::Document.new(export_stdout).root
+
+                source = doc.elements['IMPORT_SOURCE'].text
+            rescue Exception => e
+                return [500, "#{e.message}\n#{e.backtrace}"]
+            end
+        when "marketplaceapp"
+            # Get MarketPlaceApp
+            marketapp = MarketPlaceApp.new(MarketPlaceApp.build_xml(id.to_i), @client)
+
+            rc    = marketapp.info
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+
+            # Get Datastore
+            market_id = marketapp['MARKETPLACE_ID']
+
+            market = MarketPlace.new(MarketPlace.build_xml(market_id), @client)
+            rc     = market.info
+
+            return [500, rc.message] if OpenNebula.is_error?(rc)
+
+            # Build Driver message
+            drv_message    = "<DS_DRIVER_ACTION_DATA>" <<
+                             "#{market.to_xml}" <<
+                             "</DS_DRIVER_ACTION_DATA>"
+
+            drv_message_64 = Base64::strict_encode64(drv_message)
+
+            source = marketapp['SOURCE']
+
+        else
+            return [404, "Unknown resource."]
+        end
+
+        download_cmd =  "DRV_ACTION=#{drv_message_64} "<<
+                        "#{VAR_LOCATION}/remotes/datastore/downloader.sh " <<
+                        "#{source} -"
+
+
+        filename = "one-#{kind}-#{id}"
+
+        return [download_cmd, filename]
+    end
+
+    ############################################################################
     # Unused
     ############################################################################
     def get_vm_log(id)

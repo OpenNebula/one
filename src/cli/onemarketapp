@@ -131,9 +131,11 @@ CommandParser::CmdParser.new(ARGV) do
         Downloads a MarketApp to a file
     EOT
 
-    command :download, download_desc, :appid, :path do
+    command :download, download_desc, :appid, :path,
+        :options => [OpenNebulaHelper::FORCE] do
         helper.perform_action(args[0],options,"downloaded") do |app|
-            app.download(args[1], helper.client)
+            download_args = [:marketplaceapp, args[0], args[1], options[:force]]
+            OpenNebulaHelper.download_resource_sunstone(*download_args)
         end
     end
 
