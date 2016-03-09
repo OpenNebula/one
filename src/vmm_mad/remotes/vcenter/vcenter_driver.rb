@@ -1927,6 +1927,8 @@ private
             context_vnc_spec = {:extraConfig =>config_array}
         end
 
+        device_change = []
+
         # NIC section, build the reconfig hash
 
         nics     = xml.root.get_elements("//TEMPLATE/NIC")
@@ -1941,7 +1943,7 @@ private
                nic_array << calculate_addnic_spec(vm, mac, bridge, model)
             }
 
-            nic_spec = {:deviceChange => nic_array}
+            device_change += nic_array
         end
 
         # DISK section, build the reconfig hash
@@ -1958,7 +1960,7 @@ private
                disk_array += attach_disk("", "", ds_name, img_name, 0, vm, connection)[:deviceChange]
             }
 
-            disk_spec = {:deviceChange => disk_array}
+            device_change += disk_array
         end
 
         # Capacity section
@@ -1969,7 +1971,11 @@ private
                          :memoryMB => memory }
 
         # Perform the VM reconfiguration
-        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec).merge(disk_spec)
+        spec_hash = context_vnc_spec.merge(capacity_spec)
+        if device_change.length > 0
+            spec_hash.merge!({ :deviceChange => device_change })
+        end
+
         spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
