@@ -152,7 +152,7 @@ class VIClient
     end
 
     ########################################################################
-    # The associated cluster for this connection
+    # Is this Cluster confined in a resource pool?
     ########################################################################
     def rp_confined?
        !@one_host["TEMPLATE/VCENTER_RESOURCE_POOL"].nil?
@@ -193,6 +193,7 @@ class VIClient
     ########################################################################
     def find_resource_pool(poolName)
         baseEntity = @cluster
+
         entityArray = poolName.split('/')
         entityArray.each do |entityArrItem|
           if entityArrItem != ''
@@ -285,6 +286,9 @@ class VIClient
             ccrs.each { |c|
                 if !hpool["HOST[NAME=\"#{c.name}\"]"]
                     vc_hosts[dc.name] << c.name
+
+
+                    
                 end
               }
         }
@@ -937,6 +941,63 @@ class VCenterHost < ::OpenNebula::Host
         str_info << "TOTALMEMORY=" << total_mem.to_s << "\n"
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s
+
+        str_info << monitor_resource_pools(@cluster.resourcePool, "", mhz_core)
+    end
+
+    ############################################################################
+    # Generate an OpenNebula monitor string for all resource pools of a cluster
+    # Reference:
+    # http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc
+    # /vim.ResourcePool.html
+    ############################################################################
+    def monitor_resource_pools(parent_rp, parent_prefix, mhz_core)
+        return if parent_rp.resourcePool.size == 0
+
+        rp_info = ""
+
+        parent_rp.resourcePool.each{|rp|
+            rpcpu     = rp.config.cpuAllocation
+            rpmem     = rp.config.memoryAllocation
+            # CPU
+            cpu_expandable   = rpcpu.expandableReservation ? "YES" : "NO"
+            cpu_limit        = rpcpu.limit == "-1" ? "UNLIMITED" : rpcpu.limit
+            cpu_reservation  = rpcpu.reservation
+            cpu_num          = rpcpu.reservation.to_f / mhz_core
+            cpu_shares_level = rpcpu.shares.level
+            cpu_shares       = rpcpu.shares.shares
+
+            # MEMORY
+            mem_expandable   = rpmem.expandableReservation ? "YES" : "NO"
+            mem_limit        = rpmem.limit == "-1" ? "UNLIMITED" : rpmem.limit
+            mem_reservation  = rpmem.reservation.to_f
+            mem_shares_level = rpmem.shares.level
+            mem_shares       = rpmem.shares.shares
+
+            rp_name          = (parent_prefix.empty? ? "" : parent_prefix + "/")
+            rp_name         += rp.name
+
+            rp_info << "\nRESOURCE_POOL = ["
+            rp_info << "NAME=#{rp_name},"
+            rp_info << "CPU_EXPANDABLE=#{cpu_expandable},"
+            rp_info << "CPU_LIMIT=#{cpu_limit},"
+            rp_info << "CPU_RESERVATION=#{cpu_reservation},"
+            rp_info << "CPU_RESERVATION_NUM_CORES=#{cpu_num},"
+            rp_info << "CPU_SHARES=#{cpu_shares},"
+            rp_info << "CPU_SHARES_LEVEL=#{cpu_shares_level},"
+            rp_info << "MEM_EXPANDABLE=#{mem_expandable},"
+            rp_info << "MEM_LIMIT=#{mem_limit},"
+            rp_info << "MEM_RESERVATION=#{mem_reservation},"
+            rp_info << "MEM_SHARES=#{mem_shares},"
+            rp_info << "MEM_SHARES_LEVEL=#{mem_shares_level}"
+            rp_info << "]"
+
+            if rp.resourcePool.size != 0
+               rp_info << monitor_resource_pools(rp, rp_name, mhz_core)
+            end
+        }
+
+        return rp_info
     end
 
     ############################################################################
@@ -1709,9 +1770,13 @@ private
     def self.clone_vm(xml_text, hostname, datastore)
 
         host_id = VCenterDriver::VIClient.translate_hostname(hostname)
+
         # Retrieve hostname
+
         host  =  OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new())
         host.info   # Not failing if host retrieval fails
+
+        # Get VM prefix name
 
         if host["/HOST/TEMPLATE/VM_PREFIX"] and !host["/HOST/TEMPLATE/VM_PREFIX"].empty?
             vmname_prefix = host["/HOST/TEMPLATE/VM_PREFIX"]
@@ -1720,7 +1785,7 @@ private
         end
 
         xml = REXML::Document.new xml_text
-        pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
+        pcs = xml.root.get_elements("/VM/USER_TEMPLATE/PUBLIC_CLOUD")
 
         raise "Cannot find VCenter element in VM template." if pcs.nil?
 
@@ -1730,6 +1795,7 @@ private
         }
 
         # If there are multiple vcenter templates, find the right one
+
         if template.is_a? Array
             all_vcenter_templates = template.clone
             # If there is more than one coincidence, pick the first one
@@ -1758,18 +1824,36 @@ private
         vmid         =  xml.root.elements["/VM/ID"].text
         vmname_prefix.gsub!("$i", vmid)
         vcenter_name = "#{vmname_prefix}#{xml.root.elements["/VM/NAME"].text}"
-        hid          = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
+        hid          = xml.root.elements["/VM/HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        context     = xml.root.elements["//TEMPLATE/CONTEXT"]
+        context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
+        # Find out requested and available resource pool
+
+        req_rp = nil
+        if !template.elements["RESOURCE_POOL"].nil?
+            req_rp = template.elements["RESOURCE_POOL"].text
+        end
+
         if connection.rp_confined?
             rp = connection.resource_pool.first
+            if req_rp && rp.name != req_rp
+                raise "Available resource pool in host [#{rp.name}]"\
+                      " does not match requested resource pool"\
+                      " [#{req_rp}]"
+            end
         else
-            rp = connection.default_resource_pool
+            if req_rp # if there is requested resource pool, retrieve it
+                rp = connection.find_resource_pool(req_rp)
+                raise "Cannot find resource pool "\
+                      "#{template.elements["RESOURCE_POOL"].text}" if !rp
+            else # otherwise, get the default resource pool
+                rp = connection.default_resource_pool
+            end
         end
 
         if datastore
@@ -1929,7 +2013,7 @@ private
 
         # NIC section, build the reconfig hash
 
-        nics     = xml.root.get_elements("//TEMPLATE/NIC")
+        nics     = xml.root.get_elements("/VM/TEMPLATE/NIC")
         nic_spec = {}
 
         if !nics.nil?
@@ -1946,7 +2030,7 @@ private
 
         # DISK section, build the reconfig hash
 
-        disks     = xml.root.get_elements("//TEMPLATE/DISK")
+        disks     = xml.root.get_elements("/VM/TEMPLATE/DISK")
         disk_spec = {}
 
         if !disks.nil?
@@ -1963,8 +2047,8 @@ private
 
         # Capacity section
 
-        cpu           = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
-        memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
+        cpu           = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
+        memory        = xml.root.elements["/VM/TEMPLATE/MEMORY"].text
         capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
 
