@@ -116,32 +116,32 @@ define(function(require) {
         '<div class="large-12 columns">'+
           '<div class="row">'+
             '<div class="large-2 text-center columns">'+
-              '<span class="cardinality_value" style="color: #777; font-size:40px">'+role_template.cardinality+'</span>'+
+              '<span class="cardinality_value">'+role_template.cardinality+'</span>'+
               '<br>'+
-              '<span style="color: #999;">'+Locale.tr("VMs")+'</span>'+
+              '<span>'+Locale.tr("VMs")+'</span>'+
             '</div>'+
             '<div class="large-6 columns">'+
               '<div class="cardinality_slider_div">'+
-                '<span class="" style="color: #777;">'+Locale.tr("Change cardinality")+'</span>'+
+                '<span>'+Locale.tr("Change cardinality")+'</span>'+
                 '<br>'+
                 '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
                   '<span class="range-slider-handle"></span>'+
                   '<span class="range-slider-active-segment"></span>'+
                   '<input type="hidden">'+
                 '</div>'+
-                '<span class="left" style="color: #999;">'+min_vms+'</span>'+
-                '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+                '<span class="left">'+min_vms+'</span>'+
+                '<span class="right">'+max_vms+'</span>'+
               '</div>'+
               '<div class="cardinality_no_slider_div">'+
                 '<br>'+
                 '<br>'+
-                '<span class="" style="color: #999;">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
+                '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
               '</div>'+
             '</div>'+
             '<div class="large-4 columns text-center provision_create_service_cost_div" hidden>'+
-              '<span class="cost_value" style="color: #777; font-size:40px"></span>'+
+              '<span class="cost_value"></span>'+
               '<br>'+
-              '<span style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
+              '<span>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -256,14 +256,14 @@ define(function(require) {
             '</span>'+
             '<span>'+
               '<span class="cpu_value">'+(capacity.CPU ? capacity.CPU : '-')+'</span> '+
-              '<small style="color: #999; margin-right: 10px">'+Locale.tr("CPU")+'</small>'+
+              '<small>'+Locale.tr("CPU")+'</small>'+
               '<span class="memory_value">'+memory_value+'</span>'+
               ' '+
               '<span class="memory_unit">'+memory_unit+'</span> '+
-              '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
+              '<small>'+Locale.tr("MEMORY")+'</small>'+
               '<span class="provision_create_template_cost_div" hidden>' +
                 '<span class="cost_value">0.00</span> '+
-                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+                '<small>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
               '</span>'+
             '</span>'+
           '</h3>'+
@@ -273,12 +273,12 @@ define(function(require) {
       (Config.provision.create_vm.isEnabled("capacity_select") ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<dl class="accordion" data-accordion="provision_accordion_'+provision_capacity_accordion_id+'">'+
-            '<dd class="accordion-navigation">'+
-              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
+          '<dl class="accordion" data-accordion data-allow-all-closed="true">'+
+            '<dd class="accordion-item" data-accordion-item>'+
+              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-title">'+
                 Locale.tr("Change Capacity")+
               '</a>'+
-              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="content">'+
+              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-content" data-tab-content>'+
                 '<br>'+
                 CapacityInputs.html() +
               '</div>'+
@@ -289,6 +289,8 @@ define(function(require) {
       '<br>');
 
     if (Config.provision.create_vm.isEnabled("capacity_select")) {
+      Foundation.reflow(context, 'accordion');
+
       provision_capacity_accordion_id += 1;
 
       CapacityInputs.setup(context);
@@ -653,13 +655,13 @@ define(function(require) {
 
   function update_provision_flow_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<span class="fa-stack fa-5x">'+
         '<i class="fa fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
       '<br>'+
-      '<span style="font-size: 18px; color: #999">'+
+      '<span>'+
       '</span>'+
       '</div>');
 
@@ -670,13 +672,13 @@ define(function(require) {
           datatable.fnClearTable(true);
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no templates available")+
               '</span>'+
               '</div>');
@@ -801,7 +803,7 @@ define(function(require) {
                 '<img  src="'+data.TEMPLATE.LOGO+'">'+
               '</span>';
           } else {
-            logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
+            logo = '<span>'+
               '<i class="fa fa-fw fa-file-text-o"/>'+
             '</span>';
           }
@@ -821,14 +823,14 @@ define(function(require) {
                 '<li class="provision-title" title="'+data.NAME+'">'+
                   data.NAME+
                 '</li>'+
-                '<li style="height: 85px" class="provision-bullet-item">'+
+                '<li class="provision-bullet-item">'+
                   logo +
                 '</li>'+
                 '<li class="provision-description">'+
                   (data.TEMPLATE.DESCRIPTION || '...')+
                 '</li>'+
                 '<li class="text-right provision-bullet-item">'+
-                  '<span class="left" style="color: #999;">'+
+                  '<span class="left">'+
                     '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                     owner+
                   '</span>'+
@@ -843,13 +845,13 @@ define(function(require) {
           // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
           if (context.$('tr', {"filter": "applied"} ).length == 0) {
             context.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no templates available")+
               '</span>'+
               '</div>');
@@ -1070,13 +1072,13 @@ define(function(require) {
             // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
             if (this.$('tr', {"filter": "applied"} ).length == 0) {
               this.html('<div class="text-center">'+
-                '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<span class="fa-stack fa-5x">'+
                   '<i class="fa fa-cloud fa-stack-2x"></i>'+
                   '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
                 '</span>'+
                 '<br>'+
                 '<br>'+
-                '<span style="font-size: 18px; color: #999">'+
+                '<span>'+
                   Locale.tr("There are no templates available")+
                 '</span>'+
                 '</div>');
@@ -1095,7 +1097,7 @@ define(function(require) {
             if (body.roles) {
               $.each(body.roles, function(index, role) {
                 roles_li +=
-                  '<li class="provision-bullet-item text-left" style="margin-left: 10px;margin-right: 10px;">'+
+                  '<li class="provision-bullet-item text-left">'+
                     '<i class="fa fa-fw fa-cube"/>&emsp;'+
                     role.name+
                     '<span class="right">'+role.cardinality+" VMs</span>"+
@@ -1108,7 +1110,7 @@ define(function(require) {
                   '<img  src="'+body.LOGO+'">'+
                 '</span>';
             } else {
-              logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
+              logo = '<span>'+
                 '<i class="fa fa-fw fa-cubes"/>'+
               '</span>';
             }
@@ -1118,11 +1120,11 @@ define(function(require) {
                   '<li class="provision-title" title="'+data.NAME+'">'+
                     data.NAME+
                   '</li>'+
-                  '<li style="height: 85px" class="provision-bullet-item">'+
+                  '<li class="provision-bullet-item">'+
                     logo +
                   '</li>'+
                   roles_li +
-                  '<li class="provision-description" style="padding-top:0px">'+
+                  '<li class="provision-description">'+
                     (data.TEMPLATE.DESCRIPTION || '')+
                   '</li>'+
                 '</ul>'+
