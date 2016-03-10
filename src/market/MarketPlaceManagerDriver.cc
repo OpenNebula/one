@@ -360,7 +360,7 @@ static int delete_action(
     std::string source;
     std::string error;
 
-    std::ostringstream eoss("Error removing app from marketplace");
+    std::ostringstream eoss("Error removing app from marketplace", std::ios::ate);
 
     MarketPlaceApp * app = apppool->get(id, true);
 

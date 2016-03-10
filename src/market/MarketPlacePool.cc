@@ -141,7 +141,8 @@ int MarketPlacePool::allocate(
         vector<xmlrpc_c::value> values;
 
         std::string        mp_xml;
-        std::ostringstream oss("Cannot allocate market at federation master: ");
+        std::ostringstream oss("Cannot allocate market at federation master: ",
+                std::ios::ate);
 
         mp->to_xml(mp_xml);
         delete mp;

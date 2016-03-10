@@ -29,7 +29,8 @@ static int master_allocate(MarketPlaceApp * mp, string& error)
     vector<xmlrpc_c::value> values;
 
     std::string        mp_xml;
-    std::ostringstream oss("Cannot allocate marketapp at federation master: ");
+    std::ostringstream oss("Cannot allocate marketapp at federation master: ",
+            std::ios::ate);
 
     mp->to_xml(mp_xml);
 
@@ -158,7 +159,8 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
         xmlrpc_c::value result;
         vector<xmlrpc_c::value> values;
 
-        std::ostringstream oss("Cannot drop marketapp at federation master: ");
+        std::ostringstream oss("Cannot drop marketapp at federation master: ",
+                std::ios::ate);
 
         try
         {
@@ -268,7 +270,8 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
         xmlrpc_c::value result;
         vector<xmlrpc_c::value> values;
 
-        std::ostringstream oss("Cannot update marketapp at federation master: ");
+        std::ostringstream oss("Cannot update marketapp at federation master: ",
+                std::ios::ate);
 
         try
         {
