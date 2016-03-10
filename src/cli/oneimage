@@ -176,19 +176,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    download_desc = <<-EOT.unindent
-        Downloads an image to a file
-    EOT
-
-    command :download, download_desc, :imageid, :path,
-        :options => [OpenNebulaHelper::FORCE] do
-
-        helper.perform_action(args[0],options,"downloaded") do |image|
-            download_args = [:image, args[0], args[1], options[:force]]
-            OpenNebulaHelper.download_resource_sunstone(*download_args)
-        end
-    end
-
     delete_desc = <<-EOT.unindent
         Deletes the given Image
     EOT
