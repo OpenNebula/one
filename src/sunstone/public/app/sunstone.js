@@ -187,9 +187,6 @@ define(function(require) {
       $('div#menu ul#navigation').append(liItem);
     }
 
-    Foundation.reInit($('div#menu ul#navigation'));
-
-
     //if this is a submenu...
     //if (parent.length) {
     //  var children = $('div#menu ul#navigation #li_' + parent);
@@ -477,6 +474,8 @@ define(function(require) {
   }
 
   var _setupTabs = function() {
+    Foundation.reflow($('#menu'), 'accordion-menu');
+
     var topTabs = $(".left-content ul li.topTab");
     var subTabs = $(".left-content ul li.subTab > a");
 
