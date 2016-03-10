@@ -22,22 +22,22 @@
   </div>
   <div class="row">
     <div class="large-8 large-centered columns">
-      <input type="text" id="flow_name"  class="provision-input" placeholder="{{tr "Service Name"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+      <input type="text" id="flow_name"  class="provision-input" placeholder="{{tr "Service Name"}}"/>
     </div>
   </div>
   <div class="row">
     <div class="large-10 large-centered columns">
-      <dl class="accordion provision_accordion_flow_template" data-accordion="provision_accordion_flow_template">
-        <dd style="border-bottom: 1px solid #efefef;" class="active accordion-navigation">
-          <a href="#provision_dd_flow_template" style="background: #fff; font-size: 30px">
-            <span class="select_template" style="color:#555">{{tr "Select a Template"}}</span>
-            <span class="selected_template" style="display:none; color:#555">
-              <span class="provision-logo selected_template_logo" style="color:#555"></span>
-              <span class="selected_template_name" style="color:#555"></span>
-              <span class="has-tip right" style="cursor: pointer; margin-right:10px;"> <i class="fa fa-pencil"/></span>
+      <ul class="accordion provision_accordion_flow_template" data-accordion data-allow-all-closed="true">
+        <li class="is-active accordion-item" data-accordion-item>
+          <a href="#provision_dd_flow_template" class="accordion-title">
+            <span class="select_template">{{tr "Select a Template"}}</span>
+            <span class="selected_template">
+              <span class="provision-logo selected_template_logo"></span>
+              <span class="selected_template_name"></span>
+              <span class="has-tip right"> <i class="fa fa-pencil"/></span>
             </span>
           </a>
-          <div id="provision_dd_flow_template" class="provision_select_flow_template active content">
+          <div id="provision_dd_flow_template" class="provision_select_flow_template accordion-content" data-tab-content>
             <div class="row">
               <div class="large-12 large-centered columns">
                 <h3 class="subheader text-right">
@@ -59,8 +59,8 @@
               </div>
             </div>
           </div>
-        </dd>
-      </dl>
+        </li>
+      </ul>
     </div>
   </div>
   <br>
@@ -73,14 +73,12 @@
   <div class="row">
     <div class="provision_custom_attributes_selector large-9 large-centered columns"></div>
   </div>
-  <div id="provision_customize_flow_template" style="display: none"></div>
+  <div id="provision_customize_flow_template" hidden></div>
   <br>
   <br>
   <div class="row">
     <div class="large-7 columns large-centered">
-      <div data-alert class="alert-box alert-box-error radius text-center" hidden></div>
-      <button href="#" class="button large success radius large-12 small-12" type="submit" style="height: 59px">{{tr "Create"}}</button>
+      <div data-alert class="alert-box alert-box-error text-center" hidden></div>
+      <button href="#" class="button large success large-12 small-12" type="submit">{{tr "Create"}}</button>
     </div>
-  </div>
-  <br>
-  <br></form>
+  </div></form>

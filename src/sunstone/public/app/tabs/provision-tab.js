@@ -1351,6 +1351,8 @@ define(function(require) {
         $(".provision_create_flow_button").on("click", function(){
           show_provision_create_flow();
         });
+
+        Foundation.reflow($('#provision_create_flow'), 'accordion');
       }
     });
   }
