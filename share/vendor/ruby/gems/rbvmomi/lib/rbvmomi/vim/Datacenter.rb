@@ -14,3 +14,4 @@ class RbVmomi::VIM::Datacenter
     vmFolder.traverse path, RbVmomi::VIM::VirtualMachine
   end
 end
+

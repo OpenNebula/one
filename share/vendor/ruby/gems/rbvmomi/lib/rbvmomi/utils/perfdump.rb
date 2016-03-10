@@ -93,7 +93,8 @@ class PerfAggregator
               RbVmomi::VIM.SelectionSpec(:name => 'tsFolder'),
               RbVmomi::VIM.SelectionSpec(:name => 'tsDatacenterVmFolder'),
               RbVmomi::VIM.SelectionSpec(:name => 'tsDatacenterHostFolder'),
-              RbVmomi::VIM.SelectionSpec(:name => 'tsCluster'),
+              RbVmomi::VIM.SelectionSpec(:name => 'tsClusterRP'),
+              RbVmomi::VIM.SelectionSpec(:name => 'tsClusterHost'),
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
@@ -115,13 +116,20 @@ class PerfAggregator
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsCluster',
+            :name => 'tsClusterRP',
             :type => 'ClusterComputeResource',
             :path => 'resourcePool',
             :skip => false,
             :selectSet => [
               RbVmomi::VIM.SelectionSpec(:name => 'tsRP'),
             ]
+          ),
+          RbVmomi::VIM.TraversalSpec(
+            :name => 'tsClusterHost',
+            :type => 'ClusterComputeResource',
+            :path => 'host',
+            :skip => false,
+            :selectSet => []
           ),
           RbVmomi::VIM.TraversalSpec(
             :name => 'tsRP',
@@ -141,6 +149,7 @@ class PerfAggregator
           :pathSet => ['name', 'parent', 'summary.effectiveCpu', 'summary.effectiveMemory'] 
         },
         { :type => 'ResourcePool', :pathSet => ['name', 'parent'] },
+        { :type => 'HostSystem', :pathSet => ['name', 'parent', 'runtime.connectionState'] },
         { :type => 'VirtualMachine', :pathSet => vm_prop_names },
       ]
     )
@@ -316,9 +325,18 @@ class PerfAggregator
         'virtualDisk.totalWriteLatency' => :avg_ignore_zero,
       }
     end
+    host_perf_metrics = opts[:host_perf_metrics]
+    if !host_perf_metrics
+      host_perf_metrics = {
+        'cpu.usage' => :avg, 
+        'mem.usage' => :avg,
+      }
+    end
 
     vms_props, inventory = all_inventory_flat root_folder, prop_names
     vms = vms_props.keys
+    
+    hosts_props = inventory.select{|k, v| k.is_a?(VIM::HostSystem)}
 
     conn = root_folder._connection
     sc = conn.serviceContent
@@ -349,8 +367,31 @@ class PerfAggregator
       end
       raise
     end
+
+    connected_hosts = hosts_props.select do |k,v| 
+      v['runtime.connectionState'] != "disconnected"
+    end
+    if connected_hosts.length > 0
+      hosts_stats = pm.retrieve_stats(
+        connected_hosts.keys, host_perf_metrics.keys, 
+        :max_samples => 3
+      )
+    end
+    hosts_props.each do |host, props|
+      if !connected_hosts[host]
+        next
+      end
+      
+      stats = hosts_stats[host] || {}
+      stats = stats[:metrics] || {}
+      stats = _aggregate_metrics [stats], host_perf_metrics
+      props.merge!(stats)
+    end
     
     vms_props.each do |vm, props|
+      if !connected_vms.member?(vm)
+        next
+      end
       props['num.vm'] = 1
       powered_on = (props['runtime.powerState'] == 'poweredOn')
       props['num.poweredonvm'] = powered_on ? 1 : 0
@@ -392,25 +433,35 @@ class PerfAggregator
       props['vc_uuid'] = vc_uuid
     end
     
-    [vms_props, inventory]    
+    [vms_props, inventory, hosts_props]    
   end
   
   def collect_info_on_all_vms root_folders, opts = {}
     log "Fetching information from all VCs ..." 
     vms_props = {}
+    hosts_props = {}
     inventory = {}
     lock = Mutex.new
     root_folders.map do |root_folder|
       Thread.new do 
-        single_vms_props, single_inventory = 
-          _collect_info_on_all_vms_single(root_folder, opts)
-        
-        lock.synchronize do 
-          vms_props.merge!(single_vms_props)
-          if inventory['root']
-            single_inventory['root']['children'] += inventory['root']['children']
+        begin
+          single_vms_props, single_inventory, single_hosts_props = 
+            _collect_info_on_all_vms_single(root_folder, opts)
+          
+          lock.synchronize do 
+            vms_props.merge!(single_vms_props)
+            if inventory['root']
+              single_inventory['root']['children'] += inventory['root']['children']
+            end
+            inventory.merge!(single_inventory)
+            hosts_props.merge!(single_hosts_props)
           end
-          inventory.merge!(single_inventory)
+        rescue Exception => ex
+          log "#{ex.class}: #{ex.message}"
+          ex.backtrace.each do |line|
+            log line
+          end
+          raise
         end
       end
     end.each{|t| t.join}
@@ -418,6 +469,7 @@ class PerfAggregator
     log "Make data marshal friendly ..." 
     inventory = _make_marshal_friendly(inventory)
     vms_props = _make_marshal_friendly(vms_props)
+    hosts_props = _make_marshal_friendly(hosts_props)
 
     log "Perform external post processing ..." 
     if @vm_processing_callback
@@ -442,7 +494,11 @@ class PerfAggregator
     @inventory = inventory
     @vms_props = vms_props
     
-    nil
+    {
+      'inventory' => inventory, 
+      'vms_props' => vms_props, 
+      'hosts_props' => hosts_props,
+    }
   end
   
   def _make_marshal_friendly hash
