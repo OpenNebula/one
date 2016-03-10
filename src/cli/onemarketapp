@@ -88,7 +88,8 @@ CommandParser::CmdParser.new(ARGV) do
         Creates a new marketplace app in the given marketplace
     EOT
 
-    command :create, create_desc, :file, :options=>CREATE_OPTIONS do
+    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
+            OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
 
         if options[:marketplace].nil?
             STDERR.puts "Marketplace to save the app is mandatory: "
@@ -96,12 +97,35 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
+        if args[0] && OneMarketPlaceAppHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both template file and template"<<
+                " creation options."
+            next -1
+        end
+
         helper.create_resource(options) do |app|
             begin
-                template=File.read(args[0])
+                if args[0]
+                    template=File.read(args[0])
+                else
+                    res = OneMarketPlaceAppHelper.create_datastore_template(options)
+
+                    if res.first != 0
+                        STDERR.puts res.last
+                        next -1
+                    end
+
+                    template = res.last
+                end
+
+                if options[:dry]
+                    puts template
+                    exit 0
+                end
+
                 app.allocate(template, options[:marketplace])
             rescue => e
-                STDERR.puts e.messsage
+                STDERR.puts e.message
                 exit(-1)
             end
         end
