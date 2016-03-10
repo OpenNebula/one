@@ -150,7 +150,7 @@ define(function(require) {
             '</span>'+
             '</div>');
         } else {
-          $(".provision_vms_table", context).html('<div class="provision_vms_ul large-up-3 medium-up-3 small-up-1 text-center"></div>');
+          $(".provision_vms_table", context).html('<div class="provision_vms_ul large-up-3 medium-up-3 small-up-1"></div>');
         }
 
         return true;
@@ -161,14 +161,14 @@ define(function(require) {
 
         $(".provision_vms_ul", context).append('<div class="column">'+
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left">'+
+              '<li class="provision-title">'+
                 '<a class="provision_info_vm_button">'+
                 '<span class="'+ state.color +'-color" title="'+state.str+'">'+
                   '<i class="fa fa-fw fa-square"/> '+
                 '</span>'+
                 data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
@@ -177,12 +177,12 @@ define(function(require) {
                 ' - '+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span class="">'+
                   get_provision_ips(data) +
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item-last text-left" >'+
+              '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
@@ -371,16 +371,16 @@ define(function(require) {
           }
 
           $(".provision-pricing-table_vm_info", context).html(
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
                   '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<hr>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-laptop"/>&emsp;'+
                   'x'+data.TEMPLATE.CPU+' - '+
@@ -393,15 +393,15 @@ define(function(require) {
                   get_provision_disk_image(data) +
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span>'+
                   get_provision_ips(data) +
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<hr>'+
               '</li>'+
-              '<li class="text-right provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<span class="left">'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+

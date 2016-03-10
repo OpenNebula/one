@@ -162,7 +162,7 @@ define(function(require) {
             '<br>'+
             '</div>');
         } else {
-          $(".provision_flows_table", context).html('<div class="provision_flows_ul large-up-3 medium-up-3 small-up-1 text-center"></div>');
+          $(".provision_flows_table", context).html('<div class="provision_flows_ul large-up-3 medium-up-3 small-up-1"></div>');
         }
 
         return true;
@@ -183,7 +183,7 @@ define(function(require) {
             }
 
             roles_li +=
-              '<li class="provision-bullet-item text-left"">'+
+              '<li class="provision-bullet-item"">'+
                 '<i class="fa fa-fw fa-lg fa-cube"/>&emsp;'+
                 role.name+
                 '<span class="right">'+rvms.str+" VMs</span>"+
@@ -193,7 +193,7 @@ define(function(require) {
 
         $(".provision_flows_ul", context).append('<div class="column">'+
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left">'+
+              '<li class="provision-title">'+
                 '<a class="provision_info_flow_button" href="#">'+
                   '<span class="'+ state.color +'-color" title="'+ state.str +'">'+
                     '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
@@ -202,7 +202,7 @@ define(function(require) {
                 '</a>'+
               '</li>'+
               roles_li +
-              '<li class="provision-bullet-item-last text-right">'+
+              '<li class="provision-bullet-item-last">'+
                 '<span class="left">'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
@@ -311,16 +311,16 @@ define(function(require) {
           $(".provision_info_flow_name", context).text(data.NAME);
 
           $(".provision-pricing-table_flow_info", context).html(
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
                   '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<hr>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
@@ -345,27 +345,27 @@ define(function(require) {
               }
 
               var li = $(
-                '<li>'+
-                  '<ul class="provision_role_ul provision-pricing-table">'+
-                    '<li class="provision-title text-left">'+
+                '<div class="column">'+
+                  '<ul class="provision_role_ul provision-pricing-table menu vertical">'+
+                    '<li class="provision-title">'+
                       '<i class="fa fa-fw fa-cube"/>&emsp;'+
                       role.name+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left">'+
+                    '<li class="provision-bullet-item">'+
                       '<div class="progress small radius">'+
                       '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
                       '</div>'+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left">'+
+                    '<li class="provision-bullet-item">'+
                       '<span class="'+ role_state.color +'-color">'+
                         role_state.str+
                       '</span>'+
                       '<span class="right">'+rvms.str+" VMs</span>"+
                     '</li>'+
-                    '<li class="text-left provision-bullet-item">'+
+                    '<li class="provision-bullet-item">'+
                       '<br>'+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left">'+
+                    '<li class="provision-bullet-item">'+
                       '<a class="provision_role_vms_button button medium radius">'+
                         '<i class="fa fa-th fa-lg"></i>'+
                       '</a>'+
@@ -374,7 +374,7 @@ define(function(require) {
                       '</a>'+
                     '</li>'+
                   '</ul>'+
-                '</li>').appendTo($(".provision_roles_ul", context));
+                '</div>').appendTo($(".provision_roles_ul", context));
 
                 $(".provision_role_ul", li).data("role", role);
                 if (role_id && role_id == role.name) {
@@ -435,7 +435,7 @@ define(function(require) {
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<div class="row">'+
-                '<div class="large-4 text-center columns">'+
+                '<div class="large-4 columns">'+
                   '<span class="cardinality_value">'+role.cardinality+'</span>'+
                   '<br>'+
                   '<span>'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
