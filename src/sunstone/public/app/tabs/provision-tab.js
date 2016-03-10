@@ -1047,6 +1047,8 @@ define(function(require) {
           show_provision_create_vm();
         });
 
+        Foundation.reflow($('#provision_create_vm'), 'accordion');
+
 
         //
         // Create FLOW

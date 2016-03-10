@@ -17,32 +17,29 @@
   <div class="row">
     <div class="large-10 large-centered columns">
       <h2 class="subheader">{{tr "Create Virtual Machine"}}</h2>
-      <br>
-    </div>
+      <br></div>
   </div>
   <div class="row">
     <div class="large-8 large-centered columns">
-      <input type="text" id="vm_name"  class="provision-input" placeholder="{{tr "Virtual Machine Name"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
-      <br>
-    </div>
+      <input type="text" id="vm_name" class="provision-input" placeholder="{{tr "Virtual Machine Name"}}"/>
+      <br></div>
   </div>
   <div class="row">
     <div class="large-10 large-centered columns">
-      <dl class="accordion provision_accordion_template" data-accordion="provision_accordion_template">
-        <dd style="border-bottom: 1px solid #efefef;" class="active accordion-navigation">
-          <a href="#provision_dd_template" style="background: #fff; font-size: 30px">
-            <span class="select_template" style="color:#555">{{tr "Select a Template"}}</span>
-            <span class="selected_template" style="display:none; color:#555">
-              <span class="provision-logo selected_template_logo" style="line-height: 80px"></span>
+      <ul class="accordion provision_accordion_template" data-accordion data-allow-all-closed="true">
+        <li class="accordion-item is-active" data-accordion-item>
+          <a href="#provision_dd_template" class="accordion-title">
+            <span class="select_template">{{tr "Select a Template"}}</span>
+            <span class="selected_template" hidden>
+              <span class="provision-logo selected_template_logo"></span>
               <span class="selected_template_name"></span>
-              <span class="has-tip right" style="cursor: pointer; margin-right:10px; line-height: 80px"> <i class="fa fa-pencil"/></span>
+              <span class="has-tip right"> <i class="fa fa-pencil"/></span>
             </span>
           </a>
-          <div id="provision_dd_template" class="active content">
+          <div id="provision_dd_template" class="accordion-content" data-tab-content>
             <div class="row">
               <div class="medium-8 columns">
-                <button href="#"  data-options="align:right" data-dropdown="provisionVMInstantiateLabelsDropdown" class="right small secondary button dropdown radius">
-                  <i class="fa fa-tags"/> {{tr "Labels"}}
+                <button href="#"  data-options="align:right" data-dropdown="provisionVMInstantiateLabelsDropdown" class="right small secondary button dropdown"> <i class="fa fa-tags"/>{{tr "Labels"}}
                 </button>
                 <ul id="provisionVMInstantiateLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
                 <input type="search" class="right provision-search-input" placeholder="Search" id="provision_vm_instantiate_template_search"/>
@@ -72,11 +69,10 @@
               </div>
             </div>
           </div>
-        </dd>
-      </dl>
+        </li>
+      </ul>
     </div>
   </div>
-  <br>
   <div class="row">
     <div class="large-10 large-centered columns">
       <div class="provision_capacity_selector"></div>
@@ -88,15 +84,10 @@
       <div class="provision_custom_attributes_selector"></div>
     </div>
   </div>
-  <br>
-  <br>
-  <br>
   <div class="row">
     <div class="large-7 columns large-centered">
-      <div data-alert class="alert-box alert-box-error radius text-center" hidden></div>
-      <button href="#" class="button large success radius large-12 small-12" type="submit" style="height: 59px">{{tr "Create"}}</button>
+      <div data-alert class="alert-box alert-box-error text-center" hidden></div>
+      <button href="#" class="button large success large-12 small-12" type="submit">{{tr "Create"}}</button>
     </div>
   </div>
-  <br>
-  <br>
 </form>

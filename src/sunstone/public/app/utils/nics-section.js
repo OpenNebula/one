@@ -172,11 +172,11 @@ define(function(require) {
         '</span>';
     }
 
-    var dd_context = $('<dd style="border-bottom: 1px solid #efefef;" class="accordion-navigation">' +
-      '<a href="#provision_accordion_dd_' + provision_nic_accordion_dd_id + '" style="background: #fff; font-size: 24px">' +
+    var dd_context = $('<dd class="accordion-item" data-accordion-item>' +
+      '<a href="#provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="accordion-title">' +
         nic_span +
       '</a>' +
-      '<div id="provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="content">' +
+      '<div id="provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="accordion-content" data-tab-content>' +
         '<div class="row">' +
           '<div class="large-12 large-centered columns">' +
             '<h3 class="subheader text-right">' +
@@ -202,6 +202,8 @@ define(function(require) {
         '</div>' +
         '</div>' +
       '</dd>').appendTo(context);
+
+    Foundation.reInit(context);
 
     provision_nic_accordion_dd_id += 1;
 
@@ -367,15 +369,17 @@ define(function(require) {
       '</div>' +
       '<div class="row">' +
         '<div class="large-12 large-centered columns">' +
-          '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_' + provision_nic_accordion_id + '">' +
+          '<dl class="accordion provision_nic_accordion" data-accordion data-allow-all-closed="true">' +
           '</dl>' +
           '<br>' +
-          '<a class="button radius secondary provision_add_network_interface" style="width:inherit; padding: 1rem; color: #555; ' + (options.hide_add_button ? 'display:none;' : '') + '">' +
+          '<a class="button secondary provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
             Locale.tr("Add another Network Interface") +
           '</a>' +
         '</div>' +
       '</div>' +
       '<br>')
+
+    Foundation.reflow(context, 'accordion');
 
     provision_nic_accordion_id += 1;
 

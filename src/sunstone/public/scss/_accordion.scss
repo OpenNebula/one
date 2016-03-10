@@ -2,12 +2,12 @@
   .accordion-item {
     &.is-active {
       .only-not-active {
-        display: none;
+        display: none !important;
       }
     }
     &:not(.is-active) {
       .only-active {
-        display: none;
+        display: none !important;
       }
     }
   }
