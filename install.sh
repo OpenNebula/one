@@ -233,11 +233,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/onedb/local \
           $LIB_LOCATION/ruby/onedb/patches \
           $LIB_LOCATION/ruby/vendors \
-          $LIB_LOCATION/ruby/vendors/rbvmomi \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/utils \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/vim \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -459,11 +454,7 @@ INSTALL_FILES=(
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    RBVMOMI_VENDOR_RUBY_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi
-    RBVMOMI_VENDOR_RUBY_LIB_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/vim
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/utils
+    VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
 )
 
 INSTALL_CLIENT_FILES=(
@@ -1982,49 +1973,7 @@ DOCS_FILES="LICENSE NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-RBVMOMI_VENDOR_RUBY_FILES="share/vendor/ruby/gems/rbvmomi/LICENSE \
-share/vendor/ruby/gems/rbvmomi/README.rdoc \
-share/vendor/ruby/gems/rbvmomi/VERSION \
-share/vendor/ruby/gems/rbvmomi/vmodl.db"
-
-RBVMOMI_VENDOR_RUBY_LIB_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/basic_types.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/connection.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/deserialization.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/fault.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/pbm.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trivial_soap.rb
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trollop.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/type_loader.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/admission_control.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/deploy.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/leases.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/perfdump.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ComputeResource.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datacenter.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datastore.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrAllTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrDataTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrManagedTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Folder.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/HostSystem.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ManagedEntity.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ManagedObject.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ObjectContent.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ObjectUpdate.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/OvfManager.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PerfCounterInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PerformanceManager.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PropertyCollector.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ReflectManagedMethodExecuter.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ResourcePool.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ServiceInstance.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Task.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/VirtualMachine.rb"
+VENDOR_DIRS="share/vendor/ruby/gems/rbvmomi"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
