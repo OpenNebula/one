@@ -58,6 +58,30 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
+{
+    int                 rc;
+    vector<xmlNodePtr>  content;
+    ostringstream       oss;
+
+    xml->get_nodes(xpath_prefix + collection_name, content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc = from_xml_node(content[0]);
+
+    xml->free_nodes(content);
+    content.clear();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& ObjectCollection::to_xml(string& xml) const
 {
     ostringstream       oss;

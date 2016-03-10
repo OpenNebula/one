@@ -189,8 +189,8 @@ void InformationManager::stop_monitor(int hid)
         return;
     }
 
-    int cluster_id = host->get_cluster_id();
-    string im_mad  = host->get_im_mad();
+    set<int> cluster_ids = host->get_cluster_ids();
+    string im_mad        = host->get_im_mad();
 
     rc = hpool->drop(host, error_msg);
 
@@ -218,11 +218,11 @@ void InformationManager::stop_monitor(int hid)
     }
 
     // -------------------------------------------------------------------------
-    // Remove host from cluster
+    // Remove host from clusters
     // -------------------------------------------------------------------------
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    for(set<int>::iterator i=cluster_ids.begin(); i!=cluster_ids.end(); i++)
     {
-        Cluster * cluster = clpool->get(cluster_id, true);
+        Cluster * cluster = clpool->get(*i, true);
 
         if( cluster != 0 )
         {

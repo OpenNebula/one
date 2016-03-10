@@ -642,7 +642,7 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     string base_name_source = base_name + "_DS_SOURCE";
     string base_name_ds_id  = base_name + "_DS_DSID";
     string base_name_tm     = base_name + "_DS_TM";
-    string base_name_cluster= base_name + "_DS_CLUSTER_ID";
+    string base_name_cluster= base_name + "_DS_CLUSTER_IDS";
 
     string type_str;
 
@@ -721,9 +721,11 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     os->replace(base_name_tm, ds->get_tm_mad());
 
-    if ( ds->get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    set<int> cluster_ids = ds->get_cluster_ids();
+
+    if (!cluster_ids.empty())
     {
-        os->replace(base_name_cluster, ds->get_cluster_id());
+        os->replace(base_name_cluster, one_util::join(cluster_ids, ','));
     }
 
     ds->unlock();
@@ -1361,24 +1363,30 @@ void VirtualMachine::parse_well_known_attributes()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-static int check_and_set_cluster_id(const char *      id_name,
-                                    const VectorAttribute * vatt,
-                                    string&           cluster_id)
+static int check_and_set_cluster_id(
+        const char *           id_name,
+        const VectorAttribute* vatt,
+        set<int>               &cluster_ids)
 {
-    string vatt_cluster_id;
+    set<int> vatt_cluster_ids;
 
-    vatt_cluster_id = vatt->vector_value(id_name);
+    one_util::split_unique(vatt->vector_value(id_name), ',', vatt_cluster_ids);
 
-    if ( !vatt_cluster_id.empty() )
+    if ( cluster_ids.empty() )
     {
-        if ( cluster_id.empty() )
-        {
-            cluster_id = vatt_cluster_id;
-        }
-        else if ( cluster_id != vatt_cluster_id )
+        cluster_ids = vatt_cluster_ids;
+    }
+    else if ( !vatt_cluster_ids.empty() )
+    {
+        set<int> intersection = one_util::set_intersection(
+                                            cluster_ids, vatt_cluster_ids);
+
+        if (intersection.empty())
         {
             return -1;
         }
+
+        cluster_ids = intersection;
     }
 
     return 0;
@@ -1393,7 +1401,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     ostringstream   oss;
     string          requirements;
-    string          cluster_id = "";
+    set<int>        cluster_ids;
 
     set<string> clouds;
 
@@ -1407,14 +1415,14 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( osatt != 0 )
     {
-        rc = check_and_set_cluster_id("KERNEL_CLUSTER_ID", osatt, cluster_id);
+        rc = check_and_set_cluster_id("KERNEL_CLUSTER_IDS", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
             goto error_kernel;
         }
 
-        rc = check_and_set_cluster_id("INITRD_CLUSTER_ID", osatt, cluster_id);
+        rc = check_and_set_cluster_id("INITRD_CLUSTER_IDS", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1427,7 +1435,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_id);
+        rc = check_and_set_cluster_id("CLUSTER_IDS", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1443,7 +1451,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_id);
+        rc = check_and_set_cluster_id("CLUSTER_IDS", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1452,9 +1460,11 @@ int VirtualMachine::automatic_requirements(string& error_str)
         }
     }
 
-    if ( !cluster_id.empty() )
+    if ( !cluster_ids.empty() )
     {
-        oss << "CLUSTER_ID = " << cluster_id << " & !(PUBLIC_CLOUD = YES)";
+        // TODO: create a separate cluster automatic requirements
+        oss << "CLUSTER_IDS = " << one_util::join(cluster_ids, ',')
+            << " & !(PUBLIC_CLOUD = YES)";
     }
     else
     {
@@ -1484,23 +1494,23 @@ int VirtualMachine::automatic_requirements(string& error_str)
 error_disk:
     oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
         << " is not the same as the one used by other VM elements (cluster "
-        << cluster_id << ")";
+        << one_util::join(cluster_ids, ',') << ")";
     goto error_common;
 
 error_kernel:
     oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
-        << cluster_id << ".";
+        << one_util::join(cluster_ids, ',') << ".";
     goto error_common;
 
 error_initrd:
     oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
-        << cluster_id << ".";
+        << one_util::join(cluster_ids, ',') << ".";
     goto error_common;
 
 error_nic:
     oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
         << " is not the same as the one used by other VM elements (cluster "
-        << cluster_id << ")";
+        << one_util::join(cluster_ids, ',') << ")";
     goto error_common;
 
 error_common:

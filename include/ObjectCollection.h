@@ -77,6 +77,15 @@ public:
     int from_xml_node(const xmlNodePtr node);
 
     /**
+     * Rebuilds the object from an xml object
+     * @param xml xml object
+     * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int from_xml(const ObjectXML* xml, const string& xpath_prefix);
+
+    /**
      * Function to print the Collection object into a string in
      * XML format
      *  @param xml the resulting XML string

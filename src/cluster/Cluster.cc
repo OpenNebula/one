@@ -122,7 +122,7 @@ string& Cluster::get_ds_location(string &ds_location)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
+int Cluster::add_datastore(int id, string& error_msg)
 {
    int rc = datastores.add(id);
 

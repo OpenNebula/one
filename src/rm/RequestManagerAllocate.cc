@@ -177,7 +177,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, att, cluster_id, cluster_name);
+    rc = pool_allocate(params, tmpl, id, att, cluster_id);
 
     if ( rc < 0 )
     {
@@ -187,8 +187,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
-        Datastore::DatastoreType ds_type = get_ds_type(id);
-
         cluster = clpool->get(cluster_id, true);
 
         if ( cluster == 0 )
@@ -199,7 +197,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        rc = add_to_cluster(cluster, id, ds_type, att.resp_msg);
+        rc = add_to_cluster(cluster, id, att.resp_msg);
 
         if ( rc < 0 )
         {
@@ -269,14 +267,16 @@ int VirtualNetworkAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id,
-        const string&               cluster_name)
+        int                         cluster_id)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
+    set<int> cluster_ids;
+    cluster_ids.insert(cluster_id);
+
     return vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
-            vtmpl, &id, cluster_id, cluster_name, att.resp_msg);
+            vtmpl, &id, cluster_ids, att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -620,8 +620,7 @@ int HostAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id,
-        const string&               cluster_name)
+        int                         cluster_id)
 {
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
@@ -630,8 +629,11 @@ int HostAllocate::pool_allocate(
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
+    set<int> cluster_ids;
+    cluster_ids.insert(cluster_id);
+
     return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
-                           cluster_id, cluster_name, att.resp_msg);
+                           cluster_ids, att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -710,14 +712,16 @@ int DatastoreAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id,
-        const string&               cluster_name)
+        int                         cluster_id)
 {
     DatastorePool * dspool      = static_cast<DatastorePool *>(pool);
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
+    set<int> cluster_ids;
+    cluster_ids.insert(cluster_id);
+
     return dspool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            ds_tmpl, &id, cluster_id, cluster_name, att.resp_msg);
+            ds_tmpl, &id, cluster_ids, att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */

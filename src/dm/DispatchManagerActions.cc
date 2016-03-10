@@ -1070,6 +1070,8 @@ int DispatchManager::attach(int vid,
         return -1;
     }
 
+    // TODO: change to CLUSTER_IDS
+
     // Check that we don't have a cluster incompatibility.
     if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
     {

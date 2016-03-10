@@ -57,7 +57,8 @@ DatastorePool::DatastorePool(
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
         DatastoreTemplate * ds_tmpl;
-        int    rc;
+        int      rc;
+        set<int> empty;
 
         // ---------------------------------------------------------------------
         // Create the system datastore
@@ -82,8 +83,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                ClusterPool::NONE_CLUSTER_ID,
-                ClusterPool::NONE_CLUSTER_NAME,
+                empty,
                 error_str);
 
         if( rc < 0 )
@@ -116,8 +116,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                ClusterPool::NONE_CLUSTER_ID,
-                ClusterPool::NONE_CLUSTER_NAME,
+                empty,
                 error_str);
 
         if( rc < 0 )
@@ -150,8 +149,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                ClusterPool::NONE_CLUSTER_ID,
-                ClusterPool::NONE_CLUSTER_NAME,
+                empty,
                 error_str);
 
         if( rc < 0 )
@@ -184,8 +182,7 @@ int DatastorePool::allocate(
         int                 umask,
         DatastoreTemplate * ds_template,
         int *               oid,
-        int                 cluster_id,
-        const string&       cluster_name,
+        const set<int>      &cluster_ids,
         string&             error_str)
 {
     Datastore * ds;
@@ -196,7 +193,7 @@ int DatastorePool::allocate(
     ostringstream oss;
 
     ds = new Datastore(uid, gid, uname, gname, umask,
-            ds_template, cluster_id, cluster_name);
+            ds_template, cluster_ids);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

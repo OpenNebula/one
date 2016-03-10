@@ -63,7 +63,28 @@ protected:
             int                         object_id,
             RequestAttributes&          att,
             PoolSQL *                   pool,
-            PoolObjectSQL::ObjectType   type);
+            PoolObjectSQL::ObjectType   type)
+    {
+        action_generic(cluster_id, object_id, att, pool, type, true);
+    }
+
+    void del_generic(
+            int                         cluster_id,
+            int                         object_id,
+            RequestAttributes&          att,
+            PoolSQL *                   pool,
+            PoolObjectSQL::ObjectType   type)
+    {
+        action_generic(cluster_id, object_id, att, pool, type, false);
+    }
+
+    void action_generic(
+            int                         cluster_id,
+            int                         object_id,
+            RequestAttributes&          att,
+            PoolSQL *                   pool,
+            PoolObjectSQL::ObjectType   type,
+            bool                        add);
 
     virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
     {
@@ -81,7 +102,6 @@ protected:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg) = 0;
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
@@ -106,7 +126,6 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return cluster->add_host(id, error_msg);
@@ -166,12 +185,10 @@ public:
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        // First param is ignored, as objects can be assigned to only
-        // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
+        return del_generic(cluster_id, object_id, att,
                 hpool, PoolObjectSQL::HOST);
     }
 };
@@ -198,10 +215,9 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
-        return cluster->add_datastore(id, ds_type, error_msg);
+        return cluster->add_datastore(id, error_msg);
     };
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg)
@@ -258,12 +274,10 @@ public:
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        // First param is ignored, as objects can be assigned to only
-        // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
+        return del_generic(cluster_id, object_id, att,
                 dspool, PoolObjectSQL::DATASTORE);
     }
 };
@@ -286,7 +300,6 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
@@ -346,12 +359,10 @@ public:
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        // First param is ignored, as objects can be assigned to only
-        // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
+        return del_generic(cluster_id, object_id, att,
                 vnpool, PoolObjectSQL::NET);
     }
 };

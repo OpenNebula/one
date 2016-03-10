@@ -70,9 +70,10 @@ protected:
 
     virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
 
-    virtual int get_cluster_id(PoolObjectSQL * object)
+    virtual set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        return ClusterPool::NONE_CLUSTER_ID;
+        set<int> empty;
+        return empty;
     };
 
     virtual int del_from_cluster(Cluster* cluster, int id, string& error_msg)
@@ -127,9 +128,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    int get_cluster_id(PoolObjectSQL * object)
+    set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        return static_cast<VirtualNetwork*>(object)->get_cluster_id();
+        return static_cast<VirtualNetwork*>(object)->get_cluster_ids();
     };
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
@@ -181,9 +182,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    int get_cluster_id(PoolObjectSQL * object)
+    set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        return static_cast<Host*>(object)->get_cluster_id();
+        return static_cast<Host*>(object)->get_cluster_ids();
     };
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)
@@ -266,9 +267,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    int get_cluster_id(PoolObjectSQL * object)
+    set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        return static_cast<Datastore*>(object)->get_cluster_id();
+        return static_cast<Datastore*>(object)->get_cluster_ids();
     };
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)

@@ -21,6 +21,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 namespace one_util
 {
@@ -151,6 +152,19 @@ namespace one_util
     }
 
     /**
+     * Joins the given element with the delimiter
+     *
+     * @param values set of values
+     * @param delim delimiter character
+     * @return the joined strings
+     */
+    template <class T>
+    std::string join(const std::set<T> values, char delim)
+    {
+        return join(values.begin(), values.end(), delim);
+    }
+
+    /**
      * Creates a string from the given float, using fixed notation. If the
      * number has any decimals, they will be truncated to 2.
      *
@@ -212,6 +226,18 @@ namespace one_util
      */
     std::string gsub(const std::string& st, const std::string& sfind,
             const std::string& replacement);
+
+    template <class T>
+    std::set<T> set_intersection(const std::set<T> &first, const std::set<T> &second)
+    {
+        std::set<T> output;
+
+        std::set_intersection(
+                first.begin(), first.end(), second.begin(), second.end(),
+                std::inserter(output, output.begin()));
+
+        return output;
+    }
 };
 
 #endif /* _NEBULA_UTIL_H_ */

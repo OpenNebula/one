@@ -82,11 +82,10 @@ public:
     /**
      *  Adds this datastore ID to the set.
      *    @param id to be added to the cluster
-     *    @param ds_type Datastore type
      *    @param error_msg Error message, if any
      *    @return 0 on success
      */
-    int add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg);
+    int add_datastore(int id, string& error_msg);
 
     /**
      *  Deletes this datastore ID from the set.

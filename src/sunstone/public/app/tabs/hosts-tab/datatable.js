@@ -148,13 +148,18 @@ define(function(require) {
     this.allocatedMemory += parseInt(element.HOST_SHARE.MEM_USAGE);
     this.realMemory += parseInt(element.HOST_SHARE.USED_MEM);
 
+    var clusters = '-';
+    if (element.CLUSTERS.ID != undefined){
+      clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
                              element.ID + '"/>',
         element.ID,
         element.NAME,
-        element.CLUSTER.length ? element.CLUSTER : "-",
+        clusters,
         element.HOST_SHARE.RUNNING_VMS, //rvm
         cpuBars.real,
         cpuBars.allocated,

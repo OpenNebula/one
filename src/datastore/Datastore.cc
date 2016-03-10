@@ -22,13 +22,12 @@
 const char * Datastore::table = "datastore_pool";
 
 const char * Datastore::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u";
 
 const char * Datastore::db_bootstrap =
     "CREATE TABLE IF NOT EXISTS datastore_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "cid INTEGER)";
+    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
 
 /* ************************************************************************ */
 /* Datastore :: Constructor/Destructor                                      */
@@ -41,10 +40,9 @@ Datastore::Datastore(
         const string&       gname,
         int                 umask,
         DatastoreTemplate*  ds_template,
-        int                 cluster_id,
-        const string&       cluster_name):
+        const set<int>      &cluster_ids):
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,table),
-            Clusterable(cluster_id, cluster_name),
+            Clusterable(cluster_ids),
             ds_mad(""),
             tm_mad(""),
             base_path(""),
@@ -119,12 +117,11 @@ void Datastore::disk_attribute(
     disk->replace("DATASTORE_ID", oss.str());
     disk->replace("TM_MAD",       get_tm_mad());
 
-    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
-    {
-        oss.str("");
-        oss << get_cluster_id();
+    set<int> cluster_ids = get_cluster_ids();
 
-        disk->replace("CLUSTER_ID", oss.str());
+    if (!cluster_ids.empty())
+    {
+        disk->replace("CLUSTER_IDS", one_util::join(cluster_ids, ','));
     }
 
     get_template_attribute("CLONE_TARGET", st);
@@ -607,9 +604,7 @@ int Datastore::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid                 << ","
         <<          owner_u             << ","
         <<          group_u             << ","
-        <<          other_u             << ","
-        <<          cluster_id          << ")";
-
+        <<          other_u             << ")";
 
     rc = db->exec(oss);
 
@@ -645,7 +640,8 @@ error_common:
 string& Datastore::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          collection_xml;
+    string          clusters_xml;
+    string          images_xml;
     string          template_xml;
     string          perms_xml;
 
@@ -664,13 +660,12 @@ string& Datastore::to_xml(string& xml) const
         "<TYPE>"                << type         << "</TYPE>"      <<
         "<DISK_TYPE>"           << disk_type    << "</DISK_TYPE>" <<
         "<STATE>"               << state        << "</STATE>"     <<
-        "<CLUSTER_ID>"          << cluster_id   << "</CLUSTER_ID>"<<
-        "<CLUSTER>"             << cluster      << "</CLUSTER>"   <<
+        Clusterable::to_xml(clusters_xml)       <<
         "<TOTAL_MB>"            << total_mb     << "</TOTAL_MB>"  <<
         "<FREE_MB>"             << free_mb      << "</FREE_MB>"   <<
         "<USED_MB>"             << used_mb      << "</USED_MB>"   <<
-        images.to_xml(collection_xml)      <<
-        obj_template->to_xml(template_xml) <<
+        images.to_xml(images_xml)               <<
+        obj_template->to_xml(template_xml)      <<
     "</DATASTORE>";
 
     xml = oss.str();
@@ -706,9 +701,6 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
     rc += xpath(int_state,    "/DATASTORE/STATE",     0);
 
-    rc += xpath(cluster_id, "/DATASTORE/CLUSTER_ID", -1);
-    rc += xpath(cluster,    "/DATASTORE/CLUSTER",    "not_found");
-
     rc += xpath<long long>(total_mb,"/DATASTORE/TOTAL_MB",0);
     rc += xpath<long long>(free_mb, "/DATASTORE/FREE_MB", 0);
     rc += xpath<long long>(used_mb, "/DATASTORE/USED_MB", 0);
@@ -720,19 +712,11 @@ int Datastore::from_xml(const string& xml)
     type      = static_cast<Datastore::DatastoreType>(int_ds_type);
     state     = static_cast<DatastoreState>(int_state);
 
-    // Get associated classes
-    ObjectXML::get_nodes("/DATASTORE/IMAGES", content);
+    // Set of Image IDs
+    images.from_xml(this, "/DATASTORE/");
 
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += images.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    // Set of cluster IDs
+    Clusterable::from_xml(this, "/DATASTORE/");
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/TEMPLATE", content);

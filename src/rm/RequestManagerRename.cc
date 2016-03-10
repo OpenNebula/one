@@ -142,6 +142,8 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
 void ClusterRename::batch_rename(int oid)
 {
+    // TODO
+    /*
     Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid, true);
 
     if (cluster == 0)
@@ -215,6 +217,7 @@ void ClusterRename::batch_rename(int oid)
             vnet->unlock();
         }
     }
+    */
 }
 
 /* -------------------------------------------------------------------------- */

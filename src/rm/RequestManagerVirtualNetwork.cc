@@ -184,7 +184,7 @@ void VirtualNetworkReserve::request_execute(
     VirtualNetwork * rvn = 0;
 
     int rc;
-    int cluster_id;
+    set<int> cluster_ids;
 
     PoolObjectAuth reserv_perms;
 
@@ -365,10 +365,10 @@ void VirtualNetworkReserve::request_execute(
 
         vtmpl->replace("NAME", name);
 
-        cluster_id = vn->get_cluster_id();
+        cluster_ids = vn->get_cluster_ids();
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                id, vtmpl, &rid, cluster_id, vn->get_cluster_name(), att.resp_msg);
+                id, vtmpl, &rid, cluster_ids, att.resp_msg);
 
         if (rc < 0)
         {
@@ -465,22 +465,26 @@ void VirtualNetworkReserve::request_execute(
     vn->unlock();
 
     // -------------------------------------------------------------------------
-    // Add the reservation to the same cluster as the parent VNET
+    // Add the reservation to the same clusters as the parent VNET
     // -------------------------------------------------------------------------
-    if ((cluster_id != ClusterPool::NONE_CLUSTER_ID) && (!on_exisiting))
+    if (!cluster_ids.empty() && !on_exisiting)
     {
         Nebula& nd  = Nebula::instance();
 
         ClusterPool * clpool = nd.get_clpool();
-        Cluster * cluster    = clpool->get(cluster_id, true);
 
-        if ( cluster != 0 )
+        for (set<int>::iterator i=cluster_ids.begin(); i!= cluster_ids.end(); i++)
         {
-            cluster->add_vnet(rid, att.resp_msg);
+            Cluster * cluster = clpool->get(*i, true);
 
-            clpool->update(cluster);
+            if ( cluster != 0 )
+            {
+                cluster->add_vnet(rid, att.resp_msg);
 
-            cluster->unlock();
+                clpool->update(cluster);
+
+                cluster->unlock();
+            }
         }
     }
 

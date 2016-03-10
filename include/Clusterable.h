@@ -17,23 +17,59 @@
 #ifndef CLUSTERABLE_H_
 #define CLUSTERABLE_H_
 
+#include "ObjectCollection.h"
+
 using namespace std;
 
 class Clusterable
 {
 public:
 
-    /**
-     * Changes the cluster this object belongs to
-     *
-     * @param _cluster_id Id of the new cluster
-     * @param _cluster Name of the new cluster
-     */
-    void set_cluster(int _cluster_id, const string& _cluster)
+    int add_cluster(int cluster_id)
     {
-        cluster_id  = _cluster_id;
-        cluster     = _cluster;
+        return cluster_ids.add(cluster_id);
     };
+
+    int del_cluster(int cluster_id)
+    {
+        return cluster_ids.del(cluster_id);
+    };
+
+    /**
+     * Returns the cluster IDs
+     *
+     * @return The cluster IDs set
+     */
+    set<int> get_cluster_ids() const
+    {
+        return cluster_ids.clone();
+    };
+
+    /**
+     * Rebuilds the cluster collection from an xml object
+     * @param xml xml object
+     * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int from_xml(const ObjectXML* xml, const string& xpath_prefix)
+    {
+        return cluster_ids.from_xml(xml, xpath_prefix);
+    };
+
+    /**
+     * Function to print the cluster IDs into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml) const
+    {
+        return cluster_ids.to_xml(xml);
+    };
+
+    //==========================================================================
+    // TODO remove
 
     /**
      * Returns the cluster ID
@@ -42,37 +78,29 @@ public:
      */
     int get_cluster_id() const
     {
-        return cluster_id;
+        //return ClusterPool::NONE_CLUSTER_ID;
+        return -1;
     };
 
-    /**
-     * Returns the cluster name
-     *
-     * @return The cluster name
-     */
-    const string& get_cluster_name() const
-    {
-        return cluster;
-    };
-
+    //==========================================================================
 
 protected:
 
-    Clusterable(int _cluster_id, const string& _cluster):
-        cluster_id(_cluster_id),
-        cluster(_cluster){};
+    Clusterable(const set<int> &_cluster_ids):
+        cluster_ids("CLUSTERS")
+    {
+        for(set<int>::iterator i=_cluster_ids.begin();i!=_cluster_ids.end();i++)
+        {
+            cluster_ids.add(*i);
+        }
+    };
 
     ~Clusterable(){};
 
     /**
-     * ID of the cluster this object belongs to.
+     * IDs of the clusters this object belongs to.
      */
-    int         cluster_id;
-
-    /**
-     *  Name of the cluster this object belongs to.
-     */
-    string      cluster;
+    ObjectCollection cluster_ids;
 };
 
 #endif /*CLUSTERABLE_H_*/

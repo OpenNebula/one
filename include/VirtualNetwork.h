@@ -557,8 +557,7 @@ private:
                    const string&            _gname,
                    int                      _umask,
                    int                      _parent_vid,
-                   int                      _cluster_id,
-                   const string&            _cluster_name,
+                   const set<int>           &_cluster_ids,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();

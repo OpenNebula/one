@@ -591,8 +591,7 @@ private:
          const string& im_mad_name,
          const string& vmm_mad_name,
          const string& vnm_mad_name,
-         int           cluster_id,
-         const string& cluster_name);
+         const set<int>& cluster_ids);
 
     virtual ~Host();
 

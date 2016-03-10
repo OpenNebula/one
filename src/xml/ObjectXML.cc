@@ -202,7 +202,18 @@ int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
+int ObjectXML::get_nodes(
+        const string& xpath_expr,
+        std::vector<xmlNodePtr>& content) const
+{
+    return get_nodes(xpath_expr.c_str(), content);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::get_nodes (
+        const char * xpath_expr,
+        vector<xmlNodePtr>& content) const
 {
     xmlXPathObjectPtr obj;
 

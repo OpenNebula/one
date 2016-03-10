@@ -115,6 +115,11 @@ define(function(require) {
       total_size += parseInt(this.SIZE);
     });
 
+    var clusters = '-';
+    if (element.CLUSTERS.ID != undefined){
+      clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
+    }
+
     return [
       '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                            element.ID + '" name="selected_items" value="' +
@@ -124,7 +129,7 @@ define(function(require) {
       element.GNAME,
       element.NAME,
       element.PARENT_NETWORK_ID.length ? Locale.tr("Yes") : Locale.tr("No"),
-      element.CLUSTER.length ? element.CLUSTER : "-",
+      clusters,
       element.BRIDGE,
       ProgressBar.html(element.USED_LEASES, total_size),
       element.VLAN_ID.length ? element.VLAN_ID : "-",

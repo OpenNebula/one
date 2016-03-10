@@ -21,12 +21,13 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void RequestManagerCluster::add_generic(
+void RequestManagerCluster::action_generic(
         int                         cluster_id,
         int                         object_id,
         RequestAttributes&          att,
         PoolSQL *                   pool,
-        PoolObjectSQL::ObjectType   type)
+        PoolObjectSQL::ObjectType   type,
+        bool                        add)
 {
     int rc;
 
@@ -40,11 +41,6 @@ void RequestManagerCluster::add_generic(
 
     PoolObjectAuth c_perms;
     PoolObjectAuth obj_perms;
-
-    int     old_cluster_id;
-    string  old_cluster_name;
-
-    Datastore::DatastoreType ds_type;
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
@@ -99,25 +95,27 @@ void RequestManagerCluster::add_generic(
         return;
     }
 
-    old_cluster_id   = cluster_obj->get_cluster_id();
-    old_cluster_name = cluster_obj->get_cluster_name();
+    if (add)
+    {
+        rc = cluster_obj->add_cluster(cluster_id);
+    }
+    else
+    {
+        rc = cluster_obj->del_cluster(cluster_id);
+    }
 
-    ds_type = get_ds_type(object);
-
-    if ( old_cluster_id == cluster_id )
+    if ( rc == -1 )
     {
         object->unlock();
         success_response(cluster_id, att);
         return;
     }
 
-    cluster_obj->set_cluster(cluster_id, cluster_name);
-
     pool->update(object);
 
     object->unlock();
 
-    // ------------- Add object to new cluster ---------------------
+    // ------------- Add/del object to new cluster ---------------------
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
         cluster = clpool->get(cluster_id, true);
@@ -133,7 +131,14 @@ void RequestManagerCluster::add_generic(
 
             if ( object != 0 )
             {
-                cluster_obj->set_cluster(old_cluster_id, old_cluster_name);
+                if (add)
+                {
+                    cluster_obj->del_cluster(cluster_id);
+                }
+                else
+                {
+                    cluster_obj->add_cluster(cluster_id);
+                }
 
                 pool->update(object);
 
@@ -143,7 +148,16 @@ void RequestManagerCluster::add_generic(
             return;
         }
 
-        if ( add_object(cluster, object_id, ds_type, att.resp_msg) < 0 )
+        if (add)
+        {
+            rc = add_object(cluster, object_id, att.resp_msg);
+        }
+        else
+        {
+            rc = del_object(cluster, object_id, att.resp_msg);
+        }
+
+        if ( rc < 0 )
         {
             cluster->unlock();
 
@@ -154,41 +168,20 @@ void RequestManagerCluster::add_generic(
 
             if ( object != 0 )
             {
-                cluster_obj->set_cluster(old_cluster_id, old_cluster_name);
+                if (add)
+                {
+                    cluster_obj->del_cluster(cluster_id);
+                }
+                else
+                {
+                    cluster_obj->add_cluster(cluster_id);
+                }
 
                 pool->update(object);
 
                 object->unlock();
             }
 
-            return;
-        }
-
-        clpool->update(cluster);
-
-        cluster->unlock();
-    }
-
-    // ------------- Remove host from old cluster ---------------------
-
-    if ( old_cluster_id != ClusterPool::NONE_CLUSTER_ID )
-    {
-        cluster = clpool->get(old_cluster_id, true);
-
-        if ( cluster == 0 )
-        {
-            // This point should be unreachable.
-            // The old cluster is not empty (at least has the host_id),
-            // so it cannot be deleted
-            success_response(cluster_id, att);
-            return;
-        }
-
-        if ( del_object(cluster, object_id, att.resp_msg) < 0 )
-        {
-            cluster->unlock();
-
-            failure_response(INTERNAL, att);
             return;
         }
 

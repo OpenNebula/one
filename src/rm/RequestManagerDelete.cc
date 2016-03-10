@@ -113,29 +113,35 @@ int RequestManagerDelete::drop(
         PoolObjectSQL * object,
         string&         error_msg)
 {
-    int cluster_id = get_cluster_id(object);
+    set<int> cluster_ids = get_cluster_ids(object);
 
     int rc = pool->drop(object, error_msg);
 
     object->unlock();
 
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID && rc == 0 )
+    if(rc == 0)
     {
-        Cluster * cluster = clpool->get(cluster_id, true);
-
-        if( cluster != 0 )
+        for(set<int>::iterator it=cluster_ids.begin(); it!=cluster_ids.end(); it++)
         {
-            rc = del_from_cluster(cluster, oid, error_msg);
-
-            if ( rc < 0 )
+            if ( *it != ClusterPool::NONE_CLUSTER_ID )
             {
-                cluster->unlock();
-                return rc;
+                Cluster * cluster = clpool->get(*it, true);
+
+                if( cluster != 0 )
+                {
+                    rc = del_from_cluster(cluster, oid, error_msg);
+
+                    if ( rc < 0 )
+                    {
+                        cluster->unlock();
+                        return rc;
+                    }
+
+                    clpool->update(cluster);
+
+                    cluster->unlock();
+                }
             }
-
-            clpool->update(cluster);
-
-            cluster->unlock();
         }
     }
 
