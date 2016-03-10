@@ -54,6 +54,7 @@ define(function(require) {
       "t"+
       "<'row'<'small-6 columns'li><'small-6 columns'p>>",
     renderer: 'foundation',
+    autoWidth: false,
     language: {
       "sLengthMenu": "_MENU_",
       "emptyTable": TemplateEmptyTable()

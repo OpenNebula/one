@@ -818,8 +818,8 @@ define(function(require) {
             owner = Locale.tr("system");
           }
 
-          var li = $('<li>'+
-              '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+          var li = $('<div class="column">'+
+              '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
                 '<li class="provision-title" title="'+data.NAME+'">'+
                   data.NAME+
                 '</li>'+
@@ -836,7 +836,7 @@ define(function(require) {
                   '</span>'+
                 '</li>'+
               '</ul>'+
-            '</li>').appendTo($("#"+tableID+'_ul'));
+            '</div>').appendTo($("#"+tableID+'_ul'));
 
           $(".provision-pricing-table", li).data("opennebula", aData);
         }
@@ -857,7 +857,7 @@ define(function(require) {
               '</div>');
           } else {
             $('#'+tableID+'_table').html(
-              '<ul id="'+tableID+'_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+              '<div id="'+tableID+'_ul" class="row large-up-3 medium-up-3 small-up-1"></div>');
           }
 
           return true;
@@ -866,6 +866,7 @@ define(function(require) {
 
         provision_vm_instantiate_templates_datatable = $('#provision_vm_instantiate_templates_table').dataTable({
           "iDisplayLength": 6,
+          "bAutoWidth": false,
           "sDom" : '<"H">t<"F"lp>',
           "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
           "aoColumnDefs": [
@@ -998,7 +999,7 @@ define(function(require) {
           if ($(this).hasClass("selected")){
             $(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
             $(this).addClass("selected");
           }
         })
@@ -1058,6 +1059,7 @@ define(function(require) {
 
         provision_flow_templates_datatable = $('#provision_flow_templates_table').dataTable({
           "iDisplayLength": 6,
+          "bAutoWidth": false,
           "sDom" : '<"H">t<"F"lp>',
           "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
           "aaSorting"  : [[1, "asc"]],
@@ -1083,7 +1085,7 @@ define(function(require) {
                 '</span>'+
                 '</div>');
             } else {
-              $("#provision_flow_templates_table").html('<ul id="provision_flow_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+              $("#provision_flow_templates_table").html('<div id="provision_flow_templates_ul" class="large-up-3 medium-up-3 small-up-1 text-center"></div>');
             }
 
             return true;
@@ -1115,8 +1117,8 @@ define(function(require) {
               '</span>';
             }
 
-            var li = $('<li>'+
-                '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            var li = $('<div class="columns">'+
+                '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
                   '<li class="provision-title" title="'+data.NAME+'">'+
                     data.NAME+
                   '</li>'+
@@ -1128,7 +1130,7 @@ define(function(require) {
                     (data.TEMPLATE.DESCRIPTION || '')+
                   '</li>'+
                 '</ul>'+
-              '</li>').appendTo($("#provision_flow_templates_ul"));
+              '</div>').appendTo($("#provision_flow_templates_ul"));
 
             $(".provision-pricing-table", li).data("opennebula", aData);
 
@@ -1166,7 +1168,7 @@ define(function(require) {
 
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();
-            $(".provision_accordion_flow_template .selected_template_name").html(body.name)
+            $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.NAME)
             $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/>&emsp;');
             $(".provision_accordion_flow_template a").first().trigger("click");
 
@@ -1279,7 +1281,7 @@ define(function(require) {
           if ($(this).hasClass("selected")){
             $(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
             $(this).addClass("selected");
           }
         })

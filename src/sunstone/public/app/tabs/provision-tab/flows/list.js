@@ -65,13 +65,13 @@ define(function(require) {
 
   function update_provision_flows_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<span class="fa-stack fa-5x">'+
         '<i class="fa fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
       '<br>'+
-      '<span style="font-size: 18px; color: #999">'+
+      '<span>'+
       '</span>'+
       '</div>');
 
@@ -83,13 +83,13 @@ define(function(require) {
           datatable.fnClearTable(true);
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no Services")+
               '</span>'+
               '<br>'+
@@ -110,7 +110,7 @@ define(function(require) {
             '</div>'+
             '<br>'+
             '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
+            '<span>'+
             '</span>'+
             '</div>');
 
@@ -142,13 +142,13 @@ define(function(require) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<span class="fa-stack fa-5x">'+
               '<i class="fa fa-cloud fa-stack-2x"></i>'+
               '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
+            '<span>'+
               Locale.tr("Looks like you don't have any Service. Click the button below to get started")+
             '</span>'+
             '<br>'+
@@ -162,7 +162,7 @@ define(function(require) {
             '<br>'+
             '</div>');
         } else {
-          $(".provision_flows_table", context).html('<ul class="provision_flows_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $(".provision_flows_table", context).html('<div class="provision_flows_ul large-up-3 medium-up-3 small-up-1 text-center"></div>');
         }
 
         return true;
@@ -186,15 +186,15 @@ define(function(require) {
               '<li class="provision-bullet-item text-left"">'+
                 '<i class="fa fa-fw fa-lg fa-cube"/>&emsp;'+
                 role.name+
-                '<span class="right" style="font-size: 12px">'+rvms.str+" VMs</span>"+
+                '<span class="right">'+rvms.str+" VMs</span>"+
               '</li>';
           });
         }
 
-        $(".provision_flows_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+        $(".provision_flows_ul", context).append('<div class="column">'+
+            '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
-                '<a class="provision_info_flow_button" style="color:#555" href="#">'+
+                '<a class="provision_info_flow_button" href="#">'+
                   '<span class="'+ state.color +'-color" title="'+ state.str +'">'+
                     '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
                   '</span>'+
@@ -212,7 +212,7 @@ define(function(require) {
                 '</span>'+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</div>');
 
         return nRow;
       }
@@ -318,14 +318,14 @@ define(function(require) {
                 '</span>'+
               '</li>'+
               '<li class="text-left provision-bullet-item">'+
-                '<hr style="margin: 0px">'+
+                '<hr>'+
               '</li>'+
               '<li class="text-left provision-bullet-item">'+
-                '<span style="color: #999;">'+
+                '<span>'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
                 '</span>'+
-                '<span class="right" style="color: #999;">'+
+                '<span class="right">'+
                   '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : "...") +
                   ' - '+
@@ -351,12 +351,12 @@ define(function(require) {
                       '<i class="fa fa-fw fa-cube"/>&emsp;'+
                       role.name+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
-                      '<div class="progress small radius" style="margin-bottom:0px">'+
+                    '<li class="provision-bullet-item text-left">'+
+                      '<div class="progress small radius">'+
                       '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
                       '</div>'+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 14px">'+
+                    '<li class="provision-bullet-item text-left">'+
                       '<span class="'+ role_state.color +'-color">'+
                         role_state.str+
                       '</span>'+
@@ -365,7 +365,7 @@ define(function(require) {
                     '<li class="text-left provision-bullet-item">'+
                       '<br>'+
                     '</li>'+
-                    '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                    '<li class="provision-bullet-item text-left">'+
                       '<a class="provision_role_vms_button button medium radius">'+
                         '<i class="fa fa-th fa-lg"></i>'+
                       '</a>'+
@@ -383,8 +383,6 @@ define(function(require) {
             });
           }
 
-          $(".provision_info_flow_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
-
           $(".provision_confirm_action:first", context).html("");
 
           $(".provision_info_flow_loading", context).hide();
@@ -395,13 +393,13 @@ define(function(require) {
 
     context.on("click", ".provision_role_vms_button", function(){
       $(".provision_role_vms_container", context).html('<div class="text-center">'+
-        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<span class="fa-stack fa-5x">'+
           '<i class="fa fa-cloud fa-stack-2x"></i>'+
           '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
         '</span>'+
         '<br>'+
         '<br>'+
-        '<span style="font-size: 18px; color: #999">'+
+        '<span>'+
         '</span>'+
         '</div>');
 
@@ -438,15 +436,15 @@ define(function(require) {
             '<div class="large-12 large-centered columns">'+
               '<div class="row">'+
                 '<div class="large-4 text-center columns">'+
-                  '<span class="cardinality_value" style="color: #777; font-size:60px">'+role.cardinality+'</span>'+
+                  '<span class="cardinality_value">'+role.cardinality+'</span>'+
                   '<br>'+
-                  '<span style="color: #999; font-size:20px">'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
+                  '<span>'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
                 '</div>'+
                 '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
                   '<br>'+
-                  '<span class="left" style="color: #999;">'+min_vms+'</span>'+
-                  '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+                  '<span class="left">'+min_vms+'</span>'+
+                  '<span class="right">'+max_vms+'</span>'+
                   '<br>'+
                   '<div class="range-slider cardinality_slider" data-slider>'+
                     '<span class="range-slider-handle" role="slider" tabindex="0"></span>'+
@@ -459,12 +457,12 @@ define(function(require) {
                 '<div class="cardinality_no_slider_div">'+
                   '<br>'+
                   '<br>'+
-                  '<span class="" style="color: #999;">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
+                  '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
                 '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<a href="#" class="close">&times;</a>'+
         '</div>');
 
       //TODO context.foundation('slider', 'reflow');
@@ -509,14 +507,14 @@ define(function(require) {
         '<div data-alert class="alert-box secondary radius">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("Be careful, this action will immediately destroy your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_delete_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Delete")+'</a>'+
+            '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
           '<a href="#" class="close">&times;</a>'+
@@ -528,14 +526,14 @@ define(function(require) {
         '<div data-alert class="alert-box secondary radius">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("Be careful, this action will immediately shutdown your Service")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_shutdown_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Shutdown")+'</a>'+
+            '<a href"#" class="provision_shutdown_button alert button large-12 radius right">'+Locale.tr("Shutdown")+'</a>'+
           '</div>'+
           '</div>'+
           '<a href="#" class="close">&times;</a>'+
