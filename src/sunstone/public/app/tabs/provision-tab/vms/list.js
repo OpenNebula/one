@@ -493,7 +493,7 @@ define(function(require) {
     if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       context.on("click", ".provision_snapshot_button", function(){
         $(".provision_confirm_action:first", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
+          '<div data-closable class="callout large secondary">'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
                 '<span>'+
@@ -536,7 +536,9 @@ define(function(require) {
                 '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+Locale.tr("Save Virtual Machine to Template")+'</a>'+
               '</div>'+
             '</div>'+
-            '<a href="#" class="close">&times;</a>'+
+            '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
           '</div>');
       });
 
@@ -583,7 +585,7 @@ define(function(require) {
 
     context.on("click", ".provision_delete_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span>'+
@@ -596,13 +598,15 @@ define(function(require) {
             '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_shutdownhard_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span>'+
@@ -615,13 +619,15 @@ define(function(require) {
             '<a href"#" class="provision_shutdownhard_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_poweroff_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
             '<span>'+
@@ -646,13 +652,15 @@ define(function(require) {
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_undeploy_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
             '<span>'+
@@ -677,13 +685,15 @@ define(function(require) {
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_reboot_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
             '<span>'+
@@ -708,7 +718,9 @@ define(function(require) {
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 

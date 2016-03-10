@@ -431,7 +431,7 @@ define(function(require) {
       var max_vms = (role.max_vms||100);
 
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout secondary large">'+
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<div class="row">'+
@@ -462,7 +462,9 @@ define(function(require) {
               '</div>'+
             '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
 
       //TODO context.foundation('slider', 'reflow');
@@ -504,7 +506,7 @@ define(function(require) {
 
     context.on("click", ".provision_delete_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout secondary large">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span>'+
@@ -517,13 +519,15 @@ define(function(require) {
             '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_shutdown_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout secondary large">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
             '<span>'+
@@ -536,7 +540,9 @@ define(function(require) {
             '<a href"#" class="provision_shutdown_button alert button large-12 radius right">'+Locale.tr("Shutdown")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
