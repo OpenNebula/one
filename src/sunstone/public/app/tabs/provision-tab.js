@@ -962,8 +962,8 @@ define(function(require) {
               template_json.VMTEMPLATE);
 
             provisionInvalidCapacity = function(input){
-              if(!$(input).closest(".accordion-navigation").hasClass("active")){
-                $("a", $(input).closest(".accordion-navigation")).click();
+              if(!$(input).closest(".accordion-item").hasClass("is-active")){
+                $("a", $(input).closest(".accordion-item")).click();
               }
             };
 
