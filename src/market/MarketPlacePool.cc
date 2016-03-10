@@ -62,6 +62,10 @@ MarketPlacePool::MarketPlacePool(
 
         marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
 
+        marketplace->zone_id = Nebula::instance().get_zone_id();
+
+        marketplace->parse_template(error);
+
         if (PoolSQL::allocate(marketplace, error) < 0)
         {
             ostringstream oss;
