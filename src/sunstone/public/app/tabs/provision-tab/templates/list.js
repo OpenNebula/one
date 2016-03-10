@@ -140,7 +140,7 @@ define(function(require) {
             '</span>'+
             '</div>');
         } else {
-          $(".provision_templates_table", context).html('<div class="provision_templates_ul large-up-3 medium-up-3 small-up-1 text-center"></div>');
+          $(".provision_templates_table", context).html('<div class="provision_templates_ul large-up-3 medium-up-3 small-up-1"></div>');
         }
         return true;
       },

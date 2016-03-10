@@ -137,10 +137,10 @@ define(function(require) {
           '<span>' + Locale.tr("INTERFACE") + "</span>" +
           '<span>' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
         '</span>' +
-        '<span class="has-tip right provision_remove_nic">' +
+        '<span class="has-tip provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip right">' +
+        '<span class="has-tip">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else if (options.vnet_attr) {
@@ -152,7 +152,7 @@ define(function(require) {
         '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip right only-not-active">' +
+        '<span class="has-tip only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else {
@@ -164,10 +164,10 @@ define(function(require) {
         '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip right provision_remove_nic">' +
+        '<span class="has-tip provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip right only-not-active">' +
+        '<span class="has-tip only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     }
@@ -179,8 +179,8 @@ define(function(require) {
       '<div id="provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="accordion-content" data-tab-content>' +
         '<div class="row">' +
           '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader text-right">' +
-              '<input type="search" class="provision-search-input right" placeholder="Search"/>' +
+            '<h3 class="subheader">' +
+              '<input type="search" class="provision-search-input" placeholder="Search"/>' +
             '</h3>' +
             '<br>' +
           '</div>' +
@@ -234,8 +234,8 @@ define(function(require) {
             '</div>');
         } else {
           $(".provision_networks_table", dd_context).html(
-            '<ul class="provision_networks_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">' +
-            '</ul>');
+            '<div class="provision_networks_ul large-up-3 medium-up-3 small-up-1 text-center">' +
+            '</div>');
         }
 
         return true;
@@ -243,8 +243,8 @@ define(function(require) {
       "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var data = aData.VNET;
         $(".provision_networks_ul", dd_context).append(
-          '<li>' +
-            '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="' + data.ID + '" opennebula_name="' + data.NAME + '">' +
+          '<div class="column">' +
+            '<ul class="provision-pricing-table hoverable more-than-one menu vertical" opennebula_id="' + data.ID + '" opennebula_name="' + data.NAME + '">' +
               '<li class="provision-title" title="' + data.NAME + '">' +
                 data.NAME +
               '</li>' +
@@ -255,7 +255,7 @@ define(function(require) {
                 (data.TEMPLATE.DESCRIPTION || '...') +
               '</li>' +
             '</ul>' +
-          '</li>');
+          '</div>');
 
         return nRow;
       }
@@ -358,7 +358,7 @@ define(function(require) {
       '<br>' +
       '<div class="row">' +
         '<div class="large-12 columns">' +
-          '<h3 class="subheader text-right">' +
+          '<h3 class="subheader">' +
             '<span class="left">' +
               '<i class="fa fa-globe fa-lg"></i>&emsp;' +
               Locale.tr("Network") +

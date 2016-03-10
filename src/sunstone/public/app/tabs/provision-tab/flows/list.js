@@ -186,7 +186,7 @@ define(function(require) {
               '<li class="provision-bullet-item"">'+
                 '<i class="fa fa-fw fa-lg fa-cube"/>&emsp;'+
                 role.name+
-                '<span class="right">'+rvms.str+" VMs</span>"+
+                '<span>'+rvms.str+" VMs</span>"+
               '</li>';
           });
         }
@@ -203,7 +203,7 @@ define(function(require) {
               '</li>'+
               roles_li +
               '<li class="provision-bullet-item-last">'+
-                '<span class="left">'+
+                '<span>'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
                 '</span>'+
@@ -325,7 +325,7 @@ define(function(require) {
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
                 '</span>'+
-                '<span class="right">'+
+                '<span>'+
                   '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : "...") +
                   ' - '+
@@ -360,7 +360,7 @@ define(function(require) {
                       '<span class="'+ role_state.color +'-color">'+
                         role_state.str+
                       '</span>'+
-                      '<span class="right">'+rvms.str+" VMs</span>"+
+                      '<span>'+rvms.str+" VMs</span>"+
                     '</li>'+
                     '<li class="provision-bullet-item">'+
                       '<br>'+
@@ -369,7 +369,7 @@ define(function(require) {
                       '<a class="provision_role_vms_button button medium radius">'+
                         '<i class="fa fa-th fa-lg"></i>'+
                       '</a>'+
-                      '<a class="provision_role_cardinality_button button medium success right radius">'+
+                      '<a class="provision_role_cardinality_button button medium success radius">'+
                         '<i class="fa fa-arrows-h fa-lg"></i>'+
                       '</a>'+
                     '</li>'+
@@ -443,8 +443,8 @@ define(function(require) {
                 '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
                   '<br>'+
-                  '<span class="left">'+min_vms+'</span>'+
-                  '<span class="right">'+max_vms+'</span>'+
+                  '<span>'+min_vms+'</span>'+
+                  '<span>'+max_vms+'</span>'+
                   '<br>'+
                   '<div class="range-slider cardinality_slider" data-slider>'+
                     '<span class="range-slider-handle" role="slider" tabindex="0"></span>'+
@@ -516,7 +516,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
+            '<a href"#" class="provision_delete_button alert button large-12 radius">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -537,7 +537,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_shutdown_button alert button large-12 radius right">'+Locale.tr("Shutdown")+'</a>'+
+            '<a href"#" class="provision_shutdown_button alert button large-12 radius">'+Locale.tr("Shutdown")+'</a>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +

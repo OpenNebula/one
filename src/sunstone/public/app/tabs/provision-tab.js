@@ -101,9 +101,9 @@ define(function(require) {
       '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader text-right">'+
+          '<h3 class="subheader">'+
             '<span class="left">'+
-              '<i class="fa fa-th fa-lg"></i>&emsp;'+
+              '<i class="fa fa-th fa-lg"></i> '+
               Locale.tr("Cardinality")+
             '</span>'+
           '</h3>'+
@@ -249,9 +249,9 @@ define(function(require) {
       '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader text-right">'+
+          '<h3 class="subheader">'+
             '<span class="left">'+
-              '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
+              '<i class="fa fa-laptop fa-lg"></i> '+
               Locale.tr("Capacity")+
             '</span>'+
             '<span>'+
@@ -829,9 +829,9 @@ define(function(require) {
                 '<li class="provision-description">'+
                   (data.TEMPLATE.DESCRIPTION || '...')+
                 '</li>'+
-                '<li class="text-right provision-bullet-item">'+
+                '<li class="provision-bullet-item">'+
                   '<span class="left">'+
-                    '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                    '<i class="fa fa-fw fa-lg fa-user"/> '+
                     owner+
                   '</span>'+
                 '</li>'+
@@ -953,7 +953,7 @@ define(function(require) {
             if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
               $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
             } else {
-              $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/>&emsp;');
+              $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/> ');
             }
 
             $(".provision_accordion_template a").first().trigger("click");
@@ -987,7 +987,7 @@ define(function(require) {
               UserInputs.vmTemplateInsert(
                   $(".provision_custom_attributes_selector", create_vm_context),
                   template_json,
-                  {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+                  {text_header: '<i class="fa fa-gears fa-lg"></i> '+Locale.tr("Custom Attributes")});
 
             } else {
               $(".provision_custom_attributes_selector", create_vm_context).html("");
@@ -1085,7 +1085,7 @@ define(function(require) {
                 '</span>'+
                 '</div>');
             } else {
-              $("#provision_flow_templates_table").html('<div id="provision_flow_templates_ul" class="large-up-3 medium-up-3 small-up-1 text-center"></div>');
+              $("#provision_flow_templates_table").html('<div id="provision_flow_templates_ul" class="large-up-3 medium-up-3 small-up-1"></div>');
             }
 
             return true;
@@ -1099,8 +1099,8 @@ define(function(require) {
             if (body.roles) {
               $.each(body.roles, function(index, role) {
                 roles_li +=
-                  '<li class="provision-bullet-item text-left">'+
-                    '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                  '<li class="provision-bullet-item">'+
+                    '<i class="fa fa-fw fa-cube"/> '+
                     role.name+
                     '<span class="right">'+role.cardinality+" VMs</span>"+
                   '</li>';
@@ -1169,7 +1169,7 @@ define(function(require) {
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();
             $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.NAME)
-            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/>&emsp;');
+            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/> ');
             $(".provision_accordion_flow_template a").first().trigger("click");
 
             var context = $("#provision_create_flow");
@@ -1221,7 +1221,7 @@ define(function(require) {
                 '<div class="row">'+
                   '<div class="large-10 large-centered columns">'+
                     '<h2 class="subheader">'+
-                      '<i class="fa fa-cube fa-lg"></i>&emsp;'+
+                      '<i class="fa fa-cube fa-lg"></i> '+
                       role.name+
                     '</h2>'+
                     '<br>'+
@@ -1262,7 +1262,7 @@ define(function(require) {
                     UserInputs.vmTemplateInsert(
                         $(".provision_custom_attributes_selector", role_context),
                         template_json,
-                        {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+                        {text_header: '<i class="fa fa-gears fa-lg"></i> '+Locale.tr("Custom Attributes")});
 
                   } else {
                     $(".provision_custom_attributes_selector", role_context).html("");
