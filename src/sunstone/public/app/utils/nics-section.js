@@ -134,40 +134,40 @@ define(function(require) {
 
     if (options.nic) {
       nic_span = '<span class="selected_network" template_nic=\'' + JSON.stringify(options.nic) + '\'>' +
-          '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
-          '<span style="color: #777;">' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
+          '<span>' + Locale.tr("INTERFACE") + "</span>" +
+          '<span>' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
         '</span>' +
-        '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">' +
+        '<span class="has-tip right provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip right" style="cursor: pointer; margin-right:10px">' +
+        '<span class="has-tip right">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else if (options.vnet_attr) {
-      nic_span = '<span style="color: #777; font-size: 16px">' + options.vnet_attr.description + "</span><br>" +
-        '<span class="selected_network only-not-active" attr_name=\'' + options.vnet_attr.name + '\' style="color: #777;">' +
-          '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
+      nic_span = '<span>' + options.vnet_attr.description + "</span><br>" +
+        '<span class="selected_network only-not-active" attr_name=\'' + options.vnet_attr.name + '\'>' +
+          '<span>' + Locale.tr("INTERFACE") + "</span>" +
           '<span class="button radius small">' + Locale.tr("Select a Network") + "</span>" +
         '</span>' +
-        '<span class="only-active" style="color:#555">' +
+        '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip right only-not-active" style="cursor: pointer; margin-right:10px">' +
+        '<span class="has-tip right only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else {
       nic_span =
-        '<span class="selected_network only-not-active" style="color: #777;">' +
-          '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span class="selected_network only-not-active">' +
+          '<span>' + Locale.tr("INTERFACE") + "</span>" +
           '<span class="button radius small">' + Locale.tr("Select a Network") + "</span>" +
         '</span>' +
-        '<span class="only-active" style="color:#555">' +
+        '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">' +
+        '<span class="has-tip right provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip right only-not-active" style="cursor: pointer; margin-right:10px">' +
+        '<span class="has-tip right only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     }
@@ -222,13 +222,13 @@ define(function(require) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if (this.$('tr', {"filter": "applied"}).length == 0) {
           this.html('<div class="text-center">' +
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+            '<span class="fa-stack fa-5x">' +
               '<i class="fa fa-cloud fa-stack-2x"></i>' +
               '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
             '</span>' +
             '<br>' +
             '<br>' +
-            '<span style="font-size: 18px; color: #999">' +
+            '<span>' +
               Locale.tr("There are no networks available. Please contact your cloud administrator") +
             '</span>' +
             '</div>');
@@ -249,7 +249,7 @@ define(function(require) {
                 data.NAME +
               '</li>' +
               '<li class="provision-bullet-item">' +
-                '<i class="fa fa-fw fa-globe" style="font-size:40px;"/>' +
+                '<i class="fa fa-fw fa-globe"/>' +
               '</li>' +
               '<li class="provision-description">' +
                 (data.TEMPLATE.DESCRIPTION || '...') +
@@ -267,14 +267,14 @@ define(function(require) {
 
     dd_context.on("click", ".provision-pricing-table.more-than-one" , function() {
       var html = 
-        '<span style="color: #999; font-size: 14px">' + Locale.tr("INTERFACE") + "</span>&emsp;&emsp;" +
-        '<span style="color: #777;">' + $(this).attr("opennebula_name") + "</span>";
+        '<span>' + Locale.tr("INTERFACE") + "</span>" +
+        '<span>' + $(this).attr("opennebula_name") + "</span>";
 
       if (options.floatingIP){
         html +=
           '<div class="row noclick">' +
             '<div class="small-12 columns">' +
-              '<label class="inline" style="color: #777; font-size: 16px">' +
+              '<label class="inline">' +
                 '<input type="checkbox" class="floating_ip" />' +
                 Locale.tr("Floating IP") + " " +
                 '<span class="tip">' +
@@ -289,7 +289,7 @@ define(function(require) {
         html +=
           '<div class="row noclick">' +
             '<div class="small-5 columns">' +
-              '<label class="right inline" style="color: #777; font-size: 16px">' +
+              '<label class="right inline">' +
                 Locale.tr("Force IPv4:") + " " +
                 '<span class="tip">' +
                   Locale.tr("Optionally, you can force the IP assigned to the network interface.") +
@@ -305,7 +305,7 @@ define(function(require) {
       if (options.management){
         html +=
           '<div class="noclick">' +
-            '<label style="color: #777; font-size: 16px">' +
+            '<label>' +
               '<input type="checkbox" class="management" />' +
               Locale.tr("Management Interface") + " " +
               '<span class="tip">' +
@@ -396,13 +396,13 @@ define(function(require) {
 
   function update_provision_networks_datatable(datatable) {
     datatable.html('<div class="text-center">' +
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+      '<span class="fa-stack fa-5x">' +
         '<i class="fa fa-cloud fa-stack-2x"></i>' +
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>' +
       '<br>' +
       '<br>' +
-      '<span style="font-size: 18px; color: #999">' +
+      '<span>' +
       '</span>' +
       '</div>');
 
@@ -412,13 +412,13 @@ define(function(require) {
         datatable.fnClearTable(true);
         if (item_list.length == 0) {
           datatable.html('<div class="text-center">' +
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+            '<span class="fa-stack fa-5x">' +
               '<i class="fa fa-cloud fa-stack-2x"></i>' +
               '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
             '</span>' +
             '<br>' +
             '<br>' +
-            '<span style="font-size: 18px; color: #999">' +
+            '<span>' +
               Locale.tr("There are no networks available.") +
             '</span>' +
             '</div>');
