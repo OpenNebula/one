@@ -286,9 +286,6 @@ class VIClient
             ccrs.each { |c|
                 if !hpool["HOST[NAME=\"#{c.name}\"]"]
                     vc_hosts[dc.name] << c.name
-
-
-                    
                 end
               }
         }
@@ -484,29 +481,25 @@ class VIClient
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
-
             one_tmp = []
-
             dc.datastoreFolder.childEntity.each { |ds|
-                ds.host.each{|host|
-                    cluster_name = host.key.parent.name
+                # Find the Cluster from which to access this ds
+                cluster_name = ds.host[0].key.parent.name
 
-                    if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
-                       hpool["HOST[NAME=\"#{cluster_name}\"]"]
-                         one_tmp << {
-                             :name     => "#{ds.name}",
-                             :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
-                             :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
-                             :cluster  => cluster_name,
-                             :one  => "NAME=#{ds.name}\n"\
-                                      "DS_MAD=vcenter\n"\
-                                      "TM_MAD=vcenter\n"\
-                                      "VCENTER_CLUSTER=#{cluster_name}\n"
-                         }
-                     end
-                }
+                if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
+                   hpool["HOST[NAME=\"#{cluster_name}\"]"]
+                     one_tmp << {
+                       :name     => "#{ds.name}",
+                       :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                       :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                       :cluster  => cluster_name,
+                       :one  => "NAME=#{ds.name}\n"\
+                                "DS_MAD=vcenter\n"\
+                                "TM_MAD=vcenter\n"\
+                                "VCENTER_CLUSTER=#{cluster_name}\n"
+                     }
+                 end
             }
-
             ds_templates[dc.name] = one_tmp
         }
 
