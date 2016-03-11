@@ -1040,49 +1040,54 @@ class VCenterHost < ::OpenNebula::Host
     def monitor_vms
         str_info = ""
         @resource_pools.each{|rp|
-          rp.vm.each { |v|
-            begin
-                name   = v.name
-                number = -1
-
-                # Extract vmid if possible
-
-                matches = name.match(/^one-(\d*)(-(.*))?$/)
-                number  = matches[1] if matches
-
-                extraconfig_vmid = v.config.extraConfig.select{|val|
-                                           val[:key]=="opennebula.vm.id"}
-
-                if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
-                    number = extraconfig_vmid[0][:value]
-                end
-
-                vm = VCenterVm.new(@client, v)
-                vm.monitor
-
-                next if !vm.vm.config
-
-                str_info << "\nVM = ["
-                str_info << "ID=#{number},"
-                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-                str_info << "VM_NAME=\"#{name} - "\
-                            "#{v.runtime.host.parent.name}\","
-
-                if number == -1
-                    vm_template_to_one =
-                        Base64.encode64(vm.vm_to_one).gsub("\n","")
-                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
-                end
-
-                str_info << "POLL=\"#{vm.info}\"]"
-            rescue Exception => e
-                STDERR.puts e.inspect
-                STDERR.puts e.backtrace
-            end
-          }
+            str_info += monitor_vms_in_rp(rp)
         }
 
-        return str_info
+        str_info
+    end
+
+
+    def monitor_vms_in_rp(rp)
+        str_info = ""
+
+        if rp.resourcePool.size != 0
+            rp.resourcePool.each{|child_rp|
+                str_info += monitor_vms_in_rp(child_rp)
+            }
+        end
+
+        rp.vm.each { |v|
+          begin
+              name   = v.name
+              number = -1
+              # Extract vmid if possible
+              matches = name.match(/^one-(\d*)(-(.*))?$/)
+              number  = matches[1] if matches
+              extraconfig_vmid = v.config.extraConfig.select{|val|
+                                         val[:key]=="opennebula.vm.id"}
+              if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
+                  number = extraconfig_vmid[0][:value]
+              end
+              vm = VCenterVm.new(@client, v)
+              vm.monitor
+              next if !vm.vm.config
+              str_info << "\nVM = ["
+              str_info << "ID=#{number},"
+              str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+              str_info << "VM_NAME=\"#{name} - "\
+                          "#{v.runtime.host.parent.name}\","
+              if number == -1
+                  vm_template_to_one =
+                      Base64.encode64(vm.vm_to_one).gsub("\n","")
+                  str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+              end
+              str_info << "POLL=\"#{vm.info}\"]"
+          rescue Exception => e
+              STDERR.puts e.inspect
+              STDERR.puts e.backtrace
+          end
+        }
+      return str_info
     end
 
     def monitor_customizations
@@ -1522,13 +1527,14 @@ class VCenterVm
       str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
       str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
       str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
-      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s          << " "
-      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s           << " "
+      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s           << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
       str_info << "VMWARETOOLS_VERSION="        << @vmtools_ver.to_s     << " "
       str_info << "VMWARETOOLS_VERSION_STATUS=" << @vmtools_verst.to_s   << " "
+      str_info << "RESOURCE_POOL="              << @vm.resourcePool.name << " "
     end
 
     ########################################################################
