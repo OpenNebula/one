@@ -273,7 +273,11 @@ int VirtualNetworkAllocate::pool_allocate(
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
     set<int> cluster_ids;
-    cluster_ids.insert(cluster_id);
+
+    if (cluster_id != ClusterPool::NONE_CLUSTER_ID)
+    {
+        cluster_ids.insert(cluster_id);
+    }
 
     return vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
             vtmpl, &id, cluster_ids, att.resp_msg);
@@ -630,7 +634,11 @@ int HostAllocate::pool_allocate(
     HostPool * hpool = static_cast<HostPool *>(pool);
 
     set<int> cluster_ids;
-    cluster_ids.insert(cluster_id);
+
+    if (cluster_id != ClusterPool::NONE_CLUSTER_ID)
+    {
+        cluster_ids.insert(cluster_id);
+    }
 
     return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
                            cluster_ids, att.resp_msg);
@@ -718,7 +726,11 @@ int DatastoreAllocate::pool_allocate(
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);
 
     set<int> cluster_ids;
-    cluster_ids.insert(cluster_id);
+
+    if (cluster_id != ClusterPool::NONE_CLUSTER_ID)
+    {
+        cluster_ids.insert(cluster_id);
+    }
 
     return dspool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             ds_tmpl, &id, cluster_ids, att.resp_msg);
