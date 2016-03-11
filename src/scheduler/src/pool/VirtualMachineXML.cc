@@ -30,6 +30,7 @@ void VirtualMachineXML::init_attributes()
     int action;
 
     string automatic_requirements;
+    string automatic_cluster_requirements;
 
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
@@ -90,6 +91,28 @@ void VirtualMachineXML::init_attributes()
     else if ( !automatic_requirements.empty() )
     {
         ds_requirements = automatic_requirements;
+    }
+
+    // ------------------- CLUSTER REQUIREMENTS --------------------------------
+
+    xpath(automatic_cluster_requirements, "/VM/TEMPLATE/AUTOMATIC_CLUSTER_REQUIREMENTS", "");
+
+    rc = xpath(cluster_requirements, "/VM/USER_TEMPLATE/SCHED_CLUSTER_REQUIREMENTS", "");
+
+    if (rc == 0)
+    {
+        if ( !automatic_cluster_requirements.empty() )
+        {
+            ostringstream oss;
+
+            oss << automatic_cluster_requirements << " & ( " << cluster_requirements << " )";
+
+            cluster_requirements = oss.str();
+        }
+    }
+    else if ( !automatic_cluster_requirements.empty() )
+    {
+        cluster_requirements = automatic_cluster_requirements;
     }
 
     // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------

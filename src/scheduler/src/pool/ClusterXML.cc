@@ -14,47 +14,24 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "ClusterXML.h"
 
-#ifndef HOST_POOL_XML_H_
-#define HOST_POOL_XML_H_
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int ClusterXML::cluster_num_paths =  2;
 
-#include "PoolXML.h"
-#include "HostXML.h"
-#include "ClusterPoolXML.h"
+const char *ClusterXML::cluster_paths[] = {
+    "/CLUSTER/TEMPLATE/",
+    "/CLUSTER/"};
 
-using namespace std;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-class HostPoolXML : public PoolXML
+void ClusterXML::init_attributes()
 {
-public:
+    xpath(oid, "/CLUSTER/ID", -1);
 
-    HostPoolXML(Client* client):PoolXML(client) {};
-
-    ~HostPoolXML(){};
-
-    int set_up();
-
-    /**
-     *  Gets an object from the pool
-     *   @param oid the object unique identifier
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    HostXML * get(int oid) const
-    {
-        return static_cast<HostXML *>(PoolXML::get(oid));
-    };
-
-protected:
-
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
-    {
-        return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
-    };
-
-    void add_object(xmlNodePtr node);
-
-    int load_info(xmlrpc_c::value &result);
-};
-
-#endif /* HOST_POOL_XML_H_ */
+    //-------------------- Init search xpath routes ---------------------------
+    ObjectXML::paths     = cluster_paths;
+    ObjectXML::num_paths = cluster_num_paths;
+}

@@ -1462,14 +1462,22 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( !cluster_ids.empty() )
     {
-        // TODO: create a separate cluster automatic requirements
-        oss << "CLUSTER_IDS = " << one_util::join(cluster_ids, ',')
-            << " & !(PUBLIC_CLOUD = YES)";
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "(ID = " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | ID = " << *i;
+        }
+
+        oss << ")";
+
+        obj_template->add("AUTOMATIC_CLUSTER_REQUIREMENTS", oss.str());
     }
-    else
-    {
-        oss << "!(PUBLIC_CLOUD = YES)";
-    }
+
+    oss.str("");
+    oss << "!(PUBLIC_CLOUD = YES)";
 
     if (num_public != 0)
     {

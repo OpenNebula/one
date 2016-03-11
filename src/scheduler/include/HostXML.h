@@ -47,6 +47,21 @@ public:
         return cluster_ids;
     };
 
+    bool is_in_cluster(const set<int> &cids) const
+    {
+        set<int>::const_iterator i;
+
+        for (i = cids.begin(); i != cids.end(); i++)
+        {
+            if (cluster_ids.find(*i) != cluster_ids.end())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
