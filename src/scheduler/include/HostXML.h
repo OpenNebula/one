@@ -42,9 +42,9 @@ public:
         return oid;
     };
 
-    int get_cid() const
+    set<int> get_cids() const
     {
-        return cluster_id;
+        return cluster_ids;
     };
 
     /**
@@ -160,7 +160,7 @@ public:
 
 private:
     int oid;
-    int cluster_id;
+    set<int> cluster_ids;
 
     // Host share values
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */

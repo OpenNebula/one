@@ -34,6 +34,24 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
+const char * Cluster::host_table = "cluster_host_relation";
+const char * Cluster::host_db_names = "cid, oid";
+const char * Cluster::host_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS cluster_host_relation ("
+    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
+const char * Cluster::datastore_table = "cluster_datastore_relation";
+const char * Cluster::datastore_db_names = "cid, oid";
+const char * Cluster::datastore_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS cluster_datastore_relation ("
+    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
+const char * Cluster::network_table = "cluster_network_relation";
+const char * Cluster::network_db_names = "cid, oid";
+const char * Cluster::network_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
+    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */
 /* ************************************************************************** */
@@ -246,6 +264,59 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
+
+    if (rc == 0)
+    {
+        oss.str("");
+        oss << "BEGIN TRANSACTION; "
+            << "DELETE FROM " << host_table     << " WHERE cid = " << oid << "; "
+            << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
+            << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
+
+        // TODO
+        //if (db->multiple_values_support())
+        if (false)
+        {
+        }
+        else
+        {
+            set<int>::iterator i;
+
+            set<int> host_set = hosts.get_collection();
+
+            for(i = host_set.begin(); i != host_set.end(); i++)
+            {
+                oss << "INSERT INTO " << host_table
+                    << " (" << host_db_names << ") VALUES ("
+                    << oid  << ","
+                    << *i   << "); ";
+            }
+
+            set<int> datastore_set = datastores.get_collection();
+
+            for(i = datastore_set.begin(); i != datastore_set.end(); i++)
+            {
+                oss << "INSERT INTO " << datastore_table
+                    << " (" << datastore_db_names << ") VALUES ("
+                    << oid  << ","
+                    << *i   << "); ";
+            }
+
+            set<int> vnet_set = vnets.get_collection();
+
+            for(i = vnet_set.begin(); i != vnet_set.end(); i++)
+            {
+                oss << "INSERT INTO " << network_table
+                    << " (" << network_db_names << ") VALUES ("
+                    << oid  << ","
+                    << *i   << "); ";
+            }
+        }
+
+        oss << "COMMIT";
+
+        rc = db->exec(oss);
+    }
 
     return rc;
 

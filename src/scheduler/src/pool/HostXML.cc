@@ -22,6 +22,7 @@
 #include "HostXML.h"
 #include "NebulaUtil.h"
 #include "NebulaLog.h"
+#include "ObjectCollection.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -39,7 +40,12 @@ const char *HostXML::host_paths[] = {
 void HostXML::init_attributes()
 {
     xpath(oid,         "/HOST/ID",                     -1);
-    xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
+
+    ObjectCollection cluster_collection("CLUSTERS");
+    cluster_collection.from_xml(this, "/HOST/");
+
+    cluster_ids = cluster_collection.clone();
+
     xpath<long long>(mem_usage, "/HOST/HOST_SHARE/MEM_USAGE",   0);
     xpath<long long>(cpu_usage, "/HOST/HOST_SHARE/CPU_USAGE",   0);
     xpath<long long>(max_mem,   "/HOST/HOST_SHARE/MAX_MEM",     0);
@@ -172,7 +178,7 @@ ostream& operator<<(ostream& o, const HostXML& p)
     map<int, long long>::const_iterator it;
 
     o << "ID          : " << p.oid          << endl;
-    o << "CLUSTER_ID  : " << p.cluster_id   << endl;
+    o << "CLUSTER_IDS : " << one_util::join(p.cluster_ids, ',') << endl;
     o << "MEM_USAGE   : " << p.mem_usage    << endl;
     o << "CPU_USAGE   : " << p.cpu_usage    << endl;
     o << "MAX_MEM     : " << p.max_mem      << endl;

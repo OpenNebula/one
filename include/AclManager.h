@@ -261,16 +261,16 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules(
-            long long user_req,
-            long long resource_oid_req,
-            long long resource_gid_req,
-            long long resource_cid_req,
-            long long resource_all_req,
-            long long rights_req,
-            long long individual_obj_type,
-            long long group_obj_type,
-            long long cluster_obj_type,
-            multimap<long long, AclRule*> &rules);
+            const long long                     &user_req,
+            const long long                     &resource_oid_req,
+            const long long                     &resource_gid_req,
+            const set<long long>                &resource_cid_req,
+            const long long                     &resource_all_req,
+            const long long                     &rights_req,
+            const long long                     &resource_oid_mask,
+            const long long                     &resource_gid_mask,
+            const long long                     &resource_cid_mask,
+            const multimap<long long, AclRule*> &rules);
 
     /**
      *  Wrapper for match_rules. It will check if any rules in the temporary
@@ -290,16 +290,16 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules_wrapper(
-            long long user_req,
-            long long resource_oid_req,
-            long long resource_gid_req,
-            long long resource_cid_req,
-            long long resource_all_req,
-            long long rights_req,
-            long long individual_obj_type,
-            long long group_obj_type,
-            long long cluster_obj_type,
-            multimap<long long, AclRule*> &tmp_rules);
+            const long long                     &user_req,
+            const long long                     &resource_oid_req,
+            const long long                     &resource_gid_req,
+            const set<long long>                &resource_cid_req,
+            const long long                     &resource_all_req,
+            const long long                     &rights_req,
+            const long long                     &individual_obj_type,
+            const long long                     &group_obj_type,
+            const long long                     &cluster_obj_type,
+            const multimap<long long, AclRule*> &tmp_rules);
 
     /**
      * Deletes all rules that match the user mask

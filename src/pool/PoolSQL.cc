@@ -740,9 +740,29 @@ void PoolSQL::acl_filter(int                       uid,
         acl_filter << " OR gid = " << *it;
     }
 
-    for ( it = cids.begin(); it < cids.end(); it++ )
+    string cl_table;
+
+    if (auth_object == PoolObjectSQL::HOST)
     {
-        acl_filter << " OR cid = " << *it;
+        cl_table = Cluster::host_table;
+    }
+    else if (auth_object == PoolObjectSQL::DATASTORE)
+    {
+        cl_table = Cluster::datastore_table;
+    }
+    else if (auth_object == PoolObjectSQL::NET)
+    {
+        cl_table = Cluster::network_table;
+    }
+
+    if (!cl_table.empty())
+    {
+        for ( it = cids.begin(); it < cids.end(); it++ )
+        {
+            acl_filter << " OR oid IN ("
+                << "SELECT oid from " << cl_table
+                << " WHERE cid = " << *it << ")";
+        }
     }
 
     filter = acl_filter.str();

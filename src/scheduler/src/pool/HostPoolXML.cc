@@ -98,6 +98,8 @@ int HostPoolXML::load_info(xmlrpc_c::value &result)
 
 void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
 {
+    // TODO
+    /*
     map<int,ObjectXML*>::iterator it;
 
     ClusterXML* cluster;
@@ -131,6 +133,7 @@ void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
             }
         }
     }
+    */
 }
 
 /* -------------------------------------------------------------------------- */

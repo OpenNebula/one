@@ -241,17 +241,19 @@ const bool AclManager::authorize(
         resource_gid_req = AclRule::NONE_ID;
     }
 
-    long long resource_cid_req;
+    set<long long> resource_cid_req;
 
-    if ((obj_perms.cid >= 0) && (!obj_perms.disable_cluster_acl))
+    if (!obj_perms.disable_cluster_acl)
     {
-        resource_cid_req = obj_perms.obj_type |
-                           AclRule::CLUSTER_ID |
-                           obj_perms.cid;
-    }
-    else
-    {
-        resource_cid_req = AclRule::NONE_ID;
+        set<int>::iterator i;
+
+        for(i = obj_perms.cids.begin(); i != obj_perms.cids.end(); i++)
+        {
+            resource_cid_req.insert(    obj_perms.obj_type |
+                                        AclRule::CLUSTER_ID |
+                                        *i
+                                    );
+        }
     }
 
     long long resource_all_req ;
@@ -289,10 +291,6 @@ const bool AclManager::authorize(
     else if ( obj_perms.gid >= 0 )
     {
         log_resource = resource_gid_req;
-    }
-    else if ( obj_perms.cid >= 0 )
-    {
-        log_resource = resource_cid_req;
     }
     else
     {
@@ -398,16 +396,16 @@ const bool AclManager::authorize(
 /* -------------------------------------------------------------------------- */
 
 bool AclManager::match_rules_wrapper(
-        long long user_req,
-        long long resource_oid_req,
-        long long resource_gid_req,
-        long long resource_cid_req,
-        long long resource_all_req,
-        long long rights_req,
-        long long individual_obj_type,
-        long long group_obj_type,
-        long long cluster_obj_type,
-        multimap<long long, AclRule*> &tmp_rules)
+        const long long                     &user_req,
+        const long long                     &resource_oid_req,
+        const long long                     &resource_gid_req,
+        const set<long long>                &resource_cid_req,
+        const long long                     &resource_all_req,
+        const long long                     &rights_req,
+        const long long                     &individual_obj_type,
+        const long long                     &group_obj_type,
+        const long long                     &cluster_obj_type,
+        const multimap<long long, AclRule*> &tmp_rules)
 {
     bool auth = false;
 
@@ -452,26 +450,47 @@ bool AclManager::match_rules_wrapper(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+inline bool match_cluster_req(
+        const set<long long>  &resource_cid_req,
+        const long long       &resource_cid_mask,
+        const long long       &rule_resource)
+{
+    set<long long>::iterator i;
+
+    for(i = resource_cid_req.begin(); i != resource_cid_req.end(); i++)
+    {
+        // rule's object type and cluster object ID match
+        if ( ( rule_resource & resource_cid_mask ) == *i )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
 bool AclManager::match_rules(
-        long long user_req,
-        long long resource_oid_req,
-        long long resource_gid_req,
-        long long resource_cid_req,
-        long long resource_all_req,
-        long long rights_req,
-        long long resource_oid_mask,
-        long long resource_gid_mask,
-        long long resource_cid_mask,
-        multimap<long long, AclRule*> &rules)
+        const long long                     &user_req,
+        const long long                     &resource_oid_req,
+        const long long                     &resource_gid_req,
+        const set<long long>                &resource_cid_req,
+        const long long                     &resource_all_req,
+        const long long                     &rights_req,
+        const long long                     &resource_oid_mask,
+        const long long                     &resource_gid_mask,
+        const long long                     &resource_cid_mask,
+        const multimap<long long, AclRule*> &rules)
 
 {
     bool auth = false;
     ostringstream oss;
 
-    multimap<long long, AclRule *>::iterator        it;
+    multimap<long long, AclRule *>::const_iterator        it;
 
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
+    pair<multimap<long long, AclRule *>::const_iterator,
+         multimap<long long, AclRule *>::const_iterator>  index;
 
     long long zone_oid_mask = AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL;
     long long zone_req      = AclRule::INDIVIDUAL_ID | zone_id;
@@ -507,8 +526,8 @@ bool AclManager::match_rules(
             // Or rule's object type and individual object ID match
             ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
             ||
-            // Or rule's object type and cluster object ID match
-            ( ( it->second->resource & resource_cid_mask ) == resource_cid_req )
+            // Or rule's object type and one of the cluster object ID match
+            match_cluster_req(resource_cid_req, resource_cid_mask, it->second->resource)
           );
 
         if ( auth == true )

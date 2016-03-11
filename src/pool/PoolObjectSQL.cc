@@ -362,7 +362,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 
     if(cl != 0)
     {
-        auth.cid = cl->get_cluster_id();
+        auth.cids = cl->get_cluster_ids();
     }
 }
 

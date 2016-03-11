@@ -546,7 +546,7 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
         PoolObjectAuth hperms;
 
         hperms.oid      = host->get_hid();
-        hperms.cid      = host->get_cid();
+        hperms.cids     = host->get_cids();
         hperms.obj_type = PoolObjectSQL::HOST;
 
         UserXML * user = upool->get(vm->get_uid());
@@ -1050,7 +1050,8 @@ void Scheduler::dispatch()
     long long dsk;
     vector<VectorAttribute *> pci;
 
-    int hid, dsid, cid;
+    int hid, dsid;
+    set<int> cids;
     bool test_cap_result;
 
     unsigned int dispatched_vms = 0;
@@ -1113,7 +1114,7 @@ void Scheduler::dispatch()
                 continue;
             }
 
-            cid = host->get_cid();
+            cids = host->get_cids();
 
             //------------------------------------------------------------------
             // Test host capacity
@@ -1170,7 +1171,7 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test cluster membership for datastore and selected host
                 //--------------------------------------------------------------
-                if (ds->get_cid() != cid)
+                if (!ds->is_in_cluster(cids))
                 {
                     continue;
                 }
