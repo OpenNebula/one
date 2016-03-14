@@ -76,6 +76,20 @@ DISTRIBUTIONS={
             'json'      => ['gcc']
         },
         :install_command => 'yum install'
+    },
+    :opensuse => {
+        :id => ['openSUSE'],
+        :dependencies_common => ['ruby-devel', 'make'],
+        :dependencies => {
+            SQLITE      => ['gcc', 'sqlite3-devel'],
+            'mysql'     => ['gcc', 'libmysqlclient-devel', 'openssl-devel'],
+            'curb'      => ['gcc', 'curl-devel'],
+            $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel patch},
+            'xmlparser' => ['gcc', 'expat-devel'],
+            'thin'      => ['gcc-c++'],
+            'json'      => ['gcc']
+        },
+        :install_command => 'zypper in'
     }
 }
 
