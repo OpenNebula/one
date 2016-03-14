@@ -115,6 +115,10 @@ else
     CHECKSUM="$MD5"
 fi
 
+if [ -z "\$CHECKSUM" ]; then
+    exit 1
+fi
+
 cat <<EOT
 <MD5><![CDATA[\$CHECKSUM]]></MD5>
 <SIZE><![CDATA[$SIZE]]></SIZE>

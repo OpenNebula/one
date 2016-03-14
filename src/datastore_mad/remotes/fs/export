@@ -56,15 +56,17 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 #-------------------------------------------------------------------------------
 
 INFO_SCRIPT=$(cat <<EOF
-
 CHECKSUM=\$(${MD5SUM} ${SRC} | cut -f1 -d' ')
 SIZE=\$(${DU} -Lm ${SRC} | cut -f1)
 FORMAT=\$(${QEMU_IMG} info ${SRC} 2>/dev/null | grep -Po '(?<=file format: )\w+')
 
+if [ -z "\$CHECKSUM" -o -z "\$SIZE" ]; then
+    exit 1
+fi
+
 echo "<MD5><![CDATA[\$CHECKSUM]]></MD5>"
 echo "<SIZE><![CDATA[\$SIZE]]></SIZE>"
-echo "<FORMAT><![CDATA[\${FORMAT-"unknown"}]]></FORMAT>"
-
+echo "<FORMAT><![CDATA[\${FORMAT:-unknown}]]></FORMAT>"
 EOF
 )
 
