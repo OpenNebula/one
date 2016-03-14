@@ -18,11 +18,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var TemplateUtils = require('utils/template-utils');
   var VNetsTable = require('tabs/vnets-tab/datatable');
+  var RangeSlider = require('utils/range-slider');
 
   var TemplateHTML = require('hbs!./user-inputs/table');
   var RowTemplateHTML = require('hbs!./user-inputs/row');
-
-  var uinputListId = 0;
 
 
   //==============================================================================
@@ -45,10 +44,7 @@ define(function(require) {
     'unmarshall': _unmarshall,
     'parse': _parse,
     'generateInputElement': _generateInputElement,
-    'attributeInput': _attributeInput,
-
-    // Setup
-    'initialSetup': _initialSetup
+    'attributeInput': _attributeInput
   };
 
   function _html(){
@@ -461,41 +457,7 @@ define(function(require) {
         break;
       case "range":
       case "range-float":
-
-        var list_attr = "";
-        var datalist  = "";
-
-        if (attr.tick_size != undefined){
-          uinputListId += 1;
-
-          list_attr = 'list="uinput-list-'+uinputListId+'"';
-
-          datalist = '<datalist id="uinput-list-'+uinputListId+'">';
-
-          var tick_val = attr.tick_size * Math.ceil(attr.min / attr.tick_size);
-          while (tick_val <= attr.max){
-            datalist += '<option>'+tick_val+'</option>';
-            tick_val += attr.tick_size;
-          }
-
-          datalist += '</datalist>';
-        }
-
-        input =
-        '<div class="row uinput-slider-container">'+
-          '<div class="small-8 columns">'+
-            '<input type="range" class="uinput-slider" style="width:100%"'+
-              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'" '+
-              list_attr+'/>'+
-          '</div>'+
-          datalist+
-          '<div class="small-4 columns">'+
-            '<input type="number" class="uinput-slider-val" '+
-              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+'/>'+
-          '</div>'+
-        '</div>';
+        input = RangeSlider.html(attr);
 
         break;
       case "list":
@@ -532,17 +494,5 @@ define(function(require) {
     var attrs = _parse(name, value);
 
     return _attributeInput(attrs);
-  }
-
-  function _initialSetup() {
-    $(document).off("input", "input.uinput-slider-val");
-    $(document).on("input", "input.uinput-slider-val", function(){
-      $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
-    });
-
-    $(document).off("input", "input.uinput-slider");
-    $(document).on("input", "input.uinput-slider", function(){
-      $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
-    });
   }
 });

@@ -21,6 +21,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
+  var RangeSlider = require('utils/range-slider');
 
   var ProvisionVmsList = require('tabs/provision-tab/vms/list');
 
@@ -442,21 +443,9 @@ define(function(require) {
                 '</div>'+
                 '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
-                  '<br>'+
-                  '<span>'+min_vms+'</span>'+
-                  '<span>'+max_vms+'</span>'+
-                  '<br>'+
-                  '<div class="range-slider cardinality_slider" data-slider>'+
-                    '<span class="range-slider-handle" role="slider" tabindex="0"></span>'+
-                    '<span class="range-slider-active-segment"></span>'+
-                    '<input type="hidden">'+
-                  '</div>'+
-                  '<br>'+
-                  '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
                 '</div>'+
+                '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
                 '<div class="cardinality_no_slider_div">'+
-                  '<br>'+
-                  '<br>'+
                   '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
                 '</div>'+
               '</div>'+
@@ -469,16 +458,25 @@ define(function(require) {
 
       //TODO context.foundation('slider', 'reflow');
       if (max_vms > min_vms) {
-// TODO        $( ".cardinality_slider_div", context).show();
-// TODO        $( ".cardinality_no_slider_div", context).hide();
-// TODO
-// TODO        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';');
-// TODO        $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
-// TODO        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-// TODO          $(".cardinality_value",context).html($(this).attr('data-slider'))
-// TODO        });
+        $( ".cardinality_slider_div", context).html(RangeSlider.html({
+            min: min_vms,
+            max: max_vms,
+            initial: role.cardinality
+          }));
+
+        $( ".cardinality_slider_div", context).show();
+        $(".provision_change_cardinality_button").show();
+        $( ".cardinality_no_slider_div", context).hide();
+
+        $( ".cardinality_slider_div", context).on("input", '.uinput-slider', function() {
+          $(".cardinality_value",context).html($(this).val())
+        });
+
+        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
+        });
       } else {
         $( ".cardinality_slider_div", context).hide();
+        $(".provision_change_cardinality_button").hide();
         $( ".cardinality_no_slider_div", context).show();
       }
 
@@ -487,7 +485,7 @@ define(function(require) {
 
     context.on("click", ".provision_change_cardinality_button", function(){
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var cardinality = $(".cardinality_slider", context).attr('data-slider');
+      var cardinality = $('.uinput-slider-value', context).val();
 
       OpenNebula.Role.update({
         data : {

@@ -14,27 +14,29 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<label class="" for="{{name}}">
-  {{label}}
-  {{#if tip}}
-    {{{tip tip}}}  
+
+<div class="row uinput-slider-container">
+  {{#if label}}
+  <div class="small-12 columns">
+    <label for="input-{{sliderId}}">{{label}}</label>
+  </div>
   {{/if}}
-</label>
-<div class="medium-10 columns">
-  <div id="{{name}}Slider" class="range-slider radius" data-slider data-options="start: {{start}}; end: {{end}}; step: {{step}};">
-    <span class="range-slider-handle"></span>
-    <span class="range-slider-active-segment"></span>
-    <input type="hidden"></div>
-</div>
-<div class="medium-2 columns">
-  {{#if unitLabel}}
-    <div class="small-9 columns">
-      <input type="text" id="{{name}}" name="{{name}}"/>
-    </div>
-    <div class="small-3 columns">
-      <span style="font-size: 18px; color: #999;">{{unitLabel}}</span>
-    </div>
-  {{else}}
-    <input type="text" wizard_field="{{name}}" id="{{name}}" name="{{name}}"/>
-  {{/if}}
+  <div class="small-8 columns">
+    <input id="input-{{sliderId}}" type="range" class="uinput-slider"
+      min="{{min}}" max="{{max}}" step="{{step}}" 
+      value="{{initial}}" 
+      list="uinput-list-{{sliderId}}"
+      {{#if disabled}}disabled="true"{{/if}}/>
+    <datalist id="uinput-list-{{sliderId}}">
+    {{#each ticks}}
+    <option>{{this}}</option>
+    {{/each}}
+    </datalist>
+  </div>
+  <div class="small-4 columns">
+    <input type="number" class="uinput-slider-val" 
+      min="{{min}}" max="{{max}}" step="{{step}}" 
+      value="{{initial}}" wizard_field="{{name}}"
+      {{#if disabled}}disabled="true"{{/if}} required/>
+  </div>
 </div>

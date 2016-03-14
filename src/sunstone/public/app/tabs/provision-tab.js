@@ -122,19 +122,8 @@ define(function(require) {
             '</div>'+
             '<div class="large-6 columns">'+
               '<div class="cardinality_slider_div">'+
-                '<span>'+Locale.tr("Change cardinality")+'</span>'+
-                '<br>'+
-                '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
-                  '<span class="range-slider-handle"></span>'+
-                  '<span class="range-slider-active-segment"></span>'+
-                  '<input type="hidden">'+
-                '</div>'+
-                '<span class="left">'+min_vms+'</span>'+
-                '<span class="right">'+max_vms+'</span>'+
               '</div>'+
               '<div class="cardinality_no_slider_div">'+
-                '<br>'+
-                '<br>'+
                 '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
               '</div>'+
             '</div>'+
@@ -209,18 +198,20 @@ define(function(require) {
       }
 
       if (max_vms > min_vms) {
-//TODO        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
-//TODO        context.foundation();
-//TODO        $( ".cardinality_slider_div", context).show();
-//TODO        $( ".cardinality_no_slider_div", context).hide();
-//TODO
-//TODO        $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
-//TODO
-//TODO        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-//TODO          $(".cardinality_value",context).html($(this).attr('data-slider'))
-//TODO          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
-//TODO          $(".cost_value", context).html(cost_value.toFixed(2));
-//TODO        });
+        $( ".cardinality_slider_div", context).html(RangeSlider.html({
+            min: min_vms,
+            max: max_vms,
+            initial: role_template.cardinality
+          }));
+
+        $( ".cardinality_slider_div", context).show();
+        $( ".cardinality_no_slider_div", context).hide();
+
+        $( ".cardinality_slider_div", context).on("input", '.uinput-slider', function() {
+          $(".cardinality_value", context).html($(this).val());
+          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
+          $(".cost_value", context).html(cost_value.toFixed(2));
+        });
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();
