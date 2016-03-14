@@ -289,8 +289,8 @@ EOT
             :name   => 'ssh',
             :large  => '--ssh [file]',
             :description => "Add an ssh public key to the context. If the \n"<<
-                (' '*31)<<"file is omited then the user variable \n"<<
-                (' '*31)<<"SSH_PUBLIC_KEY will be used.",
+                (' '*31) << "file is omited then the user variable \n"<<
+                (' '*31) << "SSH_PUBLIC_KEY will be used.",
             :format => String,
             :proc => lambda do |o, options|
                 if !o
@@ -961,7 +961,7 @@ EOT
             end
 
             if !lines.empty?
-                "CONTEXT=[\n"<<lines.map{|l| "  "<<l }.join(",\n")<<"\n]\n"
+                "CONTEXT=[\n" << lines.map{|l| "  " << l }.join(",\n") << "\n]\n"
             else
                 nil
             end
@@ -1012,7 +1012,7 @@ EOT
             if options[:vnc_password]
                 template << ", PASSWD=\"#{options[:vnc_password]}\""
             end
-            template<<' ]'<<"\n"
+            template<<' ]' << "\n"
         end
 
         if options[:spice]
@@ -1021,7 +1021,7 @@ EOT
             if options[:spice_password]
                 template << ", PASSWD=\"#{options[:spice_password]}\""
             end
-            template<<' ]'<<"\n"
+            template<<' ]' << "\n"
         end
 
         context=create_context(options)
