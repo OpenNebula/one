@@ -1009,7 +1009,7 @@ class VCenterHost < ::OpenNebula::Host
     # /vim.ResourcePool.html
     ############################################################################
     def monitor_resource_pools(parent_rp, parent_prefix, mhz_core)
-        return if parent_rp.resourcePool.size == 0
+        return "" if parent_rp.resourcePool.size == 0
 
         rp_info = ""
 
