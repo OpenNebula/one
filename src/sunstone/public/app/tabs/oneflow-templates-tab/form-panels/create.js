@@ -105,7 +105,7 @@ define(function(require) {
         '<tr>\
           <td>\
             <input class="service_network_name" type="text" pattern="^\\w+$"/>\
-            <small class="error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
+            <small class="form-error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
