@@ -88,26 +88,6 @@ define(function(require) {
 
     Foundation.reflow(context, 'tabs');
 
-    // close icon: removing the tab on click
-    context.on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var li = $(this).closest('li');
-      var ul = $(this).closest('ul');
-      var content = $(target);
-
-      li.remove();
-      content.remove();
-
-      var nicId = content.attr("nicId");
-      delete that.nicTabObjects[nicId];
-
-      if (li.attr("class") == 'active') {
-        $('a', ul.children('li').last()).click();
-      }
-
-      that.renameTabLinks(context);
-    });
-
     context.on("click", "#tf_btn_nics", function() {
       that.addNicTab(context);
       return false;
@@ -171,8 +151,9 @@ define(function(require) {
   }
 
   function _addNicTab(context) {
-    this.numberOfNics++;
-    var nicTab = new NicTab(this.numberOfNics);
+    var that = this;
+    that.numberOfNics++;
+    var nicTab = new NicTab(that.numberOfNics);
 
     var content = $('<div id="' + nicTab.nicTabId + '" class="nic wizard_internal_tab tabs-panel">' +
         nicTab.html() +
@@ -187,10 +168,30 @@ define(function(require) {
     $("a", a).trigger("click");
 
     nicTab.setup(content);
-    content.attr("nicId", this.numberOfNics);
+    content.attr("nicId", that.numberOfNics);
 
-    this.renameTabLinks(context);
-    this.nicTabObjects[this.numberOfNics] = nicTab;
+    that.renameTabLinks(context);
+    that.nicTabObjects[that.numberOfNics] = nicTab;
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      li.remove();
+      content.remove();
+
+      var nicId = content.attr("nicId");
+      delete that.nicTabObjects[nicId];
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      that.renameTabLinks(context);
+    });
   }
 
   function _renameTabLinks(context) {

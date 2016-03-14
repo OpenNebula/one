@@ -88,26 +88,6 @@ define(function(require) {
 
     Foundation.reflow(context, 'tabs');
 
-    // close icon: removing the tab on click
-    context.on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var li = $(this).closest('li');
-      var ul = $(this).closest('ul');
-      var content = $(target);
-
-      li.remove();
-      content.remove();
-
-      var diskId = content.attr("diskId");
-      delete that.diskTabObjects[diskId];
-
-      if (li.attr("class") == 'is-active') {
-        $('a', ul.children('li').last()).click();
-      }
-
-      that.renameTabLinks(context);
-    });
-
     context.on("click", "#tf_btn_disks", function() {
       that.addDiskTab(context);
       return false;
@@ -155,8 +135,9 @@ define(function(require) {
   }
 
   function _addDiskTab(context) {
-    this.numberOfDisks++;
-    var diskTab = new DiskTab(this.numberOfDisks);
+    var that = this;
+    that.numberOfDisks++;
+    var diskTab = new DiskTab(that.numberOfDisks);
 
     var content = $('<div id="' + diskTab.diskTabId + '" class="disk wizard_internal_tab tabs-panel">' +
         diskTab.html() +
@@ -171,10 +152,30 @@ define(function(require) {
     $("a", a).trigger("click");
 
     diskTab.setup(content);
-    content.attr("diskId", this.numberOfDisks);
+    content.attr("diskId", that.numberOfDisks);
 
-    this.renameTabLinks(context);
-    this.diskTabObjects[this.numberOfDisks] = diskTab;
+    that.renameTabLinks(context);
+    that.diskTabObjects[that.numberOfDisks] = diskTab;
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      li.remove();
+      content.remove();
+
+      var diskId = content.attr("diskId");
+      delete that.diskTabObjects[diskId];
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      that.renameTabLinks(context);
+    });
   }
 
   function _renameTabLinks(context) {

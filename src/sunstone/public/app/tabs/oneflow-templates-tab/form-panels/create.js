@@ -136,27 +136,6 @@ define(function(require) {
       return false;
     });
 
-    // close icon: removing the tab on click
-    $("#roles_tabs", context).on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
-      var content = $(target);
-
-      var role_id = content.attr("role_id");
-
-      dd.remove();
-      content.remove();
-
-      if (dd.attr("class") == 'is-active') {
-        $('a', dl.children('dd').last()).click();
-      }
-
-      delete that.roleTabObjects[role_id];
-
-      return false;
-    });
-
     // Fill parents table
     // Each time a tab is clicked the table is filled with existing tabs (roles)
     // Selected roles are kept
@@ -430,10 +409,11 @@ define(function(require) {
   }
 
   function _add_role_tab(role_id, dialog) {
+    var that = this;
     var html_role_id  = 'role' + role_id;
 
     var role_tab = new RoleTab(html_role_id);
-    this.roleTabObjects[role_id] = role_tab;
+    that.roleTabObjects[role_id] = role_tab;
 
     // Append the new div containing the tab and add the tab to the list
     var role_section = $('<div id="'+html_role_id+'Tab" class="tabs-panel role_content wizard_internal_tab" role_id="'+role_id+'">'+
@@ -455,6 +435,27 @@ define(function(require) {
 
     Foundation.reInit($("ul#roles_tabs", dialog));
     $("a", a).trigger("click");
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      var role_id = content.attr("role_id");
+
+      li.remove();
+      content.remove();
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      delete that.roleTabObjects[role_id];
+
+      return false;
+    });
 
     role_tab.setup(role_section);
     role_tab.onShow();

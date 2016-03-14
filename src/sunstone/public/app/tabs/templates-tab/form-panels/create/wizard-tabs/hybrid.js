@@ -364,25 +364,6 @@ define(function(require) {
     Foundation.reflow(context, 'tabs');
     that.numberOfProviders = 0;
 
-    // close icon: removing the tab on click
-    context.on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var li = $(this).closest('li');
-      var ul = $(this).closest('ul');
-      var content = $(target);
-
-      li.remove();
-      content.remove();
-
-      if (li.attr("class") == 'active') {
-        $('a', ul.children('li').last()).click();
-      }
-
-      $("ul#template_create_hybrid_tabs li", context).each(function(index) {
-          $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
-        })
-    });
-
     context.on("click", "#tf_btn_hybrid", function() {
       that.addProviderTab(that.numberOfProviders, context);
       that.numberOfProviders++;
@@ -487,6 +468,25 @@ define(function(require) {
     Foundation.reInit($("ul#template_create_hybrid_tabs", context));
 
     $("a", a).trigger("click");
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      li.remove();
+      content.remove();
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      $("ul#template_create_hybrid_tabs li", context).each(function(index) {
+          $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
+        })
+    });
 
     var providerSection = $('#' + htmlId + 'Tab', context);
 
