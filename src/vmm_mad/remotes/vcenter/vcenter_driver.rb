@@ -216,7 +216,7 @@ class VIClient
     end
 
     ########################################################################
-    # The associated cluster for this connection
+    # Is this Cluster confined in a resource pool?
     ########################################################################
     def rp_confined?
        !@one_host["TEMPLATE/VCENTER_RESOURCE_POOL"].nil?
@@ -257,6 +257,7 @@ class VIClient
     ########################################################################
     def find_resource_pool(poolName)
         baseEntity = @cluster
+
         entityArray = poolName.split('/')
         entityArray.each do |entityArrItem|
           if entityArrItem != ''
@@ -544,29 +545,25 @@ class VIClient
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
-
             one_tmp = []
-
             dc.datastoreFolder.childEntity.each { |ds|
-                ds.host.each{|host|
-                    cluster_name = host.key.parent.name
+                # Find the Cluster from which to access this ds
+                cluster_name = ds.host[0].key.parent.name
 
-                    if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
-                       hpool["HOST[NAME=\"#{cluster_name}\"]"]
-                         one_tmp << {
-                             :name     => "#{ds.name}",
-                             :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
-                             :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
-                             :cluster  => cluster_name,
-                             :one  => "NAME=#{ds.name}\n"\
-                                      "DS_MAD=vcenter\n"\
-                                      "TM_MAD=vcenter\n"\
-                                      "VCENTER_CLUSTER=#{cluster_name}\n"
-                         }
-                     end
-                }
+                if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
+                   hpool["HOST[NAME=\"#{cluster_name}\"]"]
+                     one_tmp << {
+                       :name     => "#{ds.name}",
+                       :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                       :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                       :cluster  => cluster_name,
+                       :one  => "NAME=#{ds.name}\n"\
+                                "DS_MAD=vcenter\n"\
+                                "TM_MAD=vcenter\n"\
+                                "VCENTER_CLUSTER=#{cluster_name}\n"
+                     }
+                 end
             }
-
             ds_templates[dc.name] = one_tmp
         }
 
@@ -1001,6 +998,63 @@ class VCenterHost < ::OpenNebula::Host
         str_info << "TOTALMEMORY=" << total_mem.to_s << "\n"
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s
+
+        str_info << monitor_resource_pools(@cluster.resourcePool, "", mhz_core)
+    end
+
+    ############################################################################
+    # Generate an OpenNebula monitor string for all resource pools of a cluster
+    # Reference:
+    # http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc
+    # /vim.ResourcePool.html
+    ############################################################################
+    def monitor_resource_pools(parent_rp, parent_prefix, mhz_core)
+        return if parent_rp.resourcePool.size == 0
+
+        rp_info = ""
+
+        parent_rp.resourcePool.each{|rp|
+            rpcpu     = rp.config.cpuAllocation
+            rpmem     = rp.config.memoryAllocation
+            # CPU
+            cpu_expandable   = rpcpu.expandableReservation ? "YES" : "NO"
+            cpu_limit        = rpcpu.limit == "-1" ? "UNLIMITED" : rpcpu.limit
+            cpu_reservation  = rpcpu.reservation
+            cpu_num          = rpcpu.reservation.to_f / mhz_core
+            cpu_shares_level = rpcpu.shares.level
+            cpu_shares       = rpcpu.shares.shares
+
+            # MEMORY
+            mem_expandable   = rpmem.expandableReservation ? "YES" : "NO"
+            mem_limit        = rpmem.limit == "-1" ? "UNLIMITED" : rpmem.limit
+            mem_reservation  = rpmem.reservation.to_f
+            mem_shares_level = rpmem.shares.level
+            mem_shares       = rpmem.shares.shares
+
+            rp_name          = (parent_prefix.empty? ? "" : parent_prefix + "/")
+            rp_name         += rp.name
+
+            rp_info << "\nRESOURCE_POOL = ["
+            rp_info << "NAME=#{rp_name},"
+            rp_info << "CPU_EXPANDABLE=#{cpu_expandable},"
+            rp_info << "CPU_LIMIT=#{cpu_limit},"
+            rp_info << "CPU_RESERVATION=#{cpu_reservation},"
+            rp_info << "CPU_RESERVATION_NUM_CORES=#{cpu_num},"
+            rp_info << "CPU_SHARES=#{cpu_shares},"
+            rp_info << "CPU_SHARES_LEVEL=#{cpu_shares_level},"
+            rp_info << "MEM_EXPANDABLE=#{mem_expandable},"
+            rp_info << "MEM_LIMIT=#{mem_limit},"
+            rp_info << "MEM_RESERVATION=#{mem_reservation},"
+            rp_info << "MEM_SHARES=#{mem_shares},"
+            rp_info << "MEM_SHARES_LEVEL=#{mem_shares_level}"
+            rp_info << "]"
+
+            if rp.resourcePool.size != 0
+               rp_info << monitor_resource_pools(rp, rp_name, mhz_core)
+            end
+        }
+
+        return rp_info
     end
 
     ############################################################################
@@ -1050,49 +1104,54 @@ class VCenterHost < ::OpenNebula::Host
     def monitor_vms
         str_info = ""
         @resource_pools.each{|rp|
-          rp.vm.each { |v|
-            begin
-                name   = v.name
-                number = -1
-
-                # Extract vmid if possible
-
-                matches = name.match(/^one-(\d*)(-(.*))?$/)
-                number  = matches[1] if matches
-
-                extraconfig_vmid = v.config.extraConfig.select{|val|
-                                           val[:key]=="opennebula.vm.id"}
-
-                if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
-                    number = extraconfig_vmid[0][:value]
-                end
-
-                vm = VCenterVm.new(@client, v)
-                vm.monitor
-
-                next if !vm.vm.config
-
-                str_info << "\nVM = ["
-                str_info << "ID=#{number},"
-                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-                str_info << "VM_NAME=\"#{name} - "\
-                            "#{v.runtime.host.parent.name}\","
-
-                if number == -1
-                    vm_template_to_one =
-                        Base64.encode64(vm.vm_to_one).gsub("\n","")
-                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
-                end
-
-                str_info << "POLL=\"#{vm.info}\"]"
-            rescue Exception => e
-                STDERR.puts e.inspect
-                STDERR.puts e.backtrace
-            end
-          }
+            str_info += monitor_vms_in_rp(rp)
         }
 
-        return str_info
+        str_info
+    end
+
+
+    def monitor_vms_in_rp(rp)
+        str_info = ""
+
+        if rp.resourcePool.size != 0
+            rp.resourcePool.each{|child_rp|
+                str_info += monitor_vms_in_rp(child_rp)
+            }
+        end
+
+        rp.vm.each { |v|
+          begin
+              name   = v.name
+              number = -1
+              # Extract vmid if possible
+              matches = name.match(/^one-(\d*)(-(.*))?$/)
+              number  = matches[1] if matches
+              extraconfig_vmid = v.config.extraConfig.select{|val|
+                                         val[:key]=="opennebula.vm.id"}
+              if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
+                  number = extraconfig_vmid[0][:value]
+              end
+              vm = VCenterVm.new(@client, v)
+              vm.monitor
+              next if !vm.vm.config
+              str_info << "\nVM = ["
+              str_info << "ID=#{number},"
+              str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+              str_info << "VM_NAME=\"#{name} - "\
+                          "#{v.runtime.host.parent.name}\","
+              if number == -1
+                  vm_template_to_one =
+                      Base64.encode64(vm.vm_to_one).gsub("\n","")
+                  str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+              end
+              str_info << "POLL=\"#{vm.info}\"]"
+          rescue Exception => e
+              STDERR.puts e.inspect
+              STDERR.puts e.backtrace
+          end
+        }
+      return str_info
     end
 
     def monitor_customizations
@@ -1532,13 +1591,14 @@ class VCenterVm
       str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
       str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
       str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
-      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s          << " "
-      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s           << " "
+      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s           << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
       str_info << "VMWARETOOLS_VERSION="        << @vmtools_ver.to_s     << " "
       str_info << "VMWARETOOLS_VERSION_STATUS=" << @vmtools_verst.to_s   << " "
+      str_info << "RESOURCE_POOL="              << @vm.resourcePool.name << " "
     end
 
     ########################################################################
@@ -1773,9 +1833,13 @@ private
     def self.clone_vm(xml_text, hostname, datastore)
 
         host_id = VCenterDriver::VIClient.translate_hostname(hostname)
+
         # Retrieve hostname
+
         host  =  OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new())
         host.info   # Not failing if host retrieval fails
+
+        # Get VM prefix name
 
         if host["/HOST/TEMPLATE/VM_PREFIX"] and !host["/HOST/TEMPLATE/VM_PREFIX"].empty?
             vmname_prefix = host["/HOST/TEMPLATE/VM_PREFIX"]
@@ -1784,7 +1848,7 @@ private
         end
 
         xml = REXML::Document.new xml_text
-        pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
+        pcs = xml.root.get_elements("/VM/USER_TEMPLATE/PUBLIC_CLOUD")
 
         raise "Cannot find VCenter element in VM template." if pcs.nil?
 
@@ -1794,6 +1858,7 @@ private
         }
 
         # If there are multiple vcenter templates, find the right one
+
         if template.is_a? Array
             all_vcenter_templates = template.clone
             # If there is more than one coincidence, pick the first one
@@ -1822,18 +1887,36 @@ private
         vmid         =  xml.root.elements["/VM/ID"].text
         vmname_prefix.gsub!("$i", vmid)
         vcenter_name = "#{vmname_prefix}#{xml.root.elements["/VM/NAME"].text}"
-        hid          = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
+        hid          = xml.root.elements["/VM/HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        context     = xml.root.elements["//TEMPLATE/CONTEXT"]
+        context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
+        # Find out requested and available resource pool
+
+        req_rp = nil
+        if !template.elements["RESOURCE_POOL"].nil?
+            req_rp = template.elements["RESOURCE_POOL"].text
+        end
+
         if connection.rp_confined?
             rp = connection.resource_pool.first
+            if req_rp && rp.name != req_rp
+                raise "Available resource pool in host [#{rp.name}]"\
+                      " does not match requested resource pool"\
+                      " [#{req_rp}]"
+            end
         else
-            rp = connection.default_resource_pool
+            if req_rp # if there is requested resource pool, retrieve it
+                rp = connection.find_resource_pool(req_rp)
+                raise "Cannot find resource pool "\
+                      "#{template.elements["RESOURCE_POOL"].text}" if !rp
+            else # otherwise, get the default resource pool
+                rp = connection.default_resource_pool
+            end
         end
 
         if datastore
@@ -1995,7 +2078,7 @@ private
 
         # NIC section, build the reconfig hash
 
-        nics     = xml.root.get_elements("//TEMPLATE/NIC")
+        nics     = xml.root.get_elements("/VM/TEMPLATE/NIC")
         nic_spec = {}
 
         if !nics.nil?
@@ -2012,7 +2095,7 @@ private
 
         # DISK section, build the reconfig hash
 
-        disks     = xml.root.get_elements("//TEMPLATE/DISK")
+        disks     = xml.root.get_elements("/VM/TEMPLATE/DISK")
         disk_spec = {}
 
         if !disks.nil?
@@ -2029,8 +2112,8 @@ private
 
         # Capacity section
 
-        cpu           = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
-        memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
+        cpu           = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
+        memory        = xml.root.elements["/VM/TEMPLATE/MEMORY"].text
         capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
 
