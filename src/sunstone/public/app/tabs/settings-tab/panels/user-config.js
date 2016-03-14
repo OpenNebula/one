@@ -72,7 +72,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    $(document).foundation('accordion', 'reflow');
+    Foundation.reflow(context, 'accordion');
     var ssh_key = this.element.TEMPLATE.SSH_PUBLIC_KEY;
     if (ssh_key && ssh_key.length) {
       $("#provision_ssh_key", context).val(ssh_key);
