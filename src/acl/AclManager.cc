@@ -209,8 +209,6 @@ const bool AclManager::authorize(
         const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op)
 {
-    ostringstream oss;
-
     bool auth = false;
 
     // Build masks for request
@@ -281,30 +279,35 @@ const bool AclManager::authorize(
                                   AclRule::CLUSTER_ID |
                                   0x00000000FFFFFFFFLL;
 
-    // Create a temporal rule, to log the request
-    long long log_resource;
-
-    if ( obj_perms.oid >= 0 )
+    if (NebulaLog::log_level() >= Log::DDEBUG)
     {
-        log_resource = resource_oid_req;
-    }
-    else if ( obj_perms.gid >= 0 )
-    {
-        log_resource = resource_gid_req;
-    }
-    else
-    {
-        log_resource = resource_all_req;
-    }
+        ostringstream oss;
 
-    AclRule log_rule(-1,
-                     AclRule::INDIVIDUAL_ID | uid,
-                     log_resource,
-                     rights_req,
-                     AclRule::INDIVIDUAL_ID | zone_id);
+        // Create a temporal rule, to log the request
+        long long log_resource;
 
-    oss << "Request " << log_rule.to_str();
-    NebulaLog::log("ACL",Log::DDEBUG,oss);
+        if ( obj_perms.oid >= 0 )
+        {
+            log_resource = resource_oid_req;
+        }
+        else if ( obj_perms.gid >= 0 )
+        {
+            log_resource = resource_gid_req;
+        }
+        else
+        {
+            log_resource = resource_all_req;
+        }
+
+        AclRule log_rule(-1,
+                         AclRule::INDIVIDUAL_ID | uid,
+                         log_resource,
+                         rights_req,
+                         AclRule::INDIVIDUAL_ID | zone_id);
+
+        oss << "Request " << log_rule.to_str();
+        NebulaLog::log("ACL",Log::DDEBUG,oss);
+    }
 
     // -------------------------------------------------------------------------
     // Create temporary rules from the object permissions
@@ -386,8 +389,7 @@ const bool AclManager::authorize(
         }
     }
 
-    oss.str("No more rules, permission not granted ");
-    NebulaLog::log("ACL",Log::DDEBUG,oss);
+    NebulaLog::log("ACL",Log::DDEBUG,"No more rules, permission not granted ");
 
     return false;
 }
@@ -500,9 +502,12 @@ bool AclManager::match_rules(
 
     for ( it = index.first; it != index.second; it++)
     {
-        oss.str("");
-        oss << "> Rule  " << it->second->to_str();
-        NebulaLog::log("ACL",Log::DDEBUG,oss);
+        if (NebulaLog::log_level() >= Log::DDEBUG)
+        {
+            oss.str("");
+            oss << "> Rule  " << it->second->to_str();
+            NebulaLog::log("ACL",Log::DDEBUG,oss);
+        }
 
         auth =
           (
@@ -532,8 +537,7 @@ bool AclManager::match_rules(
 
         if ( auth == true )
         {
-            oss.str("Permission granted");
-            NebulaLog::log("ACL",Log::DDEBUG,oss);
+            NebulaLog::log("ACL",Log::DDEBUG,"Permission granted");
 
             break;
         }
@@ -979,19 +983,22 @@ void AclManager::reverse_search(int                       uid,
 
     long long zone_all_req = AclRule::ALL_ID;
 
-    // Create a temporal rule, to log the request
-    long long log_resource;
+    if (NebulaLog::log_level() >= Log::DDEBUG)
+    {
+        // Create a temporal rule, to log the request
+        long long log_resource;
 
-    log_resource = resource_all_req;
+        log_resource = resource_all_req;
 
-    AclRule log_rule(-1,
-                     AclRule::INDIVIDUAL_ID | uid,
-                     log_resource,
-                     rights_req,
-                     zone_oid_req);
+        AclRule log_rule(-1,
+                         AclRule::INDIVIDUAL_ID | uid,
+                         log_resource,
+                         rights_req,
+                         zone_oid_req);
 
-    oss << "Reverse search request " << log_rule.to_str();
-    NebulaLog::log("ACL",Log::DDEBUG,oss);
+        oss << "Reverse search request " << log_rule.to_str();
+        NebulaLog::log("ACL",Log::DDEBUG,oss);
+    }
 
     // ---------------------------------------------------
     // Look for the rules that match
@@ -1034,9 +1041,12 @@ void AclManager::reverse_search(int                       uid,
                  )
                )
             {
-                oss.str("");
-                oss << "> Rule  " << it->second->to_str();
-                NebulaLog::log("ACL",Log::DDEBUG,oss);
+                if (NebulaLog::log_level() >= Log::DDEBUG)
+                {
+                    oss.str("");
+                    oss << "> Rule  " << it->second->to_str();
+                    NebulaLog::log("ACL",Log::DDEBUG,oss);
+                }
 
                 // Rule grants permission for all objects of this type
                 if ((!disable_all_acl) &&
@@ -1118,7 +1128,6 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
         return -1;
     }
 
-    ostringstream oss;
     istringstream iss;
 
     int oid = atoi(values[0]);
@@ -1145,8 +1154,13 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
                                  rule_values[2],
                                  rule_values[3]);
 
-    oss << "Loading ACL Rule " << rule->to_str();
-    NebulaLog::log("ACL",Log::DDEBUG,oss);
+    if (NebulaLog::log_level() >= Log::DDEBUG)
+    {
+        ostringstream oss;
+
+        oss << "Loading ACL Rule " << rule->to_str();
+        NebulaLog::log("ACL",Log::DDEBUG,oss);
+    }
 
     acl_rules.insert( make_pair(rule->user, rule) );
     acl_rules_oids.insert( make_pair(rule->oid, rule) );
