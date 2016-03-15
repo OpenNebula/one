@@ -21,6 +21,7 @@
 #include <map>
 #include "ObjectXML.h"
 #include "HostShare.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 
@@ -42,24 +43,9 @@ public:
         return oid;
     };
 
-    set<int> get_cids() const
+    int get_cid() const
     {
-        return cluster_ids;
-    };
-
-    bool is_in_cluster(const set<int> &cids) const
-    {
-        set<int>::const_iterator i;
-
-        for (i = cids.begin(); i != cids.end(); i++)
-        {
-            if (cluster_ids.find(*i) != cluster_ids.end())
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return cluster_id;
     };
 
     /**
@@ -173,9 +159,16 @@ public:
      */
     friend ostream& operator<<(ostream& o, const HostXML& p);
 
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auth);
+
 private:
     int oid;
-    set<int> cluster_ids;
+    int cluster_id;
 
     // Host share values
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */

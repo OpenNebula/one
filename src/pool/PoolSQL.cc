@@ -740,13 +740,17 @@ void PoolSQL::acl_filter(int                       uid,
         acl_filter << " OR gid = " << *it;
     }
 
-    string cl_table;
-
     if (auth_object == PoolObjectSQL::HOST)
     {
-        cl_table = Cluster::host_table;
+        for ( it = cids.begin(); it < cids.end(); it++ )
+        {
+            acl_filter << " OR cid = " << *it;
+        }
     }
-    else if (auth_object == PoolObjectSQL::DATASTORE)
+
+    string cl_table;
+
+    if (auth_object == PoolObjectSQL::DATASTORE)
     {
         cl_table = Cluster::datastore_table;
     }

@@ -70,19 +70,9 @@ public:
         return oid;
     };
 
-    bool is_in_cluster(const set<int> &cids) const
+    bool is_in_cluster(int cid) const
     {
-        set<int>::const_iterator i;
-
-        for (i = cids.begin(); i != cids.end(); i++)
-        {
-            if (cluster_ids.find(*i) != cluster_ids.end())
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return cluster_ids.count(cid) != 0;
     };
 
     /**

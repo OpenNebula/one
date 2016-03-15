@@ -1464,20 +1464,19 @@ int VirtualMachine::automatic_requirements(string& error_str)
     {
         set<int>::iterator i = cluster_ids.begin();
 
-        oss << "(ID = " << *i;
+        oss << "(CLUSTER_ID = " << *i;
 
         for (++i; i != cluster_ids.end(); i++)
         {
-            oss << " | ID = " << *i;
+            oss << " | CLUSTER_ID = " << *i;
         }
 
-        oss << ")";
-
-        obj_template->add("AUTOMATIC_CLUSTER_REQUIREMENTS", oss.str());
+        oss << ") & !(PUBLIC_CLOUD = YES)";
     }
-
-    oss.str("");
-    oss << "!(PUBLIC_CLOUD = YES)";
+    else
+    {
+        oss << "!(PUBLIC_CLOUD = YES)";
+    }
 
     if (num_public != 0)
     {
@@ -1496,6 +1495,25 @@ int VirtualMachine::automatic_requirements(string& error_str)
     }
 
     obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
+
+    // Set automatic System DS requirements
+
+    if ( !cluster_ids.empty() )
+    {
+        oss.str("");
+
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "\"CLUSTERS/ID\" = " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | \"CLUSTERS/ID\" = " << *i;
+        }
+
+        obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
+    }
+
 
     return 0;
 

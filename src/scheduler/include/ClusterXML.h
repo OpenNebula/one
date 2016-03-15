@@ -43,13 +43,10 @@ public:
 private:
     int oid;
 
-    void init_attributes();
-
-    // Configuration attributes
-    static const char *cluster_paths[]; /**< paths for search function */
-
-    static int cluster_num_paths; /**< number of paths*/
-
+    void init_attributes()
+    {
+        xpath(oid, "/CLUSTER/ID", -1);
+    };
 };
 
 #endif /* CLUSTER_XML_H_ */

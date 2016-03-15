@@ -73,7 +73,8 @@ protected:
                               Template * tmpl,
                               int& id,
                               RequestAttributes& att,
-                              int cluster_id)
+                              int cluster_id,
+                              const string& cluster_name)
     {
         return pool_allocate(_paramList, tmpl, id, att);
     };
@@ -171,7 +172,8 @@ public:
                       Template * tmpl,
                       int& id,
                       RequestAttributes& att,
-                      int cluster_id);
+                      int cluster_id,
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -273,7 +275,8 @@ public:
                       Template * tmpl,
                       int& id,
                       RequestAttributes& att,
-                      int cluster_id);
+                      int cluster_id,
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -376,7 +379,8 @@ public:
                       Template * tmpl,
                       int& id,
                       RequestAttributes& att,
-                      int cluster_id);
+                      int cluster_id,
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {

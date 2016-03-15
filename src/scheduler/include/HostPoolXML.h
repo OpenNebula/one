@@ -45,6 +45,14 @@ public:
         return static_cast<HostXML *>(PoolXML::get(oid));
     };
 
+    /**
+     * For each Host in a cluster, adds the cluster template as a new
+     * Host xml element
+     *
+     * @param clpool Cluster pool
+     */
+    void merge_clusters(ClusterPoolXML * clpool);
+
 protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)

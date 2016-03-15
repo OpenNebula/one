@@ -472,6 +472,12 @@ int Scheduler::set_up_pools()
     }
 
     //--------------------------------------------------------------------------
+    //Add to each host the corresponding cluster template
+    //--------------------------------------------------------------------------
+
+    hpool->merge_clusters(clpool);
+
+    //--------------------------------------------------------------------------
     //Cleans the cache and get the ACLs
     //--------------------------------------------------------------------------
 
@@ -507,14 +513,12 @@ int Scheduler::set_up_pools()
  *  @param n_error number of requirement errors, incremented if needed
  *  @param n_fits number of hosts with capacity that fits the VM requirements
  *  @param n_matched number of hosts that fullfil VM sched_requirements
- *  @param n_cluster_matched number of hosts that fulfill VM sched_cluster_requirements
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
 static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm,
     int vmem, int vcpu, vector<VectorAttribute *>& vpci, HostXML * host,
-    int &n_auth, int& n_error, int &n_fits, int &n_matched,
-    int &n_cluster_matched, string &error)
+    int &n_auth, int& n_error, int &n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -541,9 +545,7 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
     {
         PoolObjectAuth hperms;
 
-        hperms.oid      = host->get_hid();
-        hperms.cids     = host->get_cids();
-        hperms.obj_type = PoolObjectSQL::HOST;
+        host->get_permissions(hperms);
 
         UserXML * user = upool->get(vm->get_uid());
 
@@ -565,18 +567,6 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
     }
 
     n_auth++;
-
-    // -------------------------------------------------------------------------
-    // Check host clusters
-    // -------------------------------------------------------------------------
-
-    if (host->is_in_cluster(vm->get_match_clusters()) != true)
-    {
-        error = "Host is not in any of the filtered Clusters.";
-        return false;
-    }
-
-    n_cluster_matched++;
 
     // -------------------------------------------------------------------------
     // Check host capacity
@@ -643,14 +633,12 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
  *  @param n_error number of requirement errors, incremented if needed
  *  @param n_matched number of system ds that fullfil VM sched_requirements
  *  @param n_fits number of system ds with capacity that fits the VM requirements
- *  @param n_cluster_matched number of system ds that fulfill VM sched_cluster_requirements
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
 static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
     VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds, int& n_auth,
-    int& n_error, int& n_fits, int &n_matched,
-    int &n_cluster_matched, string &error)
+    int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Check if user is authorized
@@ -683,18 +671,6 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
     n_auth++;
 
     // -------------------------------------------------------------------------
-    // Check host clusters
-    // -------------------------------------------------------------------------
-
-    if (ds->is_in_cluster(vm->get_match_clusters()) != true)
-    {
-        error = "System DS is not in any of the filtered Clusters.";
-        return false;
-    }
-
-    n_cluster_matched++;
-
-    // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
     // checked in a per host basis during dispatch). Resume actions do not
     // add to shared system DS usage, and are skipped also
@@ -722,72 +698,20 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
             n_error++;
 
             oss << "Error in SCHED_DS_REQUIREMENTS: '"
-                << vm->get_ds_requirements() << "', error: " << error;
+                << vm->get_ds_requirements() << "', error: " << estr;
 
             vm->log(oss.str());
 
+            error = oss.str();
+
             free(estr);
+
+            return false;
         }
 
         if (matched == false)
         {
             error = "It does not fulfill SCHED_DS_REQUIREMENTS.";
-            return false;
-        }
-    }
-
-    n_matched++;
-
-    return true;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-/**
- *  Match clusters for this VM that:
- *    1. Meet user/automatic requirements
- *
- *  @param vm the virtual machine
- *  @param cluster to evaluate vm assignment
- *  @param n_error number of requirement errors
- *  @param n_matched number of clusters that fulfill VM sched_cluster_requirements
- *  @param error, string describing why the cluster is not valid
- *  @return true for a positive match
- */
-static bool match_cluster(VirtualMachineXML* vm, ClusterXML * cluster,
-        int& n_error, int &n_matched, string &error)
-{
-    // -------------------------------------------------------------------------
-    // Evaluate VM requirements
-    // -------------------------------------------------------------------------
-    if (!vm->get_cluster_requirements().empty())
-    {
-        char * estr;
-        bool   matched;
-
-        if ( cluster->eval_bool(vm->get_cluster_requirements(), matched, &estr) != 0 )
-        {
-            ostringstream oss;
-
-            n_error++;
-
-            oss << "Error in SCHED_CLUSTER_REQUIREMENTS: '"
-                << vm->get_cluster_requirements() << "', error: " << error;
-
-            vm->log(oss.str());
-
-            free(estr);
-        }
-
-        if (matched == false)
-        {
-            ostringstream oss;
-
-            oss << "It does not fulfill SCHED_CLUSTER_REQUIREMENTS: "
-                << vm->get_cluster_requirements();
-            error = oss.str();
-
             return false;
         }
     }
@@ -825,9 +749,7 @@ void Scheduler::match_schedule()
     int n_auth;
     int n_error;
     int n_fits;
-    int n_cluster_matched;
 
-    ClusterXML * cluster;
     HostXML * host;
     DatastoreXML *ds;
 
@@ -839,7 +761,6 @@ void Scheduler::match_schedule()
     vector<SchedulerPolicy *>::iterator it;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
-    const map<int, ObjectXML*> clusters    = clpool->get_objects();
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
     const map<int, ObjectXML*> users       = upool->get_objects();
@@ -888,51 +809,6 @@ void Scheduler::match_schedule()
         }
 
         // ---------------------------------------------------------------------
-        // Match clusters for this VM.
-        // ---------------------------------------------------------------------
-        profile(true);
-
-        for (obj_it=clusters.begin(); obj_it != clusters.end(); obj_it++)
-        {
-            cluster = static_cast<ClusterXML *>(obj_it->second);
-
-            if (match_cluster(vm, cluster, n_error, n_matched, m_error))
-            {
-                vm->add_match_cluster(cluster->get_oid());
-
-                n_resources++;
-            }
-            else
-            {
-                if ( n_error > 0 )
-                {
-                    log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
-                    break;
-                }
-                else if (NebulaLog::log_level() >= Log::DDEBUG)
-                {
-                    ostringstream oss;
-                    oss << "Hosts and System DS in Cluster "
-                        << cluster->get_oid() << " discarded for VM "
-                        << vm->get_oid() << ". " << m_error;
-
-                    NebulaLog::log("SCHED", Log::DDEBUG, oss);
-                }
-            }
-        }
-
-        total_cl_match_time += profile(false);
-
-        // ---------------------------------------------------------------------
-        // Log scheduling errors to VM user if any
-        // ---------------------------------------------------------------------
-
-        if (n_resources == 0) //No clusters assigned, let's see why
-        {
-            // TODO
-        }
-
-        // ---------------------------------------------------------------------
         // Match hosts for this VM.
         // ---------------------------------------------------------------------
         profile(true);
@@ -942,7 +818,7 @@ void Scheduler::match_schedule()
             host = static_cast<HostXML *>(obj_it->second);
 
             if (match_host(acls, upool, vm, vm_memory, vm_cpu, vm_pci, host,
-                    n_auth, n_error, n_fits, n_matched, n_cluster_matched, m_error))
+                    n_auth, n_error, n_fits, n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
 
@@ -983,15 +859,6 @@ void Scheduler::match_schedule()
                 else if (n_auth == 0)
                 {
                     vm->log("User is not authorized to use any host");
-                }
-                else if (n_cluster_matched == 0)
-                {
-                    ostringstream oss;
-
-                    oss << "No host meets capacity and SCHED_CLUSTER_REQUIREMENTS: "
-                        << vm->get_cluster_requirements();
-
-                    vm->log(oss.str());
                 }
                 else if (n_fits == 0)
                 {
@@ -1057,7 +924,7 @@ void Scheduler::match_schedule()
             ds = static_cast<DatastoreXML *>(obj_it->second);
 
             if (match_system_ds(acls, upool, vm, vm_disk, ds, n_auth, n_error,
-                        n_fits, n_matched, n_cluster_matched, m_error))
+                        n_fits, n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -1106,16 +973,6 @@ void Scheduler::match_schedule()
                     else if (n_auth == 0)
                     {
                         vm->log("User is not authorized to use any system datastore");
-                    }
-                    else if (n_cluster_matched == 0)
-                    {
-                        ostringstream oss;
-
-                        oss << "No system datastore meets capacity and "
-                            << "SCHED_CLUSTER_REQUIREMENTS: "
-                            << vm->get_cluster_requirements();
-
-                        vm->log(oss.str());
                     }
                     else if (n_fits == 0)
                     {
@@ -1212,8 +1069,7 @@ void Scheduler::dispatch()
     long long dsk;
     vector<VectorAttribute *> pci;
 
-    int hid, dsid;
-    set<int> cids;
+    int hid, dsid, cid;
     bool test_cap_result;
 
     unsigned int dispatched_vms = 0;
@@ -1276,7 +1132,7 @@ void Scheduler::dispatch()
                 continue;
             }
 
-            cids = host->get_cids();
+            cid = host->get_cid();
 
             //------------------------------------------------------------------
             // Test host capacity
@@ -1333,7 +1189,7 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test cluster membership for datastore and selected host
                 //--------------------------------------------------------------
-                if (!ds->is_in_cluster(cids))
+                if (!ds->is_in_cluster(cid))
                 {
                     continue;
                 }

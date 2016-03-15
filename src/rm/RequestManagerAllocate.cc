@@ -177,7 +177,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, att, cluster_id);
+    rc = pool_allocate(params, tmpl, id, att, cluster_id, cluster_name);
 
     if ( rc < 0 )
     {
@@ -267,7 +267,8 @@ int VirtualNetworkAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id)
+        int                         cluster_id,
+        const string&               cluster_name)
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
@@ -624,7 +625,8 @@ int HostAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id)
+        int                         cluster_id,
+        const string&               cluster_name)
 {
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
@@ -633,15 +635,8 @@ int HostAllocate::pool_allocate(
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    set<int> cluster_ids;
-
-    if (cluster_id != ClusterPool::NONE_CLUSTER_ID)
-    {
-        cluster_ids.insert(cluster_id);
-    }
-
     return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
-                           cluster_ids, att.resp_msg);
+                           cluster_id, cluster_name, att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -720,7 +715,8 @@ int DatastoreAllocate::pool_allocate(
         Template *                  tmpl,
         int&                        id,
         RequestAttributes&          att,
-        int                         cluster_id)
+        int                         cluster_id,
+        const string&               cluster_name)
 {
     DatastorePool * dspool      = static_cast<DatastorePool *>(pool);
     DatastoreTemplate * ds_tmpl = static_cast<DatastoreTemplate *>(tmpl);

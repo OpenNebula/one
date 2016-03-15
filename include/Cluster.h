@@ -201,8 +201,6 @@ public:
      */
     int from_xml(const string &xml_str);
 
-    static const char * host_table;
-
     static const char * datastore_table;
 
     static const char * network_table;
@@ -241,9 +239,6 @@ private:
     static const char * db_bootstrap;
     static const char * table;
 
-    static const char * host_db_names;
-    static const char * host_db_bootstrap;
-
     static const char * datastore_db_names;
     static const char * datastore_db_bootstrap;
 
@@ -270,9 +265,6 @@ private:
 
         oss.str(Cluster::db_bootstrap);
         rc = db->exec(oss);
-
-        oss.str(Cluster::host_db_bootstrap);
-        rc += db->exec(oss);
 
         oss.str(Cluster::datastore_db_bootstrap);
         rc += db->exec(oss);

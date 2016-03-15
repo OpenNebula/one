@@ -33,9 +33,10 @@ Host::Host(
     const string& _im_mad_name,
     const string& _vmm_mad_name,
     const string& _vnm_mad_name,
-    const set<int>& _cluster_ids):
+    int           _cluster_id,
+    const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
-        Clusterable(_cluster_ids),
+        ClusterableSingle(_cluster_id, _cluster_name),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -68,12 +69,12 @@ Host::~Host()
 const char * Host::table = "host_pool";
 
 const char * Host::db_names =
-    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u";
+    "oid, name, body, state, last_mon_time, uid, gid, owner_u, group_u, other_u, cid";
 
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER)";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER)";
 
 
 const char * Host::monit_table = "host_monitoring";
@@ -142,7 +143,8 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          gid                 << ","
         <<          owner_u             << ","
         <<          group_u             << ","
-        <<          other_u             << ")";
+        <<          other_u             << ","
+        <<          cluster_id          << ")";
 
     rc = db->exec(oss);
 
@@ -581,7 +583,6 @@ string& Host::to_xml(string& xml) const
 {
     string template_xml;
     string share_xml;
-    string clusters_xml;
 
     ostringstream oss;
     string        vm_collection_xml;
@@ -595,10 +596,11 @@ string& Host::to_xml(string& xml) const
        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
        "<VN_MAD>"        << one_util::escape_xml(vnm_mad_name) << "</VN_MAD>" <<
        "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
-       Clusterable::to_xml(clusters_xml)        <<
-       host_share.to_xml(share_xml)             <<
-       vm_collection.to_xml(vm_collection_xml)  <<
-       obj_template->to_xml(template_xml)       <<
+       "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
+       "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
+       host_share.to_xml(share_xml)  <<
+       vm_collection.to_xml(vm_collection_xml) <<
+       obj_template->to_xml(template_xml) <<
     "</HOST>";
 
     xml = oss.str();
@@ -629,6 +631,9 @@ int Host::from_xml(const string& xml)
     rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
 
     rc += xpath<time_t>(last_monitored, "/HOST/LAST_MON_TIME", 0);
+
+    rc += xpath(cluster_id, "/HOST/CLUSTER_ID", -1);
+    rc += xpath(cluster,    "/HOST/CLUSTER",    "not_found");
 
     state = static_cast<HostState>( int_state );
 
@@ -667,10 +672,7 @@ int Host::from_xml(const string& xml)
     content.clear();
 
     // ------------ VMS collection ---------------
-    vm_collection.from_xml(this, "/HOST/");
-
-    // ------------ Cluster IDs ---------------
-    Clusterable::from_xml(this, "/HOST/");
+    rc += vm_collection.from_xml(this, "/HOST/");
 
     if (rc != 0)
     {

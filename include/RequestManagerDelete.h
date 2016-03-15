@@ -184,7 +184,11 @@ public:
 
     set<int> get_cluster_ids(PoolObjectSQL * object)
     {
-        return static_cast<Host*>(object)->get_cluster_ids();
+        set<int> ids;
+
+        ids.insert( static_cast<Host*>(object)->get_cluster_id() );
+
+        return ids;
     };
 
     int del_from_cluster(Cluster* cluster, int id, string& error_msg)

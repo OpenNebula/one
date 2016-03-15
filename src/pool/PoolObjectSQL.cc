@@ -364,6 +364,19 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     {
         auth.cids = cl->get_cluster_ids();
     }
+    else
+    {
+        ClusterableSingle* cls = dynamic_cast<ClusterableSingle*>(this);
+
+        if(cls != 0)
+        {
+            set<int> ids;
+
+            ids.insert(cls->get_cluster_id());
+
+            auth.cids = ids;
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

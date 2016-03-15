@@ -41,8 +41,8 @@ int VirtualMachinePoolXML::set_up()
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(3)  << "PCI"       << " "
                 << right << setw(11) << "System DS" << " "
-                << " Image DS"
-                << endl << setw(60) << setfill('-') << "-" << setfill(' ');
+                << " Image DS" << endl
+                << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
             for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
             {
@@ -65,8 +65,7 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
-                oss << endl
-                    << right << setw(8)  << action      << " "
+                oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "
@@ -80,6 +79,8 @@ int VirtualMachinePoolXML::set_up()
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
                 }
+
+                oss << endl;
             }
         }
         else

@@ -34,12 +34,6 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
-const char * Cluster::host_table = "cluster_host_relation";
-const char * Cluster::host_db_names = "cid, oid";
-const char * Cluster::host_db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS cluster_host_relation ("
-    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
-
 const char * Cluster::datastore_table = "cluster_datastore_relation";
 const char * Cluster::datastore_db_names = "cid, oid";
 const char * Cluster::datastore_db_bootstrap =
@@ -269,7 +263,6 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
     {
         oss.str("");
         oss << "BEGIN TRANSACTION; "
-            << "DELETE FROM " << host_table     << " WHERE cid = " << oid << "; "
             << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
             << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
 
@@ -281,16 +274,6 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
         else
         {
             set<int>::iterator i;
-
-            set<int> host_set = hosts.get_collection();
-
-            for(i = host_set.begin(); i != host_set.end(); i++)
-            {
-                oss << "INSERT INTO " << host_table
-                    << " (" << host_db_names << ") VALUES ("
-                    << oid  << ","
-                    << *i   << "); ";
-            }
 
             set<int> datastore_set = datastores.get_collection();
 

@@ -116,11 +116,6 @@ public:
         return ds_requirements;
     }
 
-    const string& get_cluster_requirements()
-    {
-        return cluster_requirements;
-    };
-
     void get_requirements (int& cpu, int& memory, long long& disk,
         vector<VectorAttribute *> &pci);
 
@@ -161,15 +156,6 @@ public:
     }
 
     /**
-     *  Adds a matching cluster
-     *    @param oid of the cluster
-     */
-    void add_match_cluster(int oid)
-    {
-        match_clusters.insert(oid);
-    }
-
-    /**
      *  Returns a vector of matched hosts
      */
     const vector<Resource *> get_match_hosts()
@@ -183,14 +169,6 @@ public:
     const vector<Resource *> get_match_datastores()
     {
         return match_datastores.get_resources();
-    }
-
-    /**
-     *  Returns a vector of matched hosts
-     */
-    const set<int>& get_match_clusters()
-    {
-        return match_clusters;
     }
 
     /**
@@ -351,8 +329,6 @@ protected:
 
     ResourceMatch match_datastores;
 
-    set<int> match_clusters;
-
     bool only_public_cloud;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
@@ -380,8 +356,6 @@ protected:
 
     string ds_requirements;
     string ds_rank;
-
-    string cluster_requirements;
 
     VirtualMachineTemplate * vm_template;   /**< The VM template */
     VirtualMachineTemplate * user_template; /**< The VM user template */

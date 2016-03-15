@@ -151,7 +151,8 @@ int HostPool::allocate (
     const string& im_mad_name,
     const string& vmm_mad_name,
     const string& vnm_mad_name,
-    const set<int>& cluster_ids,
+    int           cluster_id,
+    const string& cluster_name,
     string& error_str)
 {
     Host *        host;
@@ -192,7 +193,8 @@ int HostPool::allocate (
             im_mad_name,
             vmm_mad_name,
             vnm_mad_name,
-            cluster_ids);
+            cluster_id,
+            cluster_name);
 
     // Insert the Object in the pool
 
