@@ -80,7 +80,7 @@ protected:
 
     int get_ds_information(
         int ds_id,
-        int& ds_cluster_id,
+        set<int>& ds_cluster_ids,
         string& tm_mad,
         RequestAttributes& att,
         bool& ds_migr);
