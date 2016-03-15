@@ -21,6 +21,7 @@
 #include "TransferManager.h"
 #include "ImageManager.h"
 #include "Quotas.h"
+#include "Request.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -972,7 +973,7 @@ int DispatchManager::attach(int vid,
     int uid;
     int oid;
     int image_id;
-    int image_cluster_id;
+    string disk_cluster_ids;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -1070,37 +1071,44 @@ int DispatchManager::attach(int vid,
         return -1;
     }
 
-    // TODO: change to CLUSTER_IDS
-
     // Check that we don't have a cluster incompatibility.
-    if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
+    if (disk->vector_value("CLUSTER_IDS", disk_cluster_ids) == 0)
     {
-      if (vm->get_cid() != image_cluster_id)
-      {
-          imagem->release_image(oid, image_id, false);
+        set<int> cluster_ids;
+        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
 
-          delete snap;
-          delete disk;
+        if (cluster_ids.count(vm->get_cid()) == 0)
+        {
+            imagem->release_image(oid, image_id, false);
 
-          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-          {
-              vm->set_state(VirtualMachine::RUNNING);
-          }
-          else
-          {
-              vm->set_state(VirtualMachine::LCM_INIT);
-              vm->set_state(VirtualMachine::POWEROFF);
-          }
+            delete snap;
+            delete disk;
 
-          vmpool->update(vm);
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+            else
+            {
+                vm->set_state(VirtualMachine::LCM_INIT);
+                vm->set_state(VirtualMachine::POWEROFF);
+            }
 
-          vm->unlock();
+            vmpool->update(vm);
 
-          error_str = "Could not attach disk because of cluster incompatibility.";
+            vm->unlock();
 
-          NebulaLog::log("DiM", Log::ERROR, error_str);
-          return -1;
-      }
+            oss << "Could not attach disk because "
+                << Request::object_name(PoolObjectSQL::IMAGE)
+                << " [" << image_id << "] is not part of "
+                << Request::object_name(PoolObjectSQL::CLUSTER)
+                << " [" << vm->get_cid() << "].";
+
+            error_str = oss.str();
+
+            NebulaLog::log("DiM", Log::ERROR, error_str);
+            return -1;
+        }
     }
 
     // Set the VM info in the history before the disk is attached to the
@@ -1446,6 +1454,7 @@ int DispatchManager::attach_nic(
     int oid;
     int rc;
     string tmp_error;
+    string nic_cluster_ids;
 
     set<int> vm_sgs;
 
@@ -1561,6 +1570,47 @@ int DispatchManager::attach_nic(
         NebulaLog::log("DiM", Log::ERROR, error_str);
 
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    if (nic->vector_value("CLUSTER_IDS", nic_cluster_ids) == 0)
+    {
+        set<int> cluster_ids;
+        one_util::split_unique(nic_cluster_ids, ',', cluster_ids);
+
+        if (cluster_ids.count(vm->get_cid()) == 0)
+        {
+            VirtualMachine::release_network_leases(nic, vid);
+
+            vector<VectorAttribute*>::iterator it;
+            for(it = sg_rules.begin(); it != sg_rules.end(); it++)
+            {
+                delete *it;
+            }
+
+            delete nic;
+
+            oss << "Could not attach nic because "
+                    << Request::object_name(PoolObjectSQL::NET)
+            << " is not part of "
+            << Request::object_name(PoolObjectSQL::CLUSTER)
+            << " [" << vm->get_cid() << "].";
+
+            error_str = oss.str();
+
+            if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+
+            vmpool->update(vm);
+
+            vm->unlock();
+
+            NebulaLog::log("DiM", Log::ERROR, error_str);
+
+            return -1;
+        }
     }
 
     // Set the VM info in the history before the nic is attached to the
