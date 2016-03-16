@@ -639,7 +639,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             break;
         case -2:
             oss << "Error performing action \"" << action_st << "\" on "
-                << object_name(auth_object) << " [" << id << "]";
+                << object_name(auth_object) << " [" << id << "]. " << error;
             att.resp_msg = oss.str();
 
             failure_response(ACTION, att);
