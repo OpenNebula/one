@@ -58,7 +58,9 @@ DatastorePool::DatastorePool(
     {
         DatastoreTemplate * ds_tmpl;
         int      rc;
-        set<int> empty;
+        set<int> cluster_ids;
+
+        cluster_ids.insert(ClusterPool::DEFAULT_CLUSTER_ID);
 
         // ---------------------------------------------------------------------
         // Create the system datastore
@@ -83,7 +85,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                empty,
+                cluster_ids,
                 error_str);
 
         if( rc < 0 )
@@ -116,7 +118,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                empty,
+                cluster_ids,
                 error_str);
 
         if( rc < 0 )
@@ -149,7 +151,7 @@ DatastorePool::DatastorePool(
                 0137,
                 ds_tmpl,
                 &rc,
-                empty,
+                cluster_ids,
                 error_str);
 
         if( rc < 0 )

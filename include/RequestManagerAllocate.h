@@ -177,7 +177,14 @@ public:
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(2));
+        int cid = xmlrpc_c::value_int(paramList.getInt(2));
+
+        if (cid == -1)
+        {
+            cid = ClusterPool::DEFAULT_CLUSTER_ID;
+        }
+
+        return cid;
     };
 
     int add_to_cluster(
@@ -280,7 +287,14 @@ public:
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(5));
+        int cid = xmlrpc_c::value_int(paramList.getInt(5));
+
+        if (cid == -1)
+        {
+            cid = ClusterPool::DEFAULT_CLUSTER_ID;
+        }
+
+        return cid;
     };
 
     int add_to_cluster(
@@ -384,7 +398,14 @@ public:
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(2));
+        int cid = xmlrpc_c::value_int(paramList.getInt(2));
+
+        if (cid == -1)
+        {
+            cid = ClusterPool::DEFAULT_CLUSTER_ID;
+        }
+
+        return cid;
     };
 
     int add_to_cluster(

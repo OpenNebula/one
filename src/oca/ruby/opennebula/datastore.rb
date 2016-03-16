@@ -85,7 +85,7 @@ module OpenNebula
         # Allocates a new Datastore in OpenNebula
         #
         # @param description [String] The template of the Datastore.
-        # @param cluster_id [Integer] Id of the cluster
+        # @param cluster_id [Integer] Id of the cluster, -1 to use default
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise

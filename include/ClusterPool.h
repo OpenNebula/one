@@ -44,6 +44,16 @@ public:
      */
     static const int NONE_CLUSTER_ID;
 
+    /**
+     *  Name for the default cluster
+     */
+    static const string DEFAULT_CLUSTER_NAME;
+
+    /**
+     *  Identifier for the default cluster
+     */
+    static const int DEFAULT_CLUSTER_ID;
+
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */
