@@ -68,22 +68,6 @@ public:
         return cluster_ids.to_xml(xml);
     };
 
-    //==========================================================================
-    // TODO remove
-
-    /**
-     * Returns the cluster ID
-     *
-     * @return The cluster ID
-     */
-    int get_cluster_id() const
-    {
-        //return ClusterPool::NONE_CLUSTER_ID;
-        return -1;
-    };
-
-    //==========================================================================
-
 protected:
 
     Clusterable(const set<int> &_cluster_ids):

@@ -362,13 +362,7 @@ int RequestManagerVirtualMachine::get_host_information(
 
     host->unlock();
 
-    if (nd.get_ds_location(cluster_id, ds_location) == -1)
-    {
-        att.resp_obj = PoolObjectSQL::CLUSTER;
-        att.resp_id  = cluster_id;
-        failure_response(NO_EXISTS, att);
-        return -1;
-    }
+    nd.get_ds_location(ds_location);
 
     return 0;
 }

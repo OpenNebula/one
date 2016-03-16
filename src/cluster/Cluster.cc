@@ -117,23 +117,6 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& Cluster::get_ds_location(string &ds_location)
-{
-    obj_template->get("DATASTORE_LOCATION", ds_location);
-
-    if ( ds_location.empty() == true )
-    {
-        Nebula& nd = Nebula::instance();
-
-        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    }
-
-    return ds_location;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Cluster::add_datastore(int id, string& error_msg)
 {
    int rc = datastores.add(id);

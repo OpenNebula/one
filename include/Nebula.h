@@ -281,7 +281,7 @@ public:
      *
      *
      */
-    int get_ds_location(int cluster_id, string& dsloc);
+    void get_ds_location(string& dsloc);
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path

@@ -361,7 +361,6 @@ void InformationManager::timer_action()
 
                 string name    = host->get_name();
                 int    oid     = host->get_oid();
-                int cluster_id = host->get_cluster_id();
 
                 string dsloc;
 
@@ -377,10 +376,7 @@ void InformationManager::timer_action()
 
                 host->unlock();
 
-                if (nd.get_ds_location(cluster_id, dsloc) == -1)
-                {
-                    continue;
-                }
+                nd.get_ds_location(dsloc);
 
                 imd->monitor(oid, name, dsloc, update_remotes);
             }
