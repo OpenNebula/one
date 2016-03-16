@@ -820,6 +820,15 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.clusters_str(clusters)
+        if clusters.nil?
+            "-"
+        else
+            [clusters].flatten.join(',')
+        end
+
+    end
+
     def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
         return update_template_helper(false, id, resource, path, xpath)
     end
