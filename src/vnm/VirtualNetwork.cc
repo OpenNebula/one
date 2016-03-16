@@ -605,6 +605,11 @@ int VirtualNetwork::nic_attribute(
         nic->replace("VLAN_ID", vlan_id);
     }
 
+    if (parent_vid != -1)
+    {
+        nic->replace("PARENT_NETWORK_ID", parent_vid);
+    }
+
     if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
     {
         nic->replace("CLUSTER_ID", get_cluster_id());

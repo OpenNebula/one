@@ -90,9 +90,15 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def vlan
         if @nic[:vlan_id]
-            return @nic[:vlan_id]
+            @nic[:vlan_id]
         else
-            return CONF[:start_vlan] + @nic[:network_id].to_i
+            if @nic[:parent_network_id]
+                network_id = @nic[:parent_network_id].to_i
+            else
+                network_id = @nic[:network_id].to_i
+            end
+
+            @nic[:vlan_id] = CONF[:start_vlan] + network_id
         end
     end
 
