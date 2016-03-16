@@ -1349,7 +1349,7 @@ void VirtualMachineManager::restore_action(
     ostringstream os;
 
     string vm_tmpl;
-    string token_password;
+    string password;
     string prolog_cmd;
     string vm_tm_mad;
     string disk_path;
@@ -1357,7 +1357,6 @@ void VirtualMachineManager::restore_action(
 
     string* drv_msg;
 
-    const VectorAttribute * disk;
     int disk_id;
     int rc;
 
@@ -1379,7 +1378,7 @@ void VirtualMachineManager::restore_action(
 
     if (user != 0)
     {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->get_template_attribute("TOKEN_PASSWORD", password);
         user->unlock();
     }
 
@@ -1402,28 +1401,31 @@ void VirtualMachineManager::restore_action(
         goto error_driver;
     }
 
-    disk = vm->get_context();
-
-    if (disk != 0 && !vm->get_host_is_cloud())
+    if (!vm->get_host_is_cloud())
     {
         vm_tm_mad = vm->get_tm_mad();
 
-        rc = tm->prolog_context_command(vm, token_password, vm_tm_mad, os);
+        rc = tm->prolog_context_command(vm, password, vm_tm_mad, disk_id, os);
 
-        prolog_cmd = os.str();
-
-        if ( prolog_cmd.empty() || rc != 0 )
+        if ( rc == -1 )
         {
             goto error_no_tm_command;
         }
+		else if ( rc == 1 )
+		{
+            prolog_cmd = os.str();
 
-        os.str("");
+			os.str("");
 
-        disk->vector_value("DISK_ID", disk_id);
+			os << vm->get_remote_system_dir() << "/disk." << disk_id;
 
-        os << vm->get_remote_system_dir() << "/disk." << disk_id;
-
-        disk_path = os.str();
+			disk_path = os.str();
+		}
+        else //rc == 0 VM has no context
+        {
+            prolog_cmd = "";
+            disk_path  = "";
+        }
     }
 
     // Invoke driver method
@@ -1436,9 +1438,9 @@ void VirtualMachineManager::restore_action(
         "",
         "",
         vm->get_checkpoint_file(),
+        prolog_cmd,
         "",
-        "",
-        "",
+        disk_path,
         vm->to_xml(vm_tmpl),
         vm->get_ds_id(),
         -1);
@@ -2470,9 +2472,8 @@ void VirtualMachineManager::attach_nic_action(
     string  opennebula_hostname;
     string  prolog_cmd;
     string  disk_path;
-    string  token_password;
+    string  password;
 
-    const VectorAttribute * disk;
     int disk_id;
     int rc;
 
@@ -2494,7 +2495,7 @@ void VirtualMachineManager::attach_nic_action(
 
     if (user != 0)
     {
-        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->get_template_attribute("TOKEN_PASSWORD", password);
         user->unlock();
     }
 
@@ -2518,28 +2519,31 @@ void VirtualMachineManager::attach_nic_action(
         goto error_driver;
     }
 
-    disk = vm->get_context();
-
-    if (disk != 0 && !vm->get_host_is_cloud())
+    if (!vm->get_host_is_cloud())
     {
         vm_tm_mad = vm->get_tm_mad();
 
-        rc = tm->prolog_context_command(vm, token_password, vm_tm_mad, os);
+        rc = tm->prolog_context_command(vm, password, vm_tm_mad, disk_id, os);
 
-        prolog_cmd = os.str();
-
-        if ( prolog_cmd.empty() || rc != 0 )
+        if ( rc == -1 )
         {
             goto error_no_tm_command;
         }
+		else if ( rc == 1 )
+		{
+            prolog_cmd = os.str();
 
-        os.str("");
+			os.str("");
 
-        disk->vector_value("DISK_ID", disk_id);
+			os << vm->get_remote_system_dir() << "/disk." << disk_id;
 
-        os << vm->get_remote_system_dir() << "/disk." << disk_id;
-
-        disk_path = os.str();
+			disk_path = os.str();
+		}
+        else //rc == 0 VM has no context
+        {
+            prolog_cmd = "";
+            disk_path  = "";
+        }
     }
 
     // Invoke driver method

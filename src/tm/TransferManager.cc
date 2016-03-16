@@ -611,39 +611,35 @@ int TransferManager::prolog_context_command(
         VirtualMachine *        vm,
         const string&           token_password,
         string&                 vm_tm_mad,
+        int&                    disk_id,
         ostream&                xfr)
 {
     string  files;
-    int     context_result;
-    int     disk_id;
 
-    context_result = vm->generate_context(files, disk_id, token_password);
+    int rc = vm->generate_context(files, disk_id, token_password);
 
-    if ( context_result == -1 )
+    if ( rc != 1 ) // 0 = no context, -1 = error
     {
-        return -1;
+        return rc;
     }
 
-    if ( context_result )
+    //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
+    xfr << "CONTEXT "
+        << vm_tm_mad << " "
+        << vm->get_context_file() << " ";
+
+    if (!files.empty())
     {
-        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
-        xfr << "CONTEXT "
-            << vm_tm_mad << " "
-            << vm->get_context_file() << " ";
-
-        if (!files.empty())
-        {
-            xfr << files << " ";
-        }
-
-        xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << vm->get_ds_id()
-            << endl;
+        xfr << files << " ";
     }
 
-    return 0;
+    xfr << vm->get_hostname() << ":"
+        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
+
+    return 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -669,6 +665,7 @@ void TransferManager::prolog_action(int vid)
     vector<const VectorAttribute *> disk;
     const VectorAttribute * os_attr;
     int num;
+    int disk_id;
 
     string token_password;
 
@@ -792,10 +789,7 @@ void TransferManager::prolog_action(int vid)
     // -------------------------------------------------------------------------
     // Generate context file
     // -------------------------------------------------------------------------
-    rc = prolog_context_command( vm,
-                                 token_password,
-                                 vm_tm_mad,
-                                 xfr);
+    rc = prolog_context_command(vm, token_password, vm_tm_mad, disk_id, xfr);
 
     if ( rc == -1 )
     {
@@ -1092,11 +1086,7 @@ void TransferManager::prolog_resume_action(int vid)
     // -------------------------------------------------------------------------
     // Generate context file
     // -------------------------------------------------------------------------
-
-    rc = prolog_context_command( vm,
-                                 token_password,
-                                 vm_tm_mad,
-                                 xfr);
+    rc = prolog_context_command(vm, token_password, vm_tm_mad, disk_id, xfr);
 
     if ( rc == -1 )
     {

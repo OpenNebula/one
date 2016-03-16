@@ -1359,14 +1359,6 @@ public:
     int  generate_context(string &files, int &disk_id, const string& password);
 
     /**
-     *  Return the CONTEXT attribute
-     */
-    const VectorAttribute* get_context() const
-    {
-        return obj_template->get("CONTEXT");
-    }
-
-    /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist
      * @return uid
      */
