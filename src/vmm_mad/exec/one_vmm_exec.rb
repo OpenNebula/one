@@ -465,7 +465,7 @@ class ExecDriver < VirtualMachineDriver
 
         action=VmmAction.new(self, id, :restore, drv_message)
 
-        steps = <<
+        steps.concat([
             # Execute pre-boot networking setup
             {
                 :driver     => :vnm,
@@ -490,7 +490,7 @@ class ExecDriver < VirtualMachineDriver
                     }
                 ],
             }
-        ]
+        ])
 
         action.run(steps)
     end
