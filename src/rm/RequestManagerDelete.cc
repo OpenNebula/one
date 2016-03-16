@@ -123,24 +123,21 @@ int RequestManagerDelete::drop(
     {
         for(set<int>::iterator it=cluster_ids.begin(); it!=cluster_ids.end(); it++)
         {
-            if ( *it != ClusterPool::NONE_CLUSTER_ID )
+            Cluster * cluster = clpool->get(*it, true);
+
+            if( cluster != 0 )
             {
-                Cluster * cluster = clpool->get(*it, true);
+                rc = del_from_cluster(cluster, oid, error_msg);
 
-                if( cluster != 0 )
+                if ( rc < 0 )
                 {
-                    rc = del_from_cluster(cluster, oid, error_msg);
-
-                    if ( rc < 0 )
-                    {
-                        cluster->unlock();
-                        return rc;
-                    }
-
-                    clpool->update(cluster);
-
                     cluster->unlock();
+                    return rc;
                 }
+
+                clpool->update(cluster);
+
+                cluster->unlock();
             }
         }
     }

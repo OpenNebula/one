@@ -220,24 +220,21 @@ void InformationManager::stop_monitor(int hid)
     // -------------------------------------------------------------------------
     // Remove host from cluster
     // -------------------------------------------------------------------------
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    Cluster * cluster = clpool->get(cluster_id, true);
+
+    if( cluster != 0 )
     {
-        Cluster * cluster = clpool->get(cluster_id, true);
+        rc = cluster->del_host(hid, error_msg);
 
-        if( cluster != 0 )
+        if ( rc < 0 )
         {
-            rc = cluster->del_host(hid, error_msg);
-
-            if ( rc < 0 )
-            {
-                cluster->unlock();
-                return;
-            }
-
-            clpool->update(cluster);
-
             cluster->unlock();
+            return;
         }
+
+        clpool->update(cluster);
+
+        cluster->unlock();
     }
 }
 

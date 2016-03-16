@@ -204,19 +204,12 @@ void RequestManagerClusterHost::add_generic(
     int     old_cluster_id;
     string  old_cluster_name;
 
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
-    {
-        rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
-                cluster_name, true);
+    rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
+            cluster_name, true);
 
-        if ( rc == -1 )
-        {
-            return;
-        }
-    }
-    else
+    if ( rc == -1 )
     {
-        cluster_name = ClusterPool::NONE_CLUSTER_NAME;
+        return;
     }
 
     rc = get_info(hpool, host_id, PoolObjectSQL::HOST, att, obj_perms, obj_name, true);
@@ -230,11 +223,7 @@ void RequestManagerClusterHost::add_generic(
     {
         AuthRequest ar(att.uid, att.group_ids);
 
-        if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
-        {
-            ar.add_auth(auth_op, c_perms);          // ADMIN  CLUSTER
-        }
-
+        ar.add_auth(auth_op, c_perms);              // ADMIN  CLUSTER
         ar.add_auth(AuthRequest::ADMIN, obj_perms); // ADMIN  HOST
 
         if (UserPool::authorize(ar) == -1)
@@ -274,84 +263,78 @@ void RequestManagerClusterHost::add_generic(
     host->unlock();
 
     // ------------- Add object to new cluster ---------------------
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    cluster = clpool->get(cluster_id, true);
+
+    if ( cluster == 0 )
     {
-        cluster = clpool->get(cluster_id, true);
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
 
-        if ( cluster == 0 )
+        // Rollback
+        host = hpool->get(host_id, true);
+
+        if ( host != 0 )
         {
-            att.resp_obj = PoolObjectSQL::CLUSTER;
-            att.resp_id  = cluster_id;
-            failure_response(NO_EXISTS, att);
+            host->set_cluster(old_cluster_id, old_cluster_name);
 
-            // Rollback
-            host = hpool->get(host_id, true);
+            hpool->update(host);
 
-            if ( host != 0 )
-            {
-                host->set_cluster(old_cluster_id, old_cluster_name);
-
-                hpool->update(host);
-
-                host->unlock();
-            }
-
-            return;
+            host->unlock();
         }
 
-        if ( cluster->add_host(host_id, att.resp_msg) < 0 )
-        {
-            cluster->unlock();
-
-            failure_response(INTERNAL, att);
-
-            // Rollback
-            host = hpool->get(host_id, true);
-
-            if ( host != 0 )
-            {
-                host->set_cluster(old_cluster_id, old_cluster_name);
-
-                hpool->update(host);
-
-                host->unlock();
-            }
-
-            return;
-        }
-
-        clpool->update(cluster);
-
-        cluster->unlock();
+        return;
     }
+
+    if ( cluster->add_host(host_id, att.resp_msg) < 0 )
+    {
+        cluster->unlock();
+
+        failure_response(INTERNAL, att);
+
+        // Rollback
+        host = hpool->get(host_id, true);
+
+        if ( host != 0 )
+        {
+            host->set_cluster(old_cluster_id, old_cluster_name);
+
+            hpool->update(host);
+
+            host->unlock();
+        }
+
+        return;
+    }
+
+    clpool->update(cluster);
+
+    cluster->unlock();
 
     // ------------- Remove host from old cluster ---------------------
 
-    if ( old_cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    cluster = clpool->get(old_cluster_id, true);
+
+    if ( cluster == 0 )
     {
-        cluster = clpool->get(old_cluster_id, true);
-
-        if ( cluster == 0 )
-        {
-            // This point should be unreachable.
-            // The old cluster is not empty (at least has the host_id),
-            // so it cannot be deleted
-            success_response(cluster_id, att);
-            return;
-        }
-
-        if ( cluster->del_host(host_id, att.resp_msg) < 0 )
-        {
-            cluster->unlock();
-
-            failure_response(INTERNAL, att);
-            return;
-        }
-
-        clpool->update(cluster);
-
-        cluster->unlock();
+        // This point should be unreachable.
+        // The old cluster is not empty (at least has the host_id),
+        // so it cannot be deleted
+        success_response(cluster_id, att);
+        return;
     }
+
+    if ( cluster->del_host(host_id, att.resp_msg) < 0 )
+    {
+        cluster->unlock();
+
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    clpool->update(cluster);
+
+    cluster->unlock();
 
     success_response(cluster_id, att);
 

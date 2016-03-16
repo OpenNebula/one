@@ -183,7 +183,7 @@ public:
     {
         // First param is ignored, as objects can be assigned to only
         // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = ClusterPool::DEFAULT_CLUSTER_ID;
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
         return add_generic(cluster_id, object_id, att);

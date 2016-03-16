@@ -224,44 +224,37 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     ds_id = -1;
 
-    if (cluster_id == ClusterPool::NONE_CLUSTER_ID)
+    cluster = clpool->get(cluster_id, true);
+
+    if (cluster == 0)
     {
-        ds_id = DatastorePool::SYSTEM_DS_ID;
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
+
+        return -1;
     }
-    else
+
+    set<int> ds_ids = cluster->get_datastores();
+
+    cluster->unlock();
+
+    ds_id = Cluster::get_default_system_ds(ds_ids);
+
+    if (ds_id == -1)
     {
-        cluster = clpool->get(cluster_id, true);
+        ostringstream oss;
 
-        if (cluster == 0)
-        {
-            att.resp_obj = PoolObjectSQL::CLUSTER;
-            att.resp_id  = cluster_id;
-            failure_response(NO_EXISTS, att);
+        oss << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
+            << "] does not have any " << object_name(PoolObjectSQL::DATASTORE)
+            << " of type " << Datastore::type_to_str(Datastore::SYSTEM_DS)
+            << ".";
 
-            return -1;
-        }
+        att.resp_msg = oss.str();
 
-        set<int> ds_ids = cluster->get_datastores();
+        failure_response(ACTION, att);
 
-        cluster->unlock();
-
-        ds_id = Cluster::get_default_system_ds(ds_ids);
-
-        if (ds_id == -1)
-        {
-            ostringstream oss;
-
-            oss << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
-                << "] does not have any " << object_name(PoolObjectSQL::DATASTORE)
-                << " of type " << Datastore::type_to_str(Datastore::SYSTEM_DS)
-                << ".";
-
-            att.resp_msg = oss.str();
-
-            failure_response(ACTION, att);
-
-            return -1;
-        }
+        return -1;
     }
 
     set<int> ds_cluster_ids;
