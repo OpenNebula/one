@@ -742,8 +742,8 @@ get '/marketplaceapp/:id/download' do
         Open3.popen3(download_cmd) do |_,o,e,w|
 
             until o.eof?
-                # Read in chunks of 10MB
-                out << o.read(10*1024*1024)
+                # Read in chunks of 16KB
+                out << o.read(16384)
             end
 
             if !w.value.success?
