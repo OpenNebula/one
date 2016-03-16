@@ -1363,6 +1363,9 @@ void VirtualMachine::parse_well_known_attributes()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * @return -1 for incompatible cluster IDs, -2 for missing cluster IDs
+ */
 static int check_and_set_cluster_id(
         const char *           id_name,
         const VectorAttribute* vatt,
@@ -1372,22 +1375,26 @@ static int check_and_set_cluster_id(
 
     one_util::split_unique(vatt->vector_value(id_name), ',', vatt_cluster_ids);
 
+    if ( vatt_cluster_ids.empty() )
+    {
+        return -2;
+    }
+
     if ( cluster_ids.empty() )
     {
         cluster_ids = vatt_cluster_ids;
+
+        return 0;
     }
-    else if ( !vatt_cluster_ids.empty() )
+
+    set<int> intersection = one_util::set_intersection(cluster_ids, vatt_cluster_ids);
+
+    if (intersection.empty())
     {
-        set<int> intersection = one_util::set_intersection(
-                                            cluster_ids, vatt_cluster_ids);
-
-        if (intersection.empty())
-        {
-            return -1;
-        }
-
-        cluster_ids = intersection;
+        return -1;
     }
+
+    cluster_ids = intersection;
 
     return 0;
 }
@@ -1518,25 +1525,59 @@ int VirtualMachine::automatic_requirements(string& error_str)
     return 0;
 
 error_disk:
-    oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
-        << " is not the same as the one used by other VM elements (cluster "
-        << one_util::join(cluster_ids, ',') << ")";
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Datastore for DISK "<< incomp_id
+            << " is not in any cluster";
+    }
+
     goto error_common;
 
 error_kernel:
-    oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
-        << one_util::join(cluster_ids, ',') << ".";
+    if (rc == -1)
+    {
+        oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
+            << one_util::join(cluster_ids, ',') << ".";
+    }
+    else
+    {
+        oss << "Missing clusters. KERNEL datastore is not in any cluster.";
+    }
+
     goto error_common;
 
 error_initrd:
-    oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
-        << one_util::join(cluster_ids, ',') << ".";
+    if (rc == -1)
+    {
+        oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
+            << one_util::join(cluster_ids, ',') << ".";
+    }
+    else
+    {
+        oss << "Missing clusters. INITRD datastore is not in any cluster.";
+    }
+
     goto error_common;
 
 error_nic:
-    oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
-        << " is not the same as the one used by other VM elements (cluster "
-        << one_util::join(cluster_ids, ',') << ")";
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Network for NIC "<< incomp_id
+            << " is not in any cluster";
+    }
+
     goto error_common;
 
 error_common:
