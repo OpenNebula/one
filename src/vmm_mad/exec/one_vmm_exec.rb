@@ -448,9 +448,24 @@ class ExecDriver < VirtualMachineDriver
     # RESTORE action, restore a VM from a previous state, and restores network
     #
     def restore(id, drv_message)
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        steps = []
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
         action=VmmAction.new(self, id, :restore, drv_message)
 
-        steps=[
+        steps = <<
             # Execute pre-boot networking setup
             {
                 :driver     => :vnm,

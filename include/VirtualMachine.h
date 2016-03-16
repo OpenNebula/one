@@ -1353,11 +1353,14 @@ public:
      *  in the context block device (CBD)
      *    @param  files space separated list of paths to be included in the CBD
      *    @param  disk_id CONTEXT/DISK_ID attribute value
-     *    @param  token_password Password to encrypt the token, if it is set
+     *    @param  password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, const string& token_password);
+    int  generate_context(string &files, int &disk_id, const string& password);
 
+    /**
+     *  Return the CONTEXT attribute
+     */
     const VectorAttribute* get_context() const
     {
         return obj_template->get("CONTEXT");
@@ -1997,6 +2000,24 @@ private:
     static const char * NO_NIC_DEFAULTS[];
 
     static const int NUM_NO_NIC_DEFAULTS;
+
+    /**
+     *  Parse and generate the ETH_ network attributed of a NIC
+     *    @param context attribute
+     *    @param nic attribute
+     *
+     *    @return 0 on success
+     */
+    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
+
+    /**
+     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
+     *  is invoked when ever the context is prepared for the VM to capture
+     *  netowrking updates.
+     *    @param context attribute of the VM
+     *    @return true if the net context was generated.
+     */
+    bool generate_network_context(VectorAttribute * context);
 
     /**
      * Parse the "NIC_DEFAULT" attribute

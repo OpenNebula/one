@@ -1348,10 +1348,41 @@ void VirtualMachineManager::restore_action(
 
     ostringstream os;
 
-    string   vm_tmpl;
-    string * drv_msg;
+    string vm_tmpl;
+    string token_password;
+    string prolog_cmd;
+    string vm_tm_mad;
+    string disk_path;
+    string error;
 
-    // Get the VM from the pool
+    string* drv_msg;
+
+    const VectorAttribute * disk;
+    int disk_id;
+    int rc;
+
+    Nebula& nd           = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    int uid = vm->get_created_by_uid();
+
+    vm->unlock();
+
+    User * user = Nebula::instance().get_upool()->get(uid, true);
+
+    if (user != 0)
+    {
+        user->get_template_attribute("TOKEN_PASSWORD", token_password);
+        user->unlock();
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -1364,12 +1395,35 @@ void VirtualMachineManager::restore_action(
         goto error_history;
     }
 
-    // Get the driver for this VM
     vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
     {
         goto error_driver;
+    }
+
+    disk = vm->get_context();
+
+    if (disk != 0 && !vm->get_host_is_cloud())
+    {
+        vm_tm_mad = vm->get_tm_mad();
+
+        rc = tm->prolog_context_command(vm, token_password, vm_tm_mad, os);
+
+        prolog_cmd = os.str();
+
+        if ( prolog_cmd.empty() || rc != 0 )
+        {
+            goto error_no_tm_command;
+        }
+
+        os.str("");
+
+        disk->vector_value("DISK_ID", disk_id);
+
+        os << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+        disk_path = os.str();
     }
 
     // Invoke driver method
@@ -1400,6 +1454,11 @@ void VirtualMachineManager::restore_action(
 error_history:
     os.str("");
     os << "restore_action, VM has no history";
+    goto error_common;
+
+error_no_tm_command:
+    os.str("");
+    os << "Cannot set context disk to update it for VM " << vm->get_oid();
     goto error_common;
 
 error_driver:
