@@ -1150,7 +1150,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Metadata used by drivers
     // ------------------------------------------------------------------------
-/*      file << "\t<metadata>\n"
+    file << "\t<metadata>\n"
          << "\t\t<system_datastore>"
          << one_util::escape_xml(vm->get_remote_system_dir())
          << "\t\t</system_datastore>\n\t\t<opennebula>\n"
@@ -1158,11 +1158,6 @@ int LibVirtDriver::deployment_description_kvm(
          << "\t\t</opennebula>\n";
 
     file << "\t</metadata>\n";
-*/
-    file << "\t<metadata>" << endl;
-    file << "\t\t<system_datastore>" << vm->get_remote_system_dir() <<
-                "</system_datastore>" << endl;
-    file << "\t</metadata>" << endl;
 
     file << "</domain>" << endl;
 
