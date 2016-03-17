@@ -363,6 +363,44 @@ module Migrator
 
     log_time()
 
+    # Bug #4248 - Remove Firewall Drivers
+
+    vms_with_fw = []
+    @db.transaction do
+      @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        has_fw_attrs = !doc.root.xpath("TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|BLACK_PORTS_TCP|BLACK_PORTS_UDP]").empty?
+
+        vms_with_fw << row[:oid].to_i if has_fw_attrs
+      end
+    end
+
+    if !vms_with_fw.empty?
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "The old driver 'fw' has been removed from OpenNebula. It was  "
+      puts "deprecated in 4.12:                                           "
+      puts "http://docs.opennebula.org/4.12/release_notes/release_notes/compatibility.html"
+      puts
+      puts "We have detected that you still have active VMs with these    "
+      puts "attributes: ICMP, WHITE_PORTS_TCP, WHITE_PORTS_UDP,           "
+      puts "BLACK_PORTS_TCP, BLACK_PORTS_UDP.                             "
+      puts
+      puts "The list of affected VMs is:                                  "
+      vms_with_fw.each{|vm| puts "- #{vm}"}
+      puts
+      puts "Please note that OpenNebula will not modify the current       "
+      puts "iptables rules, so you will need to manually clean them when  "
+      puts "any of VMs is removed."
+      puts
+      puts "Please consider switching to Security Groups                  "
+    end
+
+    log_time()
+
     return true
   end
 

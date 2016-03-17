@@ -210,7 +210,6 @@ int LibVirtDriver::deployment_description_kvm(
     string data        = "";
 
     string  vm_xml;
-    string* vm64;
 
     // ------------------------------------------------------------------------
 
@@ -1151,20 +1150,12 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Metadata used by drivers
     // ------------------------------------------------------------------------
-    vm64 = one_util::base64_encode(vm->to_xml(vm_xml));
-
     file << "\t<metadata>\n"
          << "\t\t<system_datastore>"
          << one_util::escape_xml(vm->get_remote_system_dir())
-         << "</system_datastore>\n";
-
-    if ( vm64 != 0 )
-    {
-        file << "\t\t<vm_xml64>"<< one_util::escape_xml(*vm64)<< "</vm_xml64>\n";
-        delete vm64;
-    }
-
-    file << "\t</metadata>\n";
+         << "\t\t</system_datastore>\n"
+        // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
+         << "\t</metadata>\n";
 
     file << "</domain>" << endl;
 

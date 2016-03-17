@@ -229,11 +229,11 @@ void Scheduler::start()
 
         conf.get("MESSAGE_SIZE", message_size);
 
-        client = new Client("", url, message_size);
+        Client::initialize("", url, message_size);
 
         oss.str("");
 
-        oss << "XML-RPC client using " << client->get_message_size()
+        oss << "XML-RPC client using " << (Client::client())->get_message_size()
             << " bytes for response buffer.\n";
 
         NebulaLog::log("SCHED", Log::INFO, oss);
@@ -254,15 +254,14 @@ void Scheduler::start()
         try
         {
             xmlrpc_c::value result;
+            vector<xmlrpc_c::value> values;
 
-            client->call(client->get_endpoint(),        // serverUrl
-                         "one.system.config",           // methodName
-                         "s",                           // arguments format
-                         &result,                       // resultP
-                         client->get_oneauth().c_str());// auth string
+            Client * client = Client::client();
 
-            vector<xmlrpc_c::value> values =
-                            xmlrpc_c::value_array(result).vectorValueValue();
+            client->call(client->get_endpoint(), "one.system.config", "s",
+                    &result, client->get_oneauth().c_str());
+
+            values = xmlrpc_c::value_array(result).vectorValueValue();
 
             bool   success = xmlrpc_c::value_boolean(values[0]);
             string message = xmlrpc_c::value_string(values[1]);
@@ -313,17 +312,18 @@ void Scheduler::start()
     // Pools
     // -------------------------------------------------------------------------
 
-    hpool  = new HostPoolXML(client);
-    upool  = new UserPoolXML(client);
-    clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
+    hpool  = new HostPoolXML(Client::client());
+    upool  = new UserPoolXML(Client::client());
+    clpool = new ClusterPoolXML(Client::client());
+    vmpool = new VirtualMachinePoolXML(Client::client(), machines_limit,
+            live_rescheds==1);
 
-    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
+    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
 
-    dspool     = new SystemDatastorePoolXML(client);
-    img_dspool = new ImageDatastorePoolXML(client);
+    dspool     = new SystemDatastorePoolXML(Client::client());
+    img_dspool = new ImageDatastorePoolXML(Client::client());
 
-    acls = new AclXML(client, zone_id);
+    acls = new AclXML(Client::client(), zone_id);
 
     // -----------------------------------------------------------
     // Load scheduler policies

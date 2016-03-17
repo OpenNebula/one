@@ -10,12 +10,12 @@ enabled_tabs:
     - vresources-tab
     - vms-tab
     - templates-tab
-    #- images-tab
+    - images-tab
     #- files-tab
     - infra-tab
     - clusters-tab
     - hosts-tab
-    #- datastores-tab
+    - datastores-tab
     - vnets-topology-tab
     - vnets-tab
     #- secgroups-tab
@@ -266,6 +266,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.import_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
@@ -382,6 +383,7 @@ tabs:
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
+            Datastore.update_dialog: true
             Datastore.addtocluster: true
             Datastore.rename: true
             Datastore.chown: true

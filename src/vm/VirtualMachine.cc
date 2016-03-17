@@ -871,41 +871,6 @@ int VirtualMachine::parse_vrouter(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void parse_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, VectorAttribute * nic)
-{
-    string nic_id = nic->vector_value("NIC_ID");
-
-    for (int i=0; i < num_vars; i++)
-    {
-        ostringstream cvar;
-        string cval;
-
-        cvar << "ETH" << nic_id << "_" << vars[i][0];
-
-        cval = context->vector_value(cvar.str().c_str());
-
-        if (!cval.empty())
-        {
-            continue;
-        }
-
-        cval = nic->vector_value(vars[i][1]); //Check the NIC
-
-        if (cval.empty()) //Will check the AR and VNET
-        {
-            ostringstream cval_ss;
-
-            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
-            cval = cval_ss.str();
-        }
-
-        context->replace(cvar.str(), cval);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
 static void clear_context_network(const char* vars[][2], int num_vars,
         VectorAttribute * context, int nic_id)
 {
@@ -920,6 +885,7 @@ static void clear_context_network(const char* vars[][2], int num_vars,
         context->remove(att_name.str());
     }
 }
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -937,32 +903,10 @@ int VirtualMachine::parse_context(string& error_str)
     context->remove("FILES_DS");
 
     // -------------------------------------------------------------------------
-    // Inject Network context in marshalled string
+    // Add network context and parse variables
     // -------------------------------------------------------------------------
-    bool net_context;
-    context->vector_value("NETWORK", net_context);
+    generate_network_context(context);
 
-    if (net_context)
-    {
-        vector<VectorAttribute *> vatts;
-        int num_vatts = obj_template->get("NIC", vatts);
-
-        for(int i=0; i<num_vatts; i++)
-        {
-            parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                    context, vatts[i]);
-
-            if (!vatts[i]->vector_value("IP6_GLOBAL").empty())
-            {
-                parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                        context, vatts[i]);
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Parse CONTEXT variables
-    // -------------------------------------------------------------------------
     if (parse_context_variables(&context, error_str) == -1)
     {
         return -1;
@@ -2446,6 +2390,16 @@ bool VirtualMachine::is_imported() const
     return imported;
 }
 
+string VirtualMachine::get_import_state()
+{
+    string import_state;
+
+    user_obj_template->get("IMPORT_STATE", import_state);
+    user_obj_template->erase("IMPORT_STATE");
+
+    return import_state;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -2679,7 +2633,6 @@ VectorAttribute * VirtualMachine::attach_nic_failure()
 
 void VirtualMachine::detach_nic_failure()
 {
-    bool   net_context;
     string err;
 
     VectorAttribute * nic = get_attach_nic();
@@ -2690,29 +2643,6 @@ void VirtualMachine::detach_nic_failure()
     }
 
     nic->remove("ATTACH");
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context == 0)
-    {
-        return;
-    }
-
-    context->vector_value("NETWORK", net_context);
-
-    if (net_context)
-    {
-        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                context, nic);
-
-        if (!nic->vector_value("IP6_GLOBAL").empty())
-        {
-            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                    context, nic);
-        }
-
-        parse_context_variables(&context, err);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2735,11 +2665,9 @@ VectorAttribute * VirtualMachine::detach_nic_success()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::set_attach_nic(
-        VectorAttribute *       new_nic,
+void VirtualMachine::set_attach_nic(VectorAttribute * new_nic,
         vector<VectorAttribute*> &rules)
 {
-    bool   net_context;
     string err;
 
     vector<VectorAttribute*>::iterator it;
@@ -2751,29 +2679,6 @@ void VirtualMachine::set_attach_nic(
     for(it = rules.begin(); it != rules.end(); it++ )
     {
         obj_template->set(*it);
-    }
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context == 0)
-    {
-        return;
-    }
-
-    context->vector_value("NETWORK", net_context);
-
-    if (net_context)
-    {
-        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                context, new_nic);
-
-        if (!new_nic->vector_value("IP6_GLOBAL").empty())
-        {
-            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                    context, new_nic);
-        }
-
-        parse_context_variables(&context, err);
     }
 }
 
@@ -3231,13 +3136,29 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
-    const VectorAttribute * context = obj_template->get("CONTEXT");
+    VectorAttribute * context = obj_template->get("CONTEXT");
 
     if ( context == 0 )
     {
         log("VM", Log::INFO, "Virtual Machine has no context");
         return 0;
     }
+
+    //Generate dynamic context attributes
+    if ( generate_network_context(context) )
+    {
+        string error;
+
+        if (parse_context_variables(&context, error) == -1)
+        {
+            ostringstream oss;
+
+            oss << "Cannot parse network context:: " << error;
+            log("VM", Log::ERROR, oss);
+            return -1;
+        }
+    }
+
 
     file.open(history->context_file.c_str(),ios::out);
 
@@ -4658,5 +4579,78 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
         (*vm_quotas)->add("VMS", 0);
         (*vm_quotas)->set(delta_disk);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void parse_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, VectorAttribute * nic)
+{
+    string nic_id = nic->vector_value("NIC_ID");
+
+    for (int i=0; i < num_vars; i++)
+    {
+        ostringstream cvar;
+        string cval;
+
+        cvar << "ETH" << nic_id << "_" << vars[i][0];
+
+        cval = context->vector_value(cvar.str().c_str());
+
+        if (!cval.empty())
+        {
+            continue;
+        }
+
+        cval = nic->vector_value(vars[i][1]); //Check the NIC
+
+        if (cval.empty()) //Will check the AR and VNET
+        {
+            ostringstream cval_ss;
+
+            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
+            cval = cval_ss.str();
+        }
+
+        context->replace(cvar.str(), cval);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
+{
+    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n);
+
+    if (!n->vector_value("IP6_GLOBAL").empty())
+    {
+        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::generate_network_context(VectorAttribute * context)
+{
+    bool    net_context;
+
+    context->vector_value("NETWORK", net_context);
+
+    if (!net_context)
+    {
+        return net_context;
+    }
+
+    vector<VectorAttribute *> vatts;
+
+    int num_vatts = obj_template->get("NIC", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        parse_nic_context(context, vatts[i]);
+    }
+
+    return net_context;
 }
 

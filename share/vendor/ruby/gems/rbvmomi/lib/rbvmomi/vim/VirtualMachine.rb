@@ -34,26 +34,41 @@ class RbVmomi::VIM::VirtualMachine
   def add_delta_disk_layer_on_all_disks
     devices,  = self.collect 'config.hardware.device'
     disks = devices.grep(RbVmomi::VIM::VirtualDisk)
-    # XXX: Should create a single reconfig spec instead of one per disk
+    spec = update_spec_add_delta_disk_layer_on_all_disks
+    self.ReconfigVM_Task(:spec => spec).wait_for_completion
+  end
+  
+  # Updates a passed in spec to perform the task of adding a delta disk layer
+  # on top of all disks. Does the same as add_delta_disk_layer_on_all_disks
+  # but instead of issuing the ReconfigVM_Task, it just constructs the 
+  # spec, so that the caller can batch a couple of updates into one 
+  # ReconfigVM_Task.
+  def update_spec_add_delta_disk_layer_on_all_disks spec = {}
+    devices,  = self.collect 'config.hardware.device'
+    disks = devices.grep(RbVmomi::VIM::VirtualDisk)
+    device_change = []
     disks.each do |disk|
-      spec = {
-        :deviceChange => [
-          {
-            :operation => :remove,
-            :device => disk
-          },
-          {
-            :operation => :add,
-            :fileOperation => :create,
-            :device => disk.dup.tap { |x|
-              x.backing = x.backing.dup
-              x.backing.fileName = "[#{disk.backing.datastore.name}]"
-              x.backing.parent = disk.backing
-            },
-          }
-        ]
+      device_change << {
+        :operation => :remove,
+        :device => disk
       }
-      self.ReconfigVM_Task(:spec => spec).wait_for_completion
+      device_change << {
+        :operation => :add,
+        :fileOperation => :create,
+        :device => disk.dup.tap { |x|
+          x.backing = x.backing.dup
+          x.backing.fileName = "[#{disk.backing.datastore.name}]"
+          x.backing.parent = disk.backing
+        },
+      }
     end
+    if spec.is_a?(RbVmomi::VIM::VirtualMachineConfigSpec)
+      spec.deviceChange ||= []
+      spec.deviceChange += device_change
+    else
+      spec[:deviceChange] ||= []
+      spec[:deviceChange] += device_change
+    end
+    spec
   end 
 end

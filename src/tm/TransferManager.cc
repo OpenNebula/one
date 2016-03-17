@@ -611,39 +611,35 @@ int TransferManager::prolog_context_command(
         VirtualMachine *        vm,
         const string&           token_password,
         string&                 vm_tm_mad,
+        int&                    disk_id,
         ostream&                xfr)
 {
     string  files;
-    int     context_result;
-    int     disk_id;
 
-    context_result = vm->generate_context(files, disk_id, token_password);
+    int rc = vm->generate_context(files, disk_id, token_password);
 
-    if ( context_result == -1 )
+    if ( rc != 1 ) // 0 = no context, -1 = error
     {
-        return -1;
+        return rc;
     }
 
-    if ( context_result )
+    //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
+    xfr << "CONTEXT "
+        << vm_tm_mad << " "
+        << vm->get_context_file() << " ";
+
+    if (!files.empty())
     {
-        //CONTEXT tm_mad files hostname:remote_system_dir/disk.i vmid dsid(=0)
-        xfr << "CONTEXT "
-            << vm_tm_mad << " "
-            << vm->get_context_file() << " ";
-
-        if (!files.empty())
-        {
-            xfr << files << " ";
-        }
-
-        xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-            << vm->get_oid() << " "
-            << vm->get_ds_id()
-            << endl;
+        xfr << files << " ";
     }
 
-    return 0;
+    xfr << vm->get_hostname() << ":"
+        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << vm->get_oid() << " "
+        << vm->get_ds_id()
+        << endl;
+
+    return 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -669,6 +665,7 @@ void TransferManager::prolog_action(int vid)
     vector<const VectorAttribute *> disk;
     const VectorAttribute * os_attr;
     int num;
+    int disk_id;
 
     string token_password;
 
@@ -789,19 +786,6 @@ void TransferManager::prolog_action(int vid)
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Generate context file
-    // -------------------------------------------------------------------------
-    rc = prolog_context_command( vm,
-                                 token_password,
-                                 vm_tm_mad,
-                                 xfr);
-
-    if ( rc == -1 )
-    {
-        goto error_context;
-    }
-
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -823,12 +807,6 @@ error_file:
     goto error_common;
 
 error_attributes:
-    xfr.close();
-    goto error_common;
-
-error_context:
-    os << "could not write context file for VM " << vid;
-
     xfr.close();
     goto error_common;
 
@@ -1089,20 +1067,6 @@ void TransferManager::prolog_resume_action(int vid)
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
-    // -------------------------------------------------------------------------
-    // Generate context file
-    // -------------------------------------------------------------------------
-
-    rc = prolog_context_command( vm,
-                                 token_password,
-                                 vm_tm_mad,
-                                 xfr);
-
-    if ( rc == -1 )
-    {
-        goto error_context;
-    }
-
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -1125,14 +1089,9 @@ error_file:
     os << "prolog_resume, could not open file: " << xfr_name;
     goto error_common;
 
-error_context:
-    os << "prolog_resume, could not write context file for VM " << vid;
-
-    xfr.close();
-    goto error_common;
-
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
+
     vm->log("TM", Log::ERROR, os);
 
     vm->unlock();

@@ -185,7 +185,9 @@ class ManagedObject < ObjectWithMethods
       :objectSet => [{ :obj => self }],
     }])[0]
 
-    if ret.propSet.empty?
+    if !ret
+      return nil
+    elsif ret.propSet.empty?
       return nil if ret.missingSet.empty?
       raise ret.missingSet[0].fault
     else
@@ -217,7 +219,7 @@ class ManagedObject < ObjectWithMethods
 
   def == x
     out = (x.class == self.class && x._ref == @ref) 
-    out = (out && x._connection.instanceUuid == self._connection.instanceUuid)
+    out = (x._connection.instanceUuid == self._connection.instanceUuid) if out && x._connection.host
     out
   end
 

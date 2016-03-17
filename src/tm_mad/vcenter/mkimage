@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# mkimage size format host:remote_system_ds/disk.i vmid dsid
+#   - size in MB of the image
+#   - format for the image
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vcenter_driver'
+
+size               = ARGV[0]
+fstype             = ARGV[1]
+hostname, img_path = ARGV[2].split(":")
+vmid               = ARGV[3]
+dsid               = ARGV[4]
+
+begin
+    disk_id  = img_path.split(".")[1]
+    vm       = OpenNebula::VirtualMachine.new_with_id(vmid, 
+                                                      OpenNebula::Client.new)
+    vm.info
+    adapter_type = vm["VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/ADAPTER_TYPE"]
+    disk_type    = vm["VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/DISK_TYPE"]
+rescue Exception => e
+    STDERR.puts "Error getting attributes from VM template #{vmid}."\
+                " Reason: #{e.message}"
+    exit -1
+end
+
+begin
+    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client    = VCenterDriver::VIClient.new host_id
+    ds_name      = VCenterDriver::VIClient.find_ds_name(dsid)
+
+    puts vi_client.create_virtual_disk(img_name,
+                                       ds_name,
+                                       size,
+                                       adapter_type,
+                                       disk_type)
+rescue Exception => e
+    STDERR.puts "Error creating virtual disk in #{ds_name}."\
+                " Reason: #{e.message}"
+    exit -1
+end

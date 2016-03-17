@@ -17,6 +17,32 @@
 require 'one_helper'
 
 class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
+    TEMPLATE_OPTIONS=[
+        {
+            :name        => "name",
+            :large       => "--name name",
+            :format      => String,
+            :description => "Name of the new MarketPlaceApp"
+        },
+        {
+            :name        => "description",
+            :large       => "--description description",
+            :format      => String,
+            :description => "Description for the new MarketPlaceApp"
+        },
+        {
+            :name         => "image",
+            :large        => "--image id|name" ,
+            :description  => "Selects the image",
+            :format       => String,
+            :template_key => "origin_id",
+            :proc         => lambda { |o, options|
+                OpenNebulaHelper.rname_to_id(o, "IMAGE")
+            }
+        },
+        OpenNebulaHelper::DRY
+    ]
+
     def self.rname
         "MARKETPLACEAPP"
     end
@@ -72,6 +98,18 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         end
 
         table
+    end
+
+    def self.create_template_options_used?(options)
+        # Get the template options names as symbols. options hash
+        # uses symbols
+        template_options=self::TEMPLATE_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        # Check if one at least one of the template options is
+        # in options hash
+        (template_options-options.keys)!=template_options
     end
 
     private
@@ -140,5 +178,35 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         puts app.template_str
 
         puts
+    end
+
+    def self.create_variables(options, name)
+        if Array===name
+            names=name
+        else
+            names=[name]
+        end
+
+        t=''
+        names.each do |n|
+            if options[n]
+                t<<"#{n.to_s.upcase}=\"#{options[n]}\"\n"
+            end
+        end
+
+        t
+    end
+
+    def self.create_datastore_template(options)
+        template_options=TEMPLATE_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        template=create_variables(options, template_options-[:dry,:image])
+
+        template<<"ORIGIN_ID=#{options[:image]}\n" if options[:image]
+        template << "TYPE=image\n"
+
+        [0, template]
     end
 end

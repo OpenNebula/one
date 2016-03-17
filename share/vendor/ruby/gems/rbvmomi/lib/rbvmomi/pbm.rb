@@ -49,9 +49,9 @@ class PBM < Connection
     @serviceInstance ||= VIM::PbmServiceInstance self, 'ServiceInstance'
   end
 
-  # Alias to serviceInstance.RetrieveServiceContent
+  # Alias to serviceInstance.PbmRetrieveServiceContent
   def serviceContent
-    @serviceContent ||= serviceInstance.RetrieveServiceContent
+    @serviceContent ||= serviceInstance.PbmRetrieveServiceContent
   end
 
   # @private

@@ -19,6 +19,7 @@
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
 #include "MySqlDB.h"
+#include "Client.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -605,6 +606,15 @@ void Nebula::start(bool bootstrap_only)
         throw runtime_error("Error Initializing OpenNebula pools");
     }
 
+    // ---- XMLRPC Client for federation slaves ----
+    if (is_federation_slave())
+    {
+        long long msg_size;
+
+        get_configuration_attribute("MESSAGE_SIZE", msg_size);
+
+        Client::initialize("", get_master_oned(), msg_size);
+    }
 
     // ---- Virtual Machine Manager ----
     try

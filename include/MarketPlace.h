@@ -83,6 +83,14 @@ public:
     };
 
     /**
+     *  Get zone for this market
+     *    @return zone id
+     */
+    int get_zone_id() const
+    {
+        return zone_id;
+    };
+    /**
      *  Set monitor information for the MarketPlace
      *    @param data template with monitor information
      */
@@ -128,6 +136,11 @@ private:
      long long used_mb;
 
     /**
+     * Zone where this market lives
+     */
+     int zone_id;
+
+    /**
      *  Supported actions on MarketPlaceApps
      */
     ActionSet<MarketPlaceApp::Action> supported_actions;
@@ -159,6 +172,14 @@ private:
     static const char * db_bootstrap;
 
     static const char * table;
+
+    /**
+     *  Builds the marketplace from the template. This function MUST be called
+     *  with the template initialized
+     *    @param error_str describing the error
+     *    @return 0 on success;
+     */
+    int parse_template(string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

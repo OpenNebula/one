@@ -79,6 +79,7 @@ int DispatchManager::import (
     VirtualMachine *    vm)
 {
     ostringstream oss;
+    string import_state;
 
     if ( vm == 0 )
     {
@@ -99,9 +100,18 @@ int DispatchManager::import (
 
     hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-    vm->set_state(VirtualMachine::ACTIVE);
+    import_state = vm->get_import_state();
 
-    vm->set_state(VirtualMachine::RUNNING);
+    if(import_state == "POWEROFF")
+    {
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::RUNNING);
+    }
 
     vmpool->update(vm);
 

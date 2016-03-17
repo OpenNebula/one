@@ -342,8 +342,22 @@ class ExecDriver < VirtualMachineDriver
         # ----------------------------------------------------------------------
         #  Deployment Steps
         # ----------------------------------------------------------------------
+        xml_data = decode(drv_message)
 
-        steps=[
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        steps = []
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
+        steps.concat([
             # Execute pre-boot networking setup
             {
                 :driver   => :vnm,
@@ -369,7 +383,7 @@ class ExecDriver < VirtualMachineDriver
                     }
                 ]
             }
-        ]
+        ])
 
         action.run(steps)
     end
@@ -448,9 +462,24 @@ class ExecDriver < VirtualMachineDriver
     # RESTORE action, restore a VM from a previous state, and restores network
     #
     def restore(id, drv_message)
+        xml_data = decode(drv_message)
+
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        steps = []
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
         action=VmmAction.new(self, id, :restore, drv_message)
 
-        steps=[
+        steps.concat([
             # Execute pre-boot networking setup
             {
                 :driver     => :vnm,
@@ -475,7 +504,7 @@ class ExecDriver < VirtualMachineDriver
                     }
                 ],
             }
-        ]
+        ])
 
         action.run(steps)
     end
@@ -811,14 +840,15 @@ class ExecDriver < VirtualMachineDriver
         target_device = target_device.text if target_device
 
         begin
-            source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
-            source_ovs =
-                xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE_OVS"]
-            mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            source     = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
+            source_ovs = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE_OVS"]
+            mac        = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            target     = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/TARGET"]
 
-            source = source.text.strip
+            source     = source.text.strip
             source_ovs = source_ovs.text.strip if source_ovs
-            mac    = mac.text.strip
+            mac        = mac.text.strip
+            target     = target.text.strip
         rescue
             send_message(action, RESULT[:failure], id,
                 "Error in #{ACTION[:attach_nic]}, BRIDGE and MAC needed in NIC")
@@ -852,7 +882,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :attach_nic,
-                :parameters => [:deploy_id, mac, source, model, net_drv]
+                :parameters => [:deploy_id, mac, source, model, net_drv, target]
             },
             # Execute post-boot networking setup
             {

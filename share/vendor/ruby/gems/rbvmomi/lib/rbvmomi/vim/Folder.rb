@@ -53,6 +53,16 @@ class RbVmomi::VIM::Folder
     x if x.is_a? type
   end
 
+  # Retrieve a managed entity by inventory path.
+  # @param path [String] A path of the form "My Folder/My Datacenter/vm/Discovered VM/VM1"
+  # @return [VIM::ManagedEntity]
+  def findByInventoryPath path
+    propSpecs = {
+      :entity => self, :inventoryPath => path
+    }
+    x = _connection.searchIndex.FindByInventoryPath(propSpecs)
+  end
+
   # Alias to <tt>traverse path, type, true</tt>
   # @see #traverse
   def traverse! path, type=Object

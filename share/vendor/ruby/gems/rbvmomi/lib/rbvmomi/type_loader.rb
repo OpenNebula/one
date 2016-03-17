@@ -52,7 +52,7 @@ class TypeLoader
   end
 
   def get name
-    fail unless name.is_a? String
+    fail "name '#{name}' is #{name.class} expecting String" unless name.is_a? String
 
     first_char = name[0].chr
     if first_char.downcase == first_char

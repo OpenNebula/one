@@ -18,8 +18,10 @@
 
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
+    VAR_LOCATION=/var/lib/one
 else
     LIB_LOCATION=$ONE_LOCATION/lib
+    VAR_LOCATION=$ONE_LOCATION/var
 fi
 
 . $LIB_LOCATION/sh/scripts_common.sh
@@ -294,6 +296,9 @@ s3://*)
     ;;
 rbd://*)
     command="$(get_rbd_cmd $FROM)"
+    ;;
+vcenter://*)
+    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb \"$FROM\""
     ;;
 *)
     if [ ! -r $FROM ]; then
