@@ -148,7 +148,7 @@ module Migrator
       @db.fetch("SELECT * FROM old_image_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-        doc.at_xpath("/IMAGE/TEMPLATE").add_child(doc.create_element("APP_CLONES"))
+        doc.root.add_child(doc.create_element("APP_CLONES"))
 
         @db[:image_pool].insert(
           :oid        => row[:oid],
