@@ -16,7 +16,7 @@
 <div id="{{tabName}}" class="tab" style="display:none;">
   {{#if listHeader }}
   <div class="row header-row">
-    <div class="large-8 columns">
+    <div class="large-12 columns">
       <h3 class="header-title only-right-list">
         <span class="header-resource">{{{listHeader}}}</span>
       </h3>
@@ -32,23 +32,19 @@
         <span class="right-form-title"></span>
       </h3>
     </div>
-    <div class="large-4 columns">
-      <h3 class="header-title only-right-list">
+    {{#if buttons}}
+    <div class="actions_row">
+      <div class="large-3 columns only-right-list">
         {{#if dataTable.searchInputHTML}}
           {{{dataTable.searchInputHTML}}}
         {{/if}}
-      </h3>
+      </div>
+      <div class="large-9 columns action_blocks"></div>
     </div>
+    {{/if}}
   </div>
   {{/if}}
 
-  {{#if buttons}}
-  <div class="row actions_row">
-    <div class="small-12 large-12 columns">
-      <div class="action_blocks"></div>
-    </div>
-  </div>
-  {{/if}}
   <div class="right-list">
     {{#if dataTable.dataTableHTML}}
     <div class="row">
@@ -63,11 +59,11 @@
     {{#if subheader}}
     <div class="row header-info">
       <div class="large-12 columns text-center totals-info">
-        <h3 class="subheader">
+        <h5>
           {{#if subheader}}
             {{{subheader}}}
           {{/if}}
-        </h3>
+        </h5>
       </div>
     </div>
     {{/if}}

@@ -1,26 +1,74 @@
 #menu {
-  padding-right: 1rem;
-
   li {
-    &.topTab > a {
-      text-transform: uppercase;
-      color: $dark-gray;
+    &.topTab {
+
+      padding-right: 3rem;
+
+      & > a {
+        text-transform: uppercase;
+        //@include thin-font;
+        font-size: 0.9rem;
+        color: $light-black;
+      }
     }
     &.subTab > a {
       padding: 0.5rem 1rem;
-      color: $black;
-      i {
-        color: $dark-gray;
-      }
+      color: $dark-gray;
     }
+
+    &.navigation-active-li > a {
+      color: $black;
+      font-weight: normal;
+    }
+
     a {
-      font-size: rem-calc(13px);
+      font-weight: normal;
+    }
+
+    a:hover {
+      color: $black;
     }
   }
 
   .nested {
+    margin-left: 0;
+
     li:last-child {
       padding-bottom: 1rem;
+    }
+  }
+
+  #li_support-tab {
+    a {
+      background: #efefef;
+      margin-top: 1rem;
+
+      .support_connect {
+        span {
+          display: inline-box;
+          color: $dark-gray;
+          padding: 0.5rem 0 0 0;
+        }
+
+        .button {
+          margin-top: 1rem;
+        }
+      }
+
+      .support_info {
+        .support_open,
+        .support_pending,
+        .support_open_value,
+        .support_pending_value {
+          display: inline-block;
+          color: $dark-gray;
+          padding: 0.5rem 0 0 0;
+        }
+
+        .button {
+          margin-top: 1rem;
+        }
+      }
     }
   }
 }

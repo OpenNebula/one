@@ -129,7 +129,7 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+              {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
         },
         error: Notifier.onError
       });

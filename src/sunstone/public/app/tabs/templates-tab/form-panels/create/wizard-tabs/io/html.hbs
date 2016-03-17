@@ -18,7 +18,7 @@
   <div class="medium-6 columns graphics">
     <fieldset>
       <legend>{{tr "Graphics"}}</legend>
-      <div class="row">
+      <div class="">
         <div class="large-12 columns text-center">
           <input type="radio" name="graphics_type" ID="radioNoneType" value="">
           <label for="radioNoneType">{{tr "None"}}</label>
@@ -31,7 +31,7 @@
         </div>
       </div>
       <br>
-      <div class="row">
+      <div class="">
         <input type="hidden" wizard_field="TYPE" name="graphics_type" ID="TYPE">
         <div class="large-12 columns">
           <label for="LISTEN">
@@ -41,7 +41,7 @@
           <input type="text" wizard_field="LISTEN" id="LISTEN" name="graphics_ip" />
         </div>
       </div>
-      <div class="row">
+      <div class="">
         <div class="medium-6 columns">
           <label for="PORT">
             {{tr "Port"}}
@@ -57,7 +57,7 @@
           <input type="text" wizard_field="KEYMAP" id="KEYMAP" name="keymap" />
         </div>
       </div>
-      <div class="row hypervisor only_kvm only_vmware only_xen">
+      <div class=" hypervisor only_kvm only_vmware only_xen">
         <div class="large-12 columns">
           <label for="PASSWD">
             {{tr "Password"}}
@@ -66,7 +66,7 @@
           <input type="text" wizard_field="PASSWD" id="PASSWD" name="graphics_pw" />
         </div>
       </div>
-      <div class="row hypervisor only_kvm only_vmware only_xen">
+      <div class=" hypervisor only_kvm only_vmware only_xen">
         <div class="columns large-12">
           <input type="checkbox" name="RANDOM_PASSWD" id="RANDOM_PASSWD">
           <label for="RANDOM_PASSWD">
@@ -80,7 +80,7 @@
   <div class="medium-6 columns inputs hypervisor only_kvm only_vmware only_xen">
     <fieldset>
       <legend>{{tr "Inputs"}}</legend>
-      <div class="row">
+      <div class="">
         <div class="medium-5 columns">
           <select id="INPUT_TYPE" name="input_type">
             <option id="no_type" name="no_type" value=""></option>
@@ -100,7 +100,7 @@
           <a href="#" class="button small radius secondary" id="add_input">{{tr "Add"}}</a>
         </div>
       </div>
-      <div class="row">
+      <div class="">
         <div class="large-12 columns">
           <table id="input_table" class="dataTable policies_table">
             <thead>

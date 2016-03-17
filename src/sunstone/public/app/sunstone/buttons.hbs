@@ -14,67 +14,70 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="">
-    <span id="{{customId}}refresh_buttons" class=" only-right-info only-right-list"></span>
-    
+<div class="text-right">
+  <span class="left">
     {{#unless customContext}}
     <span id="{{customId}}back_button" class=" only-right-info only-right-form">
-      <a class="button radius" href="back"> <i class="fa fa-arrow-left"></i> <i class="fa fa-list"></i>
-      </a>
+      <button class="button radius" href="back"> <i class="fa fa-arrow-left"></i> <i class="fa fa-list"></i>
+      </button>
     </span>
     {{/unless}}
 
+    <span id='{{customId}}form_buttons' class='only-right-form' hidden>
+      <span id="{{customId}}reset_button">
+        <button class="button secondary radius reset_button" href="submit">{{tr "Reset"}}</button>
+      </span>
+      <span id="{{customId}}submit_button">
+        <button class="button success radius submit_button" href="submit">{{tr "Create"}}</button>
+      </span>
+    </span>
+
     <span id="{{customId}}create_buttons" class=" only-right-list"></span>
-    
-    <span id='{{customId}}labels_buttons' class='only-right-info only-right-list'></span>
-    
-    <button type='button' data-toggle='{{customId}}user_buttons' class='only-right-info only-right-list top_button  secondary button dropdown radius'>
-      <i class='fa fa-user'/></button>
-    <ul id='{{customId}}user_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
-    <button type='button' data-toggle='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list top_button  button alert dropdown radius'>
-      <i class='fa fa-trash-o'/></button>
-    <ul id='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
-    <span id='{{customId}}delete_buttons' class='only-right-info only-right-list'></span>
-    
-    <span id="{{customId}}vmsplay_buttons" class='only-right-info only-right-list'></span>
-
-    <button type='button' data-toggle='{{customId}}vmspause_buttons' class='only-right-info only-right-list top_button  button secondary dropdown radius'>
-      <i class='fa fa-pause'/>
-    </button>
-    <ul id='{{customId}}vmspause_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
-    <button type='button' data-toggle='{{customId}}vmsstop_buttons' class='only-right-info only-right-list top_button button secondary dropdown radius'>
-      <i class='fa fa-stop'/>
-    </button>
-    <ul id='{{customId}}vmsstop_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
-    <button type='button' data-toggle='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list top_button  button secondary dropdown radius'>
-      <i class='fa fa-repeat'/>
-    </button>
-    <ul id='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
-    <button type='button' data-toggle='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list top_button  button secondary dropdown radius'>
-      <i class='fa fa-th-list'/>
-    </button>
-    <ul id='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
-
+    <span id="{{customId}}refresh_buttons" class=" only-right-info only-right-list"></span>
+  </span>
+  <span>
     <span id="{{customId}}main_buttons" class="only-right-info only-right-list"></span>
 
-    <button type='button' data-toggle='{{customId}}more_buttons' class='only-right-info only-right-list top_button  button secondary dropdown radius'>
+    <span id="{{customId}}vmsplay_buttons" class='only-right-info only-right-list'></span>
+
+    <button type='button' data-toggle='{{customId}}vmspause_buttons' class='only-right-info only-right-list top_button  button secondary dropdown'>
+      <i class='fa fa-pause'/>
+    </button>
+    <ul id='{{customId}}vmspause_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <button type='button' data-toggle='{{customId}}vmsstop_buttons' class='only-right-info only-right-list top_button button secondary dropdown'>
+      <i class='fa fa-stop'/>
+    </button>
+    <ul id='{{customId}}vmsstop_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <button type='button' data-toggle='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list top_button  button secondary dropdown'>
+      <i class='fa fa-repeat'/>
+    </button>
+    <ul id='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <button type='button' data-toggle='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list top_button  button secondary dropdown'>
+      <i class='fa fa-th-list'/>
+    </button>
+    <ul id='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <button type='button' data-toggle='{{customId}}more_buttons' class='only-right-info only-right-list top_button  button secondary dropdown'>
       <i class='fa fa-ellipsis-v'/>
     </button>
-    <ul id='{{customId}}more_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown  data-close-on-click="true"></ul>
+    <ul id='{{customId}}more_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
 
-  <span id='{{customId}}form_buttons' class='only-right-form' hidden>
-    <span id="{{customId}}reset_button" class="left">
-      <a class="button secondary radius reset_button" href="submit">{{tr "Reset"}}</a>
-    </span>
-    <span id="{{customId}}submit_button" class="left">
-      <a class="button success radius submit_button" href="submit">{{tr "Create"}}</a>
-    </span>
-    <ul id="{{customId}}FormTabs" class="tabs right wizard_tabs" data-tabs>
+    <button type='button' data-toggle='{{customId}}user_buttons' class='only-right-info only-right-list top_button  secondary button dropdown'>
+      <i class='fa fa-user'/></button>
+    <ul id='{{customId}}user_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <span id='{{customId}}labels_buttons' class='only-right-info only-right-list'></span>
+
+    <button type='button' data-toggle='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list top_button  button alert dropdown'>
+      <i class='fa fa-trash-o'/></button>
+    <ul id='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
+
+    <span id='{{customId}}delete_buttons' class='only-right-info only-right-list'></span>
+
+    <ul id="{{customId}}FormTabs" class="tabs right wizard_tabs only-right-form" hidden data-tabs>
       <li id="wizard_mode" class="tabs-title is-active">
         <a href="#{{customId}}-wizardForms">{{tr "Wizard"}}</a>
       </li>
@@ -84,4 +87,4 @@
     </ul>
   </span>
 </div>
-"
+

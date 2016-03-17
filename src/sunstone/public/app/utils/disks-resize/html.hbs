@@ -14,17 +14,14 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<span class="support_title">Support</span>
-<br>
-<div class="support_info" style="display: none;">
-  <span class="support_open">Open</span><span class="secondary right support_open_value">-</span>
-  <br>
-  <span class="support_pending">Pending</span><span class="right support_pending_value">-</span>
-  <br>
-  <button class="button small success radius support_button">Submit a Request</button>
-</div>
-<div class="support_connect" style="display: none;">
-  <span class="">Not connected</span>
-  <br>
-  <button class="button small success radius support_connect_button">Sign in</button>
-</div>
+<fieldset>
+  <legend>
+    <i class="fa fa-tasks"></i> {{tr "Disks"}}
+    <span class="provision_create_template_disk_cost_div" hidden>
+      <span class="cost_value">0.00</span>
+      <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+    </span>
+  </legend>
+  <div class="disksContainer">
+  </div>
+</fieldset>

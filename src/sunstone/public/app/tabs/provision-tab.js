@@ -978,7 +978,7 @@ define(function(require) {
               UserInputs.vmTemplateInsert(
                   $(".provision_custom_attributes_selector", create_vm_context),
                   template_json,
-                  {text_header: '<i class="fa fa-gears fa-lg"></i> '+Locale.tr("Custom Attributes")});
+                  {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
             } else {
               $(".provision_custom_attributes_selector", create_vm_context).html("");
@@ -1253,7 +1253,7 @@ define(function(require) {
                     UserInputs.vmTemplateInsert(
                         $(".provision_custom_attributes_selector", role_context),
                         template_json,
-                        {text_header: '<i class="fa fa-gears fa-lg"></i> '+Locale.tr("Custom Attributes")});
+                        {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
                   } else {
                     $(".provision_custom_attributes_selector", role_context).html("");

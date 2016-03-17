@@ -163,8 +163,8 @@ define(function(require) {
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title">'+
                 '<a class="provision_info_vm_button">'+
-                '<span class="'+ state.color +'-color" title="'+state.str+'">'+
-                  '<i class="fa fa-fw fa-square"/> '+
+                '<span class="'+ state.color +'-color right" title="'+state.str+'">'+
+                  '<i class="fa fa-fw fa-lg fa-square"/>'+
                 '</span>'+
                 data.NAME + '</a>'+
               '</li>'+

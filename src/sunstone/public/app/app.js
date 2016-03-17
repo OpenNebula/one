@@ -18,6 +18,12 @@ define(function(require) {
   require('jquery');
   require('foundation');
 
+  Foundation.Dropdown.defaults.positionClass = 'bottom';
+  Foundation.Dropdown.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.disableHover = true;
+  Foundation.DropdownMenu.defaults.clickOpen = true;
+
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');

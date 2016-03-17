@@ -176,12 +176,17 @@ define(function(require) {
               '<a href="#">' + title + '</a>' + 
             '</li>';
 
-      $('#menu ul#navigation #li_' + parent + ' .menu').append(liItem);
+      if ($('#menu ul#navigation #li_' + parent + ' .menu').length > 0) {
+        $('#menu ul#navigation #li_' + parent + ' .menu').append(liItem);
+      } else {
+        $('#menu ul#navigation #li_' + parent).append(
+            '<ul class="menu vertical nested" data-submenu>' +
+              liItem +
+            '</ul>')
+      }
     } else {
       liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
               '<a href="#">' + title + '</a>' + 
-              '<ul class="menu vertical nested" data-submenu>' +
-              '</ul>' +
             '</li>';
 
       $('div#menu ul#navigation').append(liItem);
@@ -467,7 +472,7 @@ define(function(require) {
     //$(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
-    $(document).on("click", "a[href='back']", function(e) {
+    $(document).on("click", "button[href='back']", function(e) {
       $(".navigation-active-li a", $("#navigation")).click();
       e.preventDefault();
     });
@@ -475,17 +480,17 @@ define(function(require) {
 
   var _setupTabs = function() {
     Foundation.reflow($('#menu'), 'accordion-menu');
-
+    Foundation.reflow($('div.right-content'), 'sticky')
     var topTabs = $(".left-content ul li.topTab");
     var subTabs = $(".left-content ul li.subTab > a");
 
     subTabs.on("click", function() {
       if ($(this).closest('li').hasClass('topTab')) {
-        return false;
+        //return false;
       } else {
         var tabName = $(this).closest('li').attr('id').substring(3);
         _showTab(tabName);
-        return false;
+        //return false;
       }
     });
 
@@ -494,12 +499,12 @@ define(function(require) {
 
       if ($(this).hasClass("tab_with_no_content")) {
         //Subtabs have a class with the name of  this tab
-        var subtabs = $('div#menu li.' + tabName);
-        subtabs.fadeToggle('fast');
-        return false;
+        //var subtabs = $('div#menu li.' + tabName);
+        //subtabs.fadeToggle('fast');
+        //return false;
       } else {
         _showTab(tabName);
-        return false;
+        //return false;
       }
     });
 
@@ -517,6 +522,7 @@ define(function(require) {
     $(".only-right-info", tab).hide();
     $(".only-right-form", tab).hide();
     $(".only-right-list", tab).show();
+    $('.action_blocks', tab).removeClass('large-12').addClass('large-9');
   };
 
   var _showRighInfo = function(tabName) {
@@ -530,6 +536,7 @@ define(function(require) {
     $(".only-right-list", tab).hide();
     $(".only-right-form", tab).hide();
     $(".only-right-info", tab).show();
+    $('.action_blocks', tab).removeClass('large-9').addClass('large-12');
   }
 
   var _showTab = function(tabName) {
@@ -937,7 +944,7 @@ define(function(require) {
 
   function _hideFormPanel(tabId) {
     var context = $("#" + tabId);
-    $("a[href=back]", context).trigger("click");
+    $('[href="back"]', context).trigger("click");
   }
 
   function _popFormPanelLoading(tabId) {
@@ -948,6 +955,7 @@ define(function(require) {
     $(".only-right-list", context).hide();
     $(".only-right-info", context).hide();
     $(".only-right-form", context).show();
+    $('.action_blocks', context).removeClass('large-9').addClass('large-12');
 
     $(".right-form-title", context).text(Locale.tr("Loading..."));
     $(".submit_button", context).text(Locale.tr("Loading..."));

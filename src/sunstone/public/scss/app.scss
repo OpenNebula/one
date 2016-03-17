@@ -3,34 +3,89 @@
 @import "../bower_components/datatables/media/css/dataTables.foundation.min.css";
 @import "../bower_components/vis/dist/vis.min.css";
 
+@import url(https://fonts.googleapis.com/css?family=Lato:400,300,100,700,900);
+
 @import "settings";
 @import "foundation";
+
+@include foundation-everything;
+
+@include foundation-progress-element;
+
+@mixin thin-font {
+  font-weight: 300;
+  color: $black;
+}
+
+@mixin thin-font-size {
+  font-size: 1.2rem;
+}
 
 @import './top-row';
 @import './menu';
 @import './accordion';
 @import './range-slider';
+@import './table';
+@import './tabs';
+@import './fieldset';
+@import './boxes';
 
-@include foundation-everything;
 
 
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 200;
-  font-stretch: condensed;
-  src: local('Open Sans'), local('OpenSans'), url('opensans/opensans.woff') format('woff');
+//@font-face {
+//  font-family: 'Open Sans';
+//  font-style: normal;
+//  font-weight: 200;
+//  font-stretch: condensed;
+//  src: local('Open Sans'), local('OpenSans'), url('opensans/opensans.woff') format('woff');
+//}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 300;
 }
 
+.thin-font {
+  @include thin-font;
+  @include thin-font-size;
+}
+
+a {
+  font-weight: normal;
+}
+
+.button {
+  font-weight: bold;
+}
+
+.label {
+  font-weight: normal;
+}
+
+label {
+  i {
+    color: $dark-gray;
+  }
+}
+
+input,
+select,
+textarea {
+  font-weight: normal;
+  color: $light-black;
+}
 
 .right {
   float: right !important; 
 }
 
-table {
-  input {
-    margin-bottom: 0px !important;
-  }
+.left {
+  float: left !important; 
 }
 
 .graph {

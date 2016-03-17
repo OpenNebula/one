@@ -36,7 +36,10 @@ define(function(require) {
         "str": info_str
       }
     } else {
-      html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span><br><div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '          + percentage + '%"></div>';
+      html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
+        '<br>' + 
+        '<progress value="' + usage + '" max="' + limit + '"></progress>';
+        //'<div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '          + percentage + '%"></div>';
 
       return html;
     }

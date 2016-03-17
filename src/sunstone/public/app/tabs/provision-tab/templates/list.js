@@ -160,7 +160,7 @@ define(function(require) {
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fa fa-fw fa-lg fa-trash-o only-on-hover"/></a>';
         }
 
         var cpu_txt = "";
@@ -180,22 +180,24 @@ define(function(require) {
 
         $(".provision_templates_ul", context).append('<div class="column">'+
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" title="'+data.NAME+'">'+
-                data.NAME +
+              '<li class="provision-title" title="'+data.NAME+'">'+
+                '<span class="without-link">' +
+                  data.NAME +
+                '</span>' +
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                 cpu_txt+' - '+
                 mem_txt+' - '+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-description text-left">'+
+              '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
-              '<li class="provision-bullet-item">'+
+              '<li class="provision-bullet-item text-right">'+
                 actions_html+
               '</li>'+
-              '<li class="provision-bullet-item-last text-left" >'+
+              '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+

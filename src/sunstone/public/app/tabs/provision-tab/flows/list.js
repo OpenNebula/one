@@ -185,7 +185,7 @@ define(function(require) {
 
             roles_li +=
               '<li class="provision-bullet-item"">'+
-                '<i class="fa fa-fw fa-lg fa-cube"/>&emsp;'+
+                '<i class="fa fa-fw fa-lg fa-cube"/> '+
                 role.name+
                 '<span>'+rvms.str+" VMs</span>"+
               '</li>';
@@ -196,8 +196,8 @@ define(function(require) {
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title">'+
                 '<a class="provision_info_flow_button" href="#">'+
-                  '<span class="'+ state.color +'-color" title="'+ state.str +'">'+
-                    '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+                  '<span class="'+ state.color +'-color right" title="'+ state.str +'">'+
+                    '<i class="fa fa-fw fa-lg fa-square"/>'+
                   '</span>'+
                   data.NAME +
                 '</a>'+
@@ -205,10 +205,10 @@ define(function(require) {
               roles_li +
               '<li class="provision-bullet-item-last">'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
-                '<span>'+
+                '<span class="right">'+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : '-') +
                 '</span>'+
               '</li>'+
@@ -314,7 +314,7 @@ define(function(require) {
           $(".provision-pricing-table_flow_info", context).html(
               '<li class="provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
-                  '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-square"/> '+
                   state.str+
                 '</span>'+
               '</li>'+
@@ -323,11 +323,11 @@ define(function(require) {
               '</li>'+
               '<li class="provision-bullet-item">'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-clock-o"/> '+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : "...") +
                   ' - '+
                   'ID: '+
@@ -349,7 +349,7 @@ define(function(require) {
                 '<div class="column">'+
                   '<ul class="provision_role_ul provision-pricing-table menu vertical">'+
                     '<li class="provision-title">'+
-                      '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                      '<i class="fa fa-fw fa-cube"/> '+
                       role.name+
                     '</li>'+
                     '<li class="provision-bullet-item">'+

@@ -134,40 +134,40 @@ define(function(require) {
 
     if (options.nic) {
       nic_span = '<span class="selected_network" template_nic=\'' + JSON.stringify(options.nic) + '\'>' +
-          '<span>' + Locale.tr("INTERFACE") + "</span>" +
+          '<span>' + Locale.tr("INTERFACE") + " </span>" +
           '<span>' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
         '</span>' +
-        '<span class="has-tip provision_remove_nic">' +
+        '<span class="button right hollow tiny alert provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip">' +
+        '<span class="button right hollow tiny">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else if (options.vnet_attr) {
       nic_span = '<span>' + options.vnet_attr.description + "</span><br>" +
         '<span class="selected_network only-not-active" attr_name=\'' + options.vnet_attr.name + '\'>' +
-          '<span>' + Locale.tr("INTERFACE") + "</span>" +
-          '<span class="button radius small">' + Locale.tr("Select a Network") + "</span>" +
+          '<span>' + Locale.tr("INTERFACE") + " </span>" +
+          '<span class="label secondary">' + Locale.tr("Select a Network") + "</span>" +
         '</span>' +
         '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip only-not-active">' +
+        '<span class="button right hollow tiny only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     } else {
       nic_span =
         '<span class="selected_network only-not-active">' +
-          '<span>' + Locale.tr("INTERFACE") + "</span>" +
-          '<span class="button radius small">' + Locale.tr("Select a Network") + "</span>" +
+          '<span>' + Locale.tr("INTERFACE") + " </span>" +
+          '<span class="label secondary">' + Locale.tr("Select a Network") + "</span>" +
         '</span>' +
         '<span class="only-active">' +
           Locale.tr("Select a Network for this interface") +
         '</span>' +
-        '<span class="has-tip provision_remove_nic">' +
+        '<span class="button right hollow tiny alert  provision_remove_nic">' +
           '<i class="fa fa-times"/>' +
         '</span>' +
-        '<span class="has-tip only-not-active">' +
+        '<span class="button right hollow tiny only-not-active">' +
           '<i class="fa fa-pencil"/>' +
         '</span>';
     }
@@ -267,7 +267,7 @@ define(function(require) {
 
     dd_context.on("click", ".provision-pricing-table.more-than-one" , function() {
       var html = 
-        '<span>' + Locale.tr("INTERFACE") + "</span>" +
+        '<span>' + Locale.tr("INTERFACE") + " </span>" +
         '<span>' + $(this).attr("opennebula_name") + "</span>";
 
       if (options.floatingIP){
@@ -355,29 +355,19 @@ define(function(require) {
   function _generate_provision_network_accordion(context, options) {
     context.off();
     context.html(
-      '<br>' +
-      '<div class="row">' +
-        '<div class="large-12 columns">' +
-          '<h3 class="subheader">' +
-            '<span class="left">' +
-              '<i class="fa fa-globe fa-lg"></i>&emsp;' +
-              Locale.tr("Network") +
-            '</span>' +
-          '</h3>' +
-          '<br>' +
-        '</div>' +
-      '</div>' +
-      '<div class="row">' +
-        '<div class="large-12 large-centered columns">' +
+      '<fieldset>' +
+        '<legend>' +
+          '<i class="fa fa-globe"></i> ' +
+          Locale.tr("Network") +
+        '</legend>' +
+        '<div>' +
           '<dl class="accordion provision_nic_accordion" data-accordion data-allow-all-closed="true">' +
           '</dl>' +
-          '<br>' +
-          '<a class="button secondary provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
+          '<a class="button secondary small provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
             Locale.tr("Add another Network Interface") +
           '</a>' +
         '</div>' +
-      '</div>' +
-      '<br>')
+      '</fieldset>')
 
     Foundation.reflow(context, 'accordion');
 

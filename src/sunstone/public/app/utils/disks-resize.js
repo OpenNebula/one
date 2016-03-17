@@ -20,6 +20,7 @@ define(function(require){
   var OpenNebula = require('opennebula');
   var OpenNebulaImage = require('opennebula/image');
   var RangeSlider = require('utils/range-slider');
+  var DisksResizeTemplate = require('hbs!./disks-resize/html');
 
   return {
     'insert': _insert,
@@ -36,29 +37,7 @@ define(function(require){
     }
 
     if (disks.length > 0) {
-      disksContext.html(
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<h3 class="subheader text-right">'+
-              '<span class="left">'+
-                '<i class="fa fa-tasks fa-lg"></i>&emsp;'+
-                Locale.tr("Disks")+
-              '</span>'+
-              '<span class="provision_create_template_disk_cost_div" hidden>' +
-                '<span class="cost_value">0.00</span> '+
-                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
-              '</span>'+
-              '<br>'+
-            '</h3>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns disksContainer">'+
-            '<span class="text-center" style="font-size:80px">'+
-              '<i class="fa fa-spinner fa-spin"></i>'+
-            '</span>'+
-          '</div>'+
-        '</div>')
+      disksContext.html(DisksResizeTemplate());
 
       OpenNebula.Template.show({
         data : {
@@ -126,7 +105,7 @@ define(function(require){
                 (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
             RangeSlider.insert({
-              'label': label,
+              'label': Locale.tr("DISK") + ' ' + disk_id + ': ' + label,
               'unitLabel': 'GB',
               'name': 'SIZE',
               'min': sizeGB,

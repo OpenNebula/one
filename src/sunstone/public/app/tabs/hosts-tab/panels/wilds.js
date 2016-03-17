@@ -79,6 +79,7 @@ define(function(require) {
     that.dataTableWildHosts = $("#datatable_host_wilds", context).dataTable({
       "bSortClasses" : false,
       "bDeferRender": true,
+      "bAutoWidth": false,
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": [0]},
           {"sWidth": "35px", "aTargets": [0]}

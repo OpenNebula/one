@@ -186,6 +186,8 @@ define(function(require) {
   function _generateInstantiateUserInputs(div, user_inputs, opts) {
     div.empty();
 
+    var html = '';
+
     if (user_inputs == undefined) {
       return false;
     }
@@ -216,19 +218,19 @@ define(function(require) {
     });
 
     if (network_attrs.length > 0) {
+      html += '<fieldset>';
       if (opts.network_header.length > 0) {
-        div.append(
-        '<br>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader">' +
-              opts.network_header +
-            '</h3>' +
-          '</div>' +
-        '</div>');
+        html += '<legend>' +
+            opts.network_header +
+          '</legend>' +
+          '</div>';
       }
 
-      div.append('<div class="instantiate_user_inputs"/>');
+      html += '<div class="instantiate_user_inputs">' +
+          '</div>' +
+        '</fieldset>';
+
+      div.append(html);
 
       var separator = "";
 
@@ -259,19 +261,19 @@ define(function(require) {
     }
 
     if (input_attrs.length > 0) {
+      html += '<fieldset>';
       if (opts.text_header.length > 0) {
-        div.append(
-        '<br>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader">' +
-              opts.text_header +
-            '</h3>' +
-          '</div>' +
-        '</div>');
+        html += '<legend>' +
+            opts.text_header +
+          '</legend>' +
+          '</div>';
       }
 
-      div.append('<div class="instantiate_user_inputs"/>');
+      html += '<div class="instantiate_user_inputs">' +
+          '</div>' +
+        '</fieldset>';
+
+      div.append(html);
 
       $.each(input_attrs, function(index, custom_attr) {
         $(".instantiate_user_inputs", div).append(

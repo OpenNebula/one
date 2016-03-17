@@ -188,7 +188,7 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+              {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
           inputs_div.data("opennebula_id", template_json.VMTEMPLATE.ID);
 
