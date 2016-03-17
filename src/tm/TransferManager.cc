@@ -786,16 +786,6 @@ void TransferManager::prolog_action(int vid)
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Generate context file
-    // -------------------------------------------------------------------------
-    rc = prolog_context_command(vm, token_password, vm_tm_mad, disk_id, xfr);
-
-    if ( rc == -1 )
-    {
-        goto error_context;
-    }
-
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -817,12 +807,6 @@ error_file:
     goto error_common;
 
 error_attributes:
-    xfr.close();
-    goto error_common;
-
-error_context:
-    os << "could not write context file for VM " << vid;
-
     xfr.close();
     goto error_common;
 
@@ -1083,16 +1067,6 @@ void TransferManager::prolog_resume_action(int vid)
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
-    // -------------------------------------------------------------------------
-    // Generate context file
-    // -------------------------------------------------------------------------
-    rc = prolog_context_command(vm, token_password, vm_tm_mad, disk_id, xfr);
-
-    if ( rc == -1 )
-    {
-        goto error_context;
-    }
-
     xfr.close();
 
     tm_md->transfer(vid,xfr_name);
@@ -1115,14 +1089,9 @@ error_file:
     os << "prolog_resume, could not open file: " << xfr_name;
     goto error_common;
 
-error_context:
-    os << "prolog_resume, could not write context file for VM " << vid;
-
-    xfr.close();
-    goto error_common;
-
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
+
     vm->log("TM", Log::ERROR, os);
 
     vm->unlock();

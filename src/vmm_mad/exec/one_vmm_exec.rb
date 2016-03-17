@@ -342,8 +342,22 @@ class ExecDriver < VirtualMachineDriver
         # ----------------------------------------------------------------------
         #  Deployment Steps
         # ----------------------------------------------------------------------
+        xml_data = decode(drv_message)
 
-        steps=[
+        tm_command = xml_data.elements['TM_COMMAND']
+        tm_command = tm_command.text if tm_command
+
+        steps = []
+
+        if tm_command && !tm_command.empty?
+            steps << {
+                :driver     => :tm,
+                :action     => :tm_context,
+                :parameters => tm_command.strip.split(' ')
+            }
+        end
+
+        steps.concat([
             # Execute pre-boot networking setup
             {
                 :driver   => :vnm,
@@ -369,7 +383,7 @@ class ExecDriver < VirtualMachineDriver
                     }
                 ]
             }
-        ]
+        ])
 
         action.run(steps)
     end

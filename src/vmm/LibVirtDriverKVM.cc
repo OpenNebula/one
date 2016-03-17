@@ -1153,11 +1153,9 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<metadata>\n"
          << "\t\t<system_datastore>"
          << one_util::escape_xml(vm->get_remote_system_dir())
-         << "\t\t</system_datastore>\n\t\t<opennebula>\n"
-         << vm->to_xml(vm_xml)
-         << "\t\t</opennebula>\n";
-
-    file << "\t</metadata>\n";
+         << "\t\t</system_datastore>\n"
+        // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
+         << "\t</metadata>\n";
 
     file << "</domain>" << endl;
 
