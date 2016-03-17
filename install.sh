@@ -931,7 +931,6 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/vnmmad.rb \
                src/vnm_mad/remotes/OpenNebulaNetwork.conf \
-               src/vnm_mad/remotes/lib/fw_driver.rb \
                src/vnm_mad/remotes/lib/sg_driver.rb \
                src/vnm_mad/remotes/lib/address.rb \
                src/vnm_mad/remotes/lib/command.rb \
