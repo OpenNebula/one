@@ -24,15 +24,19 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-
         <xs:element name="DS_MAD" type="xs:string"/>
         <xs:element name="TM_MAD" type="xs:string"/>
         <xs:element name="BASE_PATH" type="xs:string"/>
         <xs:element name="TYPE" type="xs:integer"/>
         <xs:element name="DISK_TYPE" type="xs:integer"/>
         <xs:element name="STATE" type="xs:integer"/>
-        <xs:element name="CLUSTER_ID" type="xs:integer"/>
-        <xs:element name="CLUSTER" type="xs:string"/>
+        <xs:element name="CLUSTERS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="TOTAL_MB" type="xs:integer"/>
         <xs:element name="FREE_MB" type="xs:integer"/>
         <xs:element name="USED_MB" type="xs:integer"/>
