@@ -445,44 +445,9 @@ int Image::from_xml(const string& xml)
 
     content.clear();
 
-    ObjectXML::get_nodes("/IMAGE/VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vm_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
-
-    ObjectXML::get_nodes("/IMAGE/CLONES", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += img_clone_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
-
-    ObjectXML::get_nodes("/IMAGE/APP_CLONES", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += app_clone_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
+    rc += vm_collection.from_xml(this, "/IMAGE/");
+    rc += img_clone_collection.from_xml(this, "/IMAGE/");
+    rc += app_clone_collection.from_xml(this, "/IMAGE/");
 
     ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
 

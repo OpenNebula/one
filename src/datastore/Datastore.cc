@@ -713,10 +713,10 @@ int Datastore::from_xml(const string& xml)
     state     = static_cast<DatastoreState>(int_state);
 
     // Set of Image IDs
-    images.from_xml(this, "/DATASTORE/");
+    rc += images.from_xml(this, "/DATASTORE/");
 
     // Set of cluster IDs
-    Clusterable::from_xml(this, "/DATASTORE/");
+    rc += Clusterable::from_xml(this, "/DATASTORE/");
 
     // Get associated classes
     ObjectXML::get_nodes("/DATASTORE/TEMPLATE", content);

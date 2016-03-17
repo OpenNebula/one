@@ -347,17 +347,7 @@ int VirtualRouter::from_xml(const string& xml)
     rc += perms_from_xml();
 
     // Get associated classes
-    ObjectXML::get_nodes("/VROUTER/VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vms.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += vms.from_xml(this, "/VROUTER/");
 
     ObjectXML::get_nodes("/VROUTER/TEMPLATE", content);
 

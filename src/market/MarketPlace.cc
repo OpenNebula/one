@@ -340,18 +340,7 @@ int MarketPlace::from_xml(const std::string &xml_str)
     rc += perms_from_xml();
 
 	// ----- MARKETPLACEAPP Collection  -----
-    ObjectXML::get_nodes("/MARKETPLACE/MARKETPLACEAPPS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += marketapps.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
+    rc += marketapps.from_xml(this, "/MARKETPLACE/");
 
 	// ----- TEMPLATE -----
     ObjectXML::get_nodes("/MARKETPLACE/TEMPLATE", content);

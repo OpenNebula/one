@@ -508,10 +508,10 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
 
     // Set of cluster IDs
-    Clusterable::from_xml(this, "/VNET/");
+    rc += Clusterable::from_xml(this, "/VNET/");
 
     // VRouter IDs
-    vrouters.from_xml(this, "/VNET/");
+    rc += vrouters.from_xml(this, "/VNET/");
 
     // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);

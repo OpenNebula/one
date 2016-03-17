@@ -354,55 +354,11 @@ int Cluster::from_xml(const string& xml)
     // Set the Cluster ID as the cluster it belongs to
     set_group(oid, name);
 
-    // -------------------------------------------------------------------------
-    // Get associated hosts
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/HOSTS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += hosts.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    // -------------------------------------------------------------------------
-    // Get associated datastores
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/DATASTORES", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += datastores.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    // -------------------------------------------------------------------------
-    // Get associated vnets
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/VNETS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += vnets.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
     // Get associated classes
+    rc += hosts.from_xml(this, "/CLUSTER/");
+    rc += datastores.from_xml(this, "/CLUSTER/");
+    rc += vnets.from_xml(this, "/CLUSTER/");
+
     ObjectXML::get_nodes("/CLUSTER/TEMPLATE", content);
 
     if (content.empty())

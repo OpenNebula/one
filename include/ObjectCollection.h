@@ -69,14 +69,6 @@ public:
     };
 
     /**
-     *  Rebuilds the object from an xml node
-     *    @param node The xml node pointer
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml_node(const xmlNodePtr node);
-
-    /**
      * Rebuilds the object from an xml object
      * @param xml xml object
      * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
@@ -144,6 +136,13 @@ private:
      */
     set<int> collection_set;
 
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
 };
 
 #endif /*OBJECT_COLLECTION_H_*/
