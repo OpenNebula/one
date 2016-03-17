@@ -361,7 +361,7 @@ class VIClient
     # Builds a hash with the Datacenter / VM Templates for this VCenter
     # @param one_client [OpenNebula::Client] Use this client instead of @one
     # @return [Hash] in the form
-    #   { dc_name [String] => }
+    #   { dc_name [String] => Templates [Array] }
     ########################################################################
     def vm_templates(one_client=nil)
         vm_templates = {}
@@ -1169,6 +1169,14 @@ class VCenterHost < ::OpenNebula::Host
 
         text
     end
+
+    def get_available_ds
+        str_info = ""
+        @cluster.parent.parent.datastoreFolder.childEntity.each { |ds|
+            str_info += "VCENTER_DATASTORE=#{ds.name}\n"
+        }
+        str_info.chomp
+    end
 end
 
 ################################################################################
@@ -1213,8 +1221,8 @@ class VCenterVm
             # Find out if we need to reconfigure capacity
             xml = REXML::Document.new xml_text
 
-            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
-            expected_memory = xml.root.elements["//TEMPLATE/MEMORY"].text
+            expected_cpu    = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["/VM/TEMPLATE/VCPU"].text : 1
+            expected_memory = xml.root.elements["/VM/TEMPLATE/MEMORY"].text
             current_cpu     = vm.config.hardware.numCPU
             current_memory  = vm.config.hardware.memoryMB
 
@@ -2255,7 +2263,7 @@ private
 
         if scsi_schema.keys.length < 4
           scsi_key    = scsi_schema.keys.sort[-1] + 1
-          scsi_number = scsi_tree[scsi_tree.keys.sort[-1]][:device].busNumber + 1
+          scsi_number = scsi_schema[scsi_schema.keys.sort[-1]][:device].busNumber + 1
 
           controller_device = RbVmomi::VIM::VirtualLsiLogicController(
             :key => scsi_key,

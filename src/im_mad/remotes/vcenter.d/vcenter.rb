@@ -47,5 +47,6 @@ cluster_info << "#{vm_monitor_info}" if !vm_monitor_info.empty?
 
 cluster_info << "\n"
 cluster_info << vcenter_host.monitor_customizations
+cluster_info << vcenter_host.get_available_ds
 
 puts cluster_info
