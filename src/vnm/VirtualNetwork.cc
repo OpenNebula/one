@@ -573,6 +573,10 @@ int VirtualNetwork::nic_attribute(
         const vector<string>&   inherit_attrs)
 {
     string inherit_val;
+    string target;
+
+    ostringstream oss;
+
     vector<string>::const_iterator it;
 
     set<int> nic_sgs;
@@ -608,6 +612,14 @@ int VirtualNetwork::nic_attribute(
     if (parent_vid != -1)
     {
         nic->replace("PARENT_NETWORK_ID", parent_vid);
+    }
+
+    target = nic->vector_value("TARGET");
+
+    if (target.empty())
+    {
+        oss << "one-" << vid << "-" << nic->vector_value("NIC_ID");
+        nic->replace("TARGET", oss.str());
     }
 
     if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )

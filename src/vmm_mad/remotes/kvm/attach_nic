@@ -24,6 +24,7 @@ MAC=$2
 BRIDGE=$3
 THE_MODEL=$4
 NET_DRV=$5
+TARGET=$6
 
 if [ "$THE_MODEL" != "-" ]; then
     MODEL="<model type='$THE_MODEL'/>"
@@ -37,6 +38,7 @@ DEVICE=$(cat <<EOF
 <interface type='bridge'>
     <source bridge='$BRIDGE'/>
     <mac address='$MAC'/>
+    <target dev='$TARGET'/>
     $MODEL
     $VIRTUALPORT
 </interface>
