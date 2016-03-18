@@ -284,7 +284,7 @@ define(function(require) {
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
-          icon = button.icon ? button.icon : '<i class="fa fa-refresh fa-lg"/>';
+          icon = button.icon ? button.icon : '<i class="fa fa-refresh"/>';
           text = button.text ? icon + ' ' + button.text : icon;
           strClass.push("white_button", "refresh", "button",  "secondary");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';

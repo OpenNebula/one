@@ -14,8 +14,8 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="text-right">
-  <span class="left">
+<div>
+  <span>
     {{#unless customContext}}
     <span id="{{customId}}back_button" class=" only-right-info only-right-form">
       <button class="button radius" href="back"> <i class="fa fa-arrow-left"></i> <i class="fa fa-list"></i>
@@ -35,7 +35,7 @@
     <span id="{{customId}}create_buttons" class=" only-right-list"></span>
     <span id="{{customId}}refresh_buttons" class=" only-right-info only-right-list"></span>
   </span>
-  <span>
+  <span style="margin-left: 2rem">
     <span id="{{customId}}main_buttons" class="only-right-info only-right-list"></span>
 
     <span id="{{customId}}vmsplay_buttons" class='only-right-info only-right-list'></span>
@@ -60,6 +60,8 @@
     </button>
     <ul id='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list dropdown-pane menu vertical' data-dropdown></ul>
 
+  </span>
+  <span style="margin-left: 2rem">
     <button type='button' data-toggle='{{customId}}more_buttons' class='only-right-info only-right-list top_button  button secondary dropdown'>
       <i class='fa fa-ellipsis-v'/>
     </button>

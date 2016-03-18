@@ -247,7 +247,7 @@ $breadcrumbs-item-slash: true;
 // ----------
 
 //$button-padding: 0.85em 1em;
-$button-padding: 0.6em 1em;
+$button-padding: 0.6em 0.7em;
 $button-margin: 0 0 $global-margin 0;
 $button-fill: solid;
 $button-background: $primary-color;
@@ -530,7 +530,7 @@ $tab-background: $white;
 $tab-background-active: $white;
 $tab-item-font-size: rem-calc(15);
 $tab-item-background-hover: $light-gray;
-$tab-item-padding: 1rem 1.5rem;
+$tab-item-padding: 1.5rem;
 $tab-expand-max: 6;
 $tab-content-background: $white;
 $tab-content-border: $white;
