@@ -238,7 +238,6 @@ define(function(require) {
     resource: 'Dashboard',
     title: Locale.tr("Dashboard"),
     listHeader: Locale.tr("Dashboard"),
-    buttons: _buttons,
     actions: _actions,
     content: _html()
   };

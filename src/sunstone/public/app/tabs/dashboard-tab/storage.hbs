@@ -13,29 +13,21 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div class="row totals-info dashboard-widget-footer">
-  <div class="small-12 large-12 columns text-center">
-    <h2 class="">
-      <small>{{tr "IMAGES"}}</small>
-      <br>
-      <span class="total_images "></span>
-      <small><i class="fa fa-fw fa-upload"></i> </small>
-    </h2>
-  </div>
-  <div class="small-12 large-12 columns text-center">
-    <h5 class="">
-      <span class="size_images "></span>
-      <br>
-      <small>{{tr "USED"}}</small>
-    </h5>
-  </div>
-    <div class="small-12 large-12 columns text-center">
-      <br>
-      <a class="button secondary radius tiny show_images_tab"> <i class="fa fa-lg fa-list fa-fw"></i>
-      </a>
-      <a class="button secondary  radius tiny show_create_image">
-        <i class="fa fa-lg fa-plus fa-fw"></i><i class="fa fa-fw fa-lg fa-upload"></i>
-      </a>
-    </div>
+<div class="totals-info">
+  <fieldset class="large-font">
+    <legend>
+      <ul class="menu simple">
+        <li>
+          {{tr "Images"}} <span class=" total_images"></span> 
+        </li>
+        <li></li>
+        <li><span>{{tr "USED"}}</span> <span class="size_images"></span></li>
+        <li></li>
+        <li>
+          <button class="button radius small show_images_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+          <button class="button success radius small show_create_image"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+        </li>
+      </ul>
+    </legend>
+  </fieldset>
 </div>

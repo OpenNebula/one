@@ -18,7 +18,7 @@ define(function(require) {
   require('jquery');
   require('foundation');
 
-  Foundation.Dropdown.defaults.positionClass = 'bottom';
+  Foundation.Dropdown.defaults.positionClass = 'left';
   Foundation.Dropdown.defaults.closeOnClick = true;
   Foundation.DropdownMenu.defaults.closeOnClick = true;
   Foundation.DropdownMenu.defaults.disableHover = true;
@@ -161,7 +161,7 @@ define(function(require) {
     });
 
     $(".user-zone-info a.configuration").click(function() {
-      $(document).foundation('dropdown', 'closeall');
+      //$(document).foundation('dropdown', 'closeall');
       Sunstone.showTab(SETTINGS_TAB_ID);
     });
   }

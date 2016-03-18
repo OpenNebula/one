@@ -14,68 +14,44 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="row totals-info">
-  <div class="small-12 medium-6 large-3 columns">
-    <br>
-    <div class="small-12 large-12 columns text-center">
-      <h2 class="">
-        <small>{{tr "VMs"}}</small>
-        <br>
-        <span class=" total_vms"></span>
-        <small><i class="fa fa-fw fa-th"></i></small>
-      </h2>
+<div class="totals-info">
+  <fieldset class="large-font">
+    <legend>
+      <ul class="menu simple">
+        <li>
+          {{tr "VMs"}} <span class=" total_vms"></span> 
+        </li>
+        <li></li>
+        <li><span>{{tr "ACTIVE"}}</span> <span class=" active_vms success-color"></span></li>
+        <li><span>{{tr "PENDING"}}</span> <span class=" pending_vms"></span></li>
+        <li><span>{{tr "FAILED"}}</span> <span class=" failed_vms alert-color"></span></li>
+        <li></li>
+        <li>
+          <button class="button radius small show_vms_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+          <button class="button success radius small show_create_vm"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+        </li>
+      </ul>
+    </legend>
+    <div class="row" id="dashboard_vm_accounting">
+      <input style="display:none;" value="vm" id="acct_group_by"/>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "CPU hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+      </div>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "Memory GB hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+      </div>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "Disk MB hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+      </div>
     </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class=" active_vms success-color"></span>
-        <br>
-        <small class="success-color">{{tr "ACTIVE"}}</small>
-      </h5>
-    </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class=" pending_vms"></span>
-        <br>
-        <small>{{tr "PENDING"}}</small>
-      </h5>
-    </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class=" failed_vms alert-color"></span>
-        <br>
-        <small class="alert-color">{{tr "FAILED"}}</small>
-      </h5>
-    </div>
-    <div class="small-12 large-12 columns text-center" style="margin-top: 20px">
-      <a class="button secondary radius tiny show_vms_tab"> <i class="fa fa-lg fa-list fa-fw"></i>
-      </a>
-      <a class="button secondary radius tiny show_create_vm">
-        <i class="fa fa-lg fa-plus fa-fw"></i><i class="fa fa-fw fa-lg fa-th"></i></a>
-      <br>
-    </div>
-  </div>
-  <div class="large-9 medium-6 small-12 columns text-center" id="dashboard_vm_accounting">
-    <input style="display:none;" value="vm" id="acct_group_by"/>
-    <div class="small-12 large-6 columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "CPU hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-    <div class="small-12 large-6 columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "Memory GB hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-    <div class="small-12 large-6 left columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "Disk MB hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-  </div>
-</div>
-<div class="row dashboard-widget-footer">
-  <div class="small-3 large-3 columns text-center"></div>
+  </fieldset>
 </div>

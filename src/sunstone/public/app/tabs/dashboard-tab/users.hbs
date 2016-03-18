@@ -14,45 +14,41 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="row totals-info">
-  <div class="large-3 medium-6 small-12 columns">
-    <br>
-    <div class="small-12 large-12 columns text-center">
-      <h2 class="">
-        <small>{{tr "USERS"}}</small>
-        <br>
-        <span class=" total_users">-</span>
-        <small><i class="fa fa-fw fa-user"></i> </small>
-      </h2>
+<div class="totals-info">
+  <fieldset class="large-font">
+    <legend>
+      <ul class="menu simple">
+        <li>
+          {{tr "Users"}} <span class=" total_users"></span> 
+        </li>
+        <li></li>
+        <li>
+          <button class="button radius small show_users_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+          <button class="button success radius small show_create_user"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+        </li>
+      </ul>
+    </legend>
+    <div class="row" id="dashboard_vdc_user_accounting">
+      <input style="display:none;" value="user" id="acct_group_by"/>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "CPU hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_cpu_graph">{{> ./empty-graph}}</div>
+      </div>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "Memory GB hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_mem_graph">{{> ./empty-graph}}</div>
+      </div>
+      <div class="small-12 large-4 columns">
+        <h5>
+          <small>{{tr "Disk MB hours"}}</small>
+        </h5>
+        <div class="large-12 columns centered graph text-center" id="acct_disk_graph">{{> ./empty-graph}}</div>
+      </div>
     </div>
-    <div class="small-12 large-12 columns text-center" style="margin-top: 20px">
-      <a class="button secondary radius tiny show_users_tab"> <i class="fa fa-lg fa-list fa-fw"></i></a>
-      <a class="button secondary radius tiny show_create_user">
-        <i class="fa fa-lg fa-plus fa-fw"></i><i class="fa fa-fw fa-lg fa-user"></i></a>
-    </div>
-  </div>
-  <div class="large-9 medium-6 small-12 columns text-center" id="dashboard_vdc_user_accounting">
-    <input style="display:none;" value="user" id="acct_group_by"/>
-    <div class="small-12 large-6 columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "CPU hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-    <div class="small-12 large-6 columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "Memory GB hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-    <div class="small-12 large-6 left columns">
-      <h4 class="" style="margin-bottom: 0px">
-        <small>{{tr "Disk MB hours"}}</small>
-      </h4>
-      <div class="large-12 columns centered graph text-center" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graph}}</div>
-    </div>
-  </div>
+  </fieldset>
 </div>
-<div class="row dashboard-widget-footer">
-  <div class="small-3 large-3 columns text-center"></div>
-</div>
+

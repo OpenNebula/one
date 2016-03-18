@@ -13,29 +13,21 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div class="row totals-info dashboard-widget-footer">
-  <div class="small-12 large-12 columns text-center">
-    <h2 class="">
-      <small>{{tr "VNETs"}}</small>
-      <br>
-      <span class="total_vnets "></span>
-      <small><i class="fa fa-fw fa-sitemap"></i> </small>
-    </h2>
-  </div>
-  <div class="small-12 large-12 columns text-center">
-    <h5 class="">
-      <span class="addresses_vnets "></span>
-      <br>
-      <small>{{tr "USED IPs"}}</small>
-    </h5>
-  </div>
-    <div class="small-12 large-12 columns text-center">
-      <br>
-      <a class="button secondary radius tiny show_vnets_tab"> <i class="fa fa-lg fa-list fa-fw"></i>
-      </a>
-      <a class="button secondary  radius tiny show_create_vnet">
-        <i class="fa fa-lg fa-plus fa-fw"></i><i class="fa fa-fw fa-lg fa-sitemap"></i>
-      </a>
-    </div>
+<div class="totals-info">
+  <fieldset class="large-font">
+    <legend>
+      <ul class="menu simple">
+        <li>
+          {{tr "Virtual Networks"}} <span class=" total_vnets"></span> 
+        </li>
+        <li></li>
+        <li><span>{{tr "USED IPs"}}</span> <span class="addresses_vnets"></span></li>
+        <li></li>
+        <li>
+          <button class="button radius small show_vnets_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+          <button class="button success radius small show_create_vnet"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+        </li>
+      </ul>
+    </legend>
+  </fieldset>
 </div>

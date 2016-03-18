@@ -11,6 +11,7 @@
 @include foundation-everything;
 
 @include foundation-progress-element;
+@include foundation-meter-element;
 
 @mixin thin-font {
   font-weight: 300;
@@ -51,8 +52,9 @@ h6 {
 }
 
 .thin-font {
-  @include thin-font;
-  @include thin-font-size;
+  //@include thin-font;
+  //@include thin-font-size;
+  color: $light-black;
 }
 
 a {

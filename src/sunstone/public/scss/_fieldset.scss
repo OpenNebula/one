@@ -2,20 +2,34 @@ fieldset {
   padding: 1rem 2rem;
 
   legend {
+
     font-weight: normal;
     font-size: 1.2rem;
     border-bottom: rem-calc(1px) solid $primary-color;
     //position: relative;
-    padding: 0.5rem 1rem 0.5rem 0rem;
+    padding: 0rem 1rem 0.5rem 0rem;
     margin-left: -2rem;
-
-    i {
-      color: $dark-gray;
-    }
 
     span {
       font-size: 1rem;
       color: $dark-gray;
+    }
+  }
+
+
+  &.large-font {
+    legend {
+      font-weight: 300;
+      font-size: 1.5rem;
+
+      span {
+        font-weight: 300;
+        font-size: 1.2rem;
+      }
+    }
+
+    .button {
+      color: $white;
     }
   }
 

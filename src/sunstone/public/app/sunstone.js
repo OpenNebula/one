@@ -514,28 +514,28 @@ define(function(require) {
   var _showRighList = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
-    tab.show();
+    tab.fadeIn();
 
     $(".right-info", tab).hide();
     $(".right-form", tab).hide();
-    $(".right-list", tab).show();
+    $(".right-list", tab).fadeIn();
     $(".only-right-info", tab).hide();
     $(".only-right-form", tab).hide();
-    $(".only-right-list", tab).show();
+    $(".only-right-list", tab).fadeIn();
     $('.action_blocks', tab).removeClass('large-12').addClass('large-9');
   };
 
   var _showRighInfo = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
-    tab.show();
+    tab.fadeIn();
 
     $(".right-list", tab).hide();
     $(".right-form", tab).hide();
-    $(".right-info", tab).show();
+    $(".right-info", tab).fadeIn();
     $(".only-right-list", tab).hide();
     $(".only-right-form", tab).hide();
-    $(".only-right-info", tab).show();
+    $(".only-right-info", tab).fadeIn();
     $('.action_blocks', tab).removeClass('large-9').addClass('large-12');
   }
 
@@ -938,7 +938,7 @@ define(function(require) {
       $(".right-form-title", context).text(formPanelInstance.title());
       $(".submit_button", context).text(formPanelInstance.buttonText());
 
-      $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).show();
+      $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).fadeIn();
     }
 
   }

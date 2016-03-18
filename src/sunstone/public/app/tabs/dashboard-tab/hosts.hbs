@@ -14,61 +14,38 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="row  totals-info">
-  <div class="small-12 medium-6 large-3 columns centered">
-    <div class="small-12 large-12 columns text-center">
-      <h2 class="">
-        <small>{{tr "HOSTs"}}</small>
-        <br>
-        <span class="total_hosts "/> 
-        <small><i class="fa fa-fw fa-lg fa-hdd-o"></i></small>
-      </h2>
-    </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class="on_hosts  success-color"/>
-        <br>
-        <small class="success-color">{{tr "ON"}}</small>
-      </h5>
-    </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class="off_hosts "/>
-        <br>
-        <small>{{tr "OFF"}}</small>
-      </h5>
-    </div>
-    <div class="small-4 large-4 columns text-center">
-      <h5 class="">
-        <span class="error_hosts  alert-color"/>
-        <br>
-        <small class="alert-color">{{tr "ERROR"}}</small>
-      </h5>
-    </div>
-    <div class="small-12 large-12 columns text-center">
-      <br>
-      <a class="button secondary radius tiny show_hosts_tab"> <i class="fa fa-lg fa-list fa-fw"></i>
-      </a>
-      <a class="button secondary  radius tiny show_create_host">
-        <i class="fa fa-lg fa-plus fa-fw"></i><i class="fa fa-fw fa-lg fa-hdd-o"></i>
-      </a>
-    </div>
-  </div>
-  <div class="small-12 medium-6 large-9 columns">
-    <div class="row">
-      <div class="small-12 large-6 columns">
-        <div id="dashboard_host_allocated_cpu" style="padding: 0px 40px"></div>
-        <br>
-        <div id="dashboard_host_real_cpu" style="padding: 0px 40px"></div>
+<div class="totals-info">
+  <fieldset class="large-font">
+    <legend>
+      <ul class="menu simple">
+        <li>
+          {{tr "Hosts"}} <span class=" total_hosts"></span> 
+        </li>
+        <li></li>
+        <li><span>{{tr "ON"}}</span> <span class=" on_hosts success-color"></span></li>
+        <li><span>{{tr "OFF"}}</span> <span class=" off_hosts"></span></li>
+        <li><span>{{tr "ERROR"}}</span> <span class=" error_hosts alert-color"></span></li>
+        <li></li>
+        <li>
+          <button class="button radius small show_hosts_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
+          <button class="button success radius small show_create_host"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
+        </li>
+      </ul>
+    </legend>
+    <div class="row" id="dashboard_vm_accounting">
+      <input style="display:none;" value="vm" id="acct_group_by"/>
+      <div class="small-12 large-3 columns">
+        <div id="dashboard_host_allocated_cpu"></div>
       </div>
-      <div class="small-12 large-6 columns">
-        <div id="dashboard_host_allocated_mem" style="padding: 0px 40px"></div>
-        <br>
-        <div id="dashboard_host_real_mem" style="padding: 0px 40px"></div>
+      <div class="small-12 large-3 columns">
+        <div id="dashboard_host_allocated_mem"></div>
+      </div>
+      <div class="small-12 large-3 columns">
+        <div id="dashboard_host_real_cpu"></div>
+      </div>
+      <div class="small-12 large-3 columns">
+        <div id="dashboard_host_real_mem"></div>
       </div>
     </div>
-  </div>
-</div>
-<div class="row dashboard-widget-footer">
-  <div class="small-3 large-3 columns text-center"></div>
+  </fieldset>
 </div>
