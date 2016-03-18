@@ -93,11 +93,11 @@ define(function(require) {
 
     context.on("change", "input[name='req_select']", function() {
       if ($("input[name='req_select']:checked").val() == "host_select") {
-        $("div.host_select",    context).toggle();
+        $("div.host_select",    context).show();
         $("div.cluster_select", context).hide();
       } else {
         $("div.host_select",    context).hide();
-        $("div.cluster_select", context).toggle();
+        $("div.cluster_select", context).show();
       }
     });
 

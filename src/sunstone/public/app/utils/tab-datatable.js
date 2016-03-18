@@ -638,6 +638,12 @@ define(function(require) {
 
       $('#selected_resource_multiple_' + that.dataTableId, section).hide();
       $('#select_resource_multiple_' + that.dataTableId, section).show();
+    } else {
+      $('#selected_resource_' + that.dataTableId, section).hide();
+      $('#select_resource_' + that.dataTableId, section).show();
+
+      $('#selected_resource_multiple_' + that.dataTableId, section).hide();
+      $('#select_resource_multiple_' + that.dataTableId, section).hide();
     }
 
     $('#selected_resource_name_' + that.dataTableId, section).hide();
