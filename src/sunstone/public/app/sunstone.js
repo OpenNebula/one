@@ -486,11 +486,11 @@ define(function(require) {
 
     subTabs.on("click", function() {
       if ($(this).closest('li').hasClass('topTab')) {
-        //return false;
+        return false;
       } else {
         var tabName = $(this).closest('li').attr('id').substring(3);
         _showTab(tabName);
-        //return false;
+        return false;
       }
     });
 
@@ -501,10 +501,10 @@ define(function(require) {
         //Subtabs have a class with the name of  this tab
         //var subtabs = $('div#menu li.' + tabName);
         //subtabs.fadeToggle('fast');
-        //return false;
+        return false;
       } else {
         _showTab(tabName);
-        //return false;
+        return false;
       }
     });
 
@@ -540,6 +540,8 @@ define(function(require) {
   }
 
   var _showTab = function(tabName) {
+    $('.labels-tree', '#navigation').remove();
+
     if (!SunstoneCfg['tabs'][tabName]) {
       return false;
     }
@@ -557,7 +559,6 @@ define(function(require) {
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
-    $('.tree', '#navigation').remove();
 
     var tab = $('#' + tabName);
     //show tab

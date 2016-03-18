@@ -41,9 +41,9 @@ define(function(require) {
     var html;
 
     if (tree.htmlStr && tree.htmlStr != ""){
-      html = '<ul class="labels-tree">'+_innerHtml(tree, collapsed)+'</ul>';
+      html = '<ul class="labels-tree menu vertical is-active">'+_innerHtml(tree, collapsed)+'</ul>';
     } else {
-      html = '<ul class="labels-tree">';
+      html = '<ul class="labels-tree menu vertical">';
       $.each(tree.subTree, function(){
         html += _innerHtml(this, collapsed);
       });
@@ -64,7 +64,7 @@ define(function(require) {
       }
 
       html += tree.htmlStr;
-      html += '<ul hidden>';
+      html += '<ul class="menu vertical is-active" hidden>';
     } else {
       if (tree.subTree.length > 0) {
         html += '<i class="fa fa-fw fa-angle-down"></i> ';
@@ -74,7 +74,7 @@ define(function(require) {
 
       html += tree.htmlStr;
       html += '<i class="fa fa-fw fa-square-o labelsCheckbox"></i> ';
-      html += '<ul>';
+      html += '<ul class="menu vertical is-active">';
     }
 
     $.each(tree.subTree, function(){
