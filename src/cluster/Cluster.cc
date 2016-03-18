@@ -244,18 +244,68 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if (rc == 0)
     {
-        oss.str("");
-        oss << "BEGIN TRANSACTION; "
-            << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
-            << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
-
-        // TODO
-        //if (db->multiple_values_support())
-        if (false)
+        if (db->multiple_values_support())
         {
+            set<int>::iterator i;
+
+            rc = 0;
+
+            oss.str("");
+            oss << "DELETE FROM " << network_table  << " WHERE cid = " << oid;
+            rc += db->exec(oss);
+
+            oss.str("");
+            oss << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid;
+            rc += db->exec(oss);
+
+            set<int> datastore_set = datastores.get_collection();
+
+            if (!datastore_set.empty())
+            {
+                oss.str("");
+                oss << "INSERT INTO " << datastore_table
+                    << " (" << datastore_db_names << ") VALUES ";
+
+                i = datastore_set.begin();
+
+                oss << "(" << oid  << "," << *i << ")";
+
+                for(++i; i != datastore_set.end(); i++)
+                {
+                    oss << ", (" << oid  << "," << *i << ")";
+                }
+
+                rc += db->exec(oss);
+            }
+
+            set<int> vnet_set = vnets.get_collection();
+
+            if (!vnet_set.empty())
+            {
+                oss.str("");
+                oss << "INSERT INTO " << network_table
+                    << " (" << network_db_names << ") VALUES ";
+
+                i = vnet_set.begin();
+
+                oss << "(" << oid  << "," << *i << ")";
+
+                for(++i; i != vnet_set.end(); i++)
+                {
+                    oss << ", (" << oid  << "," << *i << ")";
+                }
+
+                rc += db->exec(oss);
+            }
         }
         else
         {
+            oss.str("");
+
+            oss << "BEGIN; "
+                << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
+                << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
+
             set<int>::iterator i;
 
             set<int> datastore_set = datastores.get_collection();
@@ -277,11 +327,11 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
                     << oid  << ","
                     << *i   << "); ";
             }
+
+            oss << "COMMIT";
+
+            rc = db->exec(oss);
         }
-
-        oss << "COMMIT";
-
-        rc = db->exec(oss);
     }
 
     return rc;
