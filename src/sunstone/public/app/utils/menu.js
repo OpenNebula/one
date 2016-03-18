@@ -58,29 +58,29 @@ define(function(require) {
       });
     });
 
-//    var prevWindowLarge = Foundation.utils.is_large_up();
-//
-//    $(window).resize(function() {
-//      if(Foundation.utils.is_large_up()){
-//        $('#menu-wrapper').removeClass("menu-small");
-//
-//        if(!prevWindowLarge){ // resizing from small to large, show menu
-//          _show();
-//        }
-//
-//        prevWindowLarge = true;
-//      } else {
-//        $('#menu-wrapper').addClass("menu-small");
-//
-//        if(prevWindowLarge){ // resizing from large to small, hide menu
-//          _hide();
-//        }
-//
-//        prevWindowLarge = false;
-//      }
-//    });
-//
-//    $(window).resize();
+    var prevWindowLarge = Foundation.MediaQuery.atLeast('large');
+
+    $(window).resize(function() {
+      if(Foundation.MediaQuery.atLeast('large')){
+        $('#menu-wrapper').removeClass("menu-small");
+
+        if(!prevWindowLarge){ // resizing from small to large, show menu
+          _show();
+        }
+
+        prevWindowLarge = true;
+      } else {
+        $('#menu-wrapper').addClass("menu-small");
+
+        if(prevWindowLarge){ // resizing from large to small, hide menu
+          _hide();
+        }
+
+        prevWindowLarge = false;
+      }
+    });
+
+    $(window).resize();
   }
 
   function _hide(){
@@ -96,8 +96,8 @@ define(function(require) {
   }
 
   function _entryClick(){
-//    if(!Foundation.utils.is_large_up()){
-//      _hide();
-//    }
+    if(!Foundation.MediaQuery.atLeast('large')){
+      _hide();
+    }
   }
 });
