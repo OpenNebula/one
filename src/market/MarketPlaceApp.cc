@@ -423,6 +423,8 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     char * error_msg;
 
+    obj_template->clear();
+
     int rc = obj_template->parse(*info, &error_msg);
 
     delete info;
