@@ -13,8 +13,7 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div id="{{dialogId}}" class="reveal-modal" data-reveal>
+<div id="{{dialogId}}" class="reveal" data-reveal>
   <div class="row">
     <h3 class="subheader">
       {{tr "Confirm"}}
@@ -29,8 +28,10 @@
     <div id="question">{{tr "Do you want to proceed?"}}</div>
     <br />
     <div class="form_buttons">
-      <button id="confirm_proceed" class="action_button radius button right" value="">{{tr "OK"}}</button>
+      <button id="confirm_proceed" class="action_button button right" data-close value="">{{tr "OK"}}</button>
     </div>
-    <a class="close-reveal-modal">&#215;</a>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </form>
 </div>

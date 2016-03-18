@@ -164,8 +164,8 @@ define(function(require) {
     }
     
     recountLabels();
-    $('[data-dropdown="' + tabName + 'LabelsDropdown"]').off('click');
-    $('[data-dropdown="' + tabName + 'LabelsDropdown"]').on('click', function(){
+    $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
+    $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function(){
       recountLabels();
     });
 

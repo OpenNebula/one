@@ -16,7 +16,13 @@
 
 define(function(require) {
   require('jquery');
-  require('foundation.dropdown');
+  require('foundation');
+
+  Foundation.Dropdown.defaults.positionClass = 'left';
+  Foundation.Dropdown.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.disableHover = true;
+  Foundation.DropdownMenu.defaults.clickOpen = true;
 
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
@@ -27,7 +33,8 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
-  var UserInputs = require('utils/user-inputs');
+
+  var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -35,14 +42,14 @@ define(function(require) {
     require('utils/dialogs/generic-confirm')
   ]
 
-  Sunstone.addDialogs(_commonDialogs);
-  Sunstone.addMainTabs();
 
   //$(window).load(function() {
   //   $('#loading').hide();
   //});
 
   $(document).ready(function() {
+    Sunstone.addDialogs(_commonDialogs);
+    Sunstone.addMainTabs();
     Sunstone.insertTabs();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)){
@@ -54,7 +61,6 @@ define(function(require) {
     _setupAccordion();
     _setupCloseDropdownsOnClick();
     _insertUserAndZoneSelector();
-    UserInputs.initialSetup();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);
@@ -87,46 +93,14 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
-    var user_login_content =
-    '<button href="#" data-dropdown="userSelectDropdown" class="button small radius secondary dropdown" id="logout">\
-      <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</button>\
-      <ul id="userSelectDropdown" data-dropdown-content class="f-dropdown">';
+    $(".user-zone-info").html(UserAndZoneTemplate({
+      displayName: config['display_name'],
+      settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
+      availableViews: config['available_views'],
+      zoneName: config['zone_name']
+    })).foundation();
 
-    if (config['available_views'].length > 1){
-        user_login_content +=
-        '<li><a href="#" class="quickconf_view_header"><i class="fa fa-fw fa-eye"></i> '+Locale.tr("Views")+'</a></li>';
-
-      $.each(config['available_views'], function(i, view) {
-        var faclass = "";
-
-        if (view == config['user_config']["default_view"]){
-          faclass = "fa fa-fw fa-check";
-        } else {
-          faclass = "fa fa-fw";
-        }
-
-        user_login_content +=
-        '<li><a href="#" class="quickconf_view" view="'+view+'"><i class="'+faclass+'"></i> '+view+'</a></li>';
-      });
-
-      user_login_content +=
-        '<li><hr/></li>';
-    }
-
-    if (Config.isTabEnabled(SETTINGS_TAB_ID)){
-      user_login_content +=
-        '<li><a href="#" class="configuration"><i class="fa fa-fw fa-cog"></i> '+Locale.tr("Settings")+'</a></li>';
-    }
-
-    user_login_content +=
-        '<li><a href="#" class="logout"><i class="fa fa-fw fa-power-off"></i> '+Locale.tr("Sign Out")+'</a></li>\
-      </ul>\
-    <button href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
-      <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</button>\
-      <ul id="drop2" data-dropdown-content class="zone-ul f-dropdown"></ul>';
-
-    $(".user-zone-info").html(user_login_content);
-
+    $('.quickconf_view[view="' + config['user_config']["default_view"] + '"] i').addClass('fa-check');
     $(".user-zone-info a.quickconf_view_header").click(function() {
       var context = $(this).closest('ul');
       $(".quickconf_view", context).toggle();
@@ -146,7 +120,8 @@ define(function(require) {
         success: function (request, obj_list) {
           $('.zone-ul').empty();
           $.each(obj_list, function() {
-            $('.zone-ul').append('<li><a id="' + this.ZONE.NAME + '" class="zone-choice">' + this.ZONE.NAME + '</a></li>');
+            $('.zone-ul').append('<li>' +
+              '<a href="#" id="' + this.ZONE.NAME + '" class="zone-choice">' + this.ZONE.NAME + '</a></li>');
           });
         },
         error: Notifier.onError
@@ -186,7 +161,7 @@ define(function(require) {
     });
 
     $(".user-zone-info a.configuration").click(function() {
-      $(document).foundation('dropdown', 'closeall');
+      //$(document).foundation('dropdown', 'closeall');
       Sunstone.showTab(SETTINGS_TAB_ID);
     });
   }

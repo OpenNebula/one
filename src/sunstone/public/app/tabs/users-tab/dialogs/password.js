@@ -80,25 +80,26 @@ define(function(require) {
 
     this.userCreation.setup(context);
 
-    context.foundation('abide', 'reflow');
-    context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
-    context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
+    Foundation.reflow(context, 'abide');
 
-    context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-    }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      var inputs = that.userCreation.retrieve(context);
+    $('#' + DIALOG_ID + 'Form')
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        var inputs = that.userCreation.retrieve(context);
 
-      Sunstone.runAction('User.passwd', that.selectedElements, inputs.password);
+        Sunstone.runAction('User.passwd', that.selectedElements, inputs.password);
 
-      Sunstone.getDialog(DIALOG_ID).hide();
-      Sunstone.getDialog(DIALOG_ID).reset();
-      if (Config.isTabEnabled("users-tab")){
-        Sunstone.runAction('User.refresh');
-      }
-
-      return false;
-    });
+        Sunstone.getDialog(DIALOG_ID).hide();
+        Sunstone.getDialog(DIALOG_ID).reset();
+        if (Config.isTabEnabled("users-tab")){
+          Sunstone.runAction('User.refresh');
+        }
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
 
     return false;
   }

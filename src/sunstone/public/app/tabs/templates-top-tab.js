@@ -15,13 +15,14 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var TAB_ID = 'oneflow-dashboard-tab';
+  var Locale = require('utils/locale');
+  var TAB_ID = 'templates-top-tab';
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-cubes"></i>&emsp;OneFlow',
+    title: Locale.tr("Templates"),
     no_content: true
-  };
+  }
 
   return Tab;
 });

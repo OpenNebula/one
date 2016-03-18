@@ -19,7 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var Locale = require('utils/locale');
   var CanImportWilds = require('../utils/can-import-wilds');
   var OpenNebulaHost = require('opennebula/host');
@@ -78,6 +79,7 @@ define(function(require) {
     that.dataTableWildHosts = $("#datatable_host_wilds", context).dataTable({
       "bSortClasses" : false,
       "bDeferRender": true,
+      "bAutoWidth": false,
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": [0]},
           {"sWidth": "35px", "aTargets": [0]}

@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal large max-height" role="dialog" data-reveal>
+<div id="{{dialogId}}" class="reveal large max-height" role="dialog" data-reveal>
   <div class="row">
     <h3 class="subheader">{{tr "User Groups"}}</h3>
   </div>
@@ -29,6 +29,8 @@
         {{tr "Apply changes"}}
       </button>
     </div>
-    <a class="close-reveal-modal">&#215;</a>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </form>
 </div>

@@ -20,6 +20,7 @@ define(function(require){
   var OpenNebula = require('opennebula');
   var OpenNebulaImage = require('opennebula/image');
   var RangeSlider = require('utils/range-slider');
+  var DisksResizeTemplate = require('hbs!./disks-resize/html');
 
   return {
     'insert': _insert,
@@ -36,29 +37,7 @@ define(function(require){
     }
 
     if (disks.length > 0) {
-      disksContext.html(
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<h3 class="subheader text-right">'+
-              '<span class="left">'+
-                '<i class="fa fa-tasks fa-lg"></i>&emsp;'+
-                Locale.tr("Disks")+
-              '</span>'+
-              '<span class="provision_create_template_disk_cost_div hidden">' +
-                '<span class="cost_value">0.00</span> '+
-                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
-              '</span>'+
-              '<br>'+
-            '</h3>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns disksContainer">'+
-            '<span class="text-center" style="font-size:80px">'+
-              '<i class="fa fa-spinner fa-spin"></i>'+
-            '</span>'+
-          '</div>'+
-        '</div>')
+      disksContext.html(DisksResizeTemplate());
 
       OpenNebula.Template.show({
         data : {
@@ -83,16 +62,11 @@ define(function(require){
           if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
             $(".provision_create_template_disk_cost_div", disksContext).show();
 
-            disksContext.on("change.fndtn.slider", '.range-slider', function(){
-              /*if ($(this).attr('data-slider') <= 0) {
-                var diskContainer = $(this).parent('.diskContainer');
-                $("#SIZE", diskContainer).val(diskContainer.data('original_size'));
-              }*/
-
+            disksContext.on("input", '.uinput-slider', function(){
               var cost = 0;
-              $('.range-slider', disksContext).each(function(){
-                if ($(this).attr('data-slider') > 0) {
-                  cost += $(this).attr('data-slider') * 1024 * disk_cost;
+              $('.uinput-slider-val', disksContext).each(function(){
+                if ($(this).val() > 0) {
+                  cost += $(this).val() * 1024 * disk_cost;
                 }
 
                 var diskContext = $(this).closest(".diskContainer");
@@ -114,7 +88,7 @@ define(function(require){
 
             diskContext.data('template_disk', disks[disk_id]);
 
-            var sizeGB = disk.SIZE / 1024;
+            var sizeGB = Math.round(disk.SIZE / 1024);
             diskContext.data('original_size', sizeGB);
 
             var disk_snapshot_total_size = 0;
@@ -126,19 +100,19 @@ define(function(require){
             diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
 
             var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
-            var enabled =
-              !( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
-                 (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
+            var disabled =
+              ( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
+                (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
             RangeSlider.insert({
-              'label': label,
+              'label': Locale.tr("DISK") + ' ' + disk_id + ': ' + label,
               'unitLabel': 'GB',
               'name': 'SIZE',
-              'start': sizeGB,
-              'end': sizeGB + 500,
+              'min': sizeGB,
+              'max': sizeGB + 500,
               'step': 10,
-              'startValue': sizeGB,
-              'enabled': enabled
+              'initial': sizeGB,
+              'disabled': disabled
             }, $(".diskSlider", diskContext));
           })
         }

@@ -1,0 +1,64 @@
+.tabs:not(.vertical) {
+  border-bottom: rem-calc(1px) solid $light-gray;
+
+  .tabs-title {
+    margin-bottom: rem-calc(-1px);
+    text-align: center;
+
+    a {
+      font-weight: 300;
+    }
+
+    &.is-active {
+      border-bottom: rem-calc(1px) solid $primary-color;
+      a {
+        color: $black;
+        font-weight: normal;
+      }
+    }
+    &:not(.is-active) {
+      a {
+        color: $dark-gray;
+      }
+    }
+  }
+}
+
+.tabs.vertical {
+  .tabs-title {
+    position: relative;
+
+    &.is-active {
+      border-right: rem-calc(1px) solid $primary-color;
+      a {
+        color: $black;
+        font-weight: hormal;
+      }
+    }
+    &:not(.is-active) {
+      a {
+        color: $dark-gray;
+        font-weight: 300;
+      }
+    }
+  }
+}
+
+
+.tabs-content { 
+  & > .tabs-panel {
+    padding: 1rem 2rem;
+  }
+
+  &.vertical {
+    margin-left: rem-calc(-1px);
+    border-left: rem-calc(1px) solid $light-gray;
+
+  }
+}
+
+.tabs-contentForm {
+  & > .tabs-panel {
+    padding: 0 !important;
+  }
+}

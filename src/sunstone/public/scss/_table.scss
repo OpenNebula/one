@@ -1,0 +1,51 @@
+table {
+  input {
+    margin-bottom: 0px !important;
+  }
+
+  thead {
+    border: 0;
+
+    th {
+      //@include thin-font;
+      //@include thin-font-size;
+      font-weight: normal;
+      font-size: 1.2rem;
+    }
+  }
+
+  tbody {
+    border-top: 1px solid smart-scale($table-background, $table-hover-scale);
+    border-bottom: 1px solid smart-scale($table-background, $table-hover-scale);
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .markrow,
+  .markrowchecked { 
+    background-color: darken($table-background, $table-hover-scale);
+    font-weight: normal;
+    //background-color: #cdebf5; 
+  }
+}
+
+.dataTables_info {
+  @include thin-font;
+  margin-left: rem-calc(5px);
+}
+
+.dataTables_length {
+  select {
+    margin-right: 5px;
+    height: 1.7rem;
+    font-size: 0.8rem;
+    padding: 0 0.5rem;
+  }
+}
+
+.dataTableSearchRow {
+  input[type="search"],
+  .button {
+    margin-bottom: 0;
+  }
+}

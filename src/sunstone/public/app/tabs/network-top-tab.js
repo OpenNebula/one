@@ -15,14 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var TAB_ID = 'system-tab';
+  var TAB_ID = 'network-top-tab';
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-cogs"></i>&emsp;'+Locale.tr("System"),
+    title: 'Network',
     no_content: true
-  }
+  };
 
   return Tab;
 });

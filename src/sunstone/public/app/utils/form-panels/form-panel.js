@@ -16,7 +16,7 @@
 
 define(function(require) {
   // Dependencies
-  require('foundation.abide');
+//  require('foundation.abide');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
@@ -44,27 +44,34 @@ define(function(require) {
       this.advancedElement = $(that.htmlAdvanced()).appendTo( $(".advancedForms", context) );
     }
 
-    context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
-    context.off('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
-    context.on('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-      Sunstone.hideFormPanelLoading(that.tabId);
-    }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {
-      that.submitWizard(this);
-      return false;
-    });
+    //context.foundation('abide');
+    Foundation.reflow(context, 'abide');
 
-    context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Advanced');
-    context.off('valid.fndtn.abide', '#' + that.formPanelId + 'Advanced');
-    context.on('invalid.fndtn.abide', '#' + that.formPanelId + 'Advanced', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-      Sunstone.hideFormPanelLoading(that.tabId);
-    }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Advanced', function(e) {
-      that.submitAdvanced(this);
-      return false;
-    });
+    $('#' + that.formPanelId + 'Wizard', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+        Sunstone.hideFormPanelLoading(that.tabId);
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        that.submitWizard(frm);
+        return false;
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
 
-    context.foundation('abide', 'reflow');
+    $('#' + that.formPanelId + 'Advanced', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+        Sunstone.hideFormPanelLoading(that.tabId);
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        that.submitAdvanced(frm);
+        return false;
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
 
     that.setup(context);
   }

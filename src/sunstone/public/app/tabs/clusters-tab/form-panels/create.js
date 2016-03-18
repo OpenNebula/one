@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+  //require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -99,7 +99,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs')
     this.hostsTable.initialize();
     this.vnetsTable.initialize();
     this.datastoresTable.initialize();

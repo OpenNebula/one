@@ -80,12 +80,12 @@ define(function(require) {
       $('#NAME', context).removeAttr("required");
     }
 
-    context.foundation('slider', 'reflow');
+    //context.foundation('slider', 'reflow');
   }
 
   function _setup(context) {
     $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
-      context.foundation('slider', 'reflow');
+      //context.foundation('slider', 'reflow');
     });
 
     context.on("change", "#LOGO", function() {

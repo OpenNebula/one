@@ -63,7 +63,7 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'quotasHTML': QuotaWidgets.dialogHTML()
+      'quotasHTML': QuotaWidgets.dialogHTML(this.dialogId)
     });
   }
 

@@ -88,7 +88,7 @@ define(function(require) {
       $("#add_scheduling_action", context).attr("disabled", "disabled");
       $("#scheduling_actions_table").append('<tr>\
           <td></td>\
-          <td class="columns">\
+          <td>\
             <select id="select_new_action" class="select_new_action" name="select_action">\
               <option value="shutdown">' + Locale.tr("shutdown") + '</option>\
               <option value="shutdown-hard">' + Locale.tr("shutdown-hard") + '</option>\

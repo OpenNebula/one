@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -104,8 +104,8 @@ define(function(require) {
       $(".service_networks tbody").append(
         '<tr>\
           <td>\
-            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
-            <small class="error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
+            <input class="service_network_name" type="text" pattern="[a-z]*"/>\
+            <small class="form-error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
@@ -132,29 +132,6 @@ define(function(require) {
     $("#tf_btn_roles", context).bind("click", function(){
       that.addRoleTab(roles_index, context);
       roles_index++;
-
-      context.foundation();
-
-      return false;
-    });
-
-    // close icon: removing the tab on click
-    $("#roles_tabs", context).on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
-      var content = $(target);
-
-      var role_id = content.attr("role_id");
-
-      dd.remove();
-      content.remove();
-
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
-      }
-
-      delete that.roleTabObjects[role_id];
 
       return false;
     });
@@ -199,7 +176,7 @@ define(function(require) {
     });
 
 
-    $(document).foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
@@ -432,19 +409,20 @@ define(function(require) {
   }
 
   function _add_role_tab(role_id, dialog) {
+    var that = this;
     var html_role_id  = 'role' + role_id;
 
     var role_tab = new RoleTab(html_role_id);
-    this.roleTabObjects[role_id] = role_tab;
+    that.roleTabObjects[role_id] = role_tab;
 
     // Append the new div containing the tab and add the tab to the list
-    var role_section = $('<div id="'+html_role_id+'Tab" class="content role_content wizard_internal_tab" role_id="'+role_id+'">'+
+    var role_section = $('<div id="'+html_role_id+'Tab" class="tabs-panel role_content wizard_internal_tab" role_id="'+role_id+'">'+
         role_tab.html() +
     '</div>').appendTo($("#roles_tabs_content", dialog));
 
     _redo_service_networks_selector_role(dialog, role_section);
 
-    var a = $("<dd>\
+    var a = $("<li class='tabs-title'>\
       <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
         <span>\
           <i class='off-color fa fa-cube fa-3x'/>\
@@ -453,9 +431,31 @@ define(function(require) {
         </span>\
         <i class='fa fa-times-circle remove-tab'></i>\
       </a>\
-    </dd>").appendTo($("dl#roles_tabs", dialog));
+    </li>").appendTo($("ul#roles_tabs", dialog));
 
+    Foundation.reInit($("ul#roles_tabs", dialog));
     $("a", a).trigger("click");
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      var role_id = content.attr("role_id");
+
+      li.remove();
+      content.remove();
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      delete that.roleTabObjects[role_id];
+
+      return false;
+    });
 
     role_tab.setup(role_section);
     role_tab.onShow();

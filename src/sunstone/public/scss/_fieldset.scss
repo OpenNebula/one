@@ -1,0 +1,43 @@
+fieldset {
+  padding: 1rem 2rem;
+
+  legend {
+
+    font-weight: normal;
+    font-size: 1.2rem;
+    border-bottom: rem-calc(1px) solid $primary-color;
+    //position: relative;
+    padding: 0rem 1rem 0.5rem 0rem;
+    margin-left: -2rem;
+
+    span {
+      font-size: 1rem;
+      color: $dark-gray;
+    }
+  }
+
+
+  &.large-font {
+    legend {
+      font-weight: 300;
+      font-size: 1.5rem;
+
+      span {
+        font-weight: 300;
+        font-size: 1.2rem;
+      }
+    }
+
+    .button {
+      color: $white;
+    }
+  }
+
+  //& > div:first-of-type {
+  //  padding: 2rem;
+  //  //border-top: rem-calc(1px) solid $light-gray;
+  //  margin-top: rem-calc(-1px) - 0.5rem;
+  //}
+  
+  margin-bottom: 2rem;
+}

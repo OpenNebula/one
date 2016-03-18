@@ -1,0 +1,39 @@
+.provision-pricing-table {
+  border: 1px solid smart-scale($table-background, $table-hover-scale);
+  background: darken($table-background, $table-hover-scale);
+  margin-bottom: 2rem;
+
+  .provision-title {
+    a {
+      padding: 1rem;
+      //color: $black;
+      font-size: 1.2rem;
+    }
+
+    .without-link {
+      padding: 1rem;
+      //color: $black;
+      font-size: 1.2rem;
+      display: block;
+    }
+  }
+
+  .provision-bullet-item {
+    padding: 0.2rem 1rem;
+    i {
+      color: $dark-gray;
+    }
+
+    a {
+      padding: 0;
+    }
+  }
+
+  .provision-bullet-item-last {
+    padding: 1rem;
+    color: $dark-gray;
+    i {
+      color: $dark-gray;
+    }
+  }
+}

@@ -111,8 +111,8 @@ define(function(require) {
   function _setup(context){
     var that = this;
 
-    context.foundation();
-
+    Foundation.reflow(context, 'tabs');
+    
     $.each(["clusters", "hosts", "vnets", "datastores"], function(i,res_name){
       if(that.resources != undefined){
         if (that.resources[res_name].length == 1 &&

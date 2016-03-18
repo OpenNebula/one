@@ -49,10 +49,11 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Users"),
+    icon: 'fa-user',
     tabClass: "subTab",
-    parentTab: "system-tab",
-    listHeader: '<i class="fa fa-fw fa-user"></i>&emsp;'+Locale.tr("Users"),
-    infoHeader: '<i class="fa fa-fw fa-user"></i>&emsp;'+Locale.tr("User"),
+    parentTab: "system-top-tab",
+    listHeader: Locale.tr("Users"),
+    infoHeader: Locale.tr("User"),
     subheader: '<span>\
         <span class="total_users"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

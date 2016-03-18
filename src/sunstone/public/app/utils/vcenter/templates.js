@@ -38,7 +38,7 @@ define(function(require) {
   return VCenterTemplates;
 
   function _html() {
-    return '<div class="vcenter_templates hidden"></div>';
+    return '<div class="vcenter_templates" hidden></div>';
   }
 
   /*

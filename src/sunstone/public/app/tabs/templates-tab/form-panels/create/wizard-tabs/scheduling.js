@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -89,15 +89,15 @@ define(function(require) {
 
   function _setup(context) {
     var  that = this;
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     context.on("change", "input[name='req_select']", function() {
       if ($("input[name='req_select']:checked").val() == "host_select") {
-        $("div.host_select",    context).toggle();
+        $("div.host_select",    context).show();
         $("div.cluster_select", context).hide();
       } else {
         $("div.host_select",    context).hide();
-        $("div.cluster_select", context).toggle();
+        $("div.cluster_select", context).show();
       }
     });
 

@@ -21,18 +21,18 @@
       <input type="text" required name="name" id="name" />
     </div>
     <div class="medium-6 columns">
-      <dl class="tabs right-info-tabs text-center right" data-tab>
-        <dd class="active">
+      <dl id="{{formPanelId}}Tabs" class="tabs right-info-tabs text-center right" data-tabs>
+        <dd class="tabs-title is-active">
           <a href="#tab-hostsTab">
             <i class="fa fa-hdd-o"></i><br>{{tr "Hosts"}}
           </a>
         </dd>
-        <dd>
+        <dd class="tabs-title">
           <a href="#tab-vnetsTab">
             <i class="fa fa-globe"></i><br>{{tr "VNets"}}
           </a>
         </dd>
-        <dd>
+        <dd class="tabs-title">
           <a href="#tab-datastoresTab">
             <i class="fa fa-folder-open"></i><br>{{tr "Datastores"}}
           </a>
@@ -40,14 +40,14 @@
       </dl>
     </div>
   </div>
-  <div class="tabs-content">
-    <div id="tab-hostsTab" class="active content">
+  <div class="tabs-content" data-tabs-content="{{formPanelId}}Tabs">
+    <div id="tab-hostsTab" class="is-active tabs-panel">
       {{{hostsTableHTML}}}
     </div>
-    <div id="tab-vnetsTab" class="content">
+    <div id="tab-vnetsTab" class="tabs-panel">
       {{{vnetsTableHTML}}}
     </div>
-    <div id="tab-datastoresTab" class="content">
+    <div id="tab-datastoresTab" class="tabs-panel">
       {{{datastoresTableHTML}}}
     </div>
   </div>

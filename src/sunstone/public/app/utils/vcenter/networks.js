@@ -38,7 +38,7 @@ define(function(require) {
   return VCenterNetworks;
 
   function _html() {
-    return '<div class="vcenter_networks hidden"></div>';
+    return '<div class="vcenter_networks" hidden></div>';
   }
 
   /*

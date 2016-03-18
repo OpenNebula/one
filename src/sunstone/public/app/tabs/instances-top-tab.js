@@ -16,13 +16,13 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
-  var TAB_ID = 'infra-tab';
+  var TAB_ID = 'instances-top-tab';
 
-  var InfraTab = {
+  var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-sitemap"></i>&emsp;' + Locale.tr("Infrastructure"),
+    title: Locale.tr("Instances"),
     no_content: true
   }
 
-  return InfraTab;
+  return Tab;
 });

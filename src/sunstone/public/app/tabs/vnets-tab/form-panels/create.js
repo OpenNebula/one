@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -116,25 +116,23 @@ define(function(require) {
       that.addARTab(number_of_ar, context);
       number_of_ar++;
 
-      context.foundation();
-
       return false;
     });
 
     // close icon: removing the tab on click
     $("#vnetCreateARTab", context).on("click", "i.remove-tab", function() {
       var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
       var content = $(target);
 
       var ar_id = content.attr("ar_id");
 
-      dd.remove();
+      li.remove();
       content.remove();
 
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
+      if (li.attr("class") == 'is-active') {
+        $('a', ul.children('li').last()).click();
       }
 
       delete that.arTabObjects[ar_id];
@@ -233,7 +231,7 @@ define(function(require) {
 
     CustomTagsTable.setup($("#vnetCreateContextTab", context));
 
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     // Add first AR
     $("#vnet_wizard_ar_btn", context).trigger("click");
@@ -249,17 +247,19 @@ define(function(require) {
     this.arTabObjects[ar_id] = ar_tab;
 
     var html_tab_content =
-      '<div id="' + str_ar_tab_id + 'Tab" class="ar_tab content" ar_id="' + ar_id + '">' +
+      '<div id="' + str_ar_tab_id + 'Tab" class="ar_tab tabs-panel" ar_id="' + ar_id + '">' +
         ar_tab.html(str_ar_tab_id) +
       '</div>';
 
     // Append the new div containing the tab and add the tab to the list
-    var a = $("<dd><a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
-        Locale.tr("Address Range") + " <i class='fa fa-times-circle remove-tab'></i></a></dd>"
-        ).appendTo($("dl#vnet_wizard_ar_tabs", context));
+    var a = $("<li class='tabs-title'>" +
+        "<a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
+        Locale.tr("Address Range") + " <i class='fa fa-times-circle remove-tab'></i></a></li>"
+      ).appendTo($("ul#vnet_wizard_ar_tabs", context));
 
     $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
 
+    Foundation.reInit($("ul#vnet_wizard_ar_tabs", context));
     $("a", a).trigger("click");
 
     var ar_section = $('#' + str_ar_tab_id + 'Tab', context);

@@ -1,0 +1,66 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<ul class="dropdown menu" data-dropdown-menu data-alignment="right">
+  <li>
+    <a class="thin-font" href="#">
+      <i class="fa fa-user fa-fw header-icon"></i>
+      {{displayName}}
+    </a>
+    <ul class="menu">
+      {{#if settingsTabEnabled}}
+      <li>
+        <a href="#" class="configuration">
+          <i class="fa fa-fw fa-cog"></i>
+          {{tr "Settings"}}
+        </a>
+      </li>
+      {{/if}}
+      <li>
+        <a href="#" class="logout">
+          <i class="fa fa-fw fa-power-off"></i>
+          {{tr "Sign Out"}}
+        </a>
+      </li>
+      {{#if availableViews}}
+      <li>
+        <a href="#">
+          <i class="fa fa-fw fa-eye"></i>
+          {{tr "Views"}}
+        </a>
+        <ul class="menu">
+          {{#each availableViews}}
+          <li>
+            <a href="#" class="quickconf_view" view="{{this}}">
+              <i class="fa fa-fw"></i> 
+              {{this}}
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+      </li>
+      {{/if}}
+    </ul>
+  </li>
+  <li>
+    <a class="thin-font" id="zonelector" href="#">
+      <i class="fa fa-globe fa-fw header-icon"></i>
+      {{zoneName}}
+    </a>
+    <ul class="menu zone-ul">
+    </ul>
+  </li>
+</ul>

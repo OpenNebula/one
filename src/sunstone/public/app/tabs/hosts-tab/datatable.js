@@ -200,8 +200,8 @@ define(function(require) {
     $("#dashboard_host_allocated_cpu").html(quotaDashboard(
       "dashboard_host_allocated_cpu",
       Locale.tr("Allocated CPU"),
-      "30px",
-      "14px",
+      "1.2rem",
+      "1rem",
       {"percentage": ratio_allocated_cpu, "str": info_str})
     );
 
@@ -216,8 +216,8 @@ define(function(require) {
     $("#dashboard_host_real_cpu").html(quotaDashboard(
       "dashboard_host_real_cpu",
       Locale.tr("Real CPU"),
-      "30px",
-      "14px",
+      "1.2rem",
+      "1rem",
       {"percentage": ratio_real_cpu, "str": info_str})
     );
 
@@ -232,8 +232,8 @@ define(function(require) {
     $("#dashboard_host_allocated_mem").html(quotaDashboard(
       "dashboard_host_allocated_mem",
       Locale.tr("Allocated Memory"),
-      "30px",
-      "14px",
+      "1.2rem",
+      "1rem",
       {"percentage": ratio_allocated_mem, "str": info_str})
     );
 
@@ -248,8 +248,8 @@ define(function(require) {
     $("#dashboard_host_real_mem").html(quotaDashboard(
       "dashboard_host_real_mem",
       Locale.tr("Real Memory"),
-      "30px",
-      "14px",
+      "1.2rem",
+      "1rem",
       {"percentage": ratio_real_mem, "str": info_str})
     );
 
@@ -259,23 +259,20 @@ define(function(require) {
     var percentage = quota.percentage > 100 ? 100 : quota.percentage;
 
     return '<div class="row">' +
-          '<div class="large-12 columns text-center" style="margin-bottom: 5px">' +
-            '<h4 class="subheader">'+
+          '<div class="large-12 columns">' +
+            '<h5 class="subheader">'+
               '<small>'+ legend +'</small>'+
-            '</h4>'+
+            '</h5>'+
           '</div>' +
         '</div>' +
         '<div class="row">' +
-          '<div class="large-12 columns text-center">' +
-            '<div class="progress large radius">' +
-            '  <span id="' + html_tag + '_meter" class="meter" style="width: ' + percentage + '%"></span>' +
-            '</div>' +
+          '<div class="large-12 columns">' +
+            '  <meter id="' + html_tag + '_meter" min="0" low="33" high="66" optimum="0" max="100" value="' + percentage + '"></meter>' +
           '</div>' +
         '</div>' +
         '<div class="row">' +
-          '<div class="large-12 columns text-center">' +
-            '<span id="' + html_tag + '_percentage" class="left" style="font-size:' + font_small_size + ';">' + quota.percentage + ' %</span>' +
-            '<span id="' + html_tag + '_str" class="right" style="color: #999; font-size: ' + font_small_size + ';">' + quota.str + '</span>' +
+          '<div class="large-12 columns">' +
+            '<span id="' + html_tag + '_str" class="right">' + quota.str + '</span>' +
           '</div>' +
         '</div>';
   }
