@@ -201,17 +201,19 @@ grammar ElasticityGrammar
                             next
                         end
 
+                        value = nil
                         if node['vm_info']['VM']['USER_TEMPLATE'][att]
-                            total += (node['vm_info']['VM']['USER_TEMPLATE'][att]).to_f
-                            n_nodes += 1
+                            value = node['vm_info']['VM']['USER_TEMPLATE'][att]
                         elsif node['vm_info']['VM']['MONITORING'][att]
-                            total += (node['vm_info']['VM']['MONITORING'][att]).to_f
-                            n_nodes += 1
+                            value = node['vm_info']['VM']['MONITORING'][att]
                         elsif node['vm_info']['VM']['TEMPLATE'][att]
-                            total += (node['vm_info']['VM']['TEMPLATE'][att]).to_f
-                            n_nodes += 1
+                            value = node['vm_info']['VM']['TEMPLATE'][att]
                         elsif node['vm_info']['VM'][att]
-                            total += (node['vm_info']['VM'][att]).to_f
+                            value = node['vm_info']['VM'][att]
+                        end
+
+                        if value && value.respond_to?(:to_f)
+                            total += value.to_f
                             n_nodes += 1
                         end
                     end
