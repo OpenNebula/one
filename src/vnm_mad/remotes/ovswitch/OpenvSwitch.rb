@@ -169,16 +169,22 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def del_flows
+        the_ports = ports
+
         in_port = ""
 
         dump_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
         `#{dump_flows}`.lines do |flow|
             next unless flow.match("#{@nic[:mac]}")
-            flow = flow.split.select{|e| e.match(@nic[:mac])}.first
-            if in_port.empty? and (m = flow.match(/in_port=(\d+)/))
-                in_port = m[1]
+
+            if (m = flow.match(/in_port=(\d+)/))
+                in_port_tmp = m[1]
+
+                if !the_ports.include?(in_port_tmp)
+                    in_port = in_port_tmp
+                    break
+                end
             end
-            del_flow flow
         end
 
         del_flow "in_port=#{in_port}" if !in_port.empty?
@@ -201,13 +207,19 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         OpenNebula.exec_and_log(cmd)
     end
 
-    def port
-        return @nic[:port] if @nic[:port]
-
+    def ports
         dump_ports = `#{command(:ovs_ofctl)} \
                       dump-ports #{@nic[:bridge]} #{@nic[:tap]}`
 
-        @nic[:port] = dump_ports.scan(/^\s*port\s*(\d+):/).flatten.first
+        dump_ports.scan(/^\s*port\s*(\d+):/).flatten
+    end
+
+    def port
+        if @nic[:port]
+            @nic[:port]
+        else
+            @nic[:port] = ports.first
+        end
     end
 
     def range?(range)
