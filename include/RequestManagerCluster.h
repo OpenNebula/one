@@ -84,11 +84,6 @@ protected:
             PoolObjectSQL::ObjectType   type,
             bool                        add);
 
-    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
-    {
-        return Datastore::FILE_DS;
-    };
-
     /**
      * Add object to cluster id collection
      * @param cluster where to add the object
@@ -203,11 +198,6 @@ public:
             RequestManagerCluster(method_name, help, params){};
 
     ~RequestManagerClusterDatastore(){};
-
-    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
-    {
-        return static_cast<Datastore*>(obj)->get_type();
-    };
 
     virtual int add_object(
             Cluster* cluster,

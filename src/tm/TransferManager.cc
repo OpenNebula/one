@@ -665,7 +665,6 @@ void TransferManager::prolog_action(int vid)
     vector<const VectorAttribute *> disk;
     const VectorAttribute * os_attr;
     int num;
-    int disk_id;
 
     string token_password;
 
@@ -964,7 +963,6 @@ void TransferManager::prolog_resume_action(int vid)
 
     int ds_id;
     int disk_id;
-    int rc;
 
     vector<const VectorAttribute *> disk;
     int num;

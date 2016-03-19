@@ -194,15 +194,6 @@ public:
      *    returned as pointers to the object nodes.
      *    @return the number of nodes found
      */
-    int get_nodes(const char * xpath_expr, std::vector<xmlNodePtr>& content) const;
-
-    /**
-     *  Get xml nodes by Xpath
-     *    @param xpath_expr the Xpath for the elements
-     *    @param content nodes for the given Xpath expression. The nodes are
-     *    returned as pointers to the object nodes.
-     *    @return the number of nodes found
-     */
     int get_nodes(const std::string& xpath_expr,
                   std::vector<xmlNodePtr>& content) const;
 

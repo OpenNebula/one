@@ -19,8 +19,6 @@
 
 #include "ObjectCollection.h"
 
-using namespace std;
-
 class Clusterable
 {
 public:
@@ -40,7 +38,7 @@ public:
      *
      * @return The cluster IDs set
      */
-    set<int> get_cluster_ids() const
+    std::set<int> get_cluster_ids() const
     {
         return cluster_ids.clone();
     };
@@ -52,7 +50,7 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int from_xml(const ObjectXML* xml, const string& xpath_prefix)
+    int from_xml(const ObjectXML* xml, const std::string& xpath_prefix)
     {
         return cluster_ids.from_xml(xml, xpath_prefix);
     };
@@ -63,21 +61,15 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const
+    std::string& to_xml(std::string& xml) const
     {
         return cluster_ids.to_xml(xml);
     };
 
 protected:
 
-    Clusterable(const set<int> &_cluster_ids):
-        cluster_ids("CLUSTERS")
-    {
-        for(set<int>::iterator i=_cluster_ids.begin();i!=_cluster_ids.end();i++)
-        {
-            cluster_ids.add(*i);
-        }
-    };
+    Clusterable(const std::set<int> &_cluster_ids):
+        cluster_ids("CLUSTERS", _cluster_ids){};
 
     ~Clusterable(){};
 

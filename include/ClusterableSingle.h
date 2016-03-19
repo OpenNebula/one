@@ -17,8 +17,6 @@
 #ifndef CLUSTERABLE_SINGLE_H_
 #define CLUSTERABLE_SINGLE_H_
 
-using namespace std;
-
 class ClusterableSingle
 {
 public:
@@ -29,7 +27,7 @@ public:
      * @param _cluster_id Id of the new cluster
      * @param _cluster Name of the new cluster
      */
-    void set_cluster(int _cluster_id, const string& _cluster)
+    void set_cluster(int _cluster_id, const std::string& _cluster)
     {
         cluster_id  = _cluster_id;
         cluster     = _cluster;
@@ -50,7 +48,7 @@ public:
      *
      * @return The cluster name
      */
-    const string& get_cluster_name() const
+    const std::string& get_cluster_name() const
     {
         return cluster;
     };
@@ -58,7 +56,7 @@ public:
 
 protected:
 
-    ClusterableSingle(int _cluster_id, const string& _cluster):
+    ClusterableSingle(int _cluster_id, const std::string& _cluster):
         cluster_id(_cluster_id),
         cluster(_cluster){};
 
@@ -72,7 +70,7 @@ protected:
     /**
      *  Name of the cluster this object belongs to.
      */
-    string      cluster;
+    std::string cluster;
 };
 
 #endif /*CLUSTERABLE_SINGLE_H_*/

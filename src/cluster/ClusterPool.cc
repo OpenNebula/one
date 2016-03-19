@@ -161,3 +161,51 @@ int ClusterPool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ClusterPool::cluster_acl_filter(ostringstream& filter,
+        PoolObjectSQL::ObjectType auth_object, const vector<int>& cids)
+{
+    if ( cids.empty() )
+    {
+        return;
+    }
+
+    string fc = "";
+
+    switch (auth_object)
+    {
+        case PoolObjectSQL::HOST:
+            filter << " OR ";
+            break;
+
+        case PoolObjectSQL::DATASTORE:
+            filter << " OR oid IN ( SELECT oid from " << Cluster::datastore_table
+                   << " WHERE ";
+            fc = ")";
+            break;
+
+        case PoolObjectSQL::NET:
+            filter << " OR oid IN ( SELECT oid from " << Cluster::network_table
+                   << " WHERE ";
+            fc = ")";
+            break;
+
+        default:
+            return;
+    }
+
+    for ( vector<int>::const_iterator it = cids.begin(); it < cids.end(); it++ )
+    {
+        if ( it != cids.begin() )
+        {
+            filter << " OR ";
+        }
+
+        filter << "cid = " << *it;
+    }
+
+    filter << fc;
+}

@@ -702,7 +702,8 @@ void PoolSQL::acl_filter(int                       uid,
 {
     filter.clear();
 
-    if ( uid == UserPool::ONEADMIN_ID || user_groups.count( GroupPool::ONEADMIN_ID ) == 1 )
+    if ( uid == UserPool::ONEADMIN_ID ||
+            user_groups.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
         all = true;
         return;
@@ -740,34 +741,7 @@ void PoolSQL::acl_filter(int                       uid,
         acl_filter << " OR gid = " << *it;
     }
 
-    if (auth_object == PoolObjectSQL::HOST)
-    {
-        for ( it = cids.begin(); it < cids.end(); it++ )
-        {
-            acl_filter << " OR cid = " << *it;
-        }
-    }
-
-    string cl_table;
-
-    if (auth_object == PoolObjectSQL::DATASTORE)
-    {
-        cl_table = Cluster::datastore_table;
-    }
-    else if (auth_object == PoolObjectSQL::NET)
-    {
-        cl_table = Cluster::network_table;
-    }
-
-    if (!cl_table.empty())
-    {
-        for ( it = cids.begin(); it < cids.end(); it++ )
-        {
-            acl_filter << " OR oid IN ("
-                << "SELECT oid from " << cl_table
-                << " WHERE cid = " << *it << ")";
-        }
-    }
+    ClusterPool::cluster_acl_filter(acl_filter, auth_object, cids);
 
     filter = acl_filter.str();
 }

@@ -74,7 +74,6 @@ int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
     rc = from_xml_node(content[0]);
 
     xml->free_nodes(content);
-    content.clear();
 
     return rc;
 }

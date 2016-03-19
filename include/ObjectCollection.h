@@ -33,6 +33,9 @@ public:
     ObjectCollection(const string& _collection_name)
         :collection_name(_collection_name){};
 
+    ObjectCollection(const string& cname, const set<int>& cset)
+        :collection_name(cname), collection_set(cset){};
+
     ~ObjectCollection(){};
 
     /**

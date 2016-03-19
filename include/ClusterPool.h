@@ -146,8 +146,16 @@ public:
                              limit);
     };
 
+    /**
+     *  Generates the cluster part of the ACL filter to look for objects. This
+     *  filter is generated for objects that can be part of a cluster
+     *    @param acl_filter stream to write the filter
+     *    @param auth_object to generate the filter for
+     *    @param cids vector of cluster ids
+     */
+    static void cluster_acl_filter(ostringstream& filter,
+            PoolObjectSQL::ObjectType auth_object, const vector<int>& cids);
 private:
-
     /**
      *  Factory method to produce objects
      *    @return a pointer to the new object

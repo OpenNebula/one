@@ -192,10 +192,6 @@ public:
      */
     int from_xml(const string &xml_str);
 
-    static const char * datastore_table;
-
-    static const char * network_table;
-
 private:
 
     // -------------------------------------------------------------------------
@@ -207,7 +203,6 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-
     Cluster(int id,
             const string& name,
             ClusterTemplate*  cl_template);
@@ -217,7 +212,6 @@ private:
     // *************************************************************************
     // Attributes (Private)
     // *************************************************************************
-
     ObjectCollection hosts;
     ObjectCollection datastores;
     ObjectCollection vnets;
@@ -225,14 +219,15 @@ private:
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
     static const char * db_names;
     static const char * db_bootstrap;
     static const char * table;
 
+    static const char * datastore_table;
     static const char * datastore_db_names;
     static const char * datastore_db_bootstrap;
 
+    static const char * network_table;
     static const char * network_db_names;
     static const char * network_db_bootstrap;
 
