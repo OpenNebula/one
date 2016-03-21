@@ -89,17 +89,16 @@ VirtualNetworkPool::VirtualNetworkPool(
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetworkPool::allocate (
-    int            uid,
-    int            gid,
-    const string&  uname,
-    const string&  gname,
-    int            umask,
-    int            pvid,
-    VirtualNetworkTemplate * vn_template,
-    int *          oid,
-    int            cluster_id,
-    const string&  cluster_name,
-    string&        error_str)
+        int                         uid,
+        int                         gid,
+        const string&               uname,
+        const string&               gname,
+        int                         umask,
+        int                         pvid,
+        VirtualNetworkTemplate *    vn_template,
+        int *                       oid,
+        const set<int>              &cluster_ids,
+        string&                     error_str)
 {
     VirtualNetwork * vn;
     VirtualNetwork * vn_aux = 0;
@@ -109,7 +108,7 @@ int VirtualNetworkPool::allocate (
     ostringstream oss;
 
     vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
-                            cluster_id, cluster_name, vn_template);
+                            cluster_ids, vn_template);
 
     // Check name
     vn->PoolObjectSQL::get_template_attribute("NAME", name);

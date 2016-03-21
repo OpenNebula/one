@@ -191,7 +191,6 @@ void ImageManager::monitor_datastore(int ds_id)
     string  ds_data, ds_location, ds_name;
     string* drv_msg;
 
-    int  cluster_id;
     bool shared;
 
     Nebula& nd             = Nebula::instance();
@@ -220,7 +219,6 @@ void ImageManager::monitor_datastore(int ds_id)
 
     ds->to_xml(ds_data);
 
-    cluster_id = ds->get_cluster_id();
     shared     = ds->is_shared();
     ds_type    = ds->get_type();
     ds_name    = ds->get_name();
@@ -237,13 +235,13 @@ void ImageManager::monitor_datastore(int ds_id)
                 return;
             }
 
-            if ( nd.get_ds_location(cluster_id, ds_location) != -1 )
-            {
-                oss << "<DATASTORE_LOCATION>"
-                    << ds_location
-                    << "</DATASTORE_LOCATION>";
-                ds_location = oss.str();
-            }
+            nd.get_ds_location(ds_location);
+
+            oss << "<DATASTORE_LOCATION>"
+                << ds_location
+                << "</DATASTORE_LOCATION>";
+            ds_location = oss.str();
+
             break;
 
         case Datastore::FILE_DS:

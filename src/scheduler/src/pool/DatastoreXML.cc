@@ -19,6 +19,7 @@
 #include "DatastoreXML.h"
 #include "NebulaUtil.h"
 #include "NebulaLog.h"
+#include "ObjectCollection.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -35,8 +36,12 @@ const char * DatastoreXML::ds_paths[] = {
 
 void DatastoreXML::init_attributes()
 {
-    xpath(oid,        "/DATASTORE/ID",          -1);
-    xpath(cluster_id, "/DATASTORE/CLUSTER_ID",  -1);
+    xpath(oid,  "/DATASTORE/ID",          -1);
+
+    ObjectCollection cluster_collection("CLUSTERS");
+    cluster_collection.from_xml(this, "/DATASTORE/");
+
+    cluster_ids = cluster_collection.clone();
 
     xpath(uid,      "/DATASTORE/UID",  -1);
     xpath(gid,      "/DATASTORE/GID",  -1);
@@ -125,7 +130,7 @@ void DatastoreXML::get_permissions(PoolObjectAuth& auth)
     auth.oid = oid;
     auth.uid = uid;
     auth.gid = gid;
-    auth.cid = cluster_id;
+    auth.cids = cluster_ids;
 
     auth.owner_u = owner_u;
     auth.owner_m = owner_m;

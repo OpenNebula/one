@@ -116,6 +116,11 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.DATASTORE;
 
+    var clusters = '-';
+    if (element.CLUSTERS.ID != undefined){
+      clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                              element.ID + '" name="selected_items" value="' +
@@ -125,7 +130,7 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         DatastoreCapacityBar.html(element),
-        element.CLUSTER.length ? element.CLUSTER : "-",
+        clusters,
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,

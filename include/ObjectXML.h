@@ -194,7 +194,8 @@ public:
      *    returned as pointers to the object nodes.
      *    @return the number of nodes found
      */
-    int get_nodes(const char * xpath_expr, std::vector<xmlNodePtr>& content);
+    int get_nodes(const std::string& xpath_expr,
+                  std::vector<xmlNodePtr>& content) const;
 
     /**
      * Adds a copy of the node as a child of the node in the xpath expression.
@@ -212,7 +213,7 @@ public:
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
-    void free_nodes(std::vector<xmlNodePtr>& content)
+    void free_nodes(std::vector<xmlNodePtr>& content) const
     {
         std::vector<xmlNodePtr>::iterator it;
 

@@ -30,15 +30,6 @@ using namespace std;
 class Cluster : public PoolObjectSQL
 {
 public:
-    /**
-     * Returns the DATASTORE_LOCATION for the hosts of the cluster. If not
-     * defined that in oned.conf is returned.
-     *
-     * @param ds_location string to copy the DATASTORE_LOCATION to
-     * @return DATASTORE_LOCATION
-     */
-    string& get_ds_location(string &ds_location);
-
     // *************************************************************************
     // Object Collections (Public)
     // *************************************************************************
@@ -82,11 +73,10 @@ public:
     /**
      *  Adds this datastore ID to the set.
      *    @param id to be added to the cluster
-     *    @param ds_type Datastore type
      *    @param error_msg Error message, if any
      *    @return 0 on success
      */
-    int add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg);
+    int add_datastore(int id, string& error_msg);
 
     /**
      *  Deletes this datastore ID from the set.
@@ -213,7 +203,6 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-
     Cluster(int id,
             const string& name,
             ClusterTemplate*  cl_template);
@@ -223,7 +212,6 @@ private:
     // *************************************************************************
     // Attributes (Private)
     // *************************************************************************
-
     ObjectCollection hosts;
     ObjectCollection datastores;
     ObjectCollection vnets;
@@ -231,12 +219,17 @@ private:
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
     static const char * db_names;
-
     static const char * db_bootstrap;
-
     static const char * table;
+
+    static const char * datastore_table;
+    static const char * datastore_db_names;
+    static const char * datastore_db_bootstrap;
+
+    static const char * network_table;
+    static const char * network_db_names;
+    static const char * network_db_bootstrap;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -253,9 +246,19 @@ private:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss(Cluster::db_bootstrap);
+        int rc;
+        ostringstream oss;
 
-        return db->exec(oss);
+        oss.str(Cluster::db_bootstrap);
+        rc = db->exec(oss);
+
+        oss.str(Cluster::datastore_db_bootstrap);
+        rc += db->exec(oss);
+
+        oss.str(Cluster::network_db_bootstrap);
+        rc += db->exec(oss);
+
+        return rc;
     };
 
     /**

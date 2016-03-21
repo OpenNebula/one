@@ -149,8 +149,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :CLUSTER, "Name of the Cluster", :left, :size=>10 do |d|
-                OpenNebulaHelper.cluster_str(d["CLUSTER"])
+            column :CLUSTERS, "Cluster IDs", :left, :size=>10 do |d|
+                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"])
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
@@ -163,7 +163,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["USED_LEASES"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :BRIDGE, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :LEASES
         end
 
         table
@@ -209,7 +209,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
-        puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(vn['CLUSTER'])]
+        puts str % ["CLUSTERS",
+            OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?

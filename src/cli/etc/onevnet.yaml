@@ -18,8 +18,8 @@
   :size: 19
   :left: true
 
-:CLUSTER:
-  :desc: Name of the Cluster
+:CLUSTERS:
+  :desc: Cluster IDs
   :size: 10
   :left: true
 
@@ -37,6 +37,6 @@
 - :USER
 - :GROUP
 - :NAME
-- :CLUSTER
+- :CLUSTERS
 - :BRIDGE
 - :LEASES

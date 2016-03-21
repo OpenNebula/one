@@ -79,7 +79,7 @@ protected:
         return pool_allocate(_paramList, tmpl, id, att);
     };
 
-    virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    virtual int get_cluster_id(xmlrpc_c::paramList const& paramList)
     {
         return ClusterPool::NONE_CLUSTER_ID;
     };
@@ -87,7 +87,6 @@ protected:
     virtual int add_to_cluster(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return -1;
@@ -101,6 +100,17 @@ protected:
 protected:
     ClusterPool * clpool;
 
+    int get_cluster_id(xmlrpc_c::paramList const& paramList, int cluster_pos)
+    {
+        int cid = xmlrpc_c::value_int(paramList.getInt(cluster_pos));
+
+        if (cid == -1)
+        {
+            cid = ClusterPool::DEFAULT_CLUSTER_ID;
+        }
+
+        return cid;
+    };
 private:
 
     bool do_template;
@@ -176,15 +186,14 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(2));
+        return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
 
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
@@ -280,15 +289,14 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(5));
+        return RequestManagerAllocate::get_cluster_id(paramList, 5);
     };
 
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return cluster->add_host(id, error_msg);
@@ -385,32 +393,17 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
-    int get_cluster_id(xmlrpc_c::paramList const&  paramList)
+    int get_cluster_id(xmlrpc_c::paramList const& paramList)
     {
-        return xmlrpc_c::value_int(paramList.getInt(2));
-    };
-
-    virtual Datastore::DatastoreType get_ds_type(int oid)
-    {
-        Datastore::DatastoreType ds_type = Datastore::FILE_DS;
-        Datastore *ds = static_cast<DatastorePool*>(pool)->get(oid, true);
-
-        if ( ds != 0 )
-        {
-            ds_type = ds->get_type();
-            ds->unlock();
-        }
-
-        return ds_type;
+        return RequestManagerAllocate::get_cluster_id(paramList, 2);
     };
 
     int add_to_cluster(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
-        return cluster->add_datastore(id, ds_type, error_msg);
+        return cluster->add_datastore(id, error_msg);
     };
 };
 

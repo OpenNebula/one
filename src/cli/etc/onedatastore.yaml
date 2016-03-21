@@ -27,8 +27,8 @@
   :size: 5
   :left: true
 
-:CLUSTER:
-  :desc: Name of the Cluster
+:CLUSTERS:
+  :desc: Cluster IDs
   :size: 12
   :left: true
 
@@ -61,7 +61,7 @@
 - :NAME
 - :SIZE
 - :AVAIL
-- :CLUSTER
+- :CLUSTERS
 - :IMAGES
 - :TYPE
 - :DS

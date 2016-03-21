@@ -30,6 +30,7 @@ void VirtualMachineXML::init_attributes()
     int action;
 
     string automatic_requirements;
+    string automatic_ds_requirements;
 
     xpath(oid, "/VM/ID", -1);
     xpath(uid, "/VM/UID", -1);
@@ -74,22 +75,24 @@ void VirtualMachineXML::init_attributes()
 
     // ------------------- DS REQUIREMENTS -------------------------------------
 
+    xpath(automatic_ds_requirements, "/VM/TEMPLATE/AUTOMATIC_DS_REQUIREMENTS", "");
+
     rc = xpath(ds_requirements, "/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS", "");
 
     if (rc == 0)
     {
-        if ( !automatic_requirements.empty() )
+        if ( !automatic_ds_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << automatic_requirements << " & ( " << ds_requirements << " )";
+            oss << automatic_ds_requirements << " & ( " << ds_requirements << " )";
 
             ds_requirements = oss.str();
         }
     }
-    else if ( !automatic_requirements.empty() )
+    else if ( !automatic_ds_requirements.empty() )
     {
-        ds_requirements = automatic_requirements;
+        ds_requirements = automatic_ds_requirements;
     }
 
     // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------

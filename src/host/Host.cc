@@ -36,7 +36,7 @@ Host::Host(
     int           _cluster_id,
     const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
-        Clusterable(_cluster_id, _cluster_name),
+        ClusterableSingle(_cluster_id, _cluster_name),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -672,17 +672,7 @@ int Host::from_xml(const string& xml)
     content.clear();
 
     // ------------ VMS collection ---------------
-
-    ObjectXML::get_nodes("/HOST/VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vm_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
+    rc += vm_collection.from_xml(this, "/HOST/");
 
     if (rc != 0)
     {

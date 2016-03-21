@@ -75,8 +75,8 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :CLUSTER, "Name of the Cluster", :left, :size=>12 do |d|
-                OpenNebulaHelper.cluster_str(d["CLUSTER"])
+            column :CLUSTERS, "Cluster IDs", :left, :size=>12 do |d|
+                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"])
             end
 
             column :IMAGES, "Number of Images", :size=>6 do |d|
@@ -105,7 +105,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 Datastore::SHORT_DATASTORE_STATES[state]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :CLUSTER, :IMAGES,
+            default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :CLUSTERS, :IMAGES,
                     :TYPE, :DS, :TM, :STAT
         end
 
@@ -136,7 +136,8 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME",     datastore.name]
         puts str % ["USER",     datastore['UNAME']]
         puts str % ["GROUP",    datastore['GNAME']]
-        puts str % ["CLUSTER",  OpenNebulaHelper.cluster_str(datastore['CLUSTER'])]
+        puts str % ["CLUSTERS",
+            OpenNebulaHelper.clusters_str(datastore.retrieve_elements("CLUSTERS/ID"))]
 
         puts str % ["TYPE",     datastore.type_str]
         puts str % ["DS_MAD",   datastore['DS_MAD']]

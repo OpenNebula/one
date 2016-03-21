@@ -14,69 +14,63 @@
 /* limitations under the License.                                           */
 /* -------------------------------------------------------------------------*/
 
-#ifndef CLUSTERABLE_H_
-#define CLUSTERABLE_H_
+#ifndef CLUSTERABLE_SINGLE_H_
+#define CLUSTERABLE_SINGLE_H_
 
-#include "ObjectCollection.h"
-
-class Clusterable
+class ClusterableSingle
 {
 public:
 
-    int add_cluster(int cluster_id)
-    {
-        return cluster_ids.add(cluster_id);
-    };
-
-    int del_cluster(int cluster_id)
-    {
-        return cluster_ids.del(cluster_id);
-    };
-
     /**
-     * Returns the cluster IDs
+     * Changes the cluster this object belongs to
      *
-     * @return The cluster IDs set
+     * @param _cluster_id Id of the new cluster
+     * @param _cluster Name of the new cluster
      */
-    std::set<int> get_cluster_ids() const
+    void set_cluster(int _cluster_id, const std::string& _cluster)
     {
-        return cluster_ids.clone();
+        cluster_id  = _cluster_id;
+        cluster     = _cluster;
     };
 
     /**
-     * Rebuilds the cluster collection from an xml object
-     * @param xml xml object
-     * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
+     * Returns the cluster ID
      *
-     * @return 0 on success, -1 otherwise
+     * @return The cluster ID
      */
-    int from_xml(const ObjectXML* xml, const std::string& xpath_prefix)
+    int get_cluster_id() const
     {
-        return cluster_ids.from_xml(xml, xpath_prefix);
+        return cluster_id;
     };
 
     /**
-     * Function to print the cluster IDs into a string in
-     * XML format
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
+     * Returns the cluster name
+     *
+     * @return The cluster name
      */
-    std::string& to_xml(std::string& xml) const
+    const std::string& get_cluster_name() const
     {
-        return cluster_ids.to_xml(xml);
+        return cluster;
     };
+
 
 protected:
 
-    Clusterable(const std::set<int> &_cluster_ids):
-        cluster_ids("CLUSTERS", _cluster_ids){};
+    ClusterableSingle(int _cluster_id, const std::string& _cluster):
+        cluster_id(_cluster_id),
+        cluster(_cluster){};
 
-    ~Clusterable(){};
+    ~ClusterableSingle(){};
 
     /**
-     * IDs of the clusters this object belongs to.
+     * ID of the cluster this object belongs to.
      */
-    ObjectCollection cluster_ids;
+    int         cluster_id;
+
+    /**
+     *  Name of the cluster this object belongs to.
+     */
+    std::string cluster;
 };
 
-#endif /*CLUSTERABLE_H_*/
+#endif /*CLUSTERABLE_SINGLE_H_*/

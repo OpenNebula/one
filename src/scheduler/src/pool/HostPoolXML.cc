@@ -112,23 +112,20 @@ void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
 
         cluster_id = host->get_cid();
 
-        if(cluster_id != -1) //ClusterPool::NONE_CLUSTER_ID
+        cluster = clpool->get(cluster_id);
+
+        if(cluster != 0)
         {
-            cluster = clpool->get(cluster_id);
+            nodes.clear();
 
-            if(cluster != 0)
+            cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+
+            if (!nodes.empty())
             {
-                nodes.clear();
-
-                cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
-
-                if (!nodes.empty())
-                {
-                    host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
-                }
-
-                cluster->free_nodes(nodes);
+                host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
             }
+
+            cluster->free_nodes(nodes);
         }
     }
 }

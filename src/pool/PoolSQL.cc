@@ -702,7 +702,8 @@ void PoolSQL::acl_filter(int                       uid,
 {
     filter.clear();
 
-    if ( uid == UserPool::ONEADMIN_ID || user_groups.count( GroupPool::ONEADMIN_ID ) == 1 )
+    if ( uid == UserPool::ONEADMIN_ID ||
+            user_groups.count( GroupPool::ONEADMIN_ID ) == 1 )
     {
         all = true;
         return;
@@ -740,10 +741,7 @@ void PoolSQL::acl_filter(int                       uid,
         acl_filter << " OR gid = " << *it;
     }
 
-    for ( it = cids.begin(); it < cids.end(); it++ )
-    {
-        acl_filter << " OR cid = " << *it;
-    }
+    ClusterPool::cluster_acl_filter(acl_filter, auth_object, cids);
 
     filter = acl_filter.str();
 }

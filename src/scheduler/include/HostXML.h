@@ -21,6 +21,7 @@
 #include <map>
 #include "ObjectXML.h"
 #include "HostShare.h"
+#include "PoolObjectAuth.h"
 
 using namespace std;
 
@@ -157,6 +158,13 @@ public:
      *  for logging purposes.
      */
     friend ostream& operator<<(ostream& o, const HostXML& p);
+
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auth);
 
 private:
     int oid;

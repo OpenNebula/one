@@ -34,7 +34,6 @@ public:
         oid(-1),
         uid(-1),
         gid(-1),
-        cid(-1),
         owner_u(1),
         owner_m(1),
         owner_a(0),
@@ -65,7 +64,7 @@ public:
     int oid;
     int uid;
     int gid;
-    int cid;
+    set<int> cids;
 
     int owner_u;
     int owner_m;

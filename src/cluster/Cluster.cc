@@ -34,6 +34,18 @@ const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
     "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
     "UNIQUE(name))";
 
+const char * Cluster::datastore_table = "cluster_datastore_relation";
+const char * Cluster::datastore_db_names = "cid, oid";
+const char * Cluster::datastore_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS cluster_datastore_relation ("
+    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
+const char * Cluster::network_table = "cluster_network_relation";
+const char * Cluster::network_db_names = "cid, oid";
+const char * Cluster::network_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
+    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
+
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */
 /* ************************************************************************** */
@@ -105,24 +117,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& Cluster::get_ds_location(string &ds_location)
-{
-    obj_template->get("DATASTORE_LOCATION", ds_location);
-
-    if ( ds_location.empty() == true )
-    {
-        Nebula& nd = Nebula::instance();
-
-        nd.get_configuration_attribute("DATASTORE_LOCATION", ds_location);
-    }
-
-    return ds_location;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Cluster::add_datastore(int id, Datastore::DatastoreType ds_type, string& error_msg)
+int Cluster::add_datastore(int id, string& error_msg)
 {
    int rc = datastores.add(id);
 
@@ -247,6 +242,98 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
     db->free_str(sql_name);
     db->free_str(sql_xml);
 
+    if (rc == 0)
+    {
+        if (db->multiple_values_support())
+        {
+            set<int>::iterator i;
+
+            rc = 0;
+
+            oss.str("");
+            oss << "DELETE FROM " << network_table  << " WHERE cid = " << oid;
+            rc += db->exec(oss);
+
+            oss.str("");
+            oss << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid;
+            rc += db->exec(oss);
+
+            set<int> datastore_set = datastores.get_collection();
+
+            if (!datastore_set.empty())
+            {
+                oss.str("");
+                oss << "INSERT INTO " << datastore_table
+                    << " (" << datastore_db_names << ") VALUES ";
+
+                i = datastore_set.begin();
+
+                oss << "(" << oid  << "," << *i << ")";
+
+                for(++i; i != datastore_set.end(); i++)
+                {
+                    oss << ", (" << oid  << "," << *i << ")";
+                }
+
+                rc += db->exec(oss);
+            }
+
+            set<int> vnet_set = vnets.get_collection();
+
+            if (!vnet_set.empty())
+            {
+                oss.str("");
+                oss << "INSERT INTO " << network_table
+                    << " (" << network_db_names << ") VALUES ";
+
+                i = vnet_set.begin();
+
+                oss << "(" << oid  << "," << *i << ")";
+
+                for(++i; i != vnet_set.end(); i++)
+                {
+                    oss << ", (" << oid  << "," << *i << ")";
+                }
+
+                rc += db->exec(oss);
+            }
+        }
+        else
+        {
+            oss.str("");
+
+            oss << "BEGIN; "
+                << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
+                << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
+
+            set<int>::iterator i;
+
+            set<int> datastore_set = datastores.get_collection();
+
+            for(i = datastore_set.begin(); i != datastore_set.end(); i++)
+            {
+                oss << "INSERT INTO " << datastore_table
+                    << " (" << datastore_db_names << ") VALUES ("
+                    << oid  << ","
+                    << *i   << "); ";
+            }
+
+            set<int> vnet_set = vnets.get_collection();
+
+            for(i = vnet_set.begin(); i != vnet_set.end(); i++)
+            {
+                oss << "INSERT INTO " << network_table
+                    << " (" << network_db_names << ") VALUES ("
+                    << oid  << ","
+                    << *i   << "); ";
+            }
+
+            oss << "COMMIT";
+
+            rc = db->exec(oss);
+        }
+    }
+
     return rc;
 
 error_xml:
@@ -317,55 +404,11 @@ int Cluster::from_xml(const string& xml)
     // Set the Cluster ID as the cluster it belongs to
     set_group(oid, name);
 
-    // -------------------------------------------------------------------------
-    // Get associated hosts
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/HOSTS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += hosts.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    // -------------------------------------------------------------------------
-    // Get associated datastores
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/DATASTORES", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += datastores.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    // -------------------------------------------------------------------------
-    // Get associated vnets
-    // -------------------------------------------------------------------------
-    ObjectXML::get_nodes("/CLUSTER/VNETS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += vnets.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
     // Get associated classes
+    rc += hosts.from_xml(this, "/CLUSTER/");
+    rc += datastores.from_xml(this, "/CLUSTER/");
+    rc += vnets.from_xml(this, "/CLUSTER/");
+
     ObjectXML::get_nodes("/CLUSTER/TEMPLATE", content);
 
     if (content.empty())

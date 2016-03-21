@@ -196,3 +196,17 @@ ostream& operator<<(ostream& o, const HostXML& p)
 
     return o;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostXML::get_permissions(PoolObjectAuth& auth)
+{
+    set<int> cids;
+
+    cids.insert(cluster_id);
+
+    auth.oid      = oid;
+    auth.cids     = cids;
+    auth.obj_type = PoolObjectSQL::HOST;
+}

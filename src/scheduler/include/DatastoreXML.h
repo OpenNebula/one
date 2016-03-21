@@ -70,9 +70,9 @@ public:
         return oid;
     };
 
-    int get_cid() const
+    bool is_in_cluster(int cid) const
     {
-        return cluster_id;
+        return cluster_ids.count(cid) != 0;
     };
 
     /**
@@ -103,7 +103,7 @@ public:
 private:
 
     int oid;
-    int cluster_id;
+    set<int> cluster_ids;
 
     int uid;
     int gid;

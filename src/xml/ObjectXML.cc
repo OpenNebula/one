@@ -202,12 +202,13 @@ int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
+int ObjectXML::get_nodes(const string& xpath_expr,
+        std::vector<xmlNodePtr>& content) const
 {
     xmlXPathObjectPtr obj;
 
     obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
 
     if (obj == 0)
     {

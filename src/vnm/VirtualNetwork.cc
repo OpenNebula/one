@@ -40,11 +40,10 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                const string&            _gname,
                                int                      _umask,
                                int                      _pvid,
-                               int                      _cluster_id,
-                               const string&            _cluster_name,
+                               const set<int>           &_cluster_ids,
                                VirtualNetworkTemplate * _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
-            Clusterable(_cluster_id, _cluster_name),
+            Clusterable(_cluster_ids),
             bridge(""),
             parent_vid(_pvid),
             vrouters("VROUTERS")
@@ -90,13 +89,13 @@ void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
 const char * VirtualNetwork::table    = "network_pool";
 
 const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid, pid";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, pid";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
     " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
     " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    " cid INTEGER, pid INTEGER, UNIQUE(name,uid))";
+    " pid INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -360,7 +359,6 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          owner_u     << ","
         <<          group_u     << ","
         <<          other_u     << ","
-        <<          cluster_id  << ","
         <<          parent_vid  << ")";
 
     rc = db->exec(oss);
@@ -420,6 +418,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 {
     ostringstream   os;
 
+    string clusters_xml;
     string vrouters_xml;
     string template_xml;
     string leases_xml;
@@ -434,8 +433,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             "<GNAME>"     << gname     << "</GNAME>"     <<
             "<NAME>"      << name      << "</NAME>"      <<
             perms_to_xml(perm_str)     <<
-            "<CLUSTER_ID>"<< cluster_id<< "</CLUSTER_ID>"<<
-            "<CLUSTER>"   << cluster   << "</CLUSTER>"   <<
+            Clusterable::to_xml(clusters_xml)            <<
             "<BRIDGE>"    << one_util::escape_xml(bridge)<< "</BRIDGE>" <<
             "<VLAN>"      << one_util::escape_xml(vlan)  << "</VLAN>";
 
@@ -501,8 +499,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(name,      "/VNET/NAME", "not_found");
     rc += xpath(bridge,    "/VNET/BRIDGE", "not_found");
     rc += xpath(vlan,      "/VNET/VLAN", 0);
-    rc += xpath(cluster_id,"/VNET/CLUSTER_ID", -1);
-    rc += xpath(cluster,   "/VNET/CLUSTER", "not_found");
 
     // Permissions
     rc += perms_from_xml();
@@ -511,17 +507,11 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(vlan_id,"/VNET/VLAN_ID","");
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
 
-    ObjectXML::get_nodes("/VNET/VROUTERS", content);
+    // Set of cluster IDs
+    rc += Clusterable::from_xml(this, "/VNET/");
 
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vrouters.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    // VRouter IDs
+    rc += vrouters.from_xml(this, "/VNET/");
 
     // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
@@ -622,9 +612,11 @@ int VirtualNetwork::nic_attribute(
         nic->replace("TARGET", oss.str());
     }
 
-    if ( get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    set<int> cluster_ids = get_cluster_ids();
+
+    if (!cluster_ids.empty())
     {
-        nic->replace("CLUSTER_ID", get_cluster_id());
+        nic->replace("CLUSTER_IDS", one_util::join(cluster_ids, ','));
     }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)

@@ -21,13 +21,16 @@
 #include <stdexcept>
 
 /* -------------------------------------------------------------------------- */
-/* There is a default cluster boostrapped by the core:                        */
+/* There is a default cluster boostrapped by the core: 0, default             */
 /* The first 100 cluster IDs are reserved for system clusters.                */
 /* Regular ones start from ID 100                                             */
 /* -------------------------------------------------------------------------- */
 
 const string ClusterPool::NONE_CLUSTER_NAME = "";
 const int    ClusterPool::NONE_CLUSTER_ID   = -1;
+
+const string ClusterPool::DEFAULT_CLUSTER_NAME = "default";
+const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -37,12 +40,48 @@ ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true, true)
     ostringstream oss;
     string        error_str;
 
+    // ---------------------------------------------------------------------
+    // Create the default cluster
+    // ---------------------------------------------------------------------
+
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
+        int rc;
+
+        allocate(DEFAULT_CLUSTER_NAME, &rc, error_str);
+
+        if( rc != DEFAULT_CLUSTER_ID )
+        {
+            goto error_bootstrap;
+        }
+
+        Cluster* cluster = get(DEFAULT_CLUSTER_ID, true);
+
+        if (cluster == 0)
+        {
+            goto error_bootstrap;
+        }
+
+        cluster->add_datastore(DatastorePool::SYSTEM_DS_ID, error_str);
+        cluster->add_datastore(DatastorePool::DEFAULT_DS_ID, error_str);
+        cluster->add_datastore(DatastorePool::FILE_DS_ID, error_str);
+
+        update(cluster);
+
+        cluster->unlock();
+
+        // User created clusters will start from ID 100
         set_update_lastOID(99);
     }
 
     return;
+
+error_bootstrap:
+    oss.str("");
+    oss << "Error trying to create default cluster: " << error_str;
+    NebulaLog::log("CLUSTER",Log::ERROR,oss);
+
+    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -121,4 +160,52 @@ int ClusterPool::drop(PoolObjectSQL * objsql, string& error_msg)
     }
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ClusterPool::cluster_acl_filter(ostringstream& filter,
+        PoolObjectSQL::ObjectType auth_object, const vector<int>& cids)
+{
+    if ( cids.empty() )
+    {
+        return;
+    }
+
+    string fc = "";
+
+    switch (auth_object)
+    {
+        case PoolObjectSQL::HOST:
+            filter << " OR ";
+            break;
+
+        case PoolObjectSQL::DATASTORE:
+            filter << " OR oid IN ( SELECT oid from " << Cluster::datastore_table
+                   << " WHERE ";
+            fc = ")";
+            break;
+
+        case PoolObjectSQL::NET:
+            filter << " OR oid IN ( SELECT oid from " << Cluster::network_table
+                   << " WHERE ";
+            fc = ")";
+            break;
+
+        default:
+            return;
+    }
+
+    for ( vector<int>::const_iterator it = cids.begin(); it < cids.end(); it++ )
+    {
+        if ( it != cids.begin() )
+        {
+            filter << " OR ";
+        }
+
+        filter << "cid = " << *it;
+    }
+
+    filter << fc;
 }

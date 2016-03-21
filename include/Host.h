@@ -20,7 +20,7 @@
 #include "PoolSQL.h"
 #include "HostTemplate.h"
 #include "HostShare.h"
-#include "Clusterable.h"
+#include "ClusterableSingle.h"
 #include "ObjectCollection.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
@@ -30,7 +30,7 @@ using namespace std;
 /**
  *  The Host class.
  */
-class Host : public PoolObjectSQL, public Clusterable
+class Host : public PoolObjectSQL, public ClusterableSingle
 {
 public:
 

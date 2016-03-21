@@ -304,18 +304,7 @@ int User::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    ObjectXML::get_nodes("/USER/GROUPS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += groups.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += groups.from_xml(this, "/USER/");
 
     if (rc != 0)
     {

@@ -263,53 +263,10 @@ int SecurityGroup::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    ObjectXML::get_nodes("/SECURITY_GROUP/UPDATED_VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += updated.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/SECURITY_GROUP/OUTDATED_VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += outdated.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/SECURITY_GROUP/UPDATING_VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += updating.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-    ObjectXML::get_nodes("/SECURITY_GROUP/ERROR_VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += error.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += updated.from_xml(this, "/SECURITY_GROUP/");
+    rc += outdated.from_xml(this, "/SECURITY_GROUP/");
+    rc += updating.from_xml(this, "/SECURITY_GROUP/");
+    rc += error.from_xml(this, "/SECURITY_GROUP/");
 
     if (rc != 0)
     {

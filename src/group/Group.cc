@@ -264,30 +264,10 @@ int Group::from_xml(const string& xml)
     set_group(oid, name);
 
     // Set of IDs
-    ObjectXML::get_nodes("/GROUP/USERS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += users.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += users.from_xml(this, "/GROUP/");
 
     // Set of Admin IDs
-    ObjectXML::get_nodes("/GROUP/ADMINS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += admins.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += admins.from_xml(this, "/GROUP/");
 
     // Get associated metadata for the group
     ObjectXML::get_nodes("/GROUP/TEMPLATE", content);
