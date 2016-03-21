@@ -616,7 +616,7 @@ int VirtualNetwork::nic_attribute(
 
     if (!cluster_ids.empty())
     {
-        nic->replace("CLUSTER_IDS", one_util::join(cluster_ids, ','));
+        nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
     }
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)

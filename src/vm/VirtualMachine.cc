@@ -642,7 +642,7 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
     string base_name_source = base_name + "_DS_SOURCE";
     string base_name_ds_id  = base_name + "_DS_DSID";
     string base_name_tm     = base_name + "_DS_TM";
-    string base_name_cluster= base_name + "_DS_CLUSTER_IDS";
+    string base_name_cluster= base_name + "_DS_CLUSTER_ID";
 
     string type_str;
 
@@ -1366,14 +1366,14 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( osatt != 0 )
     {
-        rc = check_and_set_cluster_id("KERNEL_CLUSTER_IDS", osatt, cluster_ids);
+        rc = check_and_set_cluster_id("KERNEL_DS_CLUSTER_ID", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
             goto error_kernel;
         }
 
-        rc = check_and_set_cluster_id("INITRD_CLUSTER_IDS", osatt, cluster_ids);
+        rc = check_and_set_cluster_id("INITRD_DS_CLUSTER_ID", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1386,7 +1386,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_IDS", vatts[i], cluster_ids);
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1402,7 +1402,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_IDS", vatts[i], cluster_ids);
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {

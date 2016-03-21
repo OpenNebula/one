@@ -1082,7 +1082,7 @@ int DispatchManager::attach(int vid,
     }
 
     // Check that we don't have a cluster incompatibility.
-    if (disk->vector_value("CLUSTER_IDS", disk_cluster_ids) == 0)
+    if (disk->vector_value("CLUSTER_ID", disk_cluster_ids) == 0)
     {
         set<int> cluster_ids;
         one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
@@ -1583,7 +1583,7 @@ int DispatchManager::attach_nic(
     }
 
     // Check that we don't have a cluster incompatibility.
-    if (nic->vector_value("CLUSTER_IDS", nic_cluster_ids) == 0)
+    if (nic->vector_value("CLUSTER_ID", nic_cluster_ids) == 0)
     {
         set<int> cluster_ids;
         one_util::split_unique(nic_cluster_ids, ',', cluster_ids);

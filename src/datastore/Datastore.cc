@@ -121,7 +121,7 @@ void Datastore::disk_attribute(
 
     if (!cluster_ids.empty())
     {
-        disk->replace("CLUSTER_IDS", one_util::join(cluster_ids, ','));
+        disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
     }
 
     get_template_attribute("CLONE_TARGET", st);
