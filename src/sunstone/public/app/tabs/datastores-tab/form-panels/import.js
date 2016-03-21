@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
