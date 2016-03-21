@@ -2120,7 +2120,7 @@ private
 
         # Capacity section
 
-        cpu           = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/VCPU"].text : 1
+        cpu           = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["/VM/TEMPLATE/VCPU"].text : 1
         memory        = xml.root.elements["/VM/TEMPLATE/MEMORY"].text
         capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
@@ -2207,15 +2207,6 @@ private
             end
             scsi_schema[dev.key][:device] = dev
           end
-
-          next if dev.class != RbVmomi::VIM::VirtualDisk
-
-          if scsi_schema[dev.controllerKey].nil?
-            scsi_schema[dev.controllerKey]         = Hash.new
-            scsi_schema[dev.controllerKey][:lower] = Array.new
-          end
-
-          scsi_schema[dev.controllerKey][:lower] << dev
         }
 
         scsi_schema.keys.each{|controller|
@@ -2224,7 +2215,12 @@ private
           end
         }
 
-        available_controller_label = free_scsi_controllers.length > 0 ? free_scsi_controllers[0] : add_new_scsi(vm, scsi_schema)
+        if free_scsi_controllers.length > 0
+            available_controller_label = free_scsi_controllers[0]
+        else
+            add_new_scsi(vm, scsi_schema)
+            return find_free_controller(vm)
+        end
 
        # Get the controller resource from the label
         controller = nil
@@ -2261,30 +2257,34 @@ private
     def self.add_new_scsi(vm, scsi_schema)
         controller = nil
 
-        if scsi_schema.keys.length < 4
-          scsi_key    = scsi_schema.keys.sort[-1] + 1
-          scsi_number = scsi_schema[scsi_schema.keys.sort[-1]][:device].busNumber + 1
-
-          controller_device = RbVmomi::VIM::VirtualLsiLogicController(
-            :key => scsi_key,
-            :busNumber => scsi_number,
-            :sharedBus => :noSharing
-          )
-
-          device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
-            :device => controller_device,
-            :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
-          )
-
-          vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
-            :deviceChange => [device_config_spec]
-          )
-
-          vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
-
-        else
+        if scsi_schema.keys.length >= 4
           raise "Cannot add a new controller, maximum is 4."
         end
+
+        if scsi_schema.keys.length == 0
+          scsi_key    = 0
+          scsi_number = 0
+        else scsi_schema.keys.length < 4
+          scsi_key    = scsi_schema.keys.sort[-1] + 1
+          scsi_number = scsi_schema[scsi_schema.keys.sort[-1]][:device].busNumber + 1
+        end
+
+        controller_device = RbVmomi::VIM::VirtualLsiLogicController(
+          :key => scsi_key,
+          :busNumber => scsi_number,
+          :sharedBus => :noSharing
+        )
+
+        device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+          :device => controller_device,
+          :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+        )
+
+        vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
+          :deviceChange => [device_config_spec]
+        )
+
+        vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
 
         vm.config.hardware.device.each { |device|
           if device.class == RbVmomi::VIM::VirtualLsiLogicController &&

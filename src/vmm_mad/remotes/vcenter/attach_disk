@@ -50,7 +50,7 @@ img_path  = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/S
 size_kb   = 0  # No volatile disk support at the moment
 
 if ds_name.nil? || hostname.nil? || img_path.nil?
-    STDERR.puts "Not enough information to clone the image, missing datastore"\
+    STDERR.puts "Not enough information to attach disk, missing datastore"\
                 " name or vcenter cluster name or image path."
     exit -1
 end
