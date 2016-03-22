@@ -576,17 +576,29 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
 int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 {
-    MarketPlace * mp = static_cast<MarketPlace *>(object);
-    set<int> apps    = mp->get_marketapp_ids();
+    MarketPlace * mp      = static_cast<MarketPlace *>(object);
+    std::set<int> apps    = mp->get_marketapp_ids();
+    bool          can_del = mp->is_public() || apps.empty();
+    int           mp_id   = mp->get_oid();
 
-    int rc = pool->drop(object, emsg);
-
-    object->unlock();
-
-    if ( rc != 0 || apps.empty() )
+    if( !can_del )
     {
-        return rc;
+        std::ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::MARKETPLACE) << "  "
+            << mp->get_oid() << " is not empty.";
+        emsg = oss.str();
+
+        mp->unlock();
+
+        return -1;
     }
+
+    bool old_monitor = mp->disable_monitor();
+
+    mp->unlock();
+
+    int rc = 0;
 
     Nebula& nd = Nebula::instance();
 
@@ -618,6 +630,28 @@ int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
        app->unlock();
     }
+
+    MarketPlacePool* mppool = static_cast<MarketPlacePool *>(pool);
+
+    mp = mppool->get(mp_id, true);
+
+    if (mp == 0)
+    {
+        emsg = "MarketPlace no longer exists";
+
+        return -1;
+    }
+
+    if ( rc == 0 )
+    {
+        mppool->drop(mp, emsg);
+    }
+    else if (old_monitor)
+    {
+        mp->enable_monitor();
+    }
+
+    mp->unlock();
 
     return rc;
 }

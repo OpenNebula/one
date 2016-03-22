@@ -106,7 +106,30 @@ public:
         return supported_actions.is_set(action);
     }
 
+    /**
+     *  @return true if this is a public (external) marketplace
+     */
     bool is_public() const;
+
+    /**
+     *  Disbale de monitor action for this marketplace
+     *    @return true if the monitor was enabled
+     */
+    bool disable_monitor()
+    {
+        bool enabled = supported_actions.is_set(MarketPlaceApp::MONITOR);
+
+        supported_actions.clear(MarketPlaceApp::MONITOR);
+
+        return enabled;
+    }
+    /**
+     *   Enable the monitor action
+     */
+    void enable_monitor()
+    {
+        supported_actions.set(MarketPlaceApp::MONITOR);
+    }
 
 private:
 

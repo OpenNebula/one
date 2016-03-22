@@ -161,7 +161,6 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 
         std::ostringstream oss("Cannot drop marketapp at federation master: ",
                 std::ios::ate);
-
         try
         {
             client->call(client->get_endpoint(),

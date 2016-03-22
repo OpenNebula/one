@@ -211,20 +211,6 @@ int MarketPlacePool::drop(PoolObjectSQL * objsql, std::string& error_msg)
         return -1;
     }
 
-    MarketPlace *mp  = static_cast<MarketPlace *>(objsql);
-
-    if( !mp->is_public() && mp->marketapps.size() > 0 )
-    {
-        std::ostringstream oss;
-
-        oss << "MarketPlace " << mp->get_oid() << " is not empty.";
-        error_msg = oss.str();
-
-        NebulaLog::log("MARKETPLACE", Log::ERROR, error_msg);
-
-        return -3;
-    }
-
     return PoolSQL::drop(objsql, error_msg);
 }
 
