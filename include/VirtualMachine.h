@@ -165,7 +165,7 @@ public:
         DISK_SNAPSHOT_REVERT_SUSPENDED = 55,
         DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
         DISK_SNAPSHOT        = 57,
-        DISK_SNAPSHOT_REVERT = 58,
+        //DISK_SNAPSHOT_REVERT = 58,
         DISK_SNAPSHOT_DELETE = 59,
         PROLOG_MIGRATE_UNKNOWN = 60,
         PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
@@ -231,7 +231,6 @@ public:
         else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED") { state = DISK_SNAPSHOT_REVERT_SUSPENDED; }
         else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED") { state = DISK_SNAPSHOT_DELETE_SUSPENDED; }
         else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
-        else if ( st == "DISK_SNAPSHOT_REVERT") { state = DISK_SNAPSHOT_REVERT; }
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
         else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
         else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
@@ -300,7 +299,6 @@ public:
             case DISK_SNAPSHOT_REVERT_SUSPENDED: st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
             case DISK_SNAPSHOT_DELETE_SUSPENDED: st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
             case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
-            case DISK_SNAPSHOT_REVERT: st = "DISK_SNAPSHOT_REVERT"; break;
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
             case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
             case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
