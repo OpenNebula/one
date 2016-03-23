@@ -390,10 +390,13 @@ class VIClient
                         and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
                     hostname = vi_tmp.vm.runtime.host.parent.name
                     one_tmp << {
-                        :name => "#{vi_tmp.vm.name} - #{hostname}",
-                        :uuid => vi_tmp.vm.config.uuid,
-                        :host => hostname,
-                        :one  => vi_tmp.to_one
+                        :name       => "#{vi_tmp.vm.name} - #{hostname}",
+                        :uuid       => vi_tmp.vm.config.uuid,
+                        :host       => hostname,
+                        :one        => vi_tmp.to_one,
+                        :ds         => vi_tmp.to_one_ds,
+                        :default_ds => t.datastore[0].name,
+                        :rp         => vi_tmp.to_one_rp
                     }
                 end
             }
@@ -1611,8 +1614,6 @@ class VCenterVm
 
     ########################################################################
     # Generates an OpenNebula Template for this VCenterVm
-    #
-    #
     ########################################################################
     def to_one
         cluster_name = @vm.runtime.host.parent.name
@@ -1657,8 +1658,56 @@ class VCenterVm
             when /Linux/i
                 str << "LOGO=images/logos/linux.png"
         end
+        return str
+    end
+
+    ########################################################################
+    # Generates a Datastore user input
+    ########################################################################
+    def to_one_ds
+        # Datastores User Input
+        ds_str = ""
+        @vm.runtime.host.parent.parent.parent.datastoreFolder.childEntity.each { |ds|
+                ds_str += ds.name + ","
+            }
+        ds_str = ds_str[0..-2]
+
+        if ds_str != ""
+            str    =  "M|list|Which datastore you want this VM to run on?|"\
+                   << "#{ds_str}|#{ds_str.split(",")[0]}"
+        end
 
         return str
+     end
+
+    ########################################################################
+    # Generates a Resource Pool user input
+    ########################################################################
+     def to_one_rp
+        rp_str = @vm.runtime.host.parent.resourcePool.name
+
+        @vm.runtime.host.parent.resourcePool.resourcePool.each{|rp|
+            rp_str += get_child_rp_names(rp, "")
+        }
+
+        return rp_str << "M|list|Which resource pool you want this VM to run"\
+                         " in?|#{rp_str}|#{rp_str.split(",")[0]}"
+    end
+
+    def get_child_rp_names(rp, parent_prefix)
+        rp_str = ""
+
+        if rp.resourcePool.size != 0
+            rp.resourcePool.each{|child_rp|
+                prefix = (parent_prefix.empty? ? "" : parent_prefix + "/")
+                prefix += child_rp.name
+                rp_str += get_child_rp_names(child_rp, prefix)
+            }
+        end
+
+        rp_str += ",#{parent_prefix + rp.name}"
+
+        return rp_str
     end
 
     ########################################################################
