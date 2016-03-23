@@ -1684,28 +1684,31 @@ class VCenterVm
     # Generates a Resource Pool user input
     ########################################################################
      def to_one_rp
-        rp_str = @vm.runtime.host.parent.resourcePool.name
+        rp_str = ""
 
         @vm.runtime.host.parent.resourcePool.resourcePool.each{|rp|
             rp_str += get_child_rp_names(rp, "")
         }
 
-        return rp_str << "M|list|Which resource pool you want this VM to run"\
-                         " in?|#{rp_str}|#{rp_str.split(",")[0]}"
+        rp_str = rp_str[0..-2]
+
+        return "M|list|Which resource pool you want this VM to run"\
+               " in?|#{rp_str}|#{rp_str.split(",")[0]}"
     end
 
     def get_child_rp_names(rp, parent_prefix)
         rp_str = ""
 
+        current_rp = (parent_prefix.empty? ? "" : parent_prefix + "/")
+        current_rp += rp.name
+
         if rp.resourcePool.size != 0
             rp.resourcePool.each{|child_rp|
-                prefix = (parent_prefix.empty? ? "" : parent_prefix + "/")
-                prefix += child_rp.name
-                rp_str += get_child_rp_names(child_rp, prefix)
+                rp_str += get_child_rp_names(child_rp, current_rp)
             }
         end
 
-        rp_str += ",#{parent_prefix + rp.name}"
+        rp_str += current_rp + ","
 
         return rp_str
     end
@@ -1955,8 +1958,8 @@ private
         # Find out requested and available resource pool
 
         req_rp = nil
-        if !template.elements["RESOURCE_POOL"].nil?
-            req_rp = template.elements["RESOURCE_POOL"].text
+        if !xml.root.elements["/VM/USER_TEMPLATE/RESOURCE_POOL"].nil?
+            req_rp = xml.root.elements["/VM/USER_TEMPLATE/RESOURCE_POOL"].text
         end
 
         if connection.rp_confined?
@@ -1974,6 +1977,10 @@ private
             else # otherwise, get the default resource pool
                 rp = connection.default_resource_pool
             end
+        end
+
+        if !xml.root.elements["/VM/USER_TEMPLATE/VCENTER_DATASTORE"].nil?
+           datastore = xml.root.elements["/VM/USER_TEMPLATE/VCENTER_DATASTORE"].text
         end
 
         if datastore
