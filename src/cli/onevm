@@ -826,7 +826,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_snapshot_revert_desc = <<-EOT.unindent
         Reverts disk state to a previously taken snapshot.
 
-        States: RUNNING, POWEROFF, SUSPENDED
+        States: POWEROFF, SUSPENDED
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,

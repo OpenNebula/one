@@ -1921,8 +1921,7 @@ int DispatchManager::disk_snapshot_revert(
     VirtualMachine::LcmState lstate = vm->get_lcm_state();
 
     if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
-        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
-        (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
+        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT))
     {
         oss << "Could not revert to disk snapshot for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1960,11 +1959,6 @@ int DispatchManager::disk_snapshot_revert(
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED);
             break;
 
-        case VirtualMachine::ACTIVE:
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT);
-            break;
-
         default: break;
     }
 
@@ -1972,19 +1966,7 @@ int DispatchManager::disk_snapshot_revert(
 
     vm->unlock();
 
-    switch(state)
-    {
-        case VirtualMachine::POWEROFF:
-        case VirtualMachine::SUSPENDED:
-            tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
-            break;
-
-        case VirtualMachine::ACTIVE:
-            vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_REVERT, vid);
-            break;
-
-        default: break;
-    }
+    tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
 
     return 0;
 }

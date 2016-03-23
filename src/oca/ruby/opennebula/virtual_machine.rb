@@ -111,7 +111,6 @@ module OpenNebula
             DISK_SNAPSHOT_REVERT_SUSPENDED
             DISK_SNAPSHOT_DELETE_SUSPENDED
             DISK_SNAPSHOT
-            DISK_SNAPSHOT_REVERT
             DISK_SNAPSHOT_DELETE
             PROLOG_MIGRATE_UNKNOWN
             PROLOG_MIGRATE_UNKNOWN_FAILURE
@@ -188,7 +187,6 @@ module OpenNebula
             "DISK_SNAPSHOT_REVERT_SUSPENDED"=> "snap",
             "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap",
             "DISK_SNAPSHOT"        => "snap",
-            "DISK_SNAPSHOT_REVERT" => "snap",
             "DISK_SNAPSHOT_DELETE" => "snap",
             "PROLOG_MIGRATE_UNKNOWN" => "migr",
             "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail"
