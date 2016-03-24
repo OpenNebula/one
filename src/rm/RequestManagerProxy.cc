@@ -29,7 +29,7 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
     {
         Client * client = Client::client();
 
-        client->call(client->get_endpoint(), method, _paramList, &return_value);
+        client->call(method, _paramList, &return_value);
 
         *(att.retval) = return_value;
     }

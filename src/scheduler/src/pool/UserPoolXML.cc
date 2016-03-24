@@ -38,12 +38,8 @@ int UserPoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call(client->get_endpoint(),           // serverUrl
-                     "one.userpool.info",              // methodName
-                     "s",                              // arguments format
-                     &result,                          // resultP
-                     client->get_oneauth().c_str()     // argument
-                    );
+        client->call("one.userpool.info", "", &result);
+
         return 0;
     }
     catch (exception const& e)

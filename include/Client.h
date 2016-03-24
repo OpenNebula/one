@@ -19,6 +19,7 @@
 
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/client_simple.hpp>
+#include <xmlrpc-c/girerr.hpp>
 
 #include <iostream>
 #include <string>
@@ -38,7 +39,7 @@ using namespace std;
  * This class represents the connection with the core and handles the
  * xml-rpc calls.
  */
-class Client : public xmlrpc_c::clientSimple
+class Client
 {
 public:
     /**
@@ -52,25 +53,15 @@ public:
     /**
      *  Singleton initializer
      */
-    static Client * initialize(const string& secret,
-            const string& endpoint, size_t message_size)
+    static Client * initialize(const std::string& secret,
+            const std::string& endpoint, size_t message_size, unsigned int tout)
     {
         if ( _client == 0 )
         {
-            _client = new Client(secret, endpoint, message_size);
+            _client = new Client(secret, endpoint, message_size, tout);
         }
 
         return _client;
-    };
-
-    const string& get_oneauth() const
-    {
-        return one_auth;
-    };
-
-    const string& get_endpoint() const
-    {
-        return one_endpoint;
     };
 
     size_t get_message_size() const
@@ -82,8 +73,28 @@ public:
      *  Reads ONE_AUTH from environment or its default location at
      *  $HOME/.one/one_auth
      */
-    static int read_oneauth(string &secret, string& error);
+    static int read_oneauth(std::string &secret, std::string& error);
 
+	/**
+     *  Performs an xmlrpc call to the initialized server and credentials.
+     *  This method automatically adds the credential argument.
+     *    @param method name
+     *    @param format of the arguments, supported arguments are i:int, s:string
+     *    and b:bool
+     *    @param result to store the xmlrpc call result
+     *    @param ... xmlrpc arguments
+     */
+    void call(const std::string &method, const std::string format,
+		xmlrpc_c::value * const result, ...);
+
+	/**
+     *  Performs a xmlrpc call to the initialized server
+     *    @param method name
+     *    @param plist initialized param list
+     *    @param result of the xmlrpc call
+     */
+    void call(const std::string& method, const xmlrpc_c::paramList& plist,
+		 xmlrpc_c::value * const result);
 private:
     /**
      * Creates a new xml-rpc client with specified options.
@@ -96,10 +107,13 @@ private:
      * @param message_size for XML elements in the client library (in bytes)
      * @throws Exception if the authorization options are invalid
      */
-    Client(const string& secret, const string& endpoint, size_t message_size);
+    Client(const string& secret, const string& endpoint, size_t message_size,
+		unsigned int tout);
 
     string  one_auth;
     string  one_endpoint;
+
+	unsigned int timeout;
 
     static Client * _client;
 };

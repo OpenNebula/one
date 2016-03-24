@@ -611,9 +611,13 @@ void Nebula::start(bool bootstrap_only)
     {
         long long msg_size;
 
+        unsigned int timeout;
+
         get_configuration_attribute("MESSAGE_SIZE", msg_size);
 
-        Client::initialize("", get_master_oned(), msg_size);
+        get_configuration_attribute("TIMEOUT", timeout);
+
+        Client::initialize("", get_master_oned(), msg_size, timeout);
     }
 
     // ---- Virtual Machine Manager ----

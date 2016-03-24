@@ -40,12 +40,8 @@ int DatastorePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call( client->get_endpoint(),           // serverUrl
-                      "one.datastorepool.info",         // methodName
-                      "s",                              // arguments format
-                      &result,                          // resultP
-                      client->get_oneauth().c_str()     // argument
-                    );
+        client->call("one.datastorepool.info", "", &result);
+
         return 0;
     }
     catch (exception const& e)

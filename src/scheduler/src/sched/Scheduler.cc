@@ -225,11 +225,14 @@ void Scheduler::start()
 
     try
     {
-        long long message_size;
+        long long    message_size;
+        unsigned int timeout;
 
         conf.get("MESSAGE_SIZE", message_size);
 
-        Client::initialize("", url, message_size);
+        conf.get("TIMEOUT", timeout);
+
+        Client::initialize("", url, message_size, timeout);
 
         oss.str("");
 
@@ -258,8 +261,7 @@ void Scheduler::start()
 
             Client * client = Client::client();
 
-            client->call(client->get_endpoint(), "one.system.config", "s",
-                    &result, client->get_oneauth().c_str());
+            client->call("one.system.config", "", &result);
 
             values = xmlrpc_c::value_array(result).vectorValueValue();
 

@@ -35,7 +35,8 @@ Client * Client::_client = 0;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Client::Client(const string& secret, const string& endpoint, size_t message_size)
+Client::Client(const string& secret, const string& endpoint,
+    size_t message_size, unsigned int tout)
 {
     string error;
     char * xmlrpc_env;
@@ -64,6 +65,8 @@ Client::Client(const string& secret, const string& endpoint, size_t message_size
     }
 
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
+
+    timeout = tout * 1000;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -117,3 +120,90 @@ int Client::read_oneauth(string &secret, string& error_msg)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Client::call(const std::string &method, const std::string format,
+    xmlrpc_c::value * const result, ...)
+{
+    va_list args;
+    va_start(args, result);
+
+    std::string::const_iterator i;
+
+    std::string sval;
+    int         ival;
+    bool        bval;
+
+    const char* pval;
+
+    xmlrpc_c::paramList plist;
+
+    plist.add(xmlrpc_c::value_string(one_auth));
+
+    for (i = format.begin(); i != format.end(); ++i)
+    {
+        switch(*i)
+        {
+            case 's':
+                pval = static_cast<const char*>(va_arg(args, char *));
+                sval = pval;
+
+                plist.add(xmlrpc_c::value_string(sval));
+                break;
+
+            case 'i':
+                ival = va_arg(args, int);
+
+                plist.add(xmlrpc_c::value_int(ival));
+                break;
+
+            case 'b':
+                bval = va_arg(args, int);
+
+                plist.add(xmlrpc_c::value_boolean(bval));
+                break;
+
+            default:
+                break;
+         }
+    }
+
+    va_end(args);
+
+    call(method, plist, result);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
+     xmlrpc_c::value * const result)
+{
+    xmlrpc_c::clientXmlTransport_curl ctrans;
+    xmlrpc_c::client_xml              client(&ctrans);
+
+    xmlrpc_c::rpcPtr rpc(method, plist);
+    xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
+
+    rpc->start(&client, &cparam);
+
+    client.finishAsync(xmlrpc_c::timeout(timeout));
+
+    if (!rpc->isFinished())
+    {
+        rpc->finishErr(girerr::error("XMLRPC method " + method +
+            " timeout, resetting call"));
+    }
+
+    if (rpc->isSuccessful())
+    {
+        *result = rpc->getResult();
+    }
+    else
+    {
+        xmlrpc_c::fault failure = rpc->getFault();
+
+        girerr::error(failure.getDescription());
+    }
+};

@@ -74,12 +74,8 @@ int HostPoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call( client->get_endpoint(),           // serverUrl
-                      "one.hostpool.info",              // methodName
-                      "s",                              // arguments format
-                      &result,                          // resultP
-                      client->get_oneauth().c_str()     // argument
-                    );
+        client->call("one.hostpool.info", "", &result);
+
         return 0;
     }
     catch (exception const& e)

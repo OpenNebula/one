@@ -36,12 +36,7 @@ static int master_allocate(MarketPlaceApp * mp, string& error)
 
     try
     {
-        client->call(client->get_endpoint(),
-                "one.marketapp.allocatedb",
-                "ss",
-                &result,
-                client->get_oneauth().c_str(),
-                mp_xml.c_str());
+        client->call("one.marketapp.allocatedb", "s", &result, mp_xml.c_str());
     }
     catch (exception const& e)
     {
@@ -163,12 +158,7 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
                 std::ios::ate);
         try
         {
-            client->call(client->get_endpoint(),
-                    "one.marketapp.dropdb",
-                    "si",
-                    &result,
-                    client->get_oneauth().c_str(),
-                    objsql->get_oid());
+            client->call("one.marketapp.dropdb", "i", &result, objsql->get_oid());
         }
         catch (exception const& e)
         {
@@ -282,13 +272,8 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
 
         try
         {
-            client->call(client->get_endpoint(),
-                    "one.marketapp.updatedb",
-                    "sis",
-                    &result,
-                    client->get_oneauth().c_str(),
-                    objsql->get_oid(),
-                    objsql->to_xml(tmpl_xml).c_str());
+            client->call("one.marketapp.updatedb", "is", &result,
+                objsql->get_oid(), objsql->to_xml(tmpl_xml).c_str());
         }
         catch (exception const& e)
         {

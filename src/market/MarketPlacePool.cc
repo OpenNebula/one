@@ -149,12 +149,7 @@ int MarketPlacePool::allocate(
 
         try
         {
-            client->call(client->get_endpoint(),
-                    "one.market.allocatedb",
-                    "ss",
-                    &result,
-                    client->get_oneauth().c_str(),
-                    mp_xml.c_str());
+            client->call("one.market.allocatedb", "s", &result, mp_xml.c_str());
         }
         catch (exception const& e)
         {
@@ -231,12 +226,7 @@ int MarketPlacePool::update(PoolObjectSQL * objsql)
 
         try
         {
-            client->call(client->get_endpoint(),
-                    "one.market.updatedb",
-                    "sis",
-                    &result,
-                    client->get_oneauth().c_str(),
-                    objsql->get_oid(),
+            client->call("one.market.updatedb", "is", &result, objsql->get_oid(),
                     objsql->to_xml(tmpl_xml).c_str());
         }
         catch (exception const& e)

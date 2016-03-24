@@ -27,11 +27,7 @@ int AclXML::set_up()
 
     try
     {
-        client->call(client->get_endpoint(),        // serverUrl
-                     "one.acl.info",                // methodName
-                     "s",                           // arguments format
-                     &result,                       // resultP
-                     client->get_oneauth().c_str());// argument
+        client->call("one.acl.info", "", &result);
 
         vector<xmlrpc_c::value> values =
                         xmlrpc_c::value_array(result).vectorValueValue();
