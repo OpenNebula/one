@@ -104,7 +104,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
     VN_MAD = [
         :name       => "vn_mad",
-        :large      => "--vn_mad",
+        :large      => "--vn_mad mad",
+        :format     => String,
         :description=> "Use this driver for the network"
     ]
 
@@ -252,6 +253,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             str="%-15s: %-20s"
             puts str % ["SIZE", ar["SIZE"]]
             puts str % ["LEASES", ar["USED_LEASES"]]
+            puts str % ["VN_MAD", ar["VN_MAD"]] if ar["VN_MAD"]
             puts
 
             format = "%-10s %34s %34s"
