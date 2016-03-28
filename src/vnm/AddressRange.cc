@@ -166,15 +166,6 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
-    /* ------------------------- VNET Attributes ---------------------------- */
-
-    bool b_vlan;
-
-    if ((vattr->vector_value("VLAN", b_vlan) == 0) && b_vlan)
-    {
-        vattr->replace("VLAN", "YES");
-    }
-
     /* ------------------------- Security Groups ---------------------------- */
 
     value = vattr->vector_value("SECURITY_GROUPS");
@@ -816,7 +807,6 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 
     string vn_mad = attr->vector_value("VN_MAD");
     string bridge = attr->vector_value("BRIDGE");
-    string vlan   = attr->vector_value("VLAN");
     string vlanid = attr->vector_value("VLAN_ID");
     string phydev = attr->vector_value("PHYDEV");
 
@@ -828,11 +818,6 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
     if (!bridge.empty())
     {
         nic->replace("BRIDGE", bridge);
-    }
-
-    if (!vlan.empty())
-    {
-        nic->replace("VLAN", vlan);
     }
 
     if (!phydev.empty())

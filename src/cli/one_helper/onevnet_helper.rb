@@ -102,10 +102,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description=> "Netmask in dot notation"
     ]
 
-    VLAN = [
-        :name       => "vlan",
-        :large      => "--vlan",
-        :description=> "Use network isolation"
+    VN_MAD = [
+        :name       => "vn_mad",
+        :large      => "--vn_mad",
+        :description=> "Use this driver for the network"
     ]
 
     VLAN_ID = [
@@ -116,7 +116,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
     ]
 
     ADDAR_OPTIONS = [
-        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VLAN, VLAN_ID ]
+        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD, VLAN_ID ]
 
     def self.rname
         "VNET"
@@ -212,7 +212,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["CLUSTERS",
             OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]
-        puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
+        puts str % ["VN_MAD", vn['VN_MAD']] if !vn['VN_MAD'].empty?
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
         puts str % ["USED LEASES", vn['USED_LEASES']]

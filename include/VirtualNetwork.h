@@ -478,11 +478,6 @@ private:
     string  vlan_id;
 
     /**
-     *  Whether or not to isolate this network with the vnm driver
-     */
-    int     vlan;
-
-    /**
      *  Parent VNET ID if any
      */
     int     parent_vid;
@@ -546,7 +541,7 @@ private:
     int from_xml(const string &xml_str);
 
     /**
-     * Updates the BRIDGE, PHY_DEV, VLAN_ID and VLAN attributes.
+     * Updates the BRIDGE, PHY_DEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */

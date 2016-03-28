@@ -107,8 +107,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     string sg_str;
 
-    bool b_vlan;
-
     int rc, num_ars;
 
     //--------------------------------------------------------------------------
@@ -141,21 +139,6 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     erase_template_attribute("VLAN_ID", vlan_id);
 
     add_template_attribute("VLAN_ID", vlan_id);
-
-    // ------------ VLAN ----------------------
-
-    erase_template_attribute("VLAN", b_vlan);
-
-    if (b_vlan || !phydev.empty())
-    {
-        vlan = 1;
-        add_template_attribute("VLAN", "YES");
-    }
-    else
-    {
-        vlan = 0;
-        add_template_attribute("VLAN", "NO");
-    }
 
     // ------------ BRIDGE --------------------
 
@@ -263,7 +246,6 @@ error_common:
 int VirtualNetwork::post_update_template(string& error)
 {
     string new_bridge;
-    bool   b_vlan;
     string sg_str;
 
     /* ---------------------------------------------------------------------- */
@@ -271,7 +253,6 @@ int VirtualNetwork::post_update_template(string& error)
     /*  - VN_MAD                                                              */
     /*  - PHYDEV                                                              */
     /*  - VLAN_ID                                                             */
-    /*  - VLAN                                                                */
     /*  - BRIDGE                                                              */
     /*  - SECURITY_GROUPS                                                     */
     /* ---------------------------------------------------------------------- */
@@ -286,19 +267,6 @@ int VirtualNetwork::post_update_template(string& error)
     erase_template_attribute("VLAN_ID", vlan_id);
 
     add_template_attribute("VLAN_ID", vlan_id);
-
-    erase_template_attribute("VLAN", b_vlan);
-
-    if (b_vlan || !phydev.empty())
-    {
-        vlan = 1;
-        add_template_attribute("VLAN", "YES");
-    }
-    else
-    {
-        vlan = 0;
-        add_template_attribute("VLAN", "NO");
-    }
 
     erase_template_attribute("BRIDGE",new_bridge);
 
@@ -437,16 +405,15 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     os <<
         "<VNET>" <<
-            "<ID>"        << oid       << "</ID>"        <<
-            "<UID>"       << uid       << "</UID>"       <<
-            "<GID>"       << gid       << "</GID>"       <<
-            "<UNAME>"     << uname     << "</UNAME>"     <<
-            "<GNAME>"     << gname     << "</GNAME>"     <<
-            "<NAME>"      << name      << "</NAME>"      <<
-            perms_to_xml(perm_str)     <<
-            Clusterable::to_xml(clusters_xml)            <<
-            "<BRIDGE>"    << one_util::escape_xml(bridge)<< "</BRIDGE>" <<
-            "<VLAN>"      << one_util::escape_xml(vlan)  << "</VLAN>";
+            "<ID>"     << oid      << "</ID>"    <<
+            "<UID>"    << uid      << "</UID>"   <<
+            "<GID>"    << gid      << "</GID>"   <<
+            "<UNAME>"  << uname    << "</UNAME>" <<
+            "<GNAME>"  << gname    << "</GNAME>" <<
+            "<NAME>"   << name     << "</NAME>"  <<
+            perms_to_xml(perm_str) <<
+            Clusterable::to_xml(clusters_xml)    <<
+            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
 
     if (parent_vid != -1)
     {
@@ -483,13 +450,14 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     {
         os << "<VLAN_ID/>";
     }
-    os  << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
+
+    os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
     os << vrouters.to_xml(vrouters_xml);
 
-    os  << obj_template->to_xml(template_xml);
+    os << obj_template->to_xml(template_xml);
 
-    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
+    os << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
 
     os << "</VNET>";
 
@@ -511,14 +479,13 @@ int VirtualNetwork::from_xml(const string &xml_str)
     update_from_str(xml_str);
 
     // Get class base attributes
-    rc += xpath(oid,       "/VNET/ID", -1);
-    rc += xpath(uid,       "/VNET/UID", -1);
-    rc += xpath(gid,       "/VNET/GID", -1);
-    rc += xpath(uname,     "/VNET/UNAME", "not_found");
-    rc += xpath(gname,     "/VNET/GNAME", "not_found");
-    rc += xpath(name,      "/VNET/NAME", "not_found");
-    rc += xpath(bridge,    "/VNET/BRIDGE", "not_found");
-    rc += xpath(vlan,      "/VNET/VLAN", 0);
+    rc += xpath(oid,    "/VNET/ID",  -1);
+    rc += xpath(uid,    "/VNET/UID", -1);
+    rc += xpath(gid,    "/VNET/GID", -1);
+    rc += xpath(uname,  "/VNET/UNAME", "not_found");
+    rc += xpath(gname,  "/VNET/GNAME", "not_found");
+    rc += xpath(name,   "/VNET/NAME",  "not_found");
+    rc += xpath(bridge, "/VNET/BRIDGE","not_found");
 
     // Permissions
     rc += perms_from_xml();
@@ -600,15 +567,6 @@ int VirtualNetwork::nic_attribute(
     nic->replace("NETWORK", name);
     nic->replace("NETWORK_ID", oid);
     nic->replace("BRIDGE", bridge);
-
-    if ( vlan == 1 )
-    {
-        nic->replace("VLAN", "YES");
-    }
-    else
-    {
-        nic->replace("VLAN", "NO");
-    }
 
     if (!vn_mad.empty())
     {

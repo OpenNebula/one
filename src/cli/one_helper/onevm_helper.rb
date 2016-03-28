@@ -730,7 +730,6 @@ in the frontend machine.
             nic_default = {"NETWORK" => "-",
                            "IP" => "-",
                            "MAC"=> "-",
-                           "VLAN"=>"no",
                            "BRIDGE"=>"-"}
 
             shown_ips = []
@@ -782,8 +781,7 @@ in the frontend machine.
                     "NIC_ID"        => "-",
                     "IP"            => ip,
                     "NETWORK"       => "Additional IP",
-                    "BRIDGE"        => "-",
-                    "VLAN"          => "-"
+                    "BRIDGE"        => "-"
                 }
             end
 
@@ -801,14 +799,6 @@ in the frontend machine.
                         ""
                     else
                         d["NETWORK"]
-                    end
-                end
-
-                column :VLAN, "", :size=>4 do |d|
-                    if d["DOUBLE_ENTRY"]
-                        ""
-                    else
-                        d["VLAN"].downcase
                     end
                 end
 

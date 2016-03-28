@@ -33,7 +33,7 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="BRIDGE" type="xs:string"/>
-        <xs:element name="VLAN" type="xs:integer"/>
+        <xs:element name="VN_MAD" type="xs:integer"/>
         <xs:element name="PARENT_NETWORK_ID" type="xs:string"/>
         <xs:element name="PHYDEV" type="xs:string"/>
         <xs:element name="VLAN_ID" type="xs:string"/>
@@ -53,7 +53,7 @@
                     <xs:element name="SIZE" type="xs:integer"/>
                     <xs:element name="TYPE" type="xs:string"/>
                     <xs:element name="ULA_PREFIX" type="xs:string" minOccurs="0"/>
-                    <xs:element name="VLAN" type="xs:string"  minOccurs="0"/>
+                    <xs:element name="VN_MAD" type="xs:string"  minOccurs="0"/>
                     <xs:element name="MAC_END" type="xs:string" minOccurs="0"/>
                     <xs:element name="IP_END" type="xs:string" minOccurs="0"/>
                     <xs:element name="IP6_ULA" type="xs:string" minOccurs="0"/>

@@ -148,9 +148,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 ar << ", ULA_PREFIX = " <<
                       options[:ip6_ula] if options[:ip6_ula]
                 ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
-                ar << ", MASK = " << options[:netmask] if options[:netmask]
-                ar << ", VLAN = YES" if options[:vlan]
-                ar << ", VLAN_ID = " << options[:vlanid] if options[:vlanid]
+                ar << ", MASK = "    << options[:netmask] if options[:netmask]
+                ar << ", VN_MAD = "  << options[:vn_mad]  if options[:vn_mad]
+                ar << ", VLAN_ID = " << options[:vlanid]  if options[:vlanid]
 
                 ar << "]"
             end
