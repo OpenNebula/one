@@ -27,7 +27,7 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
     # DRIVER name and XPATH for relevant NICs
     DRIVER       = "802.1Q"
-    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='802.1Q']"
 
     ############################################################################
     # Create driver device operations are locked

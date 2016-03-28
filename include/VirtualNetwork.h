@@ -458,6 +458,11 @@ private:
     // -------------------------------------------------------------------------
 
     /**
+     * Name of the vn mad
+     */
+    string vn_mad;
+
+    /**
      *  Name of the bridge this VNW binds to
      */
     string  bridge;

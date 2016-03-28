@@ -814,10 +814,16 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 {
     nic->replace("AR_ID", id);
 
+    string vn_mad = attr->vector_value("VN_MAD");
     string bridge = attr->vector_value("BRIDGE");
     string vlan   = attr->vector_value("VLAN");
     string vlanid = attr->vector_value("VLAN_ID");
     string phydev = attr->vector_value("PHYDEV");
+
+    if (!vn_mad.empty())
+    {
+        nic->replace("VN_MAD", vn_mad);
+    }
 
     if (!bridge.empty())
     {

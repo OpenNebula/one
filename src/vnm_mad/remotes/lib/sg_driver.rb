@@ -25,7 +25,11 @@ module VNMMAD
         XPATH_FILTER = "TEMPLATE/NIC"
 
         # Creates a new SG driver and scans SG Rules
-        def initialize(vm, deploy_id = nil, hypervisor = nil)
+        def initialize(vm, deploy_id = nil, hypervisor = nil, xpath_filter = nil)
+            if xpath_filter
+              XPATH_FILTER.replace xpath_filter
+            end
+
             super(vm, XPATH_FILTER, deploy_id, hypervisor)
             @locking  = true
             @commands = VNMNetwork::Commands.new

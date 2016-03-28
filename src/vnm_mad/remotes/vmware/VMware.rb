@@ -37,9 +37,9 @@ require 'CommandManager'
 require 'vnmmad'
 
 class OpenNebulaVMware < VNMMAD::VNMDriver
-    DRIVER = "vmware"
 
-    XPATH_FILTER = "TEMPLATE/NIC"
+    DRIVER = "vmware"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='vmware']"
     VCLI_CMD     = "/sbin/esxcfg-vswitch"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
