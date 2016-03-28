@@ -23,7 +23,7 @@ class VirtualNetworkDriver
     include DriverExecHelper
 
     # Inits the VNET Driver
-    # @param [String] name of the vnet driver to use, as listed in remotes/vnet
+    # @param [Array] name of the vnet drivers to use, as listed in remotes/vnet
     # @option ops [String] :ssh_stream to be used for command execution
     # @option ops [String] :message from ONE
     def initialize(vnm_drivers, options={})
@@ -56,7 +56,7 @@ class VirtualNetworkDriver
         cmd_params << " #{options[:parameters]}" if options[:parameters]
 
         result = RESULT[:success]
-        infos = ""
+        infos  = ""
 
         @vnm_drivers.each do |subdirectory|
             cmd = action_command_line(aname, cmd_params, nil, subdirectory)
@@ -78,7 +78,7 @@ class VirtualNetworkDriver
             end
 
             result, info = get_info_from_execution(execution)
-            infos <<= info
+            infos << " #{subdirectory}: " <<  info
 
             return [result, infos] if DriverExecHelper.failed?(result)
         end

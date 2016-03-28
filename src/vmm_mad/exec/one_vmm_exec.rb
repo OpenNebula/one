@@ -43,12 +43,6 @@ require 'rexml/document'
 require 'pp'
 
 class VmmAction
-    # List of xpaths required by the VNM driver actions
-    XPATH_LIST = %w(
-        ID DEPLOY_ID
-        TEMPLATE/SECURITY_GROUP_RULE
-        HISTORY_RECORDS/HISTORY/HOSTNAME
-    )
 
     attr_reader :data
 
@@ -88,58 +82,28 @@ class VmmAction
         @data[:vm]  = Base64.encode64(vm_template).delete("\n")
 
         # VM data for VNM
-        vnm_src_drivers, vm_vnm_src_xml = prepare_vnm_drivers_xml(vm_template, @data[:net_drv])
+        src_drvs, src_xml = get_vnm_drivers(vm_template, @data[:net_drv])
 
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
-        @vnm_src = VirtualNetworkDriver.new(vnm_src_drivers,
+        @vnm_src = VirtualNetworkDriver.new(src_drvs,
                             :local_actions  => @vmm.options[:local_actions],
-                            :message        => vm_vnm_src_xml.to_s,
+                            :message        => src_xml.to_s,
                             :ssh_stream     => @ssh_src)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
-            vnm_dst_drivers, vm_vnm_dst_xml = prepare_vnm_drivers_xml(vm_template, @data[:dest_driver])
+            dst_drvs, dst_xml = get_vnm_drivers(vm_template, @data[:dest_driver])
 
             @ssh_dst = @vmm.get_ssh_stream(action, @data[:dest_host], @id)
-            @vnm_dst = VirtualNetworkDriver.new(vnm_dst_drivers,
+            @vnm_dst = VirtualNetworkDriver.new(dst_drvs,
                             :local_actions  => @vmm.options[:local_actions],
-                            :message        => vm_vnm_dst_xml.to_s,
+                            :message        => dst_xml.to_s,
                             :ssh_stream     => @ssh_dst)
         end
 
         @tm = TransferManagerDriver.new(nil)
     end
 
-    #Prepares the list of drivers executed on the host and the xml that will be sent to the network drivers
-    #  @param[String] The template of the VM.
-    #  @param[String] The host networking driver.
-    #  @return[Array] Returns a list of network drivers and the associated xml template.
-    def prepare_vnm_drivers_xml(vm_template, host_vn_driver)
-        vm_template_xml = REXML::Document.new(vm_template).root
-        vm_vnm_xml = REXML::Document.new('<VM></VM>').root
-        vnm_drivers = []
-
-        XPATH_LIST.each do |xpath|
-            vm_template_xml.elements.each(xpath) do |element|
-                add_element_to_path(vm_vnm_xml, element, xpath)
-            end
-        end
-
-        vm_template_xml.elements.each("TEMPLATE/NIC") do |element|
-            vn_mad = element.get_text("VN_MAD").to_s
-
-            if vn_mad.empty?
-                vn_mad = host_vn_driver
-                e = element.add_element("VN_MAD")
-                e.add_text(REXML::CData.new(vn_mad))
-            end
-
-            vnm_drivers << vn_mad unless vnm_drivers.include?(vn_mad)
-            add_element_to_path(vm_vnm_xml, element, "TEMPLATE/NIC")
-        end
-
-        return vnm_drivers, vm_vnm_xml
-    end
 
     #Execute a set of steps defined with
     #  - :driver :vmm or :vnm to execute the step
@@ -174,12 +138,56 @@ class VmmAction
     end
 
     private
+    # List of xpaths required by the VNM driver actions. TEMPLATE/NIC is
+    # also required but added separately to the driver xml
+    XPATH_LIST = %w(
+        ID DEPLOY_ID
+        TEMPLATE/SECURITY_GROUP_RULE
+        HISTORY_RECORDS/HISTORY/HOSTNAME
+    )
 
     DRIVER_NAMES = {
         :vmm => "virtualization driver",
         :vnm => "network driver",
-        :tm => "transfer manager driver"
+        :tm  => "transfer manager driver"
     }
+
+    # Prepares the list of drivers executed on the host and the xml that will
+    # be sent to the network drivers. Adds VN_MAD element to TEMPLATE/NIC if
+    # needed.
+    #  @param[String] The template of the VM.
+    #  @param[String] The host networking driver.
+    #  @return[Array] Returns a list of network drivers and the associated xml
+    #  template.
+    def get_vnm_drivers(vm_template, host_vn_driver)
+        vm_template_xml = REXML::Document.new(vm_template).root
+        vm_vnm_xml      = REXML::Document.new('<VM></VM>').root
+
+        vnm_drivers = []
+
+        XPATH_LIST.each do |xpath|
+            vm_template_xml.elements.each(xpath) do |element|
+                add_element_to_path(vm_vnm_xml, element, xpath)
+            end
+        end
+
+        vm_template_xml.elements.each("TEMPLATE/NIC") do |element|
+            vn_mad = element.get_text("VN_MAD").to_s
+
+            if vn_mad.empty?
+                vn_mad = host_vn_driver
+
+                e = element.add_element("VN_MAD")
+                e.add_text(REXML::CData.new(vn_mad))
+            end
+
+            vnm_drivers << vn_mad unless vnm_drivers.include?(vn_mad)
+
+            add_element_to_path(vm_vnm_xml, element, "TEMPLATE/NIC")
+        end
+
+        return [vnm_drivers, vm_vnm_xml]
+    end
 
     # Executes a set of steps. If one step fails any recover action is performed
     # and the step execution breaks.

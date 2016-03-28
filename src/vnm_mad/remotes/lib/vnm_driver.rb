@@ -97,10 +97,8 @@ module VNMMAD
         # Returns a filter object based on the contents of the template
         #
         # @return SGDriver object
-        def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
-            vm_xml =  Base64::decode64(vm_64)
-
-            SGDriver.new(vm_xml, deploy_id, hypervisor)
+        def self.filter_driver(vm_64, deploy_id, hypervisor, xpath)
+            SGDriver.new(vm_64, deploy_id, hypervisor, xpath)
         end
 
         # Returns the associated command including sudo and other configuration

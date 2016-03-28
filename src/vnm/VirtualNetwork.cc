@@ -459,7 +459,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
 
     if (!vn_mad.empty())
     {
-        os << "<VN_MAD><![CDATA[" << vn_mad << "]]></VN_MAD>";
+        os << "<VN_MAD>" << one_util::escape_xml(vn_mad) << "</VN_MAD>";
     }
     else
     {
