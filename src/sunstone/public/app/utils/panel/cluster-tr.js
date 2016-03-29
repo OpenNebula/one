@@ -51,8 +51,7 @@ define(function(require) {
       ResourceSelect.insert({
           context: $('.value_td_cluster', context),
           resourceName: 'Cluster',
-          initValue: clusterId,
-          includeDefaultCluster: true
+          initValue: clusterId
         });
     });
 

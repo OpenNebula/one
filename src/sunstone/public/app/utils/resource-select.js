@@ -33,7 +33,6 @@ define(function(require) {
    * @param {Boolean} [opts.triggerChange] - Trigger the change event after the select is added
    * @param {Boolean} [opts.onlyName] - Show only the name of the resource instead of ID:NAME
    * @param {string}  [opts.extraOptions] - Extra options to be included in the select as a HTML string
-   * @param {string}  [opts.includeDefaultCluster] - Include the default (none) option for Clusters
    * @param {string}  [opts.filterKey] - Select the resources whose filterKey matches filterValue
    * @param {string}  [opts.filterValue] - RegExp that will be evaluated to filter the resources
    */
@@ -49,14 +48,6 @@ define(function(require) {
         if (opts.emptyValue) {
           selectHTML += '<option class="empty_value" value="">' +
                           Locale.tr("Please select") + '</option>';
-        }
-
-        if (opts.includeDefaultCluster === true) {
-          if (opts.extraOptions === undefined) {
-            opts.extraOptions = '';
-          }
-
-          opts.extraOptions += '<option value="-1">Default (none)</option>';
         }
 
         if (opts.extraOptions !== undefined) {

@@ -90,23 +90,21 @@ define(function(require) {
     $("#name", dialog).focus();
 
     var cluster_id = $("div#cluster_id .resource_list_select", dialog).val();
-    if (!cluster_id) cluster_id = "-1";
+    if (!cluster_id) cluster_id = "0";
 
     var cluster_id_raw = $("div#datastore_cluster_raw .resource_list_select", dialog).val();
-    if (!cluster_id_raw) cluster_id_raw = "-1";
+    if (!cluster_id_raw) cluster_id_raw = "0";
 
     ResourceSelect.insert({
         context: $('#cluster_id', dialog),
         resourceName: 'Cluster',
-        initValue: cluster_id,
-        includeDefaultCluster: true
+        initValue: cluster_id
       });
 
     ResourceSelect.insert({
         context: $('#datastore_cluster_raw', dialog),
         resourceName: 'Cluster',
-        initValue: cluster_id_raw,
-        includeDefaultCluster: true
+        initValue: cluster_id_raw
       });
 
     return false;
