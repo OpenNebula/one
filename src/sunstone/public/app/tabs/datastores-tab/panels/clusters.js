@@ -14,51 +14,74 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
+define(function(require){
+  /*
+    DEPENDENCIES
+   */
+
   var Locale = require('utils/locale');
-  var Buttons = require('./datastores-tab/buttons');
-  var Actions = require('./datastores-tab/actions');
-  var Table = require('./datastores-tab/datatable');
+  var ClustersTable = require('tabs/clusters-tab/datatable');
 
-  var TAB_ID = require('./datastores-tab/tabId');
-  var DATATABLE_ID = "dataTableDatastores";
+  /*
+    CONSTANTS
+   */
 
-  var _dialogs = [
-  ];
+  var PANEL_ID = require('./clusters/panelId');
+  var CLUSTERS_TABLE_ID = PANEL_ID + "ClustersTable"
+  var RESOURCE = "Datastore"
 
-  var _formPanels = [
-    require('./datastores-tab/form-panels/create'),
-    require('./datastores-tab/form-panels/import')
-  ];
+  /*
+    CONSTRUCTOR
+   */
 
-  var _panels = [
-    require('./datastores-tab/panels/info'),
-    require('./datastores-tab/panels/images'),
-    require('./datastores-tab/panels/clusters')
-  ];
+  function Panel(info) {
+    this.title = Locale.tr("Clusters");
+    this.icon = "fa-server";
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+    this.element = info[RESOURCE.toUpperCase()];
 
-  var DatastoresTab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Datastores"),
-    icon: 'fa-folder-open',
-    tabClass: "subTab",
-    parentTab: "storage-top-tab",
-    listHeader: Locale.tr("Datastores"),
-    infoHeader: Locale.tr("Datastore"),
-    subheader: '',
-    resource: 'Datastore',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+    return this;
   };
 
-  return DatastoresTab;
-});
+  Panel.PANEL_ID = PANEL_ID;
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
+
+  return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    var clusters = [];
+
+    if (this.element.CLUSTERS.ID != undefined){
+      clusters = this.element.CLUSTERS.ID;
+
+      if (!$.isArray(clusters)){
+        clusters = [clusters];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: clusters
+      }
+    };
+
+    this.clustersDataTable = new ClustersTable(CLUSTERS_TABLE_ID, opts);
+
+    return this.clustersDataTable.dataTableHTML;
+  }
+
+  function _setup(context) {
+    this.clustersDataTable.initialize();
+    this.clustersDataTable.refreshResourceTableSelect();
+
+    return false;
+  }
+})

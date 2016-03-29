@@ -402,6 +402,7 @@ tabs:
         panel_tabs:
             datastore_info_tab: true
             datastore_image_tab: true
+            datastore_clusters_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -554,6 +555,7 @@ tabs:
             vnet_leases_tab: true
             vnet_sg_list_tab: false
             vnet_vr_list_tab: true
+            vnet_clusters_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

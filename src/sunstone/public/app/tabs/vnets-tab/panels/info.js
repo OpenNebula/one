@@ -22,7 +22,6 @@ define(function(require) {
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var ClusterTr = require('utils/panel/cluster-tr');
   var RenameTr = require('utils/panel/rename-tr');
   var OpenNebulaNetwork = require('opennebula/network');
 
@@ -66,7 +65,6 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     // TODO: simplify interface?
@@ -101,7 +99,6 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
-      'clusterTrHTML': clusterTrHTML,
       'reservationTrHTML': reservationTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML
@@ -110,7 +107,6 @@ define(function(require) {
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     // TODO: simplify interface?
