@@ -35,8 +35,7 @@ define(function(require) {
       type: "create_dialog",
       layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fa fa-download">',
-      alwaysActive: true
+      icon: '<i class="fa fa-download"/>'
     },
     "Image.chown" : {
       type: "confirm_with_select",

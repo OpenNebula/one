@@ -27,12 +27,11 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "Template.import_dialog" : {
+    "Datastore.import_dialog" : {
       type: "create_dialog",
       layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fa fa-download">',
-      alwaysActive: true
+      icon: '<i class="fa fa-download"/>'
     },
     "Datastore.addtocluster" : {
       type: "confirm_with_select",
