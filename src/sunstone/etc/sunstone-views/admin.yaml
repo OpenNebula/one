@@ -419,6 +419,7 @@ tabs:
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
+            Datastore.import_dialog: false
             Datastore.addtocluster: true
             Datastore.rename: true
             Datastore.chown: true

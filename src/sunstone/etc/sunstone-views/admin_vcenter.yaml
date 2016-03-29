@@ -270,86 +270,7 @@ tabs:
             VM.resched: true
             VM.unresched: true
             VM.saveas_template: false
-<<<<<<< HEAD
-    templates-tab:
-        panel_tabs:
-            template_info_tab: true
-            template_template_tab: true
-        table_columns:
-            - 0         # Checkbox
-            - 1         # ID
-            - 2         # Owner
-            - 3         # Group
-            - 4         # Name
-            - 5         # Registration time
-            #- 6         # Labels
-        actions:
-            Template.refresh: true
-            Template.create_dialog: true
-            Template.import_dialog: true
-            Template.update_dialog: true
-            Template.instantiate_vms: true
-            Template.rename: true
-            Template.chown: true
-            Template.chgrp: true
-            Template.chmod: true
-            Template.clone_dialog: true
-            Template.delete: true
-            Template.delete_recursive: false
-            Template.share: false
-            Template.unshare: false
-        template_creation_tabs:
-            general: true
-            storage: true
-            network: true
-            os_booting: true
-            features: true
-            input_output: true
-            context: true
-            scheduling: true
-            hybrid: true
-            other: true
-    images-tab:
-        panel_tabs:
-            image_info_tab: true
-            image_vms_tab: true
-            image_snapshots_tab: false
-        table_columns:
-            - 0         # Checkbox
-            - 1         # ID
-            - 2         # Owner
-            - 3         # Group
-            - 4         # Name
-            - 5         # Datastore
-            #- 6         # Size
-            - 7        # Type
-            #- 8         # Registration time
-            #- 9        # Persistent
-            - 10        # Status
-            - 11        # #VMs
-            #- 12       # Target
-            #- 13       # Labels
-        actions:
-            Image.refresh: true
-            Image.create_dialog: true
-            Image.import_dialog: true
-            Image.rename: true
-            Image.chown: true
-            Image.chgrp: true
-            Image.chmod: true
-            Image.enable: true
-            Image.disable: true
-            Image.persistent: true
-            Image.nonpersistent: true
-            Image.clone_dialog: true
-            Image.delete: true
-            Image.snapshot_flatten: false
-            Image.snapshot_revert: false
-            Image.snapshot_delete: false
-    files-tab:
-=======
     oneflow-services-tab:
->>>>>>> feature-4363
         panel_tabs:
             service_info_tab: true
             service_roles_tab: true
@@ -498,7 +419,7 @@ tabs:
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
-            Datastore.update_dialog: true
+            Datastore.import_dialog: true
             Datastore.addtocluster: true
             Datastore.rename: true
             Datastore.chown: true
@@ -530,6 +451,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.import_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
