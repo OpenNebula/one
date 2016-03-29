@@ -514,7 +514,7 @@ define(function(require) {
   var _showRighList = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
-    tab.fadeIn();
+    tab.show();
 
     $(".right-info", tab).hide();
     $(".right-form", tab).hide();
@@ -528,7 +528,7 @@ define(function(require) {
   var _showRighInfo = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
-    tab.fadeIn();
+    tab.show();
 
     $(".right-list", tab).hide();
     $(".right-form", tab).hide();
