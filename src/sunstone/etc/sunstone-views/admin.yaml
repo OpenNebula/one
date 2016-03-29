@@ -451,6 +451,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.import_dialog: false
             Image.export_dialog: true
             Image.rename: true
             Image.chown: true

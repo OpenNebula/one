@@ -422,6 +422,7 @@ tabs:
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
+            Datastore.import_dialog: false
             Datastore.addtocluster: false
             Datastore.rename: true
             Datastore.chown: false
@@ -453,6 +454,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.import_dialog: false
             Image.export_dialog: true
             Image.rename: true
             Image.chown: false
