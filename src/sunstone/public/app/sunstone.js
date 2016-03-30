@@ -463,9 +463,15 @@ define(function(require) {
     //with a select box before running the action.
     $(document).on("click", '.confirm_with_select_button', function() {
       var dialogInstance = _getDialogInstance(CONFIRM_WITH_SELECT_DIALOG_ID);
-      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonAction', $(this).attr('href'));
-      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
+
+      dialogInstance.setParams({
+        'buttonAction' : $(this).attr('href'),
+        'buttonTab' : $(this).parents('.tab').attr('id')
+      });
+
+      dialogInstance.reset();
       dialogInstance.show();
+
       return false;
     });
 

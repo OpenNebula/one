@@ -24,7 +24,6 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
-  var ResourceSelect = require('utils/resource-select');
 
   /*
     CONSTANTS
@@ -47,6 +46,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
+  Dialog.prototype.setParams = _setParams;
 
   return Dialog;
 
@@ -54,19 +54,34 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
+  function _setParams(params) {
+    this.actionId = params.buttonAction;
+    this.tabId = params.buttonTab;
+    this.button = Sunstone.getButton(this.tabId, this.actionId);
+  }
 
   function _html() {
-    return TemplateHTML({dialogId: this.dialogId});
+    return TemplateHTML({
+      dialogId: this.dialogId
+    });
   }
 
   function _setup(dialog) {
+    var that = this;
+
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
     $('#confirm_with_select_proceed', dialog).click(function() {
-      var actionId = dialog.data('buttonAction');
-      var action = Sunstone.getAction(actionId);
-      var param = $('.resource_list_select', dialog).val();
+      var action = Sunstone.getAction(that.actionId);
+
+      var param;
+
+      if (that.button.custom_select) {
+        param = $('.resource_list_select', dialog).val();
+      } else {
+         param = that.resourcesTable.retrieveResourceTableSelect();
+      }
 
       if (!param.length) {
         Notifier.notifyError("You must select a value");
@@ -81,10 +96,10 @@ define(function(require) {
       var error;
       switch (action.type){
       case "multiple":
-        error = Sunstone.runAction(actionId, action.elements(), param);
+        error = Sunstone.runAction(that.actionId, action.elements(), param);
         break;
       default:
-        error = Sunstone.runAction(actionId, param);
+        error = Sunstone.runAction(that.actionId, param);
         break;
       }
 
@@ -99,33 +114,102 @@ define(function(require) {
   }
 
   function _onShow(dialog) {
-    var actionId = dialog.data('buttonAction');
-    var tabId = dialog.data('buttonTab');
-    var button = Sunstone.getButton(tabId, actionId);
-
     var tip = Locale.tr("You have to confirm this action");
-    if (button.tip) {
-      tip = button.tip
-    }
-
-    if (button.custom_select) {
-      $('div#confirm_select', dialog).html(button.custom_select);
-    } else {
-      ResourceSelect.insert({
-          context: $('#confirm_select', dialog),
-          resourceName: button.select,
-          emptyValue: true
-        });
+    if (this.button.tip) {
+      tip = this.button.tip
     }
 
     $('#confirm_with_select_tip', dialog).text(tip);
 
-    var action = Sunstone.getAction(actionId);
+    var action = Sunstone.getAction(this.actionId);
     var elements = action.elements();
     if (elements) {
-      var str = actionId.split('.');
+      var str = this.actionId.split('.');
       $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + elements.join(', '))
     }
+
+    if (this.button.custom_select) {
+      $('div#confirm_select', dialog).html(this.button.custom_select);
+
+      return false;
+    }
+
+    var Table;
+
+    switch(this.button.select.toLowerCase()){
+      case "acl":
+        acls-tab
+        break;
+      case "cluster":
+        Table = require('tabs/clusters-tab/datatable');
+        break;
+      case "datastore":
+        Table = require('tabs/datastores-tab/datatable');
+        break;
+      case "group":
+        Table = require('tabs/groups-tab/datatable');
+        break;
+      case "host":
+        Table = require('tabs/hosts-tab/datatable');
+        break;
+      case "image":
+        Table = require('tabs/images-tab/datatable');
+        break;
+      case "marketplaceapp":
+        Table = require('tabs/marketplaceapps-tab/datatable');
+        break;
+      case "marketplace":
+        Table = require('tabs/marketplaces-tab/datatable');
+        break;
+      case "vnet":
+      case "network":
+        Table = require('tabs/vnets-tab/datatable');
+        break;
+      case "secgroup":
+      case "securitygroup":
+        Table = require('tabs/secgroups-tab/datatable');
+        break;
+      case "oneflow-service":
+      case "service":
+        Table = require('tabs/oneflow-services-tab/datatable');
+        break;
+      case "oneflow-template":
+      case "servicetemplate":
+        Table = require('tabs/oneflow-templates-tab/datatable');
+        break;
+      case "template":
+        Table = require('tabs/templates-tab/datatable');
+        break;
+      case "user":
+        Table = require('tabs/users-tab/datatable');
+        break;
+      case "vdc":
+        Table = require('tabs/vdcs-tab/datatable');
+        break;
+      case "vrouter":
+      case "virtualrouter":
+        Table = require('tabs/vrouters-tab/datatable');
+        break;
+      case "vm":
+        Table = require('tabs/vms-tab/datatable');
+        break;
+      case "zone":
+        Table = require('tabs/zones-tab/datatable');
+        break;
+    }
+
+    var opts = {
+      info: false,
+      select: true,
+      selectOptions: {"multiple_choice": false}
+    };
+
+    this.resourcesTable = new Table("confirm_with_select", opts);
+
+    $('div#confirm_select', dialog).html(this.resourcesTable.dataTableHTML);
+
+    this.resourcesTable.initialize();
+    this.resourcesTable.refreshResourceTableSelect();
 
     return false;
   }
