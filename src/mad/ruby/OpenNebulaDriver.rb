@@ -184,6 +184,11 @@ private
             args   = str.split(/\s+/)
             next if args.length == 0
 
+            if args.first.empty?
+                STDERR.puts "Malformed message: #{str.inspect}"
+                next
+            end
+
             action = args.shift.upcase.to_sym
 
             if (args.length == 0) || (!args[0])
