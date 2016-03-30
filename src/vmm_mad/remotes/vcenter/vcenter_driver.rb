@@ -228,15 +228,7 @@ class VIClient
     # @param uuid [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm_template(uuid)
-        vms = get_entities(@dc.vmFolder, 'VirtualMachine')
-
-        return vms.find do |v|
-            begin
-                v.config && v.config.uuid == uuid
-            rescue RbVmomi::VIM::ManagedObjectNotFound
-                false
-            end
-        end
+        @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
     end
 
     ########################################################################
