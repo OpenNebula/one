@@ -170,12 +170,12 @@ function fs_size {
     http://*|https://*)
         HEADERS=`curl -LIk --max-time 60 $1 2>&1`
 
-        if echo "$HEADERS" | grep -q "OpenNebula-AppMarket-Size"; then
+        if echo "$HEADERS" | grep -i -q "OpenNebula-AppMarket-Size"; then
             # An AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
+            SIZE=$(echo "$HEADERS" | grep -i "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
         else
             # Not an AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep "^Content-Length:" | tail -n1 | cut -d: -f2)
+            SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2)
         fi
         error=$?
         ;;
