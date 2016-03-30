@@ -190,7 +190,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         checked through the outdated, updating and error VM sets.
     EOT
 
-    command :commit, rename_desc, :secgroupid,
+    command :commit, commit_desc, :secgroupid,
         :options =>[OneSecurityGroupHelper::RECOVER] do
         helper.perform_action(args[0], options, "commit") do |o|
             o.commit(options[:recover]==true)
