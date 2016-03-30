@@ -218,8 +218,6 @@ define(function(require) {
       }
   }
 
-  var provision_capacity_accordion_id = 0;
-
   function generate_provision_capacity_accordion(context, element) {
 
     var capacity = element.TEMPLATE;
@@ -237,74 +235,39 @@ define(function(require) {
     }
 
     context.html(
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader">'+
-            '<span class="left">'+
-              '<i class="fa fa-laptop fa-lg"></i> '+
-              Locale.tr("Capacity")+
-            '</span>'+
-            '<span>'+
-              '<span class="cpu_value">'+(capacity.CPU ? capacity.CPU : '-')+'</span> '+
-              '<small>'+Locale.tr("CPU")+'</small>'+
-              '<span class="memory_value">'+memory_value+'</span>'+
-              ' '+
-              '<span class="memory_unit">'+memory_unit+'</span> '+
-              '<small>'+Locale.tr("MEMORY")+'</small>'+
-              '<span class="provision_create_template_cost_div" hidden>' +
-                '<span class="cost_value">0.00</span> '+
-                '<small>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
-              '</span>'+
-            '</span>'+
-          '</h3>'+
-          '<br>'+
-        '</div>'+
-      '</div>'+
-      (Config.provision.create_vm.isEnabled("capacity_select") ?
-      '<div class="row">'+
-        '<div class="large-12 large-centered columns">'+
-          '<dl class="accordion" data-accordion data-allow-all-closed="true">'+
-            '<dd class="accordion-item" data-accordion-item>'+
-              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-title">'+
-                Locale.tr("Change Capacity")+
-              '</a>'+
-              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-content" data-tab-content>'+
-                '<br>'+
-                CapacityInputs.html() +
-              '</div>'+
-            '</dd>'+
-          '</dl>'+
-        '</div>'+
-      '</div>' : '' ) +
-      '<br>');
+      '<fieldset>' +
+        '<legend>' +
+          '<i class="fa fa-laptop fa-lg"></i> '+
+          Locale.tr("Capacity") + ' ' +
+          '<span class="provision_create_template_cost_div" hidden>' +
+            '<span class="cost_value">0.00</span> '+
+            '<small>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+          '</span>'+
+        '</legend>' +
+        CapacityInputs.html() +
+      '</fieldset>');
 
-    if (Config.provision.create_vm.isEnabled("capacity_select")) {
-      Foundation.reflow(context, 'accordion');
 
-      provision_capacity_accordion_id += 1;
+    CapacityInputs.setup(context);
+    CapacityInputs.fill(context, element);
 
-      CapacityInputs.setup(context);
-      CapacityInputs.fill(context, element);
+    CapacityInputs.setCallback(context, function(values){
+      $(".cpu_value", context).html(values.CPU);
 
-      CapacityInputs.setCallback(context, function(values){
-        $(".cpu_value", context).html(values.CPU);
+      var memory_value;
+      var memory_unit;
 
-        var memory_value;
-        var memory_unit;
+      if (values.MEMORY >= 1024){
+        memory_value = (values.MEMORY/1024).toFixed(2);
+        memory_unit = "GB";
+      } else {
+        memory_value = values.MEMORY;
+        memory_unit = "MB";
+      }
 
-        if (values.MEMORY >= 1024){
-          memory_value = (values.MEMORY/1024).toFixed(2);
-          memory_unit = "GB";
-        } else {
-          memory_value = values.MEMORY;
-          memory_unit = "MB";
-        }
-
-        $(".memory_value", context).html(memory_value);
-        $(".memory_unit", context).html(memory_unit);
-      });
-    }
+      $(".memory_value", context).html(memory_value);
+      $(".memory_unit", context).html(memory_unit);
+    });
 
     var cost = 0;
 
@@ -616,7 +579,7 @@ define(function(require) {
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
-    $("#provision_create_vm dd:not(.active) a[href='#provision_dd_template']").trigger("click")
+    $("#provision_create_vm li:not(.is-active) a[href='#provision_dd_template']").trigger("click")
 
     $(".section_content").hide();
     $("#provision_create_vm").fadeIn();
@@ -790,7 +753,7 @@ define(function(require) {
           var logo;
 
           if (data.TEMPLATE.LOGO) {
-            logo = '<span class="provision-logo" href="#">'+
+            logo = '<span class="provision-logo">'+
                 '<img  src="'+data.TEMPLATE.LOGO+'">'+
               '</span>';
           } else {
@@ -809,19 +772,19 @@ define(function(require) {
             owner = Locale.tr("system");
           }
 
-          var li = $('<div class="column">'+
-              '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
+          var li = $('<div class="column">' +
+              '<ul class="provision-pricing-table only-one hoverable menu vertical text-center" opennebula_id="'+data.ID+'">'+
                 '<li class="provision-title" title="'+data.NAME+'">'+
-                  data.NAME+
+                  '<a href="">' + data.NAME + '</a>' +
                 '</li>'+
                 '<li class="provision-bullet-item">'+
                   logo +
                 '</li>'+
-                '<li class="provision-description">'+
+                '<li class="provision-bullet-item">'+
                   (data.TEMPLATE.DESCRIPTION || '...')+
                 '</li>'+
-                '<li class="provision-bullet-item">'+
-                  '<span class="left">'+
+                '<li class="provision-bullet-item-last text-left">'+
+                  '<span>'+
                     '<i class="fa fa-fw fa-lg fa-user"/> '+
                     owner+
                   '</span>'+
@@ -848,7 +811,7 @@ define(function(require) {
               '</div>');
           } else {
             $('#'+tableID+'_table').html(
-              '<div id="'+tableID+'_ul" class="row large-up-3 medium-up-3 small-up-1"></div>');
+              '<div id="'+tableID+'_ul" class="row large-up-5 medium-up-3 small-up-1"></div>');
           }
 
           return true;
@@ -928,12 +891,12 @@ define(function(require) {
           var create_vm_context = $("#provision_create_vm");
 
           if ($(this).hasClass("selected")){
-            $(".provision_disk_selector", create_vm_context).html("");
-            $(".provision_network_selector", create_vm_context).html("");
-            $(".provision_capacity_selector", create_vm_context).html("");
-
-            $(".provision_accordion_template .selected_template").hide();
-            $(".provision_accordion_template .select_template").show();
+            //$(".provision_disk_selector", create_vm_context).html("");
+            //$(".provision_network_selector", create_vm_context).html("");
+            //$(".provision_capacity_selector", create_vm_context).html("");
+//
+            //$(".provision_accordion_template .selected_template").hide();
+            //$(".provision_accordion_template .select_template").show();
           } else {
             var template_id = $(this).attr("opennebula_id");
             var template_json = $(this).data("opennebula");
@@ -983,16 +946,20 @@ define(function(require) {
             } else {
               $(".provision_custom_attributes_selector", create_vm_context).html("");
             }
+
+            return false;
           }
         })
 
         tab.on("click", "#provision_create_vm .provision-pricing-table.only-one" , function(){
           if ($(this).hasClass("selected")){
-            $(this).removeClass("selected");
+            //$(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".dataTable")).removeClass("selected")
             $(this).addClass("selected");
           }
+
+          return false;
         })
 
         $("#provision_create_vm").submit(function(){

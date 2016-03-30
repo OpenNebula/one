@@ -15,79 +15,89 @@
 {{! -------------------------------------------------------------------------- }}
 <form id="provision_create_vm" class="section_content" hidden>
   <div class="row">
-    <div class="large-10 large-centered columns">
-      <h2 class="subheader">{{tr "Create Virtual Machine"}}</h2>
-      <br></div>
-  </div>
-  <div class="row">
-    <div class="large-8 large-centered columns">
-      <input type="text" id="vm_name" class="provision-input" placeholder="{{tr "Virtual Machine Name"}}"/>
-      <br></div>
-  </div>
-  <div class="row">
-    <div class="large-10 large-centered columns">
-      <ul class="accordion provision_accordion_template" data-accordion data-allow-all-closed="true">
-        <li class="accordion-item is-active" data-accordion-item>
-          <a href="#provision_dd_template" class="accordion-title">
-            <span class="select_template">{{tr "Select a Template"}}</span>
-            <span class="selected_template" hidden>
-              <span class="provision-logo selected_template_logo"></span>
-              <span class="selected_template_name"></span>
-              <span class="has-tip right"> <i class="fa fa-pencil"/></span>
-            </span>
-          </a>
-          <div id="provision_dd_template" class="accordion-content" data-tab-content>
-            <div class="row">
-              <div class="medium-8 columns">
-                <button href="#"  data-options="align:right" data-dropdown="provisionVMInstantiateLabelsDropdown" class="right small secondary button dropdown"> <i class="fa fa-tags"/>{{tr "Labels"}}
-                </button>
-                <ul id="provisionVMInstantiateLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
-                <input type="search" class="right provision-search-input" placeholder="Search" id="provision_vm_instantiate_template_search"/>
-              </div>
-              <div class="medium-4 columns">
-                <select id="provision_vm_instantiate_templates_owner_filter">
-                  <option value="all" selected="selected">{{tr "ALL"}}</option>
-                  <option value="mine">{{tr "mine"}}</option>
-                  <option value="group">{{tr "group"}}</option>
-                  <option value="system">{{tr "system"}}</option>
-                </select>
-              </div>
-            </div>
-            <div class="row provision_select_template">
-              <div class="small-12 columns">
-                <table id="provision_vm_instantiate_templates_table">
-                  <thead hidden>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>OWNER</th>
-                      <th>Labels</th>
-                    </tr>
-                  </thead>
-                  <tbody hidden></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
+    <div class="large-6 columns">
+      <h3>{{tr "Create Virtual Machine"}}</h3>
     </div>
-  </div>
-  <div class="row">
-    <div class="large-10 large-centered columns">
-      <div class="provision_capacity_selector"></div>
-      <br>
-      <div class="provision_disk_selector"></div>
-      <br>
-      <div class="provision_network_selector"></div>
-      <br>
-      <div class="provision_custom_attributes_selector"></div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-7 columns large-centered">
+    <div class="large-6 columns">
+      <button href="#" class="button large success right" type="submit">{{tr "Create"}}</button>
       <div data-alert class="alert-box alert-box-error text-center" hidden></div>
-      <button href="#" class="button large success large-12 small-12" type="submit">{{tr "Create"}}</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <input type="text" id="vm_name" class="provision-input" placeholder="{{tr "Virtual Machine Name"}}"/>
+    </div>
+  </div>
+  <fieldset>
+    <legend>{{tr "Template"}}</legend>
+    <div class="row">
+      <div class="large-12 columns">
+        <ul class="accordion provision_accordion_template" data-accordion data-allow-all-closed="true">
+          <li class="accordion-item is-active" data-accordion-item>
+            <a href="#provision_dd_template" class="accordion-title">
+              <span class="selected_template" hidden>
+                <span class="provision-logo selected_template_logo"></span>
+                <span class="selected_template_name"></span>
+                <span class=""> <i class="fa fa-lg fa-pencil"/></span>
+              </span>
+            </a>
+            <div id="provision_dd_template" class="accordion-content" data-tab-content>
+              <div class="row">
+                <div class="medium-6 columns">
+                  <div class="row collapse">
+                    <div class="medium-5 columns">
+                      <input type="search" class="provision-search-input" placeholder="Search Template" id="provision_vm_instantiate_template_search"/>
+                    </div>
+                    <div class="medium-3 columns">
+                      <select id="provision_vm_instantiate_templates_owner_filter">
+                        <option value="all" selected="selected">{{tr "ALL"}}</option>
+                        <option value="mine">{{tr "mine"}}</option>
+                        <option value="group">{{tr "group"}}</option>
+                        <option value="system">{{tr "system"}}</option>
+                      </select>
+                    </div>
+                    <div class="medium-4 columns">
+                      <button href="#"  data-options="align:right" data-dropdown="provisionVMInstantiateLabelsDropdown" class="secondary button dropdown"> <i class="fa fa-tags"/>{{tr "Labels"}}
+                      </button>
+                      <ul id="provisionVMInstantiateLabelsDropdown" class="labels-dropdown f-dropdown" data-dropdown-content></ul>
+                    </div>
+                  </div>
+                  <div class="medium-6 columns"></div>
+                </div>
+              </div>
+              <div class="row provision_select_template">
+                <div class="small-12 columns">
+                  <table id="provision_vm_instantiate_templates_table">
+                    <thead hidden>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>OWNER</th>
+                        <th>Labels</th>
+                      </tr>
+                    </thead>
+                    <tbody hidden></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </fieldset>
+  <div class="row">
+    <div class="large-6 columns">
+      <div class="provision_capacity_selector"></div>
+    </div>
+    <div class="large-6 columns">
+      <div class="provision_disk_selector"></div>
+    </div>
+    <div class="large-6 columns">
+      <div class="provision_network_selector"></div>
+    </div>
+    <div class="large-6 columns">
+      <div class="provision_custom_attributes_selector"></div>
     </div>
   </div>
 </form>

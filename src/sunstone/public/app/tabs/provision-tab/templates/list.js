@@ -185,14 +185,14 @@ define(function(require) {
                   data.NAME +
                 '</span>' +
               '</li>'+
+              '<li class="provision-bullet-item">'+
+                (data.TEMPLATE.DESCRIPTION || '')+
+              '</li>'+
               '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                 cpu_txt+' - '+
                 mem_txt+' - '+
                 get_provision_disk_image(data) +
-              '</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
               '<li class="provision-bullet-item text-right">'+
                 actions_html+
