@@ -615,6 +615,7 @@ tabs:
     secgroups-tab:
         panel_tabs:
             security_group_info_tab: true
+            security_group_vms_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

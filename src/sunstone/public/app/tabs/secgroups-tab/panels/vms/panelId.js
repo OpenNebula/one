@@ -14,50 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./secgroups-tab/buttons');
-  var Actions = require('./secgroups-tab/actions');
-  var Table = require('./secgroups-tab/datatable');
-
-  var TAB_ID = require('./secgroups-tab/tabId');
-  var DATATABLE_ID = "dataTableSecurityGroups";
-
-  var _dialogs = [
-    require('./secgroups-tab/dialogs/clone')
-  ];
-
-  var _panels = [
-    require('./secgroups-tab/panels/info'),
-    require('./secgroups-tab/panels/vms')
-  ];
-
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
-
-  var _formPanels = [
-    require('./secgroups-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Security Groups"),
-    icon: 'fa-shield',
-    tabClass: "subTab",
-    parentTab: "network-top-tab",
-    listHeader: Locale.tr("Security Groups"),
-    infoHeader: Locale.tr("Security Group"),
-    subheader: '',
-    resource: 'SecurityGroup',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
-  };
-
-  return Tab;
-});
+define(function(require){
+  return 'security_group_vms_tab';
+})

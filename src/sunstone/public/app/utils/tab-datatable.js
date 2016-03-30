@@ -127,6 +127,10 @@ define(function(require) {
         $.each(that.selectOptions.starred_ids, function() {
           that.selectOptions.starred_ids_map[this] = true;
         });
+
+        if (that.selectOptions.starred_icon == undefined) {
+          that.selectOptions.starred_icon = '<i class="fa fa-star fa-fw"></i>';
+        }
       }
 
       if (that.selectOptions.multiple_choice == undefined) {
@@ -970,7 +974,7 @@ define(function(require) {
           if (that.selectOptions.starred_ids != undefined){
             if (that.selectOptions.starred_ids_map[this[that.xmlRoot].ID]){
               elementArray[that.selectOptions.name_index] =
-                  ('<i class="fa fa-star fa-fw"></i> ' +
+                  (that.selectOptions.starred_icon + ' ' +
                     elementArray[that.selectOptions.name_index]);
             } else {
               elementArray[that.selectOptions.name_index] =
