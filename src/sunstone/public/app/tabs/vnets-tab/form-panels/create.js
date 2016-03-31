@@ -388,10 +388,6 @@ define(function(require) {
         prop("disabled", true).
         prop('wizard_field_disabled', true);
 
-    WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
-    WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
-    WizardFields.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
-
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
     $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
@@ -402,6 +398,22 @@ define(function(require) {
     $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
     $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
+
+    if (element.TEMPLATE["VN_MAD"] == undefined ||
+        element.TEMPLATE["VN_MAD"] == ""){
+      $('input#vn_mad_from_host', context).attr("checked", "checked").change();
+    } else {
+      $('input#vn_mad_from_host', context).removeAttr("checked").change();
+      $('input#vn_mad', context).val(element.TEMPLATE["VN_MAD"]);
+    }
+
+    WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
+
+    if ($('#network_mode', context).val() == undefined){
+      $('#network_mode', context).val("custom").change();
+    }
 
     if (element.TEMPLATE["SECURITY_GROUPS"] != undefined &&
         element.TEMPLATE["SECURITY_GROUPS"].length != 0) {
