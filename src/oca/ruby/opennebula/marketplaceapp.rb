@@ -197,7 +197,7 @@ module OpenNebula
                 if !self['TEMPLATE/VMTEMPLATE64'].nil?
                     tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
 
-                    tmpl << "\nNAME=#{name}\n"
+                    tmpl << "\nNAME=\"#{name}\"\n"
                     tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
 
                     vmtpl = Template.new(Template.build_xml, @client)
