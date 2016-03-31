@@ -28,6 +28,7 @@ define(function(require) {
   var DataStore = require('opennebula/datastore');
   var Config = require('sunstone-config');
   var WizardFields = require('utils/wizard-fields');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -53,7 +54,7 @@ define(function(require) {
       'export': {
         'title': Locale.tr("Export App To OpenNebula"),
         'buttonText': Locale.tr("Export"),
-        'resetButton': true
+        'resetButton': false
       }
     };
 
@@ -108,6 +109,8 @@ define(function(require) {
 
   function _setResourceId(context, resourceId) {
     this.resourceId = resourceId;
+
+    $('input#NAME', context).val(OpenNebula.MarketPlaceApp.getName(resourceId));
   }
 
   function _submitWizard(context) {
