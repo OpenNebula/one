@@ -79,21 +79,12 @@ define(function(require) {
               "<br/><br/>"+
               "This action will force the propagation of security group changes to VMs. "+
               "The operation takes time to iterate over all VMs in the security group, "+
-              "the progress can be checked in the \"VMs\" panel."+
-              "<br/><br/>"+
-              "With the recover option set, the commit operation will only operate on "+
-              "outdated and error VMs. This is intended to reinitialize the updating "+
-              "process if a previous one was interrupted."),
+              "the progress can be checked in the \"VMs\" panel."),
             //question :
             buttons : [
-              Locale.tr("Commit --recover"),
               Locale.tr("Commit"),
             ],
             submit : [
-              function(){
-                Sunstone.runAction('SecurityGroup.commit', Sunstone.getDataTable(TAB_ID).elements(), true);
-                return false;
-              },
               function(){
                 Sunstone.runAction('SecurityGroup.commit', Sunstone.getDataTable(TAB_ID).elements(), false);
                 return false;
