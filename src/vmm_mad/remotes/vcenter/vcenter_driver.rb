@@ -1168,7 +1168,7 @@ class VCenterHost < ::OpenNebula::Host
     def get_available_ds
         str_info = ""
         @cluster.parent.parent.datastoreFolder.childEntity.each { |ds|
-            str_info += "VCENTER_DATASTORE=#{ds.name}\n"
+            str_info += "VCENTER_DATASTORE=\"#{ds.name}\"\n"
         }
         str_info.chomp
     end
