@@ -75,6 +75,17 @@
         </div>
       </div>
       <div class="row">
+        <div class="large-6 columns">
+          <label for="vn_mad_from_host">
+            <input type="checkbox" name="vn_mad_from_host" id="vn_mad_from_host" />
+            {{tr "Use the network driver of the host."}}
+            <span class="tip">
+              {{tr "This virtual network will use the network driver from the host."}}
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="row">
         <div class="medium-6 columns">
           <label for="network_mode">
             {{tr "Network model"}}:
@@ -82,14 +93,22 @@
               {{tr "Choose the same networking model you chose for the hosts that will use this newtork"}}
             </span>
           </label>
-          <select name="network_mode" id="network_mode">
+          <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
             <option value="default">{{tr "Default"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ebtables">{{tr "ebtables"}}</option>
             <option value="openvswitch">{{tr "Open vSwitch"}}</option>
             <option value="vmware">{{tr "VMware"}}</option>
+            <option value="custom">{{tr "Custom"}}</option>
           </select>
+        </div>
+        <div class="large-3 columns">
+          <label for="vn_mad">
+            {{tr "VN MAD"}}:
+            <span class="tip">{{tr "Name of the custom network driver."}}</span>
+          </label>
+          <input type="text" wizard_field="VN_MAD" name="vn_mad" id="vn_mad" />
         </div>
         <div class="large-12 columns">
           <div class="network_mode_description" value="default">
@@ -109,6 +128,9 @@
           </div>
           <div class="network_mode_description" value="vmware">
             {{tr "VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor."}}
+          </div>
+          <div class="network_mode_description" value="custom">
+            {{tr "Custom: uses a custom network driver."}}
           </div>
         </div>
       </div>
