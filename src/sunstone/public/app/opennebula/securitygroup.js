@@ -63,7 +63,11 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
-    }
+    },
+    "commit" : function(params) {
+      var action_obj = {"recover": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "commit", action_obj);
+    },
   }
 
   return SecurityGroup;

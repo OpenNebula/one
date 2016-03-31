@@ -49,6 +49,7 @@ module OpenNebulaJSON
                  when "chmod"       then self.chmod_json(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "commit"      then self.commit(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -90,6 +91,10 @@ module OpenNebulaJSON
 
         def clone(params=Hash.new)
             super(params['name'])
+        end
+
+        def commit(params=Hash.new)
+            super(params['recover'] == true)
         end
     end
 end

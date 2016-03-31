@@ -27,6 +27,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -46,6 +47,7 @@ define(function(require) {
     "SecurityGroup.append_template" : _commonActions.appendTemplate(),
     "SecurityGroup.update_dialog" : _commonActions.checkAndShowUpdate(),
     "SecurityGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    "SecurityGroup.commit": _commonActions.multipleAction('commit'),
 
     "SecurityGroup.clone_dialog" : {
       type: "custom",
@@ -64,7 +66,45 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    }
+    },
+
+    "SecurityGroup.commit_dialog":
+      {
+        type: "custom",
+        call: function() {
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+            //header :
+            body : Locale.tr(
+              "Please note: each time the rules are edited, the commit operation is done automatically. "+
+              "<br/><br/>"+
+              "This action will force the propagation of security group changes to VMs. "+
+              "The operation takes time to iterate over all VMs in the security group, "+
+              "the progress can be checked in the \"VMs\" panel."+
+              "<br/><br/>"+
+              "With the recover option set, the commit operation will only operate on "+
+              "outdated and error VMs. This is intended to reinitialize the updating "+
+              "process if a previous one was interrupted."),
+            //question :
+            buttons : [
+              Locale.tr("Commit --recover"),
+              Locale.tr("Commit"),
+            ],
+            submit : [
+              function(){
+                Sunstone.runAction('SecurityGroup.commit', Sunstone.getDataTable(TAB_ID).elements(), true);
+                return false;
+              },
+              function(){
+                Sunstone.runAction('SecurityGroup.commit', Sunstone.getDataTable(TAB_ID).elements(), false);
+                return false;
+              }
+            ]
+          });
+
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+          Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+        }
+      },
   };
 
   return _actions;

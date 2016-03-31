@@ -51,6 +51,11 @@ define(function(require) {
       layout: "main",
       text: Locale.tr("Clone")
     },
+    "SecurityGroup.commit_dialog" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Commit")
+    },
     "SecurityGroup.delete" : {
       type: "confirm",
       layout: "del",

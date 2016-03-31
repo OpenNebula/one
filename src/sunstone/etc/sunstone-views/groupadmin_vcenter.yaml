@@ -632,6 +632,7 @@ tabs:
             SecurityGroup.chgrp: false
             SecurityGroup.chmod: false
             SecurityGroup.clone_dialog: false
+            SecurityGroup.commit_dialog: false
             SecurityGroup.delete: false
     support-tab:
         panel_tabs:
