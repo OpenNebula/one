@@ -42,7 +42,12 @@ public:
     /* Set the action in the set */
     void set(T action)
     {
-        action_set += 1 << static_cast<int>(action);
+        action_set |= 1 << static_cast<int>(action);
+    };
+
+    void clear(T action)
+    {
+        action_set &= (~ (1 << static_cast<int>(action)));
     };
 
     /**

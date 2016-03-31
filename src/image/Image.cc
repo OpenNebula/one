@@ -57,6 +57,7 @@ Image::Image(int             _uid,
         ds_name(""),
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
+        app_clone_collection("APP_CLONES"),
         snapshots(-1),
         target_snapshot(-1)
 {
@@ -337,6 +338,7 @@ string& Image::to_xml(string& xml) const
     ostringstream oss;
     string        vm_collection_xml;
     string        clone_collection_xml;
+    string        app_clone_collection_xml;
     string        snapshots_xml;
 
     oss <<
@@ -352,9 +354,9 @@ string& Image::to_xml(string& xml) const
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
-            "<SOURCE><![CDATA["<< source          << "]]></SOURCE>"   <<
-            "<PATH><![CDATA["  << path            << "]]></PATH>"     <<
-            "<FSTYPE><![CDATA["<< fs_type         << "]]></FSTYPE>"   <<
+            "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
+            "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
+            "<FSTYPE>"         << one_util::escape_xml(fs_type)<< "</FSTYPE>" <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
@@ -365,6 +367,7 @@ string& Image::to_xml(string& xml) const
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             vm_collection.to_xml(vm_collection_xml)                   <<
             img_clone_collection.to_xml(clone_collection_xml)         <<
+            app_clone_collection.to_xml(app_clone_collection_xml)     <<
             obj_template->to_xml(template_xml)                        <<
             snapshots.to_xml(snapshots_xml)                           <<
         "</IMAGE>";
@@ -442,31 +445,9 @@ int Image::from_xml(const string& xml)
 
     content.clear();
 
-    ObjectXML::get_nodes("/IMAGE/VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vm_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
-
-    ObjectXML::get_nodes("/IMAGE/CLONES", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += img_clone_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-
-    content.clear();
+    rc += vm_collection.from_xml(this, "/IMAGE/");
+    rc += img_clone_collection.from_xml(this, "/IMAGE/");
+    rc += app_clone_collection.from_xml(this, "/IMAGE/");
 
     ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
 

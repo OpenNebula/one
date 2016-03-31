@@ -14,11 +14,11 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="row">
+<div class="">
   <div class="large-12 columns">
     <fieldset class="hypervisor only_xen only_kvm only_vmware">
       <legend>{{tr "RAW data"}}</legend>
-      <div class="row">
+      <div >
         <div class="medium-4 columns">
           <label for="raw_type">{{tr "TYPE"}}</label>
           <select id="raw_type" name="raw_type">
@@ -36,7 +36,7 @@
           <textarea rows="2" type="text" id="raw_data" name="raw_data" />
         </div>
       </div>
-      <div id="data_vmx_div" class="row hidden">
+      <div id="data_vmx_div"  hidden>
         <div class="medium-4 columns"></div>
         <div class="medium-8 columns">
           <label class="" for="raw_data_vmx">
@@ -49,7 +49,7 @@
     </fieldset>
     <fieldset class="hypervisor only_kvm">
       <legend>{{tr "PCI Devices"}}</legend>
-      <div class="row">
+      <div >
         <div class="large-12 columns">
           <table class="dataTable pci_devices">
             <thead>

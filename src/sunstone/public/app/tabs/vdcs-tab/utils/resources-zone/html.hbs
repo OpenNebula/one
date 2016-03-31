@@ -16,14 +16,14 @@
 
 <div class="row">
   <div class="large-12 columns">
-    <dl class="tabs right-info-tabs text-center" data-tab>
-      <dd class="active"><a href="#vdcClustersTab_{{unique_id}}"><i class="fa fa-th"></i><br>{{tr "Clusters"}}</a></dd>
-      <dd><a href="#vdcHostsTab_{{unique_id}}"><i class="fa fa-hdd-o"></i><br>{{tr "Hosts"}}</a></dd>
-      <dd><a href="#vdcVnetsTab_{{unique_id}}"><i class="fa fa-globe"></i><br>{{tr "VNets"}}</a></dd>
-      <dd><a href="#vdcDatastoresTab_{{unique_id}}"><i class="fa fa-folder-open"></i><br>{{tr "Datastores"}}</a></dd>
+    <dl id="{{unique_id}}Tabs" class="tabs right-info-tabs" data-tabs>
+      <dd class="tabs-title is-active"><a href="#vdcClustersTab_{{unique_id}}"><i class="fa fa-th"></i><br>{{tr "Clusters"}}</a></dd>
+      <dd class="tabs-title"><a href="#vdcHostsTab_{{unique_id}}"><i class="fa fa-hdd-o"></i><br>{{tr "Hosts"}}</a></dd>
+      <dd class="tabs-title"><a href="#vdcVnetsTab_{{unique_id}}"><i class="fa fa-globe"></i><br>{{tr "VNets"}}</a></dd>
+      <dd class="tabs-title"><a href="#vdcDatastoresTab_{{unique_id}}"><i class="fa fa-folder-open"></i><br>{{tr "Datastores"}}</a></dd>
     </dl>
-    <div class="tabs-content">
-      <div class="content active" id="vdcClustersTab_{{unique_id}}" class="content">
+    <div class="tabs-content" data-tabs-content="{{unique_id}}Tabs">
+      <div class="tabs-panel is-active" id="vdcClustersTab_{{unique_id}}">
         <div class="row">
           <div class="large-12 columns">
             <label for="all_clusters_{{unique_id}}">
@@ -37,7 +37,7 @@
           {{{clustersTableHTML}}}
         </div>
       </div>
-      <div id="vdcHostsTab_{{unique_id}}" class="content">
+      <div id="vdcHostsTab_{{unique_id}}" class="tabs-panel">
         <div class="row">
           <div class="large-12 columns">
             <label for="all_hosts_{{unique_id}}">
@@ -51,7 +51,7 @@
           {{{hostsTableHTML}}}
         </div>
       </div>
-      <div id="vdcVnetsTab_{{unique_id}}" class="content">
+      <div id="vdcVnetsTab_{{unique_id}}" class="tabs-panel">
         <div class="row">
           <div class="large-12 columns">
             <label for="all_vnets_{{unique_id}}">
@@ -65,7 +65,7 @@
           {{{vnetsTableHTML}}}
         </div>
       </div>
-      <div id="vdcDatastoresTab_{{unique_id}}" class="content">
+      <div id="vdcDatastoresTab_{{unique_id}}" class="tabs-panel">
         <div class="row">
           <div class="large-12 columns">
             <label for="all_datastores_{{unique_id}}">

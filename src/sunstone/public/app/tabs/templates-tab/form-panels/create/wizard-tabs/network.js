@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -86,27 +86,7 @@ define(function(require) {
     that.numberOfNics = 0;
     that.nicTabObjects = {};
 
-    context.foundation('tab', 'reflow');
-
-    // close icon: removing the tab on click
-    context.on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
-      var content = $(target);
-
-      dd.remove();
-      content.remove();
-
-      var nicId = content.attr("nicId");
-      delete that.nicTabObjects[nicId];
-
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
-      }
-
-      that.renameTabLinks(context);
-    });
+    Foundation.reflow(context, 'tabs');
 
     context.on("click", "#tf_btn_nics", function() {
       that.addNicTab(context);
@@ -171,28 +151,51 @@ define(function(require) {
   }
 
   function _addNicTab(context) {
-    this.numberOfNics++;
-    var nicTab = new NicTab(this.numberOfNics);
+    var that = this;
+    that.numberOfNics++;
+    var nicTab = new NicTab(that.numberOfNics);
 
-    var content = $('<div id="' + nicTab.nicTabId + '" class="active nic wizard_internal_tab content">' +
+    var content = $('<div id="' + nicTab.nicTabId + '" class="nic wizard_internal_tab tabs-panel">' +
         nicTab.html() +
       '</div>').appendTo($("#" + CONTENTS_CONTAINER_ID, context));
 
-    var a = $("<dd class='active'>" +
+    var a = $("<li class='tabs-title'>" +
        "<a href='#" + nicTab.nicTabId + "'>" + Locale.tr("NIC") + "</a>" +
-      "</dd>").appendTo($("#" + LINKS_CONTAINER_ID, context));
+      "</li>").appendTo($("#" + LINKS_CONTAINER_ID, context));
+
+    Foundation.reInit($("#" + LINKS_CONTAINER_ID, context));
 
     $("a", a).trigger("click");
 
     nicTab.setup(content);
-    content.attr("nicId", this.numberOfNics);
+    content.attr("nicId", that.numberOfNics);
 
-    this.renameTabLinks(context);
-    this.nicTabObjects[this.numberOfNics] = nicTab;
+    that.renameTabLinks(context);
+    that.nicTabObjects[that.numberOfNics] = nicTab;
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      li.remove();
+      content.remove();
+
+      var nicId = content.attr("nicId");
+      delete that.nicTabObjects[nicId];
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      that.renameTabLinks(context);
+    });
   }
 
   function _renameTabLinks(context) {
-    $("#" + LINKS_CONTAINER_ID + " dd", context).each(function(index) {
+    $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
     })
   }

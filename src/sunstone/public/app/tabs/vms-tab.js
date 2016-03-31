@@ -60,11 +60,12 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: Locale.tr("Virtual Machines"),
+    title: Locale.tr("VMs"),
+    icon: 'fa-th',
     tabClass: "subTab",
-    parentTab: "vresources-tab",
-    listHeader: '<i class="fa fa-fw fa-th"></i>&emsp;' + Locale.tr("Virtual Machines"),
-    infoHeader: '<i class="fa fa-fw fa-th"></i>&emsp;' + Locale.tr("VM"),
+    parentTab: "instances-top-tab",
+    listHeader: Locale.tr("VMs"),
+    infoHeader: Locale.tr("VM"),
     subheader: '<span class="total_vms"/> <small>' + Locale.tr("TOTAL") + '</small>&emsp;\
         <span class="active_vms"/> <small>' + Locale.tr("ACTIVE") + '</small>&emsp;\
         <span class="off_vms"/> <small>' + Locale.tr("OFF") + '</small>&emsp;\

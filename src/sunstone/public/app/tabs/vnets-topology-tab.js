@@ -85,9 +85,10 @@ define(function(require) {
     tabId: TAB_ID,
     resource: 'NetworkTopology',
     tabClass: "subTab",
-    parentTab: "infra-tab",
+    parentTab: "network-top-tab",
     title: Locale.tr("Network Topology"),
-    listHeader: '<i class="fa fa-fw fa-sitemap"></i>&emsp;' + Locale.tr("Network Topology"),
+    icon: 'fa-sitemap',
+    listHeader: Locale.tr("Network Topology"),
     buttons: _buttons,
     actions: _actions,
     content: _html()

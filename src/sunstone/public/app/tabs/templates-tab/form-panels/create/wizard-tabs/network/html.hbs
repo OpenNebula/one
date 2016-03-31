@@ -13,22 +13,25 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<dl class="tabs vertical" id="{{linksContainerId}}" data-tab>
-  <dt class="text-center">
-    <button href="#" type="button" class="button tiny radius" id="tf_btn_nics">
+<div class="row collapse">
+  <div class="medium-2 columns">
+    <ul class="tabs vertical" id="{{linksContainerId}}" data-tabs>
+    </ul>
+    <button href="" type="button" class="button small" id="tf_btn_nics">
       <span class="fa fa-plus"></span>
       {{tr "Add another interface"}}
     </button>
-  </dt>
-</dl>
-<div class="tabs-content vertical" id="{{contentsContainerId}}"></div>
-<div class="row">
-  <div class="medium-6 columns">
-    <label for="DEFAULT_MODEL">
-      {{tr "Default model"}}
-      {{{tip (tr "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")}}}
-    </label>
-    <input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>
+  </div>
+  <div class="medium-10 columns">
+    <div class="tabs-content vertical" id="{{contentsContainerId}}" data-tabs-content="{{linksContainerId}}"></div>
+    <div class="row">
+      <div class="medium-6 columns">
+        <label for="DEFAULT_MODEL">
+          {{tr "Default model"}}
+          {{{tip (tr "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")}}}
+        </label>
+        <input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>
+      </div>
+    </div>
   </div>
 </div>

@@ -17,55 +17,57 @@
 define(function(require) {
   var TemplateHTML = require('hbs!./range-slider/html');
 
+  var sliderId = 0;
+  _initialSetup();
+
   return {
-    'insert': _insert
+    'insert': _insert,
+    'html': _html
   }
 
   /*
     Insert a range slider
     @param {Object} opts Options for the slider
       opts.label Label for the input
-      opts.tip String with the despription
       opts.name Name of the input, it will be used for the wizard_field value
         and the ID of the input
-      opts.start Start value of the slider
-      opts.end End value of the slider
+      opts.min Start value of the slider
+      opts.max End value of the slider
       opts.step Step value of the slider
-      opts.startValue Initialize the slider with this value
+      opts.initial Initialize the slider with this value
       opts.enabled false to disable the inputs (true by default)
     @param {Object} context div to insert the range slider
     @returns {String} HTML row
    */
   function _insert(opts, context) {
-    context.html(TemplateHTML(opts));
-    context.foundation('slider', 'reflow');
-    
-    // Define the cpu slider
-    var input = $("#" + opts.name, context);
-    var slider = $("#" + opts.name + "Slider", context)
+    context.html(_html(opts));
+  }
 
-    slider.on('change.fndtn.slider', function(){
-      if ($(this).attr('data-slider') >= 0) {
-        input.val($(this).attr('data-slider'));
+  function _html(opts) {
+    opts['sliderId'] = sliderId;
+
+    opts['ticks'] = [];
+    if (opts.tick_size !== undefined){
+      var tick_val = opts.tick_size * Math.ceil(opts.min / opts.tick_size);
+      while (tick_val <= opts.max){
+        opts['ticks'].push(tick_val);
+        tick_val += opts.tick_size;
       }
-    });
-
-    input.on('change', function() {
-      if (this.value && this.value >= 0) {
-        slider.foundation('slider', 'set_value', this.value);
-      } else {
-        slider.foundation('slider', 'set_value', -1);
-      }
-    });
-
-    if (opts.startValue != undefined) {
-      slider.foundation('slider', 'set_value', opts.startValue);
-      input.val(opts.startValue);
     }
 
-    if (opts.enabled == false){
-      input.attr('disabled', 'disabled');
-      slider.attr('disabled', 'disabled');
-    }
+    sliderId += 1;
+    return TemplateHTML(opts);
+  }
+
+  function _initialSetup() {
+    $(document).off("input", "input.uinput-slider-val");
+    $(document).on("input", "input.uinput-slider-val", function(){
+      $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
+    });
+
+    $(document).off("input", "input.uinput-slider");
+    $(document).on("input", "input.uinput-slider", function(){
+      $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
+    });
   }
 });

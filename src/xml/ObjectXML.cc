@@ -202,12 +202,13 @@ int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::get_nodes (const char * xpath_expr, vector<xmlNodePtr>& content)
+int ObjectXML::get_nodes(const string& xpath_expr,
+        std::vector<xmlNodePtr>& content) const
 {
     xmlXPathObjectPtr obj;
 
     obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
 
     if (obj == 0)
     {
@@ -543,110 +544,3 @@ error_yy:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ObjectXML::search(const char* name, vector<string>& results)
-{
-
-    if (name[0] == '/')
-    {
-        xpaths(results, name);
-    }
-    else if (num_paths == 0)
-    {
-        results.clear();
-    }
-    else
-    {
-        ostringstream  xpath;
-
-        xpath << paths[0] << name;
-
-        for (int i = 1; i < num_paths ; i++)
-        {
-            xpath << '|' << paths[i] << name;
-        }
-
-        xpaths(results, xpath.str().c_str());
-    }
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, string& value)
-{
-    vector<string> results;
-
-    value = "";
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        value = results[0];
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, int& value)
-{
-    vector<string> results;
-
-    value = 0;
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> value;
-
-        if (iss.fail())
-        {
-            value = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int ObjectXML::search(const char *name, float& value)
-{
-    vector<string> results;
-
-    value = 0.0;
-
-    search(name, results);
-
-    if (results.size() != 0)
-    {
-        istringstream iss(results[0]);
-        iss >> value;
-
-        if (iss.fail())
-        {
-            value = 0;
-
-            return -1;
-        }
-
-        return 0;
-    }
-
-    return -1;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */

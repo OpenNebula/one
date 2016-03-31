@@ -17,62 +17,66 @@
 #ifndef CLUSTERABLE_H_
 #define CLUSTERABLE_H_
 
-using namespace std;
+#include "ObjectCollection.h"
 
 class Clusterable
 {
 public:
 
-    /**
-     * Changes the cluster this object belongs to
-     *
-     * @param _cluster_id Id of the new cluster
-     * @param _cluster Name of the new cluster
-     */
-    void set_cluster(int _cluster_id, const string& _cluster)
+    int add_cluster(int cluster_id)
     {
-        cluster_id  = _cluster_id;
-        cluster     = _cluster;
+        return cluster_ids.add(cluster_id);
+    };
+
+    int del_cluster(int cluster_id)
+    {
+        return cluster_ids.del(cluster_id);
     };
 
     /**
-     * Returns the cluster ID
+     * Returns the cluster IDs
      *
-     * @return The cluster ID
+     * @return The cluster IDs set
      */
-    int get_cluster_id() const
+    std::set<int> get_cluster_ids() const
     {
-        return cluster_id;
+        return cluster_ids.clone();
     };
 
     /**
-     * Returns the cluster name
+     * Rebuilds the cluster collection from an xml object
+     * @param xml xml object
+     * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
      *
-     * @return The cluster name
+     * @return 0 on success, -1 otherwise
      */
-    const string& get_cluster_name() const
+    int from_xml(const ObjectXML* xml, const std::string& xpath_prefix)
     {
-        return cluster;
+        return cluster_ids.from_xml(xml, xpath_prefix);
     };
 
+    /**
+     * Function to print the cluster IDs into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    std::string& to_xml(std::string& xml) const
+    {
+        return cluster_ids.to_xml(xml);
+    };
 
 protected:
 
-    Clusterable(int _cluster_id, const string& _cluster):
-        cluster_id(_cluster_id),
-        cluster(_cluster){};
+    Clusterable(const std::set<int> &_cluster_ids):
+        cluster_ids("CLUSTERS", _cluster_ids){};
 
     ~Clusterable(){};
 
     /**
-     * ID of the cluster this object belongs to.
+     * IDs of the clusters this object belongs to.
      */
-    int         cluster_id;
-
-    /**
-     *  Name of the cluster this object belongs to.
-     */
-    string      cluster;
+    ObjectCollection cluster_ids;
 };
 
 #endif /*CLUSTERABLE_H_*/

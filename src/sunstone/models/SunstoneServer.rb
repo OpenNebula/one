@@ -215,6 +215,42 @@ class SunstoneServer < CloudServer
     end
 
     ############################################################################
+    #
+    ############################################################################
+    def download_marketplaceapp(id)
+        # Get MarketPlaceApp
+        marketapp = MarketPlaceApp.new(MarketPlaceApp.build_xml(id.to_i), @client)
+
+        rc    = marketapp.info
+        return [500, rc.message] if OpenNebula.is_error?(rc)
+
+        # Get Datastore
+        market_id = marketapp['MARKETPLACE_ID']
+
+        market = MarketPlace.new(MarketPlace.build_xml(market_id), @client)
+        rc     = market.info
+
+        return [500, rc.message] if OpenNebula.is_error?(rc)
+
+        # Build Driver message
+        drv_message    = "<DS_DRIVER_ACTION_DATA>" <<
+                         "#{market.to_xml}" <<
+                         "</DS_DRIVER_ACTION_DATA>"
+
+        drv_message_64 = Base64::strict_encode64(drv_message)
+
+        source = marketapp['SOURCE']
+
+        download_cmd =  "DRV_ACTION=#{drv_message_64} "<<
+                        "#{VAR_LOCATION}/remotes/datastore/downloader.sh " <<
+                        "#{source} -"
+
+        filename = "one-marketplaceapp-#{id}"
+
+        return [download_cmd, filename]
+    end
+
+    ############################################################################
     # Unused
     ############################################################################
     def get_vm_log(id)

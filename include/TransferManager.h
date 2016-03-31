@@ -129,14 +129,16 @@ public:
      * @param vm The VM
      * @param token_password Owner user's token password
      * @param system_tm_mad The Transfer Manager for the system datastore
+     * @param disk_id of the context disk
      * @param xfr Stream where the transfer command will be written
      *
-     * @return 0 on success
+     * @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
     int prolog_context_command(
             VirtualMachine *        vm,
             const string&           token_password,
             string&                 system_tm_mad,
+            int&                    disk_id,
             ostream&                xfr);
 
     /**

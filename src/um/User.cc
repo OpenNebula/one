@@ -234,8 +234,8 @@ string& User::to_xml_extended(string& xml, bool extended) const
          groups.to_xml(collection_xml)  <<
          "<GNAME>"       << gname       <<"</GNAME>"      <<
          "<NAME>"        << name        <<"</NAME>"       <<
-         "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
-         "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
+         "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
+         "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         login_token.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);
@@ -304,18 +304,7 @@ int User::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    ObjectXML::get_nodes("/USER/GROUPS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    // Set of IDs
-    rc += groups.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
-    content.clear();
+    rc += groups.from_xml(this, "/USER/");
 
     if (rc != 0)
     {

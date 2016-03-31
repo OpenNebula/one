@@ -225,15 +225,18 @@ void Scheduler::start()
 
     try
     {
-        long long message_size;
+        long long    message_size;
+        unsigned int timeout;
 
         conf.get("MESSAGE_SIZE", message_size);
 
-        client = new Client("", url, message_size);
+        conf.get("TIMEOUT", timeout);
+
+        Client::initialize("", url, message_size, timeout);
 
         oss.str("");
 
-        oss << "XML-RPC client using " << client->get_message_size()
+        oss << "XML-RPC client using " << (Client::client())->get_message_size()
             << " bytes for response buffer.\n";
 
         NebulaLog::log("SCHED", Log::INFO, oss);
@@ -254,15 +257,13 @@ void Scheduler::start()
         try
         {
             xmlrpc_c::value result;
+            vector<xmlrpc_c::value> values;
 
-            client->call(client->get_endpoint(),        // serverUrl
-                         "one.system.config",           // methodName
-                         "s",                           // arguments format
-                         &result,                       // resultP
-                         client->get_oneauth().c_str());// auth string
+            Client * client = Client::client();
 
-            vector<xmlrpc_c::value> values =
-                            xmlrpc_c::value_array(result).vectorValueValue();
+            client->call("one.system.config", "", &result);
+
+            values = xmlrpc_c::value_array(result).vectorValueValue();
 
             bool   success = xmlrpc_c::value_boolean(values[0]);
             string message = xmlrpc_c::value_string(values[1]);
@@ -313,17 +314,18 @@ void Scheduler::start()
     // Pools
     // -------------------------------------------------------------------------
 
-    hpool  = new HostPoolXML(client);
-    upool  = new UserPoolXML(client);
-    clpool = new ClusterPoolXML(client);
-    vmpool = new VirtualMachinePoolXML(client,machines_limit,(live_rescheds==1));
+    hpool  = new HostPoolXML(Client::client());
+    upool  = new UserPoolXML(Client::client());
+    clpool = new ClusterPoolXML(Client::client());
+    vmpool = new VirtualMachinePoolXML(Client::client(), machines_limit,
+            live_rescheds==1);
 
-    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
+    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
 
-    dspool     = new SystemDatastorePoolXML(client);
-    img_dspool = new ImageDatastorePoolXML(client);
+    dspool     = new SystemDatastorePoolXML(Client::client());
+    img_dspool = new ImageDatastorePoolXML(Client::client());
 
-    acls = new AclXML(client, zone_id);
+    acls = new AclXML(Client::client(), zone_id);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -545,9 +547,7 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
     {
         PoolObjectAuth hperms;
 
-        hperms.oid      = host->get_hid();
-        hperms.cid      = host->get_cid();
-        hperms.obj_type = PoolObjectSQL::HOST;
+        host->get_permissions(hperms);
 
         UserXML * user = upool->get(vm->get_uid());
 
@@ -700,11 +700,15 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
             n_error++;
 
             oss << "Error in SCHED_DS_REQUIREMENTS: '"
-                << vm->get_ds_requirements() << "', error: " << error;
+                << vm->get_ds_requirements() << "', error: " << estr;
 
             vm->log(oss.str());
 
+            error = oss.str();
+
             free(estr);
+
+            return false;
         }
 
         if (matched == false)
@@ -754,7 +758,7 @@ void Scheduler::match_schedule()
     string m_error;
 
     map<int, ObjectXML*>::const_iterator  vm_it;
-    map<int, ObjectXML*>::const_iterator  h_it;
+    map<int, ObjectXML*>::const_iterator  obj_it;
 
     vector<SchedulerPolicy *>::iterator it;
 
@@ -763,8 +767,11 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
     const map<int, ObjectXML*> users       = upool->get_objects();
 
-    double total_match_time = 0;
-    double total_rank_time = 0;
+    double total_cl_match_time = 0;
+    double total_host_match_time = 0;
+    double total_host_rank_time = 0;
+    double total_ds_match_time = 0;
+    double total_ds_rank_time = 0;
 
     time_t stime = time(0);
 
@@ -808,9 +815,9 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         profile(true);
 
-        for (h_it=hosts.begin(); h_it != hosts.end(); h_it++)
+        for (obj_it=hosts.begin(); obj_it != hosts.end(); obj_it++)
         {
-            host = static_cast<HostXML *>(h_it->second);
+            host = static_cast<HostXML *>(obj_it->second);
 
             if (match_host(acls, upool, vm, vm_memory, vm_cpu, vm_pci, host,
                     n_auth, n_error, n_fits, n_matched, m_error))
@@ -837,7 +844,7 @@ void Scheduler::match_schedule()
             }
         }
 
-        total_match_time += profile(false);
+        total_host_match_time += profile(false);
 
         // ---------------------------------------------------------------------
         // Log scheduling errors to VM user if any
@@ -893,7 +900,7 @@ void Scheduler::match_schedule()
 
         vm->sort_match_hosts();
 
-        total_rank_time += profile(false);
+        total_host_rank_time += profile(false);
 
         if (vm->is_resched())//Will use same system DS for migrations
         {
@@ -906,15 +913,17 @@ void Scheduler::match_schedule()
         // Match datastores for this VM
         // ---------------------------------------------------------------------
 
+        profile(true);
+
         n_resources = 0;
         n_auth    = 0;
         n_matched = 0;
         n_error   = 0;
         n_fits    = 0;
 
-        for (h_it=datastores.begin(); h_it != datastores.end(); h_it++)
+        for (obj_it=datastores.begin(); obj_it != datastores.end(); obj_it++)
         {
-            ds = static_cast<DatastoreXML *>(h_it->second);
+            ds = static_cast<DatastoreXML *>(obj_it->second);
 
             if (match_system_ds(acls, upool, vm, vm_disk, ds, n_auth, n_error,
                         n_fits, n_matched, m_error))
@@ -940,6 +949,8 @@ void Scheduler::match_schedule()
                 }
             }
         }
+
+        total_ds_match_time += profile(false);
 
         // ---------------------------------------------------------------------
         // Log scheduling errors to VM user if any
@@ -999,23 +1010,33 @@ void Scheduler::match_schedule()
         // Schedule matched datastores
         // ---------------------------------------------------------------------
 
+        profile(true);
+
         for (it=ds_policies.begin() ; it != ds_policies.end() ; it++)
         {
             (*it)->schedule(vm);
         }
 
         vm->sort_match_datastores();
+
+        total_ds_rank_time += profile(false);
     }
 
-    ostringstream oss;
+    if (NebulaLog::log_level() >= Log::DDEBUG)
+    {
+        ostringstream oss;
 
-    oss << "Match Making statistics:\n"
-        << "\tNumber of VMs: \t\t" << pending_vms.size() << endl
-        << "\tTotal time: \t\t" << one_util::float_to_str(time(0) - stime) << "s" << endl
-        << "\tTotal Match time: \t" << one_util::float_to_str(total_match_time) << "s" << endl
-        << "\tTotal Ranking time: \t" << one_util::float_to_str(total_rank_time) << "s";
+        oss << "Match Making statistics:\n"
+            << "\tNumber of VMs:            " << pending_vms.size() << endl
+            << "\tTotal time:               " << one_util::float_to_str(time(0) - stime) << "s" << endl
+            << "\tTotal Cluster Match time: " << one_util::float_to_str(total_cl_match_time) << "s" << endl
+            << "\tTotal Host Match time:    " << one_util::float_to_str(total_host_match_time) << "s" << endl
+            << "\tTotal Host Ranking time:  " << one_util::float_to_str(total_host_rank_time) << "s" << endl
+            << "\tTotal DS Match time:      " << one_util::float_to_str(total_ds_match_time) << "s" << endl
+            << "\tTotal DS Ranking time:    " << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
 
-    NebulaLog::log("SCHED", Log::DDEBUG, oss);
+        NebulaLog::log("SCHED", Log::DDEBUG, oss);
+    }
 
     if (NebulaLog::log_level() >= Log::DDDEBUG)
     {
@@ -1170,7 +1191,7 @@ void Scheduler::dispatch()
                 //--------------------------------------------------------------
                 // Test cluster membership for datastore and selected host
                 //--------------------------------------------------------------
-                if (ds->get_cid() != cid)
+                if (!ds->is_in_cluster(cid))
                 {
                     continue;
                 }

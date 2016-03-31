@@ -27,12 +27,16 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
+    "Datastore.import_dialog" : {
+      type: "create_dialog",
+      layout: "create",
+      text:  Locale.tr("Import"),
+      icon: '<i class="fa fa-download"/>'
+    },
     "Datastore.addtocluster" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Select cluster"),
-      select: "Cluster",
+      type : "action",
       layout: "main",
-      tip: Locale.tr("Select the destination cluster:")
+      text : Locale.tr("Select cluster")
     },
     "Datastore.chown" : {
       type: "confirm_with_select",

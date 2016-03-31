@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -116,25 +116,23 @@ define(function(require) {
       that.addARTab(number_of_ar, context);
       number_of_ar++;
 
-      context.foundation();
-
       return false;
     });
 
     // close icon: removing the tab on click
     $("#vnetCreateARTab", context).on("click", "i.remove-tab", function() {
       var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
       var content = $(target);
 
       var ar_id = content.attr("ar_id");
 
-      dd.remove();
+      li.remove();
       content.remove();
 
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
+      if (li.attr("class") == 'is-active') {
+        $('a', ul.children('li').last()).click();
       }
 
       delete that.arTabObjects[ar_id];
@@ -144,11 +142,21 @@ define(function(require) {
 
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
+    $('#vn_mad_from_host', context).change(function() {
+      if ($(this).prop('checked')) {
+        $('select#network_mode,label[for="network_mode"]', context).prop('wizard_field_disabled', true);
+      } else {
+        $('select#network_mode,label[for="network_mode"]', context).prop('wizard_field_disabled', false);
+      }
+    });
+
     $('#network_mode', context).change(function() {
       $('input,select#vlan,label[for!="network_mode"]', $(this).parent()).hide();
       $('input', $(this).parent()).val("");
       switch ($(this).val()) {
       case "default":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
         $('select#vlan,label[for="vlan"]', context).hide().prop('wizard_field_disabled', true);
@@ -159,8 +167,11 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
+        $('input#vn_mad', context).removeAttr('required');
         break;
       case "802.1Q":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
         $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
@@ -171,8 +182,11 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
+        $('input#vn_mad', context).removeAttr('required');
         break;
       case "vxlan":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
         $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
@@ -183,8 +197,11 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
+        $('input#vn_mad', context).removeAttr('required');
         break;
       case "ebtables":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
         $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
@@ -195,8 +212,11 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
+        $('input#vn_mad', context).removeAttr('required');
         break;
       case "openvswitch":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
         $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
@@ -207,8 +227,11 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
+        $('input#vn_mad', context).removeAttr('required');
         break;
       case "vmware":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show();
         $('input#phydev,label[for="phydev"]', context).hide();
         $('select#vlan,label[for="vlan"]', context).show();
@@ -219,6 +242,22 @@ define(function(require) {
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
+        $('input#vn_mad', context).removeAttr('required');
+        break;
+      case "custom":
+        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).hide();
+        $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false);
+        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
+        $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
+        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
+        $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
+        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
+        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
+        $('input#mtu,label[for="mtu"]', context).show().prop('wizard_field_disabled', false);
+
+        $('input#phydev', context).removeAttr('required');
+        $('input#bridge', context).removeAttr('required');
+        $('input#vn_mad', context).attr('required', '');
         break;
       }
 
@@ -233,7 +272,7 @@ define(function(require) {
 
     CustomTagsTable.setup($("#vnetCreateContextTab", context));
 
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
 
     // Add first AR
     $("#vnet_wizard_ar_btn", context).trigger("click");
@@ -249,17 +288,19 @@ define(function(require) {
     this.arTabObjects[ar_id] = ar_tab;
 
     var html_tab_content =
-      '<div id="' + str_ar_tab_id + 'Tab" class="ar_tab content" ar_id="' + ar_id + '">' +
+      '<div id="' + str_ar_tab_id + 'Tab" class="ar_tab tabs-panel" ar_id="' + ar_id + '">' +
         ar_tab.html(str_ar_tab_id) +
       '</div>';
 
     // Append the new div containing the tab and add the tab to the list
-    var a = $("<dd><a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
-        Locale.tr("Address Range") + " <i class='fa fa-times-circle remove-tab'></i></a></dd>"
-        ).appendTo($("dl#vnet_wizard_ar_tabs", context));
+    var a = $("<li class='tabs-title'>" +
+        "<a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
+        Locale.tr("Address Range") + " <i class='fa fa-times-circle remove-tab'></i></a></li>"
+      ).appendTo($("ul#vnet_wizard_ar_tabs", context));
 
     $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
 
+    Foundation.reInit($("ul#vnet_wizard_ar_tabs", context));
     $("a", a).trigger("click");
 
     var ar_section = $('#' + str_ar_tab_id + 'Tab', context);
@@ -353,6 +394,8 @@ define(function(require) {
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
+    $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+    $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');

@@ -35,7 +35,12 @@ class RbVmomi::VIM::ManagedObject
         :type => self.class.wsdl_name
       }]
     }
-    _connection.propertyCollector.RetrieveProperties(:specSet => [spec])[0].to_hash
+    ret = _connection.propertyCollector.RetrieveProperties(:specSet => [spec])
+    if ret && ret.length > 0
+      ret[0].to_hash
+    else
+      {}
+    end
   end
 
   # Efficiently retrieve multiple properties from an object.

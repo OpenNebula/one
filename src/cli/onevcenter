@@ -195,6 +195,115 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     next if STDIN.gets.strip.downcase != 'y'
 
+                    ds_input = ""
+                    rp_input = ""
+
+                    # Datastores
+
+                    STDOUT.print "\n    This template is currently set to be "\
+                                 "deployed in datastore #{t[:default_ds]}."\
+                               "\n    Do you want to keep the default [y/n]? "
+
+                    if STDIN.gets.strip.downcase == 'n'
+                      ds_split     = t[:ds].split("|")
+                      list_of_ds   = ds_split[-2]
+                      default_ds   = ds_split[-1]
+                      ds_input     = ds_split[0] + "|" + ds_split[1] + "|" +
+                                     ds_split[2] + "|"
+
+                      # Available list of datastores
+
+                      input_str = "    The list of available datastores to be"\
+                                  " presented to the user are \"#{list_of_ds}\""
+                      input_str+= "\n    Press y to agree, or input a comma"\
+                                  " separated list of datastores to edit "\
+                                  "[y/comma separated list] "
+                      STDOUT.print input_str
+
+                      answer = STDIN.gets.strip
+
+                      if answer.downcase == 'y'
+                           ds_input += ds_split[3] + "|"
+                      else
+                           ds_input += answer + "|"
+                      end
+
+                      # Default
+                      input_str   = "    The default datastore presented to "\
+                                    "the end user is set to \"#{default_ds}\"."
+                      input_str+= "\n    Press y to agree, or input a new "\
+                                  "datastore [y/datastore name] "
+                      STDOUT.print input_str
+
+                      answer = STDIN.gets.strip
+
+                      if answer.downcase == 'y'
+                           ds_input += ds_split[4]
+                      else
+                           ds_input += answer
+                      end
+                    end
+
+                    # Resource Pools
+
+                    rp_split     = t[:rp].split("|")
+
+                    if rp_split.size > 3
+                    STDOUT.print "\n    Do you want VMs cloned from this"\
+                                 " template to run in the default"\
+                                 " resource pool [y/n]? "
+
+                    if STDIN.gets.strip.downcase == 'n'
+                       list_of_rp   = rp_split[-2]
+                       default_rp   = rp_split[-1]
+                       rp_input     = rp_split[0] + "|" + rp_split[1] + "|" +
+                                      rp_split[2] + "|"
+
+                       # Available list of resource pools
+
+                       input_str = "    The list of available resource pools "\
+                                   "to be presented to the user are "\
+                                   "\"#{list_of_rp}\""
+                       input_str+= "\n    Press y to agree, or input a comma"\
+                                   " separated list of resource pools to edit "\
+                                   "[y/comma separated list] "
+                       STDOUT.print input_str
+
+                       answer = STDIN.gets.strip
+
+                       if answer.downcase == 'y'
+                            rp_input += rp_split[3] + "|"
+                       else
+                            rp_input += answer + "|"
+                       end
+
+                       # Default
+                       input_str   = "    The default resource pool presented "\
+                                     "to the end user is set to"\
+                                     " \"#{default_rp}\"."
+                       input_str+= "\n    Press y to agree, or input a new "\
+                                   "resource pool [y/resource pool name] "
+                       STDOUT.print input_str
+
+                       answer = STDIN.gets.strip
+
+                       if answer.downcase == 'y'
+                            rp_input += rp_split[4]
+                       else
+                            rp_input += answer
+                       end
+                    end
+                    end
+
+                    if ds_input != "" ||
+                       rp_input != ""
+                       t[:one] += "USER_INPUTS=["
+                       t[:one] += "VCENTER_DATASTORE=\"#{ds_input}\"," if ds_input != ""
+                       t[:one] += "RESOURCE_POOL=\"#{rp_input}\"," if rp_input != ""
+                       t[:one] = t[:one][0..-2]
+                       t[:one] += "]"
+                    end
+
                     one_t = ::OpenNebula::Template.new(
                                 ::OpenNebula::Template.build_xml, vc.one)
 
@@ -360,6 +469,150 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                     "#{one_vn.id} created with size #{size}!\n"
                     end
                 }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+    end
+
+    datastores_desc = <<-EOT.unindent
+        Import vCenter Datastores into OpenNebula
+    EOT
+
+    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS ] do
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " Datastores:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for Datastores..."
+
+            rs = vc.vcenter_datastores
+
+            STDOUT.print "done!\n"
+
+            rs.each {|dc, tmps|
+                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+
+                if tmps.empty?
+                    STDOUT.print "    No new Datastores found in #{dc}...\n\n"
+                    next
+                end
+
+                tmps.each{ |d|
+                    STDOUT.print "\n  * Datastore found:\n"\
+                                 "      - Name      : #{d[:name]}\n"\
+                                 "      - Total MB  : #{d[:total_mb]}\n"\
+                                 "      - Free  MB  : #{d[:free_mb]}\n"\
+                                 "      - Cluster   : #{d[:cluster]}\n"\
+                                 "    Import this Datastore [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    one_d = ::OpenNebula::Datastore.new(
+                                ::OpenNebula::Datastore.build_xml, vc.one)
+
+                    rc = one_d.allocate(d[:one])
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating datastore: #{rc.message}\n"\
+                                    "    One datastore can exist only once, and "\
+                                    "can be used in any vCenter Cluster that "\
+                                    "has access to it. Also, no spaces allowed "\
+                                    "in datastore name (rename it in vCenter "\
+                                    "and try again)"
+                    else
+                        STDOUT.puts "    OpenNebula datastore #{one_d.id} created!\n"
+                    end
+                }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+    end
+
+    images_desc = <<-EOT.unindent
+        Import vCenter Images into OpenNebula
+    EOT
+
+    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS ] do
+        ds_name = args[0]
+
+        if !ds_name
+            STDERR.puts "Datastore name needed to import images from"
+            exit -1
+        end
+
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " Datastores:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for Images..."
+
+            images = vc.vcenter_images(ds_name)
+
+            STDOUT.print "done!\n"
+
+            images.each{ |i|
+                    STDOUT.print "\n  * Image found:\n"\
+                                 "      - Name      : #{i[:name]}\n"\
+                                 "      - Path      : #{i[:path]}\n"\
+                                 "      - Type      : #{i[:type]}\n"\
+                                 "    Import this Image [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    one_i = ::OpenNebula::Image.new(
+                                ::OpenNebula::Image.build_xml, vc.one)
+
+                    rc = one_i.allocate(i[:one], i[:dsid].to_i)
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating image: #{rc.message}\n"
+                    else
+                        STDOUT.puts "    OpenNebula image #{one_i.id} created!\n"
+                    end
             }
         rescue Exception => e
             STDOUT.puts "error: #{e.message}"

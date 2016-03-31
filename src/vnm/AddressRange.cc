@@ -166,15 +166,6 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
-    /* ------------------------- VNET Attributes ---------------------------- */
-
-    bool b_vlan;
-
-    if ((vattr->vector_value("VLAN", b_vlan) == 0) && b_vlan)
-    {
-        vattr->replace("VLAN", "YES");
-    }
-
     /* ------------------------- Security Groups ---------------------------- */
 
     value = vattr->vector_value("SECURITY_GROUPS");
@@ -422,14 +413,15 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             continue;
         }
 
-        oss << "<" << it->first << "><![CDATA[" << it->second
-                << "]]></"<< it->first << ">";
+        oss << "<" << it->first << ">"
+            << one_util::escape_xml(it->second)
+            << "</"<< it->first << ">";
     }
 
     mac_end[1] = mac[1];
     mac_end[0] = (mac[0] + size - 1);
 
-    oss << "<MAC_END><![CDATA[" << mac_to_s(mac_end) << "]]></MAC_END>";
+    oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
 
     aux_st = attr->vector_value("IP");
 
@@ -441,7 +433,8 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         if (rc == 0)
         {
-            oss << "<IP_END><![CDATA[" << ip_to_s(ip_i + size - 1) << "]]></IP_END>";
+            oss << "<IP_END>" << one_util::escape_xml(ip_to_s(ip_i + size - 1))
+                << "</IP_END>";
         }
     }
 
@@ -452,19 +445,19 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
         {
             ip6_to_s(ula6, mac, ip6_s);
-            oss << "<IP6_ULA><![CDATA[" << ip6_s << "]]></IP6_ULA>";
+            oss << "<IP6_ULA>" << one_util::escape_xml(ip6_s) << "</IP6_ULA>";
 
             ip6_to_s(ula6, mac_end, ip6_s);
-            oss << "<IP6_ULA_END><![CDATA[" << ip6_s << "]]></IP6_ULA_END>";
+            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s) << "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
         {
             ip6_to_s(global6, mac, ip6_s);
-            oss << "<IP6_GLOBAL><![CDATA[" << ip6_s << "]]></IP6_GLOBAL>";
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL>";
 
             ip6_to_s(global6, mac_end, ip6_s);
-            oss << "<IP6_GLOBAL_END><![CDATA[" << ip6_s << "]]></IP6_GLOBAL_END>";
+            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s) << "</IP6_GLOBAL_END>";
         }
     }
 
@@ -812,19 +805,19 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 {
     nic->replace("AR_ID", id);
 
+    string vn_mad = attr->vector_value("VN_MAD");
     string bridge = attr->vector_value("BRIDGE");
-    string vlan   = attr->vector_value("VLAN");
     string vlanid = attr->vector_value("VLAN_ID");
     string phydev = attr->vector_value("PHYDEV");
+
+    if (!vn_mad.empty())
+    {
+        nic->replace("VN_MAD", vn_mad);
+    }
 
     if (!bridge.empty())
     {
         nic->replace("BRIDGE", bridge);
-    }
-
-    if (!vlan.empty())
-    {
-        nic->replace("VLAN", vlan);
     }
 
     if (!phydev.empty())

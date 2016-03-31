@@ -31,6 +31,12 @@ define(function(require) {
       type: "action",
       text: '<i class="fa fa-share-alt"/>'
     },
+    "Image.import_dialog" : {
+      type: "create_dialog",
+      layout: "create",
+      text:  Locale.tr("Import"),
+      icon: '<i class="fa fa-download"/>'
+    },
     "Image.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),

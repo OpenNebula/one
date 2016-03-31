@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.slider');
+//  require('foundation.slider');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
@@ -50,73 +50,62 @@ define(function(require) {
     return TemplateHTML();
   }
 
+  function _m2g(val){
+    if(isNaN(val) || val == ""){
+      return "";
+    }
+
+    return val / 1024;
+  }
+
+  function _g2m(val){
+    if(isNaN(val) || val == ""){
+      return "";
+    }
+
+    return Math.floor(val * 1024);
+  }
+
   function _setup(context) {
+
     // MB to GB
     context.on("input", "div.memory_input input", function(){
-      if (this.value && this.value >= 0) {
-        $("div.memory_gb_input input", context).val( this.value / 1024 );
-      } else {
-        $("div.memory_gb_input input", context).val("");
-      }
+      $("div.memory_gb_input input", context).val(_m2g(this.value));
     });
 
     // MB to GB, range input
-    context.on("input", "div.memory_modify_opt.range input.mb_unit", function(){
-      var val = this.value.split("..").map(function(e){
-          if(isNaN(e) || e == ""){
-            return "";
-          }
+    context.on("input", "div.mb_unit input.user_input_params_min", function(){
+      $("div.gb_unit input.user_input_params_min").val(_m2g(this.value));
+    });
 
-          return e / 1024;
-        }).join("..");
-
-      $("div.memory_modify_opt.range input.gb_unit", context).val(val);
+    context.on("input", "div.mb_unit input.user_input_params_max", function(){
+      $("div.gb_unit input.user_input_params_max").val(_m2g(this.value));
     });
 
     // MB to GB, list input
     context.on("input", "div.memory_modify_opt.list input.mb_unit", function(){
-      var val = this.value.split(",").map(function(e){
-          if(isNaN(e) || e == ""){
-            return "";
-          }
-
-          return e / 1024;
-        }).join(",");
+      var val = this.value.split(",").map(_m2g).join(",");
 
       $("div.memory_modify_opt.list input.gb_unit", context).val(val);
     });
 
     // GB to MB
     context.on("input", "div.memory_gb_input input", function(){
-      if (this.value && this.value >= 0) {
-        $("div.memory_input input", context).val( Math.floor(this.value * 1024) );
-      } else {
-        $("div.memory_input input", context).val("");
-      }
+      $("div.memory_input input", context).val(_g2m(this.value));
     });
 
     // GB to MB, range input
-    context.on("input", "div.memory_modify_opt.range input.gb_unit", function(){
-      var val = this.value.split("..").map(function(e){
-          if(isNaN(e) || e == ""){
-            return "";
-          }
+    context.on("input", "div.gb_unit input.user_input_params_min", function(){
+      $("div.mb_unit input.user_input_params_min").val(_g2m(this.value));
+    });
 
-          return Math.floor(e * 1024);
-        }).join("..");
-
-      $("div.memory_modify_opt.range input.mb_unit", context).val(val);
+    context.on("input", "div.gb_unit input.user_input_params_max", function(){
+      $("div.mb_unit input.user_input_params_max").val(_g2m(this.value));
     });
 
     // GB to MB, list input
     context.on("input", "div.memory_modify_opt.list input.gb_unit", function(){
-      var val = this.value.split(",").map(function(e){
-          if(isNaN(e) || e == ""){
-            return "";
-          }
-
-          return Math.floor(e * 1024);
-        }).join(",");
+      var val = this.value.split(",").map(_g2m).join(",");
 
       $("div.memory_modify_opt.list input.mb_unit", context).val(val);
     });
@@ -189,7 +178,22 @@ define(function(require) {
 
           $("."+classname+"_modify_type", context).val(attr.type).change();
 
-          $("input."+classname+"_modify_opt."+attr.type, context).val(attr.params).trigger("input");
+          if (attr.type == "range" ||
+              attr.type == "range-float"){
+
+            var values = attr.params.split("..");  // "2..8"
+
+            if (values.length == 2){
+              var param_context = $("div."+classname+"_modify_opt."+attr.type, context);
+
+              $("input.user_input_params_min", param_context).val(values[0]).trigger("input");
+              $("input.user_input_params_max", param_context).val(values[1]).trigger("input");
+            } else {
+              console.error('Wrong user input parameters for "'+name+'". Expected "MIN..MAX", received "'+attr.params+'"');
+            }
+          } else if (attr.type == "list"){
+            $("input."+classname+"_modify_opt."+attr.type, context).val(attr.params).trigger("input");
+          }
 
           delete userInputsJSON[name];
         }
@@ -216,22 +220,27 @@ define(function(require) {
 
       attr.type = $("."+classname+"_modify_type", context).val();
 
-      if (attr.type == "fixed"){
-        // No user input, continue
-        return true;
-      }
-
       attr.name = classname.toUpperCase();
       attr.mandatory = true;
       attr.description = "";
 
+      if (classname == "vcpu" || attr.type == "fixed"){
+        attr.mandatory = false;
+      }
+
       attr.initial = $('input[wizard_field="'+attr.name+'"]', context).val();
 
       if (attr.type == "range" ||
-          attr.type == "range-float" ||
-          attr.type == "list"){
+          attr.type == "range-float"){
 
-          attr.params = $("input."+classname+"_modify_opt."+attr.type, context).val();
+        var param_context = $("div."+classname+"_modify_opt."+attr.type, context);
+
+        var min = $("input.user_input_params_min", param_context).val();
+        var max = $("input.user_input_params_max", param_context).val();
+        attr.params  = min + ".." + max;
+
+      } else if (attr.type == "list"){
+        attr.params = $("input."+classname+"_modify_opt."+attr.type, context).val();
       }
 
       userInputsJSON[attr.name] = UserInputs.marshall(attr);

@@ -58,10 +58,10 @@ define(function(require) {
       });
     });
 
-    var prevWindowLarge = Foundation.utils.is_large_up();
+    var prevWindowLarge = Foundation.MediaQuery.atLeast('large');
 
     $(window).resize(function() {
-      if(Foundation.utils.is_large_up()){
+      if(Foundation.MediaQuery.atLeast('large')){
         $('#menu-wrapper').removeClass("menu-small");
 
         if(!prevWindowLarge){ // resizing from small to large, show menu
@@ -96,7 +96,7 @@ define(function(require) {
   }
 
   function _entryClick(){
-    if(!Foundation.utils.is_large_up()){
+    if(!Foundation.MediaQuery.atLeast('large')){
       _hide();
     }
   }

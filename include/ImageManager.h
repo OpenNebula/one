@@ -116,9 +116,30 @@ public:
     /**
      *  Closes any cloning operation on the image, updating the state if needed
      *    @param iid image id of the image to that was being cloned
-     *    @param clone_img_id the cloned image (id > 0) or market app (id =< 0)
+     *    @param ot Object type, image or market app
+     *    @param clone_oid the cloned resource id
      */
-    void release_cloning_image(int iid, int clone_img_id);
+    void release_cloning_resource(int iid, PoolObjectSQL::ObjectType ot, int clone_oid);
+
+    /**
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to that was being cloned
+     *    @param clone_img_id the cloned image id
+     */
+    void release_cloning_image(int iid, int clone_img_id)
+    {
+        release_cloning_resource(iid, PoolObjectSQL::IMAGE, clone_img_id);
+    };
+
+    /**
+     *  Closes any cloning operation on the image, updating the state if needed
+     *    @param iid image id of the image to that was being cloned
+     *    @param clone_oid the cloned marketplace app id
+     */
+    void release_cloning_app(int iid, int clone_oid)
+    {
+        release_cloning_resource(iid, PoolObjectSQL::MARKETPLACEAPP, clone_oid);
+    };
 
     /**
      *  Enables the image
@@ -155,12 +176,38 @@ public:
 
     /**
      * Sets the state to CLONE for the given image
-     *   @param new_id for the target image (new_id>0) or market app (new_id =<0)
+     *   @param ot Object type, image or market app
+     *   @param new_id for the target image or market app
      *   @param clonning_id the ID of the image to be cloned
      *   @param error if any
-     *   @return 0 if siccess
+     *   @return 0 on success
      */
-    int set_clone_state(int new_id, int cloning_id, std::string& error);
+    int set_clone_state(PoolObjectSQL::ObjectType ot, int new_id,
+            int cloning_id, std::string& error);
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param new_id for the target image
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 on success
+     */
+    int set_img_clone_state(int new_id, int cloning_id, std::string& error)
+    {
+        return set_clone_state(PoolObjectSQL::IMAGE, new_id, cloning_id, error);
+    };
+
+    /**
+     * Sets the state to CLONE for the given image
+     *   @param new_id for the target market app
+     *   @param clonning_id the ID of the image to be cloned
+     *   @param error if any
+     *   @return 0 on success
+     */
+    int set_app_clone_state(int new_id, int cloning_id, std::string& error)
+    {
+        return set_clone_state(PoolObjectSQL::MARKETPLACEAPP, new_id, cloning_id, error);
+    };
 
     /**
      *  Clone an existing image to the repository

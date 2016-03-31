@@ -66,7 +66,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('abide', 'reflow');
+    Foundation.reflow(context, 'abide');
     
     that.arTab.setup(context, "add_ar");
 
@@ -75,16 +75,19 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).show();
     });
 
-    $('#add_ar_form',context).on('invalid.fndtn.abide', function () {
+    $('#add_ar_form', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
         Notifier.notifyError(Locale.tr("One or more required fields are missing."));
-    }).on('valid.fndtn.abide', function () {
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
         var data = that.arTab.retrieve();
 
         var obj = {AR: data};
         Sunstone.runAction('Network.add_ar', that.vnetId, obj);
-
-        return false;
-    });
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
   }
 
   function _onShow(context) {

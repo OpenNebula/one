@@ -19,7 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation-datatables');
+  require('datatables.net');
+  require('datatables.foundation');
   var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
   var Sunstone = require('sunstone');
   var SunstoneConfig = require('sunstone-config');
@@ -49,13 +50,25 @@ define(function(require) {
 
   /* Set the defaults for DataTables initialisation */
   $.extend(true, $.fn.dataTable.defaults, {
-    dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
+    dom:
+      "t"+
+      "<'row'<'small-6 columns'li><'small-6 columns'p>>",
     renderer: 'foundation',
+    autoWidth: false,
     language: {
       "sLengthMenu": "_MENU_",
       "emptyTable": TemplateEmptyTable()
     }
-  });
+  } );
+
+  //$.extend(true, $.fn.dataTable.defaults, {
+  //  dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
+  //  renderer: 'foundation',
+  //  language: {
+  //    "sLengthMenu": "_MENU_",
+  //    "emptyTable": TemplateEmptyTable()
+  //  }
+  //});
 
   /*
     CONSTRUCTOR
@@ -625,6 +638,12 @@ define(function(require) {
 
       $('#selected_resource_multiple_' + that.dataTableId, section).hide();
       $('#select_resource_multiple_' + that.dataTableId, section).show();
+    } else {
+      $('#selected_resource_' + that.dataTableId, section).hide();
+      $('#select_resource_' + that.dataTableId, section).show();
+
+      $('#selected_resource_multiple_' + that.dataTableId, section).hide();
+      $('#select_resource_multiple_' + that.dataTableId, section).hide();
     }
 
     $('#selected_resource_name_' + that.dataTableId, section).hide();

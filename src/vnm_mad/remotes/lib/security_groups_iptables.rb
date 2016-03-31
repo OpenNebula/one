@@ -271,6 +271,7 @@ module SGIPTables
 
         # IP-spofing
         if nic[:filter_ip_spoofing] == "YES"
+            commands.add :iptables, "-A #{chain_out} -p udp --source 0.0.0.0/32 --sport 68 --destination 255.255.255.255/32 --dport 67 -j ACCEPT"
             commands.add :iptables, "-A #{chain_out} ! --source #{nic[:ip]} -j DROP"
         end
 

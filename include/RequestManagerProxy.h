@@ -28,18 +28,23 @@ using namespace std;
 class RequestManagerProxy: public Request
 {
 public:
-    RequestManagerProxy(string _method);
+    RequestManagerProxy(string _method): Request("RequestManagerProxy", "?",
+        "Forwards the request to another OpenNebula"), method(_method)
+    {
+        method_name = ("RequestManagerProxy." + method);
+    };
 
-    ~RequestManagerProxy();
+    ~RequestManagerProxy(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    void hide_argument(int arg);
+    void hide_argument(int arg)
+    {
+        hidden_params.insert(arg);
+    };
 
 private:
-    Client *  client;
-
     string    method;
 };
 

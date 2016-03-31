@@ -54,7 +54,8 @@ MarketPlaceApp::MarketPlaceApp(
         market_id(-1),
         market_name(""),
         state(INIT),
-        type(IMAGE)
+        type(IMAGE),
+        zone_id(-1)
 {
     if (app_template != 0)
     {
@@ -77,22 +78,11 @@ MarketPlaceApp::~MarketPlaceApp()
 /* MartketPlaceApp:: Database Access Functions                              */
 /* ************************************************************************ */
 
-int MarketPlaceApp::insert(SqlDB *db, string& error_str)
+int MarketPlaceApp::parse_template(string& error_str)
 {
-    std::ostringstream oss;
-    bool imported;
-
-    if (get_template_attribute("IMPORTED", imported) && imported)
-    {
-        return insert_replace(db, false, error_str);
-    }
-
-    // -------------------------------------------------------------------------
-    // Check default marketplace app attributes
-    // -------------------------------------------------------------------------
-
-	//MarketPlaceAppPool::allocate checks NAME
+	//MarketPlaceAppPool::allocate checks NAME & ZONE_ID
     erase_template_attribute("NAME", name);
+    remove_template_attribute("ZONE_ID");
 
     //Atrributes updated after export
     remove_template_attribute("SOURCE");
@@ -130,14 +120,18 @@ int MarketPlaceApp::insert(SqlDB *db, string& error_str)
 
     state = LOCKED;
 
-    //--------------------------------------------------------------------------
-
-    return insert_replace(db, false, error_str);
+    return 0;
 
 error_origin:
     error_str = "Missing ORIGIN_ID for the MARKETPLACEAPP";
+
     NebulaLog::log("MKP", Log::ERROR, error_str);
     return -1;
+}
+
+int MarketPlaceApp::insert(SqlDB *db, string& error_str)
+{
+    return insert_replace(db, false, error_str);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -240,14 +234,15 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GNAME>"          << gname         << "</GNAME>" <<
 			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
-            "<ORIGIN_ID>"      << origin_id     << "</ORIGIN_ID>" <<
-            "<SOURCE>"         << source        << "</SOURCE>" <<
-            "<MD5>"            << md5           << "</MD5>" <<
+            "<ZONE_ID>"   << one_util::escape_xml(zone_id)  << "</ZONE_ID>" <<
+            "<ORIGIN_ID>" << one_util::escape_xml(origin_id)<< "</ORIGIN_ID>" <<
+            "<SOURCE>"    << one_util::escape_xml(source)   << "</SOURCE>" <<
+            "<MD5>"       << one_util::escape_xml(md5)      << "</MD5>" <<
             "<SIZE>"           << size_mb       << "</SIZE>" <<
-            "<DESCRIPTION>"    << description   << "</DESCRIPTION>" <<
-            "<VERSION>"        << version       << "</VERSION>" <<
-            "<FORMAT>"         << format        << "</FORMAT>" <<
-            "<APPTEMPLATE64>"  << apptemplate64 << "</APPTEMPLATE64>" <<
+            "<DESCRIPTION>"   << one_util::escape_xml(description)   << "</DESCRIPTION>" <<
+            "<VERSION>"       << one_util::escape_xml(version)       << "</VERSION>" <<
+            "<FORMAT>"        << one_util::escape_xml(format)        << "</FORMAT>" <<
+            "<APPTEMPLATE64>" << one_util::escape_xml(apptemplate64) << "</APPTEMPLATE64>" <<
             "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
             "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
             "<STATE>"          << state         << "</STATE>" <<
@@ -284,6 +279,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath<time_t>(regtime,"/MARKETPLACEAPP/REGTIME", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
     rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
+    rc += xpath(zone_id,      "/MARKETPLACEAPP/ZONE_ID", -1);
     rc += xpath(istate,       "/MARKETPLACEAPP/STATE", -1);
     rc += xpath(itype,        "/MARKETPLACEAPP/TYPE",  -1);
     rc += xpath(description,  "/MARKETPLACEAPP/DESCRIPTION", "not_found");
@@ -425,7 +421,9 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
         return -1;
     }
 
-    char *   error_msg;
+    char * error_msg;
+
+    obj_template->clear();
 
     int rc = obj_template->parse(*info, &error_msg);
 
@@ -443,6 +441,7 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     type      = IMAGE;
     origin_id = -1;
+
     remove_template_attribute("TYPE");
     remove_template_attribute("ORIGIN_ID");
 
@@ -456,8 +455,6 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
     get_template_attribute("DESCRIPTION", description);
     get_template_attribute("VERSION", version);
     get_template_attribute("APPTEMPLATE64", apptemplate64);
-
-    replace_template_attribute("IMPORTED", "YES");
 
     return 0;
 }

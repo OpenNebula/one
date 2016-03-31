@@ -33,6 +33,9 @@ public:
     ObjectCollection(const string& _collection_name)
         :collection_name(_collection_name){};
 
+    ObjectCollection(const string& cname, const set<int>& cset)
+        :collection_name(cname), collection_set(cset){};
+
     ~ObjectCollection(){};
 
     /**
@@ -69,12 +72,13 @@ public:
     };
 
     /**
-     *  Rebuilds the object from an xml node
-     *    @param node The xml node pointer
+     * Rebuilds the object from an xml object
+     * @param xml xml object
+     * @param xpath_prefix Parent nodes, e.g. "/DATASTORE/"
      *
-     *    @return 0 on success, -1 otherwise
+     * @return 0 on success, -1 otherwise
      */
-    int from_xml_node(const xmlNodePtr node);
+    int from_xml(const ObjectXML* xml, const string& xpath_prefix);
 
     /**
      * Function to print the Collection object into a string in
@@ -135,6 +139,13 @@ private:
      */
     set<int> collection_set;
 
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
 };
 
 #endif /*OBJECT_COLLECTION_H_*/

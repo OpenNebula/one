@@ -94,7 +94,7 @@ class OpenNebulaDriver < ActionManager
         command = action_command_line(aname, params, options[:script_name])
 
         if action_is_local?(aname)
-            execution = LocalCommand.run(command, log_method(id))
+            execution = LocalCommand.run(command, log_method(id), Base64::encode64(options[:stdin].to_s.gsub("\n","")))
         elsif options[:ssh_stream]
             if options[:stdin]
                 cmdin = "cat << EOT | #{command}"
@@ -183,6 +183,11 @@ private
 
             args   = str.split(/\s+/)
             next if args.length == 0
+
+            if args.first.empty?
+                STDERR.puts "Malformed message: #{str.inspect}"
+                next
+            end
 
             action = args.shift.upcase.to_sym
 

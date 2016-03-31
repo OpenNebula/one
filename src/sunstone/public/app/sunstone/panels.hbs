@@ -15,9 +15,9 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div id="{{containerId}}" class="bordered-tabs">
-  <dl class="tabs right-info-tabs text-center" data-tab>
+  <ul id="{{containerId}}Tabs" class="tabs right-info-tabs text-center" data-tabs>
     {{#each panels}}
-    <dd {{#if active}}class="active"{{/if}}>
+    <li class="tabs-title {{#if active}}is-active{{/if}}">
       <a href="#{{panelName}}">
         {{#if icon}} 
           <i class="fa {{icon}}"></i>
@@ -25,12 +25,12 @@
         {{/if}}
         {{title}}
       </a>
-    </dd>
+    </li>
     {{/each}}
-  </dl>
-  <div class='tabs-content'>
+  </ul>
+  <div class='tabs-content' data-tabs-content="{{containerId}}Tabs">
     {{#each panels}}
-    <div id="{{panelName}}" class="content {{#if active}}active{{/if}}">
+    <div id="{{panelName}}" class="tabs-panel {{#if active}}is-active{{/if}}">
       {{{html}}}
     </div>
     {{/each}}

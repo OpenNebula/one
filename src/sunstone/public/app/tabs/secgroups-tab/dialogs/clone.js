@@ -65,14 +65,14 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    context.foundation('abide', 'reflow');
-    context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
-    context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
-
-    context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-    }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      var name = $('input', this).val();
+    Foundation.reflow(context, 'abide');
+    $('#' + DIALOG_ID + 'Form', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+        Sunstone.hideFormPanelLoading(that.tabId);
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+      var name = $('input', frm).val();
       var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
 
       if (sel_elems.length > 1){
@@ -84,9 +84,10 @@ define(function(require) {
       } else {
         Sunstone.runAction('SecurityGroup.clone',sel_elems[0],name);
       }
-
-      return false;
-    });
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
 
     return false;
   }

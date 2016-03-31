@@ -102,10 +102,11 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description=> "Netmask in dot notation"
     ]
 
-    VLAN = [
-        :name       => "vlan",
-        :large      => "--vlan",
-        :description=> "Use network isolation"
+    VN_MAD = [
+        :name       => "vn_mad",
+        :large      => "--vn_mad mad",
+        :format     => String,
+        :description=> "Use this driver for the network"
     ]
 
     VLAN_ID = [
@@ -116,7 +117,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
     ]
 
     ADDAR_OPTIONS = [
-        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VLAN, VLAN_ID ]
+        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD, VLAN_ID ]
 
     def self.rname
         "VNET"
@@ -149,8 +150,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
-            column :CLUSTER, "Name of the Cluster", :left, :size=>10 do |d|
-                OpenNebulaHelper.cluster_str(d["CLUSTER"])
+            column :CLUSTERS, "Cluster IDs", :left, :size=>10 do |d|
+                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"])
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
@@ -163,7 +164,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["USED_LEASES"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :BRIDGE, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :LEASES
         end
 
         table
@@ -209,9 +210,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
-        puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(vn['CLUSTER'])]
+        puts str % ["CLUSTERS",
+            OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]
-        puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
+        puts str % ["VN_MAD", vn['VN_MAD']] if !vn['VN_MAD'].empty?
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
         puts str % ["USED LEASES", vn['USED_LEASES']]
@@ -251,6 +253,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             str="%-15s: %-20s"
             puts str % ["SIZE", ar["SIZE"]]
             puts str % ["LEASES", ar["USED_LEASES"]]
+            puts str % ["VN_MAD", ar["VN_MAD"]] if ar["VN_MAD"]
             puts
 
             format = "%-10s %34s %34s"

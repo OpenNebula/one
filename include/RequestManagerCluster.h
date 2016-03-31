@@ -36,7 +36,6 @@ protected:
     {
         Nebula& nd = Nebula::instance();
         clpool     = nd.get_clpool();
-        hpool      = nd.get_hpool();
         dspool     = nd.get_dspool();
         vnpool     = nd.get_vnpool();
 
@@ -49,7 +48,6 @@ protected:
     /* --------------------------------------------------------------------- */
 
     ClusterPool *           clpool;
-    HostPool *              hpool;
     DatastorePool *         dspool;
     VirtualNetworkPool *    vnpool;
 
@@ -63,12 +61,28 @@ protected:
             int                         object_id,
             RequestAttributes&          att,
             PoolSQL *                   pool,
-            PoolObjectSQL::ObjectType   type);
-
-    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
+            PoolObjectSQL::ObjectType   type)
     {
-        return Datastore::FILE_DS;
-    };
+        action_generic(cluster_id, object_id, att, pool, type, true);
+    }
+
+    void del_generic(
+            int                         cluster_id,
+            int                         object_id,
+            RequestAttributes&          att,
+            PoolSQL *                   pool,
+            PoolObjectSQL::ObjectType   type)
+    {
+        action_generic(cluster_id, object_id, att, pool, type, false);
+    }
+
+    void action_generic(
+            int                         cluster_id,
+            int                         object_id,
+            RequestAttributes&          att,
+            PoolSQL *                   pool,
+            PoolObjectSQL::ObjectType   type,
+            bool                        add);
 
     /**
      * Add object to cluster id collection
@@ -81,7 +95,6 @@ protected:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg) = 0;
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
@@ -92,38 +105,36 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class RequestManagerClusterHost : public RequestManagerCluster
+class RequestManagerClusterHost: public Request
 {
-public:
+protected:
     RequestManagerClusterHost(
             const string& method_name,
             const string& help,
-            const string& params):
-                RequestManagerCluster(method_name, help, params){};
+            const string& params)
+                :Request(method_name,params,help)
+            {
+                Nebula& nd = Nebula::instance();
+                clpool     = nd.get_clpool();
+                hpool      = nd.get_hpool();
+
+                auth_object = PoolObjectSQL::CLUSTER;
+                auth_op     = AuthRequest::ADMIN;
+            };
 
     ~RequestManagerClusterHost(){};
 
-    virtual int add_object(
-            Cluster* cluster,
-            int id,
-            Datastore::DatastoreType ds_type,
-            string& error_msg)
-    {
-        return cluster->add_host(id, error_msg);
-    };
+    /* --------------------------------------------------------------------- */
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg)
-    {
-        return cluster->del_host(id, error_msg);
-    };
+    ClusterPool *   clpool;
+    HostPool *      hpool;
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
-    {
-        Host * host = hpool->get(oid, lock);
+    /* --------------------------------------------------------------------- */
 
-        *object      = static_cast<PoolObjectSQL *>(host);
-        *cluster_obj = static_cast<Clusterable *>(host);
-    };
+    void add_generic(
+            int                 cluster_id,
+            int                 host_id,
+            RequestAttributes&  att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -145,8 +156,7 @@ public:
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
-                hpool, PoolObjectSQL::HOST);
+        return add_generic(cluster_id, object_id, att);
     }
 };
 
@@ -168,11 +178,10 @@ public:
     {
         // First param is ignored, as objects can be assigned to only
         // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = ClusterPool::DEFAULT_CLUSTER_ID;
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
-                hpool, PoolObjectSQL::HOST);
+        return add_generic(cluster_id, object_id, att);
     }
 };
 
@@ -190,18 +199,12 @@ public:
 
     ~RequestManagerClusterDatastore(){};
 
-    virtual Datastore::DatastoreType get_ds_type(PoolObjectSQL *obj)
-    {
-        return static_cast<Datastore*>(obj)->get_type();
-    };
-
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
-        return cluster->add_datastore(id, ds_type, error_msg);
+        return cluster->add_datastore(id, error_msg);
     };
 
     virtual int del_object(Cluster* cluster, int id, string& error_msg)
@@ -258,12 +261,10 @@ public:
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        // First param is ignored, as objects can be assigned to only
-        // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
+        return del_generic(cluster_id, object_id, att,
                 dspool, PoolObjectSQL::DATASTORE);
     }
 };
@@ -286,7 +287,6 @@ public:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            Datastore::DatastoreType ds_type,
             string& error_msg)
     {
         return cluster->add_vnet(id, error_msg);
@@ -346,12 +346,10 @@ public:
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att)
     {
-        // First param is ignored, as objects can be assigned to only
-        // one cluster
-        int cluster_id  = ClusterPool::NONE_CLUSTER_ID;
+        int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
-        return add_generic(cluster_id, object_id, att,
+        return del_generic(cluster_id, object_id, att,
                 vnpool, PoolObjectSQL::NET);
     }
 };

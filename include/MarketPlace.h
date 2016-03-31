@@ -83,6 +83,14 @@ public:
     };
 
     /**
+     *  Get zone for this market
+     *    @return zone id
+     */
+    int get_zone_id() const
+    {
+        return zone_id;
+    };
+    /**
      *  Set monitor information for the MarketPlace
      *    @param data template with monitor information
      */
@@ -98,7 +106,30 @@ public:
         return supported_actions.is_set(action);
     }
 
+    /**
+     *  @return true if this is a public (external) marketplace
+     */
     bool is_public() const;
+
+    /**
+     *  Disbale de monitor action for this marketplace
+     *    @return true if the monitor was enabled
+     */
+    bool disable_monitor()
+    {
+        bool enabled = supported_actions.is_set(MarketPlaceApp::MONITOR);
+
+        supported_actions.clear(MarketPlaceApp::MONITOR);
+
+        return enabled;
+    }
+    /**
+     *   Enable the monitor action
+     */
+    void enable_monitor()
+    {
+        supported_actions.set(MarketPlaceApp::MONITOR);
+    }
 
 private:
 
@@ -126,6 +157,11 @@ private:
      * Used capacity in MB
      */
      long long used_mb;
+
+    /**
+     * Zone where this market lives
+     */
+     int zone_id;
 
     /**
      *  Supported actions on MarketPlaceApps
@@ -159,6 +195,14 @@ private:
     static const char * db_bootstrap;
 
     static const char * table;
+
+    /**
+     *  Builds the marketplace from the template. This function MUST be called
+     *  with the template initialized
+     *    @param error_str describing the error
+     *    @return 0 on success;
+     */
+    int parse_template(string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

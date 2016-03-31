@@ -27,12 +27,20 @@ define(function(require) {
   var XML_ROOT = "DATASTORE";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
+  var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "Datastore.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Datastore.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Datastore.import_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
+      }
+    },
     "Datastore.list" : _commonActions.list(),
     "Datastore.show" : _commonActions.show(),
     "Datastore.refresh" : _commonActions.refresh(),
@@ -47,56 +55,21 @@ define(function(require) {
     "Datastore.enable": _commonActions.multipleAction('enable'),
     "Datastore.disable": _commonActions.multipleAction('disable'),
 
-    "Datastore.addtocluster" : {
-      type: "multiple",
-      call: function(params, success) {
-        var cluster = params.data.extra_param;
-        var ds = params.data.id;
+    "Datastore.addtocluster" : _commonActions.checkAndShow("clusters"),
 
-        if (cluster == -1) {
-          OpenNebulaResource.show({
-            data : {
-              id: ds
-            },
-            success: function (request, ds_info) {
-              var current_cluster = ds_info.DATASTORE.CLUSTER_ID;
+    "Datastore.clusters" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).setParams({
+          element: response[XML_ROOT],
+          resource:"datastore"
+        });
 
-              if (current_cluster != -1) {
-                OpenNebulaCluster.deldatastore({
-                  data: {
-                    id: current_cluster,
-                    extra_param: ds
-                  },
-                  success: function() {
-                    OpenNebulaAction.clear_cache("DATASTORE");
-                    Sunstone.runAction('Datastore.show', ds);
-                  },
-                  error: Notifier.onError
-                });
-              } else {
-                OpenNebulaAction.clear_cache("DATASTORE");
-                Sunstone.runAction('Datastore.show', ds);
-              }
-            },
-            error: Notifier.onError
-          });
-        } else {
-          OpenNebulaCluster.adddatastore({
-            data: {
-              id: cluster,
-              extra_param: ds
-            },
-            success: function() {
-              OpenNebulaAction.clear_cache("DATASTORE");
-              Sunstone.runAction('Datastore.show', ds);
-            },
-            error: Notifier.onError
-          });
-        }
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).show();
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      }
+      error: Notifier.onError
     }
   };
 

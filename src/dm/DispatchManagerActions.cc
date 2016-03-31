@@ -21,6 +21,7 @@
 #include "TransferManager.h"
 #include "ImageManager.h"
 #include "Quotas.h"
+#include "Request.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -78,6 +79,7 @@ int DispatchManager::import (
     VirtualMachine *    vm)
 {
     ostringstream oss;
+    string import_state;
 
     if ( vm == 0 )
     {
@@ -98,9 +100,18 @@ int DispatchManager::import (
 
     hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-    vm->set_state(VirtualMachine::ACTIVE);
+    import_state = vm->get_import_state();
 
-    vm->set_state(VirtualMachine::RUNNING);
+    if(import_state == "POWEROFF")
+    {
+        vm->set_state(VirtualMachine::POWEROFF);
+        vm->set_state(VirtualMachine::LCM_INIT);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::RUNNING);
+    }
 
     vmpool->update(vm);
 
@@ -972,7 +983,7 @@ int DispatchManager::attach(int vid,
     int uid;
     int oid;
     int image_id;
-    int image_cluster_id;
+    string disk_cluster_ids;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -1071,34 +1082,43 @@ int DispatchManager::attach(int vid,
     }
 
     // Check that we don't have a cluster incompatibility.
-    if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
+    if (disk->vector_value("CLUSTER_ID", disk_cluster_ids) == 0)
     {
-      if (vm->get_cid() != image_cluster_id)
-      {
-          imagem->release_image(oid, image_id, false);
+        set<int> cluster_ids;
+        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
 
-          delete snap;
-          delete disk;
+        if (cluster_ids.count(vm->get_cid()) == 0)
+        {
+            imagem->release_image(oid, image_id, false);
 
-          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-          {
-              vm->set_state(VirtualMachine::RUNNING);
-          }
-          else
-          {
-              vm->set_state(VirtualMachine::LCM_INIT);
-              vm->set_state(VirtualMachine::POWEROFF);
-          }
+            delete snap;
+            delete disk;
 
-          vmpool->update(vm);
+            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+            else
+            {
+                vm->set_state(VirtualMachine::LCM_INIT);
+                vm->set_state(VirtualMachine::POWEROFF);
+            }
 
-          vm->unlock();
+            vmpool->update(vm);
 
-          error_str = "Could not attach disk because of cluster incompatibility.";
+            vm->unlock();
 
-          NebulaLog::log("DiM", Log::ERROR, error_str);
-          return -1;
-      }
+            oss << "Could not attach disk because "
+                << Request::object_name(PoolObjectSQL::IMAGE)
+                << " [" << image_id << "] is not part of "
+                << Request::object_name(PoolObjectSQL::CLUSTER)
+                << " [" << vm->get_cid() << "].";
+
+            error_str = oss.str();
+
+            NebulaLog::log("DiM", Log::ERROR, error_str);
+            return -1;
+        }
     }
 
     // Set the VM info in the history before the disk is attached to the
@@ -1444,6 +1464,7 @@ int DispatchManager::attach_nic(
     int oid;
     int rc;
     string tmp_error;
+    string nic_cluster_ids;
 
     set<int> vm_sgs;
 
@@ -1559,6 +1580,47 @@ int DispatchManager::attach_nic(
         NebulaLog::log("DiM", Log::ERROR, error_str);
 
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    if (nic->vector_value("CLUSTER_ID", nic_cluster_ids) == 0)
+    {
+        set<int> cluster_ids;
+        one_util::split_unique(nic_cluster_ids, ',', cluster_ids);
+
+        if (cluster_ids.count(vm->get_cid()) == 0)
+        {
+            VirtualMachine::release_network_leases(nic, vid);
+
+            vector<VectorAttribute*>::iterator it;
+            for(it = sg_rules.begin(); it != sg_rules.end(); it++)
+            {
+                delete *it;
+            }
+
+            delete nic;
+
+            oss << "Could not attach nic because "
+                    << Request::object_name(PoolObjectSQL::NET)
+            << " is not part of "
+            << Request::object_name(PoolObjectSQL::CLUSTER)
+            << " [" << vm->get_cid() << "].";
+
+            error_str = oss.str();
+
+            if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+            }
+
+            vmpool->update(vm);
+
+            vm->unlock();
+
+            NebulaLog::log("DiM", Log::ERROR, error_str);
+
+            return -1;
+        }
     }
 
     // Set the VM info in the history before the nic is attached to the
@@ -1859,8 +1921,7 @@ int DispatchManager::disk_snapshot_revert(
     VirtualMachine::LcmState lstate = vm->get_lcm_state();
 
     if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
-        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
-        (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
+        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT))
     {
         oss << "Could not revert to disk snapshot for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1898,11 +1959,6 @@ int DispatchManager::disk_snapshot_revert(
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED);
             break;
 
-        case VirtualMachine::ACTIVE:
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT);
-            break;
-
         default: break;
     }
 
@@ -1910,19 +1966,7 @@ int DispatchManager::disk_snapshot_revert(
 
     vm->unlock();
 
-    switch(state)
-    {
-        case VirtualMachine::POWEROFF:
-        case VirtualMachine::SUSPENDED:
-            tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
-            break;
-
-        case VirtualMachine::ACTIVE:
-            vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_REVERT, vid);
-            break;
-
-        default: break;
-    }
+    tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
 
     return 0;
 }

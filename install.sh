@@ -233,11 +233,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/onedb/local \
           $LIB_LOCATION/ruby/onedb/patches \
           $LIB_LOCATION/ruby/vendors \
-          $LIB_LOCATION/ruby/vendors/rbvmomi \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/utils \
-          $LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/vim \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/ruby/cli \
@@ -284,6 +279,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
+          $VAR_LOCATION/remotes/tm/vcenter \
           $VAR_LOCATION/remotes/tm/iscsi \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
@@ -294,6 +290,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
+          $VAR_LOCATION/remotes/datastore/vcenter \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
@@ -422,6 +419,7 @@ INSTALL_FILES=(
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
     TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
+    TM_VCENTER_FILES:$VAR_LOCATION/remotes/tm/vcenter
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
@@ -429,6 +427,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
+    DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
@@ -455,11 +454,7 @@ INSTALL_FILES=(
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    RBVMOMI_VENDOR_RUBY_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi
-    RBVMOMI_VENDOR_RUBY_LIB_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/vim
-    RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi/lib/rbvmomi/utils
+    VENDOR_DIRS:$LIB_LOCATION/ruby/vendors
 )
 
 INSTALL_CLIENT_FILES=(
@@ -936,7 +931,6 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/vnmmad.rb \
                src/vnm_mad/remotes/OpenNebulaNetwork.conf \
-               src/vnm_mad/remotes/lib/fw_driver.rb \
                src/vnm_mad/remotes/lib/sg_driver.rb \
                src/vnm_mad/remotes/lib/address.rb \
                src/vnm_mad/remotes/lib/command.rb \
@@ -1156,6 +1150,20 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/failmigrate \
                  src/tm_mad/dev/delete"
 
+TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
+                 src/tm_mad/vcenter/ln \
+                 src/tm_mad/vcenter/mv \
+                 src/tm_mad/vcenter/mvds \
+                 src/tm_mad/vcenter/cpds \
+                 src/tm_mad/vcenter/premigrate \
+                 src/tm_mad/vcenter/postmigrate \
+                 src/tm_mad/vcenter/snap_create \
+                 src/tm_mad/vcenter/snap_create_live \
+                 src/tm_mad/vcenter/snap_delete \
+                 src/tm_mad/vcenter/snap_revert \
+                 src/tm_mad/vcenter/failmigrate \
+                 src/tm_mad/vcenter/delete"
+
 TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
                  src/tm_mad/iscsi/ln \
                  src/tm_mad/iscsi/mv \
@@ -1180,6 +1188,8 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
+                             src/datastore_mad/remotes/vcenter_uploader.rb \
+                             src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
                              src/datastore_mad/remotes/libfs.sh"
 
@@ -1249,6 +1259,17 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/snap_revert \
                          src/datastore_mad/remotes/dev/snap_flatten \
                          src/datastore_mad/remotes/dev/clone"
+
+DATASTORE_DRIVER_VCENTER_SCRIPTS="src/datastore_mad/remotes/vcenter/cp \
+                         src/datastore_mad/remotes/vcenter/mkfs \
+                         src/datastore_mad/remotes/vcenter/stat \
+                         src/datastore_mad/remotes/vcenter/rm \
+                         src/datastore_mad/remotes/vcenter/monitor \
+                         src/datastore_mad/remotes/vcenter/snap_delete \
+                         src/datastore_mad/remotes/vcenter/snap_revert \
+                         src/datastore_mad/remotes/vcenter/snap_flatten \
+                         src/datastore_mad/remotes/vcenter/clone \
+                         src/datastore_mad/remotes/vcenter/export"
 
 DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
                          src/datastore_mad/remotes/iscsi/mkfs \
@@ -1951,49 +1972,7 @@ DOCS_FILES="LICENSE NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-RBVMOMI_VENDOR_RUBY_FILES="share/vendor/ruby/gems/rbvmomi/LICENSE \
-share/vendor/ruby/gems/rbvmomi/README.rdoc \
-share/vendor/ruby/gems/rbvmomi/VERSION \
-share/vendor/ruby/gems/rbvmomi/vmodl.db"
-
-RBVMOMI_VENDOR_RUBY_LIB_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/basic_types.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/connection.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/deserialization.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/fault.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/pbm.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trivial_soap.rb
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/trollop.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/type_loader.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_UTILS_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/admission_control.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/deploy.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/leases.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/utils/perfdump.rb"
-
-RBVMOMI_VENDOR_RUBY_LIB_RBVMOMI_VIM_FILES="share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ComputeResource.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datacenter.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Datastore.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrAllTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrDataTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/DynamicTypeMgrManagedTypeInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Folder.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/HostSystem.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ManagedEntity.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ManagedObject.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ObjectContent.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ObjectUpdate.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/OvfManager.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PerfCounterInfo.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PerformanceManager.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/PropertyCollector.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ReflectManagedMethodExecuter.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ResourcePool.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/ServiceInstance.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/Task.rb \
-share/vendor/ruby/gems/rbvmomi/lib/rbvmomi/vim/VirtualMachine.rb"
+VENDOR_DIRS="share/vendor/ruby/gems/rbvmomi"
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------

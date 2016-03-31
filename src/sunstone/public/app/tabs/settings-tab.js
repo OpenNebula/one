@@ -47,8 +47,8 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-cog"></i>&emsp;' + Locale.tr("Settings"),
-    listHeader: '<i class="fa fa-cog"></i>&emsp;' + Locale.tr("Settings"),
+    title: Locale.tr("Settings"),
+    listHeader: Locale.tr("Settings"),
     resource: 'Settings',
     actions: _actions,
     content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +

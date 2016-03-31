@@ -19,12 +19,12 @@
     <div class="row">
       <div class="large-12 large-centered columns">
         <dl class="accordion" data-accordion>
-          <dd class="accordion-navigation">
-            <a href="#provision_update_language_accordion" class="text-center accordion-a">
+          <dd class="accordion-item" data-accordion-item>
+            <a href="#provision_update_language_accordion" class="text-center accordion-title">
               <div class="row only-not-active">
                 <div class="large-12 large-centered columns">
                   <div class="text-center">
-                    <span class="fa-stack fa-3x" style="color: #777"> <i class="fa fa-cloud fa-stack-2x"></i> <i class="fa fa-comments fa-stack-1x fa-inverse"></i>
+                    <span class="fa-stack fa-3x"> <i class="fa fa-cloud fa-stack-2x"></i> <i class="fa fa-comments fa-stack-1x fa-inverse"></i>
                     </span>
                   </div>
                 </div>
@@ -33,12 +33,12 @@
               <i class="fa fa-lg fa-comments only-active"></i>
               {{tr "Change Language"}}
             </a>
-            <div id="provision_update_language_accordion" class="content">
+            <div id="provision_update_language_accordion" class="accordion-content" data-tab-content>
               <br>
               <form id="provision_change_language_form">
                 <div class="row">
                   <div class="large-12 columns">
-                    <select type="language" id="provision_new_language" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">{{{languageOptions}}}</select>
+                    <select type="language" id="provision_new_language" class="provision-input">{{{languageOptions}}}</select>
                   </div>
                 </div>
                 <div class="row">
@@ -57,12 +57,12 @@
     <div class="row">
       <div class="large-12 large-centered columns">
         <dl class="accordion" data-accordion>
-          <dd class="accordion-navigation">
-            <a href="#provision_update_password_accordion" class="text-center accordion-a">
+          <dd class="accordion-item" data-accordion-item>
+            <a href="#provision_update_password_accordion" class="text-center accordion-title">
               <div class="row only-not-active">
                 <div class="large-12 large-centered columns">
                   <div class="text-center">
-                    <span class="fa-stack fa-3x" style="color: #777">
+                    <span class="fa-stack fa-3x">
                       <i class="fa fa-cloud fa-stack-2x"></i>
                       <i class="fa fa-lock fa-stack-1x fa-inverse"></i>
                     </span>
@@ -73,17 +73,17 @@
               <i class="fa fa-lg fa-lock only-active"></i>
               {{tr "Change Password"}}
             </a>
-            <div id="provision_update_password_accordion" class="content">
+            <div id="provision_update_password_accordion" class="accordion-content" data-tab-content>
               <br>
               <form id="provision_change_password_form">
                 <div class="row">
                   <div class="large-12 columns">
-                    <input type="password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+                    <input type="password" id="provision_new_password" class="provision-input" placeholder="{{tr "New Password"}}"/>
                   </div>
                 </div>
                 <div class="row">
                   <div class="large-12 columns">
-                    <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+                    <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
                   </div>
                 </div>
                 <div class="row">
@@ -106,12 +106,12 @@
     <div class="row">
       <div class="large-12 large-centered columns">
         <dl class="accordion" data-accordion>
-          <dd class="accordion-navigation">
-            <a href="#provision_update_view_accordion" class="text-center accordion-a">
+          <dd class="accordion-item" data-accordion-item>
+            <a href="#provision_update_view_accordion" class="text-center accordion-title">
               <div class="row only-not-active">
                 <div class="large-12 large-centered columns">
                   <div class="text-center">
-                    <span class="fa-stack fa-3x" style="color: #777">
+                    <span class="fa-stack fa-3x">
                       <i class="fa fa-cloud fa-stack-2x"></i>
                       <i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>
                     </span>
@@ -122,12 +122,12 @@
               <i class="fa fa-lg fa-picture-o only-active"></i>
               {{tr "Change view"}}
             </a>
-            <div id="provision_update_view_accordion" class="content">
+            <div id="provision_update_view_accordion" class="accordion-content" data-tab-content>
               <br>
               <form id="provision_change_view_form">
                 <div class="row">
                   <div class="large-12 columns">
-                    <select id="provision_user_views_select" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"></select>
+                    <select id="provision_user_views_select" class="provision-input"></select>
                   </div>
                 </div>
                 <div class="row">
@@ -147,12 +147,12 @@
       <div class="row">
         <div class="large-12 large-centered columns">
           <dl class="accordion" data-accordion>
-            <dd class="accordion-navigation">
-              <a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">
+            <dd class="accordion-item" data-accordion-item>
+              <a href="#provision_add_ssh_key_accordion" class="text-center accordion-title">
                 <div class="row only-not-active">
                   <div class="large-12 large-centered columns">
                     <div class="text-center">
-                      <span class="fa-stack fa-3x" style="color: #777">
+                      <span class="fa-stack fa-3x">
                         <i class="fa fa-cloud fa-stack-2x"></i>
                         <i class="fa fa-key fa-stack-1x fa-inverse"></i>
                       </span>
@@ -164,9 +164,9 @@
                 <span class="provision_add_ssh_key_button">{{tr "Add SSH Key"}}</span>
                 <span class="provision_update_ssh_key_button">{{tr "Update SSH Key"}}</span>
               </a>
-              <div id="provision_add_ssh_key_accordion" class="content">
+              <div id="provision_add_ssh_key_accordion" class="accordion-content" data-tab-content>
                 <br>
-                <p style="font-size: 16px; color: #999">
+                <p>
                   <span class="provision_add_ssh_key_button">
                     {{tr "Add a public SSH key to your account!"}}
                     <br>
@@ -180,13 +180,13 @@
                 </p>
                 <div class="row">
                   <div class="large-12 large-centered columns">
-                    <textarea id="provision_ssh_key" style="height: 100px; font-size: 14px" placeholder="SSH key" class="provision-input"></textarea>
+                    <textarea id="provision_ssh_key" placeholder="SSH key" class="provision-input"></textarea>
                   </div>
                 </div>
                 <div class="row">
                   <div class="large-12 large-centered columns">
                     <button href="#" type="submit" class="provision_add_ssh_key_button button large radius large-12 small-12">{{tr "Add SSH Key"}}</button>
-                    <button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12 hidden">{{tr "Update SSH Key"}}</button>
+                    <button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12" hidden>{{tr "Update SSH Key"}}</button>
                   </div>
                 </div>
               </div>

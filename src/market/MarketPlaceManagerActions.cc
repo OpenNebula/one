@@ -43,13 +43,7 @@ int MarketPlaceManager::import_app(
 
 	int ds_id;
 
-    const MarketPlaceManagerDriver* mpmd = get();
-
-    if ( mpmd == 0 )
-    {
-        err = "Error getting MarketPlaceManagerDriver";
-        return -1;
-    }
+    const MarketPlaceManagerDriver* mpmd;
 
     MarketPlaceApp * app = apppool->get(appid, true);
 
@@ -75,8 +69,7 @@ int MarketPlaceManager::import_app(
 
 			if ( image == 0 )
 			{
-				err = "Image does not exist.";
-				return -1;
+                goto error_noimage;
 			}
 
             image->to_xml(image_data);
@@ -89,34 +82,75 @@ int MarketPlaceManager::import_app(
 
 			if ( ds == 0 )
 			{
-				err = "Image datastore no longer exists.";
-				return -1;
+                goto error_nods;
 			}
 
             ds->to_xml(ds_data);
 
             ds->unlock();
 
-			if (imagem->set_clone_state(-app_id, origin_id, err) != 0)
+			if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
 			{
-				return -1;
+				goto error_clone;
 			}
 			break;
 
         case MarketPlaceApp::VMTEMPLATE:
         case MarketPlaceApp::SERVICE_TEMPLATE:
         case MarketPlaceApp::UNKNOWN:
-            err = "Marketplace app type not supported.";
-            return -1;
+            goto error_type;
     }
 
     msg = format_message(app_data, market_data, image_data + ds_data);
+
+    mpmd = get();
+
+    if ( mpmd == 0 )
+    {
+        goto error_driver;
+    }
 
     mpmd->importapp(appid, *msg);
 
     delete msg;
 
     return 0;
+
+error_driver:
+    err = "Error getting MarketPlaceManagerDriver";
+    goto error_common;
+
+error_noimage:
+    err = "Image does not exist.";
+    goto error_common;
+
+error_nods:
+    err = "Image datastore no longer exists.";
+    goto error_common;
+
+error_type:
+    err = "Marketplace app type not supported.";
+
+error_clone:
+error_common:
+    app = apppool->get(appid, true);
+
+    if ( app == 0 )
+    {
+        return -1;
+    }
+
+    app->set_template_error_message(err);
+
+    app->set_state(MarketPlaceApp::ERROR);
+
+    apppool->update(app);
+
+    app->unlock();
+
+    NebulaLog::log("MKP", Log::ERROR, err);
+
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,7 +174,7 @@ void MarketPlaceManager::release_app_resources(int appid)
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
-            imagem->release_cloning_image(iid, -appid);
+            imagem->release_cloning_app(iid, appid);
             return;
 
         case MarketPlaceApp::VMTEMPLATE:

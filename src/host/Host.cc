@@ -36,7 +36,7 @@ Host::Host(
     int           _cluster_id,
     const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
-        Clusterable(_cluster_id, _cluster_name),
+        ClusterableSingle(_cluster_id, _cluster_name),
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
@@ -592,9 +592,9 @@ string& Host::to_xml(string& xml) const
        "<ID>"               << oid              << "</ID>"              <<
        "<NAME>"             << name             << "</NAME>"            <<
        "<STATE>"            << state            << "</STATE>"           <<
-       "<IM_MAD><![CDATA["  << im_mad_name      << "]]></IM_MAD>"       <<
-       "<VM_MAD><![CDATA["  << vmm_mad_name     << "]]></VM_MAD>"       <<
-       "<VN_MAD><![CDATA["  << vnm_mad_name     << "]]></VN_MAD>"       <<
+       "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
+       "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
+       "<VN_MAD>"        << one_util::escape_xml(vnm_mad_name) << "</VN_MAD>" <<
        "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
        "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
        "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
@@ -672,17 +672,7 @@ int Host::from_xml(const string& xml)
     content.clear();
 
     // ------------ VMS collection ---------------
-
-    ObjectXML::get_nodes("/HOST/VMS", content);
-
-    if (content.empty())
-    {
-        return -1;
-    }
-
-    rc += vm_collection.from_xml_node(content[0]);
-
-    ObjectXML::free_nodes(content);
+    rc += vm_collection.from_xml(this, "/HOST/");
 
     if (rc != 0)
     {

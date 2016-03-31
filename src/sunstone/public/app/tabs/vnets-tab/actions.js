@@ -32,6 +32,7 @@ define(function(require) {
   var UPDATE_AR_DIALOG_ID = require('./dialogs/update-ar/dialogId');
   var RESERVE_DIALOG_ID = require('./dialogs/reserve/dialogId');
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
+  var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -128,58 +129,21 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "Network.addtocluster" : {
-      type: "multiple",
-      call: function(params){
-        var cluster = params.data.extra_param;
-        var vnet = params.data.id;
+    "Network.addtocluster" : _commonActions.checkAndShow("clusters"),
 
-        if (cluster == -1){
-          OpenNebulaResource.show({
-            data : {
-              id: vnet
-            },
-            success: function (request, vn){
-              var vn_info = vn.VNET;
+    "Network.clusters" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).setParams({
+          element: response[XML_ROOT],
+          resource:"vnet"
+        });
 
-              var current_cluster = vn_info.CLUSTER_ID;
-
-              if(current_cluster != -1){
-                OpenNebulaCluster.delvnet({
-                  data: {
-                    id: current_cluster,
-                    extra_param: vnet
-                  },
-                  success: function(){
-                    OpenNebulaAction.clear_cache("VNET");
-                    Sunstone.runAction('Network.show',vnet);
-                  },
-                  error: Notifier.onError
-                });
-              } else {
-                OpenNebulaAction.clear_cache("VNET");
-                Sunstone.runAction('Network.show',vnet);
-              }
-            },
-            error: Notifier.onError
-          });
-        } else {
-          OpenNebulaCluster.addvnet({
-            data: {
-              id: cluster,
-              extra_param: vnet
-            },
-            success: function(){
-              OpenNebulaAction.clear_cache("VNET");
-              Sunstone.runAction('Network.show',vnet);
-            },
-            error: Notifier.onError
-          });
-        }
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).reset();
+        Sunstone.getDialog(CLUSTERS_DIALOG_ID).show();
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      }
+      error: Notifier.onError
     }
   };
 

@@ -92,6 +92,8 @@ require 'yaml'
 require 'securerandom'
 require 'tmpdir'
 require 'fileutils'
+require 'base64'
+require 'rexml/document'
 
 require 'CloudAuth'
 require 'SunstoneServer'
@@ -324,7 +326,7 @@ before do
     request.body.rewind
 
     unless %w(/ /login /vnc /spice).include?(request.path)
-        halt 401 unless authorized? && valid_csrftoken?
+        halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
     if env['HTTP_ZONE_NAME']
@@ -715,6 +717,45 @@ post '/upload_chunk' do
     end
 
     ""
+end
+
+##############################################################################
+# Download marketplaceapp
+##############################################################################
+get '/marketplaceapp/:id/download' do
+    dl_resource = @SunstoneServer.download_marketplaceapp(params[:id])
+
+    # If the first element of dl_resource is a number, it is the exit_code after
+    # an error happend, so return it.
+    return dl_resource if dl_resource[0].kind_of?(Fixnum)
+
+    download_cmd, filename = dl_resource
+
+    # Send headers
+    headers['Cache-Control']       = "no-transform" # Do not use Rack::Deflater
+    headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+
+    content_type :'application/octet-stream'
+
+    # Start stream
+    stream do |out|
+        Open3.popen3(download_cmd) do |_,o,e,w|
+
+            until o.eof?
+                # Read in chunks of 16KB
+                out << o.read(16384)
+            end
+
+            if !w.value.success?
+                error_message = "downloader.sh: " << e.read
+                logger.error { error_message }
+
+                if request.user_agent == "OpenNebula CLI"
+                    out << "@^_^@ #{error_message} @^_^@"
+                end
+            end
+        end
+    end
 end
 
 ##############################################################################

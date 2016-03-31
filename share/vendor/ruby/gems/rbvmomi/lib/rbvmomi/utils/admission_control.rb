@@ -41,6 +41,8 @@
 # computer (cluster), resource pool, vm_folder and datastore. Currently once 
 # computed, a new updated placement can't be generated.
 class AdmissionControlledResourceScheduler
+  attr_reader :rp
+  
   def initialize vim, opts = {}
     @vim = vim
     
@@ -330,6 +332,10 @@ class AdmissionControlledResourceScheduler
   # datastore without much intelligence, as long as it passes admission control.
   # @return [VIM::Datastore] Chosen datastore
   def datastore placementHint = nil
+    if @datastore
+      return @datastore
+    end
+    
     pod_datastores = pick_computer.datastore & datastores
   
     eligible = pod_datastores.select do |ds|

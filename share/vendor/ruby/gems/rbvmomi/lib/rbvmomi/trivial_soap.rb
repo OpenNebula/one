@@ -14,7 +14,7 @@ class RbVmomi::TrivialSoap
     @opts = opts
     return unless @opts[:host] # for testcases
     @debug = @opts[:debug]
-    @cookie = nil
+    @cookie = @opts[:cookie]
     @lock = Mutex.new
     @http = nil
     restart_http

@@ -18,11 +18,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var TemplateUtils = require('utils/template-utils');
   var VNetsTable = require('tabs/vnets-tab/datatable');
+  var RangeSlider = require('utils/range-slider');
 
   var TemplateHTML = require('hbs!./user-inputs/table');
   var RowTemplateHTML = require('hbs!./user-inputs/row');
-
-  var uinputListId = 0;
 
 
   //==============================================================================
@@ -45,10 +44,7 @@ define(function(require) {
     'unmarshall': _unmarshall,
     'parse': _parse,
     'generateInputElement': _generateInputElement,
-    'attributeInput': _attributeInput,
-
-    // Setup
-    'initialSetup': _initialSetup
+    'attributeInput': _attributeInput
   };
 
   function _html(){
@@ -88,11 +84,17 @@ define(function(require) {
         switch(attr.type){
           case "number":
           case "number-float":
+          case "fixed":
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
             break;
 
           case "range":
           case "range-float":
+            var min = $("."+attr.type+" input.user_input_params_min", $(this)).val();
+            var max = $("."+attr.type+" input.user_input_params_max", $(this)).val();
+            attr.params  = min + ".." + max;
+            attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
+            break;
           case "list":
             attr.params  = $("."+attr.type+" input.user_input_params", $(this)).val();
             attr.initial = $("."+attr.type+" input.user_input_initial", $(this)).val();
@@ -125,11 +127,25 @@ define(function(require) {
         switch(attr.type){
           case "number":
           case "number-float":
+          case "fixed":
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
             break;
 
           case "range":
           case "range-float":
+            var values = attr.params.split("..");  // "2..8"
+
+            if (values.length == 2){
+              $("."+attr.type+" input.user_input_params_min", trcontext).val(values[0]);
+              $("."+attr.type+" input.user_input_params_max", trcontext).val(values[1]);
+            } else {
+              console.error('Wrong user input parameters for "'+key+'". Expected "MIN..MAX", received "'+attr.params+'"');
+            }
+
+            $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
+
+            break;
+
           case "list":
             $("."+attr.type+" input.user_input_params", trcontext).val(attr.params);
             $("."+attr.type+" input.user_input_initial", trcontext).val(attr.initial);
@@ -170,6 +186,8 @@ define(function(require) {
   function _generateInstantiateUserInputs(div, user_inputs, opts) {
     div.empty();
 
+    var html = '';
+
     if (user_inputs == undefined) {
       return false;
     }
@@ -200,19 +218,19 @@ define(function(require) {
     });
 
     if (network_attrs.length > 0) {
+      html += '<fieldset>';
       if (opts.network_header.length > 0) {
-        div.append(
-        '<br>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader">' +
-              opts.network_header +
-            '</h3>' +
-          '</div>' +
-        '</div>');
+        html += '<legend>' +
+            opts.network_header +
+          '</legend>' +
+          '</div>';
       }
 
-      div.append('<div class="instantiate_user_inputs"/>');
+      html += '<div class="instantiate_user_inputs">' +
+          '</div>' +
+        '</fieldset>';
+
+      div.append(html);
 
       var separator = "";
 
@@ -243,19 +261,19 @@ define(function(require) {
     }
 
     if (input_attrs.length > 0) {
+      html += '<fieldset>';
       if (opts.text_header.length > 0) {
-        div.append(
-        '<br>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader">' +
-              opts.text_header +
-            '</h3>' +
-          '</div>' +
-        '</div>');
+        html += '<legend>' +
+            opts.text_header +
+          '</legend>' +
+          '</div>';
       }
 
-      div.append('<div class="instantiate_user_inputs"/>');
+      html += '<div class="instantiate_user_inputs">' +
+          '</div>' +
+        '</fieldset>';
+
+      div.append(html);
 
       $.each(input_attrs, function(index, custom_attr) {
         $(".instantiate_user_inputs", div).append(
@@ -295,6 +313,7 @@ define(function(require) {
     switch (attr.type) {
       case "number":
       case "number-float":
+      case "fixed":
         st += ("| |" + (attr.initial != undefined ? attr.initial : "") );
 
         break;
@@ -328,6 +347,7 @@ define(function(require) {
       "mandatory": (parts[0] == "M"),
       "type": parts[1],
       "description": parts[2],
+      "initial": ""
     };
 
     if (parts[3] != undefined){
@@ -421,61 +441,29 @@ define(function(require) {
   function _attributeInput(attr) {
     var input;
 
+    var required = (attr.mandatory ? "required" : "");
+
     switch (attr.type) {
       case "text":
-        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" required/>';
+        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "text64":
-        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" required/>';
+        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "password":
-        input = '<input type="password" wizard_field="' + attr.name + '" required/>';
+        input = '<input type="password" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "number":
       case "number-float":
-        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>';
+        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+'/>';
         break;
       case "range":
       case "range-float":
-
-        var list_attr = "";
-        var datalist  = "";
-
-        if (attr.tick_size != undefined){
-          uinputListId += 1;
-
-          list_attr = 'list="uinput-list-'+uinputListId+'"';
-
-          datalist = '<datalist id="uinput-list-'+uinputListId+'">';
-
-          var tick_val = attr.tick_size * Math.ceil(attr.min / attr.tick_size);
-          while (tick_val <= attr.max){
-            datalist += '<option>'+tick_val+'</option>';
-            tick_val += attr.tick_size;
-          }
-
-          datalist += '</datalist>';
-        }
-
-        input =
-        '<div class="row uinput-slider-container">'+
-          '<div class="small-8 columns">'+
-            '<input type="range" class="uinput-slider" style="width:100%"'+
-              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'" '+
-              list_attr+'/>'+
-          '</div>'+
-          datalist+
-          '<div class="small-4 columns">'+
-            '<input type="number" class="uinput-slider-val" '+
-              'min="'+attr.min+'" max="'+attr.max+'" step="'+attr.step+'" '+
-              'value="'+attr.initial+'" wizard_field="' + attr.name + '" required/>'+
-          '</div>'+
-        '</div>';
+        input = RangeSlider.html(attr);
 
         break;
       case "list":
-        input = '<select wizard_field="' + attr.name + '" required>';
+        input = '<select wizard_field="' + attr.name + '" '+required+'>';
 
         $.each(attr.options, function(){
           var selected = (attr.initial == this);
@@ -488,6 +476,9 @@ define(function(require) {
 
         input += '</select>';
 
+        break;
+      case "fixed":
+        input = '<input type="text" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+' disabled/>';
         break;
     }
 
@@ -505,17 +496,5 @@ define(function(require) {
     var attrs = _parse(name, value);
 
     return _attributeInput(attrs);
-  }
-
-  function _initialSetup() {
-    $(document).off("input", "input.uinput-slider-val");
-    $(document).on("input", "input.uinput-slider-val", function(){
-      $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
-    });
-
-    $(document).off("input", "input.uinput-slider");
-    $(document).on("input", "input.uinput-slider", function(){
-      $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
-    });
   }
 });

@@ -94,30 +94,11 @@ module VNMMAD
             end
         end
 
-        # Returns true if the template contains the deprecated firewall attributes:
-        # - ICMP
-        # - WHITE_PORTS_TCP
-        # - WHITE_PORTS_UDP
-        # - BLACK_PORTS_TCP
-        # - BLACK_PORTS_UDP
-        #
-        # @return Boolean
-        def self.has_fw_attrs?(vm_xml)
-            vm_root = REXML::Document.new(vm_xml).root
-            !vm_root.elements[FWDriver::XPATH_FILTER].nil?
-        end
-
         # Returns a filter object based on the contents of the template
         #
-        # @return FWDriver or SGDriver object
-        def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
-            vm_xml =  Base64::decode64(vm_64)
-
-            if self.has_fw_attrs?(vm_xml)
-                FWDriver.new(vm_xml, deploy_id, hypervisor)
-            else
-                SGDriver.new(vm_xml, deploy_id, hypervisor)
-            end
+        # @return SGDriver object
+        def self.filter_driver(vm_64, deploy_id, hypervisor, xpath)
+            SGDriver.new(vm_64, deploy_id, hypervisor, xpath)
         end
 
         # Returns the associated command including sudo and other configuration

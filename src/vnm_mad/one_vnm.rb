@@ -23,18 +23,19 @@ class VirtualNetworkDriver
     include DriverExecHelper
 
     # Inits the VNET Driver
-    # @param [String] name of the vnet driver to use, as listed in remotes/vnet
+    # @param [Array] name of the vnet drivers to use, as listed in remotes/vnet
     # @option ops [String] :ssh_stream to be used for command execution
     # @option ops [String] :message from ONE
-    def initialize(directory, options={})
+    def initialize(vnm_drivers, options={})
+        @vnm_drivers = vnm_drivers
 
-        @options    = options
-        @ssh_stream = options[:ssh_stream]
-        @message    = options[:message]
+        @options     = options
+        @ssh_stream  = options[:ssh_stream]
+        @message     = options[:message]
 
-        @vm_encoded = Base64.encode64(@message).delete("\n")
+        @vm_encoded  = Base64.encode64(@message).delete("\n")
 
-        initialize_helper("vnm/#{directory}", options)
+        initialize_helper("vnm", options)
     end
 
     # Calls remotes or local action checking the action name and
@@ -54,24 +55,34 @@ class VirtualNetworkDriver
         cmd_params =  "#{@vm_encoded}"
         cmd_params << " #{options[:parameters]}" if options[:parameters]
 
-        cmd = action_command_line(aname, cmd_params)
+        result = RESULT[:success]
+        infos  = ""
 
-        if action_is_local?(aname)
-            execution = LocalCommand.run(cmd, log_method(id))
-        elsif @ssh_stream != nil
-            if options[:stdin]
-                cmdin = "cat << EOT | #{cmd}"
-                stdin = "#{options[:stdin]}\nEOT\n"
+        @vnm_drivers.each do |subdirectory|
+            cmd = action_command_line(aname, cmd_params, nil, subdirectory)
+
+            if action_is_local?(aname)
+                execution = LocalCommand.run(cmd, log_method(id))
+            elsif @ssh_stream != nil
+                if options[:stdin]
+                    cmdin = "cat << EOT | #{cmd}"
+                    stdin = "#{options[:stdin]}\nEOT\n"
+                else
+                    cmdin = cmd
+                    stdin = nil
+                end
+
+                execution = @ssh_stream.run(cmdin, stdin, cmd)
             else
-                cmdin = cmd
-                stdin = nil
+                return RESULT[:failure], "Network action #{aname} needs a ssh stream."
             end
 
-            execution = @ssh_stream.run(cmdin, stdin, cmd)
-        else
-            return RESULT[:failure], "Network action #{aname} needs a ssh stream."
+            result, info = get_info_from_execution(execution)
+            infos << " #{subdirectory}: " <<  info
+
+            return [result, infos] if DriverExecHelper.failed?(result)
         end
 
-        return get_info_from_execution(execution)
+        return [result, infos]
     end
 end

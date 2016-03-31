@@ -174,7 +174,9 @@
                 DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
                 DISK_SNAPSHOT        = 57,
                 DISK_SNAPSHOT_REVERT = 58,
-                DISK_SNAPSHOT_DELETE = 59
+                DISK_SNAPSHOT_DELETE = 59,
+                PROLOG_MIGRATE_UNKNOWN = 60,
+                PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>

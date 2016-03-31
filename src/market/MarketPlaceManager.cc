@@ -275,6 +275,12 @@ void MarketPlaceManager::monitor_market(int mp_id)
         return;
     }
 
+    if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
+    {
+        mp->unlock();
+        return;
+    }
+
     mp->to_xml(mp_data);
 
     mp->unlock();

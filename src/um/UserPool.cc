@@ -23,13 +23,13 @@
 #include "Nebula.h"
 #include "AuthManager.h"
 #include "NebulaUtil.h"
+#include "Client.h"
 
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <pwd.h>
 #include <stdlib.h>
 #include <fnmatch.h>
 
@@ -66,11 +66,7 @@ UserPool::UserPool(SqlDB * db,
     string        one_token;
     string        one_name;
     string        one_pass;
-    string        one_auth_file;
     string        random;
-
-    const char *  one_auth;
-    ifstream      file;
 
     string        filenames[5];
     string        error_str;
@@ -106,42 +102,10 @@ UserPool::UserPool(SqlDB * db,
     }
 
     // User oneadmin needs to be added in the bootstrap
-    one_auth = getenv("ONE_AUTH");
-
-    if (!one_auth)
+    if ( Client::read_oneauth(one_token, error_str) != 0 )
     {
-        struct passwd * pw_ent;
-
-        pw_ent = getpwuid(getuid());
-
-        if ((pw_ent != NULL) && (pw_ent->pw_dir != NULL))
-        {
-            one_auth_file = pw_ent->pw_dir;
-            one_auth_file += "/.one/one_auth";
-
-            one_auth = one_auth_file.c_str();
-        }
-        else
-        {
-            goto error_no_file;
-        }
+        goto error_readoneauth;
     }
-
-    file.open(one_auth);
-
-    if (!file.good())
-    {
-        goto error_file;
-    }
-
-    getline(file,one_token);
-
-    if (file.fail())
-    {
-        goto error_file_read;
-    }
-
-    file.close();
 
     if (User::split_secret(one_token,one_name,one_pass) != 0)
     {
@@ -221,16 +185,8 @@ UserPool::UserPool(SqlDB * db,
 
     return;
 
-error_no_file:
-    oss << "Could not get one_auth file location";
-    goto error_common;
-
-error_file:
-    oss << "Could not open file: " << one_auth;
-    goto error_common;
-
-error_file_read:
-    oss << "Error reading file: " << one_auth;
+error_readoneauth:
+    oss << "Error reading one_auth: " << error_str;
     goto error_common;
 
 error_token:

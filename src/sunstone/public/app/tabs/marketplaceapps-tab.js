@@ -42,10 +42,13 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + Locale.tr("Apps"),
-    listHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("Apps"),
-    infoHeader: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+Locale.tr("App"),
-    subheader: '<span/> <small></small>&emsp;',
+    title: Locale.tr("Apps"),
+    icon: 'fa-cloud-download',
+    tabClass: "subTab",
+    parentTab: "storage-top-tab",
+    listHeader: Locale.tr("Apps"),
+    infoHeader: Locale.tr("App"),
+    subheader: '',
     resource: 'MarketPlaceApp',
     buttons: Buttons,
     actions: Actions,

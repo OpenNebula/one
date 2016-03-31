@@ -27,12 +27,14 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./datastores-tab/form-panels/create')
+    require('./datastores-tab/form-panels/create'),
+    require('./datastores-tab/form-panels/import')
   ];
 
   var _panels = [
     require('./datastores-tab/panels/info'),
-    require('./datastores-tab/panels/images')
+    require('./datastores-tab/panels/images'),
+    require('./datastores-tab/panels/clusters')
   ];
 
   var _panelsHooks = [
@@ -42,10 +44,11 @@ define(function(require) {
   var DatastoresTab = {
     tabId: TAB_ID,
     title: Locale.tr("Datastores"),
+    icon: 'fa-folder-open',
     tabClass: "subTab",
-    parentTab: "infra-tab",
-    listHeader: '<i class="fa fa-fw fa-folder-open"></i>&emsp;' + Locale.tr("Datastores"),
-    infoHeader: '<i class="fa fa-fw fa-folder-open"></i>&emsp;' + Locale.tr("Datastore"),
+    parentTab: "storage-top-tab",
+    listHeader: Locale.tr("Datastores"),
+    infoHeader: Locale.tr("Datastore"),
     subheader: '',
     resource: 'Datastore',
     buttons: Buttons,

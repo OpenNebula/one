@@ -61,8 +61,7 @@ protected:
         url(""),
         machines_limit(0),
         dispatch_limit(0),
-        host_dispatch_limit(0),
-        client(0)
+        host_dispatch_limit(0)
     {
         am.addListener(this);
     };
@@ -81,8 +80,6 @@ protected:
         delete upool;
 
         delete acls;
-
-        delete client;
     };
 
     // ---------------------------------------------------------------
@@ -179,11 +176,6 @@ private:
      *  OpenNebula zone id.
      */
     int zone_id;
-
-    /**
-     *  XML_RPC client
-     */
-    Client * client;
 
     /**
      * oned runtime configuration values

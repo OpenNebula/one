@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -361,27 +361,8 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('tab', 'reflow');
+    Foundation.reflow(context, 'tabs');
     that.numberOfProviders = 0;
-
-    // close icon: removing the tab on click
-    context.on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var dd = $(this).closest('dd');
-      var dl = $(this).closest('dl');
-      var content = $(target);
-
-      dd.remove();
-      content.remove();
-
-      if (dd.attr("class") == 'active') {
-        $('a', dl.children('dd').last()).click();
-      }
-
-      $("dl#template_create_hybrid_tabs dd", context).each(function(index) {
-          $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
-        })
-    });
 
     context.on("click", "#tf_btn_hybrid", function() {
       that.addProviderTab(that.numberOfProviders, context);
@@ -462,7 +443,7 @@ define(function(require) {
     var htmlId  = 'provider' + provider_id;
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab content">' +
+    var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab tabs-panel">' +
       '<div class="row">' +
         '<div class="large-12 columns">' +
           '<label>' + Locale.tr("Hybrid Cloud") + '</label>' +
@@ -476,15 +457,36 @@ define(function(require) {
     '</div>'
     $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", context));
 
-    var a = $("<dd>\
+    var a = $("<li class='tabs-title'>\
         <a id='provider_tab" + htmlId + "' href='#" + htmlId + "Tab'>" + Locale.tr("PROVIDER") + "</a>\
-      </dd>").appendTo($("dl#template_create_hybrid_tabs", context));
+      </li>").appendTo($("ul#template_create_hybrid_tabs", context));
 
-    $("dl#template_create_hybrid_tabs dd", context).each(function(index) {
+    $("ul#template_create_hybrid_tabs li", context).each(function(index) {
         $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
       })
 
+    Foundation.reInit($("ul#template_create_hybrid_tabs", context));
+
     $("a", a).trigger("click");
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      li.remove();
+      content.remove();
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      $("ul#template_create_hybrid_tabs li", context).each(function(index) {
+          $("a", this).html(Locale.tr("Provider") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
+        })
+    });
 
     var providerSection = $('#' + htmlId + 'Tab', context);
 

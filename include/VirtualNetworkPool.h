@@ -49,8 +49,7 @@ public:
      *    @param umask permissions umask
      *    @param vn_template a VirtualNetworkTemplate describing the VNET
      *    @param oid the id assigned to the VM (output)
-     *    @param cluster_id the id of the cluster this VNET will belong to
-     *    @param cluster_name the name of the cluster this VNET will belong to
+     *    @param cluster_ids the ids of the clusters this VNET will belong to
      *    @param error_str Returns the error reason, if any
      *    @return oid on success, -1 error
      */
@@ -63,8 +62,7 @@ public:
         int                         parent_vid,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
-        int                         cluster_id,
-        const string&               cluster_name,
+        const set<int>              &cluster_ids,
         string&                     error_str);
 
     /**
@@ -203,7 +201,8 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",0,-1,-1,"",0);
+        set <int> empty;
+        return new VirtualNetwork(-1,-1,"","",0,-1,empty,0);
     };
 
     /**

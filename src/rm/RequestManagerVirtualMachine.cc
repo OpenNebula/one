@@ -224,54 +224,49 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
     ds_id = -1;
 
-    if (cluster_id == ClusterPool::NONE_CLUSTER_ID)
+    cluster = clpool->get(cluster_id, true);
+
+    if (cluster == 0)
     {
-        ds_id = DatastorePool::SYSTEM_DS_ID;
-    }
-    else
-    {
-        cluster = clpool->get(cluster_id, true);
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
 
-        if (cluster == 0)
-        {
-            att.resp_obj = PoolObjectSQL::CLUSTER;
-            att.resp_id  = cluster_id;
-            failure_response(NO_EXISTS, att);
-
-            return -1;
-        }
-
-        set<int> ds_ids = cluster->get_datastores();
-
-        cluster->unlock();
-
-        ds_id = Cluster::get_default_system_ds(ds_ids);
-
-        if (ds_id == -1)
-        {
-            ostringstream oss;
-
-            oss << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
-                << "] does not have any " << object_name(PoolObjectSQL::DATASTORE)
-                << " of type " << Datastore::type_to_str(Datastore::SYSTEM_DS)
-                << ".";
-
-            att.resp_msg = oss.str();
-
-            failure_response(ACTION, att);
-
-            return -1;
-        }
+        return -1;
     }
 
-    return get_ds_information(ds_id, cluster_id, tm_mad, att, ds_migr);
+    set<int> ds_ids = cluster->get_datastores();
+
+    cluster->unlock();
+
+    ds_id = Cluster::get_default_system_ds(ds_ids);
+
+    if (ds_id == -1)
+    {
+        ostringstream oss;
+
+        oss << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
+            << "] does not have any " << object_name(PoolObjectSQL::DATASTORE)
+            << " of type " << Datastore::type_to_str(Datastore::SYSTEM_DS)
+            << ".";
+
+        att.resp_msg = oss.str();
+
+        failure_response(ACTION, att);
+
+        return -1;
+    }
+
+    set<int> ds_cluster_ids;
+
+    return get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
-    int& ds_cluster_id,
+    set<int>& ds_cluster_ids,
     string& tm_mad,
     RequestAttributes& att,
     bool& ds_migr)
@@ -280,7 +275,7 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
 
     Datastore * ds = nd.get_dspool()->get(ds_id, true);
 
-    ds_cluster_id = -1;
+    ds_cluster_ids.clear();
 
     if ( ds == 0 )
     {
@@ -307,7 +302,7 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
         return -1;
     }
 
-    ds_cluster_id = ds->get_cluster_id();
+    ds_cluster_ids = ds->get_cluster_ids();
 
     tm_mad = ds->get_tm_mad();
 
@@ -360,13 +355,7 @@ int RequestManagerVirtualMachine::get_host_information(
 
     host->unlock();
 
-    if (nd.get_ds_location(cluster_id, ds_location) == -1)
-    {
-        att.resp_obj = PoolObjectSQL::CLUSTER;
-        att.resp_id  = cluster_id;
-        failure_response(NO_EXISTS, att);
-        return -1;
-    }
+    nd.get_ds_location(ds_location);
 
     return 0;
 }
@@ -639,7 +628,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             break;
         case -2:
             oss << "Error performing action \"" << action_st << "\" on "
-                << object_name(auth_object) << " [" << id << "]";
+                << object_name(auth_object) << " [" << id << "]. " << error;
             att.resp_msg = oss.str();
 
             failure_response(ACTION, att);
@@ -751,21 +740,22 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
         else //Get information from user selected system DS
         {
-            int  ds_cluster_id;
-            bool ds_migr;
+            set<int> ds_cluster_ids;
+            bool     ds_migr;
 
-            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
+            if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
             {
                 return;
             }
 
-            if (ds_cluster_id != cluster_id)
+            if (ds_cluster_ids.count(cluster_id) == 0)
             {
                 ostringstream oss;
 
                 oss << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id << "] and "
                     << object_name(PoolObjectSQL::HOST) << " [" << hid
-                    << "] are not in the same cluster.";
+                    << "] are not in the same "
+                    << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id << "].";
 
                 att.resp_msg = oss.str();
 
@@ -896,7 +886,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string hostname;
     string vmm_mad;
     string vnm_mad;
-    int    cluster_id, ds_cluster_id;
+    int    cluster_id;
+    set<int> ds_cluster_ids;
     string ds_location;
     bool   is_public_cloud;
     PoolObjectAuth host_perms, ds_perms;
@@ -1121,7 +1112,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
+        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
         {
             return;
         }
@@ -1133,14 +1124,15 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        if (c_cluster_id != ds_cluster_id)
+        if (ds_cluster_ids.count(c_cluster_id) == 0)
         {
             ostringstream oss;
 
             oss << "Cannot migrate to a different cluster. VM running in a host"
                 << " in " << object_name(PoolObjectSQL::CLUSTER)
                 << " [" << c_cluster_id << "] , and new system datastore is in "
-                << object_name(PoolObjectSQL::CLUSTER) << " [" << ds_cluster_id << "]";
+                << object_name(PoolObjectSQL::CLUSTER)
+                << " [" << one_util::join(ds_cluster_ids, ',') << "]";
 
             att.resp_msg = oss.str();
             failure_response(ACTION, att);

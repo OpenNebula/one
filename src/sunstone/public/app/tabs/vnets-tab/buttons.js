@@ -46,11 +46,9 @@ define(function(require) {
       custom_classes: "only-right-info reserve-right-info",
     },
     "Network.addtocluster" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Select cluster"),
+      type : "action",
       layout: "main",
-      select: "Cluster",
-      tip: Locale.tr("Select the destination cluster:")
+      text : Locale.tr("Select cluster")
     },
     "Network.chown" : {
       type: "confirm_with_select",

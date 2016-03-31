@@ -15,9 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.core');
-  require('foundation.accordion');
-  require('foundation-datatables');
+//  require('foundation.core');
+//  require('foundation.accordion');
+  require('datatables.net');
+  require('datatables.foundation');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
@@ -89,7 +90,7 @@ define(function(require) {
     }
   }
 
-  $(document).foundation();
+  //$(document).foundation();
 
   function generate_cardinality_selector(context, role_template, template_json) {
     context.off();
@@ -100,9 +101,9 @@ define(function(require) {
       '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader text-right">'+
+          '<h3 class="subheader">'+
             '<span class="left">'+
-              '<i class="fa fa-th fa-lg"></i>&emsp;'+
+              '<i class="fa fa-th fa-lg"></i> '+
               Locale.tr("Cardinality")+
             '</span>'+
           '</h3>'+
@@ -115,32 +116,21 @@ define(function(require) {
         '<div class="large-12 columns">'+
           '<div class="row">'+
             '<div class="large-2 text-center columns">'+
-              '<span class="cardinality_value" style="color: #777; font-size:40px">'+role_template.cardinality+'</span>'+
+              '<span class="cardinality_value">'+role_template.cardinality+'</span>'+
               '<br>'+
-              '<span style="color: #999;">'+Locale.tr("VMs")+'</span>'+
+              '<span>'+Locale.tr("VMs")+'</span>'+
             '</div>'+
             '<div class="large-6 columns">'+
               '<div class="cardinality_slider_div">'+
-                '<span class="" style="color: #777;">'+Locale.tr("Change cardinality")+'</span>'+
-                '<br>'+
-                '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
-                  '<span class="range-slider-handle"></span>'+
-                  '<span class="range-slider-active-segment"></span>'+
-                  '<input type="hidden">'+
-                '</div>'+
-                '<span class="left" style="color: #999;">'+min_vms+'</span>'+
-                '<span class="right" style="color: #999;">'+max_vms+'</span>'+
               '</div>'+
               '<div class="cardinality_no_slider_div">'+
-                '<br>'+
-                '<br>'+
-                '<span class="" style="color: #999;">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
+                '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
               '</div>'+
             '</div>'+
-            '<div class="large-4 columns text-center provision_create_service_cost_div hidden">'+
-              '<span class="cost_value" style="color: #777; font-size:40px"></span>'+
+            '<div class="large-4 columns text-center provision_create_service_cost_div" hidden>'+
+              '<span class="cost_value"></span>'+
               '<br>'+
-              '<span style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
+              '<span>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -208,16 +198,18 @@ define(function(require) {
       }
 
       if (max_vms > min_vms) {
-        $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
-        context.foundation();
+        $( ".cardinality_slider_div", context).html(RangeSlider.html({
+            min: min_vms,
+            max: max_vms,
+            initial: role_template.cardinality
+          }));
+
         $( ".cardinality_slider_div", context).show();
         $( ".cardinality_no_slider_div", context).hide();
 
-        $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
-
-        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-          $(".cardinality_value",context).html($(this).attr('data-slider'))
-          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
+        $( ".cardinality_slider_div", context).on("input", '.uinput-slider', function() {
+          $(".cardinality_value", context).html($(this).val());
+          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
           $(".cost_value", context).html(cost_value.toFixed(2));
         });
       } else {
@@ -248,21 +240,21 @@ define(function(require) {
       '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader text-right">'+
+          '<h3 class="subheader">'+
             '<span class="left">'+
-              '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
+              '<i class="fa fa-laptop fa-lg"></i> '+
               Locale.tr("Capacity")+
             '</span>'+
             '<span>'+
               '<span class="cpu_value">'+(capacity.CPU ? capacity.CPU : '-')+'</span> '+
-              '<small style="color: #999; margin-right: 10px">'+Locale.tr("CPU")+'</small>'+
+              '<small>'+Locale.tr("CPU")+'</small>'+
               '<span class="memory_value">'+memory_value+'</span>'+
               ' '+
               '<span class="memory_unit">'+memory_unit+'</span> '+
-              '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
-              '<span class="provision_create_template_cost_div hidden">' +
+              '<small>'+Locale.tr("MEMORY")+'</small>'+
+              '<span class="provision_create_template_cost_div" hidden>' +
                 '<span class="cost_value">0.00</span> '+
-                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+                '<small>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
               '</span>'+
             '</span>'+
           '</h3>'+
@@ -272,12 +264,12 @@ define(function(require) {
       (Config.provision.create_vm.isEnabled("capacity_select") ?
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
-          '<dl class="accordion" data-accordion="provision_accordion_'+provision_capacity_accordion_id+'">'+
-            '<dd class="accordion-navigation">'+
-              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
+          '<dl class="accordion" data-accordion data-allow-all-closed="true">'+
+            '<dd class="accordion-item" data-accordion-item>'+
+              '<a href="#provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-title">'+
                 Locale.tr("Change Capacity")+
               '</a>'+
-              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="content">'+
+              '<div id="provision_capacity_dd_'+provision_capacity_accordion_id+'" class="accordion-content" data-tab-content>'+
                 '<br>'+
                 CapacityInputs.html() +
               '</div>'+
@@ -288,6 +280,8 @@ define(function(require) {
       '<br>');
 
     if (Config.provision.create_vm.isEnabled("capacity_select")) {
+      Foundation.reflow(context, 'accordion');
+
       provision_capacity_accordion_id += 1;
 
       CapacityInputs.setup(context);
@@ -652,13 +646,13 @@ define(function(require) {
 
   function update_provision_flow_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<span class="fa-stack fa-5x">'+
         '<i class="fa fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
       '<br>'+
-      '<span style="font-size: 18px; color: #999">'+
+      '<span>'+
       '</span>'+
       '</div>');
 
@@ -669,13 +663,13 @@ define(function(require) {
           datatable.fnClearTable(true);
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no templates available")+
               '</span>'+
               '</div>');
@@ -800,7 +794,7 @@ define(function(require) {
                 '<img  src="'+data.TEMPLATE.LOGO+'">'+
               '</span>';
           } else {
-            logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
+            logo = '<span>'+
               '<i class="fa fa-fw fa-file-text-o"/>'+
             '</span>';
           }
@@ -815,25 +809,25 @@ define(function(require) {
             owner = Locale.tr("system");
           }
 
-          var li = $('<li>'+
-              '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+          var li = $('<div class="column">'+
+              '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
                 '<li class="provision-title" title="'+data.NAME+'">'+
                   data.NAME+
                 '</li>'+
-                '<li style="height: 85px" class="provision-bullet-item">'+
+                '<li class="provision-bullet-item">'+
                   logo +
                 '</li>'+
                 '<li class="provision-description">'+
                   (data.TEMPLATE.DESCRIPTION || '...')+
                 '</li>'+
-                '<li class="text-right provision-bullet-item">'+
-                  '<span class="left" style="color: #999;">'+
-                    '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                '<li class="provision-bullet-item">'+
+                  '<span class="left">'+
+                    '<i class="fa fa-fw fa-lg fa-user"/> '+
                     owner+
                   '</span>'+
                 '</li>'+
               '</ul>'+
-            '</li>').appendTo($("#"+tableID+'_ul'));
+            '</div>').appendTo($("#"+tableID+'_ul'));
 
           $(".provision-pricing-table", li).data("opennebula", aData);
         }
@@ -842,19 +836,19 @@ define(function(require) {
           // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
           if (context.$('tr', {"filter": "applied"} ).length == 0) {
             context.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no templates available")+
               '</span>'+
               '</div>');
           } else {
             $('#'+tableID+'_table').html(
-              '<ul id="'+tableID+'_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+              '<div id="'+tableID+'_ul" class="row large-up-3 medium-up-3 small-up-1"></div>');
           }
 
           return true;
@@ -863,6 +857,7 @@ define(function(require) {
 
         provision_vm_instantiate_templates_datatable = $('#provision_vm_instantiate_templates_table').dataTable({
           "iDisplayLength": 6,
+          "bAutoWidth": false,
           "sDom" : '<"H">t<"F"lp>',
           "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
           "aoColumnDefs": [
@@ -949,7 +944,7 @@ define(function(require) {
             if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
               $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
             } else {
-              $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/>&emsp;');
+              $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/> ');
             }
 
             $(".provision_accordion_template a").first().trigger("click");
@@ -959,8 +954,8 @@ define(function(require) {
               template_json.VMTEMPLATE);
 
             provisionInvalidCapacity = function(input){
-              if(!$(input).closest(".accordion-navigation").hasClass("active")){
-                $("a", $(input).closest(".accordion-navigation")).click();
+              if(!$(input).closest(".accordion-item").hasClass("is-active")){
+                $("a", $(input).closest(".accordion-item")).click();
               }
             };
 
@@ -983,7 +978,7 @@ define(function(require) {
               UserInputs.vmTemplateInsert(
                   $(".provision_custom_attributes_selector", create_vm_context),
                   template_json,
-                  {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+                  {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
             } else {
               $(".provision_custom_attributes_selector", create_vm_context).html("");
@@ -995,7 +990,7 @@ define(function(require) {
           if ($(this).hasClass("selected")){
             $(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
             $(this).addClass("selected");
           }
         })
@@ -1046,6 +1041,8 @@ define(function(require) {
           show_provision_create_vm();
         });
 
+        Foundation.reflow($('#provision_create_vm'), 'accordion');
+
 
         //
         // Create FLOW
@@ -1053,6 +1050,7 @@ define(function(require) {
 
         provision_flow_templates_datatable = $('#provision_flow_templates_table').dataTable({
           "iDisplayLength": 6,
+          "bAutoWidth": false,
           "sDom" : '<"H">t<"F"lp>',
           "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
           "aaSorting"  : [[1, "asc"]],
@@ -1067,18 +1065,18 @@ define(function(require) {
             // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
             if (this.$('tr', {"filter": "applied"} ).length == 0) {
               this.html('<div class="text-center">'+
-                '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<span class="fa-stack fa-5x">'+
                   '<i class="fa fa-cloud fa-stack-2x"></i>'+
                   '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
                 '</span>'+
                 '<br>'+
                 '<br>'+
-                '<span style="font-size: 18px; color: #999">'+
+                '<span>'+
                   Locale.tr("There are no templates available")+
                 '</span>'+
                 '</div>');
             } else {
-              $("#provision_flow_templates_table").html('<ul id="provision_flow_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+              $("#provision_flow_templates_table").html('<div id="provision_flow_templates_ul" class="large-up-3 medium-up-3 small-up-1"></div>');
             }
 
             return true;
@@ -1092,8 +1090,8 @@ define(function(require) {
             if (body.roles) {
               $.each(body.roles, function(index, role) {
                 roles_li +=
-                  '<li class="provision-bullet-item text-left" style="margin-left: 10px;margin-right: 10px;">'+
-                    '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                  '<li class="provision-bullet-item">'+
+                    '<i class="fa fa-fw fa-cube"/> '+
                     role.name+
                     '<span class="right">'+role.cardinality+" VMs</span>"+
                   '</li>';
@@ -1105,25 +1103,25 @@ define(function(require) {
                   '<img  src="'+body.LOGO+'">'+
                 '</span>';
             } else {
-              logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
+              logo = '<span>'+
                 '<i class="fa fa-fw fa-cubes"/>'+
               '</span>';
             }
 
-            var li = $('<li>'+
-                '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            var li = $('<div class="columns">'+
+                '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
                   '<li class="provision-title" title="'+data.NAME+'">'+
                     data.NAME+
                   '</li>'+
-                  '<li style="height: 85px" class="provision-bullet-item">'+
+                  '<li class="provision-bullet-item">'+
                     logo +
                   '</li>'+
                   roles_li +
-                  '<li class="provision-description" style="padding-top:0px">'+
+                  '<li class="provision-description">'+
                     (data.TEMPLATE.DESCRIPTION || '')+
                   '</li>'+
                 '</ul>'+
-              '</li>').appendTo($("#provision_flow_templates_ul"));
+              '</div>').appendTo($("#provision_flow_templates_ul"));
 
             $(".provision-pricing-table", li).data("opennebula", aData);
 
@@ -1161,8 +1159,8 @@ define(function(require) {
 
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();
-            $(".provision_accordion_flow_template .selected_template_name").html(body.name)
-            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/>&emsp;');
+            $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.NAME)
+            $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/> ');
             $(".provision_accordion_flow_template a").first().trigger("click");
 
             var context = $("#provision_create_flow");
@@ -1214,7 +1212,7 @@ define(function(require) {
                 '<div class="row">'+
                   '<div class="large-10 large-centered columns">'+
                     '<h2 class="subheader">'+
-                      '<i class="fa fa-cube fa-lg"></i>&emsp;'+
+                      '<i class="fa fa-cube fa-lg"></i> '+
                       role.name+
                     '</h2>'+
                     '<br>'+
@@ -1255,7 +1253,7 @@ define(function(require) {
                     UserInputs.vmTemplateInsert(
                         $(".provision_custom_attributes_selector", role_context),
                         template_json,
-                        {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
+                        {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
 
                   } else {
                     $(".provision_custom_attributes_selector", role_context).html("");
@@ -1266,7 +1264,7 @@ define(function(require) {
 
             })
 
-            $(document).foundation();
+            //$(document).foundation();
           }
         })
 
@@ -1274,7 +1272,7 @@ define(function(require) {
           if ($(this).hasClass("selected")){
             $(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
             $(this).addClass("selected");
           }
         })
@@ -1346,6 +1344,8 @@ define(function(require) {
         $(".provision_create_flow_button").on("click", function(){
           show_provision_create_flow();
         });
+
+        Foundation.reflow($('#provision_create_flow'), 'accordion');
       }
     });
   }

@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal large max-height" style="width:auto; max-width:70%" data-reveal >
+<div id="{{dialogId}}" class="reveal full" data-reveal>
   <div class="row">
     <div class="large-12 columns">
       <h3 class="subheader" id="vnc_dialog">
@@ -30,5 +30,7 @@
     <canvas id="VNC_canvas" width="640px">{{tr "Canvas not supported."}}</canvas>
     <div id="VNC_status_bar" class="VNC_status_bar"></div>
   </div>
-  <a class="close-reveal-modal">&#215;</a>
+  <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>

@@ -102,6 +102,13 @@ class CachedOvfDeployer
     # simplicity this function assumes we need to read the OVF file 
     # ourselves to know the names, and we map all of them to the same
     # VIM::Network.
+
+    # If we're handling a file:// URI we need to strip the scheme as open-uri
+    # can't handle them.
+    if URI(ovf_url).scheme == "file" && URI(ovf_url).host.nil?
+      ovf_url = URI(ovf_url).path
+    end
+
     ovf = open(ovf_url, 'r'){|io| Nokogiri::XML(io.read)}
     ovf.remove_namespaces!
     networks = ovf.xpath('//NetworkSection/Network').map{|x| x['name']}
@@ -178,11 +185,10 @@ class CachedOvfDeployer
       # prepare it for (linked) cloning and mark it as a template to signal
       # we are done.
       if !wait_for_template
-        vm.add_delta_disk_layer_on_all_disks
-        if opts[:config]
-          # XXX: Should we add a version that does retries?
-          vm.ReconfigVM_Task(:spec => opts[:config]).wait_for_completion
-        end
+        config = opts[:config] || {}
+        config = vm.update_spec_add_delta_disk_layer_on_all_disks(config)
+        # XXX: Should we add a version that does retries?
+        vm.ReconfigVM_Task(:spec => config).wait_for_completion
         vm.MarkAsTemplate
       end
     end
@@ -207,7 +213,7 @@ class CachedOvfDeployer
   #                               or nil
   def lookup_template template_name
     template_path = "#{template_name}-#{@computer.name}"
-    template = @template_folder.traverse(template_path, VIM::VirtualMachine)
+    template = @template_folder.traverse(template_path, RbVmomi::VIM::VirtualMachine)
     if template
       config = template.config
       is_template = config && config.template

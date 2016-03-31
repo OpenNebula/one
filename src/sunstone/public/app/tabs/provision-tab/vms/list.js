@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.alert');
+//  require('foundation.alert');
   var Sunstone = require('sunstone');
   var OpenNebula = require('opennebula');
   var OpenNebulaVM = require('opennebula/vm');
@@ -49,6 +49,8 @@ define(function(require) {
     context.off();
     context.html(html(opts));
 
+    Foundation.reflow(context, 'accordion');
+    
     if (opts.data) {
       $(".provision_vms_table", context).data("opennebula", opts.data)
     }
@@ -73,13 +75,13 @@ define(function(require) {
     datatable.fnClearTable(true);
     if (item_list.length == 0) {
       datatable.html('<div class="text-center">' +
-        '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+        '<span class="fa-stack fa-5x">' +
           '<i class="fa fa-cloud fa-stack-2x"></i>' +
           '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
         '</span>' +
         '<br>' +
         '<br>' +
-        '<span style="font-size: 18px; color: #999">' +
+        '<span>' +
           Locale.tr("There are no Virtual Machines") +
         '</span>' +
         '<br>' +
@@ -92,13 +94,13 @@ define(function(require) {
 
   function update_provision_vms_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">' +
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+      '<span class="fa-stack fa-5x">' +
         '<i class="fa fa-cloud fa-stack-2x"></i>' +
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>' +
       '<br>' +
       '<br>' +
-      '<span style="font-size: 18px; color: #999">' +
+      '<span>' +
       '</span>' +
       '</div>');
 
@@ -121,6 +123,7 @@ define(function(require) {
   function setup_provision_vms_list(context, opts) {
     var provision_vms_datatable = $('.provision_vms_table', context).dataTable({
       "iDisplayLength": 6,
+      "bAutoWidth": false,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
       "aaSorting"  : [[0, "desc"]],
@@ -136,18 +139,18 @@ define(function(require) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<span class="fa-stack fa-5x">'+
               '<i class="fa fa-cloud fa-stack-2x"></i>'+
               '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
+            '<span>'+
               Locale.tr("There are no Virtual Machines")+
             '</span>'+
             '</div>');
         } else {
-          $(".provision_vms_table", context).html('<ul class="provision_vms_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $(".provision_vms_table", context).html('<div class="provision_vms_ul large-up-3 medium-up-3 small-up-1"></div>');
         }
 
         return true;
@@ -156,16 +159,16 @@ define(function(require) {
         var data = aData.VM;
         var state = get_provision_vm_state(data);
 
-        $(".provision_vms_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left">'+
-                '<a class="provision_info_vm_button" style="color:#555" href="#">'+
-                '<span class="'+ state.color +'-color" title="'+state.str+'">'+
-                  '<i class="fa fa-fw fa-square"/> '+
+        $(".provision_vms_ul", context).append('<div class="column">'+
+            '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title">'+
+                '<a class="provision_info_vm_button">'+
+                '<span class="'+ state.color +'-color right" title="'+state.str+'">'+
+                  '<i class="fa fa-fw fa-lg fa-square"/>'+
                 '</span>'+
                 data.NAME + '</a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
@@ -174,12 +177,12 @@ define(function(require) {
                 ' - '+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span class="">'+
                   get_provision_ips(data) +
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item-last text-left" >'+
+              '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
@@ -189,7 +192,7 @@ define(function(require) {
                 '</span>'+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</div>');
 
         return nRow;
       }
@@ -230,7 +233,7 @@ define(function(require) {
     OpenNebula.Action.clear_cache("VM");
     update_provision_vms_datatable(provision_vms_datatable, 0);
 
-    $(document).foundation();
+    // $(document).foundation();
   }
 
   function setup_info_vm(context) {
@@ -368,16 +371,16 @@ define(function(require) {
           }
 
           $(".provision-pricing-table_vm_info", context).html(
-              '<li class="text-left provision-bullet-item">'+
+              '<li class="provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
                   '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item">'+
-                '<hr style="margin: 0px">'+
+              '<li class="provision-bullet-item">'+
+                '<hr>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-laptop"/>&emsp;'+
                   'x'+data.TEMPLATE.CPU+' - '+
@@ -390,26 +393,20 @@ define(function(require) {
                   get_provision_disk_image(data) +
                 '</span>'+
               '</li>'+
-              '<li class="text-left provision-bullet-item" >'+
+              '<li class="provision-bullet-item" >'+
                 '<span>'+
                   get_provision_ips(data) +
                 '</span>'+
               '</li>'+
-              //'<li  class="text-left provision-bullet-item" >'+
-              //  '<span style="color: #afafaf;" style="font-size: 16px">'+
-              //    "ID: " +
-              //    data.ID+
-              //  '</span>' +
-              //'</li>'+
-              '<li class="text-left provision-bullet-item">'+
-                '<hr style="margin: 0px">'+
+              '<li class="provision-bullet-item">'+
+                '<hr>'+
               '</li>'+
-              '<li class="text-right provision-bullet-item">'+
-                '<span class="left" style="color: #999;">'+
+              '<li class="provision-bullet-item">'+
+                '<span class="left">'+
                   '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                   data.UNAME+
                 '</span>'+
-                '<span class="right" style="color: #999;">'+
+                '<span class="right">'+
                   '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
                   Humanize.prettyTimeAgo(data.STIME)+
                   ' - '+
@@ -496,10 +493,10 @@ define(function(require) {
     if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       context.on("click", ".provision_snapshot_button", function(){
         $(".provision_confirm_action:first", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
+          '<div data-closable class="callout large secondary">'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span style="font-size: 14px; line-height: 20px">'+
+                '<span>'+
                   Locale.tr("This Virtual Machine will be saved in a new Template.")+
                 '<br>'+
                   Locale.tr("You can then create a new Virtual Machine using this Template.")+
@@ -509,13 +506,13 @@ define(function(require) {
             '<br>'+
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
-                '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+                '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'"/>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span style="font-size: 14px; line-height: 20px">'+
+                '<span>'+
                   Locale.tr("The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks.")+
                 '</span>'+
               '</div>'+
@@ -523,11 +520,11 @@ define(function(require) {
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<label class="left" style="margin-left: 25px">'+
+                '<label class="left">'+
                   '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
                   ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
                 '</label>'+
-                '<label class="left" style="margin-left: 25px">'+
+                '<label class="left">'+
                   '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
                   ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
                 '</label>'+
@@ -539,7 +536,9 @@ define(function(require) {
                 '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+Locale.tr("Save Virtual Machine to Template")+'</a>'+
               '</div>'+
             '</div>'+
-            '<a href="#" class="close" style="top: 20px">&times;</a>'+
+            '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
           '</div>');
       });
 
@@ -586,48 +585,52 @@ define(function(require) {
 
     context.on("click", ".provision_delete_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_delete_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Delete")+'</a>'+
+            '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_shutdownhard_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
               '<br>'+
               Locale.tr("All the information will be lost!")+
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_shutdownhard_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Delete")+'</a>'+
+            '<a href"#" class="provision_shutdownhard_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_poweroff_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
               '<br>'+
               '<br>'+
@@ -638,27 +641,29 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_poweroff_button button radius right" style="margin-right: 15px">'+Locale.tr("Power off")+'</a>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<a href"#" class="provision_poweroff_button button radius right">'+Locale.tr("Power off")+'</a>'+
+            '<label class="left">'+
               '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
               ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off the machine")+
             '</label>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<label class="left">'+
               '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
               ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal")+
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_undeploy_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("This action will power off this Virtual Machine and will be undeployed from the physical machine")+
               '<br>'+
               '<br>'+
@@ -669,27 +674,29 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_undeploy_button button radius right" style="margin-right: 15px">'+Locale.tr("Power off and undeploy")+'</a>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<a href"#" class="provision_undeploy_button button radius right">'+Locale.tr("Power off and undeploy")+'</a>'+
+            '<label class="left">'+
               '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
               ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
             '</label>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<label class="left">'+
               '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
               ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
     context.on("click", ".provision_reboot_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-closable class="callout large secondary">'+
           '<div class="row">'+
           '<div class="large-11 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
+            '<span>'+
               Locale.tr("This action will reboot this Virtual Machine.")+
               '<br>'+
               '<br>'+
@@ -700,18 +707,20 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_reboot_button button radius right" style="margin-right: 15px">'+Locale.tr("Reboot")+'</a>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<a href"#" class="provision_reboot_button button radius right">'+Locale.tr("Reboot")+'</a>'+
+            '<label class="left">'+
               '<input type="radio" name="provision_reboot_radio" value="reset" class="provision_reboot_hard_radio">'+
               ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Reboot the machine")+
             '</label>'+
-            '<label class="left" style="margin-left: 25px">'+
+            '<label class="left">'+
               '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
               ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the reboot signal")+
             '</label>'+
           '</div>'+
           '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
+            '<span aria-hidden="true">&times;</span>' + 
+          '</button>'+
         '</div>');
     });
 
@@ -1003,6 +1012,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN:
             state_color = 'running';
             state_str = Locale.tr("RUNNING");
             break;
@@ -1030,6 +1040,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE:
             state_color = 'error';
             state_str = Locale.tr("ERROR");
             break;

@@ -13,50 +13,27 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-<div style=" padding: 15px 0px 10px 0px; margin-bottom: 10px">
-  <div class="row">
-    <div class="large-12 columns">
-      <ul class="inline-list provision-header text-center">
-        <li>
-          <a href"#" class="medium off-color provision_vms_list_button" id="">
-            <i class="fa fa-fw fa-lg fa-th"/>
-            {{tr "VMs"}}
-          </a>
-        </li>
-        {{#isProvisionTabEnabled "provision-tab" "templates"}}
-        <li>
-          <a href"#" class="medium off-color provision_templates_list_button">
-            <i class="fa fa-fw fa-lg fa-save"/>
-            {{tr "Templates"}}
-          </a>
-        </li>
-        {{/isProvisionTabEnabled}}
+<div class="row">
+  <div class="large-12 columns">
+    <ul class="menu icon-top provision-header text-center">
+      <li>
+        <a href"#" class="provision_vms_list_button" id=""> <i class="fa fa-fw fa-lg fa-th"/>{{tr "VMs"}}
+        </a>
+      </li>
+      {{#isProvisionTabEnabled "provision-tab" "templates"}}
+      <li>
+        <a href"#" class="provision_templates_list_button"> <i class="fa fa-fw fa-lg fa-save"/>{{tr "Templates"}}
+        </a>
+      </li>
+      {{/isProvisionTabEnabled}}
         {{#isProvisionTabEnabled "provision-tab" "flows"}}
-        <li>
-          <a href"#" class="medium off-color provision_flows_list_button" id="">
-            <i class="fa fa-lg fa-fw fa-cubes"/>
-            {{tr "Services"}}
-          </a>
-        </li>
-        {{/isProvisionTabEnabled}}
-        {{!
-        <li style="border-left: 1px solid #efefef; height: 40px"></li>
-        <li>
-          <a href"#" class="medium off-color" id="provision_user_info_button">
-            <i class="fa fa-fw fa-lg fa-user"/>
-            config[display_name]+
-          </a>
-        </li>
-        <li>
-          <a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="padding:0px; font-size: 12px;">
-            <i class="fa fa-home fa-lg header-icon" style="margin-bottom: 2px"/>
-            + config[zone_name] +
-          </a>
-          <ul id="provision_zone_selector" data-dropdown-content class="zone-ul f-dropdown"></ul>
-        </li>
-        }}
-      </ul>
-    </div>
+      <li>
+        <a href"#" class="provision_flows_list_button" id="">
+          <i class="fa fa-lg fa-fw fa-cubes"/>
+          {{tr "Services"}}
+        </a>
+      </li>
+      {{/isProvisionTabEnabled}}
+    </ul>
   </div>
 </div>

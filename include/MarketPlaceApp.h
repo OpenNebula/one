@@ -235,6 +235,11 @@ public:
         return state;
     }
 
+    int get_zone_id() const
+    {
+        return zone_id;
+    }
+
     //--------------------------------------------------------------------------
     // Set Marketplace app attributes
     //--------------------------------------------------------------------------
@@ -335,6 +340,11 @@ private:
      */
     int origin_id;
 
+    /**
+     * ID of the zone where this app lives
+     */
+    int zone_id;
+
     // *************************************************************************
     // Constructor
     // *************************************************************************
@@ -357,6 +367,14 @@ private:
     static const char * db_bootstrap;
 
     static const char * table;
+
+    /**
+     *  Builds the market app from the template. This function MUST be called
+     *  with apptemplate initialized
+     *    @param error_str describing the error
+     *    @return 0 on success;
+     */
+    int parse_template(string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

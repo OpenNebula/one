@@ -69,27 +69,30 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    context.foundation('abide', 'reflow');
-    context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
-    context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
+    Foundation.reflow(context, 'abide');
 
-    context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-    }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      var force = false;
-      if ($("#force", context).is(":checked")) {
-        force = true;
-      }
+    $('#' + DIALOG_ID + 'Form', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        var force = false;
+        if ($("#force", context).is(":checked")) {
+          force = true;
+        }
 
-      var obj = {
-        "force": force,
-        "cardinality": $("#cardinality", context).val(),
-      };
+        var obj = {
+          "force": force,
+          "cardinality": $("#cardinality", context).val(),
+        };
 
-      Sunstone.runAction('Role.update', that.roleIds, obj);
+        Sunstone.runAction('Role.update', that.roleIds, obj);
 
-      return false;
-    });
+        return false;
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
 
     Tips.setup(context);
 

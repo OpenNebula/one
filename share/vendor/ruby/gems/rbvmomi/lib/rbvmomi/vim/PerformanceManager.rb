@@ -46,13 +46,21 @@ class RbVmomi::VIM::PerformanceManager
       end
     end
       
-    metric_ids = metrics.map do |x| 
+    instances = opts[:instance] || '*'
+    if !instances.is_a?(Array)
+      instances = [instances]
+    end
+    metric_ids = []
+    metrics.each do |x| 
       counter = perfcounter_hash[x]
       if !counter
         pp perfcounter_hash.keys
         fail "Counter for #{x} couldn't be found"
       end
-      RbVmomi::VIM::PerfMetricId(:counterId => counter.key, :instance => '*')
+      instances.each do |instance|
+        metric_ids << RbVmomi::VIM::PerfMetricId(:counterId => counter.key, 
+                                                 :instance => instance)
+      end
     end
     query_specs = objects.map do |obj|
       RbVmomi::VIM::PerfQuerySpec({
@@ -65,18 +73,35 @@ class RbVmomi::VIM::PerformanceManager
     end
     stats = QueryPerf(:querySpec => query_specs)
     
-    Hash[stats.map do |res|
-      [
-        res.entity, 
-        {
-          :sampleInfo => res.sampleInfo,
-          :metrics => Hash[res.value.map do |metric|
-            [perfcounter_idhash[metric.id.counterId].name, metric.value]
-          end]
-        }
-      ]
-    end]
+    if !opts[:multi_instance]
+      Hash[stats.map do |res|
+        [
+          res.entity, 
+          {
+            :sampleInfo => res.sampleInfo,
+            :metrics => Hash[res.value.map do |metric|
+              metric_name = perfcounter_idhash[metric.id.counterId].name
+              [metric_name, metric.value]
+            end]
+          }
+        ]
+      end]
+    else
+      Hash[stats.map do |res|
+        [
+          res.entity, 
+          {
+            :sampleInfo => res.sampleInfo,
+            :metrics => Hash[res.value.map do |metric|
+              metric_name = perfcounter_idhash[metric.id.counterId].name
+              [[metric_name, metric.id.instance], metric.value]
+            end]
+          }
+        ]
+      end]
+    end
   end
+
 
   def active_intervals
     intervals = historicalInterval

@@ -148,8 +148,6 @@ public:
         return PoolSQL::list(oids, MarketPlace::table);
      }
 
-private:
-
     /**
      *  Factory method to produce objects
      *    @return a pointer to the new object

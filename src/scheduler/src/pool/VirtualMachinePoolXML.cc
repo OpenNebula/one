@@ -41,8 +41,8 @@ int VirtualMachinePoolXML::set_up()
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(3)  << "PCI"       << " "
                 << right << setw(11) << "System DS" << " "
-                << " Image DS"
-                << endl << setw(60) << setfill('-') << "-" << setfill(' ');
+                << " Image DS" << endl
+                << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
             for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
             {
@@ -65,8 +65,7 @@ int VirtualMachinePoolXML::set_up()
                     action = "RESUME";
                 }
 
-                oss << endl
-                    << right << setw(8)  << action      << " "
+                oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "
@@ -80,6 +79,8 @@ int VirtualMachinePoolXML::set_up()
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
                 }
+
+                oss << endl;
             }
         }
         else
@@ -117,15 +118,8 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call(client->get_endpoint(),        // serverUrl
-                     "one.vmpool.info",             // methodName
-                     "siiii",                       // arguments format
-                     &result,                       // resultP
-                     client->get_oneauth().c_str(), // auth string
-                     -2,                            // VM from all users
-                     -1,                            // start_id (none)
-                     -1,                            // end_id (none)
-                     -1);                           // not in DONE state
+        client->call("one.vmpool.info", "iiii", &result, -2, -1, -1, -1);
+
         return 0;
     }
     catch (exception const& e)
@@ -157,27 +151,23 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) co
     {
         if (resched == true)
         {
-            client->call(client->get_endpoint(),           // serverUrl
-                         "one.vm.migrate",                 // methodName
-                         "siibb",                          // arguments format
-                         &deploy_result,                   // resultP
-                         client->get_oneauth().c_str(),    // argument 0 (AUTH)
-                         vid,                              // argument 1 (VM)
-                         hid,                              // argument 2 (HOST)
-                         live_resched,                     // argument 3 (LIVE)
-                         false);                           // argument 4 (ENFORCE)
+            client->call("one.vm.migrate",// methodName
+                         "iibb",          // arguments format
+                         &deploy_result,  // resultP
+                         vid,             // argument 1 (VM)
+                         hid,             // argument 2 (HOST)
+                         live_resched,    // argument 3 (LIVE)
+                         false);          // argument 4 (ENFORCE)
         }
         else
         {
-            client->call(client->get_endpoint(),           // serverUrl
-                         "one.vm.deploy",                  // methodName
-                         "siibi",                          // arguments format
-                         &deploy_result,                   // resultP
-                         client->get_oneauth().c_str(),    // argument 0 (AUTH)
-                         vid,                              // argument 1 (VM)
-                         hid,                              // argument 2 (HOST)
-                         false,                            // argument 3 (ENFORCE)
-                         dsid);                            // argument 5 (SYSTEM SD)
+            client->call("one.vm.deploy", // methodName
+                         "iibi",          // arguments format
+                         &deploy_result,  // resultP
+                         vid,             // argument 1 (VM)
+                         hid,             // argument 2 (HOST)
+                         false,           // argument 3 (ENFORCE)
+                         dsid);           // argument 5 (SYSTEM SD)
         }
     }
     catch (exception const& e)
@@ -222,14 +212,7 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     try
     {
-        client->call( client->get_endpoint(),     // serverUrl
-                "one.vm.update",                  // methodName
-                "sis",                            // arguments format
-                &result,                          // resultP
-                client->get_oneauth().c_str(),    // argument
-                vid,                              // VM ID
-                st.c_str()                        // Template
-        );
+        client->call("one.vm.update", "is", &result, vid, st.c_str());
     }
     catch (exception const& e)
     {
@@ -295,25 +278,11 @@ int VirtualMachineActionsPoolXML::action(
     {
         if (action == "snapshot-create")
         {
-            client->call( client->get_endpoint(), // serverUrl
-                "one.vm.snapshotcreate",          // methodName
-                "sis",                            // arguments format
-                &result,                          // resultP
-                client->get_oneauth().c_str(),    // session
-                vid,                              // VM ID
-                string("").c_str()                // snapshot name
-            );
+            client->call("one.vm.snapshotcreate", "is", &result, vid, "");
         }
         else
         {
-            client->call( client->get_endpoint(), // serverUrl
-                "one.vm.action",                  // methodName
-                "ssi",                            // arguments format
-                &result,                          // resultP
-                client->get_oneauth().c_str(),    // session
-                action.c_str(),                   // action
-                vid                               // VM ID
-            );
+            client->call("one.vm.action", "si", &result, action.c_str(), vid);
         }
     }
     catch (exception const& e)

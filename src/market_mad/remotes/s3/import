@@ -68,13 +68,10 @@ region            = xpath(xml, 'MARKETPLACE/TEMPLATE/REGION')
 signature_version = xpath(xml, 'MARKETPLACE/TEMPLATE/SIGNATURE_VERSION')
 endpoint          = xpath(xml, 'MARKETPLACE/TEMPLATE/ENDPOINT')
 force_path_style  = xpath(xml, 'MARKETPLACE/TEMPLATE/FORCE_PATH_STYLE')
+read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
 
 name   = "marketapp-#{id}"
 source = "s3://#{bucket}/#{name}"
-
-# Upload
-
-READ_LENGTH = 10*1024*1024 # Read in chunks of 10MB
 
 s3_config = {
     :region            => region,
@@ -85,6 +82,14 @@ s3_config = {
 s3_config[:signature_version] = signature_version if !signature_version.to_s.empty?
 s3_config[:endpoint]          = endpoint if !endpoint.to_s.empty?
 s3_config[:force_path_style]  = true if force_path_style.to_s.downcase == "yes"
+
+DEFAULT_READ_LENGTH = 32*1024*1024 # Read in chunks of 32MB
+
+if read_length.to_s.empty?
+    read_length = DEFAULT_READ_LENGTH
+else
+    read_length = 1024*1024*read_length.to_i
+end
 
 s3 = S3.new(s3_config)
 
@@ -99,7 +104,7 @@ end
 cmd = "#{UTILS_PATH}/downloader.sh #{import_source} -"
 
 Open3.popen3(cmd) do |_, o, _, _|
-    body = o.read(READ_LENGTH)
+    body = o.read(read_length)
 
     if o.eof?
         s3.put_object(body)
@@ -110,7 +115,7 @@ Open3.popen3(cmd) do |_, o, _, _|
             s3.upload_part(body)
 
             until o.eof?
-                body = o.read(READ_LENGTH)
+                body = o.read(read_length)
                 s3.upload_part(body)
             end
 

@@ -13,164 +13,200 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
     <div class="columns medium-5">
-      <label>{{tr "Name"}}:
+      <label>
+        {{tr "Name"}}:
         <input required type="text" name="name" id="name" />
       </label>
     </div>
     <div class="columns medium-7">
-      <dl class="tabs right-info-tabs text-center right" data-tab>
-       <dd class="active"><a href="#resource_views"><i class="fa fa-eye"></i><br>{{tr "Views"}}</a></dd>
-       <dd><a href="#administrators"><i class="fa fa-upload"></i><br>{{tr "Admin"}}</a></dd>
-       <dd><a href="#resource_creation"><i class="fa fa-folder-open"></i><br>{{tr "Permissions"}}</a></dd>
-     </dl>
-   </div>
- </div>
- <div class="tabs-content">
-  <div id="resource_views" class="content active">
-    <div class="row">
-      <div class="large-12 columns">
-        <p class="subheader">
-          {{tr "Allow users in this group to use the following Sunstone views"}}
-          &emsp;<span class="tip">{{tr "Views available to the group users. If the default is unset, the one set in sunstone-views.yaml will be used"}}</span>
-        </p>
-      </div>
+      <dl id="{{formPanelId}}Tabs" class="tabs right-info-tabs text-center right" data-tabs>
+        <dd class="tabs-title is-active">
+          <a href="#resource_views"> <i class="fa fa-eye"></i>
+            <br>{{tr "Views"}}</a>
+        </dd>
+        <dd class="tabs-title">
+          <a href="#administrators"> <i class="fa fa-upload"></i>
+            <br>{{tr "Admin"}}</a>
+        </dd>
+        <dd class="tabs-title">
+          <a href="#resource_creation">
+            <i class="fa fa-folder-open"></i>
+            <br>{{tr "Permissions"}}</a>
+        </dd>
+      </dl>
     </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <div class="row">
-          <div class="medium-6 columns">
-            <label for="user_view_default">{{tr "Default Users View"}}
-            </label>
-            <select id="user_view_default">
-            </select>
-          </div>
-          <div class="medium-6 columns">
-            <label for="admin_view_default">{{tr "Default Admin View"}}
-            </label>
-            <select id="admin_view_default">
-            </select>
-          </div>
+  </div>
+  <div class="tabs-content" data-tabs-content="{{formPanelId}}Tabs">
+    <div id="resource_views" class="tabs-panel is-active">
+      <div class="row">
+        <div class="large-12 columns">
+          <p class="subheader">
+            {{tr "Allow users in this group to use the following Sunstone views"}}
+          &emsp;
+            <span class="tip">
+              {{tr "Views available to the group users. If the default is unset, the one set in sunstone-views.yaml will be used"}}
+            </span>
+          </p>
         </div>
-        <br>
-        {{#each viewTypes}}
-        <div class="row">
-          <div class="large-7 columns">
-            <h4>{{name}}
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <div class="row">
+            <div class="medium-6 columns">
+              <label for="user_view_default">{{tr "Default Users View"}}</label>
+              <select id="user_view_default"></select>
+            </div>
+            <div class="medium-6 columns">
+              <label for="admin_view_default">{{tr "Default Admin View"}}</label>
+              <select id="admin_view_default"></select>
+            </div>
+          </div>
+          <br>
+          {{#each viewTypes}}
+          <div class="row">
+            <div class="large-7 columns">
+              <h4>
+                {{name}}
               {{#if description}}
-              <span class="tip">{{description}}</span>
-              {{/if}}
-            </h4>
-            <table class="dataTable">
-              <tr>
-                <th style='width: 60%;'></th>
-                <th>{{tr "Group Users"}}</th>
-                <th>{{tr "Group Admins"}}</th>
-              </tr>
-              {{#each views}}
-              <tr>
-                <td>
-                  {{name}} {{tr "View"}}
+                <span class="tip">{{description}}</span>
+                {{/if}}
+              </h4>
+              <table class="dataTable">
+                <tr>
+                  <th style='width: 60%;'></th>
+                  <th>{{tr "Group Users"}}</th>
+                  <th>{{tr "Group Admins"}}</th>
+                </tr>
+                {{#each views}}
+                <tr>
+                  <td>
+                    {{name}} {{tr "View"}}
                   {{#if description}}
-                  <span class="tip">{{description}}</span>
-                  {{/if}}
-                </td>
-                <td>
-                  <input class="user_view_input" type="checkbox"
+                    <span class="tip">{{description}}</span>
+                    {{/if}}
+                  </td>
+                  <td>
+                    <input class="user_view_input" type="checkbox"
                   id="group_view_{{id}}"
                   value="{{id}}"/>
-                </td>
-                <td>
-                  <input class="admin_view_input" type="checkbox"
+                  </td>
+                  <td>
+                    <input class="admin_view_input" type="checkbox"
                   id="group_admin_view_{{id}}"
                   value="{{id}}"/>
-                </td>
+                  </td>
+                </tr>
+                {{/each}}
+              </table>
+            </div>
+            <div class="large-5 columns" style="text-align: center">
+              {{#if preview}}
+              <img src="images/{{preview}}" style="height: 200px;">{{/if}}</div>
+          </div>
+          <br>{{/each}}</div>
+      </div>
+    </div>
+    <div id="administrators" class="tabs-panel">
+      <div class="row">
+        <div class="medium-6 columns" id="admin_user_wrapper">
+          <div class="row">
+            <div class="large-12 columns">
+              <label>
+                <input type="checkbox" id="admin_user" name="admin_user" value="YES" />
+                {{tr "Create an administrator user"}}
+                <span class="tip">
+                  {{tr "You can create now an administrator user. More administrators can be added later."}}
+                </span>
+              </label>
+            </div>
+          </div>
+          {{{userCreationHTML}}}
+        </div>
+      </div>
+    </div>
+    <div id="resource_creation" class="tabs-panel">
+      <div class="row">
+        <div class="large-12 columns">
+          <label>
+            <input type="checkbox" id="shared_resources" name="shared_resources" value="YES" />
+            {{tr "Allow users to view the VMs and Services of other users in the same group"}}
+            <span class="tip">
+              {{tr "An ACL Rule will be created to give users in this group access to all the resources in the same group."}}
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <p class="subheader">
+            {{tr "Allow users in this group to create the following resources"}}
+          &emsp;
+            <span class="tip">
+              {{tr "This will create new ACL Rules to define which virtual resources this group's users will be able to create."}}
+            </span>
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <table class="dataTable" style="table-layout:fixed">
+            <thead>
+              <tr>
+                <th>{{tr "VMs"}}</th>
+                <th>{{tr "VNets"}}</th>
+                <th>{{tr "Security Groups"}}</th>
+                <th>{{tr "Virtual Routers"}}</th>
+                <th>{{tr "Images"}}</th>
+                <th>{{tr "Templates"}}</th>
+                <th>
+                  {{tr "Documents"}}
+                  <span class="tip">
+                    {{tr "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."}}
+                  </span>
+                </th>
               </tr>
-              {{/each}}
-            </table>
-          </div>
-          <div class="large-5 columns" style="text-align: center">
-            {{#if preview}}
-            <img src="images/{{preview}}" style="height: 200px;">
-            {{/if}}
-          </div>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_vr" name="group_res_vr" class="resource_cb" value="VROUTER"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"/>
+                </td>
+                <td>
+                  <input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"/>
+                </td>
+                <td/>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <br>
-        {{/each}}
       </div>
     </div>
   </div>
-  <div id="administrators" class=" content">
-    <div class="row">
-      <div class="medium-6 columns" id="admin_user_wrapper">
-        <div class="row">
-          <div class="large-12 columns">
-            <label>
-              <input type="checkbox" id="admin_user" name="admin_user" value="YES" />
-              {{tr "Create an administrator user"}}
-              <span class="tip">{{tr "You can create now an administrator user. More administrators can be added later."}}</span>
-            </label>
-          </div>
-        </div>
-        {{{userCreationHTML}}}
+  <div class="reveal-footer">
+    <div class="row collapse" id="default_vdc_warning">
+      <div class="large-12 columns text-right">
+        <span class="radius secondary label">
+          <i class="fa fa-warning"/>{{tr "New Groups are automatically added to the default VDC"}}
+        </span>
       </div>
     </div>
   </div>
-  <div id="resource_creation" class="content">
-    <div class="row">
-      <div class="large-12 columns">
-        <label>
-          <input type="checkbox" id="shared_resources" name="shared_resources" value="YES" />
-          {{tr "Allow users to view the VMs and Services of other users in the same group"}}
-          <span class="tip">{{tr "An ACL Rule will be created to give users in this group access to all the resources in the same group."}}</span>
-        </label>
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <p class="subheader">
-          {{tr "Allow users in this group to create the following resources"}}
-          &emsp;<span class="tip">{{tr "This will create new ACL Rules to define which virtual resources this group's users will be able to create."}}</span>
-        </p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <table class="dataTable" style="table-layout:fixed">
-          <thead><tr>
-            <th>{{tr "VMs"}}</th>
-            <th>{{tr "VNets"}}</th>
-            <th>{{tr "Security Groups"}}</th>
-            <th>{{tr "Virtual Routers"}}</th>
-            <th>{{tr "Images"}}</th>
-            <th>{{tr "Templates"}}</th>
-            <th>{{tr "Documents"}}<span class="tip">{{tr "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."}}</span></th>
-          </tr></thead>
-          <tbody>
-            <tr>
-              <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>
-              <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>
-              <td><input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"></input></td>
-              <td><input type="checkbox" id="group_res_vr" name="group_res_vr" class="resource_cb" value="VROUTER"></input></td>
-              <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>
-              <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>
-              <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>
-              <td/>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="reveal-footer">
-  <div class="row collapse" id="default_vdc_warning">
-    <div class="large-12 columns text-right">
-      <span class="radius secondary label"><i class="fa fa-warning"/> {{tr "New Groups are automatically added to the default VDC"}}</span>
-    </div>
-  </div>
-</div>
 </form>

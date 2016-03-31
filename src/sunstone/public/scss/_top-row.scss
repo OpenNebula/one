@@ -1,0 +1,28 @@
+#top-row {
+  padding: 1rem 0 0 0;
+
+  .opennebula-img {
+    height: 1rem;
+  }
+
+  .logo-header {
+    margin-top: 0.5rem;
+  }
+
+}
+
+.header-title {
+  margin-bottom: 2rem;
+}
+
+.action_blocks {
+  & > span {
+    padding-right: 2rem;
+  }
+}
+
+.vm-action-disabled {
+  //color: #cfcfcf !important;
+  cursor: default !important;
+  opacity: 0.25;
+}

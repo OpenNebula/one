@@ -44,11 +44,12 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: Locale.tr("Templates"),
+    title: Locale.tr("VMs"),
+    icon: 'fa-file-o',
     tabClass: "subTab",
-    parentTab: "vresources-tab",
-    listHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;' + Locale.tr("Templates"),
-    infoHeader: '<i class="fa fa-fw fa-file-o"></i>&emsp;' + Locale.tr("Template"),
+    parentTab: "templates-top-tab",
+    listHeader: Locale.tr("VM Templates"),
+    infoHeader: Locale.tr("VM Template"),
     subheader: '',
     resource: 'Template',
     buttons: Buttons,

@@ -38,16 +38,18 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./images-tab/form-panels/create')
+    require('./images-tab/form-panels/create'),
+    require('./images-tab/form-panels/import')
   ];
 
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Images"),
+    icon: 'fa-download',
     tabClass: "subTab",
-    parentTab: "vresources-tab",
-    listHeader: '<i class="fa fa-fw fa-upload"></i>&emsp;' + Locale.tr("Images"),
-    infoHeader: '<i class="fa fa-fw fa-upload"></i>&emsp;' + Locale.tr("Image"),
+    parentTab: "storage-top-tab",
+    listHeader: Locale.tr("Images"),
+    infoHeader: Locale.tr("Image"),
     subheader: '',
     resource: 'Image',
     content: '<div id="upload_progress_bars" class="large-12 columns"></div>',

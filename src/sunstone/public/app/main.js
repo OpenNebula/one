@@ -23,39 +23,34 @@ require.config({
     'jquery': '../bower_components/jquery/dist/jquery',
 
     /* DataTables */
-    'datatables': '../bower_components/datatables/media/js/jquery.dataTables',
-    'foundation-datatables': '../bower_components/foundation-datatables/integration/foundation/dataTables.foundation',
+    'datatables.net': '../bower_components/datatables/media/js/jquery.dataTables',
+    'datatables.foundation': '../bower_components/datatables/media/js/dataTables.foundation',
 
     /* DataTables */
     'jgrowl': '../bower_components/jgrowl/jquery.jgrowl',
 
     /* Foundation */
-    'foundation.core': '../bower_components/foundation/js/foundation/foundation',
-    'foundation.abide': '../bower_components/foundation/js/foundation/foundation.abide',
-    'foundation.accordion': '../bower_components/foundation/js/foundation/foundation.accordion',
-    'foundation.alert': '../bower_components/foundation/js/foundation/foundation.alert',
-    'foundation.clearing': '../bower_components/foundation/js/foundation/foundation.clearing',
-    'foundation.dropdown': '../bower_components/foundation/js/foundation/foundation.dropdown',
-    'foundation.equalizer': '../bower_components/foundation/js/foundation/foundation.equalizer',
-    'foundation.interchange': '../bower_components/foundation/js/foundation/foundation.interchange',
-    'foundation.joyride': '../bower_components/foundation/js/foundation/foundation.joyride',
-    'foundation.magellan': '../bower_components/foundation/js/foundation/foundation.magellan',
-    'foundation.offcanvas': '../bower_components/foundation/js/foundation/foundation.offcanvas',
-    'foundation.orbit': '../bower_components/foundation/js/foundation/foundation.orbit',
-    'foundation.reveal': '../bower_components/foundation/js/foundation/foundation.reveal',
-    'foundation.slider': '../bower_components/foundation/js/foundation/foundation.slider',
-    'foundation.tab': '../bower_components/foundation/js/foundation/foundation.tab',
-    'foundation.tooltip': '../bower_components/foundation/js/foundation/foundation.tooltip',
-    'foundation.topbar': '../bower_components/foundation/js/foundation/foundation.topbar',
+    'foundation': '../bower_components/foundation-sites/dist/foundation',
+    //'foundation.core': '../bower_components/foundation/js/foundation/foundation',
+    //'foundation.abide': '../bower_components/foundation/js/foundation/foundation.abide',
+    //'foundation.accordion': '../bower_components/foundation/js/foundation/foundation.accordion',
+    //'foundation.alert': '../bower_components/foundation/js/foundation/foundation.alert',
+    //'foundation.clearing': '../bower_components/foundation/js/foundation/foundation.clearing',
+    //'foundation.dropdown': '../bower_components/foundation/js/foundation/foundation.dropdown',
+    //'foundation.equalizer': '../bower_components/foundation/js/foundation/foundation.equalizer',
+    //'foundation.interchange': '../bower_components/foundation/js/foundation/foundation.interchange',
+    //'foundation.joyride': '../bower_components/foundation/js/foundation/foundation.joyride',
+    //'foundation.magellan': '../bower_components/foundation/js/foundation/foundation.magellan',
+    //'foundation.offcanvas': '../bower_components/foundation/js/foundation/foundation.offcanvas',
+    //'foundation.orbit': '../bower_components/foundation/js/foundation/foundation.orbit',
+    //'foundation.reveal': '../bower_components/foundation/js/foundation/foundation.reveal',
+    //'foundation.slider': '../bower_components/foundation/js/foundation/foundation.slider',
+    //'foundation.tab': '../bower_components/foundation/js/foundation/foundation.tab',
+    //'foundation.tooltip': '../bower_components/foundation/js/foundation/foundation.tooltip',
+    //'foundation.topbar': '../bower_components/foundation/js/foundation/foundation.topbar',
 
     /* Handlebars */
     'hbs': '../bower_components/require-handlebars-plugin/hbs',
-
-    /* Vendor Scripts */
-    'jquery.cookie': '../bower_components/foundation/js/vendor/jquery.cookie',
-    'fastclick': '../bower_components/foundation/js/vendor/fastclick',
-    'modernizr': '../bower_components/foundation/js/vendor/modernizr',
-    'placeholder': '../bower_components/foundation/js/vendor/placeholder',
 
     /* Resumable */
     'resumable': '../bower_components/resumablejs/resumable',
@@ -118,32 +113,35 @@ require.config({
     /* Tabs */
     'app': {
       deps: [
+        'foundation',
         'tabs/provision-tab',
         'tabs/dashboard-tab',
-        'tabs/system-tab',
+        'tabs/system-top-tab',
         'tabs/users-tab',
         'tabs/groups-tab',
         'tabs/vdcs-tab',
         'tabs/acls-tab',
-        'tabs/vresources-tab',
-        'tabs/vms-tab',
+        'tabs/templates-top-tab',
         'tabs/templates-tab',
-        'tabs/images-tab',
-        'tabs/files-tab',
-        'tabs/infra-tab',
+        'tabs/oneflow-templates-tab',
+        'tabs/instances-top-tab',
+        'tabs/vms-tab',
+        'tabs/oneflow-services-tab',
+        'tabs/infrastructure-top-tab',
         'tabs/clusters-tab',
         'tabs/hosts-tab',
-        'tabs/datastores-tab',
-        'tabs/vnets-topology-tab',
-        'tabs/vnets-tab',
-        'tabs/secgroups-tab',
-        'tabs/vrouters-tab',
         'tabs/zones-tab',
-        'tabs/oneflow-dashboard-tab',
-        'tabs/oneflow-services-tab',
-        'tabs/oneflow-templates-tab',
+        'tabs/storage-top-tab',
+        'tabs/datastores-tab',
+        'tabs/images-tab',
+        'tabs/files-tab',
         'tabs/marketplaces-tab',
         'tabs/marketplaceapps-tab',
+        'tabs/network-top-tab',
+        'tabs/vnets-tab',
+        'tabs/vrouters-tab',
+        'tabs/vnets-topology-tab',
+        'tabs/secgroups-tab',
         'tabs/settings-tab',
         'tabs/support-tab'
       ]
@@ -159,78 +157,76 @@ require.config({
       deps: ['jquery']
     },
 
-    /* dataTables */
-    'foundation-datatables': {
-      deps: ['jquery', 'datatables']
-    },
-
     /* Foundation */
-    'foundation.core': {
-      deps: ['jquery', 'modernizr'],
-      exports: 'Foundation'
+    'foundation': {
+        deps: ['jquery']
     },
-    'foundation.abide': {
-      deps: ['foundation.core']
-    },
-    'foundation.accordion': {
-      deps: ['foundation.core']
-    },
-    'foundation.alert': {
-      deps: ['foundation.core']
-    },
-    'foundation.clearing': {
-      deps: ['foundation.core']
-    },
-    'foundation.dropdown': {
-      deps: ['foundation.core']
-    },
-    'foundation.equalizer': {
-      deps: ['foundation.core']
-    },
-    'foundation.interchange': {
-      deps: ['foundation.core']
-    },
-    'foundation.joyride': {
-      deps: ['foundation.core', 'jquery.cookie']
-    },
-    'foundation.magellan': {
-      deps: ['foundation.core']
-    },
-    'foundation.offcanvas': {
-      deps: ['foundation.core']
-    },
-    'foundation.orbit': {
-      deps: ['foundation.core']
-    },
-    'foundation.reveal': {
-      deps: ['foundation.core']
-    },
-    'foundation.slider': {
-      deps: ['foundation.core']
-    },
-    'foundation.tab': {
-      deps: ['foundation.core']
-    },
-    'foundation.tooltip': {
-      deps: ['foundation.core']
-    },
-    'foundation.topbar': {
-      deps: ['foundation.core']
-    },
+    //'foundation.core': {
+    //  deps: ['jquery', 'modernizr'],
+    //  exports: 'Foundation'
+    //},
+    //'foundation.abide': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.accordion': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.alert': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.clearing': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.dropdown': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.equalizer': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.interchange': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.joyride': {
+    //  deps: ['foundation.core', 'jquery.cookie']
+    //},
+    //'foundation.magellan': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.offcanvas': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.orbit': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.reveal': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.slider': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.tab': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.tooltip': {
+    //  deps: ['foundation.core']
+    //},
+    //'foundation.topbar': {
+    //  deps: ['foundation.core']
+    //},
 
     /* Vendor Scripts */
-    'jquery.cookie': {
-      deps: ['jquery']
-    },
-    'fastclick': {
-      exports: 'FastClick'
-    },
-    'modernizr': {
-      exports: 'Modernizr'
-    },
-    'placeholder': {
-      exports: 'Placeholders'
-    },
+    //'jquery.cookie': {
+    //  deps: ['jquery']
+    //},
+    //'fastclick': {
+    //  exports: 'FastClick'
+    //},
+    //'modernizr': {
+    //  exports: 'Modernizr'
+    //},
+    //'placeholder': {
+    //  exports: 'Placeholders'
+    //},
 
     /* Flot Graphs */
     'flot': {

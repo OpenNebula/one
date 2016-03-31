@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal-modal" data-reveal>
+<div id="{{dialogId}}" class="reveal large max-height" data-reveal>
   <div class="row">
     <h3 class="subheader">
       {{tr "Confirm"}}
@@ -34,8 +34,10 @@
     <br />
     <br />
     <div class="form_buttons">
-      <button id="confirm_with_select_proceed" class="action_button radius button right" value="">{{tr "OK"}}</button>
+      <button id="confirm_with_select_proceed" class="action_button button right" data-close value="">{{tr "OK"}}</button>
     </div>
-    <a class="close-reveal-modal">&#215;</a>
+    <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </form>
 </div>

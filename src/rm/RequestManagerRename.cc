@@ -149,26 +149,16 @@ void ClusterRename::batch_rename(int oid)
         return;
     }
 
-    const set<int> & hosts      = cluster->get_host_ids();
-    const set<int> & datastores = cluster->get_datastore_ids();
-    const set<int> & vnets      = cluster->get_vnet_ids();
+    const set<int> & hosts = cluster->get_host_ids();
 
-    set<int>::iterator it;
-
-    string cluster_name = cluster->get_name();
+    string cluster_name    = cluster->get_name();
 
     cluster->unlock();
 
     Host *              host;
     HostPool*           hpool = Nebula::instance().get_hpool();
 
-    Datastore *         ds;
-    DatastorePool*      dspool = Nebula::instance().get_dspool();
-
-    VirtualNetwork*     vnet;
-    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
-
-    for (it = hosts.begin(); it != hosts.end(); it++)
+    for (set<int>::iterator it = hosts.begin(); it != hosts.end(); it++)
     {
         host = hpool->get(*it, true);
 
@@ -181,38 +171,6 @@ void ClusterRename::batch_rename(int oid)
             }
 
             host->unlock();
-        }
-    }
-
-    for (it = datastores.begin(); it != datastores.end(); it++)
-    {
-        ds = dspool->get(*it, true);
-
-        if (ds != 0)
-        {
-            if (ds->get_cluster_id() == oid)
-            {
-                ds->set_cluster(oid, cluster_name);
-                dspool->update(ds);
-            }
-
-            ds->unlock();
-        }
-    }
-
-    for (it = vnets.begin(); it != vnets.end(); it++)
-    {
-        vnet = vnpool->get(*it, true);
-
-        if (vnet != 0)
-        {
-            if (vnet->get_cluster_id() == oid)
-            {
-                vnet->set_cluster(oid, cluster_name);
-                vnpool->update(vnet);
-            }
-
-            vnet->unlock();
         }
     }
 }

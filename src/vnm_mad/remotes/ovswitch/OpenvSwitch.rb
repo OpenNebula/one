@@ -17,13 +17,12 @@
 require 'vnmmad'
 
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
-    DRIVER = "ovswitch"
 
+    DRIVER = "ovswitch"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
     FIREWALL_PARAMS =  [:black_ports_tcp,
                         :black_ports_udp,
                         :icmp]
-
-    XPATH_FILTER = "TEMPLATE/NIC"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
@@ -90,9 +89,15 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def vlan
         if @nic[:vlan_id]
-            return @nic[:vlan_id]
+            @nic[:vlan_id]
         else
-            return CONF[:start_vlan] + @nic[:network_id].to_i
+            if @nic[:parent_network_id]
+                network_id = @nic[:parent_network_id].to_i
+            else
+                network_id = @nic[:network_id].to_i
+            end
+
+            @nic[:vlan_id] = CONF[:start_vlan] + network_id
         end
     end
 
@@ -163,16 +168,22 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def del_flows
+        the_ports = ports
+
         in_port = ""
 
         dump_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
         `#{dump_flows}`.lines do |flow|
             next unless flow.match("#{@nic[:mac]}")
-            flow = flow.split.select{|e| e.match(@nic[:mac])}.first
-            if in_port.empty? and (m = flow.match(/in_port=(\d+)/))
-                in_port = m[1]
+
+            if (m = flow.match(/in_port=(\d+)/))
+                in_port_tmp = m[1]
+
+                if !the_ports.include?(in_port_tmp)
+                    in_port = in_port_tmp
+                    break
+                end
             end
-            del_flow flow
         end
 
         del_flow "in_port=#{in_port}" if !in_port.empty?
@@ -195,13 +206,19 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         OpenNebula.exec_and_log(cmd)
     end
 
-    def port
-        return @nic[:port] if @nic[:port]
-
+    def ports
         dump_ports = `#{command(:ovs_ofctl)} \
                       dump-ports #{@nic[:bridge]} #{@nic[:tap]}`
 
-        @nic[:port] = dump_ports.scan(/^\s*port\s*(\d+):/).flatten.first
+        dump_ports.scan(/^\s*port\s*(\d+):/).flatten
+    end
+
+    def port
+        if @nic[:port]
+            @nic[:port]
+        else
+            @nic[:port] = ports.first
+        end
     end
 
     def range?(range)

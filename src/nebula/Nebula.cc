@@ -19,6 +19,7 @@
 #include "VirtualMachine.h"
 #include "SqliteDB.h"
 #include "MySqlDB.h"
+#include "Client.h"
 
 #include <stdlib.h>
 #include <stdexcept>
@@ -377,25 +378,25 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     // Close stds, we no longer need them
     // -----------------------------------------------------------
-
-    fd = open("/dev/null", O_RDWR);
-
-    dup2(fd,0);
-
     if (NebulaLog::log_type() != NebulaLog::STD )
     {
+        fd = open("/dev/null", O_RDWR);
+
+        dup2(fd,0);
         dup2(fd,1);
         dup2(fd,2);
+
+        close(fd);
+
+        fcntl(0, F_SETFD, 0); // Keep them open across exec funcs
+        fcntl(1, F_SETFD, 0);
+        fcntl(2, F_SETFD, 0);
     }
-
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-
-    if (NebulaLog::log_type() != NebulaLog::STD )
+    else
     {
-        fcntl(1,F_SETFD,0);
-        fcntl(2,F_SETFD,0);
+        fcntl(0, F_SETFD, FD_CLOEXEC);
+        fcntl(1, F_SETFD, FD_CLOEXEC);
+        fcntl(2, F_SETFD, FD_CLOEXEC);
     }
 
     // -----------------------------------------------------------
@@ -605,6 +606,19 @@ void Nebula::start(bool bootstrap_only)
         throw runtime_error("Error Initializing OpenNebula pools");
     }
 
+    // ---- XMLRPC Client for federation slaves ----
+    if (is_federation_slave())
+    {
+        long long msg_size;
+
+        unsigned int timeout;
+
+        get_configuration_attribute("MESSAGE_SIZE", msg_size);
+
+        get_configuration_attribute("TIMEOUT", timeout);
+
+        Client::initialize("", get_master_oned(), msg_size, timeout);
+    }
 
     // ---- Virtual Machine Manager ----
     try
@@ -1039,27 +1053,9 @@ NebulaLog::LogType Nebula::get_log_system() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Nebula::get_ds_location(int cluster_id, string& dsloc)
+void Nebula::get_ds_location(string& dsloc)
 {
-    if ( cluster_id != -1 )
-    {
-        Cluster * cluster = clpool->get(cluster_id, true);
-
-        if ( cluster == 0 )
-        {
-            return -1;
-        }
-
-        cluster->get_ds_location(dsloc);
-
-        cluster->unlock();
-    }
-    else
-    {
-        get_configuration_attribute("DATASTORE_LOCATION", dsloc);
-    }
-
-    return 0;
+    get_configuration_attribute("DATASTORE_LOCATION", dsloc);
 }
 
 /* -------------------------------------------------------------------------- */

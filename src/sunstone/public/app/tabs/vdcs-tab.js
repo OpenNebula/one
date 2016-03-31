@@ -43,10 +43,11 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("VDCs"),
+    icon: 'fa-th-list',
     tabClass: "subTab",
-    parentTab: "system-tab",
-    listHeader: '<i class="fa fa-fw fa-th"></i>&emsp;'+Locale.tr("Virtual Data Centers"),
-    infoHeader: '<i class="fa fa-fw fa-th"></i>&emsp;'+Locale.tr("Virtual Data Center"),
+    parentTab: "system-top-tab",
+    listHeader: Locale.tr("Virtual Data Centers"),
+    infoHeader: Locale.tr("Virtual Data Center"),
     subheader: '<span>\
         <span class="total_vdcs"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

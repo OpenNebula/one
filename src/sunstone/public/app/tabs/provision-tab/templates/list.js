@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation.alert');
+//  require('foundation.alert');
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
@@ -45,6 +45,7 @@ define(function(require) {
   function generate_provision_templates_list(context, opts) {
     context.off();
     context.html(html(opts));
+    Foundation.reflow(context, 'accordion');
     setup_provision_templates_list(context, opts);
   }
 
@@ -63,13 +64,13 @@ define(function(require) {
 
   function update_provision_templates_datatable(datatable, timeout) {
     datatable.html('<div class="text-center">'+
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<span class="fa-stack fa-5x">'+
         '<i class="fa fa-cloud fa-stack-2x"></i>'+
         '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
       '</span>'+
       '<br>'+
       '<br>'+
-      '<span style="font-size: 18px; color: #999">'+
+      '<span>'+
       '</span>'+
       '</div>');
 
@@ -80,13 +81,13 @@ define(function(require) {
           datatable.fnClearTable(true);
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-5x">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
               '</span>'+
               '<br>'+
               '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
+              '<span>'+
                 Locale.tr("There are no templates available")+
               '</span>'+
               '</div>');
@@ -126,20 +127,20 @@ define(function(require) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
         if (this.$('tr', {"filter": "applied"} ).length == 0) {
           this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<span class="fa-stack fa-5x">'+
               '<i class="fa fa-cloud fa-stack-2x"></i>'+
               '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
             '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
+            '<span>'+
               Locale.tr("There are no templates available")+
               '<br>'+
               Locale.tr("Create a template by saving a running Virtual Machine")+
             '</span>'+
             '</div>');
         } else {
-          $(".provision_templates_table", context).html('<ul class="provision_templates_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+          $(".provision_templates_table", context).html('<div class="provision_templates_ul large-up-3 medium-up-3 small-up-1"></div>');
         }
         return true;
       },
@@ -150,16 +151,16 @@ define(function(require) {
           if (data.UID == config['user_id']) {
 
             if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
-              actions_html += '<span style="font-size:12px; color: #777">' + Locale.tr("SHARED") + '</span>';
+              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<span>' + Locale.tr("SHARED") + '</span>';
             } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
             }
           }
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  href="#"><i class="fa fa-fw fa-lg fa-trash-o only-on-hover"/></a>';
         }
 
         var cpu_txt = "";
@@ -177,24 +178,26 @@ define(function(require) {
           }
         }
 
-        $(".provision_templates_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" title="'+data.NAME+'">'+
-                data.NAME +
+        $(".provision_templates_ul", context).append('<div class="column">'+
+            '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title" title="'+data.NAME+'">'+
+                '<span class="without-link">' +
+                  data.NAME +
+                '</span>' +
               '</li>'+
-              '<li class="provision-bullet-item text-left" >'+
+              '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                 cpu_txt+' - '+
                 mem_txt+' - '+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
+              '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
-              '<li class="provision-bullet-item" style="padding-top:10px">'+
+              '<li class="provision-bullet-item text-right">'+
                 actions_html+
               '</li>'+
-              '<li class="provision-bullet-item-last text-left" >'+
+              '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
@@ -204,7 +207,7 @@ define(function(require) {
                 '</span>'+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</div>');
 
         return nRow;
       }
@@ -257,14 +260,14 @@ define(function(require) {
           '<div data-alert class="alert-box secondary radius">'+
             '<div class="row">'+
             '<div class="large-9 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
+              '<span>'+
                 Locale.tr("Handle with care! This action will immediately destroy the template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated.") +
               '</span>'+
             '</div>'+
             '<div class="large-3 columns">'+
-              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
+              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -305,14 +308,14 @@ define(function(require) {
           '<div data-alert class="alert-box secondary radius">'+
             '<div class="row">'+
             '<div class="large-8 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
+              '<span>'+
                 Locale.tr("The template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated will be shared and all the users will be able to instantiate new VMs using this template.") +
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
+              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -351,14 +354,14 @@ define(function(require) {
           '<div data-alert class="alert-box secondary radius">'+
             '<div class="row">'+
             '<div class="large-8 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
+              '<span>'+
                 Locale.tr("The template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated will be unshared and the users will not be able to instantiate new VMs using this template.") +
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
+              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -390,7 +393,7 @@ define(function(require) {
 
     OpenNebula.Action.clear_cache("VMTEMPLATE");
     update_provision_templates_datatable(provision_templates_datatable, 0);
-    context.foundation();
+    // context.foundation();
   }
 
   function get_provision_disk_image(data) {

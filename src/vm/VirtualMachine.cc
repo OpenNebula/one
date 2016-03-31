@@ -250,7 +250,7 @@ int VirtualMachine::select(SqlDB * db)
                 break;
 
             case NebulaLog::STD:
-                _log = new StdLog(clevel);
+                _log = new StdLog(clevel, oid, obj_type);
                 break;
 
             default:
@@ -721,9 +721,11 @@ int VirtualMachine::set_os_file(VectorAttribute *  os,
 
     os->replace(base_name_tm, ds->get_tm_mad());
 
-    if ( ds->get_cluster_id() != ClusterPool::NONE_CLUSTER_ID )
+    set<int> cluster_ids = ds->get_cluster_ids();
+
+    if (!cluster_ids.empty())
     {
-        os->replace(base_name_cluster, ds->get_cluster_id());
+        os->replace(base_name_cluster, one_util::join(cluster_ids, ','));
     }
 
     ds->unlock();
@@ -869,41 +871,6 @@ int VirtualMachine::parse_vrouter(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void parse_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, VectorAttribute * nic)
-{
-    string nic_id = nic->vector_value("NIC_ID");
-
-    for (int i=0; i < num_vars; i++)
-    {
-        ostringstream cvar;
-        string cval;
-
-        cvar << "ETH" << nic_id << "_" << vars[i][0];
-
-        cval = context->vector_value(cvar.str().c_str());
-
-        if (!cval.empty())
-        {
-            continue;
-        }
-
-        cval = nic->vector_value(vars[i][1]); //Check the NIC
-
-        if (cval.empty()) //Will check the AR and VNET
-        {
-            ostringstream cval_ss;
-
-            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
-            cval = cval_ss.str();
-        }
-
-        context->replace(cvar.str(), cval);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
 static void clear_context_network(const char* vars[][2], int num_vars,
         VectorAttribute * context, int nic_id)
 {
@@ -918,6 +885,7 @@ static void clear_context_network(const char* vars[][2], int num_vars,
         context->remove(att_name.str());
     }
 }
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -935,32 +903,10 @@ int VirtualMachine::parse_context(string& error_str)
     context->remove("FILES_DS");
 
     // -------------------------------------------------------------------------
-    // Inject Network context in marshalled string
+    // Add network context and parse variables
     // -------------------------------------------------------------------------
-    bool net_context;
-    context->vector_value("NETWORK", net_context);
+    generate_network_context(context);
 
-    if (net_context)
-    {
-        vector<VectorAttribute *> vatts;
-        int num_vatts = obj_template->get("NIC", vatts);
-
-        for(int i=0; i<num_vatts; i++)
-        {
-            parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                    context, vatts[i]);
-
-            if (!vatts[i]->vector_value("IP6_GLOBAL").empty())
-            {
-                parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                        context, vatts[i]);
-            }
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Parse CONTEXT variables
-    // -------------------------------------------------------------------------
     if (parse_context_variables(&context, error_str) == -1)
     {
         return -1;
@@ -1361,25 +1307,38 @@ void VirtualMachine::parse_well_known_attributes()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-static int check_and_set_cluster_id(const char *      id_name,
-                                    const VectorAttribute * vatt,
-                                    string&           cluster_id)
+/**
+ * @return -1 for incompatible cluster IDs, -2 for missing cluster IDs
+ */
+static int check_and_set_cluster_id(
+        const char *           id_name,
+        const VectorAttribute* vatt,
+        set<int>               &cluster_ids)
 {
-    string vatt_cluster_id;
+    set<int> vatt_cluster_ids;
 
-    vatt_cluster_id = vatt->vector_value(id_name);
+    one_util::split_unique(vatt->vector_value(id_name), ',', vatt_cluster_ids);
 
-    if ( !vatt_cluster_id.empty() )
+    if ( vatt_cluster_ids.empty() )
     {
-        if ( cluster_id.empty() )
-        {
-            cluster_id = vatt_cluster_id;
-        }
-        else if ( cluster_id != vatt_cluster_id )
-        {
-            return -1;
-        }
+        return -2;
     }
+
+    if ( cluster_ids.empty() )
+    {
+        cluster_ids = vatt_cluster_ids;
+
+        return 0;
+    }
+
+    set<int> intersection = one_util::set_intersection(cluster_ids, vatt_cluster_ids);
+
+    if (intersection.empty())
+    {
+        return -1;
+    }
+
+    cluster_ids = intersection;
 
     return 0;
 }
@@ -1393,7 +1352,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     ostringstream   oss;
     string          requirements;
-    string          cluster_id = "";
+    set<int>        cluster_ids;
 
     set<string> clouds;
 
@@ -1407,14 +1366,14 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if ( osatt != 0 )
     {
-        rc = check_and_set_cluster_id("KERNEL_CLUSTER_ID", osatt, cluster_id);
+        rc = check_and_set_cluster_id("KERNEL_DS_CLUSTER_ID", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
             goto error_kernel;
         }
 
-        rc = check_and_set_cluster_id("INITRD_CLUSTER_ID", osatt, cluster_id);
+        rc = check_and_set_cluster_id("INITRD_DS_CLUSTER_ID", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1427,7 +1386,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_id);
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1443,7 +1402,7 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     for(int i=0; i<num_vatts; i++)
     {
-        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_id);
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
         {
@@ -1452,9 +1411,18 @@ int VirtualMachine::automatic_requirements(string& error_str)
         }
     }
 
-    if ( !cluster_id.empty() )
+    if ( !cluster_ids.empty() )
     {
-        oss << "CLUSTER_ID = " << cluster_id << " & !(PUBLIC_CLOUD = YES)";
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "(CLUSTER_ID = " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | CLUSTER_ID = " << *i;
+        }
+
+        oss << ") & !(PUBLIC_CLOUD = YES)";
     }
     else
     {
@@ -1479,28 +1447,81 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
 
+    // Set automatic System DS requirements
+
+    if ( !cluster_ids.empty() )
+    {
+        oss.str("");
+
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "\"CLUSTERS/ID\" = " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | \"CLUSTERS/ID\" = " << *i;
+        }
+
+        obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
+    }
+
+
     return 0;
 
 error_disk:
-    oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
-        << " is not the same as the one used by other VM elements (cluster "
-        << cluster_id << ")";
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Datastore for DISK "<< incomp_id
+            << " is not in any cluster";
+    }
+
     goto error_common;
 
 error_kernel:
-    oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
-        << cluster_id << ".";
+    if (rc == -1)
+    {
+        oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
+            << one_util::join(cluster_ids, ',') << ".";
+    }
+    else
+    {
+        oss << "Missing clusters. KERNEL datastore is not in any cluster.";
+    }
+
     goto error_common;
 
 error_initrd:
-    oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
-        << cluster_id << ".";
+    if (rc == -1)
+    {
+        oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
+            << one_util::join(cluster_ids, ',') << ".";
+    }
+    else
+    {
+        oss << "Missing clusters. INITRD datastore is not in any cluster.";
+    }
+
     goto error_common;
 
 error_nic:
-    oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
-        << " is not the same as the one used by other VM elements (cluster "
-        << cluster_id << ")";
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Network for NIC "<< incomp_id
+            << " is not in any cluster";
+    }
+
     goto error_common;
 
 error_common:
@@ -2369,6 +2390,16 @@ bool VirtualMachine::is_imported() const
     return imported;
 }
 
+string VirtualMachine::get_import_state()
+{
+    string import_state;
+
+    user_obj_template->get("IMPORT_STATE", import_state);
+    user_obj_template->erase("IMPORT_STATE");
+
+    return import_state;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -2602,7 +2633,6 @@ VectorAttribute * VirtualMachine::attach_nic_failure()
 
 void VirtualMachine::detach_nic_failure()
 {
-    bool   net_context;
     string err;
 
     VectorAttribute * nic = get_attach_nic();
@@ -2613,29 +2643,6 @@ void VirtualMachine::detach_nic_failure()
     }
 
     nic->remove("ATTACH");
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context == 0)
-    {
-        return;
-    }
-
-    context->vector_value("NETWORK", net_context);
-
-    if (net_context)
-    {
-        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                context, nic);
-
-        if (!nic->vector_value("IP6_GLOBAL").empty())
-        {
-            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                    context, nic);
-        }
-
-        parse_context_variables(&context, err);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2658,11 +2665,9 @@ VectorAttribute * VirtualMachine::detach_nic_success()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::set_attach_nic(
-        VectorAttribute *       new_nic,
+void VirtualMachine::set_attach_nic(VectorAttribute * new_nic,
         vector<VectorAttribute*> &rules)
 {
-    bool   net_context;
     string err;
 
     vector<VectorAttribute*>::iterator it;
@@ -2674,29 +2679,6 @@ void VirtualMachine::set_attach_nic(
     for(it = rules.begin(); it != rules.end(); it++ )
     {
         obj_template->set(*it);
-    }
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context == 0)
-    {
-        return;
-    }
-
-    context->vector_value("NETWORK", net_context);
-
-    if (net_context)
-    {
-        parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
-                context, new_nic);
-
-        if (!new_nic->vector_value("IP6_GLOBAL").empty())
-        {
-            parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                    context, new_nic);
-        }
-
-        parse_context_variables(&context, err);
     }
 }
 
@@ -3154,13 +3136,29 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
-    const VectorAttribute * context = obj_template->get("CONTEXT");
+    VectorAttribute * context = obj_template->get("CONTEXT");
 
     if ( context == 0 )
     {
         log("VM", Log::INFO, "Virtual Machine has no context");
         return 0;
     }
+
+    //Generate dynamic context attributes
+    if ( generate_network_context(context) )
+    {
+        string error;
+
+        if (parse_context_variables(&context, error) == -1)
+        {
+            ostringstream oss;
+
+            oss << "Cannot parse network context:: " << error;
+            log("VM", Log::ERROR, oss);
+            return -1;
+        }
+    }
+
 
     file.open(history->context_file.c_str(),ios::out);
 
@@ -4581,5 +4579,78 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
         (*vm_quotas)->add("VMS", 0);
         (*vm_quotas)->set(delta_disk);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void parse_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, VectorAttribute * nic)
+{
+    string nic_id = nic->vector_value("NIC_ID");
+
+    for (int i=0; i < num_vars; i++)
+    {
+        ostringstream cvar;
+        string cval;
+
+        cvar << "ETH" << nic_id << "_" << vars[i][0];
+
+        cval = context->vector_value(cvar.str().c_str());
+
+        if (!cval.empty())
+        {
+            continue;
+        }
+
+        cval = nic->vector_value(vars[i][1]); //Check the NIC
+
+        if (cval.empty()) //Will check the AR and VNET
+        {
+            ostringstream cval_ss;
+
+            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
+            cval = cval_ss.str();
+        }
+
+        context->replace(cvar.str(), cval);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
+{
+    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n);
+
+    if (!n->vector_value("IP6_GLOBAL").empty())
+    {
+        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::generate_network_context(VectorAttribute * context)
+{
+    bool    net_context;
+
+    context->vector_value("NETWORK", net_context);
+
+    if (!net_context)
+    {
+        return net_context;
+    }
+
+    vector<VectorAttribute *> vatts;
+
+    int num_vatts = obj_template->get("NIC", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        parse_nic_context(context, vatts[i]);
+    }
+
+    return net_context;
 }
 

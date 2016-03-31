@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -104,7 +104,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('abide', 'reflow');
 
     context.off("change", '.security_group_rule_protocol');
     context.on("change", '.security_group_rule_protocol', function(){
@@ -167,81 +166,82 @@ define(function(require) {
       }
     });
 
-    $('#rules_form_wizard',context).off('invalid.fndtn.abide');
-    $('#rules_form_wizard',context).off('valid.fndtn.abide');
+    //Foundation.reflow($('#rules_form_wizard',context), 'abide');
+    $('#rules_form_wizard',context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {      
+        var rule = {};
+        rule["PROTOCOL"] = $(".security_group_rule_protocol", context).val();
+        rule["RULE_TYPE"] = $(".security_group_rule_type", context).val();
 
-    $('#rules_form_wizard',context).on('invalid.fndtn.abide', function () {
-
-    }).on('valid.fndtn.abide', function() {
-      var rule = {};
-
-      rule["PROTOCOL"] = $(".security_group_rule_protocol", context).val();
-      rule["RULE_TYPE"] = $(".security_group_rule_type", context).val();
-
-      switch ($('.security_group_rule_range_sel', context).val()) {
-      case "ALL":
-        break;
-      case "RANGE":
-        rule["RANGE"] = $(".security_group_rule_range input", context).val();
-        break;
-      }
-
-      switch ($('.security_group_rule_network_sel', context).val()) {
-      case "ANY":
-        break;
-      case "NETWORK":
-        rule["IP"] = $('#security_group_rule_first_ip', context).val();
-        rule["SIZE"] = $('#security_group_rule_size', context).val();
-        break;
-      case "VNET":
-        rule["NETWORK_ID"] = that.vnetsTable.retrieveResourceTableSelect();
-        break;
-      }
-
-      if (rule["PROTOCOL"] == "ICMP" ){
-        var icmp_type_val = $(".security_group_rule_icmp_type", context).val();
-
-        if (icmp_type_val != ""){
-          rule["ICMP_TYPE"] = icmp_type_val;
+        switch ($('.security_group_rule_range_sel', context).val()) {
+        case "ALL":
+          break;
+        case "RANGE":
+          rule["RANGE"] = $(".security_group_rule_range input", context).val();
+          break;
         }
-      }
 
-      var text = Utils.sgRuleToSt(rule);
+        switch ($('.security_group_rule_network_sel', context).val()) {
+        case "ANY":
+          break;
+        case "NETWORK":
+          rule["IP"] = $('#security_group_rule_first_ip', context).val();
+          rule["SIZE"] = $('#security_group_rule_size', context).val();
+          break;
+        case "VNET":
+          rule["NETWORK_ID"] = that.vnetsTable.retrieveResourceTableSelect();
+          break;
+        }
 
-      $(".security_group_rules tbody", context).append(
-          '<tr>\
-            <td>'+text.PROTOCOL+'</td>\
-            <td>'+text.RULE_TYPE+'</td>\
-            <td>'+text.RANGE+'</td>\
-            <td>'+text.NETWORK+'</td>\
-            <td>'+text.ICMP_TYPE+'</td>\
-            <td>\
-              <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
-            </td>\
-          </tr>');
+        if (rule["PROTOCOL"] == "ICMP" ){
+          var icmp_type_val = $(".security_group_rule_icmp_type", context).val();
 
-      // Add data to tr element
-      $(".security_group_rules tbody", context).children("tr").last().data("rule", rule);
+          if (icmp_type_val != ""){
+            rule["ICMP_TYPE"] = icmp_type_val;
+          }
+        }
 
-      // Reset new rule fields
-      $('#new_rule_wizard select option', context).prop('selected', function() {
-        return this.defaultSelected;
+        var text = Utils.sgRuleToSt(rule);
+
+        $(".security_group_rules tbody", context).append(
+            '<tr>\
+              <td>'+text.PROTOCOL+'</td>\
+              <td>'+text.RULE_TYPE+'</td>\
+              <td>'+text.RANGE+'</td>\
+              <td>'+text.NETWORK+'</td>\
+              <td>'+text.ICMP_TYPE+'</td>\
+              <td>\
+                <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+              </td>\
+            </tr>');
+
+        // Add data to tr element
+        $(".security_group_rules tbody", context).children("tr").last().data("rule", rule);
+
+        // Reset new rule fields
+        $('#new_rule_wizard select option', context).prop('selected', function() {
+          return this.defaultSelected;
+        });
+
+        $('#new_rule_wizard select', context).trigger("change");
+
+        $('#new_rule_wizard input', context).val("");
+
+        that.vnetsTable.resetResourceTableSelect();
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
       });
 
-      $('#new_rule_wizard select', context).trigger("change");
-
-      $('#new_rule_wizard input', context).val("");
-
-      that.vnetsTable.resetResourceTableSelect();
-    });
 
     context.off("click", ".security_group_rules i.remove-tab");
     context.on("click", ".security_group_rules i.remove-tab", function(){
       var tr = $(this).closest('tr');
       tr.remove();
     });
-
-    context.foundation();
 
     this.vnetsTable.initialize();
 

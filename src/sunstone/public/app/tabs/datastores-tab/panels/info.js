@@ -24,7 +24,6 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var ClusterTr = require('utils/panel/cluster-tr');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('../utils/datastore-capacity-bar');
 
@@ -68,7 +67,6 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var templateTableHTML = TemplateTable.html(
                                       this.element.TEMPLATE, RESOURCE,
                                       Locale.tr("Attributes"));
@@ -85,7 +83,6 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
-      'clusterTrHTML': clusterTrHTML,
       'templateTableHTML': templateTableHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'capacityBar': capacityBar,
@@ -97,7 +94,6 @@ define(function(require) {
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
     return false;

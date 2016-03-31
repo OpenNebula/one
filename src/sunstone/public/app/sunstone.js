@@ -16,9 +16,9 @@
 
 define(function(require) {
   require('jquery');
-  require('foundation.reveal');
-  require('foundation.tab');
-  require('foundation.dropdown');
+  //require('foundation.reveal');
+  //require('foundation.tab');
+  //require('foundation.dropdown');
 
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -136,9 +136,10 @@ define(function(require) {
       dataTable.initialize();
       if (dataTable.labelsColumn) {
         $('#' + tabName + 'labels_buttons').html(
-          '<button href="#" data-dropdown="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button small secondary button dropdown radius">' +
+          '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button secondary button dropdown">' +
             '<i class="fa fa-tags"/></button>' +
-          '<ul id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown f-dropdown" data-dropdown-content></ul>');
+          '<div id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
+
       }
     }
   }
@@ -156,26 +157,50 @@ define(function(require) {
     if (condition && !condition()) {return;}
 
     if (tabInfo.no_content === true) {
-      tabClass += " tab_with_no_content"
+      tabClass += " tab_with_no_content is-accordion-submenu-parent"
     } else {
       tabInfo['tabName'] = tabName;
       var TabTemplate = require('hbs!sunstone/tab')
       $('div.right-content').append(TabTemplate(tabInfo));
     }
 
-    var liItem = '<li id="li_' + tabName + '" class="' + tabClass + ' ' + parent + '"><a href="#">' + tabInfo.title + '</a></li>';
+    var liItem;
+    var title = '';
+    if (tabInfo.icon) {
+      title += '<i class="fa fa-lg fa-fw ' + tabInfo.icon + '"></i> ';
+    }
+    title += tabInfo.title;
 
-    $('div#menu ul#navigation').append(liItem);
+    if (parent !== '') {
+      liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
+              '<a href="#">' + title + '</a>' + 
+            '</li>';
+
+      if ($('#menu ul#navigation #li_' + parent + ' .menu').length > 0) {
+        $('#menu ul#navigation #li_' + parent + ' .menu').append(liItem);
+      } else {
+        $('#menu ul#navigation #li_' + parent).append(
+            '<ul class="menu vertical nested" data-submenu>' +
+              liItem +
+            '</ul>')
+      }
+    } else {
+      liItem = '<li id="li_' + tabName + '" class="' + tabClass + '">' + 
+              '<a href="#">' + title + '</a>' + 
+            '</li>';
+
+      $('div#menu ul#navigation').append(liItem);
+    }
 
     //if this is a submenu...
-    if (parent.length) {
-      var children = $('div#menu ul#navigation #li_' + parent);
-      //if there are other submenus, insert after last of them
-      if (children.length) {
-        $('div#menu li#li_' + tabName).hide();//hide by default
-        $('div#menu li#li_' + parent + ' span').css("display", "inline-block");
-      }
-    };
+    //if (parent.length) {
+    //  var children = $('div#menu ul#navigation #li_' + parent);
+    //  //if there are other submenus, insert after last of them
+    //  if (children.length) {
+    //    $('div#menu li#li_' + tabName).hide();//hide by default
+    //    $('div#menu li#li_' + parent + ' span').css("display", "inline-block");
+    //  }
+    //};
 
     if (tabInfo.forms) {
       $.each(tabInfo.forms, function(key, value) {
@@ -254,14 +279,14 @@ define(function(require) {
           buttonContext = $("#" + customId + "create_buttons", buttonsRow);
           icon = button.icon ? button.icon : '<i class="fa fa-plus"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("success", "button", "small", "radius");
+          strClass.push("success", "button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
-          icon = button.icon ? button.icon : '<i class="fa fa-refresh fa-lg"/>';
+          icon = button.icon ? button.icon : '<i class="fa fa-refresh"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("white_button", "refresh", "secondary", "button", "small", "radius");
+          strClass.push("white_button", "refresh", "button",  "secondary");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "top":
@@ -270,19 +295,19 @@ define(function(require) {
               '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>' +
               '<i class="fa fa-play fa-stack-1x"></i>' +
             '</span>';
-          strClass.push("white_button", "toggle_top_button", "only-right-list", "secondary", "button", "small", "radius");
+          strClass.push("white_button", "toggle_top_button", "only-right-list", "button",  "hollow");
           buttonCode = '<a class="' + strClass.join(' ') + '" style="padding-left:0px; margin-right: 20px">' + text + '</a>';
           break;
         case "main":
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmsplay_buttons":
           buttonContext = $("#" + customId + "vmsplay_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "vmspause_buttons":
@@ -323,13 +348,13 @@ define(function(require) {
         case "del":
           buttonContext = $("#" + customId + "delete_buttons", buttonsRow);
           text = '<i class=" fa fa-trash-o"/> ';
-          strClass.push("alert", "button", "small", "radius");
+          strClass.push("alert", "button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         default:
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
-          strClass.push("secondary", "button", "small", "radius");
+          strClass.push("button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
         }
 
@@ -339,37 +364,39 @@ define(function(require) {
       //$('.top_button',actionBlock).addClass("secondary small button")
 
       actionBlock.append(buttonsRow);
+      //actionBlock.foundation();
+      Foundation.reflow(actionBlock, 'dropdown');
 
       if ($("#" + customId + "more_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "more_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "more_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "user_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsplanification_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsplanification_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsplanification_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsdelete_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsdelete_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsstop_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsstop_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsstop_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmspause_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmspause_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmspause_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsrepeat_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-toggle=" + customId + "user_buttons]", actionBlock).remove()
       }
       //actionBlock.foundationButtons();
       $('.top_button, .list_button', actionBlock).prop('disabled', false);
@@ -386,8 +413,6 @@ define(function(require) {
         _submitFormPanel(tabName);
         return false;
       })
-
-      $(document).foundation();
     }//if tab exists
   }
 
@@ -421,12 +446,6 @@ define(function(require) {
         error = _runAction(value);
       }
 
-      if (!error && !$(this).hasClass("refresh")) {
-        //proceed to close confirm dialog in
-        //case it was open
-        _getDialogInstance(CONFIRM_DIALOG_ID).hide();
-      };
-
       return false;
     });
 
@@ -444,22 +463,30 @@ define(function(require) {
     //with a select box before running the action.
     $(document).on("click", '.confirm_with_select_button', function() {
       var dialogInstance = _getDialogInstance(CONFIRM_WITH_SELECT_DIALOG_ID);
-      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonAction', $(this).attr('href'));
-      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
+
+      dialogInstance.setParams({
+        'buttonAction' : $(this).attr('href'),
+        'buttonTab' : $(this).parents('.tab').attr('id')
+      });
+
+      dialogInstance.reset();
       dialogInstance.show();
+
       return false;
     });
 
-    $(document).foundation('dropdown', 'reflow');
+    //$(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
-    $(document).on("click", "a[href='back']", function(e) {
+    $(document).on("click", "button[href='back']", function(e) {
       $(".navigation-active-li a", $("#navigation")).click();
       e.preventDefault();
     });
   }
 
   var _setupTabs = function() {
+    Foundation.reflow($('#menu'), 'accordion-menu');
+    Foundation.reflow($('div.right-content'), 'sticky')
     var topTabs = $(".left-content ul li.topTab");
     var subTabs = $(".left-content ul li.subTab > a");
 
@@ -478,8 +505,8 @@ define(function(require) {
 
       if ($(this).hasClass("tab_with_no_content")) {
         //Subtabs have a class with the name of  this tab
-        var subtabs = $('div#menu li.' + tabName);
-        subtabs.fadeToggle('fast');
+        //var subtabs = $('div#menu li.' + tabName);
+        //subtabs.fadeToggle('fast');
         return false;
       } else {
         _showTab(tabName);
@@ -497,10 +524,11 @@ define(function(require) {
 
     $(".right-info", tab).hide();
     $(".right-form", tab).hide();
-    $(".right-list", tab).show();
+    $(".right-list", tab).fadeIn();
     $(".only-right-info", tab).hide();
     $(".only-right-form", tab).hide();
-    $(".only-right-list", tab).show();
+    $(".only-right-list", tab).fadeIn();
+    $('.action_blocks', tab).removeClass('large-12').addClass('large-9');
   };
 
   var _showRighInfo = function(tabName) {
@@ -510,13 +538,16 @@ define(function(require) {
 
     $(".right-list", tab).hide();
     $(".right-form", tab).hide();
-    $(".right-info", tab).show();
+    $(".right-info", tab).fadeIn();
     $(".only-right-list", tab).hide();
     $(".only-right-form", tab).hide();
-    $(".only-right-info", tab).show();
+    $(".only-right-info", tab).fadeIn();
+    $('.action_blocks', tab).removeClass('large-9').addClass('large-12');
   }
 
   var _showTab = function(tabName) {
+    $('.labels-tree', '#navigation').remove();
+
     if (!SunstoneCfg['tabs'][tabName]) {
       return false;
     }
@@ -534,7 +565,6 @@ define(function(require) {
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
-    $('.tree', '#navigation').remove();
 
     var tab = $('#' + tabName);
     //show tab
@@ -583,7 +613,7 @@ define(function(require) {
     context.data('element', info[Object.keys(info)[0]]);
 
     var containerId = tabName + '-panels';
-    var activaTab = $("dd.active a", $("#" + containerId));
+    var activaTab = $("li.is-active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
     }
@@ -649,24 +679,26 @@ define(function(require) {
     })
 
     context.html(html);
-
     $.each(SunstoneCfg['tabs'][tabName]["panelInstances"], function(panelName, panel) {
       panel.setup(context);
 
       if(isRefresh && prevPanelStates[panelName] && panel.setState){
         panel.setState( prevPanelStates[panelName], context );
       }
+    });
 
-      if (panel.onShow) {
-        context.off('click', '[href="#' + panel.panelId + '"]');
-        context.on('click', '[href="#' + panel.panelId + '"]', function(){
-          panel.onShow(context);
-        });
+    $('#' + containerId + 'Tabs', context).on('change.zf.tabs', function(target) {
+      var tabIdWithHash = $('.is-active > a', this)[0].hash;
+      var panel = SunstoneCfg['tabs'][tabName]["panelInstances"][tabIdWithHash.substring(1)];
+      if (panel && panel.onShow) {
+        panel.onShow(context);
       }
     });
 
-    context.foundation('tab', 'reflow');
-    $('[href=' + activaTabHref + ']', context).trigger("click");
+    Foundation.reflow(context, 'tabs');
+
+    //context.foundation();
+    $('[href="' + activaTabHref + '"]', context).trigger("click");
 
     if (hooks) {
       $.each(hooks, function(i, hook){
@@ -789,9 +821,11 @@ define(function(require) {
 
       if (!formPanelInstance) {
         formContext =
-        $('<div class="tabs-content tabs-contentForm" form-panel-id="'+formPanelId+'">\
-          <div class="wizardForms content active" id="'+tab.tabName+'-wizardForms"></div>\
-          <div class="advancedForms content" id="'+tab.tabName+'-advancedForms"></div>\
+        $('<div class="tabs-content tabs-contentForm" ' +
+                'data-tabs-content="' + tab.tabName + 'FormTabs" ' +
+                'form-panel-id="'+formPanelId+'">\
+          <div class="wizardForms tabs-panel is-active" id="'+tab.tabName+'-wizardForms"></div>\
+          <div class="advancedForms tabs-panel" id="'+tab.tabName+'-advancedForms"></div>\
         </div>').appendTo( $(".contentForm", context) );
 
         // Create panelInstance, insert in the DOM and setup
@@ -800,6 +834,8 @@ define(function(require) {
           console.log("Form Panel not defined");
           return false;
         } // Panel not defined
+
+        Foundation.reflow(context, 'tabs');
 
         formPanelInstance = new formPanel();
         formPanelInstance.setAction(formContext, action);
@@ -846,9 +882,9 @@ define(function(require) {
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
-      if ($(".wizardForms.active", context).length > 0) {
+      if ($(".wizardForms.is-active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
-      } else if ($(".advancedForms.active", context).length > 0) {
+      } else if ($(".advancedForms.is-active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
       }
     }, 13)
@@ -908,14 +944,14 @@ define(function(require) {
       $(".right-form-title", context).text(formPanelInstance.title());
       $(".submit_button", context).text(formPanelInstance.buttonText());
 
-      $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).show();
+      $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).fadeIn();
     }
 
   }
 
   function _hideFormPanel(tabId) {
     var context = $("#" + tabId);
-    $("a[href=back]", context).trigger("click");
+    $('[href="back"]', context).trigger("click");
   }
 
   function _popFormPanelLoading(tabId) {
@@ -926,6 +962,7 @@ define(function(require) {
     $(".only-right-list", context).hide();
     $(".only-right-info", context).hide();
     $(".only-right-form", context).show();
+    $('.action_blocks', context).removeClass('large-9').addClass('large-12');
 
     $(".right-form-title", context).text(Locale.tr("Loading..."));
     $(".submit_button", context).text(Locale.tr("Loading..."));

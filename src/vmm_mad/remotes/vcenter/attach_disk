@@ -1,20 +1,67 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-# -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
-#                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
-#                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
 
-SCRIPT_NAME=$(basename $0)
-echo "Action $SCRIPT_NAME not supported" 1>&2
+###############################################################################
+# This script is used retrieve the file size of a disk 
+###############################################################################
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vcenter_driver'
+require 'opennebula'
+
+deploy_id      = ARGV[0]
+source         = ARGV[1]
+target         = ARGV[2]
+target_index   = ARGV[3]
+drv_action_enc = ARGV[4]
+
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'VMM_DRIVER_ACTION_DATA')
+
+hostname  = drv_action["/VMM_DRIVER_ACTION_DATA/HOST"]
+vm_id     = drv_action["/VMM_DRIVER_ACTION_DATA/VM/ID"]
+ds_name   = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/DATASTORE"]
+img_path  = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/SOURCE"]
+size_kb   = 0  # No volatile disk support at the moment
+
+if ds_name.nil? || hostname.nil? || img_path.nil?
+    STDERR.puts "Not enough information to attach disk, missing datastore"\
+                " name or vcenter cluster name or image path."
+    exit -1
+end
+
+begin
+    VCenterDriver::VCenterVm.attach_disk(hostname, 
+                                         deploy_id,
+                                         ds_name,
+                                         img_path,
+                                         size_kb)
+rescue Exception => e
+    STDERR.puts "Error attach image #{img_path}. Reason: #{e.message}"
+    exit -1
+end

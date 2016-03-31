@@ -1,1 +1,40 @@
-../fw/update_sg
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
+
+require 'vnmmad'
+require 'Ebtables'
+
+template64   = ARGV[0]
+deploy_id    = ARGV[1]
+hypervisor   = nil
+xpath_filter = EbtablesVLAN::XPATH_FILTER
+
+begin
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
+                                                    deploy_id,
+                                                    hypervisor,
+                                                    xpath_filter)
+    filter_driver.activate(true)
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

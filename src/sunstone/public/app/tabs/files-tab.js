@@ -39,11 +39,12 @@ define(function(require) {
 
   var Tab = {
     tabId: TAB_ID,
-    title: Locale.tr("Files & Kernels"),
+    title: Locale.tr("Files"),
+    icon: 'fa-archive',
     tabClass: "subTab",
-    parentTab: "vresources-tab",
-    listHeader: '<i class="fa fa-fw fa-folder-open"></i>&emsp;' + Locale.tr("Files & Kernels"),
-    infoHeader: '<i class="fa fa-fw fa-folder-open"></i>&emsp;' + Locale.tr("File"),
+    parentTab: "storage-top-tab",
+    listHeader: Locale.tr("Files"),
+    infoHeader: Locale.tr("File"),
     subheader: '',
     resource: 'File',
     content: '<div class="large-12 columns">\

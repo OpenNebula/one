@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('foundation.tab');
+//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -117,11 +117,11 @@ define(function(require) {
   }
 
   function _setup(context) {
+    Foundation.reflow(context, 'tabs');
+    
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
-
-    context.foundation('tab', 'reflow');
   }
 
   function _onShow(context) {
@@ -154,8 +154,7 @@ define(function(require) {
     }
 
     if (this.action == "create") {
-      Sunstone.runAction("Template.create",
-                          {'vmtemplate': templateJSON});
+      Sunstone.runAction("Template.create", {'vmtemplate': templateJSON});
       return false;
     } else if (this.action == "update") {
       Sunstone.runAction("Template.update", this.resourceId, TemplateUtils.templateToString(templateJSON));
@@ -166,8 +165,7 @@ define(function(require) {
   function _submitAdvanced(context) {
     var template = $('textarea#template', context).val();
     if (this.action == "create") {
-      Sunstone.runAction("Template.create",
-                          {"vmtemplate": {"template_raw": template}});
+      Sunstone.runAction("Template.create", {"vmtemplate": {"template_raw": template}});
       return false;
 
     } else if (this.action == "update") {

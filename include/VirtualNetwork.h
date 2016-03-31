@@ -458,6 +458,11 @@ private:
     // -------------------------------------------------------------------------
 
     /**
+     * Name of the vn mad
+     */
+    string vn_mad;
+
+    /**
      *  Name of the bridge this VNW binds to
      */
     string  bridge;
@@ -471,11 +476,6 @@ private:
      *  VLAN ID of the NIC
      */
     string  vlan_id;
-
-    /**
-     *  Whether or not to isolate this network with the vnm driver
-     */
-    int     vlan;
 
     /**
      *  Parent VNET ID if any
@@ -541,7 +541,7 @@ private:
     int from_xml(const string &xml_str);
 
     /**
-     * Updates the BRIDGE, PHY_DEV, VLAN_ID and VLAN attributes.
+     * Updates the BRIDGE, PHY_DEV, and VLAN_ID attributes.
      *    @param error string describing the error if any
      *    @return 0 on success
      */
@@ -557,8 +557,7 @@ private:
                    const string&            _gname,
                    int                      _umask,
                    int                      _parent_vid,
-                   int                      _cluster_id,
-                   const string&            _cluster_name,
+                   const set<int>           &_cluster_ids,
                    VirtualNetworkTemplate * _vn_template = 0);
 
     ~VirtualNetwork();

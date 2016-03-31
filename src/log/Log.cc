@@ -107,6 +107,17 @@ void FileLog::log(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+StdLog::StdLog(const MessageType level, int oid,
+       const PoolObjectSQL::ObjectType obj_type):Log(level)
+{
+    ostringstream oss;
+
+    oss << "[" << PoolObjectSQL::type_to_str(obj_type) << " " << oid << "]";
+    resource_label = oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+
 void StdLog::log(
     const char *            module,
     const MessageType       type,
@@ -121,19 +132,19 @@ void StdLog::log(
         the_time = time(NULL);
 
 #ifdef SOLARIS
-        ctime_r(&(the_time),str,sizeof(char)*26);
+        ctime_r(&(the_time), str, sizeof(char)*26);
 #else
-        ctime_r(&(the_time),str);
+        ctime_r(&(the_time), str);
 #endif
         // Get rid of final enter character
         str[24] = '\0';
 
-        std::clog << str << " ";
-        std::clog << "[Z"<< zone_id<< "]";
-        std::clog << "[" << module << "]";
-        std::clog << "[" << error_names[type] << "]: ";
-        std::clog << message;
-        std::clog << endl;
+        std::clog << str << " "
+				  << resource_label
+                  << "[Z"<< zone_id<< "]"
+                  << "[" << module << "]"
+                  << "[" << error_names[type] << "]: "
+                  << message << endl;
 
         std::clog.flush();
     }
@@ -155,6 +166,8 @@ SysLog::SysLog(const MessageType level,
     }
 };
 
+/* -------------------------------------------------------------------------- */
+
 SysLog::SysLog(const MessageType level, int oid,
     const PoolObjectSQL::ObjectType obj_type):Log(level)
 {
@@ -164,7 +177,6 @@ SysLog::SysLog(const MessageType level, int oid,
     resource_label = oss.str();
 }
 
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void SysLog::log(
@@ -183,10 +195,11 @@ void SysLog::log(
         {
             ostringstream oss;
 
-            oss << "[Z"<< zone_id<< "]"
+            oss << resource_label
+				<< "[Z"<< zone_id<< "]"
                 << "[" << module << "]"
                 << "[" << error_names[type] << "]: "
-                << resource_label << line;
+                << line;
 
             syslog(slevel, oss.str().c_str());
         }

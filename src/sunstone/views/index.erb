@@ -56,23 +56,13 @@
     <% end %>
   </head>
   <body class="antialiased">
-    <div id="loading">
-      <span  id="loading-content" style="font-size:160px">
-        <i class="fa fa-spinner fa-pulse"></i>
-      </span>
-    </div>
-
     <div id="top-row" class="row">
     </div>
 
     <div class="row">
       <div id="menu-wrapper" class="small-8 medium-4 large-2 columns left-content">
         <div id="menu" class="row left-body">
-          <ul class="side-nav" id="navigation">
-            <div class="row left-header">
-              <div class="large-12 columns">
-              </div>
-            </div>
+          <ul class="vertical menu" id="navigation" data-accordion-menu>
           </ul>
         </div>
       </div>
@@ -81,8 +71,13 @@
         <div class="right-header">
         </div>
       </div>
-      <div id="footer" class="text-center large-10 columns right">
+      <div id="footer" class="text-center large-12 columns">
         <a href="http://opennebula.org" target="_blank">OpenNebula 4.14.1</a> by <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
+      </div>
+      <div id="loading" class="text-center">
+        <span  id="loading-content">
+          <i class="fa fa-5x fa-spinner fa-pulse"></i>
+        </span>
       </div>
       <div class="large-12 columns" id="dialogs"></div>
     </div>

@@ -165,8 +165,10 @@ public:
         DISK_SNAPSHOT_REVERT_SUSPENDED = 55,
         DISK_SNAPSHOT_DELETE_SUSPENDED = 56,
         DISK_SNAPSHOT        = 57,
-        DISK_SNAPSHOT_REVERT = 58,
-        DISK_SNAPSHOT_DELETE = 59
+        //DISK_SNAPSHOT_REVERT = 58,
+        DISK_SNAPSHOT_DELETE = 59,
+        PROLOG_MIGRATE_UNKNOWN = 60,
+        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -229,8 +231,9 @@ public:
         else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED") { state = DISK_SNAPSHOT_REVERT_SUSPENDED; }
         else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED") { state = DISK_SNAPSHOT_DELETE_SUSPENDED; }
         else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
-        else if ( st == "DISK_SNAPSHOT_REVERT") { state = DISK_SNAPSHOT_REVERT; }
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
+        else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
+        else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -296,8 +299,9 @@ public:
             case DISK_SNAPSHOT_REVERT_SUSPENDED: st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
             case DISK_SNAPSHOT_DELETE_SUSPENDED: st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
             case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
-            case DISK_SNAPSHOT_REVERT: st = "DISK_SNAPSHOT_REVERT"; break;
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
+            case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
+            case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
         }
 
         return st;
@@ -1290,6 +1294,11 @@ public:
     bool is_imported() const;
 
     /**
+     *  Return state of the VM right before import
+     */
+    string get_import_state();
+
+    /**
      * Checks if the current VM MAD supports the given action for imported VMs
      * @param action VM action to check
      * @return true if the current VM MAD supports the given action for imported VMs
@@ -1342,15 +1351,10 @@ public:
      *  in the context block device (CBD)
      *    @param  files space separated list of paths to be included in the CBD
      *    @param  disk_id CONTEXT/DISK_ID attribute value
-     *    @param  token_password Password to encrypt the token, if it is set
+     *    @param  password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, const string& token_password);
-
-    const VectorAttribute* get_context() const
-    {
-        return obj_template->get("CONTEXT");
-    }
+    int  generate_context(string &files, int &disk_id, const string& password);
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist
@@ -1986,6 +1990,24 @@ private:
     static const char * NO_NIC_DEFAULTS[];
 
     static const int NUM_NO_NIC_DEFAULTS;
+
+    /**
+     *  Parse and generate the ETH_ network attributed of a NIC
+     *    @param context attribute
+     *    @param nic attribute
+     *
+     *    @return 0 on success
+     */
+    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
+
+    /**
+     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
+     *  is invoked when ever the context is prepared for the VM to capture
+     *  netowrking updates.
+     *    @param context attribute of the VM
+     *    @return true if the net context was generated.
+     */
+    bool generate_network_context(VectorAttribute * context);
 
     /**
      * Parse the "NIC_DEFAULT" attribute
