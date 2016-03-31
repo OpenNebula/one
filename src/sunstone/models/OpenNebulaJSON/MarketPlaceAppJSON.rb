@@ -80,16 +80,24 @@ module OpenNebulaJSON
                 if rc[:image]
                     response['IMAGE'] = []
                     rc[:image].each { |image_id|
-                        image = ImageJSON.new_with_id(image_id, @client)
-                        response['IMAGE'] << image.to_hash['IMAGE']
+                        if OpenNebula.is_error?(image_id)
+                            response['IMAGE'] << image_id.to_hash
+                        else
+                            image = ImageJSON.new_with_id(image_id, @client)
+                            response['IMAGE'] << image.to_hash['IMAGE']
+                        end
                     }
                 end
 
                 if rc[:vmtemplate]
                     response['VMTEMPLATE'] = []
                     rc[:vmtemplate].each { |vmtemplate_id|
-                        vmtemplate = TemplateJSON.new_with_id(vmtemplate_id, @client)
-                        response['VMTEMPLATE'] << vmtemplate.to_hash['VMTEMPLATE']
+                        if OpenNebula.is_error?(vmtemplate_id)
+                            response['VMTEMPLATE'] << vmtemplate_id.to_hash
+                        else
+                            vmtemplate = TemplateJSON.new_with_id(vmtemplate_id, @client)
+                            response['VMTEMPLATE'] << vmtemplate.to_hash['VMTEMPLATE']
+                        end
                     }
                 end
 

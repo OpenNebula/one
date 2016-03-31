@@ -57,13 +57,21 @@ define(function(require) {
       callback: function(req, response) {
         if (response['IMAGE'] !== undefined) {
           $.each(response['IMAGE'], function(i, image) {
-            Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + image.ID, false);
+            if (image.error != undefined){
+              Notifier.notifyError(image.error.message);
+            } else {
+              Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + image.ID, false);
+            }
           });
         };
 
         if (response['VMTEMPLATE'] !== undefined) {
-          $.each(response['VMTEMPLATE'], function(i, vmTempalte) {
-            Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + vmTempalte.ID, false);
+          $.each(response['VMTEMPLATE'], function(i, vmTemplate) {
+            if (vmTemplate.error != undefined){
+              Notifier.notifyError(vmTemplate.error.message);
+            } else {
+              Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + vmTemplate.ID, false);
+            }
           });
         };
 

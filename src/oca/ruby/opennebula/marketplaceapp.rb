@@ -160,10 +160,11 @@ module OpenNebula
         #   name [String] of the new object
         #
         # @return [Hash, OpenNebula::Error] with the ID and type of the created
-        # objects
-        #   { :vm => [ vm ids ],
-        #     :vmtemplate => [vmtemplates ids],
-        #     :image => [ vm ids] }
+        # objects. Instead of an ID, the array may contain OpenNebula::Error with
+        # specific object creation errors
+        #   { :vm => [ vm ids/OpenNebula::Error ],
+        #     :vmtemplate => [ vmtemplates ids/OpenNebula::Error ],
+        #     :image => [ vm ids/OpenNebula::Error ] }
         def export(options={})
             return Error.new("Missing datastore id") if options[:dsid].nil?
             return Error.new("Missing name to export app") if options[:name].nil?
@@ -189,7 +190,7 @@ module OpenNebula
                 image = Image.new(Image.build_xml, @client)
                 rc    = image.allocate(tmpl, options[:dsid])
 
-                return rc if OpenNebula.is_error?(rc)
+                return { :image => [rc] } if OpenNebula.is_error?(rc)
 
                 image_id = image.id
                 vmtpl_id = -1
@@ -203,7 +204,9 @@ module OpenNebula
                     vmtpl = Template.new(Template.build_xml, @client)
                     rc    = vmtpl.allocate(tmpl)
 
-                    return rc if OpenNebula.is_error?(rc)
+                    if OpenNebula.is_error?(rc)
+                        return { :image => [image_id], :vmtemplate => [rc] }
+                    end
 
                     vmtpl_id = vmtpl.id
                 end

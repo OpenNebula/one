@@ -145,7 +145,11 @@ CommandParser::CmdParser.new(ARGV) do
             rc.each { |key, value|
                 puts "#{key.to_s.upcase}"
                 value.each{ |id|
-                    puts "    ID: #{id}"
+                    if OpenNebula.is_error?(id)
+                        puts id.to_str
+                    else
+                        puts "    ID: #{id}"
+                    end
                 }
             }
         end
