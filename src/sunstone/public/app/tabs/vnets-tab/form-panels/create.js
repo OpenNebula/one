@@ -151,7 +151,7 @@ define(function(require) {
     });
 
     $('#network_mode', context).change(function() {
-      $('input,select#vlan,label[for!="network_mode"]', $(this).parent()).hide();
+      $('input,label[for!="network_mode"]', $(this).parent()).hide();
       $('input', $(this).parent()).val("");
       switch ($(this).val()) {
       case "default":
@@ -159,7 +159,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('select#vlan,label[for="vlan"]', context).hide().prop('wizard_field_disabled', true);
         $('input#vlan_id,label[for="vlan_id"]', context).hide().prop('wizard_field_disabled', true);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -174,7 +173,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
         $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -189,7 +187,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
         $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -204,7 +201,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
         $('input#vlan_id,label[for="vlan_id"]', context).hide().prop('wizard_field_disabled', true);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -219,7 +215,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
         $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).hide().prop('wizard_field_disabled', true);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -234,7 +229,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show();
         $('input#phydev,label[for="phydev"]', context).hide();
-        $('select#vlan,label[for="vlan"]', context).show();
         $('input#vlan_id,label[for="vlan_id"]', context).show();
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).hide().prop('wizard_field_disabled', true);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).hide().prop('wizard_field_disabled', true);
@@ -249,7 +243,6 @@ define(function(require) {
         $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false);
         $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
         $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
         $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
@@ -394,7 +387,6 @@ define(function(require) {
     $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
     $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);

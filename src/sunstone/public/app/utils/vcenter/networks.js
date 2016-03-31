@@ -340,7 +340,6 @@ define(function(require) {
         network_tmpl += "]"
 
         if ($(".vlaninfo", network_context)) {
-          network_tmpl += "VLAN=\"YES\"\n";
           network_tmpl += "VLAN_ID=" + $(".vlaninfo", network_context).val() + "\n";
         }
 

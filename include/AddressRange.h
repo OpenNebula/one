@@ -85,7 +85,6 @@ public:
      *
      *  The following can be defined to override VNET values:
      *    - BRIDGE
-     *    - VLAN
      *    - VLAN_ID
      *    - PHYDEV
      *
@@ -423,7 +422,7 @@ private:
 
     /**
      *  Writes VNET configuration attributes to the given NIC attribute. It
-     *  includes: BRIDGE, VLAN, VLAN_ID, PHYDEV and INHERIT_VNET_ATTR in oned.conf
+     *  includes: BRIDGE, VLAN_ID, PHYDEV and INHERIT_VNET_ATTR in oned.conf
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
      */

@@ -158,45 +158,23 @@
         </div>
       </div>
       <div class="row">
-        <div class="medium-6 columns">
-          <div class="row">
-            <div class="medium-6 columns">
-              <label for="vlan">
-                {{tr "VLAN"}}:
-                <span class="tip">
-                  {{tr "Whether or not to isolate this virtual network using the Virtual Network Manager drivers"}}
-                </span>
-              </label>
-              <select wizard_field="VLAN" name="vlan" id="vlan">
-                <option value="YES" selected="selected">{{tr "Yes"}}</option>
-                <option value="NO">{{tr "No"}}</option>
-              </select>
-            </div>
-            <div class="medium-6 columns">
-              <label for="vlan_id">
-                {{tr "VLAN ID"}}:
-                <span class="tip">{{tr "Optional: Set a specific VLAN id"}}</span>
-              </label>
-              <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />
-            </div>
-          </div>
+        <div class="medium-3 columns left">
+          <label for="vlan_id">
+            {{tr "VLAN ID"}}:
+            <span class="tip">{{tr "Optional: Set a specific VLAN id"}}</span>
+          </label>
+          <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />
         </div>
-        <div class="medium-6 columns">
-          <div class="row">
-            <div class="large-12 columns">
-              <label for="phydev">
-                {{tr "Physical device"}}:
-                <span class="tip">
-                  {{tr "Name of the physical network device that will be attached to the bridge"}}
-                </span>
-              </label>
-              <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
-            </div>
-          </div>
+        <div class="medium-3 columns left">
+          <label for="phydev">
+            {{tr "Physical device"}}:
+            <span class="tip">
+              {{tr "Name of the physical network device that will be attached to the bridge"}}
+            </span>
+          </label>
+          <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
         </div>
-      </div>
-      <div class="row">
-        <div class="medium-3 columns">
+        <div class="medium-3 columns left">
           <label for="mtu">
             {{tr "MTU"}}:
             <span class="tip">
