@@ -371,18 +371,17 @@ define(function(require) {
           }
 
           $(".provision-pricing-table_vm_info", context).html(
-              '<li class="provision-bullet-item">'+
-                '<span class="'+ state.color +'-color">'+
-                  '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+              '<li class="provision-title">'+
+                '<span class="without-link '+ state.color +'-color">'+
+                  '<span class="'+ state.color +'-color right" title="'+state.str+'">'+
+                    '<i class="fa fa-fw fa-lg fa-square"/>'+
+                  '</span>'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<hr>'+
-              '</li>'+
               '<li class="provision-bullet-item" >'+
                 '<span>'+
-                  '<i class="fa fa-fw fa-lg fa-laptop"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-laptop"/> '+
                   'x'+data.TEMPLATE.CPU+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
@@ -398,16 +397,13 @@ define(function(require) {
                   get_provision_ips(data) +
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<hr>'+
-              '</li>'+
-              '<li class="provision-bullet-item">'+
+              '<li class="provision-bullet-item-last text-right">'+
                 '<span class="left">'+
-                  '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                  '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
-                '<span class="right">'+
-                  '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
+                '<span>'+
+                  '<i class="fa fa-fw fa-lg fa-clock-o"/> '+
                   Humanize.prettyTimeAgo(data.STIME)+
                   ' - '+
                   'ID: '+

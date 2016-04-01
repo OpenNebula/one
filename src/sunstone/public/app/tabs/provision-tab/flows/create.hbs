@@ -13,72 +13,71 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
 <form id="provision_create_flow" class="section_content" hidden>
   <div class="row">
-    <div class="large-10 large-centered columns">
-      <h2 class="subheader">{{tr "Create Service"}}</h2>
-      <br></div>
+    <div class="large-12 columns">
+      <h4>{{tr "Create Service"}}</h4>
+    </div>
   </div>
   <div class="row">
-    <div class="large-8 large-centered columns">
+    <div class="large-6 columns">
       <input type="text" id="flow_name"  class="provision-input" placeholder="{{tr "Service Name"}}"/>
     </div>
+    <div class="large-3 columns">
+    </div>
+    <div class="large-3 columns">
+      <button href="#" class="button success expanded" type="submit">{{tr "Create"}}</button>
+      <div data-alert class="alert-box alert-box-error" hidden></div>
+    </div>
   </div>
-  <div class="row">
-    <div class="large-10 large-centered columns">
-      <ul class="accordion provision_accordion_flow_template" data-accordion data-allow-all-closed="true">
-        <li class="is-active accordion-item" data-accordion-item>
-          <a href="#provision_dd_flow_template" class="accordion-title">
-            <span class="select_template">{{tr "Select a Template"}}</span>
-            <span class="selected_template">
-              <span class="provision-logo selected_template_logo"></span>
-              <span class="selected_template_name"></span>
-              <span class="has-tip"> <i class="fa fa-pencil"/></span>
-            </span>
-          </a>
-          <div id="provision_dd_flow_template" class="provision_select_flow_template accordion-content" data-tab-content>
-            <div class="row">
-              <div class="large-12 large-centered columns">
-                <h3 class="subheader">
-                  <input type="search" class="provision-search-input" placeholder="Search" id="provision_create_flow_template_search"/>
-                </h3>
-                <br></div>
-            </div>
-            <div class="row">
-              <div class="large-12 large-centered columns">
-                <table id="provision_flow_templates_table">
-                  <thead hidden>
-                    <tr>
-                      <th>{{tr "ID"}}</th>
-                      <th>{{tr "Name"}}</th>
-                    </tr>
-                  </thead>
-                  <tbody hidden></tbody>
-                </table>
+  <fieldset>
+    <legend>{{tr "Template"}}</legend>
+    <div class="row">
+      <div class="large-12 columns">
+        <ul class="accordion provision_accordion_flow_template" data-accordion data-allow-all-closed="true">
+          <li class="is-active accordion-item" data-accordion-item>
+            <a href="#provision_dd_flow_template" class="accordion-title">
+              <span class="selected_template">
+                <span class="provision-logo selected_template_logo"></span>
+                <span class="selected_template_name"></span>
+                <span class="has-tip"> <i class="fa fa-pencil"/></span>
+              </span>
+            </a>
+            <div id="provision_dd_flow_template" class="provision_select_flow_template accordion-content" data-tab-content>
+              <div class="row">
+                <div class="medium-6 columns">
+                  <div class="row collapse">
+                    <div class="medium-5 columns">
+                      <input type="search" class="provision-search-input" placeholder="Search" id="provision_create_flow_template_search"/>
+                    </div>
+                    <div class="medium-3 columns"></div>
+                    <div class="medium-4 columns"></div>
+                  </div>
+                  <div class="medium-6 columns"></div>
+                </div>
+              </div>
+              <div class="row provision_select_flow_template">
+                <div class="large-12 columns">
+                  <table id="provision_flow_templates_table">
+                    <thead hidden>
+                      <tr>
+                        <th>{{tr "ID"}}</th>
+                        <th>{{tr "Name"}}</th>
+                      </tr>
+                    </thead>
+                    <tbody hidden></tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
-  <br>
-  <br>
-  <br>
+  </fieldset>
   <div class="row">
-    <div class="provision_network_selector large-9 large-centered columns"></div>
+    <div class="provision_network_selector large-6 columns"></div>
+    <div class="provision_custom_attributes_selector large-6 columns"></div>
   </div>
-  <br>
-  <div class="row">
-    <div class="provision_custom_attributes_selector large-9 large-centered columns"></div>
-  </div>
-  <div id="provision_customize_flow_template" hidden></div>
-  <br>
-  <br>
-  <div class="row">
-    <div class="large-7 columns large-centered">
-      <div data-alert class="alert-box alert-box-error text-center" hidden></div>
-      <button href="#" class="button large success large-12 small-12" type="submit">{{tr "Create"}}</button>
-    </div>
-  </div></form>
+  <div id="provision_customize_flow_template" class="row" hidden></div>
+</form>

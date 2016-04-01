@@ -24,19 +24,6 @@
 <div class="provision_info_flow">
   <div class="row">
     <div class="large-12 large-centered columns">
-      <ul class="menu provision_action_icons">
-        <li>
-          <a href"#" title="{{tr "Recover a failed service, cleaning the failed VMs"}}" class="left button small radius success provision_recover_button">
-            <i class="fa fa-fw fa-lg fa-wrench"/></a>
-        </li>
-        <li class="right">
-          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-trash-o"/></a>
-          <a href"#" title="{{tr "Shutdown"}}" class="button small radius secondary provision_shutdown_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-power-off"/>
-          </a>
-        </li>
-      </ul>
     </div>
   </div>
   <div class="row">
@@ -45,14 +32,40 @@
   <br>
   <div class="row">
     <div class="large-4 columns">
-      <ul class="provision-pricing-table_flow_info provision-pricing-table menu vertical"></ul>
+      <ul class="provision-pricing-table menu vertical">
+        <span class="provision-pricing-table_flow_info">
+        </span>
+        <li class="provision-bullet-item">
+          <hr>
+        </li>
+        <li class="provision-bullet-item-buttons">
+          <ul class="menu provision_action_icons">
+            <li>
+              <button href"#" title="{{tr "Recover a failed service, cleaning the failed VMs"}}" class="button success provision_recover_button">
+                <i class="fa fa-fw fa-lg fa-wrench"/></button>
+            </li>
+            <li>
+              <button href"#" title="{{tr "Delete"}}" class="button alert provision_delete_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-trash-o"/></button>
+            </li>
+            <li>
+              <button href"#" title="{{tr "Shutdown"}}" class="button secondary provision_shutdown_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-power-off"/>
+              </button>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
     <div class="large-8 columns">
-      <div class="row">
-        <div class="large-12 columns">
-          <div class="provision_roles_ul large-up-2 medium-up-2 small-up-1"></div>
+      <fieldset>
+        <legend>{{tr "Roles"}}</legend>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="provision_roles_ul large-up-2 medium-up-2 small-up-1"></div>
+          </div>
         </div>
-      </div>
+      </fieldset>
     </div>
   </div>
   <br>

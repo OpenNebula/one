@@ -23,167 +23,183 @@
 </div>
 <div class="provision_info_vm">
   <div class="row">
-    <div class="large-12 large-centered columns">
-      <ul class="menu provision_action_icons">
-        <li>
-          <a href"#" title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
-            <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          <a title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top">
-            <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          {{#isProvisionTabEnabled "provision-tab" "templates"}}
-          <a href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
-            <i class="fa fa-fw fa-lg fa-save"/>
-          </a>
-          <a title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top">
-            <i class="fa fa-fw fa-lg fa-save"/>
-          </a>
-          {{/isProvisionTabEnabled}}
-        </li>
-        <li class="right">
-          {{#isTabActionEnabled "provision-tab" "VM.delete"}}
-          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-trash-o"/>
-          </a>
-          {{/isTabActionEnabled}}
-          {{#isTabActionEnabled "provision-tab" "VM.shutdown_hard"}}
-          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-trash-o"/>
-          </a>
-          {{/isTabActionEnabled}}
-          {{#isTabActionEnabled "provision-tab" "VM.poweroff"}}
-          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-power-off"/>
-          </a>
-          {{/isTabActionEnabled}}
-          {{#isTabActionEnabled "provision-tab" "VM.undeploy"}}
-          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_undeploy_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-power-off"/>
-          </a>
-          {{/isTabActionEnabled}}
-          {{#isTabActionEnabled "provision-tab" "VM.resume"}}
-          <a href"#" title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-play"/>
-          </a>
-          {{/isTabActionEnabled}}
-          {{#isTabActionEnabled "provision-tab" "VM.reboot"}}
-          <a href"#" title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
-            <i class="fa fa-fw fa-lg fa-repeat"/>
-          </a>
-          {{/isTabActionEnabled}}
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="row">
     <div class="provision_confirm_action large-12 large-centered columns"></div>
   </div>
   <div class="row">
-    <div class="large-5 columns">
-      <ul class="provision-pricing-table_vm_info provision-pricing-table menu vertical"></ul>
+    <div class="large-4 medium-5 small-12 columns">
+      <ul class="provision-pricing-table menu vertical">
+        <span class="provision-pricing-table_vm_info">
+        </span>
+        <li class="provision-bullet-item">
+          <hr>
+        </li>
+        <li class="provision-bullet-item-buttons">
+          <ul class="menu provision_action_icons without-link">
+            <li>
+              <button href"#" title="{{tr "Open a remote console in a new window"}}" class="button radius provision_vnc_button tip-top">
+                <i class="fa fa-fw fa-lg fa-desktop"/></button>
+            </li>
+            <li>
+              <button title="{{tr "You have to boot the Virtual Machine first"}}" class="button radius white provision_vnc_button_disabled disabled tip-top" disabled>
+                <i class="fa fa-fw fa-lg fa-desktop"/></button>
+            </li>
+              {{#isProvisionTabEnabled "provision-tab" "templates"}}
+            <li>
+              <button href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="button radius success provision_snapshot_button tip-top">
+                <i class="fa fa-fw fa-lg fa-save"/>
+              </button>
+            </li>
+            <li>
+              <button title="{{tr "You have to power-off the virtual machine first"}}" class="button radius white provision_snapshot_button_disabled disabled tip-top" disabled>
+                <i class="fa fa-fw fa-lg fa-save"/>
+              </button>
+            </li>
+              {{/isProvisionTabEnabled}}
+            <li>
+              {{#isTabActionEnabled "provision-tab" "VM.delete"}}
+            <li>
+              <button href"#" title="{{tr "Delete"}}" class="button radius alert provision_delete_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-trash-o"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+              {{#isTabActionEnabled "provision-tab" "VM.shutdown_hard"}}
+            <li>
+              <button href"#" title="{{tr "Delete"}}" class="button radius alert provision_shutdownhard_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-trash-o"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+              {{#isTabActionEnabled "provision-tab" "VM.poweroff"}}
+            <li>
+              <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_poweroff_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-power-off"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+              {{#isTabActionEnabled "provision-tab" "VM.undeploy"}}
+            <li>
+              <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_undeploy_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-power-off"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+              {{#isTabActionEnabled "provision-tab" "VM.resume"}}
+            <li>
+              <button href"#" title="{{tr "Power on"}}" class="button radius secondary provision_poweron_button tip-top">
+                <i class="fa fa-fw fa-lg fa-play"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+              {{#isTabActionEnabled "provision-tab" "VM.reboot"}}
+            <li>
+              <button href"#" title="{{tr "Reboot"}}" class="button radius secondary provision_reboot_confirm_button tip-top">
+                <i class="fa fa-fw fa-lg fa-repeat"/>
+              </button>
+            </li>
+              {{/isTabActionEnabled}}
+          </ul>
+        </li>
+      </ul>
     </div>
-    <div class="large-6 columns right">
+    <div class="large-8 medium-7 small-12 columns">
       <div class="row">
-        <div class="large-6 medium-6  columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12 columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "CPU"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "CPU"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_cpu_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_cpu_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">
             <div class="large-12 columns centered vm_cpu_legend"></div>
           </div>
         </div>
-        <div class="large-6 medium-6 columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12 columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "Memory"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "Memory"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_memory_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_memory_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">
             <div class="large-12 columns centered vm_memory_legend"></div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="large-12 columns">
-      <br>
-      <div class="row">
-        <div class="large-3 medium-6 columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12 columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "Net RX"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "Net RX"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_rx_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_net_rx_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">
             <div class="large-12 columns centered vm_net_rx_legend"></div>
           </div>
         </div>
-        <div class="large-3 medium-6  columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12  columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "Net TX"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "Net TX"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_tx_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_net_tx_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">
             <div class="large-12 columns centered vm_net_tx_legend"></div>
           </div>
         </div>
-        <div class="large-3 medium-6  columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12  columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "Net Download Speed"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "Net Download Speed"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_rx_speed_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_net_rx_speed_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">
             <div class="large-12 columns centered vm_net_rx_speed_legend"></div>
           </div>
         </div>
-        <div class="large-3 medium-6 columns">
-          <div class="row text-center">
+        <div class="large-4 medium-6 small-12 columns">
+          <div class="row">
             <div class="large-12 columns">
-              <h4 class="subheader">
-                <small>{{tr "Net Upload Speed"}}</small>
-              </h4>
+              <span class="subheader">
+                {{tr "Net Upload Speed"}}
+              </span>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_tx_speed_provision_graph"></div>
+              <div class="large-12 columns centered graph_provision vm_net_tx_speed_provision_graph"></div>
             </div>
           </div>
           <div class="row graph_legend">

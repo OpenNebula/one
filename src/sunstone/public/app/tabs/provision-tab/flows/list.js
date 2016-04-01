@@ -187,7 +187,7 @@ define(function(require) {
               '<li class="provision-bullet-item"">'+
                 '<i class="fa fa-fw fa-lg fa-cube"/> '+
                 role.name+
-                '<span>'+rvms.str+" VMs</span>"+
+                '<span class="right">'+rvms.str+" VMs</span>"+
               '</li>';
           });
         }
@@ -312,17 +312,16 @@ define(function(require) {
           $(".provision_info_flow_name", context).text(data.NAME);
 
           $(".provision-pricing-table_flow_info", context).html(
-              '<li class="provision-bullet-item">'+
-                '<span class="'+ state.color +'-color">'+
-                  '<i class="fa fa-fw fa-lg fa-square"/> '+
+              '<li class="provision-title">'+
+                '<span class="without-link '+ state.color +'-color">'+
+                  '<span class="'+ state.color +'-color right">'+
+                    '<i class="fa fa-fw fa-lg fa-square"/> '+
+                  '</span>'+
                   state.str+
                 '</span>'+
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<hr>'+
-              '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span>'+
+              '<li class="provision-bullet-item-last text-right">'+
+                '<span class="left">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
                   data.UNAME+
                 '</span>'+
@@ -349,30 +348,32 @@ define(function(require) {
                 '<div class="column">'+
                   '<ul class="provision_role_ul provision-pricing-table menu vertical">'+
                     '<li class="provision-title">'+
-                      '<i class="fa fa-fw fa-cube"/> '+
-                      role.name+
+                      '<span class="without-link">' +
+                        '<i class="fa fa-fw fa-cube"/> '+
+                        role.name+
+                      '</span>' +
                     '</li>'+
                     '<li class="provision-bullet-item">'+
                       '<div class="progress small radius">'+
-                      '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
+                        '<meter id="' + role.name + '_meter" min="0" low="33" high="66" optimum="100" max="100" value="' + rvms.percentage + '"></meter>' +
                       '</div>'+
                     '</li>'+
-                    '<li class="provision-bullet-item">'+
-                      '<span class="'+ role_state.color +'-color">'+
+                    '<li class="provision-bullet-item text-right">'+
+                      '<span class="'+ role_state.color +'-color left">'+
                         role_state.str+
                       '</span>'+
                       '<span>'+rvms.str+" VMs</span>"+
                     '</li>'+
-                    '<li class="provision-bullet-item">'+
-                      '<br>'+
-                    '</li>'+
-                    '<li class="provision-bullet-item">'+
-                      '<a class="provision_role_vms_button button medium radius">'+
+                    '<li class="provision-bullet-item">' +
+                      '<hr>' +
+                    '</li>' +
+                    '<li class="provision-bullet-item-buttons">'+
+                      '<button class="provision_role_vms_button button medium radius">'+
                         '<i class="fa fa-th fa-lg"></i>'+
-                      '</a>'+
-                      '<a class="provision_role_cardinality_button button medium success radius">'+
+                      '</button>'+
+                      '<button class="provision_role_cardinality_button button medium success radius">'+
                         '<i class="fa fa-arrows-h fa-lg"></i>'+
-                      '</a>'+
+                      '</button>'+
                     '</li>'+
                   '</ul>'+
                 '</div>').appendTo($(".provision_roles_ul", context));

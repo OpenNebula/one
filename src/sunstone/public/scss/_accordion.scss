@@ -1,6 +1,15 @@
 .accordion_list {
   .accordion-item {
     padding: 0;
+
+    h3,
+    h4 {
+      margin: 2rem 0;
+    }
+
+    a {
+      padding: 0;
+    }
   }
 
   .provision-search-input {
@@ -10,8 +19,20 @@
   }
 
   .resource_list_select {
-    width: auto;
-    vertical-align: middle;
+    //width: auto;
+    //vertical-align: middle;
+  }
+
+  .right {
+    &.provision_list_vms_filter,
+    &.provision_list_flows_filter {
+      margin-top: -0.5rem;
+    }
+  }
+
+  .provision_create_flow_button,
+  .provision_create_vm_button {
+    margin-right: 1rem;
   }
 }
 
@@ -61,7 +82,8 @@
   }
 }
 
-.provision_accordion_template {
+.provision_accordion_template,
+.provision_accordion_flow_template {
   .accordion-item > a {
     padding: 0;
     font-size: 1.2rem;
@@ -74,7 +96,8 @@
   .accordion-content {
     margin-top: 1rem;
 
-    .provision_select_template {
+    .provision_select_template,
+    .provision_select_flow_template {
       margin-top: 1rem;
     }
   }

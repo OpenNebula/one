@@ -2,24 +2,31 @@
   border: 1px solid smart-scale($table-background, $table-hover-scale);
   background: darken($table-background, $table-hover-scale);
   margin-bottom: 2rem;
+  padding: 1rem;
 
   .provision-title {
     a {
-      padding: 1rem;
+      padding: 0;
+      padding-bottom: 0.5rem;
+      //padding: 1rem;
       //color: $black;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
 
     .without-link {
-      padding: 1rem;
+      padding: 0;
+      padding-bottom: 0.5rem;
+      //padding: 1rem;
       //color: $black;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       display: block;
+      font-weight: normal;
     }
   }
 
   .provision-bullet-item {
-    padding: 0.2rem 1rem;
+    padding-bottom: 0.2rem;
+    //padding: 0.2rem 1rem;
     i {
       color: $dark-gray;
     }
@@ -30,10 +37,16 @@
   }
 
   .provision-bullet-item-last {
-    padding: 1rem;
+    padding-top: 0.5rem;
+    //padding: 0.5rem 1rem;
     color: $dark-gray;
     i {
       color: $dark-gray;
     }
+  }
+
+  .provision-bullet-item-buttons {
+    //padding-top: 1rem;
+    //padding: 0 1rem 0.5rem 1rem;
   }
 }

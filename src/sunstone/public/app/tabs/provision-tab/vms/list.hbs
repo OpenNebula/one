@@ -15,12 +15,20 @@
 {{! -------------------------------------------------------------------------- }}
 <dl class="accordion accordion_list provision_list_vms" data-accordion>
   <dd class="{{#if opts.active}}is-active{{/if}} accordion-item" data-accordion-item>
-    <a href="#provision_list_vm_accordion{{accordionId}}" class="provision_back only-not-active accordion-title">
+    <a href="#provision_list_vm_accordion{{accordionId}}" class="provision_back only-not-active accordion-title right">
       <span class="button"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
       </span>
     </a>
-    <h3>
-      {{opts.title}}
+    <h4>
+      <a href"#" class="only-active provision_vms_list_refresh_button" 
+                {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
+        <i class="fa fa-fw fa-refresh"/>
+      </a>
+      <a href"#" class="only-not-active provision_refresh_info" 
+                {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
+        <i class="fa fa-fw fa-refresh"/>
+      </a>
+      <span class="only-active">{{opts.title}}</span>
       <span class="provision_info_vm_name only-not-active"></span>
       {{#isTabActionEnabled "provision-tab" "VM.rename"}}
       <small class="provision_info_vm_rename only-not-active">
@@ -28,25 +36,13 @@
           <i class="fa fa-pencil"/></a>
       </small>
       {{/isTabActionEnabled}}
-      <span href"#" class="only-active button secondary provision_vms_list_refresh_button" 
-                {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-lg fa-refresh"/>
-      </span>
-      <span href"#" class="only-not-active button secondary provision_refresh_info" 
-                {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-lg fa-refresh"/>
-      </span>
-      <span href"#" class="only-active button secondary provision_vms_list_filter_button" 
-                {{#unless opts.filter}}hidden{{/unless}} title=" {{tr "Filter by User"}}">
-        <i class="fa fa-fw fa-lg fa-filter"/>
-      </span>
-      <span class="only-active provision_list_vms_filter" hidden></span>
-      <span href"#" class="only-active button success provision_create_vm_button" 
+      <span class="right only-active provision_list_vms_filter"></span>
+      <input type="search" class="right only-active provision_list_vms_search provision-search-input " placeholder="Search VMs"/>
+      <span href"#" class="right only-active button success provision_create_vm_button" 
                 {{#unless opts.create}}hidden{{/unless}}>
         <i class="fa fa-fw fa-lg fa-plus-square"/>
       </span>
-      <input type="search" class="only-active provision_list_vms_search provision-search-input " placeholder="Search VMs"/>
-    </h3>
+    </h4>
     <div id="provision_list_vm_accordion{{accordionId}}" class="accordion-content" data-tab-content>
       <div class="row">
         <div class="large-12 large-centered columns">

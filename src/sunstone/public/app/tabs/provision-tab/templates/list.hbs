@@ -20,18 +20,15 @@
       <span class="button"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
       </span>
     </a>
-    <h3>
-      {{!opts.title}}
-      <span href"#" class="only-active button secondary provision_templates_list_refresh_button" 
+    <h4>
+      <a href"#" class="only-active provision_templates_list_refresh_button" 
           {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-lg fa-refresh"/></span>
-      <span href"#" class="only-active button secondary provision_templates_list_filter_button" 
-          {{#unless opts.filter}}hidden{{/unless}} title=" {{tr "Filter by User"}}">
-        <i class="fa fa-fw fa-lg fa-filter"/>
-      </span>
-      <span class="only-active provision_list_templates_filter" hidden></span>
-      <input type="search" class="provision_list_templates_search only-active provision-search-input" placeholder="Search Templates"/>
-    </h3>
+        <i class="fa fa-fw fa-refresh"/></a>
+      </a>
+      <span class="only-active">{{opts.title}}</span>
+      <span class="right only-active provision_list_templates_filter"></span>
+      <input type="search" class="right provision_list_templates_search only-active provision-search-input" placeholder="Search Templates"/>
+    </h4>
     <div id="provision_list_template_accordion{{accordionId}}" class="accordion-content" data-tab-content>
       <div class="row">
         <div class="provision_confirm_delete_template_div large-12 large-centered columns"></div>

@@ -98,43 +98,28 @@ define(function(require) {
     var max_vms = (role_template.max_vms||20);
 
     context.html(
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-12 large-centered columns">'+
-          '<h3 class="subheader">'+
-            '<span class="left">'+
-              '<i class="fa fa-th fa-lg"></i> '+
-              Locale.tr("Cardinality")+
-            '</span>'+
-          '</h3>'+
-          '<br>'+
-        '</div>'+
-      '</div>'+
-      '<br>'+
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-12 columns">'+
+      '<fieldset>' +
+        '<legend>' +
+          Locale.tr("Cardinality") + ' ' +
+          '<span class="provision_create_service_cost_div" hidden>'+
+            '<span class="cost_value"></span>'+
+            '<small> '+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+          '</span>'+
+        '</legend>' +
           '<div class="row">'+
-            '<div class="large-2 text-center columns">'+
-              '<span class="cardinality_value">'+role_template.cardinality+'</span>'+
-              '<br>'+
-              '<span>'+Locale.tr("VMs")+'</span>'+
-            '</div>'+
-            '<div class="large-6 columns">'+
-              '<div class="cardinality_slider_div">'+
-              '</div>'+
-              '<div class="cardinality_no_slider_div">'+
-                '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
-              '</div>'+
-            '</div>'+
-            '<div class="large-4 columns text-center provision_create_service_cost_div" hidden>'+
-              '<span class="cost_value"></span>'+
-              '<br>'+
-              '<span>'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
+            '<div class="large-12 columns">'+
+              '<label>'+
+                '<span class="cardinality_value">'+role_template.cardinality+' </span>'+
+                '<span>'+Locale.tr("VMs")+'</span>'+                
+                '<div class="cardinality_slider_div">'+
+                '</div>'+
+                '<div class="cardinality_no_slider_div">'+
+                  '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
+                '</div>'+
+              '</label>'+
             '</div>'+
           '</div>'+
-        '</div>'+
-      '</div>');
+      '</fieldset>');
 
       var capacity = template_json.VMTEMPLATE.TEMPLATE;
       var cost = 0;
@@ -599,7 +584,7 @@ define(function(require) {
     $(".provision_accordion_flow_template .selected_template", context).hide();
     $(".provision_accordion_flow_template .select_template", context).show();
 
-    $("dd:not(.active) a[href='#provision_dd_flow_template']", context).trigger("click")
+    $("li:not(.is-active) a[href='#provision_dd_flow_template']", context).trigger("click")
 
     $(".alert-box-error", context).hide();
 
@@ -692,7 +677,7 @@ define(function(require) {
       var tab = $("#"+tab_name);
 
       if (Config.isTabEnabled(tab_name)) {
-        $('.right-header').prepend(TemplateHeader());
+        //$('.right-header').prepend(TemplateHeader());
 
         $(".right-content").addClass("large-centered small-centered");
         $("#footer").removeClass("right");
@@ -811,7 +796,7 @@ define(function(require) {
               '</div>');
           } else {
             $('#'+tableID+'_table').html(
-              '<div id="'+tableID+'_ul" class="row large-up-5 medium-up-3 small-up-1"></div>');
+              '<div id="'+tableID+'_ul" class="row large-up-4 medium-up-3 small-up-1"></div>');
           }
 
           return true;
@@ -1043,7 +1028,8 @@ define(function(require) {
                 '</span>'+
                 '</div>');
             } else {
-              $("#provision_flow_templates_table").html('<div id="provision_flow_templates_ul" class="large-up-3 medium-up-3 small-up-1"></div>');
+              $("#provision_flow_templates_table").html(
+                '<div id="provision_flow_templates_ul" class="row large-up-4 medium-up-3 small-up-1"></div>');
             }
 
             return true;
@@ -1065,26 +1051,15 @@ define(function(require) {
               });
             }
 
-            if (body.LOGO) {
-              logo = '<span class="provision-logo" href="#">'+
-                  '<img  src="'+body.LOGO+'">'+
-                '</span>';
-            } else {
-              logo = '<span>'+
-                '<i class="fa fa-fw fa-cubes"/>'+
-              '</span>';
-            }
-
-            var li = $('<div class="columns">'+
+            var li = $('<div class="column">'+
                 '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
                   '<li class="provision-title" title="'+data.NAME+'">'+
-                    data.NAME+
-                  '</li>'+
-                  '<li class="provision-bullet-item">'+
-                    logo +
+                    '<a href="">' +
+                      data.NAME +
+                    '</a>' +
                   '</li>'+
                   roles_li +
-                  '<li class="provision-description">'+
+                  '<li class="provision-bullet-item">'+
                     (data.TEMPLATE.DESCRIPTION || '')+
                   '</li>'+
                 '</ul>'+
@@ -1110,13 +1085,13 @@ define(function(require) {
           var context = $("#provision_create_flow");
 
           if ($(this).hasClass("selected")){
-            $("#provision_customize_flow_template").hide();
-            $("#provision_customize_flow_template").html("");
-            $(".provision_network_selector", context).html("")
-            $(".provision_custom_attributes_selector", context).html("")
-
-            $(".provision_accordion_flow_template .selected_template").hide();
-            $(".provision_accordion_flow_template .select_template").show();
+            //$("#provision_customize_flow_template").hide();
+            //$("#provision_customize_flow_template").html("");
+            //$(".provision_network_selector", context).html("")
+            //$(".provision_custom_attributes_selector", context).html("")
+//
+            //$(".provision_accordion_flow_template .selected_template").hide();
+            //$(".provision_accordion_flow_template .select_template").show();
           } else {
             $("#provision_customize_flow_template").show();
             $("#provision_customize_flow_template").html("");
@@ -1175,28 +1150,21 @@ define(function(require) {
             }
 
             $.each(body.roles, function(index, role){
-              var context = $('<div id="provision_create_flow_role_'+index+'" class="provision_create_flow_role">'+
-                '<div class="row">'+
-                  '<div class="large-10 large-centered columns">'+
-                    '<h2 class="subheader">'+
-                      '<i class="fa fa-cube fa-lg"></i> '+
-                      role.name+
-                    '</h2>'+
-                    '<br>'+
+              var context = $(
+                '<div id="provision_create_flow_role_'+index+'" class="large-6 medium-12 small-12 columns provision_create_flow_role">'+
+                  '<h5>'+
+                    '<i class="fa fa-cube fa-lg"></i> '+
+                    role.name+
+                  '</h5>'+
+                  '<div class="row">'+
+                    '<div class="provision_cardinality_selector large-12 columns">'+
+                    '</div>'+
                   '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="provision_cardinality_selector large-9 large-centered columns">'+
+                  '<div class="row">'+
+                    '<div class="provision_custom_attributes_selector large-12 columns">'+
+                    '</div>'+
                   '</div>'+
-                '</div>'+
-                '<br>'+
-                '<div class="row">'+
-                  '<div class="provision_custom_attributes_selector large-9 large-centered columns">'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+
-              '<br>'+
-              '<br>').appendTo($("#provision_customize_flow_template"))
+              '</div>').appendTo($("#provision_customize_flow_template"))
 
               context.data("opennebula", role);
 
@@ -1231,17 +1199,19 @@ define(function(require) {
 
             })
 
-            //$(document).foundation();
+            return false;
           }
         })
 
         tab.on("click", "#provision_create_flow .provision-pricing-table.only-one" , function(){
           if ($(this).hasClass("selected")){
-            $(this).removeClass("selected");
+            //$(this).removeClass("selected");
           } else {
-            $(".provision-pricing-table", $(this).parents(".large-up-3,.large-up-2")).removeClass("selected")
+            $(".provision-pricing-table", $(this).parents(".dataTable")).removeClass("selected")
             $(this).addClass("selected");
           }
+
+          return false;
         })
 
         $("#provision_create_flow").submit(function(){

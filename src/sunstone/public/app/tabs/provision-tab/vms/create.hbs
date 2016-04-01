@@ -15,17 +15,19 @@
 {{! -------------------------------------------------------------------------- }}
 <form id="provision_create_vm" class="section_content" hidden>
   <div class="row">
-    <div class="large-6 columns">
-      <h3>{{tr "Create Virtual Machine"}}</h3>
-    </div>
-    <div class="large-6 columns">
-      <button href="#" class="button large success right" type="submit">{{tr "Create"}}</button>
-      <div data-alert class="alert-box alert-box-error text-center" hidden></div>
+    <div class="large-12 columns">
+      <h4>{{tr "Create Virtual Machine"}}</h4>
     </div>
   </div>
   <div class="row">
     <div class="large-6 columns">
       <input type="text" id="vm_name" class="provision-input" placeholder="{{tr "Virtual Machine Name"}}"/>
+    </div>
+    <div class="large-3 columns">
+    </div>
+    <div class="large-3 columns">
+      <button href="#" class="button success expanded" type="submit">{{tr "Create"}}</button>
+      <div data-alert class="alert-box alert-box-error" hidden></div>
     </div>
   </div>
   <fieldset>

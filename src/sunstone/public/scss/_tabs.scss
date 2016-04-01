@@ -1,5 +1,6 @@
 .tabs:not(.vertical) {
   border-bottom: rem-calc(1px) solid $light-gray;
+  box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1);
 
   .tabs-title {
     margin-bottom: rem-calc(-1px);

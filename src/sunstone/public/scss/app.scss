@@ -49,6 +49,11 @@ h4,
 h5,
 h6 {
   font-weight: 300;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid #dfdfdf;
+  box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1);
+
 }
 
 .thin-font {
@@ -92,6 +97,10 @@ textarea {
 
 .graph {
   height: rem-calc(100px);
+}
+
+.graph_provision {
+  height: rem-calc(80px);
 }
 
 .dropdown-pane {
