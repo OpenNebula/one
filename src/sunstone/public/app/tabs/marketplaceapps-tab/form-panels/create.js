@@ -72,7 +72,22 @@ define(function(require) {
       { 'select': true,
         'selectOptions': {
           'filter_fn': function(market) {
-            return market.ZONE_ID == config.zone_id;
+            var valid = market.ZONE_ID == config.zone_id;
+
+            if (valid){
+              var create_support = false;
+
+              $.each(config.oned_conf.MARKET_MAD_CONF, function(){
+                if (this.NAME == market.MARKET_MAD){
+                  create_support = this.APP_ACTIONS.split(',').includes("create");
+                  return false; //break
+                }
+              });
+
+              valid = create_support;
+            }
+
+            return valid;
           }
         }
       });
