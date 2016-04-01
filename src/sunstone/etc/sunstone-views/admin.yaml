@@ -541,6 +541,7 @@ tabs:
             MarketPlaceApp.refresh: true
             MarketPlaceApp.create_dialog: true
             MarketPlaceApp.export_dialog: true
+            MarketPlaceApp.download: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true

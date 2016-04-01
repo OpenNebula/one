@@ -29,6 +29,10 @@ define(function(require) {
     },
     "MarketPlaceApp.export_dialog" : {
       type: "action",
+      text: Locale.tr("Export to OpenNebula")
+    },
+    "MarketPlaceApp.download" : {
+      type: "action",
       text: '<i class="fa fa-download"/>'
     },
     "MarketPlaceApp.chown" : {

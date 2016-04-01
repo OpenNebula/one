@@ -89,6 +89,20 @@ define(function(require) {
       },
       notify: true
     },
+    "MarketPlaceApp.download": {
+      type: "multiple",
+      call: function(params) {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        $.each(selected_nodes, function() {
+          window.open("http://localhost:9869/marketplaceapp/"+this+"/download?csrftoken="+csrftoken, "_blank");
+        });
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: Notifier.onError
+    },
     "MarketPlaceApp.list" : _commonActions.list(),
     "MarketPlaceApp.show" : _commonActions.show(),
     "MarketPlaceApp.refresh" : _commonActions.refresh(),
