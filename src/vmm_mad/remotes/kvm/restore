@@ -54,6 +54,7 @@ fi
 
 DS_ID=$(basename $(dirname $(dirname $FILE)))
 DS_LOCATION=$(dirname $(dirname $(dirname $FILE)))
+DS_LOCATION_NON_DOUBLE_SLASH=$(echo "$DS_LOCATION" | sed 's|//|/|g')
 
 RECALCULATE_CMD=$(cat <<EOF
 set -e
@@ -67,6 +68,7 @@ virsh --connect $LIBVIRT_URI save-image-dumpxml $FILE > $FILE_XML
 # system DS migration
 
 sed -i "s%$DS_LOCATION/[0-9]\+/$VM_ID/%$DS_LOCATION/$DS_ID/$VM_ID/%g" $FILE_XML
+sed -i "s%$DS_LOCATION_NON_DOUBLE_SLASH/[0-9]\+/$VMID/%$DS_LOCATION/$DS_ID/$VMID/%g" $FILE_XML
 EOF
 )
 

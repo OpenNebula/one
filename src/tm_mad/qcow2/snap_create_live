@@ -66,17 +66,23 @@ ALL_DISKS="${XPATH_ELEMENTS[j++]}"
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
 SYSTEM_DS_DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+SYSTEM_DS_DISK_PATH_SHORT="disk.${DISK_ID}"
 
 if [ "$CLONE" = "YES" ]; then
     DISK_PATH="${SYSTEM_DS_DISK_PATH}"
+    DISK_PATH_SHORT="$(basename ${SYSTEM_DS_DISK_PATH})"
 else
     DISK_PATH=$DISK_SRC
+    DISK_PATH_SHORT=$DISK_PATH
 fi
 
 NEXT_SNAP_ID=$(($SNAP_ID+1))
 
 SNAP_DIR="${DISK_PATH}.snap"
+SNAP_DIR_SHORT="${DISK_PATH_SHORT}.snap"
+
 SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
+SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
 
 # virsh snapshot-create by default creates snapshots for all the disks that
 # are not read only. To be able to make a snapshot in only one of the disks
@@ -142,7 +148,7 @@ virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
 rm \${FILENAME}
 
 qemu-img rebase -u -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
-ln -sf $SNAP_PATH $SYSTEM_DS_DISK_PATH
+ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
 EOT
 )
 

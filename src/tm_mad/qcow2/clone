@@ -54,6 +54,8 @@ SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
+DST_FILE=$(basename "$DST_PATH")
+
 #-------------------------------------------------------------------------------
 # Get Image information
 #-------------------------------------------------------------------------------
@@ -94,7 +96,9 @@ cd $DST_DIR
 mkdir -p ${DST_PATH}.snap
 rm -f $DST_PATH
 $QEMU_IMG create -b $SRC_PATH -f qcow2 ${DST_PATH}.snap/0
-ln -s ${DST_PATH}.snap/0 ${DST_PATH}
+ln -s ${DST_FILE}.snap/0 ${DST_PATH}
+cd ${DST_PATH}.snap
+ln -s . ${DST_PATH}.snap/${DST_FILE}.snap
 ${RESIZE_CMD}
 EOF
 )
