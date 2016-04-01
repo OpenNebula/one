@@ -69,11 +69,23 @@ define(function(require) {
 
     this.marketPlacesTable = new MarketPlacesTable(
       FORM_PANEL_ID + 'marketPlacesTable',
-      {'select': true});
+      { 'select': true,
+        'selectOptions': {
+          'filter_fn': function(market) {
+            return market.ZONE_ID == config.zone_id;
+          }
+        }
+      });
 
     this.marketPlacesTableAdvanced = new MarketPlacesTable(
       FORM_PANEL_ID + 'marketPlacesTableAdvanced',
-      {'select': true});
+      { 'select': true,
+        'selectOptions': {
+          'filter_fn': function(market) {
+            return market.ZONE_ID == config.zone_id;
+          }
+        }
+      });
 
     BaseFormPanel.call(this);
   }

@@ -305,6 +305,7 @@ helpers do
             zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
             zone.info
             session[:zone_name] = zone.name
+            session[:zone_id]   = zone.id
 
             session[:federation_mode] = rc['FEDERATION/MODE'].upcase
 
