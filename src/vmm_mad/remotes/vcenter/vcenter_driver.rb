@@ -1971,6 +1971,8 @@ private
             end
         end
 
+        # Find out requested and available datastore
+
         if !xml.root.elements["/VM/USER_TEMPLATE/VCENTER_DATASTORE"].nil?
            datastore = xml.root.elements["/VM/USER_TEMPLATE/VCENTER_DATASTORE"].text
         end

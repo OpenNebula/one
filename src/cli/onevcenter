@@ -202,9 +202,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     STDOUT.print "\n    This template is currently set to be "\
                                  "deployed in datastore #{t[:default_ds]}."\
-                               "\n    Do you want to keep the default [y/n]? "
+                               "\n    Press y to keep the default, n to select"\
+                               " a new datastore or d to delegate the choice"\
+                               " to the user [y/n/d]? "
 
-                    if STDIN.gets.strip.downcase == 'n'
+                    answer =  STDIN.gets.strip.downcase
+
+                    case answer 
+                    when 'd'
                       ds_split     = t[:ds].split("|")
                       list_of_ds   = ds_split[-2]
                       default_ds   = ds_split[-1]
@@ -242,6 +247,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                       else
                            ds_input += answer
                       end
+                    when 'n'
+                      ds_split     = t[:ds].split("|")
+                      list_of_ds   = ds_split[-2]
+
+                      input_str = "    The list of available datastores is"\
+                                  " \"#{list_of_ds}\"."
+                      input_str+= "\n    Please input the new default datastore: "
+                      STDOUT.print input_str
+
+                      answer = STDIN.gets.strip
+
+                      t[:one] += "VCENTER_DATASTORE=#{answer}"
                     end
 
                     # Resource Pools
@@ -249,11 +266,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     rp_split     = t[:rp].split("|")
 
                     if rp_split.size > 3
-                    STDOUT.print "\n    Do you want VMs cloned from this"\
-                                 " template to run in the default"\
-                                 " resource pool [y/n]? "
+                    STDOUT.print "\n    This template is currently set to "\
+                                 "launch VMs in the default resource pool."
+                               "\n    Press y to keep this behaviour, n to select"\
+                               " a new resource pool or d to delegate the choice"\
+                               " to the user [y/n/d]? "
 
-                    if STDIN.gets.strip.downcase == 'n'
+                    answer =  STDIN.gets.strip.downcase
+
+                    case answer 
+                    when 'd'
                        list_of_rp   = rp_split[-2]
                        default_rp   = rp_split[-1]
                        rp_input     = rp_split[0] + "|" + rp_split[1] + "|" +
@@ -292,6 +314,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                        else
                             rp_input += answer
                        end
+                    when 'n'
+                      list_of_rp   = rp_split[-2]
+
+                      input_str = "    The list of available resource pools is"\
+                                  " \"#{list_of_rp}\"."
+                      input_str+= "\n    Please input the new default resource pool: "
+                      STDOUT.print input_str
+
+                      answer = STDIN.gets.strip
+
+                      t[:one] += "RESOURCE_POOL=#{answer}"
                     end
                     end
 
