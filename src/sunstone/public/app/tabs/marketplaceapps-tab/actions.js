@@ -20,6 +20,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var CommonActions = require('utils/common-actions');
   var OpenNebulaResource = require('opennebula/marketplaceapp');
+  var OpenNebula = require('opennebula');
   var OpenNebulaAction = require('opennebula/action');
 
   var RESOURCE = "MarketPlaceApp";
@@ -27,6 +28,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var EXPORT_DIALOG_ID = require('./form-panels/export/formPanelId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -106,7 +108,51 @@ define(function(require) {
     "MarketPlaceApp.list" : _commonActions.list(),
     "MarketPlaceApp.show" : _commonActions.show(),
     "MarketPlaceApp.refresh" : _commonActions.refresh(),
-    "MarketPlaceApp.delete" : _commonActions.del(),
+
+    "MarketPlaceApp.delete" : {
+      type: "multiple",
+      call : function(params){
+        OpenNebulaResource.show({
+          data : {
+              id: params.data.id
+          },
+          success: function(request,app_json){
+            var zone = app_json[XML_ROOT].ZONE_ID;
+
+            if (zone != config.zone_id){
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+                header : Locale.tr("Error"),
+                body : Locale.tr(
+                  "This MarketPlace App resides in Zone ") +
+                  zone + " (" + OpenNebula.Zone.getName(zone) + ")" +
+                  Locale.tr(". To delete it you need to switch to that Zone from the zone selector in the top-right corner." ),
+                question : "",
+                buttons : [
+                  Locale.tr("Ok"),
+                ],
+                submit : [
+                  function(){
+                    $("a#zonelector").focus().click();
+                    return false;
+                  }
+                ]
+              });
+
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+            } else {
+              _commonActions.del().call(params);
+            }
+          },
+          error: Notifier.onError
+        });
+      },
+      callback : _commonActions.del().callback,
+      elements: _commonActions.del().elements,
+      error: _commonActions.del().error,
+      notify: _commonActions.del().notify
+    },
+
     "MarketPlaceApp.chown": _commonActions.multipleAction('chown'),
     "MarketPlaceApp.chgrp": _commonActions.multipleAction('chgrp'),
     "MarketPlaceApp.chmod": _commonActions.singleAction('chmod'),

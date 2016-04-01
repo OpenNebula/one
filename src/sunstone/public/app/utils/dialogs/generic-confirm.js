@@ -114,15 +114,15 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    if (this.params.header){
+    if (this.params.header != undefined){
       $("#header", context).html(this.params.header);
     }
 
-    if (this.params.body){
+    if (this.params.body != undefined){
       $("#body", context).html(this.params.body);
     }
 
-    if (this.params.question){
+    if (this.params.question != undefined){
       $("#question", context).html(this.params.question);
     }
 
