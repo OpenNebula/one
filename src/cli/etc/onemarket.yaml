@@ -15,11 +15,11 @@
 
 :NAME:
   :desc: Name of the Marketplace
-  :size: 20
+  :size: 30
   :left: true
 
 :SIZE:
-  :desc: Marketplace total size (M)
+  :desc: Marketplace total size
   :size: 10
 
 :AVAIL:
@@ -43,3 +43,4 @@
 - :AVAIL
 - :APPS
 - :MAD
+- :ZONE

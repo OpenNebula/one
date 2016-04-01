@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
   var OpenNebulaMarketPlace = require('opennebula/marketplace');
+  var OpenNebulaZone = require('opennebula/zone');
   var LabelsUtils = require('utils/labels/utils');
   var Humanize = require('utils/humanize');
 
@@ -34,7 +35,7 @@ define(function(require) {
   var RESOURCE = "MarketPlaceApp";
   var XML_ROOT = "MARKETPLACEAPP";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 11;
+  var LABELS_COLUMN = 12;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -87,6 +88,7 @@ define(function(require) {
       Locale.tr("Type"),
       Locale.tr("Registration Time"),
       Locale.tr("Marketplace"),
+      Locale.tr("Zone"),
       Locale.tr("Labels")
     ]
 
@@ -130,6 +132,7 @@ define(function(require) {
         OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
         Humanize.prettyTime(element.REGTIME),
         element.MARKETPLACE,
+        OpenNebulaZone.getName(element.ZONE_ID),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }

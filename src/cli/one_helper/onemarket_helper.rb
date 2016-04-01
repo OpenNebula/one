@@ -82,7 +82,11 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["MARKET_MAD"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :APPS, :TYPE, :MAD, :NAME
+            column :ZONE, "Zone ID", :size=>4 do |d|
+                d["ZONE_ID"]
+            end
+
+            default :ID, :NAME, :SIZE, :AVAIL, :APPS, :MAD, :ZONE
         end
 
         table

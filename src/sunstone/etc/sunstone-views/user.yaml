@@ -511,7 +511,8 @@ tabs:
             - 5         # Capacity
             - 6         # Apps
             - 7         # Driver
-            #- 8        # Labels
+            - 8         # Zone
+            #- 9        # Labels
         actions:
             MarketPlace.refresh: true
             MarketPlace.create_dialog: true
@@ -537,7 +538,8 @@ tabs:
             #- 8         # Type
             - 9         # Registration
             - 10        # Marketplace
-            #- 11        # Labels
+            - 11         # Zone
+            #- 12        # Labels
         actions:
             MarketPlaceApp.refresh: true
             MarketPlaceApp.create_dialog: true

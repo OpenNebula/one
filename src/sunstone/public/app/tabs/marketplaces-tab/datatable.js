@@ -23,6 +23,7 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaMarketPlace = require('opennebula/marketplace');
+  var OpenNebulaZone = require('opennebula/zone');
   var DatastoreCapacityBar = require('../datastores-tab/utils/datastore-capacity-bar');
   var LabelsUtils = require('utils/labels/utils');
 
@@ -33,7 +34,7 @@ define(function(require) {
   var RESOURCE = "MarketPlace";
   var XML_ROOT = "MARKETPLACE";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 8;
+  var LABELS_COLUMN = 9;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -83,6 +84,7 @@ define(function(require) {
       Locale.tr("Capacity"),
       Locale.tr("Apps"),
       Locale.tr("Driver"),
+      Locale.tr("Zone"),
       Locale.tr("Labels")
     ]
 
@@ -123,6 +125,7 @@ define(function(require) {
         DatastoreCapacityBar.html(element),
         _lengthOf(element.MARKETPLACEAPPS.ID),
         element.MARKET_MAD,
+        OpenNebulaZone.getName(element.ZONE_ID),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
