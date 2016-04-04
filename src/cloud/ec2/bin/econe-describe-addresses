@@ -34,7 +34,7 @@ require 'econe/EC2QueryClient'
 include CloudCLI
 
 TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :publicIp, "publicIp", :size=>10 do |d|
+    column :publicIp, "publicIp", :size=>15 do |d|
         d["publicIp"]
     end
 
