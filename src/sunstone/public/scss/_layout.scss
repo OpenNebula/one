@@ -1,0 +1,45 @@
+.right-content {
+  margin-top: -2rem;
+}
+
+.right-list,
+.right-info,
+.right-form,
+.actions_row {
+  padding: 0 1rem;
+}
+
+#top-row {
+  padding: 1rem 0 0 0;
+
+  .opennebula-img {
+    height: 1rem;
+  }
+
+  .logo-header {
+    margin-top: 0.5rem;
+  }
+
+}
+
+.provision-logo {
+  img {
+    height: 3rem;
+  }
+}
+
+.header-title {
+  margin-bottom: 2rem;
+}
+
+.action_blocks {
+  & > span {
+    padding-right: 2rem;
+  }
+}
+
+.vm-action-disabled {
+  //color: #cfcfcf !important;
+  cursor: default !important;
+  opacity: 0.25;
+}
