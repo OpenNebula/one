@@ -55,7 +55,7 @@ CommandParser::CmdParser.new(ARGV) do
     list_options << OpenNebulaHelper::DESCRIBE
 
     CREATE_OPTIONS = [OneMarketPlaceHelper::MARKETPLACE]
-    EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE]
+    EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE, OneMarketPlaceAppHelper::VMNAME]
 
     ########################################################################
     # Formatters for arguments
@@ -138,7 +138,11 @@ CommandParser::CmdParser.new(ARGV) do
     command :export, export_desc, :appid, :name, :options=>EXPORT_OPTIONS  do
         helper.perform_action(args[0], options, "exported") do |obj|
 
-            rc = obj.export(:dsid=>options[:datastore], :name=>args[1])
+            rc = obj.export({
+                :dsid=>options[:datastore],
+                :name=>args[1],
+                :vmtemplate_name=>options[:vmname]
+            })
 
             next rc if OpenNebula.is_error?(rc)
 

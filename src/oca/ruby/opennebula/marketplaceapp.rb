@@ -158,6 +158,7 @@ module OpenNebula
         # @param options [Hash] to control the export behavior
         #   dsid [Integer] datastore to save images
         #   name [String] of the new object
+        #   vmtemplate_name [String] name for the VM Template, if the App has one
         #
         # @return [Hash, OpenNebula::Error] with the ID and type of the created
         # objects. Instead of an ID, the array may contain OpenNebula::Error with
@@ -198,7 +199,9 @@ module OpenNebula
                 if !self['TEMPLATE/VMTEMPLATE64'].nil?
                     tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
 
-                    tmpl << "\nNAME=\"#{name}\"\n"
+                    tmpl_name = options[:vmtemplate_name] || name
+
+                    tmpl << "\nNAME=\"#{tmpl_name}\"\n"
                     tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
 
                     vmtpl = Template.new(Template.build_xml, @client)

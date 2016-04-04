@@ -43,6 +43,13 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         OpenNebulaHelper::DRY
     ]
 
+    VMNAME = {
+        :name   => "vmname",
+        :large  => "--vmname name" ,
+        :description => "Selects the name for the new VM Template, if the App contains one",
+        :format => String
+    }
+
     def self.rname
         "MARKETPLACEAPP"
     end

@@ -72,7 +72,13 @@ module OpenNebulaJSON
         def export(params=Hash.new)
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid'] 
             name = params['name']
-            rc = super({:dsid => dsid, :name => name})
+            vmtemplate_name = params['vmtemplate_name']
+            rc = super({
+                :dsid => dsid,
+                :name => name,
+                :vmtemplate_name => vmtemplate_name
+            })
+
             if OpenNebula.is_error?(rc)
                 return rc
             else

@@ -25,6 +25,17 @@
       <input id="NAME" type="text" wizard_field="NAME"/>
     </div>
   </div>
+  <div class="row vmname" style="display:none">
+    <div class="medium-6 columns">
+      <label for="VMNAME">
+        {{tr "VM Template Name"}}:
+        <span class="tip">
+          {{tr "The following template will be created in OpenNebula and the previous images will be referenced in the disks."}}
+        </span>
+      </label>
+      <input id="VMNAME" type="text" wizard_field="VMNAME"/>
+    </div>
+  </div>
   <fieldset>
     <legend>{{tr "Select the Datastore to store the resource"}}</legend>
     {{{datastoresTableHTML}}}
