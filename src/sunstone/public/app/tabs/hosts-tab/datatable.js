@@ -260,9 +260,7 @@ define(function(require) {
 
     return '<div class="row">' +
           '<div class="large-12 columns">' +
-            '<h5 class="subheader">'+
-              '<small>'+ legend +'</small>'+
-            '</h5>'+
+            '<span>' + legend + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="row">' +
