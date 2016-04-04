@@ -364,7 +364,7 @@ define(function(require) {
         '<div>' +
           '<dl class="accordion provision_nic_accordion" data-accordion data-allow-all-closed="true">' +
           '</dl>' +
-          '<a class="button secondary small provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
+          '<a class="button small provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
             Locale.tr("Add another Network Interface") +
           '</a>' +
         '</div>' +
