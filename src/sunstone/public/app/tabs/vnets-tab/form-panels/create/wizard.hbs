@@ -186,15 +186,15 @@
       </div>
     </div>
     <div class="tabs-panel" id="vnetCreateARTab">
-      <div class="row" id="vnetCreateARTabCreate">
-        <div class="large-2 columns">
+      <div class="row collapse" id="vnetCreateARTabCreate">
+        <div class="large-3 columns">
           <ul class="tabs vertical" id="vnet_wizard_ar_tabs" data-tabs></ul>
-          <button type="button" class="button tiny radius" id="vnet_wizard_ar_btn">
+          <button type="button" class="button small" id="vnet_wizard_ar_btn">
             <span class="fa fa-plus"></span>
             {{tr "Add another Address Range"}}
           </button>
         </div>
-        <div class="large-10 columns">
+        <div class="large-9 columns">
           <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content" data-tabs-content="vnet_wizard_ar_tabs"></div>
         </div>
       </div>
@@ -260,14 +260,10 @@
           <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />
         </div>
       </div>
-      <br>
-      <div class="row">
-        <div class="large-12 columns">
-          <span>{{tr "Custom attributes"}}</span>
-          <br>
-          <br></div>
-      </div>
-      {{{customTagsHTML}}}
+      <fieldset>
+        <legend>{{tr "Custom attributes"}}</legend>
+        {{{customTagsHTML}}}
+      </fieldset>
     </div>
   </div>
 </form>

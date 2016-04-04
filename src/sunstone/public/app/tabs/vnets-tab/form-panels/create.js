@@ -119,27 +119,6 @@ define(function(require) {
       return false;
     });
 
-    // close icon: removing the tab on click
-    $("#vnetCreateARTab", context).on("click", "i.remove-tab", function() {
-      var target = $(this).parent().attr("href");
-      var li = $(this).closest('li');
-      var ul = $(this).closest('ul');
-      var content = $(target);
-
-      var ar_id = content.attr("ar_id");
-
-      li.remove();
-      content.remove();
-
-      if (li.attr("class") == 'is-active') {
-        $('a', ul.children('li').last()).click();
-      }
-
-      delete that.arTabObjects[ar_id];
-
-      return false;
-    });
-
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
     $('#vn_mad_from_host', context).change(function() {
@@ -275,6 +254,7 @@ define(function(require) {
   }
 
   function _add_ar_tab(ar_id, context) {
+    var that = this;
     var str_ar_tab_id  = 'ar' + ar_id;
 
     var ar_tab = new ArTab();
@@ -299,6 +279,28 @@ define(function(require) {
     var ar_section = $('#' + str_ar_tab_id + 'Tab', context);
     ar_tab.setup(ar_section, str_ar_tab_id);
     ar_tab.onShow();
+
+
+    // close icon: removing the tab on click
+    a.on("click", "i.remove-tab", function() {
+      var target = $(this).parent().attr("href");
+      var li = $(this).closest('li');
+      var ul = $(this).closest('ul');
+      var content = $(target);
+
+      var ar_id = content.attr("ar_id");
+
+      li.remove();
+      content.remove();
+
+      if (li.hasClass('is-active')) {
+        $('a', ul.children('li').last()).click();
+      }
+
+      delete that.arTabObjects[ar_id];
+
+      return false;
+    });
   }
 
   function _submitWizard(context) {
