@@ -155,6 +155,9 @@ define(function(require) {
       $("#user_ssh_public_key_textarea", context).hide();
     });
 
+    $("#user_ssh_public_key_text", context).show();
+    $("#user_ssh_public_key_textarea", context).hide();
+      
     // Change table Order
     context.off("click", "#div_edit_table_order")
     context.on("click", "#div_edit_table_order", function() {

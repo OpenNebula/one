@@ -98,6 +98,9 @@ define(function(require) {
       $("#vmTemplate_textarea", context).hide();
     });
 
+    $("#vmTemplate_text", context).show();
+    $("#vmTemplate_textarea", context).hide();
+
     context.off("click", ".appTemplate_edit");
     context.on("click", ".appTemplate_edit", function() {
       $("#appTemplate_text", context).hide();
@@ -115,6 +118,9 @@ define(function(require) {
       $("#appTemplate_text", context).show();
       $("#appTemplate_textarea", context).hide();
     });
+    
+    $("#appTemplate_text", context).show();
+    $("#appTemplate_textarea", context).hide();
 
     return false;
   }
