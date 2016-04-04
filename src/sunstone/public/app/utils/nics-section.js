@@ -19,6 +19,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Notifier = require('utils/notifier');
   var OpenNebula = require('opennebula');
+  var OpenNebulaTemplate = require('opennebula/template');
 
   var provision_nic_accordion_id = 0;
   var provision_nic_accordion_dd_id = 0;
@@ -50,7 +51,7 @@ define(function(require) {
     }
 
     try {
-      if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SELECT != "NO") {
+      if (OpenNebulaTemplate.isNetworkChangeEnabled(template_json)) {
         var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
         var nics = []
         if ($.isArray(template_nic))

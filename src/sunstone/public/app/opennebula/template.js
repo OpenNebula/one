@@ -77,6 +77,15 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
+    },
+    "isNetworkChangeEnabled": function(template) {
+      if (template.VMTEMPLATE.TEMPLATE.SUNSTONE &&
+          template.VMTEMPLATE.TEMPLATE.SUNSTONE.NETWORK_SELECT !== 'NO') {
+        return false;
+      } else {
+        return true;
+      }
+
     }
   }
 
