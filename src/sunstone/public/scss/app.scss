@@ -22,7 +22,7 @@
   font-size: 1.2rem;
 }
 
-@import './top-row';
+@import './layout';
 @import './menu';
 @import './accordion';
 @import './range-slider';
@@ -112,8 +112,3 @@ meter {
   margin-bottom: 0;
 }
 
-.provision-logo {
-  img {
-    height: 3rem;
-  }
-}
