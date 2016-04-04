@@ -78,6 +78,9 @@ define(function(require) {
   }
 
   function _onShow(context, panelForm) {
+    $.each(this.nicTabObjects, function(id, tab) {
+      tab.onShow();
+    })
   }
 
   function _setup(context) {
