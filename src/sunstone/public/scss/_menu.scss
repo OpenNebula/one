@@ -3,7 +3,7 @@
 }
 
 #menu {
-  margin-top: 3rem;
+  margin-right: 1rem;
   
   li {
     position: relative;
@@ -13,7 +13,6 @@
 
     &.topTab {
 
-      padding-right: 2rem;
 
       & > a {
         text-transform: uppercase;
@@ -84,6 +83,17 @@
   }
 }
 
+.menu-small {
+  position: absolute;
+  z-index: 20;
+  box-shadow: 5px 10px 15px 5px rgba(0,0,0,.1);
+}
+
+#menu-wrapper {
+  margin-top: 3rem;
+  padding-top: 5px;
+  background-color: white
+}
 
 .labels-tree {
   margin-left: 1rem;
