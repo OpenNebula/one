@@ -23,6 +23,19 @@ module VNMMAD
         DRIVER       = "sg"
         XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='fw']"
 
+        # Rules that simulate an empty list of Security Groups (allow everything)
+        EMPTY_RULES =   {"0"=> [
+                          {:protocol => "ALL",
+                            :rule_type => "OUTBOUND",
+                            :security_group_id => "0",
+                            :security_group_name => "default"},
+
+                           {:protocol => "ALL",
+                            :rule_type => "INBOUND",
+                            :security_group_id => "0",
+                            :security_group_name => "default"}
+                        ]}
+
         # Creates a new SG driver and scans SG Rules
         # @param [String] VM XML base64 encoded
         # @param [String] hypervisor ID for the VM
@@ -70,7 +83,11 @@ module VNMMAD
             # Process the rules
             @vm.nics.each do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
-                next if nic[:security_groups].nil?
+
+                if nic[:security_groups].nil?
+                    nic[:security_groups] = "0"
+                    @security_group_rules = EMPTY_RULES
+                end
 
                 SGIPTables.nic_pre(@vm, nic)
 
