@@ -1,1 +1,5 @@
-../common/premigrate
+source /var/lib/one/remotes/scripts_common.sh
+
+ssh_exec_and_log $2 "sudo sync; sudo lvs; sudo lvchange -ay $3" "Error running fs_lvm premigrate"
+
+exit 1
