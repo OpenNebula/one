@@ -1,3 +1,5 @@
+#!/bin/bash
+
 DRIVER_PATH=$(dirname $0)
 
 DISK_COUNT=$(onevm show $4 -x|grep DISK_ID| wc -l)
