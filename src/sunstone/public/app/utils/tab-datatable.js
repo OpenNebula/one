@@ -501,7 +501,7 @@ define(function(require) {
       });
     }
 
-    if (that.labelsColumn) {
+    if (that.labelsColumn && !SunstoneConfig.isTabEnabled("provision-tab")) {
       LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       LabelsUtils.insertLabelsDropdown(that.tabId);
     }

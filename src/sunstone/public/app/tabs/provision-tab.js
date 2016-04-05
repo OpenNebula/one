@@ -1108,42 +1108,9 @@ define(function(require) {
             var context = $("#provision_create_flow");
 
             if (body.custom_attrs) {
-              var network_attrs = [];
-              var text_attrs = [];
-
-              $.each(body.custom_attrs, function(key, value){
-                var parts = value.split("|");
-                // 0 mandatory; 1 type; 2 desc;
-                var attrs = {
-                  "name": key,
-                  "mandatory": parts[0],
-                  "type": parts[1],
-                  "description": parts[2],
-                }
-
-                switch (parts[1]) {
-                  case "vnet_id":
-                    network_attrs.push(attrs)
-                    break;
-                  case "text":
-                  case "text64":
-                  case "password":
-                    text_attrs.push(attrs)
-                    break;
-                }
-              })
-
-              if (network_attrs.length > 0) {
-                NicsSection.generate_provision_network_accordion(
-                  $(".provision_network_selector", context), {hide_add_button:true});
-
-                $.each(network_attrs, function(index, vnet_attr){
-                  NicsSection.generate_provision_network_table(
-                    $(".provision_nic_accordion", context),
-                    {vnet_attr: vnet_attr});
-                });
-              }
-
+              UserInputs.serviceTemplateInsert(
+                $(".provision_network_selector", context),
+                data);
             } else {
               $(".provision_network_selector", context).html("")
               $(".provision_custom_attributes_selector", context).html("")
@@ -1225,24 +1192,7 @@ define(function(require) {
             return false;
           }
 
-          var custom_attrs = {}
-          var missing_network = false;
-          if ($(".provision_nic_accordion", context)) {
-            $(".selected_network", $(".provision_nic_accordion", context)).each(function(){
-              if (!$(this).attr("opennebula_id")) {
-                $(this).css("color", "red");
-                missing_network = true;
-              } else {
-                $(this).css("color", "#777");
-                custom_attrs[$(this).attr("attr_name")] = $(this).attr("opennebula_id");
-              }
-            })
-          }
-
-          if (missing_network) {
-            $(".alert-box-error", context).fadeIn().html(Locale.tr("You have not specified all the Networks for this Service"));
-            return false;
-          }
+          var custom_attrs = WizardFields.retrieve($(".provision_network_selector", context));
 
           var roles = [];
 
