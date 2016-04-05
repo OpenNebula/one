@@ -36,6 +36,8 @@ define(function(require) {
 
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
+  var ZONE_TAB_ID = require('tabs/zones-tab/tabId');
+
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
     require('utils/dialogs/confirm-with-select'),
@@ -72,7 +74,9 @@ define(function(require) {
     }
 
     // init the zone list, needed for market & apps zone columns
-    Sunstone.runAction("Zone.list");
+    if (Config.isTabActionEnabled(ZONE_TAB_ID, "Zone.list")) {
+      Sunstone.runAction("Zone.list");
+    }
   });
 
   function _setupCloseDropdownsOnClick() {
