@@ -137,11 +137,11 @@ define(function(require) {
       html += '\
           <div class="row">\
               <div class="medium-6 columns">\
-                <div class="row text-center">\
-                  <h3 class="subheader"><small>' + Locale.tr("NET RX") + '</small></h3>\
+                <div class="row">\
+                  <span>' + Locale.tr("NET RX") + '</span3>\
                 </div>\
                 <div class="row">\
-                  <div class="large-12 columns centered graph text-center" id="vm_net_rx_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph" id="vm_net_rx_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
                       <i class="fa fa-spinner fa-spin"></i>\
                     </span>\
@@ -153,11 +153,11 @@ define(function(require) {
                 </div>\
               </div>\
               <div class="medium-6 columns">\
-                <div class="row text-center">\
-                  <h3 class="subheader"><small>' + Locale.tr("NET TX") + '</small></h3>\
+                <div class="row">\
+                  <span>' + Locale.tr("NET TX") + '</span3>\
                 </div>\
                 <div class="row">\
-                  <div class="large-12 columns centered graph text-center" id="vm_net_tx_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph" id="vm_net_tx_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
                       <i class="fa fa-spinner fa-spin"></i>\
                     </span>\
@@ -169,11 +169,11 @@ define(function(require) {
                 </div>\
               </div>\
               <div class="medium-6 columns">\
-                <div class="row text-center">\
-                  <h3 class="subheader"><small>' + Locale.tr("NET DOWNLOAD SPEED") + '</small></h3>\
+                <div class="row">\
+                  <span>' + Locale.tr("NET DOWNLOAD SPEED") + '</span3>\
                 </div>\
                 <div class="row">\
-                  <div class="large-12 columns centered graph text-center" id="vm_net_rx_speed_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph" id="vm_net_rx_speed_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
                       <i class="fa fa-spinner fa-spin"></i>\
                     </span>\
@@ -185,11 +185,11 @@ define(function(require) {
                 </div>\
               </div>\
               <div class="medium-6 columns">\
-                <div class="row text-center">\
-                  <h3 class="subheader"><small>' + Locale.tr("NET UPLOAD SPEED") + '</small></h3>\
+                <div class="row">\
+                  <span>' + Locale.tr("NET UPLOAD SPEED") + '</span3>\
                 </div>\
                 <div class="row">\
-                  <div class="large-12 columns centered graph text-center" id="vm_net_tx_speed_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph" id="vm_net_tx_speed_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
                       <i class="fa fa-spinner fa-spin"></i>\
                     </span>\
