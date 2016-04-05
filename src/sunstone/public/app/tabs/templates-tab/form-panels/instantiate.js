@@ -181,7 +181,10 @@ define(function(require) {
               }) );
 
           DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
-          NicsSection.insert(template_json, $(".nicsContext"  + template_json.VMTEMPLATE.ID, context));
+
+          NicsSection.insert(template_json,
+            $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
+            {'securityGroups': Config.isFeatureEnabled("secgroups")});
 
           var inputs_div = $(".template_user_inputs" + template_json.VMTEMPLATE.ID, context);
 
