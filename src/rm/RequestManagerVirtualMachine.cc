@@ -446,15 +446,13 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        RequestAttributes& att)
 {
     string  vmdir;
-    int     rc;
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid, cid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location, ds_id);
+    vm->add_history(hid, cid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
+            ds_id);
 
-    rc = vmpool->update_history(vm);
-
-    if ( rc != 0 )
+    if ( vmpool->update_history(vm) != 0 )
     {
         att.resp_msg = "Cannot update virtual machine history";
         failure_response(INTERNAL, att);
@@ -462,7 +460,13 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
         return -1;
     }
 
-    vmpool->update(vm);
+    if ( vmpool->update(vm) != 0 )
+    {
+        att.resp_msg = "Cannot update virtual machine";
+        failure_response(INTERNAL, att);
+
+        return -1;
+    }
 
     return 0;
 }
@@ -650,6 +654,127 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+/**
+ *  Adds extra info to the volatile disks of the given template, ds inherited
+ *  attributes and TYPE
+ *    @param ds_id datastore id
+ *    @param vd vector of DISKS
+ *    @return true if there at least one volatile disk was found
+ */
+static bool set_volatile_disk_info(int ds_id, vector<VectorAttribute *>& vd)
+{
+    DatastorePool * ds_pool = Nebula::instance().get_dspool();
+
+    bool found = false;
+
+    for(vector<VectorAttribute *>::iterator it = vd.begin(); it!=vd.end(); ++it)
+    {
+        if ( !VirtualMachine::is_volatile(*it) )
+        {
+            continue;
+        }
+
+        ds_pool->disk_attribute(ds_id, *it);
+
+        found = true;
+    }
+
+    return found;
+}
+
+static bool set_volatile_disk_info(VirtualMachine *vm)
+{
+    if ( !vm->hasHistory() )
+    {
+        return false;
+    }
+
+    vector<VectorAttribute *> disks;
+
+    int ds_id = vm->get_ds_id();
+
+    vm->get_template_attribute("DISK", disks);
+
+    bool found = set_volatile_disk_info(ds_id, disks);
+
+    if ( found )
+    {
+        Nebula::instance().get_vmpool()->update(vm);
+    }
+
+    return found;
+}
+
+
+static bool set_volatile_disk_info(VirtualMachine *vm, Template& tmpl)
+{
+    if ( !vm->hasHistory() )
+    {
+        return false;
+    }
+
+    vector<VectorAttribute *> disks;
+
+    int ds_id = vm->get_ds_id();
+
+    tmpl.get("DISK", disks);
+
+    bool found = set_volatile_disk_info(ds_id, disks);
+
+    if ( found )
+    {
+        Nebula::instance().get_vmpool()->update(vm);
+    }
+
+    return found;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int set_vnc_port(VirtualMachine *vm, RequestAttributes& att)
+{
+    ClusterPool * cpool = Nebula::instance().get_clpool();
+
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    unsigned int port;
+    int rc;
+
+    if (graphics == 0 || !vm->hasHistory())
+    {
+        return 0;
+    }
+    else if (graphics->vector_value("PORT", port) == 0)
+    {
+        rc = cpool->set_vnc_port(vm->get_cid(), port);
+
+        if ( rc != 0 )
+        {
+            att.resp_msg = "Requested VNC port already assgined to a VM";
+        }
+    }
+    else
+    {
+        rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
+
+        if ( rc == 0 )
+        {
+            graphics->replace("PORT", port);
+
+            Nebula::instance().get_vmpool()->update(vm);
+        }
+        else
+        {
+            att.resp_msg = "No free VNC ports available in the cluster";
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
@@ -743,7 +868,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             set<int> ds_cluster_ids;
             bool     ds_migr;
 
-            if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
+            if (get_ds_information(ds_id,ds_cluster_ids,tm_mad,att,ds_migr) != 0)
             {
                 return;
             }
@@ -752,10 +877,11 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             {
                 ostringstream oss;
 
-                oss << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id << "] and "
-                    << object_name(PoolObjectSQL::HOST) << " [" << hid
-                    << "] are not in the same "
-                    << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id << "].";
+                oss << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id
+                    << "] and " << object_name(PoolObjectSQL::HOST) << " ["
+                    << hid << "] are not in the same "
+                    << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
+                    << "].";
 
                 att.resp_msg = oss.str();
 
@@ -806,7 +932,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // - VM States are right
     // - Host capacity if required
     // ------------------------------------------------------------------------
-
     if ((vm = get_vm(id, att)) == 0)
     {
         return;
@@ -817,7 +942,9 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         vm->get_state() != VirtualMachine::STOPPED &&
         vm->get_state() != VirtualMachine::UNDEPLOYED)
     {
-        att.resp_msg = "Deploy action is not available for state " +  vm->state_str();
+        att.resp_msg = "Deploy action is not available for state " +
+            vm->state_str();
+
         failure_response(ACTION, att);
 
         vm->unlock();
@@ -833,9 +960,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Add a new history record and update volatile DISK info
+    // Add a new history record
     // ------------------------------------------------------------------------
-
     if (add_history(vm,
                     hid,
                     cluster_id,
@@ -851,7 +977,19 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    vm->volatile_disk_extended_info();
+    // ------------------------------------------------------------------------
+    // Add deployment dependent attributes to VM
+    //   - volatile disk (selected system DS driver)
+    //   - vnc port (free in the selected cluster)
+    // ------------------------------------------------------------------------
+    set_volatile_disk_info(vm);
+
+    if (set_vnc_port(vm, att) != 0)
+    {
+        failure_response(ACTION, att);
+        vm->unlock();
+        return;
+    }
 
     // ------------------------------------------------------------------------
     // deploy the VM
@@ -1178,7 +1316,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    vm->volatile_disk_extended_info();
+    set_volatile_disk_info(vm);
 
     // ------------------------------------------------------------------------
     // Migrate the VM
@@ -1570,9 +1708,10 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->get_permissions(vm_perms);
 
-    volatile_disk = vm->volatile_disk_extended_info(&tmpl);
+    volatile_disk = set_volatile_disk_info(vm, tmpl);
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::DISK_ATTACH_ACTION))
+    if (vm->is_vrouter() &&
+            !VirtualRouter::is_action_supported(History::DISK_ATTACH_ACTION))
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(ACTION, att);

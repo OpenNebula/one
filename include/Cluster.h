@@ -21,6 +21,7 @@
 #include "ObjectCollection.h"
 #include "DatastorePool.h"
 #include "ClusterTemplate.h"
+#include "BitMap.h"
 
 using namespace std;
 
@@ -174,6 +175,36 @@ public:
     }
 
     // *************************************************************************
+    // VNC Port management function
+    // *************************************************************************
+
+    /**
+     *  Returns a free VNC port, it will try first to allocate base_port + vmid.
+     *  If this port is not free the first lower port from the VNC_PORT/START
+     *  port is returned.
+     *    @param vmid of the VM
+     *    @param port reserved
+     *    @return 0 on success
+     */
+    int get_vnc_port(int vmid, unsigned int& port)
+    {
+        unsigned int base_port = vnc_bitmap.get_start_bit();
+        unsigned int hint_port = base_port + (vmid % (65535 - base_port));
+
+        return vnc_bitmap.get(hint_port,port);
+    }
+
+    void release_vnc_port(int port)
+    {
+        vnc_bitmap.reset(port);
+    }
+
+    int set_vnc_port(int port)
+    {
+        return vnc_bitmap.set(port);
+    }
+
+    // *************************************************************************
     // DataBase implementation (Public)
     // *************************************************************************
 
@@ -203,9 +234,8 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    Cluster(int id,
-            const string& name,
-            ClusterTemplate*  cl_template);
+    Cluster(int id, const string& name, ClusterTemplate*  cl_template,
+            const VectorAttribute& vnc_conf);
 
     virtual ~Cluster(){};
 
@@ -215,6 +245,8 @@ private:
     ObjectCollection hosts;
     ObjectCollection datastores;
     ObjectCollection vnets;
+
+    BitMap<65536> vnc_bitmap;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -231,6 +263,7 @@ private:
     static const char * network_db_names;
     static const char * network_db_bootstrap;
 
+    static const char * bitmap_table;
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -268,7 +301,16 @@ private:
      */
     int insert(SqlDB *db, string& error_str)
     {
-        return insert_replace(db, false, error_str);
+        int rc;
+
+        rc = insert_replace(db, false, error_str);
+
+        if ( rc != 0 )
+        {
+            return rc;
+        }
+
+        return vnc_bitmap.insert(oid, db);
     }
 
     /**
@@ -279,8 +321,47 @@ private:
     int update(SqlDB *db)
     {
         string error_str;
-        return insert_replace(db, true, error_str);
+
+        int rc = insert_replace(db, true, error_str);
+
+        rc += vnc_bitmap.update(db);
+
+        return rc;
     }
+
+    /**
+     *  Reads the PoolObjectSQL (identified by its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int select(SqlDB *db)
+    {
+        int rc = PoolObjectSQL::select(db);
+
+        if ( rc != 0 )
+        {
+            return rc;
+        }
+
+        return vnc_bitmap.select(oid, db);
+    }
+
+    /**
+     *  Reads the PoolObjectSQL (identified by its OID) from the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+     int select(SqlDB *db, const string& _name, int _uid)
+     {
+         int rc = PoolObjectSQL::select(db, _name, _uid);
+
+         if ( rc != 0 )
+         {
+             return rc;
+         }
+
+         return vnc_bitmap.select(oid, db);
+     }
 
     /**
      * Checks if all the collections are empty, and therefore this cluster

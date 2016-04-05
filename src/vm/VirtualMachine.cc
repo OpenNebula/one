@@ -1133,58 +1133,30 @@ int VirtualMachine::parse_pci(string& error_str)
 
 int VirtualMachine::parse_graphics(string& error_str)
 {
-    vector<Attribute *> array_graphics;
-    VectorAttribute *   graphics;
+    VectorAttribute * user_graphics = user_obj_template->get("GRAPHICS");
 
-    vector<Attribute *>::iterator it;
-
-    int num = user_obj_template->remove("GRAPHICS", array_graphics);
-
-    for (it=array_graphics.begin(); it != array_graphics.end(); it++)
-    {
-        obj_template->set(*it);
-    }
-
-    if ( num == 0 )
+    if ( user_graphics == 0 )
     {
         return 0;
     }
 
-    graphics = dynamic_cast<VectorAttribute * >(array_graphics[0]);
+    VectorAttribute * graphics = new VectorAttribute(user_graphics);
 
-    if ( graphics == 0 )
+    user_obj_template->erase("GRAPHICS");
+
+    obj_template->set(graphics);
+
+    if ( !graphics->vector_value("PORT").empty() )
     {
-        return 0;
-    }
+        unsigned int port;
 
-    string port = graphics->vector_value("PORT");
-    int    port_i;
+        int rc = graphics->vector_value("PORT", port);
 
-    int rc = graphics->vector_value("PORT", port_i);
-
-    if ( port.empty() )
-    {
-        Nebula&       nd = Nebula::instance();
-
-        ostringstream oss;
-        istringstream iss;
-
-        int           base_port;
-        string        base_port_s;
-
-        int limit = 65535;
-
-        nd.get_configuration_attribute("VNC_BASE_PORT",base_port_s);
-        iss.str(base_port_s);
-        iss >> base_port;
-
-        oss << ( base_port + ( oid % (limit - base_port) ));
-        graphics->replace("PORT", oss.str());
-    }
-    else if ( rc == -1 || port_i < 0 )
-    {
-        error_str = "Wrong PORT number in GRAPHICS attribute";
-        return -1;
+        if (rc == -1 || port > 65535 )
+        {
+            error_str = "Wrong PORT number in GRAPHICS attribute";
+            return -1;
+        }
     }
 
     string random_passwd = graphics->vector_value("RANDOM_PASSWD");
@@ -3588,36 +3560,6 @@ void VirtualMachine::disk_extended_info(int uid,
     }
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::volatile_disk_extended_info(Template *tmpl)
-{
-    int  num;
-    vector<VectorAttribute  * > disks;
-    DatastorePool * ds_pool = Nebula::instance().get_dspool();
-
-    bool found = false;
-
-    num = tmpl->get("DISK", disks);
-
-    for(int i=0; i<num; i++)
-    {
-        if ( !is_volatile(disks[i]) )
-        {
-            continue;
-        }
-
-        found = true;
-
-        if (hasHistory())
-        {
-            ds_pool->disk_attribute(get_ds_id(), disks[i]);
-        }
-    }
-
-    return found;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

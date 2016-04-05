@@ -310,9 +310,9 @@ void OpenNebulaTemplate::set_conf_default()
 #  LISTEN_ADDRESS
 #  PORT
 #  DB
-#  VNC_BASE_PORT
 #  SCRIPTS_REMOTE_DIR
 #  VM_SUBMIT_ON_HOLD
+#  VNC_PORTS
 #*******************************************************************************
 */
     set_conf_single("MANAGER_TIMER", "15");
@@ -325,7 +325,6 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("VM_MONITORING_EXPIRATION_TIME", "14400");
     set_conf_single("PORT", "2633");
     set_conf_single("LISTEN_ADDRESS", "0.0.0.0");
-    set_conf_single("VNC_BASE_PORT", "5900");
     set_conf_single("SCRIPTS_REMOTE_DIR", "/var/tmp/one");
     set_conf_single("VM_SUBMIT_ON_HOLD", "NO");
 
@@ -342,6 +341,15 @@ void OpenNebulaTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("LOG",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    // LOG CONFIGURATION
+    vvalue.clear();
+    vvalue.insert(make_pair("RESERVED",""));
+    vvalue.insert(make_pair("START","5900"));
+
+    vattribute = new VectorAttribute("VNC_PORTS",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
 /*
 #*******************************************************************************
 # Federation configuration attributes

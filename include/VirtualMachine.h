@@ -1439,22 +1439,6 @@ public:
      */
     static void disk_extended_info(int uid,
                                   VirtualMachineTemplate *tmpl);
-    /**
-     *  Adds extra info to the volatile disks of the given template, ds inherited
-     *  attributes and TYPE
-     *    @param  tmpl the virtual machine template
-     *    @return true if there at least one volatile disk was found
-     */
-    bool volatile_disk_extended_info(Template *tmpl);
-
-    /**
-     *  Adds extra info to the volatile disks of the given VM
-     */
-    bool volatile_disk_extended_info()
-    {
-        return volatile_disk_extended_info(obj_template);
-    }
-
     // -------------------------------------------------------------------------
     // Hotplug related functions
     // -------------------------------------------------------------------------
@@ -1464,14 +1448,6 @@ public:
      *    @param used_targets by the DISKS of the VM
      */
     void get_disk_info(int& max_disk_id, set<string>& used_targets);
-
-    /**
-     *  Get the IMAGE_ID of the image that's being saved as hot
-     *    @param disk_id of the DISK
-     *    @param image_id id of the image being saved
-     *    @return IMAGE_ID on success, -1 otherwise
-     */
-    //int get_disk_hot_info(int& image_id, int& disk_id, string& source);
 
     /**
      * Generate a DISK attribute to be attached to the VM.

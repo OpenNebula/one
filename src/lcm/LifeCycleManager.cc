@@ -74,6 +74,7 @@ void LifeCycleManager::init_managers()
     hpool  = nd.get_hpool();
     ipool  = nd.get_ipool();
     sgpool = nd.get_secgrouppool();
+    clpool = nd.get_clpool();
 }
 
 /* -------------------------------------------------------------------------- */

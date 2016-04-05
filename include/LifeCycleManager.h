@@ -22,6 +22,7 @@
 #include "HostPool.h"
 #include "ImagePool.h"
 #include "SecurityGroupPool.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -42,7 +43,8 @@ class LifeCycleManager : public ActionListener
 public:
 
     LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), sgpool(0), tm(0), vmm(0), dm(0), imagem(0)
+        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
+        dm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -177,6 +179,11 @@ private:
      *  Pointer to the SecurityGroup Pool
      */
     SecurityGroupPool *     sgpool;
+
+    /**
+     *  Pointer to the Cluster Pool
+     */
+    ClusterPool *           clpool;
 
     /**
      * Pointer to TransferManager

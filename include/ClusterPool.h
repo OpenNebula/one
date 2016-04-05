@@ -26,7 +26,7 @@ using namespace std;
 class ClusterPool : public PoolSQL
 {
 public:
-    ClusterPool(SqlDB * db);
+    ClusterPool(SqlDB * db, const VectorAttribute * vnc_conf);
 
     ~ClusterPool(){};
 
@@ -55,6 +55,77 @@ public:
     static const int DEFAULT_CLUSTER_ID;
 
     /* ---------------------------------------------------------------------- */
+    /* Cluster Resources                                                      */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Get a free VNC port in the cluster. It will try first base_port + id
+     *   @param oid of the cluster
+     *   @param vm_id of the ID requesting the port
+     *   @param port to free
+     */
+    int get_vnc_port(int oid, int vm_id, unsigned int& port)
+    {
+        int rc = -1;
+
+        Cluster * cluster = get(oid, true);
+
+        if ( cluster != 0 )
+        {
+          rc = cluster->get_vnc_port(vm_id, port);
+
+          update(cluster);
+
+          cluster->unlock();
+        }
+
+        return rc;
+    };
+
+    /**
+     * Release a previously allocated VNC port in the cluster
+     *   @param oid of the cluster
+     *   @param port to free
+     */
+    void release_vnc_port(int oid, unsigned int port)
+    {
+        Cluster * cluster = get(oid, true);
+
+        if ( cluster != 0 )
+        {
+            cluster->release_vnc_port(port);
+
+            update(cluster);
+
+            cluster->unlock();
+        }
+    }
+
+    /**
+     * Mark a VNC port as in-use in the cluster.
+     *   @param oid of the cluster
+     *   @param port to set
+     *
+     *   @return 0 on success, -1 if the port was in-use.
+     */
+    int set_vnc_port(int oid, unsigned int port)
+    {
+        int rc = -1;
+
+        Cluster * cluster = get(oid, true);
+
+        if ( cluster != 0 )
+        {
+            rc = cluster->set_vnc_port(port);
+
+            update(cluster);
+
+            cluster->unlock();
+        }
+
+        return rc;
+    }
+
+    /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */
 
@@ -67,9 +138,7 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string                   name,
-                 int *                    oid,
-                 string&                  error_str);
+    int allocate(string name, int * oid, string& error_str);
 
     /**
      *  Function to get a cluster from the pool, if the object is not in memory
@@ -128,7 +197,13 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        return Cluster::bootstrap(_db);
+        ostringstream oss_bitmap;
+        int rc;
+
+        rc  = Cluster::bootstrap(_db);
+        rc += _db->exec(BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
+
+        return rc;
     };
 
     /**
@@ -157,12 +232,17 @@ public:
             PoolObjectSQL::ObjectType auth_object, const vector<int>& cids);
 private:
     /**
+     *  VNC configuration for clusters
+     */
+    const VectorAttribute vnc_conf;
+
+    /**
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
     PoolObjectSQL * create()
     {
-        return new Cluster(-1,"",0);
+        return new Cluster(-1,"",0, &vnc_conf);
     };
 };
 

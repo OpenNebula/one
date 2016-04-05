@@ -23,6 +23,8 @@
 #include <openssl/buffer.h>
 #include <openssl/aes.h>
 
+#include <zlib.h>
+
 #include <string>
 #include <sstream>
 #include <cstring>
@@ -333,3 +335,148 @@ std::string one_util::gsub(const std::string& st, const std::string& sfind,
 
     return result;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ *  Buffer length for zlib inflate/deflate
+ */
+#define ZBUFFER 16384
+
+std::string * one_util::zlib_compress(const std::string& in, bool base64)
+{
+    z_stream zs;
+
+    std::ostringstream oss;
+    unsigned char      out[ZBUFFER];
+
+    std::string * zstr;
+
+    if ( in.empty() )
+    {
+        return 0;
+    }
+
+    zs.zalloc = Z_NULL;
+    zs.zfree  = Z_NULL;
+    zs.opaque = Z_NULL;
+
+    if ( deflateInit(&zs, Z_DEFAULT_COMPRESSION) != Z_OK )
+    {
+        return 0;
+    }
+
+    zs.avail_in = in.size();
+    zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
+
+    do
+    {
+        zs.avail_out = ZBUFFER;
+        zs.next_out  = out;
+
+        if ( deflate(&zs, Z_FINISH) == Z_STREAM_ERROR )
+        {
+            deflateEnd(&zs);
+            return 0;
+        }
+
+        oss.write((const char *)out, ZBUFFER - zs.avail_out);
+    } while (zs.avail_out == 0);
+
+    deflateEnd(&zs);
+
+    if ( base64 )
+    {
+        zstr = one_util::base64_encode(oss.str());
+    }
+    else
+    {
+        zstr = new std::string(oss.str());
+    }
+
+    return zstr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::string * one_util::zlib_decompress(const std::string& in, bool base64)
+{
+    int rc;
+
+    z_stream zs;
+
+    std::ostringstream oss;
+    unsigned char      out[ZBUFFER];
+
+    std::string * in64;
+
+    if ( in.empty() )
+    {
+        return 0;
+    }
+
+    zs.zalloc = Z_NULL;
+    zs.zfree  = Z_NULL;
+    zs.opaque = Z_NULL;
+
+    zs.avail_in = 0;
+    zs.next_in  = Z_NULL;
+
+    if ( inflateInit(&zs) != Z_OK)
+    {
+        return 0;
+    }
+
+    if ( base64 )
+    {
+        in64 = one_util::base64_decode(in);
+
+        if (in64 == 0)
+        {
+            inflateEnd(&zs);
+
+            return 0;
+        }
+
+        zs.avail_in = in64->size();
+        zs.next_in  = (unsigned char *) const_cast<char *>(in64->c_str());
+    }
+    else
+    {
+        zs.avail_in = in.size();
+        zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
+    }
+
+    do
+    {
+        zs.avail_out = ZBUFFER;
+        zs.next_out  = out;
+
+        if ( (rc = inflate(&zs, Z_FINISH)) == Z_STREAM_ERROR )
+        {
+            inflateEnd(&zs);
+
+            if ( base64 )
+            {
+                delete in64;
+            }
+
+            return 0;
+        }
+
+        oss.write((const char *)out, ZBUFFER - zs.avail_out);
+    } while (rc != Z_STREAM_END);
+
+    inflateEnd(&zs);
+
+    if ( base64 )
+    {
+        delete in64;
+    }
+
+    return new std::string(oss.str());
+}
+
+

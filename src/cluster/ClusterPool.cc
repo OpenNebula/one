@@ -35,7 +35,8 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db):PoolSQL(db, Cluster::table, true, true)
+ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
+    PoolSQL(db, Cluster::table, true, true), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
     string        error_str;
@@ -109,7 +110,7 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Build a new Cluster object
-    cluster = new Cluster(-1, name, 0);
+    cluster = new Cluster(-1, name, 0, vnc_conf);
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(cluster, error_str);
