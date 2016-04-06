@@ -21,6 +21,7 @@
 #include "PoolObjectAuth.h"
 #include "AuthManager.h"
 #include "AddressRange.h"
+
 #include <sstream>
 #include <ctype.h>
 
@@ -28,9 +29,15 @@
 /* -------------------------------------------------------------------------- */
 
 unsigned int VirtualNetworkPool::_mac_prefix;
+
 unsigned int VirtualNetworkPool::_default_size;
 
+const char * VirtualNetworkPool::vlan_table = "network_vlan_bitmap";
+
+const int VirtualNetworkPool::VLAN_BITMAP_ID = 0;
+
 /* -------------------------------------------------------------------------- */
+
 VirtualNetworkPool::VirtualNetworkPool(
     SqlDB *                             db,
     const string&                       prefix,
@@ -38,8 +45,12 @@ VirtualNetworkPool::VirtualNetworkPool(
     vector<const SingleAttribute *>&    restricted_attrs,
     vector<const VectorAttribute *>&    hook_mads,
     const string&                       remotes_location,
-    const vector<const SingleAttribute *>& _inherit_attrs):
-        PoolSQL(db, VirtualNetwork::table, true, true)
+    const vector<const SingleAttribute *>& _inherit_attrs,
+    const VectorAttribute *             _vlan_conf,
+    const VectorAttribute *             _vxlan_conf):
+        PoolSQL(db, VirtualNetwork::table, true, true), vlan_conf(_vlan_conf),
+        vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table),
+        vxlan_conf(_vxlan_conf)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -52,6 +63,11 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     _mac_prefix   = 0;
     _default_size = __default_size;
+
+    if ( vlan_id_bitmap.select(VLAN_BITMAP_ID, db) != 0 )
+    {
+        vlan_id_bitmap.insert(VLAN_BITMAP_ID, db);
+    }
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
@@ -126,7 +142,24 @@ int VirtualNetworkPool::allocate (
         goto error_duplicated;
     }
 
+    // Insert the VN in the DB
     *oid = PoolSQL::allocate(vn, error_str);
+
+    // Get a free VLAN_ID from the pool if needed
+    if ( *oid != -1 )
+    {
+        vn = get(*oid, true);
+
+        if ( set_vlan_id(vn) != 0 )
+        {
+            error_str = "Cannot automatically assign VLAN_ID to network.";
+            drop(vn, error_str);
+
+            *oid = -1;
+        };
+
+        vn->unlock();
+    }
 
     return *oid;
 
@@ -283,7 +316,8 @@ int VirtualNetworkPool::nic_attribute(
     else
     {
         ostringstream oss;
-        oss << "Cannot get IP/MAC lease from virtual network " << vnet->get_oid() << ".";
+        oss << "Cannot get IP/MAC lease from virtual network "
+            << vnet->get_oid() << ".";
 
         error = oss.str();
     }
@@ -336,4 +370,104 @@ void VirtualNetworkPool::authorize_nic(
     vnet->unlock();
 
     ar->add_auth(AuthRequest::USE, perm);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
+{
+    string vn_mad;
+
+    unsigned int start_vlan, hint_vlan;
+    unsigned int vlan_id;
+
+    if ( vn->PoolObjectSQL::get_template_attribute("VLAN_ID", vlan_id) )
+    {
+        return 0;
+    }
+
+    if ( !vn->PoolObjectSQL::get_template_attribute("VN_MAD", vn_mad) )
+    {
+        return 0;
+    }
+
+    switch (VirtualNetwork::str_to_driver(vn_mad))
+    {
+        case VirtualNetwork::VXLAN:
+            if (vxlan_conf.vector_value("START", start_vlan) != 0)
+            {
+                start_vlan = 2; //default in oned.conf
+            }
+
+            vlan_id = start_vlan + vn->get_oid();
+
+            vn->add_template_attribute("VLAN_ID", vlan_id);
+
+            update(vn);
+
+            break;
+
+        case VirtualNetwork::VLAN:
+        case VirtualNetwork::OVSWITCH:
+            start_vlan = vlan_id_bitmap.get_start_bit();
+            hint_vlan  = start_vlan + (vn->get_oid() % (4095 -start_vlan ));
+
+            if ( vlan_id_bitmap.get(hint_vlan, vlan_id) != 0 )
+            {
+                return -1;
+            }
+
+            vn->add_template_attribute("VLAN_ID", vlan_id);
+            vn->add_template_attribute("VLAN_ID_AUTOMATIC", true);
+
+            vlan_id_bitmap.update(db);
+
+            update(vn);
+
+            break;
+
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
+{
+    string vn_mad;
+    unsigned int vlan_id;
+    bool vlan_auto;
+
+    if ( !vn->PoolObjectSQL::get_template_attribute("VLAN_ID_AUTOMATIC",
+            vlan_auto) || vlan_auto == false )
+    {
+        return;
+    }
+
+    if ( !vn->PoolObjectSQL::get_template_attribute("VLAN_ID", vlan_id) )
+    {
+        return;
+    }
+
+    if ( !vn->PoolObjectSQL::get_template_attribute("VN_MAD", vn_mad) )
+    {
+        return;
+    }
+
+    switch (VirtualNetwork::str_to_driver(vn_mad))
+    {
+        case VirtualNetwork::VLAN:
+        case VirtualNetwork::OVSWITCH:
+            vlan_id_bitmap.reset(vlan_id);
+            vlan_id_bitmap.update(db);
+            break;
+
+        default:
+            break;
+    }
 }
