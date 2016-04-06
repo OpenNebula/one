@@ -46,7 +46,6 @@
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ebtables">{{tr "ebtables"}}</option>
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
-            <option value="vmware">{{tr "VMware"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
         </div>
@@ -82,7 +81,7 @@
           <div class="manager clear row" id="im_mads">
             <div class="large-12 columns">
               <label for="im">{{tr "Information"}}</label>
-              <select id="im_mad" name="im">  
+              <select id="im_mad" name="im">
                 {{#each imMadNameList}}
                   <option value="{{this}}">{{this}}</option>
                 {{/each}}

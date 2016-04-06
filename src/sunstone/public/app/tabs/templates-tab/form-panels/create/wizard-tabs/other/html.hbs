@@ -16,7 +16,7 @@
 
 <div class="">
   <div class="large-12 columns">
-    <fieldset class="hypervisor only_xen only_kvm only_vmware">
+    <fieldset class="hypervisor only_kvm">
       <legend>{{tr "RAW data"}}</legend>
       <div >
         <div class="medium-4 columns">
@@ -24,8 +24,6 @@
           <select id="raw_type" name="raw_type">
             <option value=""></option>
             <option value="kvm">{{tr "kvm"}}</option>
-            <option value="xen">{{tr "xen"}}</option>
-            <option value="vmware">{{tr "vmware"}}</option>
           </select>
         </div>
         <div class="medium-8 columns">
@@ -34,16 +32,6 @@
             {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
           </label>
           <textarea rows="2" type="text" id="raw_data" name="raw_data" />
-        </div>
-      </div>
-      <div id="data_vmx_div"  hidden>
-        <div class="medium-4 columns"></div>
-        <div class="medium-8 columns">
-          <label class="" for="raw_data_vmx">
-            {{tr "DATA_VMX"}}
-            {{{tip (tr "Raw data to be added directly to the .vmx file.")}}}
-          </label>
-          <textarea rows="2" type="text" id="raw_data_vmx" name="raw_data_vmx" />
         </div>
       </div>
     </fieldset>

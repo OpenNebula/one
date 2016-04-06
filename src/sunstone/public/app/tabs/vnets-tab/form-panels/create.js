@@ -203,20 +203,6 @@ define(function(require) {
         $('input#bridge', context).attr('required', '');
         $('input#vn_mad', context).removeAttr('required');
         break;
-      case "vmware":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show();
-        $('input#phydev,label[for="phydev"]', context).hide();
-        $('input#vlan_id,label[for="vlan_id"]', context).show();
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#mtu,label[for="mtu"]', context).hide().prop('wizard_field_disabled', false);
-
-        $('input#phydev', context).removeAttr('required');
-        $('input#bridge', context).attr('required', '');
-        $('input#vn_mad', context).removeAttr('required');
-        break;
       case "custom":
         $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).hide();
         $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false);

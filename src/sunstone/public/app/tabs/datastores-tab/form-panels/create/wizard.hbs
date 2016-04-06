@@ -26,7 +26,6 @@
       <label for="presets">{{tr "Presets"}}</label>
       <select id="presets" name="presets">
         <option value="fs">{{tr "Filesystem"}}</option>
-        <option value="vmware_vmfs">{{tr "VMware VMFS"}}</option>
         <option value="block_lvm">{{tr "Block LVM"}}</option>
         <option value="fs_lvm">{{tr "FS LVM"}}</option>
         <option value="ceph">{{tr "Ceph"}}</option>
@@ -64,9 +63,7 @@
           <label for="ds_mad">{{tr "Datastore"}}</label>
           <select id="ds_mad" name="ds_mad">
             <option value="fs">{{tr "Filesystem"}}</option>
-            <option value="vmware">{{tr "VMware"}}</option>
             <option value="lvm">{{tr "LVM"}}</option>
-            <option value="vmfs">{{tr "VMFS"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
             <option value="iscsi">{{tr "iSCSI"}}</option>
@@ -85,7 +82,6 @@
             <option value="qcow2">{{tr "qcow2"}}</option>
             <option value="lvm">{{tr "LVM"}}</option>
             <option value="fs_lvm">{{tr "FS LVM"}}</option>
-            <option value="vmfs">{{tr "VMFS"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
             <option value="iscsi">{{tr "iSCSI"}}</option>
@@ -175,15 +171,6 @@
         </span>
       </label>
       <input type="text" name="bridge_list" id="bridge_list" />
-    </div>
-    <div class="medium-6 columns">
-      <label for="ds_tmp_dir">
-        {{tr "DS Tmp Dir"}}
-        <span class="tip">
-          {{tr "Path in the OpenNebula front-end to be used as a buffer to stage in files in vmfs datastores."}}
-        </span>
-      </label>
-      <input type="text" name="ds_tmp_dir" id="ds_tmp_dir" />
     </div>
     <div class="medium-6 columns">
       <label for="vg_name">{{tr "Volume Group Name"}}</label>

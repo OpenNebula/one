@@ -144,7 +144,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-power-off';
     this.title = Locale.tr("OS Booting");
-    this.classes = "hypervisor only_kvm only_vmware only_xen"
+    this.classes = "hypervisor only_kvm"
 
     this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {
       'select': true,

@@ -24,10 +24,10 @@
           <label for="radioNoneType">{{tr "None"}}</label>
           <input type="radio" name="graphics_type" ID="radioVncType" value="VNC">
           <label for="radioVncType">VNC</label>
-          <input type="radio" name="graphics_type" ID="radioSdlType" value="SDL" class="hypervisor only_kvm only_vmware only_xen" >
-          <label class="hypervisor only_kvm only_vmware only_xen"  for="radioSdlType">SDL</label>
-          <input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE" class="hypervisor only_kvm only_vmware only_xen" >
-          <label  class="hypervisor only_kvm only_vmware only_xen" for="radioSpiceType">SPICE</label>
+          <input type="radio" name="graphics_type" ID="radioSdlType" value="SDL" class="hypervisor only_kvm" >
+          <label class="hypervisor only_kvm"  for="radioSdlType">SDL</label>
+          <input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE" class="hypervisor only_kvm" >
+          <label  class="hypervisor only_kvm" for="radionSpiceType">SPICE</label>
         </div>
       </div>
       <br>
@@ -57,7 +57,7 @@
           <input type="text" wizard_field="KEYMAP" id="KEYMAP" name="keymap" />
         </div>
       </div>
-      <div class=" hypervisor only_kvm only_vmware only_xen">
+      <div class=" hypervisor only_kvm">
         <div class="large-12 columns">
           <label for="PASSWD">
             {{tr "Password"}}
@@ -66,7 +66,7 @@
           <input type="text" wizard_field="PASSWD" id="PASSWD" name="graphics_pw" />
         </div>
       </div>
-      <div class=" hypervisor only_kvm only_vmware only_xen">
+      <div class=" hypervisor only_kvm">
         <div class="columns large-12">
           <input type="checkbox" name="RANDOM_PASSWD" id="RANDOM_PASSWD">
           <label for="RANDOM_PASSWD">
@@ -77,7 +77,7 @@
       </div>
     </fieldset>
   </div>
-  <div class="medium-6 columns inputs hypervisor only_kvm only_vmware only_xen">
+  <div class="medium-6 columns inputs hypervisor only_kvm">
     <fieldset>
       <legend>{{tr "Inputs"}}</legend>
       <div class="">
@@ -93,7 +93,6 @@
             <option id="no_input" name="no_input" value=""></option>
             <option value="usb">{{tr "USB"}}</option>
             <option value="ps2">{{tr "PS2"}}</option>
-            <option value="xen">{{tr "XEN"}}</option>
           </select>
         </div>
         <div class="medium-3 columns">

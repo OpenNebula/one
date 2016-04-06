@@ -52,7 +52,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-globe';
     this.title = Locale.tr("Network");
-    this.classes = "hypervisor only_kvm only_vmware only_xen only_vcenter"
+    this.classes = "hypervisor only_kvm only_vcenter"
   }
 
   WizardTab.prototype.constructor = WizardTab;

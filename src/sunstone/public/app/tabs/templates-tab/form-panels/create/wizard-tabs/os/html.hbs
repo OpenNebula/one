@@ -61,18 +61,6 @@
             </label>
             <input type="text" wizard_field="ROOT" id="ROOT" name="root"/>
           </div>
-          <div class="medium-8 columns hypervisor only_vmware">
-            <label for="GUESTOS">
-              {{tr "Guest OS"}}
-            {{{tip (tr "Set the OS of the VM, only for VMware")}}}
-            </label>
-            <select wizard_field="GUESTOS" id="GUESTOS" name="GUESTOS">
-              <option id="no_guestos" name="no_guestos" value=""></option>
-              {{#each guestOS}}
-              <option value="{{this}}">{{this}}</option>
-              {{/each}}
-            </select>
-          </div>
         </div>
         <br>
         <div class="row">
@@ -254,35 +242,6 @@
               <option id="no_localtime" name="no_localtime" value=""></option>
               <option value="yes">{{tr "Yes"}}</option>
               <option value="no">{{tr "No"}}</option>
-            </select>
-          </div>
-          <div class="medium-6 columns hypervisor only_xen">
-            <label for="DEVICE_MODEL">
-              {{tr "Device model"}}
-            {{{tip (tr "Used to change the IO emulator in Xen HVM. Only XEN.")}}}
-            </label>
-            <input type="text" wizard_field="DEVICE_MODEL" id="DEVICE_MODEL" name="device_model"/>
-          </div>
-        </div>
-        <div class="row">
-          <div class="medium-6 columns hypervisor only_vmware">
-            <label for="PCIBRIDGE">
-              {{tr "PCI BRIDGE"}}
-            {{{tip (tr " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")}}}
-            </label>
-            <select wizard_field="PCIBRIDGE" id="PCIBRIDGE" name="PCIBRIDGE">
-              <option id="no_pcibridge" name="no_pcibridge" value=""></option>
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
             </select>
           </div>
         </div>
