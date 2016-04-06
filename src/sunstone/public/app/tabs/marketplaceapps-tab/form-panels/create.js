@@ -28,6 +28,7 @@ define(function(require) {
   var MarketPlacesTable = require('tabs/marketplaces-tab/datatable');
   var Config = require('sunstone-config');
   var WizardFields = require('utils/wizard-fields');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -65,7 +66,13 @@ define(function(require) {
 
     this.imagesTable = new ImagesTable(
       FORM_PANEL_ID + 'imagesTable',
-      {'select': true});
+      { 'select': true,
+        'selectOptions': {
+          'filter_fn': function(image) {
+            return OpenNebula.Datastore.isMarketExportSupported(image.DATASTORE_ID);
+          }
+        }
+      });
 
     this.marketPlacesTable = new MarketPlacesTable(
       FORM_PANEL_ID + 'marketPlacesTable',

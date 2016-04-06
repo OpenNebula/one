@@ -15,53 +15,25 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./marketplaces-tab/buttons');
-  var Actions = require('./marketplaces-tab/actions');
-  var Table = require('./marketplaces-tab/datatable');
 
-  var TAB_ID = require('./marketplaces-tab/tabId');
-  var DATATABLE_ID = "dataTableMarketplaces";
+  var Sunstone = require('sunstone');
+  var OpenNebula = require('opennebula');
+  var Config = require('sunstone-config');
 
-  var _dialogs = [
-  ];
+  var ZONE_TAB_ID = require('tabs/zones-tab/tabId');
 
-  var _panels = [
-    require('./marketplaces-tab/panels/info'),
-    require('./marketplaces-tab/panels/apps')
-  ];
+  /*
+    FUNCTION DEFINITIONS
+   */
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  function _init() {
+    // init the zone list, needed for market & apps zone columns
+    if (Config.isTabActionEnabled(ZONE_TAB_ID, "Zone.list")) {
+      Sunstone.runAction("Zone.list");
+    }
+  }
 
-  var _initHooks = [
-    require('./marketplaceapps-tab/hooks/init')
-  ];
-
-  var _formPanels = [
-    require('./marketplaces-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title:  Locale.tr("MarketPlaces"),
-    icon: 'fa-shopping-cart',
-    tabClass: "subTab",
-    parentTab: "storage-top-tab",
-    listHeader: Locale.tr("MarketPlaces"),
-    infoHeader: Locale.tr("MarketPlace"),
-    subheader: '',
-    resource: 'MarketPlace',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    initHooks: _initHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+  return {
+    'init': _init
   };
-
-  return Tab;
 });

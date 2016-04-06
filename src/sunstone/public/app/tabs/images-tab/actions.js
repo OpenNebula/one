@@ -19,6 +19,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var OpenNebulaResource = require('opennebula/image');
+  var OpenNebula = require('opennebula');
   var OpenNebulaAction = require('opennebula/action');
   var CommonActions = require('utils/common-actions');
 
@@ -30,7 +31,7 @@ define(function(require) {
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
-
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
@@ -63,19 +64,52 @@ define(function(require) {
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
     "Image.export_dialog" : {
       type: "custom",
-      call: function() {
-        Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
-        Sunstone.showFormPanel(MARKETPLACEAPPS_TAB_ID, CREATE_APP_DIALOG_ID, "export",
-          function(formPanelInstance, context) {
-            var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
-            if (selectedNodes.length !== 1) {
-              Notifier.notifyMessage(Locale.tr("Please select one (and just one) Image to export."));
-              return false;
-            }
+      call: function(params) {
+        var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
 
-            var resourceId = '' + selectedNodes[0];
-            formPanelInstance.setImageId(resourceId);
-          });
+        if (selectedNodes.length !== 1) {
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) Image to export."));
+          return false;
+        }
+
+        var resourceId = '' + selectedNodes[0];
+
+        OpenNebulaResource.show({
+          data : {
+              id: resourceId
+          },
+          success: function(request, img_json){
+            var img = img_json[XML_ROOT];
+
+            if (OpenNebula.Datastore.isMarketExportSupported(img.DATASTORE_ID)){
+              Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+              Sunstone.showFormPanel(MARKETPLACEAPPS_TAB_ID, CREATE_APP_DIALOG_ID, "export",
+                function(formPanelInstance, context) {
+                  formPanelInstance.setImageId(resourceId);
+                });
+            } else {
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+                header : Locale.tr("Error"),
+                body : Locale.tr("This Image resides in Datastore ") +
+                  img.DATASTORE_ID + " (" + img.DATASTORE + ")" +
+                  Locale.tr(". The export action is not supported for that Datastore DS_MAD driver."),
+                question : "",
+                buttons : [
+                  Locale.tr("Ok"),
+                ],
+                submit : [
+                  function(){
+                    return false;
+                  }
+                ]
+              });
+
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+            }
+          },
+          error: Notifier.onError
+        });
       }
     },
 
