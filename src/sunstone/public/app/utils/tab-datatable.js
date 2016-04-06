@@ -599,7 +599,7 @@ define(function(require) {
         var row_id = aData[that.selectOptions.id_index];
 
         var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
-        if (ids[row_id]) {
+        if (ids != undefined && ids[row_id]) {
           $("td", nRow).addClass('markrowchecked');
           $('input.check_item', nRow).prop('checked', true);
         } else {
@@ -758,6 +758,7 @@ define(function(require) {
         $('input.check_item', this).prop('checked', true);
 
         $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
+        $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
 
         $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
         $('#selected_resource_name_' + that.dataTableId, section).show();
@@ -867,15 +868,7 @@ define(function(require) {
 
         var row_name = "" + row_id;
 
-        // TODO: improve preformance, linear search. Needed to get the
-        // name of the resource in the label. If function getName() was
-        // indexed in the cache, it could be used here
-        $.each(that.dataTable.fnGetData(), function(index, row) {
-          if (row[that.selectOptions.id_index] == row_id) {
-            row_name = row[that.selectOptions.name_index];
-            return false;
-          }
-        });
+        row_name = OpenNebula[that.resource].getName(row_id);
 
         $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
       });
@@ -910,15 +903,8 @@ define(function(require) {
 
         row_name = "" + row_id;
 
-        // TODO: improve preformance, linear search. Needed to get the
-        // name of the resource in the label. If function getName() was
-        // indexed in the cache, it could be used here
-        $.each(that.dataTable.fnGetData(), function(index, row) {
-          if (row[that.selectOptions.id_index] == row_id) {
-            row_name = row[that.selectOptions.name_index];
-            return false;
-          }
-        });
+        row_name = OpenNebula[that.resource].getName(row_id);
+
       } else if (selectedResources.names != undefined) {
         row_name = selectedResources.names.name;
         var row_uname = selectedResources.names.uname;
@@ -931,6 +917,10 @@ define(function(require) {
             return false;
           }
         });
+
+        if (row_id == undefined){
+          $('#selected_resource_id_' + that.dataTableId, section).data("pending_select", selectedResources);
+        }
       }
 
       //        $("td", this).addClass('markrow');
@@ -1004,6 +994,13 @@ define(function(require) {
       });
 
       that.updateView(null, list_array, true);
+
+      var section = $('#' + that.dataTableId + 'Container');
+      var selectedResources = $('#selected_resource_id_' + that.dataTableId, section).data("pending_select");
+      if (selectedResources != undefined){
+        $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
+        that.selectResourceTableSelect(selectedResources);
+      }
     }
 
     var error_func = function(request, error_json, container) {

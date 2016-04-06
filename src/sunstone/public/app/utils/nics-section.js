@@ -96,9 +96,12 @@ define(function(require) {
       var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
 
       if (val == undefined || val == ""){
-        if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined )
+        if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined ){
           // No network name or id in original NIC, and no selection done
           return true; //continue
+        } else {
+          return nic;
+        }
       }
 
       delete nic["NETWORK"];
@@ -208,7 +211,7 @@ define(function(require) {
 
       if (options.nic.NETWORK_ID != undefined) {
         selectedResources = {
-            ids : templateJSON.NETWORK_ID
+            ids : options.nic.NETWORK_ID
           }
       } else if (options.nic.NETWORK != undefined && options.nic.NETWORK_UNAME != undefined) {
         selectedResources = {
@@ -221,8 +224,6 @@ define(function(require) {
 
       if (selectedResources != undefined){
         vnetsTable.selectResourceTableSelect(selectedResources);
-
-        vnetsTable.idInput().data("prev", vnetsTable.idInput().val());
       }
 
       if (options.securityGroups == true && options.nic.SECURITY_GROUPS != undefined){
