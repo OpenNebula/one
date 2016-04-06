@@ -58,6 +58,11 @@ define(function(require) {
         _addPanelsHooks(_tabId, panelsHooks);
       }
 
+      var initHooks = tabObj.initHooks;
+      if (initHooks) {
+        _addInitHooks(_tabId, initHooks);
+      }
+
       var dialogs = tabObj.dialogs;
       if (dialogs) {
         _addDialogs(dialogs)
@@ -89,6 +94,11 @@ define(function(require) {
     return false;
   }
 
+  var _addInitHooks = function(tabId, hooks) {
+    SunstoneCfg["tabs"][tabId]['initHooks'] = hooks;
+    return false;
+  }
+
   var _addPanels = function(tabId, panels) {
     var indexedPanels = {}
     $.each(panels, function(index, panel) {
@@ -114,6 +124,14 @@ define(function(require) {
       _insertTab(tabName);
       _insertButtonsInTab(tabName);
       _setupDataTable(tabName);
+
+      var hooks = SunstoneCfg['tabs'][tabName].initHooks;
+
+      if (hooks) {
+        $.each(hooks, function(i, hook){
+          hook.init();
+        });
+      }
 
       // TODO Add openenbula actions
       /*if (config['view']['autorefresh']) {

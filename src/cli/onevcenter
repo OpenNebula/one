@@ -258,7 +258,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                       answer = STDIN.gets.strip
 
-                      t[:one] += "VCENTER_DATASTORE=#{answer}"
+                      t[:one] += "VCENTER_DATASTORE=\"#{answer}\"\n"
                     end
 
                     # Resource Pools
@@ -267,7 +267,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     if rp_split.size > 3
                     STDOUT.print "\n    This template is currently set to "\
-                                 "launch VMs in the default resource pool."
+                                 "launch VMs in the default resource pool."\
                                "\n    Press y to keep this behaviour, n to select"\
                                " a new resource pool or d to delegate the choice"\
                                " to the user [y/n/d]? "
@@ -324,7 +324,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                       answer = STDIN.gets.strip
 
-                      t[:one] += "RESOURCE_POOL=#{answer}"
+                      t[:one] += "RESOURCE_POOL=\"#{answer}\"\n"
                     end
                     end
 

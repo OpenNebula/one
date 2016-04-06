@@ -5,6 +5,10 @@ enabled_tabs:
     - settings-tab
 features:
     showback: true
+
+    # Allows to change the security groups for each network interface
+    # on the VM creation dialog
+    secgroups: false
 tabs:
     provision-tab:
         panel_tabs:
@@ -92,3 +96,11 @@ tabs:
             #- 7         # Bridge
             - 8         # Leases
             #- 9         # VLAN ID
+    secgroups-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            #- 3         # Group
+            - 4         # Name
+            #- 5         # Labels

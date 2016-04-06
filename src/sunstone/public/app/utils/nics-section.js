@@ -20,15 +20,16 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var OpenNebula = require('opennebula');
   var OpenNebulaTemplate = require('opennebula/template');
+  var TemplateSection = require('hbs!./nics-section/html');
+  var TemplateDD = require('hbs!./nics-section/dd');
+  var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
+  var VNetsTable = require('tabs/vnets-tab/datatable');
 
-  var provision_nic_accordion_id = 0;
   var provision_nic_accordion_dd_id = 0;
 
   return {
     'insert': _insert,
-    'retrieve': _retrieve,
-    'generate_provision_network_accordion': _generate_provision_network_accordion,
-    'generate_provision_network_table': _generate_provision_network_table
+    'retrieve': _retrieve
   }
 
   /**
@@ -44,6 +45,7 @@ define(function(require) {
    *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
+   *                                - securityGroups {bool}: true to select SGs
    */
   function _insert(template_json, context, options) {
     if (options == undefined){
@@ -80,34 +82,61 @@ define(function(require) {
   function _retrieve(context) {
     var nics = [];
     var nic;
-    $(".selected_network", context).each(function() {
-      if ($(this).attr("template_nic")) {
-        nic = JSON.parse($(this).attr("template_nic"))
-      } else if ($(this).attr("opennebula_id")) {
-        nic = {
-          'network_id': $(this).attr("opennebula_id")
-        }
+    $(".nic-section-entry", context).each(function() {
+      // template_nic is the original NIC definition in an instantiate action.
+      // We try to use it replacing only the settings offered in this
+      // module, to preserve any other potential settings (such as IP6_GLOBAL)
+
+      if ($(this).data("template_nic") != undefined) {
+        nic = $(this).data("template_nic");
       } else {
-        nic = undefined;
+        nic = {};
       }
 
-      if (nic) {
-        if ($("input.floating_ip", $(this)).prop("checked")){
-          nic["FLOATING_IP"] = "YES";
-        }
+      var val = $(this).data("vnetsTable").retrieveResourceTableSelect();
 
-        var ip4 = $("input.manual_ip4", $(this)).val();
-
-        if (ip4 != undefined && ip4 != ""){
-          nic["IP"] = ip4;
-        }
-
-        if ($("input.management", $(this)).prop("checked")){
-          nic["VROUTER_MANAGEMENT"] = "YES";
-        }
-
-        nics.push(nic);
+      if (val == undefined || val == ""){
+        if (nic["NETWORK"] == undefined && nic["NETWORK_ID"] == undefined )
+          // No network name or id in original NIC, and no selection done
+          return true; //continue
       }
+
+      delete nic["NETWORK"];
+      delete nic["NETWORK_ID"];
+      delete nic["NETWORK_UNAME"];
+    
+      nic["NETWORK_ID"] = val;
+
+      delete nic["FLOATING_IP"];
+      if ($("input.floating_ip", $(this)).prop("checked")){
+        nic["FLOATING_IP"] = "YES";
+      }
+
+      delete nic["IP"];
+      var ip4 = $("input.manual_ip4", $(this)).val();
+
+      if (ip4 != undefined && ip4 != ""){
+        nic["IP"] = ip4;
+      }
+
+      delete nic["VROUTER_MANAGEMENT"];
+
+      if ($("input.management", $(this)).prop("checked")){
+        nic["VROUTER_MANAGEMENT"] = "YES";
+      }
+
+      var sgTable = $(this).data("sgTable");
+
+      if (sgTable){
+        delete nic["SECURITY_GROUPS"];
+
+        var secgroups = sgTable.retrieveResourceTableSelect();
+        if (secgroups != undefined && secgroups.length != 0) {
+          nic["SECURITY_GROUPS"] = secgroups.join(",");
+        }
+      }
+
+      nics.push(nic);
     });
 
     return nics
@@ -117,13 +146,13 @@ define(function(require) {
    * @param  {object} context       JQuery selector
    * @param  {object} options       Options
    *                                - nic {object}
-   *                                - vnet_attr {object}
    *                                - floatingIP {bool}: true to show the
    *                                floating IP checkbox
    *                                - forceIPv4 {bool}: true to show the
    *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
+   *                                - securityGroups {bool}: true to select SGs
    */
   function _generate_provision_network_table(context, options) {
     context.off();
@@ -133,212 +162,86 @@ define(function(require) {
       options = {};
     }
 
-    if (options.nic) {
-      nic_span = '<span class="selected_network" template_nic=\'' + JSON.stringify(options.nic) + '\'>' +
-          '<span>' + Locale.tr("INTERFACE") + " </span>" +
-          '<span>' + (options.nic.NETWORK || options.nic.NETWORK_ID) + "</span>" +
-        '</span>' +
-        '<span class="button right hollow tiny alert provision_remove_nic">' +
-          '<i class="fa fa-times"/>' +
-        '</span>' +
-        '<span class="button right hollow tiny">' +
-          '<i class="fa fa-pencil"/>' +
-        '</span>';
-    } else if (options.vnet_attr) {
-      nic_span = '<span>' + options.vnet_attr.description + "</span><br>" +
-        '<span class="selected_network only-not-active" attr_name=\'' + options.vnet_attr.name + '\'>' +
-          '<span>' + Locale.tr("INTERFACE") + " </span>" +
-          '<span class="label secondary">' + Locale.tr("Select a Network") + "</span>" +
-        '</span>' +
-        '<span class="only-active">' +
-          Locale.tr("Select a Network for this interface") +
-        '</span>' +
-        '<span class="button right hollow tiny only-not-active">' +
-          '<i class="fa fa-pencil"/>' +
-        '</span>';
-    } else {
-      nic_span =
-        '<span class="selected_network only-not-active">' +
-          '<span>' + Locale.tr("INTERFACE") + " </span>" +
-          '<span class="label secondary">' + Locale.tr("Select a Network") + "</span>" +
-        '</span>' +
-        '<span class="only-active">' +
-          Locale.tr("Select a Network for this interface") +
-        '</span>' +
-        '<span class="button right hollow tiny alert  provision_remove_nic">' +
-          '<i class="fa fa-times"/>' +
-        '</span>' +
-        '<span class="button right hollow tiny only-not-active">' +
-          '<i class="fa fa-pencil"/>' +
-        '</span>';
+    var vnetsTable = new VNetsTable(
+      'vnet_nics_section_'+provision_nic_accordion_dd_id,
+      { 'select': true });
+
+    var sgTable;
+    var sgHtml = "";
+
+    if (options.securityGroups == true){
+      sgTable = new SecurityGroupsTable(
+          'sg_nics_section_'+provision_nic_accordion_dd_id,
+          { 'select': true,
+            'selectOptions': { 'multiple_choice': true }
+          });
+
+      sgHtml = sgTable.dataTableHTML;
     }
 
-    var dd_context = $('<dd class="accordion-item" data-accordion-item>' +
-      '<a href="#provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="accordion-title">' +
-        nic_span +
-      '</a>' +
-      '<div id="provision_accordion_dd_' + provision_nic_accordion_dd_id + '" class="accordion-content" data-tab-content>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<h3 class="subheader">' +
-              '<input type="search" class="provision-search-input" placeholder="Search"/>' +
-            '</h3>' +
-            '<br>' +
-          '</div>' +
-        '</div>' +
-        '<div class="row">' +
-          '<div class="large-12 large-centered columns">' +
-            '<table class="provision_networks_table">' +
-              '<thead hidden>' +
-                '<tr>' +
-                  '<th>' + Locale.tr("ID") + '</th>' +
-                  '<th>' + Locale.tr("Name") + '</th>' +
-                '</tr>' +
-              '</thead>' +
-              '<tbody hidden>' +
-              '</tbody>' +
-            '</table>' +
-            '<br>' +
-          '</div>' +
-        '</div>' +
-        '</div>' +
-      '</dd>').appendTo(context);
+    var dd_context = $(TemplateDD({
+      vnetsTableHTML: vnetsTable.dataTableHTML,
+      securityGroupsTableHTML: sgHtml,
+      provision_nic_accordion_dd_id: provision_nic_accordion_dd_id,
+      options: options
+    })).appendTo(context);
 
+    $(".nic-section-entry", dd_context).data("template_nic", options.nic);
+    $(".nic-section-entry", dd_context).data("vnetsTable", vnetsTable);
+    $(".nic-section-entry", dd_context).data("sgTable", sgTable);
+
+    Tips.setup(dd_context);
     Foundation.reInit(context);
 
     provision_nic_accordion_dd_id += 1;
 
-    var provision_networks_datatable = $('.provision_networks_table', dd_context).dataTable({
-      "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"lp>',
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aoColumnDefs": [
-          {"bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          {"mDataProp": "VNET.ID"},
-          {"mDataProp": "VNET.NAME"}
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"}).length == 0) {
-          this.html('<div class="text-center">' +
-            '<span class="fa-stack fa-5x">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>' +
-            '</span>' +
-            '<br>' +
-            '<br>' +
-            '<span>' +
-              Locale.tr("There are no networks available. Please contact your cloud administrator") +
-            '</span>' +
-            '</div>');
-        } else {
-          $(".provision_networks_table", dd_context).html(
-            '<div class="provision_networks_ul large-up-3 medium-up-3 small-up-1 text-center">' +
-            '</div>');
-        }
+    vnetsTable.initialize();
+    vnetsTable.refreshResourceTableSelect();
 
-        return true;
-      },
-      "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        var data = aData.VNET;
-        $(".provision_networks_ul", dd_context).append(
-          '<div class="column">' +
-            '<ul class="provision-pricing-table hoverable more-than-one menu vertical" opennebula_id="' + data.ID + '" opennebula_name="' + data.NAME + '">' +
-              '<li class="provision-title" title="' + data.NAME + '">' +
-                data.NAME +
-              '</li>' +
-              '<li class="provision-bullet-item">' +
-                '<i class="fa fa-fw fa-globe"/>' +
-              '</li>' +
-              '<li class="provision-description">' +
-                (data.TEMPLATE.DESCRIPTION || '...') +
-              '</li>' +
-            '</ul>' +
-          '</div>');
+    if (options.securityGroups == true){
+      sgTable.initialize();
+      sgTable.refreshResourceTableSelect();
+    }
 
-        return nRow;
+    if (options.nic != undefined){
+      var selectedResources;
+
+      if (options.nic.NETWORK_ID != undefined) {
+        selectedResources = {
+            ids : templateJSON.NETWORK_ID
+          }
+      } else if (options.nic.NETWORK != undefined && options.nic.NETWORK_UNAME != undefined) {
+        selectedResources = {
+            names : {
+              name: options.nic.NETWORK,
+              uname: options.nic.NETWORK_UNAME
+            }
+          }
       }
+
+      if (selectedResources != undefined){
+        vnetsTable.selectResourceTableSelect(selectedResources);
+
+        vnetsTable.idInput().data("prev", vnetsTable.idInput().val());
+      }
+
+      if (options.securityGroups == true && options.nic.SECURITY_GROUPS != undefined){
+        sgTable.selectResourceTableSelect({ids: options.nic.SECURITY_GROUPS.split(',')});
+      }
+    }
+
+    vnetsTable.idInput().on("change", function(){
+      $(".selected_network", dd_context).text(OpenNebula.Network.getName($(this).val()));
     });
-
-    $('.provision-search-input', dd_context).on('input', function() {
-      provision_networks_datatable.fnFilter($(this).val());
-    })
-
-    dd_context.on("click", ".provision-pricing-table.more-than-one" , function() {
-      var html = 
-        '<span>' + Locale.tr("INTERFACE") + " </span>" +
-        '<span>' + $(this).attr("opennebula_name") + "</span>";
-
-      if (options.floatingIP){
-        html +=
-          '<div class="row noclick">' +
-            '<div class="small-12 columns">' +
-              '<label class="inline">' +
-                '<input type="checkbox" class="floating_ip" />' +
-                Locale.tr("Floating IP") + " " +
-                '<span class="tip">' +
-                  Locale.tr("If checked, each Virtual Machine will have a floating IP added to its network interface.") +
-                '</span>' +
-              '</label>' +
-            '</div>' +
-          '</div>';
-      }
-
-      if (options.forceIPv4){
-        html +=
-          '<div class="row noclick">' +
-            '<div class="small-5 columns">' +
-              '<label class="right inline">' +
-                Locale.tr("Force IPv4:") + " " +
-                '<span class="tip">' +
-                  Locale.tr("Optionally, you can force the IP assigned to the network interface.") +
-                '</span>' +
-              '</label>' +
-            '</div>' +
-            '<div class="small-7 columns">' +
-              '<input type="text" class="manual_ip4" />' +
-            '</div>' +
-          '</div>';
-      }
-
-      if (options.management){
-        html +=
-          '<div class="noclick">' +
-            '<label>' +
-              '<input type="checkbox" class="management" />' +
-              Locale.tr("Management Interface") + " " +
-              '<span class="tip">' +
-                Locale.tr("If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded.") +
-              '</span>' +
-            '</label>' +
-          '</div>';
-      }
-
-      $(".selected_network", dd_context).html(html);
-      $(".selected_network", dd_context).attr("opennebula_id", $(this).attr("opennebula_id"))
-      $(".selected_network", dd_context).removeAttr("template_nic")
-
-      Tips.setup($(".selected_network", dd_context));
-
-      $('a', dd_context).first().trigger("click");
-    })
 
     dd_context.on("click", ".provision_remove_nic" , function() {
       dd_context.remove();
       return false;
     });
 
-    dd_context.on("click", ".noclick" , function(event) {
-      event.stopPropagation();
-    });
-
-    if (!options.nic && !options.vnet_attr) {
+    if (!options.nic) {
       $('a', dd_context).trigger("click");
     }
-
-    update_provision_networks_datatable(provision_networks_datatable);
   }
 
   /**
@@ -352,27 +255,17 @@ define(function(require) {
    *                                input to select the IPv4
    *                                - management {bool}: true to show the
    *                                management checkbox
+   *                                - securityGroups {bool}: true to select SGs
    */
   function _generate_provision_network_accordion(context, options) {
     context.off();
-    context.html(
-      '<fieldset>' +
-        '<legend>' +
-          '<i class="fa fa-globe"></i> ' +
-          Locale.tr("Network") +
-        '</legend>' +
-        '<div>' +
-          '<dl class="accordion provision_nic_accordion" data-accordion data-allow-all-closed="true">' +
-          '</dl>' +
-          '<a class="button small provision_add_network_interface"' + (options.hide_add_button ? 'hidden' : '') + '>' +
-            Locale.tr("Add another Network Interface") +
-          '</a>' +
-        '</div>' +
-      '</fieldset>')
+    context.html(TemplateSection());
+
+    if (options.hide_add_button == true){
+      $(".provision_add_network_interface", context).hide();
+    }
 
     Foundation.reflow(context, 'accordion');
-
-    provision_nic_accordion_id += 1;
 
     $(".provision_add_network_interface", context).on("click", function() {
       _generate_provision_network_table($(".accordion", context), options);
@@ -381,8 +274,6 @@ define(function(require) {
     if (options.click_add_button == true){
       $(".provision_add_network_interface", context).click();
     }
-
-    //TODO $(document).foundation();
   }
 
   function update_provision_networks_datatable(datatable) {

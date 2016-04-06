@@ -436,170 +436,160 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the ACL Manager");
     }
 
-    // -----------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Pools
-    // -----------------------------------------------------------
+    // -------------------------------------------------------------------------
     try
     {
-        int     size;
+        /* -------------------------- Cluster Pool -------------------------- */
+        const VectorAttribute * vnc_conf;
 
-        string  mac_prefix;
-        string  default_image_type;
-        string  default_device_prefix;
-        string  default_cdrom_device_prefix;
+        vnc_conf = nebula_configuration->get("VNC_PORTS");
 
-        time_t  expiration_time;
-        time_t  vm_expiration;
-        time_t  host_expiration;
+        clpool = new ClusterPool(db, vnc_conf);
 
-        bool    vm_submit_on_hold;
-        float   cpu_cost;
-        float   mem_cost;
-        float   disk_cost;
-
+        /* --------------------- VirtualMachine Pool ------------------------ */
         vector<const VectorAttribute *> vm_hooks;
-        vector<const VectorAttribute *> host_hooks;
-        vector<const VectorAttribute *> vrouter_hooks;
-        vector<const VectorAttribute *> vnet_hooks;
-        vector<const VectorAttribute *> user_hooks;
-        vector<const VectorAttribute *> group_hooks;
-        vector<const VectorAttribute *> image_hooks;
-
         vector<const SingleAttribute *> vm_restricted_attrs;
-        vector<const SingleAttribute *> img_restricted_attrs;
-        vector<const SingleAttribute *> vnet_restricted_attrs;
 
-        vector<const SingleAttribute *> inherit_image_attrs;
-        vector<const SingleAttribute *> inherit_datastore_attrs;
-        vector<const SingleAttribute *> inherit_vnet_attrs;
+        time_t vm_expiration;
+        bool   vm_submit_on_hold;
 
-        vector<const VectorAttribute *> default_cost;
+        float cpu_cost;
+        float mem_cost;
+        float disk_cost;
 
-        clpool  = new ClusterPool(db);
-        docpool = new DocumentPool(db);
-        zonepool= new ZonePool(db, is_federation_slave());
-        vdcpool = new VdcPool(db, is_federation_slave());
+        const VectorAttribute * default_cost;
 
-        nebula_configuration->get("VM_HOOK",      vm_hooks);
-        nebula_configuration->get("HOST_HOOK",    host_hooks);
-        nebula_configuration->get("VROUTER_HOOK", vrouter_hooks);
-        nebula_configuration->get("VNET_HOOK",    vnet_hooks);
-        nebula_configuration->get("USER_HOOK",    user_hooks);
-        nebula_configuration->get("GROUP_HOOK",   group_hooks);
-        nebula_configuration->get("IMAGE_HOOK",   image_hooks);
+        nebula_configuration->get("VM_HOOK", vm_hooks);
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
-        nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
-        nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
-
-        nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
-        nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_datastore_attrs);
-        nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
 
         nebula_configuration->get("VM_MONITORING_EXPIRATION_TIME",vm_expiration);
-        nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME",host_expiration);
 
         nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
 
-        rc = nebula_configuration->get("DEFAULT_COST", default_cost);
+        default_cost = nebula_configuration->get("DEFAULT_COST");
 
-        cpu_cost = 0;
-        mem_cost = 0;
-        disk_cost= 0;
-
-        if (rc != 0)
+        if (default_cost->vector_value("CPU_COST", cpu_cost) != 0)
         {
-            const VectorAttribute * vatt = static_cast<const VectorAttribute *>
-                                              (default_cost[0]);
-
-            rc = vatt->vector_value("CPU_COST", cpu_cost);
-
-            if (rc != 0)
-            {
-                cpu_cost = 0;
-            }
-
-            rc = vatt->vector_value("MEMORY_COST", mem_cost);
-
-            if (rc != 0)
-            {
-                mem_cost = 0;
-            }
-
-
-            rc = vatt->vector_value("DISK_COST", disk_cost);
-
-            if (rc != 0)
-            {
-                disk_cost = 0;
-            }
+            cpu_cost = 0;
         }
 
-        vmpool = new VirtualMachinePool(db,
-                                        vm_hooks,
-                                        hook_location,
-                                        remotes_location,
-                                        vm_restricted_attrs,
-                                        vm_expiration,
-                                        vm_submit_on_hold,
-                                        cpu_cost,
-                                        mem_cost,
-                                        disk_cost);
+        if (default_cost->vector_value("MEMORY_COST", mem_cost) != 0)
+        {
+            mem_cost = 0;
+        }
 
-        hpool  = new HostPool(db,
-                              host_hooks,
-                              hook_location,
-                              remotes_location,
-                              host_expiration);
+        if (default_cost->vector_value("DISK_COST", disk_cost) != 0)
+        {
+            disk_cost = 0;
+        }
 
-        vrouterpool = new VirtualRouterPool(db,
-                                            vrouter_hooks,
-                                            remotes_location);
+        vmpool = new VirtualMachinePool(db, vm_hooks, hook_location,
+            remotes_location, vm_restricted_attrs, vm_expiration,
+            vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
+
+        /* ---------------------------- Host Pool --------------------------- */
+        vector<const VectorAttribute *> host_hooks;
+
+        time_t host_expiration;
+
+        nebula_configuration->get("HOST_HOOK", host_hooks);
+
+        nebula_configuration->get("HOST_MONITORING_EXPIRATION_TIME", host_expiration);
+
+        hpool  = new HostPool(db, host_hooks, hook_location, remotes_location,
+            host_expiration);
+
+        /* --------------------- VirtualRouter Pool ------------------------- */
+        vector<const VectorAttribute *> vrouter_hooks;
+
+        nebula_configuration->get("VROUTER_HOOK", vrouter_hooks);
+
+        vrouterpool = new VirtualRouterPool(db, vrouter_hooks, remotes_location);
+
+        /* -------------------- VirtualNetwork Pool ------------------------- */
+        int     size;
+        string  mac_prefix;
+
+        vector<const SingleAttribute *> inherit_vnet_attrs;
+        vector<const SingleAttribute *> vnet_restricted_attrs;
+        vector<const VectorAttribute *> vnet_hooks;
 
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
+
         nebula_configuration->get("NETWORK_SIZE", size);
 
-        vnpool = new VirtualNetworkPool(db,
-                                        mac_prefix,
-                                        size,
-                                        vnet_restricted_attrs,
-                                        vnet_hooks,
-                                        remotes_location,
-                                        inherit_vnet_attrs);
+        nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
 
-        gpool  = new GroupPool(db, group_hooks,
-                            remotes_location, is_federation_slave());
+        nebula_configuration->get("VNET_HOOK", vnet_hooks);
+
+        nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
+
+        vnpool = new VirtualNetworkPool(db, mac_prefix, size, vnet_restricted_attrs,
+            vnet_hooks, remotes_location, inherit_vnet_attrs);
+
+        /* ----------------------- Group/User Pool -------------------------- */
+        vector<const VectorAttribute *> user_hooks;
+        vector<const VectorAttribute *> group_hooks;
+
+        time_t  expiration_time;
+
+        nebula_configuration->get("GROUP_HOOK", group_hooks);
+
+        gpool = new GroupPool(db, group_hooks, remotes_location,
+                is_federation_slave());
 
         nebula_configuration->get("SESSION_EXPIRATION_TIME", expiration_time);
 
-        upool = new UserPool(db, expiration_time, user_hooks,
-                            remotes_location, is_federation_slave());
+        nebula_configuration->get("USER_HOOK", user_hooks);
 
-        nebula_configuration->get("DEFAULT_IMAGE_TYPE", default_image_type);
-        nebula_configuration->get("DEFAULT_DEVICE_PREFIX",
-                                  default_device_prefix);
-        nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX",
-                                  default_cdrom_device_prefix);
-        ipool  = new ImagePool(db,
-                               default_image_type,
-                               default_device_prefix,
-                               default_cdrom_device_prefix,
-                               img_restricted_attrs,
-                               image_hooks,
-                               remotes_location,
-                               inherit_image_attrs);
+        upool = new UserPool(db, expiration_time, user_hooks, remotes_location,
+                is_federation_slave());
 
-        tpool  = new VMTemplatePool(db);
+        /* -------------------- Image/Datastore Pool ------------------------ */
+        string  image_type;
+        string  device_prefix;
+        string  cd_dev_prefix;
 
-        dspool = new DatastorePool(db, inherit_datastore_attrs);
+        vector<const VectorAttribute *> image_hooks;
+        vector<const SingleAttribute *> img_restricted_attrs;
+        vector<const SingleAttribute *> inherit_image_attrs;
+        vector<const SingleAttribute *> inherit_ds_attrs;
 
-        default_user_quota.select();
-        default_group_quota.select();
+        nebula_configuration->get("DEFAULT_IMAGE_TYPE", image_type);
+        nebula_configuration->get("DEFAULT_DEVICE_PREFIX", device_prefix);
+        nebula_configuration->get("DEFAULT_CDROM_DEVICE_PREFIX", cd_dev_prefix);
+
+        nebula_configuration->get("IMAGE_HOOK", image_hooks);
+
+        nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
+
+        nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
+
+        ipool = new ImagePool(db, image_type, device_prefix, cd_dev_prefix,
+            img_restricted_attrs, image_hooks, remotes_location,
+            inherit_image_attrs);
+
+        nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_ds_attrs);
+
+        dspool = new DatastorePool(db, inherit_ds_attrs);
+
+        /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
+        docpool  = new DocumentPool(db);
+        zonepool = new ZonePool(db, is_federation_slave());
+        vdcpool  = new VdcPool(db, is_federation_slave());
+
+        tpool = new VMTemplatePool(db);
 
         secgrouppool = new SecurityGroupPool(db);
 
-        marketpool  = new MarketPlacePool(db, is_federation_slave());
-        apppool     = new MarketPlaceAppPool(db, is_federation_slave());
+        marketpool = new MarketPlacePool(db, is_federation_slave());
+        apppool    = new MarketPlaceAppPool(db, is_federation_slave());
+
+        default_user_quota.select();
+        default_group_quota.select();
     }
     catch (exception&)
     {

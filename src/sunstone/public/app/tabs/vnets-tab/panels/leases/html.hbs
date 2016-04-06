@@ -16,7 +16,7 @@
 
 <form id="leases_form">
   {{#isTabActionEnabled "vnets-tab" "Network.hold_lease"}}
-    <div class="row collapse">
+    <div class="row">
       <div class="large-4 columns">
         <input type="text" id="panel_hold_lease"/>
       </div>
@@ -27,7 +27,7 @@
       </div>
     </div>
   {{/isTabActionEnabled}}
-  <div class="row collapse">
+  <div class="row">
     <div class="large-12 columns" style="overflow:auto">
       <table id="leases_datatable" class="datatable twelve">
         <thead>

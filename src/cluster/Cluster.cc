@@ -46,6 +46,8 @@ const char * Cluster::network_db_bootstrap =
     "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
     "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
 
+const char * Cluster::bitmap_table = "vm_bitmap";
+
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */
 /* ************************************************************************** */
@@ -53,11 +55,13 @@ const char * Cluster::network_db_bootstrap =
 Cluster::Cluster(
         int id,
         const string& name,
-        ClusterTemplate*  cl_template):
+        ClusterTemplate*  cl_template,
+        const VectorAttribute& vnc_conf):
             PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
             hosts("HOSTS"),
             datastores("DATASTORES"),
-            vnets("VNETS")
+            vnets("VNETS"),
+            vnc_bitmap(vnc_conf, id, bitmap_table)
 {
     if (cl_template != 0)
     {
@@ -68,11 +72,8 @@ Cluster::Cluster(
         obj_template = new ClusterTemplate;
     }
 
-    string default_cpu; //TODO - Get these two from oned.conf
-    string default_mem;
-
-    add_template_attribute("RESERVED_CPU", default_cpu);
-    add_template_attribute("RESERVED_MEM", default_cpu);
+    add_template_attribute("RESERVED_CPU", "");
+    add_template_attribute("RESERVED_MEM", "");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -225,7 +226,6 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
 
     // Construct the SQL statement to Insert or Replace
-
     oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
         <<          oid                 << ","
         << "'" <<   sql_name            << "',"
@@ -302,9 +302,9 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
         {
             oss.str("");
 
-            oss << "BEGIN; "
-                << "DELETE FROM " << network_table  << " WHERE cid = " << oid << "; "
-                << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid << "; ";
+            oss <<"BEGIN; "
+                <<"DELETE FROM "<< network_table  <<" WHERE cid = "<< oid<< "; "
+                <<"DELETE FROM "<< datastore_table<<" WHERE cid = "<< oid<< "; ";
 
             set<int>::iterator i;
 

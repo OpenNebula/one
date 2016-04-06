@@ -70,9 +70,6 @@ define(function(require) {
       Sunstone.showTab(DASHBOARD_TAB_ID);
       $('#loading').hide();
     }
-
-    // init the zone list, needed for market & apps zone columns
-    Sunstone.runAction("Zone.list");
   });
 
   function _setupCloseDropdownsOnClick() {

@@ -33,6 +33,10 @@ enabled_tabs:
 autorefresh: true
 features:
     showback: true
+
+    # Allows to change the security groups for each network interface
+    # on the VM creation dialog
+    secgroups: true
 tabs:
     dashboard-tab:
         panel_tabs:

@@ -25,6 +25,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var NicsSection = require('utils/nics-section');
   var WizardFields = require('utils/wizard-fields');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -68,7 +69,10 @@ define(function(require) {
 
     NicsSection.insert({},
       $(".nicsContext", context),
-      {floatingIP: true, forceIPv4:true, management: true,
+      { floatingIP: true,
+        forceIPv4:true,
+        management: true,
+        securityGroups: Config.isFeatureEnabled("secgroups"),
         hide_add_button:true,
         click_add_button:true
       });

@@ -1,4 +1,4 @@
-.right-content {
+.tab:not(#provision-tab) {
   margin-top: -2rem;
 }
 
@@ -19,7 +19,6 @@
   .logo-header {
     margin-top: 0.5rem;
   }
-
 }
 
 .provision-logo {

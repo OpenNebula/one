@@ -1,6 +1,18 @@
 table {
-  input {
+  input,
+  button,
+  select,
+  textarea {
     margin-bottom: 0px !important;
+  }
+
+  textarea {
+    height: $input-font-size + ($form-spacing * 1.5) - rem-calc(1);
+    min-height: 0;
+  }
+
+  select {
+    padding: 0 0.5rem;
   }
 
   thead {

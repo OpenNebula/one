@@ -238,6 +238,24 @@ namespace one_util
 
         return output;
     }
+
+	/**
+     *  Compress the input string unsing zlib
+     *    @param in input string
+     *    @param bool64 true to base64 encode output
+     *    @return pointer to the compressed sting (must be freed) or 0 in case
+     *    of error
+     */
+	std::string * zlib_compress(const std::string& in, bool base64);
+
+	/**
+     *  Decompress the input string unsing zlib
+     *    @param in input string
+     *    @param base64 true if the input is base64 encoded
+     *    @return pointer to the decompressed sting (must be freed) or 0 in case
+     *    of error
+     */
+	std::string * zlib_decompress(const std::string& in, bool base64);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

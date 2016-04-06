@@ -35,6 +35,10 @@ define(function(require) {
     require('../utils/hooks/header')
   ];
 
+  var _initHooks = [
+    require('./marketplaceapps-tab/hooks/init')
+  ];
+
   var _formPanels = [
     require('./marketplaceapps-tab/form-panels/create'),
     require('./marketplaceapps-tab/form-panels/export')
@@ -55,6 +59,7 @@ define(function(require) {
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
     panels: _panels,
     panelsHooks: _panelsHooks,
+    initHooks: _initHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

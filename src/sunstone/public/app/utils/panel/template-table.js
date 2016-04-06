@@ -43,7 +43,7 @@ define(function(require) {
                   fromJSONtoHTMLTable(templateJSON, resourceType) +
                   '<tr>\
                       <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
-                      <td class="value_td"><textarea rows="1" type="text" name="new_value" id="new_value"></textarea></td>\
+                      <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
                       <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + Locale.tr("Add") + '</button>\</td>\
                     </tr>'                  +
                  '</table>'

@@ -33,6 +33,7 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaAction = require('opennebula/action');
   var Notifier = require('utils/notifier');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -108,7 +109,10 @@ define(function(require) {
 
     NicsSection.insert({},
       $(".nicsContext", context),
-      {floatingIP: true, forceIPv4:true, management: true});
+      { floatingIP: true,
+        forceIPv4:true,
+        management: true,
+        securityGroups: Config.isFeatureEnabled("secgroups")});
 
     this.templatesTable.initialize();
 

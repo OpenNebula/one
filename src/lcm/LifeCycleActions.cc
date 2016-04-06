@@ -835,6 +835,8 @@ void  LifeCycleManager::clean_action(int vid)
 void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& image_id)
 {
     int    cpu, mem, disk;
+    unsigned int port;
+
     vector<VectorAttribute *> pci;
     time_t the_time = time(0);
 
@@ -865,7 +867,15 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     vm->set_reason(History::USER);
 
     vm->get_requirements(cpu, mem, disk, pci);
+
     hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
+    const VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    {
+        clpool->release_vnc_port(vm->get_cid(), port);
+    }
 
     switch (state)
     {

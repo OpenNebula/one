@@ -17,6 +17,8 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
   var Locale = require('utils/locale');
+  var Config = require('sunstone-config');
+  var OpenNebulaHelper = require('./helper');
 
   var RESOURCE = "DATASTORE";
   var STATES_STR = [
@@ -40,6 +42,8 @@ define(function(require) {
     FILE_DS   : 2
   };
 
+  var dsMadIndex = {};
+
   var Datastore = {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
@@ -57,7 +61,17 @@ define(function(require) {
       OpenNebulaAction.del(params, RESOURCE);
     },
     "list" : function(params) {
-      OpenNebulaAction.list(params, RESOURCE);
+      OpenNebulaAction.list(params, RESOURCE, null, function(response) {
+        var list = OpenNebulaHelper.pool(RESOURCE, response);
+
+        dsMadIndex = {};
+
+        $.each(list, function(){
+          dsMadIndex[ this[RESOURCE].ID ] = this[RESOURCE].DS_MAD;
+        });
+
+        return list;
+      });
     },
     "list_in_zone" : function(params) {
       OpenNebulaAction.list_in_zone(params, RESOURCE);
@@ -95,6 +109,33 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
+    },
+    "isMarketExportSupported": function(id){
+      var name = dsMadIndex[id];
+
+      if(name == undefined){
+        // When in doubt, allow the action and let oned return failure
+        return true;
+      }
+
+      var support = false;
+
+      $.each(Config.onedConf.DS_MAD_CONF, function(){
+        if (this.NAME == name){
+          support = (this.MARKETPLACE_ACTIONS != undefined &&
+                     this.MARKETPLACE_ACTIONS.split(',').includes("export"));
+          return false; //break
+        }
+      });
+
+      return support;
+    },
+    "initMarketExportSupported": function(){
+      this.list({
+        timeout: true,
+        success: function (request, obj_list) {},
+        //error: Notifier.onError
+      });
     }
   }
 

@@ -36,6 +36,7 @@ ENV['LANG'] = 'C'
 $: << LIB_LOCATION+'/ruby/vendors/rbvmomi/lib'
 $: << LIB_LOCATION+'/ruby'
 
+require 'ostruct'
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
@@ -135,6 +136,22 @@ class VIClient
         return entities
     end
 
+    # Only retrieve properties with faster search
+    def get_entities_to_import(folder, type)
+         res = folder.inventory_flat(type => :all)
+         objects = []
+
+         res.each {|k,v|
+            if k.to_s.split('(').first == type
+                obj = {}
+                v.propSet.each{ |dynprop|
+                    obj[dynprop.name] = dynprop.val
+                }
+                objects << OpenStruct.new(obj)
+            end
+        }
+        return objects
+    end
 
     ############################################################################
     # Initializr the VIClient, and creates an OpenNebula client. The parameters
@@ -368,11 +385,13 @@ class VIClient
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
-            vms = get_entities(dc.vmFolder, 'VirtualMachine')
+            vms = get_entities_to_import(dc.vmFolder, 'VirtualMachine')
 
             tmp = vms.select { |v| v.config && (v.config.template == true) }
 
-            one_tmp = []
+            one_tmp    = []
+            host_cache = {}
+            ds_cache   = {}
 
             tmp.each { |t|
                 vi_tmp = VCenterVm.new(self, t)
@@ -380,15 +399,28 @@ class VIClient
                 if !tpool["VMTEMPLATE/TEMPLATE/PUBLIC_CLOUD[\
                         TYPE=\"vcenter\" \
                         and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
-                    hostname = vi_tmp.vm.runtime.host.parent.name
+                    # Check cached objects
+                    if !host_cache[vi_tmp.vm.runtime.host.to_s]
+                        host_cache[vi_tmp.vm.runtime.host.to_s] =
+                                   VCenterCachedHost.new vi_tmp.vm.runtime.host
+                    end
+
+                    if !ds_cache[t.datastore[0].to_s]
+                        ds_cache[t.datastore[0].to_s] =
+                                   VCenterCachedDatastore.new  t.datastore[0]
+                    end
+
+                    host = host_cache[vi_tmp.vm.runtime.host.to_s]
+                    ds   = ds_cache[t.datastore[0].to_s]
+
                     one_tmp << {
-                        :name       => "#{vi_tmp.vm.name} - #{hostname}",
+                        :name       => "#{vi_tmp.vm.name} - #{host.cluster_name}",
                         :uuid       => vi_tmp.vm.config.uuid,
-                        :host       => hostname,
-                        :one        => vi_tmp.to_one,
-                        :ds         => vi_tmp.to_one_ds,
-                        :default_ds => t.datastore[0].name,
-                        :rp         => vi_tmp.to_one_rp
+                        :host       => host.cluster_name,
+                        :one        => vi_tmp.to_one(host),
+                        :ds         => vi_tmp.to_one_ds(host, ds.name),
+                        :default_ds => ds.name,
+                        :rp         => vi_tmp.to_one_rp(host)
                     }
                 end
             }
@@ -889,6 +921,95 @@ class VIClient
     end
 end
 
+###########
+#  Cached Classes to speed up import and monitorization
+############
+class VCenterCachedHost
+
+    def initialize(rbVmomiHost)
+        @host       = rbVmomiHost
+        @attributes = Hash.new
+    end
+
+    def name
+        if !@attributes['name']
+            @attributes['name']=@host.parent.name
+        end
+        @attributes['name']
+    end
+
+    def cluster_name
+        if !@attributes['cluster_name']
+            @attributes['cluster_name']=@host.parent.name
+        end
+        @attributes['cluster_name']
+    end
+
+    def ds_list
+        if !@attributes['ds_list']
+            @attributes['ds_list']=""
+            @host.parent.parent.parent.datastoreFolder.childEntity.each { |ds|
+                @attributes['ds_list'] += ds.name + ","
+            }
+            @attributes['ds_list']=@attributes['ds_list'][0..-2]
+        end
+        @attributes['ds_list']
+    end
+
+    def rp_list
+        if !@attributes['rp_list']
+            @attributes['rp_list']=""
+            @host.parent.resourcePool.resourcePool.each{|rp|
+                @attributes['rp_list'] += get_child_rp_names(rp, "")
+            }
+            @attributes['rp_list']=@attributes['rp_list'][0..-2]
+        end
+        @attributes['rp_list']
+    end
+
+    def get_child_rp_names(rp, parent_prefix)
+        rp_str = ""
+
+        current_rp = (parent_prefix.empty? ? "" : parent_prefix + "/")
+        current_rp += rp.name
+
+        if rp.resourcePool.size != 0
+            rp.resourcePool.each{|child_rp|
+                rp_str += get_child_rp_names(child_rp, current_rp)
+            }
+        end
+
+        rp_str += current_rp + ","
+
+        return rp_str
+    end
+
+    def cpumhz
+        if !@attributes['cpumhz']
+            @attributes['cpumhz']=@host.summary.hardware.cpuMhz.to_f
+        end
+        @attributes['cpumhz']
+    end
+
+end
+
+class VCenterCachedDatastore
+
+    def initialize(rbVmomiDatastore)
+        @ds         = rbVmomiDatastore
+        @attributes = Hash.new
+    end
+
+    def name
+        if !@attributes['name']
+            @attributes['name']=@ds.name
+        end
+        @attributes['name']
+    end
+
+
+end
+
 ################################################################################
 # This class is an OpenNebula hosts that abstracts a vCenter cluster. It
 # includes the functionality needed to monitor the cluster and report the ESX
@@ -1115,8 +1236,18 @@ class VCenterHost < ::OpenNebula::Host
             }
         end
 
+        host_cache = {}
+
         rp.vm.each { |v|
           begin
+              # Check cached objects
+              if !host_cache[v.runtime.host.to_s]
+                  host_cache[v.runtime.host.to_s] =
+                         VCenterCachedHost.new v.runtime.host
+              end
+
+              host = host_cache[v.runtime.host.to_s]
+
               name   = v.name
               number = -1
               # Extract vmid if possible
@@ -1128,16 +1259,16 @@ class VCenterHost < ::OpenNebula::Host
                   number = extraconfig_vmid[0][:value]
               end
               vm = VCenterVm.new(@client, v)
-              vm.monitor
+              vm.monitor(host)
               next if !vm.vm.config
               str_info << "\nVM = ["
               str_info << "ID=#{number},"
               str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
               str_info << "VM_NAME=\"#{name} - "\
-                          "#{v.runtime.host.parent.name}\","
+                          "#{host.cluster_name}\","
               if number == -1
                   vm_template_to_one =
-                      Base64.encode64(vm.vm_to_one).gsub("\n","")
+                      Base64.encode64(vm.vm_to_one(host)).gsub("\n","")
                   str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
               end
               str_info << "POLL=\"#{vm.info}\"]"
@@ -1353,7 +1484,6 @@ class VCenterVm
                 else
                     detach_attached_disks(vm, disks, hostname)
                 end
-                exit -1
                 vm.Destroy_Task.wait_for_completion
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
@@ -1533,7 +1663,7 @@ class VCenterVm
     ########################################################################
     #  Initialize the vm monitor information
     ########################################################################
-    def monitor
+    def monitor(host)
         @summary = @vm.summary
         @state   = state_to_c(@summary.runtime.powerState)
 
@@ -1548,9 +1678,7 @@ class VCenterVm
         end
 
         @used_memory = @summary.quickStats.hostMemoryUsage * 1024
-
-        host   = @vm.runtime.host
-        cpuMhz = host.summary.hardware.cpuMhz.to_f
+        cpuMhz = host.cpumhz
 
         @used_cpu   =
                 ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
@@ -1560,7 +1688,7 @@ class VCenterVm
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
 
-        @esx_host       = @vm.summary.runtime.host.name
+        @esx_host       = host.name
         @guest_ip       = @vm.guest.ipAddress
         @guest_state    = @vm.guest.guestState
         @vmware_tools   = @vm.guest.toolsRunningStatus
@@ -1607,8 +1735,8 @@ class VCenterVm
     ########################################################################
     # Generates an OpenNebula Template for this VCenterVm
     ########################################################################
-    def to_one
-        cluster_name = @vm.runtime.host.parent.name
+    def to_one(host)
+        cluster_name = host.cluster_name
 
         str = "NAME   = \"#{@vm.name} - #{cluster_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
@@ -1656,17 +1784,13 @@ class VCenterVm
     ########################################################################
     # Generates a Datastore user input
     ########################################################################
-    def to_one_ds
+    def to_one_ds(host, default_ds)
         # Datastores User Input
-        ds_str = ""
-        @vm.runtime.host.parent.parent.parent.datastoreFolder.childEntity.each { |ds|
-                ds_str += ds.name + ","
-            }
-        ds_str = ds_str[0..-2]
+        str = ""
 
-        if ds_str != ""
+        if host.ds_list != ""
             str    =  "M|list|Which datastore you want this VM to run on?|"\
-                   << "#{ds_str}|#{ds_str.split(",")[0]}"
+                   << "#{host.ds_list}|#{default_ds}"
         end
 
         return str
@@ -1675,34 +1799,16 @@ class VCenterVm
     ########################################################################
     # Generates a Resource Pool user input
     ########################################################################
-     def to_one_rp
-        rp_str = ""
+     def to_one_rp(host)
+        # Resource Pool User Input
+        str = ""
 
-        @vm.runtime.host.parent.resourcePool.resourcePool.each{|rp|
-            rp_str += get_child_rp_names(rp, "")
-        }
-
-        rp_str = rp_str[0..-2]
-
-        return "M|list|Which resource pool you want this VM to run"\
-               " in?|#{rp_str}|#{rp_str.split(",")[0]}"
-    end
-
-    def get_child_rp_names(rp, parent_prefix)
-        rp_str = ""
-
-        current_rp = (parent_prefix.empty? ? "" : parent_prefix + "/")
-        current_rp += rp.name
-
-        if rp.resourcePool.size != 0
-            rp.resourcePool.each{|child_rp|
-                rp_str += get_child_rp_names(child_rp, current_rp)
-            }
+        if host.rp_list != ""
+            str    =  "M|list|Which resource pool you want this VM to run"\
+                      " in?|#{host.rp_list}|#{host.rp_list.split(",")[0]}"
         end
 
-        rp_str += current_rp + ","
-
-        return rp_str
+        return str
     end
 
     ########################################################################
@@ -1710,8 +1816,8 @@ class VCenterVm
     #
     #
     ########################################################################
-    def vm_to_one
-        host_name = @vm.runtime.host.parent.name
+    def vm_to_one(host)
+        cluster_name = host.cluster_name
 
         state = case state_to_c(@summary.runtime.powerState)
                     when 'a'
@@ -1720,7 +1826,7 @@ class VCenterVm
                         "POWEROFF"
                 end
 
-        str = "NAME   = \"#{@vm.name} - #{host_name}\"\n"\
+        str = "NAME   = \"#{@vm.name} - #{cluster_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
@@ -1728,11 +1834,11 @@ class VCenterVm
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
-              "  HOST        =\"#{host_name}\"\n"\
+              "  HOST        =\"#{cluster_name}\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
               "IMPORT_STATE   = \"#{state}\"\n"\
-              "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{cluster_name}\\\"\"\n"
 
         vp     = @vm.config.extraConfig.select{|v|
                                            v[:key].downcase=="remotedisplay.vnc.port"}
@@ -1750,7 +1856,7 @@ class VCenterVm
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Virtual Machine imported by"\
-                " OpenNebula from Cluster #{@vm.runtime.host.parent.name}\"\n"
+                " OpenNebula from Cluster #{cluster_name}\"\n"
         else
             notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"

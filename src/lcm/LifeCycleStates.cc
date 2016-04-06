@@ -811,6 +811,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     time_t the_time = time(0);
     int    cpu,mem,disk;
+    unsigned int port;
 
     VirtualMachine::LcmState state;
     DispatchManager::Actions action;
@@ -882,6 +883,13 @@ void  LifeCycleManager::epilog_success_action(int vid)
     vm->get_requirements(cpu, mem, disk, pci);
 
     hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
+    const VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    {
+        clpool->release_vnc_port(vm->get_cid(), port);
+    }
 
     //----------------------------------------------------
 

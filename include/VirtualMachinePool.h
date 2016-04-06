@@ -24,7 +24,6 @@
 
 using namespace std;
 
-
 /**
  *  The Virtual Machine Pool class. ...
  */
@@ -393,19 +392,19 @@ private:
     /**
      * Size, in seconds, of the historical monitoring information
      */
-    static time_t _monitor_expiration;
+    time_t _monitor_expiration;
 
     /**
      * True or false whether to submit new VM on HOLD or not
      */
-    static bool _submit_on_hold;
+    bool _submit_on_hold;
 
     /**
      * Default values for cpu and memory cost
      */
-    static float _default_cpu_cost;
-    static float _default_mem_cost;
-    static float _default_disk_cost;
+    float _default_cpu_cost;
+    float _default_mem_cost;
+    float _default_disk_cost;
 
     /**
      * Callback used to get an int in the DB it is used by VM Pool in:
