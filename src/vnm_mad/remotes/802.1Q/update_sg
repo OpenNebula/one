@@ -24,14 +24,12 @@ require 'vlan_tag_driver'
 
 template64   = ARGV[0]
 deploy_id    = ARGV[1]
-hypervisor   = nil
 xpath_filter = VLANTagDriver::XPATH_FILTER
 
 begin
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
-                                                    deploy_id,
-                                                    hypervisor,
-                                                    xpath_filter)
+                                                    xpath_filter,
+                                                    deploy_id)
     filter_driver.activate(true)
 rescue Exception => e
     OpenNebula.log_error(e.message)

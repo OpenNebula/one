@@ -21,7 +21,9 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenvSwitch'
 
-template64 = ARGV[0]
+template64   = ARGV[0]
+deploy_id    = nil
+xpath_filter = OpenvSwitchVLAN::XPATH_FILTER
 
-ovs = OpenvSwitchVLAN.from_base64(template64)
+ovs = OpenvSwitchVLAN.from_base64(template64, xpath_filter, deploy_id)
 ovs.deactivate

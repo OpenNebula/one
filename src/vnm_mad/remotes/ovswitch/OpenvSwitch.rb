@@ -24,9 +24,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                         :black_ports_udp,
                         :icmp]
 
-    def initialize(vm, deploy_id = nil, hypervisor = nil)
-        super(vm,XPATH_FILTER,deploy_id,hypervisor)
+    def initialize(vm, xpath_filter = nil, deploy_id = nil)
         @locking = false
+
+        xpath_filter ||= XPATH_FILTER
+        super(vm, xpath_filter, deploy_id)
 
         @vm.nics.each do |nic|
             if nic[:bridge_ovs] && !nic[:bridge_ovs].empty?
