@@ -241,11 +241,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
-          $VAR_LOCATION/remotes/im/xen3.d \
-          $VAR_LOCATION/remotes/im/xen4.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
-          $VAR_LOCATION/remotes/im/xen3-probes.d \
-          $VAR_LOCATION/remotes/im/xen4-probes.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
@@ -253,8 +249,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
-          $VAR_LOCATION/remotes/vmm/xen3 \
-          $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
@@ -383,10 +377,6 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
-    IM_PROBES_XEN3_FILES:$VAR_LOCATION/remotes/im/xen3.d
-    IM_PROBES_XEN3_PROBES_FILES:$VAR_LOCATION/remotes/im/xen3-probes.d
-    IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
-    IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
@@ -400,9 +390,6 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
-    VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
-    VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -692,49 +679,6 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/prereconfigure"
 
 #-------------------------------------------------------------------------------
-# VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xen3/xenrc \
-                    src/vmm_mad/remotes/xen/xen3/migrate \
-                    src/vmm_mad/remotes/xen/restore \
-                    src/vmm_mad/remotes/xen/reboot \
-                    src/vmm_mad/remotes/xen/xen3/reset \
-                    src/vmm_mad/remotes/xen/save \
-                    src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
-                    src/vmm_mad/remotes/xen/attach_nic \
-                    src/vmm_mad/remotes/xen/detach_nic \
-                    src/vmm_mad/remotes/xen/snapshot_create \
-                    src/vmm_mad/remotes/xen/snapshot_revert \
-                    src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown \
-                    src/vmm_mad/remotes/xen/reconfigure \
-                    src/vmm_mad/remotes/xen/prereconfigure"
-
-VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xen4/xenrc \
-                    src/vmm_mad/remotes/xen/xen4/migrate \
-                    src/vmm_mad/remotes/xen/restore \
-                    src/vmm_mad/remotes/xen/reboot \
-                    src/vmm_mad/remotes/xen/xen4/reset \
-                    src/vmm_mad/remotes/xen/save \
-                    src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
-                    src/vmm_mad/remotes/xen/attach_nic \
-                    src/vmm_mad/remotes/xen/detach_nic \
-                    src/vmm_mad/remotes/xen/snapshot_create \
-                    src/vmm_mad/remotes/xen/snapshot_revert \
-                    src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown \
-                    src/vmm_mad/remotes/xen/reconfigure \
-                    src/vmm_mad/remotes/xen/prereconfigure"
-#-------------------------------------------------------------------------------
 # VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
 #-------------------------------------------------------------------------------
 
@@ -870,30 +814,6 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/common.d/monitor_ds.sh \
                      src/im_mad/remotes/common.d/version.sh \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
-
-IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
-                      src/im_mad/remotes/xen.d/collectd-client.rb"
-
-IM_PROBES_XEN3_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
-                      src/im_mad/remotes/xen-probes.d/architecture.sh \
-                      src/im_mad/remotes/xen-probes.d/cpu.sh \
-                      src/im_mad/remotes/xen-probes.d/poll3.sh \
-                      src/im_mad/remotes/xen-probes.d/name.sh
-                      src/im_mad/remotes/common.d/monitor_ds.sh \
-                      src/im_mad/remotes/common.d/version.sh \
-                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
-
-IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
-                      src/im_mad/remotes/xen.d/collectd-client.rb"
-
-IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
-                      src/im_mad/remotes/xen-probes.d/architecture.sh \
-                      src/im_mad/remotes/xen-probes.d/cpu.sh \
-                      src/im_mad/remotes/xen-probes.d/poll4.sh \
-                      src/im_mad/remotes/xen-probes.d/name.sh \
-                      src/im_mad/remotes/common.d/monitor_ds.sh \
-                      src/im_mad/remotes/common.d/version.sh \
-                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
@@ -1387,8 +1307,6 @@ AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen3.conf \
-                  src/vmm_mad/exec/vmm_exec_xen4.conf \
                   src/vmm_mad/exec/vmm_exec_vmware.conf \
                   src/vmm_mad/exec/vmm_exec_vcenter.conf"
 
