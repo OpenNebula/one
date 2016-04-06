@@ -46,7 +46,7 @@ const char * Cluster::network_db_bootstrap =
     "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
     "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
 
-const char * Cluster::bitmap_table = "vm_bitmap";
+const char * Cluster::bitmap_table = "cluster_vnc_bitmap";
 
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */

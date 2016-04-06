@@ -105,7 +105,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     vector<VectorAttribute *> ars;
     ostringstream       ose;
 
-    string sg_str;
+    string sg_str, vis;
 
     int rc, num_ars;
 
@@ -126,6 +126,11 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     erase_template_attribute("VN_MAD", vn_mad);
 
+    if (vn_mad.empty())
+    {
+        goto error_vn_mad;
+    }
+
     add_template_attribute("VN_MAD", vn_mad);
 
     // ------------ PHYDEV --------------------
@@ -134,11 +139,14 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("PHYDEV", phydev);
 
-    // ------------ VLAN_ID -------------------
+    // ---- VLAN_ID if not set allocated in VirtualNetworkPool, if needed -----
 
-    erase_template_attribute("VLAN_ID", vlan_id);
+    if (PoolObjectSQL::get_template_attribute("VLAN_ID", vis) && !vis.empty())
+    {
+        erase_template_attribute("VLAN_ID", vlan_id);
 
-    add_template_attribute("VLAN_ID", vlan_id);
+        add_template_attribute("VLAN_ID", vlan_id);
+    }
 
     // ------------ BRIDGE --------------------
 
@@ -224,6 +232,10 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
 error_name:
     ose << "No NAME in template for Virtual Network.";
+    goto error_common;
+
+error_vn_mad:
+    ose << "No VN_MAD in template for Virtual Network.";
     goto error_common;
 
 error_bridge:
