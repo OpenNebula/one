@@ -418,7 +418,7 @@ class VIClient
                         :uuid       => vi_tmp.vm.config.uuid,
                         :host       => host.cluster_name,
                         :one        => vi_tmp.to_one(host),
-                        :ds         => vi_tmp.to_one_ds(host),
+                        :ds         => vi_tmp.to_one_ds(host, ds.name),
                         :default_ds => ds.name,
                         :rp         => vi_tmp.to_one_rp(host)
                     }
@@ -1784,13 +1784,13 @@ class VCenterVm
     ########################################################################
     # Generates a Datastore user input
     ########################################################################
-    def to_one_ds(host)
+    def to_one_ds(host, default_ds)
         # Datastores User Input
         str = ""
 
         if host.ds_list != ""
             str    =  "M|list|Which datastore you want this VM to run on?|"\
-                   << "#{host.ds_list}|#{host.ds_list.split(",")[0]}"
+                   << "#{host.ds_list}|#{default_ds}"
         end
 
         return str
@@ -1800,8 +1800,15 @@ class VCenterVm
     # Generates a Resource Pool user input
     ########################################################################
      def to_one_rp(host)
-        return "M|list|Which resource pool you want this VM to run"\
-               " in?|#{host.rp_list}|#{host.rp_list.split(",")[0]}"
+        # Resource Pool User Input
+        str = ""
+
+        if host.rp_list != ""
+            str    =  "M|list|Which resource pool you want this VM to run"\
+                      " in?|#{host.rp_list}|#{host.rp_list.split(",")[0]}"
+        end
+
+        return str
     end
 
     ########################################################################
