@@ -384,6 +384,7 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_SL_SCRIPTS:$VAR_LOCATION/remotes/vmm/sl
