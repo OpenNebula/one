@@ -16,5 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-../../vmm/kvm/poll --kvm -t
-
+../../vmm/kvm/poll -t
