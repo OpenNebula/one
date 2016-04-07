@@ -75,26 +75,16 @@
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns">
-          <label for="vn_mad_from_host">
-            <input type="checkbox" name="vn_mad_from_host" id="vn_mad_from_host" />
-            {{tr "Use the network driver of the host."}}
-            <span class="tip">
-              {{tr "This virtual network will use the network driver from the host."}}
-            </span>
-          </label>
-        </div>
-      </div>
-      <div class="row">
         <div class="medium-6 columns">
           <label for="network_mode">
             {{tr "Network model"}}:
             <span class="tip">
-              {{tr "Choose the same networking model you chose for the hosts that will use this network"}}
+              {{tr "The network driver to implement the virtual network"}}
             </span>
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
             <option value="default">{{tr "Default"}}</option>
+            <option value="fw">{{tr "Firewall"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ebtables">{{tr "ebtables"}}</option>
@@ -113,17 +103,20 @@
           <div class="network_mode_description" value="default">
             {{tr "Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored."}}
           </div>
+          <div class="network_mode_description" value="fw">
+            {{tr "Firewall: Same as the Default driver but applies Security Group rules."}}
+          </div>
           <div class="network_mode_description" value="802.1Q">
-            {{tr "802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches."}}
+            {{tr "802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches. Security Group rules are applied."}}
           </div>
           <div class="network_mode_description" value="vxlan">
-            {{tr "VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range."}}
+            {{tr "VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."}}
           </div>
           <div class="network_mode_description" value="ebtables">
-            {{tr "ebtables: restrict network access through Ebtables rules. No special hardware configuration required."}}
+            {{tr "ebtables: restrict network access through Ebtables rules. No special hardware configuration required. Security Group rules are applied."}}
           </div>
           <div class="network_mode_description" value="openvswitch">
-            {{tr "Open vSwitch: restrict network access with Open vSwitch Virtual Switch."}}
+            {{tr "Open vSwitch: restrict network access with Open vSwitch Virtual Switch. Security Groups are not fully supported in this mode."}}
           </div>
           <div class="network_mode_description" value="custom">
             {{tr "Custom: uses a custom network driver."}}

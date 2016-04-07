@@ -73,8 +73,10 @@ public:
         }
     };
 
-    static VirtualNetworkDriver str_to_driver(const string& ob)
+    static VirtualNetworkDriver str_to_driver(string& ob)
     {
+        one_util::toupper(ob);
+
         if ( ob == "dummy" )
         {
             return DUMMY;

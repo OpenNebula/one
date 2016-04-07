@@ -121,20 +121,12 @@ define(function(require) {
 
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
-    $('#vn_mad_from_host', context).change(function() {
-      if ($(this).prop('checked')) {
-        $('select#network_mode,label[for="network_mode"]', context).prop('wizard_field_disabled', true);
-      } else {
-        $('select#network_mode,label[for="network_mode"]', context).prop('wizard_field_disabled', false);
-      }
-    });
-
     $('#network_mode', context).change(function() {
       $('input,label[for!="network_mode"]', $(this).parent()).hide();
       $('input', $(this).parent()).val("");
       switch ($(this).val()) {
       case "default":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
+      case "fw":
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
@@ -148,7 +140,6 @@ define(function(require) {
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "802.1Q":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
@@ -162,7 +153,6 @@ define(function(require) {
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "vxlan":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
@@ -176,7 +166,6 @@ define(function(require) {
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "ebtables":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
@@ -190,7 +179,6 @@ define(function(require) {
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "openvswitch":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
@@ -204,7 +192,6 @@ define(function(require) {
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "custom":
-        $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).hide();
         $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
         $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
@@ -371,7 +358,6 @@ define(function(require) {
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
-    $('input#vn_mad_from_host,label[for="vn_mad_from_host"]', context).show();
     $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
@@ -379,13 +365,7 @@ define(function(require) {
     $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
     $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
 
-    if (element.TEMPLATE["VN_MAD"] == undefined ||
-        element.TEMPLATE["VN_MAD"] == ""){
-      $('input#vn_mad_from_host', context).attr("checked", "checked").change();
-    } else {
-      $('input#vn_mad_from_host', context).removeAttr("checked").change();
-      $('input#vn_mad', context).val(element.TEMPLATE["VN_MAD"]);
-    }
+    $('input#vn_mad', context).val(element.TEMPLATE["VN_MAD"]);
 
     WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
     WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
