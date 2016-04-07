@@ -13,7 +13,6 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
 <div class="row">
   <div id="template_name_form"  class="medium-6 columns">
     <label  for="NAME">
@@ -60,57 +59,105 @@
       <br></div>
   </div>
 </div>
-<div class="row hypervisor only_vcenter" style="display: none;">
-  <div class="medium-6 columns">
-    <label  for="vcenter_template_uuid">
-      {{tr "vCenter Template UUID"}}
-      <span class="tip"></span>
-    </label>
-    <input type="text" id="vcenter_template_uuid" name="name"/>
-  </div>
-  <div class="medium-6 columns">
-    <div class="row">
-      <div class="large-6 columns">
-        <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
-        <label  for="KEEP_DISKS">
-          {{tr "Keep VM disks"}}
-          {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
-        </label>
+<fieldset class="hypervisor only_vcenter" style="display: none;">
+  <legend>{{tr "vCenter"}}</legend>
+  <div class="row hypervisor only_vcenter" style="display: none;">
+    <div class="medium-6 columns">
+      <label  for="vcenter_template_uuid">
+        {{tr "vCenter Template UUID"}}
+        <span class="tip"></span>
+      </label>
+      <input type="text" id="vcenter_template_uuid" name="name"/>
+    </div>
+    <div class="medium-6 columns">
+      <div class="row">
+        <div class="large-6 columns">
+          <label>
+            {{tr "VM disks"}}
+            {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
+          </label>
+          <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
+          <label  for="KEEP_DISKS">{{tr "Keep"}}</label>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="row">
-  <div class="capacityCreate large-12 columns">
-    {{{capacityCreateHTML}}}
+  <div class="vcenter_datastore_input row">
+    <div class="large-3 medium-6 columns">
+      <label>
+        {{tr "Default Datastore"}}
+        <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
+      </label>
+    </div>
+    <div class="large-3 medium-6 columns">
+      <label>
+        {{tr "Type"}}
+        <select class="modify_datastore">
+          <option value="fixed">{{tr "Fixed"}}</option>
+          <option value="list">{{tr "Provide on instantiation"}}</option>
+        </select>
+      </label>
+    </div>
+    <div class="large-6 medium-12 columns">
+      <label>
+        {{tr "Available Datastores"}}
+        <input type="text" class="available_datastores" value="{{datastore.params}}"/>
+      </label>
+    </div>
   </div>
+  <div class="vcenter_rp_input row">
+    <div class="large-3 medium-6 columns">
+      <label>
+        {{tr "Default Resoource Pool"}}
+        <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
+      </label>
+    </div>
+    <div class="large-3 medium-6 columns">
+      <label>
+        {{tr "Type"}}
+        <select class="modify_rp">
+          <option value="fixed">{{tr "Fixed"}}</option>
+          <option value="list">{{tr "Provide on instantiation"}}</option>
+        </select>
+      </label>
+    </div>
+    <div class="large-6 medium-12 columns">
+      <label>
+        {{tr "Available Resource Pools"}}
+        <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
+      </label>
+    </div>
+  </div>
+</fieldset>
+<div class="row">
+  <div class="capacityCreate large-12 columns">{{{capacityCreateHTML}}}</div>
 </div>
 {{#isFeatureEnabled "showback"}}
 <div class="row">
   <div class="medium-6 columns">
     <fieldset>
       <legend>{{tr "Cost"}}</legend>
-        <div class="medium-6 columns">
-          <label  for="MEMORY_COST">
-            {{tr "Memory"}}
+      <div class="medium-6 columns">
+        <label  for="MEMORY_COST">
+          {{tr "Memory"}}
             {{{tip (tr "Cost of each MB per hour")}}}
-          </label>
-          <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
-        </div>
-        <div class="medium-6 columns">
-          <label  for="CPU_COST">
-            {{tr "CPU"}}
+        </label>
+        <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
+      </div>
+      <div class="medium-6 columns">
+        <label  for="CPU_COST">
+          {{tr "CPU"}}
             {{{tip (tr "Cost of each CPU per hour")}}}
-          </label>
-          <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
-        </div>
-        <div class="medium-6 columns left">
-          <label  for="DISK_COST">
-            {{tr "Disk"}}
+        </label>
+        <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
+      </div>
+      <div class="medium-6 columns left">
+        <label  for="DISK_COST">
+          {{tr "Disk"}}
             {{{tip (tr "Cost of each MB per hour")}}}
-          </label>
-          <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
-        </div>
+        </label>
+        <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
+      </div>
     </fieldset>
   </div>
 </div>

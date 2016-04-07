@@ -288,7 +288,7 @@ define(function(require) {
 
           if (dsModify === 'fixed' && dsInitial !== '') {
             attrs.push('VCENTER_DATASTORE="' + dsInitial + '"')
-          } else if (dsModify === 'fixed' && dsParams !== '') {
+          } else if (dsModify === 'list' && dsParams !== '') {
             var dsUserInputsStr = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which datastore you want this VM to run on?"),
@@ -309,7 +309,7 @@ define(function(require) {
 
           if (rpModify === 'fixed' && rpInitial !== '') {
             attrs.push('RESOURCE_POOL="' + rpInitial + '"');
-          } else if (rpModify === 'fixed' && rpParams !== '') {
+          } else if (rpModify === 'list' && rpParams !== '') {
             var rpUserInputs = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which resource pool you want this VM to run in?"),
