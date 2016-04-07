@@ -183,11 +183,13 @@ define(function(require) {
             context.on('click', '.import_selected', function() {
               tableContext = $(this).closest('fieldset');
               _import(tableContext);
+              return false;
             });
 
             context.off('click', '.clear_imported');
             context.on('click', '.clear_imported', function() {
-              _fillVCenterTemplates(opts)
+              _fillVCenterTemplates(opts);
+              return false;
             });
 
 //            var tbody = $('tbody', newdiv);
@@ -278,44 +280,44 @@ define(function(require) {
         var userInputs = [];
 
         // Retrieve Datastore Attribute
-        var datastoreInput = $(".vcenter_datastore_input", template_context);
-        if (datastoreInput.length > 0) {
-          if ($('.modify_datastore', datastoreInput).val() === 'fixed') {
-            attrs.push( 
-              'VCENTER_DATASTORE="' + 
-              $('.initial_datastore', datastoreInput).val() +
-              '"')
-          } else {
-            userInputs.push(
-              'VCENTER_DATASTORE="' +
-              UserInputs.marshall({
+        var dsInput = $(".vcenter_datastore_input", template_context);
+        if (dsInput.length > 0) {
+          var dsModify = $('.modify_datastore', dsInput).val();
+          var dsInitial = $('.initial_datastore', dsInput).val();
+          var dsParams = $('.available_datastores', dsInput).val();
+
+          if (dsModify === 'fixed' && dsInitial !== '') {
+            attrs.push('VCENTER_DATASTORE="' + dsInitial + '"')
+          } else if (dsModify === 'fixed' && dsParams !== '') {
+            var dsUserInputsStr = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which datastore you want this VM to run on?"),
-                initial: $('.initial_datastore', datastoreInput).val(),
-                params: $('.available_datastores', datastoreInput).val()
-              }) +
-              '"');
+                initial: dsInitial,
+                params: dsParams
+              });
+
+            userInputs.push('VCENTER_DATASTORE="' + dsUserInputsStr + '"');
           }
         }
 
         // Retrieve Resource Pool Attribute
         var rpInput = $(".vcenter_rp_input", template_context);
         if (rpInput.length > 0) {
-          if ($('.modify_rp', rpInput).val() === 'fixed') {
-            attrs.push( 
-              'RESOURCE_POOL="' + 
-              $('.initial_rp', rpInput).val() +
-              '"')
-          } else {
-            userInputs.push(
-              'RESOURCE_POOL="' +
-              UserInputs.marshall({
+          var rpModify = $('.modify_rp', rpInput).val();
+          var rpInitial = $('.initial_rp', rpInput).val();
+          var rpParams = $('.available_rps', rpInput).val();
+
+          if (rpModify === 'fixed' && rpInitial !== '') {
+            attrs.push('RESOURCE_POOL="' + rpInitial + '"');
+          } else if (rpModify === 'fixed' && rpParams !== '') {
+            var rpUserInputs = UserInputs.marshall({
                 type: 'list',
                 description: Locale.tr("Which resource pool you want this VM to run in?"),
-                initial: $('.initial_rp', rpInput).val(),
+                initial: rpInitial,
                 params: $('.available_rps', rpInput).val()
-              }) +
-              '"');
+              });
+
+            userInputs.push('RESOURCE_POOL="' + rpUserInputs + '"');
           }
         }
         
