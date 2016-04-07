@@ -62,7 +62,6 @@ class VmmAction
         @data = Hash.new
 
         get_data(:host)
-        get_data(:net_drv)
         get_data(:deploy_id)
         get_data(:checkpoint_file)
 
@@ -71,7 +70,6 @@ class VmmAction
 
         # For migration
         get_data(:dest_host, :MIGR_HOST)
-        get_data(:dest_driver, :MIGR_NET_DRV)
 
         # For disk hotplugging
         get_data(:disk_target_path)
@@ -82,7 +80,7 @@ class VmmAction
         @data[:vm]  = Base64.encode64(vm_template).delete("\n")
 
         # VM data for VNM
-        src_drvs, src_xml = get_vnm_drivers(vm_template, @data[:net_drv])
+        src_drvs, src_xml = get_vnm_drivers(vm_template)
 
         # Initialize streams and vnm
         @ssh_src = @vmm.get_ssh_stream(action, @data[:host], @id)
@@ -92,7 +90,7 @@ class VmmAction
                             :ssh_stream     => @ssh_src)
 
         if @data[:dest_host] and !@data[:dest_host].empty?
-            dst_drvs, dst_xml = get_vnm_drivers(vm_template, @data[:dest_driver])
+            dst_drvs, dst_xml = get_vnm_drivers(vm_template)
 
             @ssh_dst = @vmm.get_ssh_stream(action, @data[:dest_host], @id)
             @vnm_dst = VirtualNetworkDriver.new(dst_drvs,
@@ -153,13 +151,12 @@ class VmmAction
     }
 
     # Prepares the list of drivers executed on the host and the xml that will
-    # be sent to the network drivers. Adds VN_MAD element to TEMPLATE/NIC if
-    # needed.
+    # be sent to the network drivers. Builds VM template with required attributes
+    # for the VirtualNetworkDriver.
     #  @param[String] The template of the VM.
-    #  @param[String] The host networking driver.
     #  @return[Array] Returns a list of network drivers and the associated xml
     #  template.
-    def get_vnm_drivers(vm_template, host_vn_driver)
+    def get_vnm_drivers(vm_template)
         vm_template_xml = REXML::Document.new(vm_template).root
         vm_vnm_xml      = REXML::Document.new('<VM></VM>').root
 
@@ -174,12 +171,7 @@ class VmmAction
         vm_template_xml.elements.each("TEMPLATE/NIC") do |element|
             vn_mad = element.get_text("VN_MAD").to_s
 
-            if vn_mad.empty?
-                vn_mad = host_vn_driver
-
-                e = element.add_element("VN_MAD")
-                e.add_text(REXML::CData.new(vn_mad))
-            end
+            next if vn_mad.empty?
 
             vnm_drivers << vn_mad unless vnm_drivers.include?(vn_mad)
 
@@ -861,24 +853,26 @@ class ExecDriver < VirtualMachineDriver
 
         tm_command = xml_data.elements['TM_COMMAND']
         tm_command = tm_command.text if tm_command
+
         target_path = xml_data.elements['DISK_TARGET_PATH']
         target_path = target_path.text if target_path
+
         target_device = xml_data.elements['VM/TEMPLATE/CONTEXT/TARGET']
         target_device = target_device.text if target_device
 
         begin
-            source     = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
-            source_ovs = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE_OVS"]
-            mac        = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
-            target     = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/TARGET"]
+            source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
+            mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
+            target = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/TARGET"]
+            vn_mad = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/VN_MAD"]
 
-            source     = source.text.strip
-            source_ovs = source_ovs.text.strip if source_ovs
-            mac        = mac.text.strip
-            target     = target.text.strip
+            source = source.text.strip
+            mac    = mac.text.strip
+            target = target.text.strip
+            vn_mad = vn_mad.text.strip
         rescue
             send_message(action, RESULT[:failure], id,
-                "Error in #{ACTION[:attach_nic]}, BRIDGE and MAC needed in NIC")
+                "Missing VN_MAD, BRIDGE, TARGET or MAC in VM NIC")
             return
         end
 
@@ -887,15 +881,6 @@ class ExecDriver < VirtualMachineDriver
         model = model.text if !model.nil?
         model = model.strip if !model.nil?
         model = "-" if model.nil?
-
-
-        net_drv = xml_data.elements["NET_DRV"]
-
-        net_drv = net_drv.text if !net_drv.nil?
-        net_drv = net_drv.strip if !net_drv.nil?
-        net_drv = "-" if net_drv.nil?
-
-        source = source_ovs if net_drv == 'ovswitch' && source_ovs
 
         action = VmmAction.new(self, id, :attach_nic, drv_message)
 
@@ -909,7 +894,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver     => :vmm,
                 :action     => :attach_nic,
-                :parameters => [:deploy_id, mac, source, model, net_drv, target]
+                :parameters => [:deploy_id, mac, source, model, vn_mad, target]
             },
             # Execute post-boot networking setup
             {
