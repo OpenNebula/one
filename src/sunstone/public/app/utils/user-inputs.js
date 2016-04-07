@@ -294,8 +294,7 @@ define(function(require) {
   /**
    * Transforms a user input object to a string
    * @param  {object} attr user input object, e.g.
-   *                        { "name":
-   *                          "mandatory": true/false
+   *                        { "mandatory": true/false
    *                          "type":
    *                          "description":
    *                          ["params":] "2..8" / "2,4,8"

@@ -80,14 +80,14 @@ define(function(require) {
   }
 
   function _setupAccordion() {
-    $(document).on("click", ".accordion_advanced > a", function() {
+    $(document).on("click", ".accordion_advanced_toggle", function() {
       if ($(this).hasClass("active")) {
         $(this).removeClass("active");
       } else {
         $(this).addClass("active");
       }
 
-      $(this).closest(".accordion_advanced").children(".content").toggle();
+      $(".content", $(this).closest(".accordion_advanced")).toggle();
 
       return false;
     })

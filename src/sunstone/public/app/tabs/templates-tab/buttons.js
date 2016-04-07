@@ -31,7 +31,7 @@ define(function(require) {
       type: "create_dialog",
       layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fa fa-download">',
+      icon: '<i class="fa fa-download"/>',
       alwaysActive: true
     },
     "Template.update_dialog" : {

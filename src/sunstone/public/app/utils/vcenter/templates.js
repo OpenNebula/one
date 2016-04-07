@@ -20,9 +20,13 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
+  var CustomLayoutDataTable = require('utils/custom-layout-table');
+  var UserInputs = require('utils/user-inputs');
   var Notifier = require('utils/notifier');
 
   var TemplateHTML = require('hbs!./templates/html');
+  var EmptyTableTemplate = require('hbs!./templates/empty-table');
+  var RowTemplate = require('hbs!./templates/row');
 
   function VCenterTemplates() {
     return this;
@@ -77,104 +81,171 @@ define(function(require) {
       success: function(response){
         $(".content", context).html("");
 
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + Locale.tr("Please select the vCenter Templates to be imported to OpenNebula.") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", context))
-
         $.each(response, function(datacenter_name, templates){
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + Locale.tr("DataCenter") +
-                '</h5>' +
-              '</div>' +
-            '</div>').appendTo($(".content", context))
-
+          var content;
           if (templates.length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      Locale.tr("No new templates found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", context))
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li>' +
+                      '<span>' +
+                        Locale.tr("No new templates found in this DataCenter") +
+                      '</span>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+              '</fieldset>';
+
+            $(".content", context).append(content);
           } else {
-            var newdiv = $(
+            var tableId = "vcenter_template_table_" + datacenter_name;
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li> ' +
+                      '<label class="inline">' +
+                        '<input type="checkbox" class="check_all" checked/>' +
+                        Locale.tr("Select All") +
+                      '</label>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<label class="inline">' +
+                        '<input type="checkbox" class="expand_all"/>' +
+                         Locale.tr("Expand Advanced Sections") +
+                      '</label>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small success import_selected">' +
+                         Locale.tr("Import Selected Templates") +
+                      '</button>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small secondary clear_imported">' +
+                         Locale.tr("Clear Imported Templates") +
+                      '</button>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
                 '<div class="row">' +
                   '<div class="large-12 columns">' +
-                    '<table class="dataTable vcenter_template_table" id="vcenter_template_table_' + datacenter_name + '">' +
+                    '<table class="dataTable vcenter_template_table" id="' + tableId + '">' +
                       '<thead>' +
-                        '<th class="check">' +
-                          '<input type="checkbox" class="check_all"/>' +
-                        '</th>' +
                         '<th>' + Locale.tr("Name") + '</th>' +
-                        '<th>' + Locale.tr("Datacenter") + '</th>' +
-                        '<th/>' +
-                        '<th/>' +
                       '</thead>' +
                       '<tbody/>' +
                     '</table>' +
                   '</div>' +
-                '</div>').appendTo($(".content", context));
+                '</div>';
+              '</fieldset>';
 
-            var tbody = $('tbody', newdiv);
+            $(".content", context).append(content);
 
-            $.each(templates, function(id, template){
-              var trow = $(
-                '<tr class="vcenter_template">' +
-                  '<td><input type="checkbox" class="check_item" checked/></td>' +
-                  '<td>' + template.name + '</td>' +
-                  '<td>' + template.host + '</td>' +
-                  '<td><div class="vcenter_template_response"/></td>' +
-                  '<td><div class="vcenter_template_result"/></td>' +
-                '</tr>').appendTo(tbody);
-
-              $(".check_item", trow).data("template_name", template.name)
-              $(".check_item", trow).data("one_template", template.one)
-            });
-
-            var tmplDataTable = new DomDataTable(
-              'vcenter_template_table_' + datacenter_name,
-              {
-                actions: false,
-                info: false,
-                dataTableOptions: {
-                  "bAutoWidth": false,
-                  "bSortClasses" : false,
-                  "bDeferRender": false,
-                  //"ordering": true,
-                  "order": [],
-                  "aoColumnDefs": [
-                    {"bSortable": false, "aTargets": [0]},
-                    {"bSortable": true, "aTargets": [1,2]},
-                    {"sWidth": "35px", "aTargets": [0]},
-                  ]
-                },
-                customTrListener: function(tableObj, tr){
-                  $("input.check_item", tr).click();
+            var preDrawCallback = function (settings) {
+                $('#' + tableId).html(EmptyTableTemplate());
+              }
+            var rowCallback = function(row, data, index) {
+                var opts = {};
+                if (data.ds && data.ds !== '') {
+                  opts.datastore = UserInputs.unmarshall(data.ds);
                 }
+
+                if (data.rp && data.rp !== '') {
+                  opts.resourcePool = UserInputs.unmarshall(data.rp);
+                }
+
+                opts.data = data;
+
+                var templateRow = $(RowTemplate(opts)).appendTo($('#' + tableId));
+                $('.check_item', templateRow).data("template_name", data.name)
+                $('.check_item', templateRow).data("one_template", data.one);
+
+                return row;
+              }
+
+            var templatesTable = new CustomLayoutDataTable({
+                tableId: '#' + tableId,
+                columns: ['name'],
+                preDrawCallback: preDrawCallback,
+                rowCallback: rowCallback
               });
 
-            tmplDataTable.initialize();
+            templatesTable.addData(templates);
 
-            newdiv.on("change", '.check_all', function() {
-              var table = $(this).closest('table');
-              if ($(this).is(":checked")) { //check all
-                $('tbody input.check_item', table).prop('checked', true).change();
-              } else { //uncheck all
-                $('tbody input.check_item', table).prop('checked', false).change();
-              }
+            context.off('click', '.import_selected');
+            context.on('click', '.import_selected', function() {
+              tableContext = $(this).closest('fieldset');
+              _import(tableContext);
             });
 
-            $('table', newdiv).on('draw.dt', function(){
-              _recountCheckboxes(this);
+            context.off('click', '.clear_imported');
+            context.on('click', '.clear_imported', function() {
+              _fillVCenterTemplates(opts)
             });
 
-            $(".check_item", newdiv).on('change', function(){
-              _recountCheckboxes($('table', newdiv));
-            });
+//            var tbody = $('tbody', newdiv);
+//
+//            $.each(templates, function(id, template){
+//              var trow = $(
+//                '<tr class="vcenter_template">' +
+//                  '<td><input type="checkbox" class="check_item" checked/></td>' +
+//                  '<td>' + template.name + '</td>' +
+//                  '<td>' + template.host + '</td>' +
+//                  '<td><div class="vcenter_template_response"/></td>' +
+//                  '<td><div class="vcenter_template_result"/></td>' +
+//                '</tr>').appendTo(tbody);
+//
+//              $(".check_item", trow).data("template_name", template.name)
+//              $(".check_item", trow).data("one_template", template.one)
+//            });
+
+//            var tmplDataTable = new DomDataTable(
+//              'vcenter_template_table_' + datacenter_name,
+//              {
+//                actions: false,
+//                info: false,
+//                dataTableOptions: {
+//                  "bAutoWidth": false,
+//                  "bSortClasses" : false,
+//                  "bDeferRender": false,
+//                  //"ordering": true,
+//                  "order": [],
+//                  "aoColumnDefs": [
+//                    {"bSortable": false, "aTargets": [0]},
+//                    {"bSortable": true, "aTargets": [1,2]},
+//                    {"sWidth": "35px", "aTargets": [0]},
+//                  ]
+//                },
+//                customTrListener: function(tableObj, tr){
+//                  $("input.check_item", tr).click();
+//                }
+//              });
+//
+//            tmplDataTable.initialize();
+//
+//            newdiv.on("change", '.check_all', function() {
+//              var table = $(this).closest('table');
+//              if ($(this).is(":checked")) { //check all
+//                $('tbody input.check_item', table).prop('checked', true).change();
+//              } else { //uncheck all
+//                $('tbody input.check_item', table).prop('checked', false).change();
+//              }
+//            });
+//
+//            $('table', newdiv).on('draw.dt', function(){
+//              _recountCheckboxes(this);
+//            });
+//
+//            $(".check_item", newdiv).on('change', function(){
+//              _recountCheckboxes($('table', newdiv));
+//            });
           }
         });
       },
@@ -192,9 +263,9 @@ define(function(require) {
   }
 
   function _import(context) {
-    $.each($("table.vcenter_template_table", context), function() {
-      $.each($(this).DataTable().$(".check_item:checked"), function() {
-        var template_context = $(this).closest(".vcenter_template");
+    $.each($(".vcenter_template_table", context), function() {
+      $.each($(".check_item:checked", this), function() {
+        var template_context = $(this).closest(".vcenter_row");
 
         $(".vcenter_template_result:not(.success)", template_context).html(
             '<span class="fa-stack" style="color: #dfdfdf">' +
@@ -202,9 +273,66 @@ define(function(require) {
               '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
             '</span>');
 
+
+        var attrs = [];
+        var userInputs = [];
+
+        // Retrieve Datastore Attribute
+        var datastoreInput = $(".vcenter_datastore_input", template_context);
+        if (datastoreInput.length > 0) {
+          if ($('.modify_datastore', datastoreInput).val() === 'fixed') {
+            attrs.push( 
+              'VCENTER_DATASTORE="' + 
+              $('.initial_datastore', datastoreInput).val() +
+              '"')
+          } else {
+            userInputs.push(
+              'VCENTER_DATASTORE="' +
+              UserInputs.marshall({
+                type: 'list',
+                description: Locale.tr("Which datastore you want this VM to run on?"),
+                initial: $('.initial_datastore', datastoreInput).val(),
+                params: $('.available_datastores', datastoreInput).val()
+              }) +
+              '"');
+          }
+        }
+
+        // Retrieve Resource Pool Attribute
+        var rpInput = $(".vcenter_rp_input", template_context);
+        if (rpInput.length > 0) {
+          if ($('.modify_rp', rpInput).val() === 'fixed') {
+            attrs.push( 
+              'RESOURCE_POOL="' + 
+              $('.initial_rp', rpInput).val() +
+              '"')
+          } else {
+            userInputs.push(
+              'RESOURCE_POOL="' +
+              UserInputs.marshall({
+                type: 'list',
+                description: Locale.tr("Which resource pool you want this VM to run in?"),
+                initial: $('.initial_rp', rpInput).val(),
+                params: $('.available_rps', rpInput).val()
+              }) +
+              '"');
+          }
+        }
+        
+        // Append new attrs and user inputs if necessary
+        var template = $(this).data("one_template");
+
+        if (attrs.length > 0) {
+          template += "\n" + attrs.join("\n");
+        }
+
+        if (userInputs.length > 0) {
+          template += "\nUSER_INPUTS=[\n" + userInputs.join(",\n") + "]";
+        }
+
         var template_json = {
           "vmtemplate": {
-            "template_raw": $(this).data("one_template")
+            "template_raw": template
           }
         };
 

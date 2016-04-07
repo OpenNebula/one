@@ -86,9 +86,12 @@ define(function(require) {
         $.each(response, function(datacenter_name, networks){
           $('<div class="row">' +
               '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + Locale.tr("DataCenter") +
-                '</h5>' +
+                '<h6>' +
+                  datacenter_name + ' ' +
+                  '<small>' + 
+                    Locale.tr("DataCenter Networks") +
+                  '</small>' +
+                '</h6>' +
               '</div>' +
             '</div>').appendTo($(".content", context))
 
@@ -134,37 +137,40 @@ define(function(require) {
               '<tr class="vcenter_network">' +
                 '<td>' +
                   '<div class="row">' +
-                    '<div class="large-10 columns">' +
-                      '<div class="large-12 columns">' +
-                        '<label>' +
-                          '<input type="checkbox" class="check_item" checked/> ' +
-                          network.name + '&emsp;<span style="color: #999">' + network.cluster + '</span>' +
-                          '&emsp;<span style="color: #999">' + network.type + '</span>' +
-                        '</label>' +
-                      '</div>'+
-                      '<div class="large-2 columns">'+
-                        '<label>' + Locale.tr("SIZE") +
-                          '<input type="text" class="netsize" value="255"/>' +
-                        '</label>' +
-                      '</div>'+
-                      '<div class="large-2 columns">'+
-                        '<label>' + Locale.tr("TYPE") +
-                          '<select class="type_select">'+
-                            '<option value="ETHER">eth</option>' +
-                            '<option value="IP4">ipv4</option>'+
-                            '<option value="IP6">ipv6</option>' +
-                          '</select>' +
-                        '</label>' +
-                      '</div>'+
-                      '<div class="net_options">' +
-                        '<div class="large-4 columns">'+
-                          '<label>' + Locale.tr("MAC") +
-                            '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
-                          '</label>'+
+                    '<div class="large-12 columns">' +
+                        '<div class="row">' +
+                          '<div class="large-8 columns">' +
+                            '<label>' +
+                              '<input type="checkbox" class="check_item" checked/> ' +
+                              network.name + '&emsp;<span style="color: #999">' + network.cluster + '</span>' +
+                              '&emsp;<span style="color: #999">' + network.type + '</span>' +
+                            '</label>' +
+                          '</div>'+
+                          '<div class="large-2 columns">'+
+                            '<label>' + Locale.tr("Size") +
+                              '<input type="text" class="netsize" value="255"/>' +
+                            '</label>' +
+                          '</div>'+
+                          '<div class="large-2 columns">'+
+                            '<label>' + Locale.tr("Type") +
+                              '<select class="type_select">'+
+                                '<option value="ETHER">eth</option>' +
+                                '<option value="IP4">ipv4</option>'+
+                                '<option value="IP6">ipv6</option>' +
+                              '</select>' +
+                            '</label>' +
+                          '</div>'+
                         '</div>'+
-                      '</div>'+
-                      vlan_info +
-                      '<div class="large-12 columns vcenter_network_response">'+
+                        '<div class="net_options row">' +
+                          '<div class="large-4 columns end">'+
+                            '<label>' + Locale.tr("MAC") +
+                              '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
+                            '</label>'+
+                          '</div>'+
+                        '</div>'+
+                        vlan_info +
+                        '<div class="large-12 columns vcenter_network_response">'+
+                        '</div>'+
                       '</div>'+
                     '</div>' +
                     '<div class="large-2 columns vcenter_network_result">'+
@@ -192,7 +198,7 @@ define(function(require) {
                   case 'IP4':
                     net_form_str =
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("IP START") +
+                        '<label>' + Locale.tr("IP Start") +
                           '<input type="text" class="four_ip_net"/>' +
                         '</label>'+
                       '</div>'+
@@ -210,12 +216,12 @@ define(function(require) {
                         '</label>'+
                       '</div>'+
                       '<div class="large-6 columns">'+
-                        '<label>' + Locale.tr("GLOBAL PREFIX") +
+                        '<label>' + Locale.tr("Global Prefix") +
                           '<input type="text" class="six_global_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>'+
                       '<div class="large-6 columns">'+
-                        '<label>' + Locale.tr("ULA_PREFIX") +
+                        '<label>' + Locale.tr("ULA Prefix") +
                           '<input type="text" class="six_ula_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>';

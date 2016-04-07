@@ -30,6 +30,7 @@
 @import './tabs';
 @import './fieldset';
 @import './boxes';
+@import './vcenter';
 
 
 
@@ -51,7 +52,6 @@ h6 {
   font-weight: 300;
   margin-bottom: 1.5rem;
   padding: 1rem;
-  border-bottom: 1px solid #dfdfdf;
   box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1);
 
 }
