@@ -81,7 +81,7 @@ REMOTE_REGISTER_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
 
     mkdir -p $BASE_PATH
-    $DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M
+    $QEMU_IMG create -f raw "$DST" "${SIZE}M"
     $MKFS_CMD
 EOF
 )
@@ -95,7 +95,7 @@ if [ -n "$BRIDGE_LIST" ]; then
 else
     mkdir -p "$BASE_PATH"
 
-    exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
+    exec_and_log "$QEMU_IMG create -f raw $DST ${SIZE}M" \
         "Could not create image $DST"
     exec_and_log "$MKFS_CMD" \
         "Unable to create filesystem $FSTYPE in $DST"
