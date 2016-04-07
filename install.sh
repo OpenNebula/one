@@ -1025,6 +1025,8 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/context \
                  src/tm_mad/fs_lvm/ln \
                  src/tm_mad/fs_lvm/monitor \
+                 src/tm_mad/fs_lvm/mkswap \
+                 src/tm_mad/fs_lvm/mkimage \
                  src/tm_mad/fs_lvm/mv \
                  src/tm_mad/fs_lvm/mvds \
                  src/tm_mad/fs_lvm/cpds \
