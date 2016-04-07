@@ -270,7 +270,7 @@ public:
     HostAllocate():
         RequestManagerAllocate("HostAllocate",
                                "Allocates a new host",
-                               "A:sssssi",
+                               "A:ssssi",
                                false)
     {
         Nebula& nd  = Nebula::instance();
@@ -291,7 +291,7 @@ public:
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList)
     {
-        return RequestManagerAllocate::get_cluster_id(paramList, 5);
+        return RequestManagerAllocate::get_cluster_id(paramList, 4);
     };
 
     int add_to_cluster(

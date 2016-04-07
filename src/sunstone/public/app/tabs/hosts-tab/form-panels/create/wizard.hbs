@@ -35,26 +35,6 @@
       <label for="name">{{tr "Hostname"}}</label>
       <input type="text" name="name" id="name" />
     </div>
-    <div class="medium-6 columns">
-      <div class="manager clear row" id="vnm_mads">
-        <div class="medium-12 columns">
-          <label for="vn">{{tr "Networking"}}</label>
-          <select id="vnm_mad" name="vn">
-            <option value="dummy">{{tr "Default (dummy)"}}</option>
-            <option value="fw">{{tr "Firewall"}}</option>
-            <option value="802.1Q">{{tr "802.1Q"}}</option>
-            <option value="vxlan">{{tr "VXLAN"}}</option>
-            <option value="ebtables">{{tr "ebtables"}}</option>
-            <option value="ovswitch">{{tr "Open vSwitch"}}</option>
-            <option value="custom">{{tr "Custom"}}</option>
-          </select>
-        </div>
-        <div class="large-12 columns">
-          <label>{{tr "Custom VNM_MAD"}}</label>
-          <input type="text" name="custom_vnm_mad" />
-        </div>
-      </div>
-    </div>
   </div>
   <div class="drivers">
     <fieldset>

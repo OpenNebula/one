@@ -29,7 +29,6 @@ module OpenNebulaJSON
             self.allocate(host_hash['name'],
                           host_hash['im_mad'],
                           host_hash['vm_mad'],
-                          host_hash['vnm_mad'],
                           host_hash['cluster_id'].to_i)
         end
 

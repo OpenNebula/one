@@ -117,19 +117,16 @@ define(function(require) {
 
       if (this.value == "custom") {
         $(".vcenter_credentials", context).hide();
-        $("#vnm_mads", context).show();
         $("#name_container", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).show();
       } else if (this.value == "vcenter") {
-        $("#vnm_mads", context).hide();
         $("#name_container", context).hide();
         $(".vcenter_credentials", context).show();
         Sunstone.hideFormPanelSubmit(TAB_ID);
         $(".drivers", context).hide();
       } else {
         $(".vcenter_credentials", context).hide();
-        $("#vnm_mads", context).show();
         $("#name_container", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).hide();
@@ -190,9 +187,8 @@ define(function(require) {
     });
 
     // Show custom driver input only when custom is selected in selects
-    $('input[name="custom_vmm_mad"],' +
-       'input[name="custom_im_mad"],' +
-       'input[name="custom_vnm_mad"]', context).parent().hide();
+    $('input[name="custom_vmm_mad"],' + 'input[name="custom_im_mad"]',
+        context).parent().hide();
 
     $('select#vmm_mad', context).change(function() {
       if ($(this).val() == "custom")
@@ -206,13 +202,6 @@ define(function(require) {
           $('input[name="custom_im_mad"]').parent().show();
       else
           $('input[name="custom_im_mad"]').parent().hide();
-    });
-
-    $('select#vnm_mad', context).change(function() {
-      if ($(this).val() == "custom")
-          $('input[name="custom_vnm_mad"]').parent().show();
-      else
-          $('input[name="custom_vnm_mad"]').parent().hide();
     });
 
     $('#create_host_form').on("keyup keypress", function(e) {
@@ -242,14 +231,11 @@ define(function(require) {
     vmm_mad = vmm_mad == "custom" ? $('input[name="custom_vmm_mad"]').val() : vmm_mad;
     var im_mad = $('select#im_mad', context).val();
     im_mad = im_mad == "custom" ? $('input[name="custom_im_mad"]').val() : im_mad;
-    var vnm_mad = $('select#vnm_mad', context).val();
-    vnm_mad = vnm_mad == "custom" ? $('input[name="custom_vnm_mad"]').val() : vnm_mad;
 
     var host_json = {
       "host": {
         "name": name,
         "vm_mad": vmm_mad,
-        "vnm_mad": vnm_mad,
         "im_mad": im_mad,
         "cluster_id": cluster_id
       }
