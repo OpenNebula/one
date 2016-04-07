@@ -26,7 +26,6 @@ source_files=[
     'VirtualMachineManagerDriver.cc',
     'XenDriver.cc',
     'LibVirtDriverKVM.cc',
-    'LibVirtDriverVMware.cc',
     'XMLDriver.cc'
 ]
 

@@ -34,11 +34,15 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqlDB * db, const string& str_mac_prefix, int default_size,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const VectorAttribute *>& hook_mads, const string& remotes_location,
-        const vector<const SingleAttribute *>& _inherit_attrs,
-        const VectorAttribute * vlan_conf, const VectorAttribute * vxlan_conf);
+    VirtualNetworkPool(SqlDB * db,
+            const string& str_mac_prefix,
+            int default_size,
+            vector<const SingleAttribute *>& restricted_attrs,
+            vector<const VectorAttribute *>& hook_mads,
+            const string& remotes_location,
+            const vector<const SingleAttribute *>& _inherit_attrs,
+            const VectorAttribute * vlan_conf,
+            const VectorAttribute * vxlan_conf);
 
     ~VirtualNetworkPool(){};
 

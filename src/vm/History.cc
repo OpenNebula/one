@@ -44,7 +44,6 @@ History::History(
         hostname(""),
         cid(-1),
         vmm_mad_name(""),
-        vnm_mad_name(""),
         tm_mad_name(""),
         ds_location(""),
         ds_id(0),
@@ -69,7 +68,6 @@ History::History(
     const string& _hostname,
     int _cid,
     const string& _vmm,
-    const string& _vnm,
     const string& _tmm,
     const string& _ds_location,
     int           _ds_id,
@@ -80,7 +78,6 @@ History::History(
         hostname(_hostname),
         cid(_cid),
         vmm_mad_name(_vmm),
-        vnm_mad_name(_vnm),
         tm_mad_name(_tmm),
         ds_location(_ds_location),
         ds_id(_ds_id),
@@ -300,26 +297,25 @@ string& History::to_xml(string& xml, bool database) const
 
     oss <<
         "<HISTORY>" <<
-          "<OID>"         << oid               << "</OID>"   <<
-          "<SEQ>"         << seq               << "</SEQ>"   <<
-          "<HOSTNAME>"    << hostname          << "</HOSTNAME>"<<
-          "<HID>"         << hid               << "</HID>"   <<
-          "<CID>"         << cid               << "</CID>"   <<
-          "<STIME>"       << stime             << "</STIME>" <<
-          "<ETIME>"       << etime             << "</ETIME>" <<
-          "<VMMMAD>"      << one_util::escape_xml(vmm_mad_name) << "</VMMMAD>"<<
-          "<VNMMAD>"      << one_util::escape_xml(vnm_mad_name) << "</VNMMAD>"<<
-          "<TMMAD>"       << one_util::escape_xml(tm_mad_name)  << "</TMMAD>" <<
-          "<DS_LOCATION>" << one_util::escape_xml(ds_location)  << "</DS_LOCATION>" <<
-          "<DS_ID>"       << ds_id             << "</DS_ID>" <<
-          "<PSTIME>"      << prolog_stime      << "</PSTIME>"<<
-          "<PETIME>"      << prolog_etime      << "</PETIME>"<<
-          "<RSTIME>"      << running_stime     << "</RSTIME>"<<
-          "<RETIME>"      << running_etime     << "</RETIME>"<<
-          "<ESTIME>"      << epilog_stime      << "</ESTIME>"<<
-          "<EETIME>"      << epilog_etime      << "</EETIME>"<<
-          "<REASON>"      << reason            << "</REASON>"<<
-          "<ACTION>"      << action            << "</ACTION>";
+          "<OID>"        << oid           << "</OID>"   <<
+          "<SEQ>"        << seq           << "</SEQ>"   <<
+          "<HOSTNAME>"   << hostname      << "</HOSTNAME>"<<
+          "<HID>"        << hid           << "</HID>"   <<
+          "<CID>"        << cid           << "</CID>"   <<
+          "<STIME>"      << stime         << "</STIME>" <<
+          "<ETIME>"      << etime         << "</ETIME>" <<
+          "<VMMMAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VMMMAD>"<<
+          "<TMMAD>"      << one_util::escape_xml(tm_mad_name) <<"</TMMAD>" <<
+          "<DS_LOCATION>"<< one_util::escape_xml(ds_location) <<"</DS_LOCATION>"<<
+          "<DS_ID>"      << ds_id         << "</DS_ID>" <<
+          "<PSTIME>"     << prolog_stime  << "</PSTIME>"<<
+          "<PETIME>"     << prolog_etime  << "</PETIME>"<<
+          "<RSTIME>"     << running_stime << "</RSTIME>"<<
+          "<RETIME>"     << running_etime << "</RETIME>"<<
+          "<ESTIME>"     << epilog_stime  << "</ESTIME>"<<
+          "<EETIME>"     << epilog_etime  << "</EETIME>"<<
+          "<REASON>"     << reason        << "</REASON>"<<
+          "<ACTION>"     << action        << "</ACTION>";
 
     if ( database )
     {
@@ -349,7 +345,6 @@ int History::rebuild_attributes()
     rc += xpath<time_t>(stime    , "/HISTORY/STIME",       0);
     rc += xpath<time_t>(etime    , "/HISTORY/ETIME",       0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");
-          xpath(vnm_mad_name     , "/HISTORY/VNMMAD",      "dummy");
     rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",       "not_found");
     rc += xpath(ds_location      , "/HISTORY/DS_LOCATION", "not_found");
     rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);

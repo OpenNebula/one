@@ -32,7 +32,6 @@ Host::Host(
     const string& _hostname,
     const string& _im_mad_name,
     const string& _vmm_mad_name,
-    const string& _vnm_mad_name,
     int           _cluster_id,
     const string& _cluster_name):
         PoolObjectSQL(id,HOST,_hostname,-1,-1,"","",table),
@@ -40,21 +39,16 @@ Host::Host(
         state(INIT),
         im_mad_name(_im_mad_name),
         vmm_mad_name(_vmm_mad_name),
-        vnm_mad_name(_vnm_mad_name),
         last_monitored(0),
         vm_collection("VMS")
 {
-    string default_cpu; //TODO - Get these two from oned.conf
-    string default_mem;
-
     obj_template = new HostTemplate;
 
-    add_template_attribute("RESERVED_CPU", default_cpu);
-    add_template_attribute("RESERVED_MEM", default_cpu);
+    add_template_attribute("RESERVED_CPU", "");
+    add_template_attribute("RESERVED_MEM", "");
 
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
-    replace_template_attribute("VN_MAD", vnm_mad_name);
 }
 
 Host::~Host()
@@ -594,7 +588,6 @@ string& Host::to_xml(string& xml) const
        "<STATE>"            << state            << "</STATE>"           <<
        "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
-       "<VN_MAD>"        << one_util::escape_xml(vnm_mad_name) << "</VN_MAD>" <<
        "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
        "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
        "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
@@ -628,7 +621,6 @@ int Host::from_xml(const string& xml)
 
     rc += xpath(im_mad_name, "/HOST/IM_MAD", "not_found");
     rc += xpath(vmm_mad_name, "/HOST/VM_MAD", "not_found");
-    rc += xpath(vnm_mad_name, "/HOST/VN_MAD", "not_found");
 
     rc += xpath<time_t>(last_monitored, "/HOST/LAST_MON_TIME", 0);
 
@@ -688,7 +680,6 @@ int Host::post_update_template(string& error)
     string vcenter_password;
     string new_im_mad;
     string new_vm_mad;
-    string new_vn_mad;
 
     get_template_attribute("VCENTER_PASSWORD", vcenter_password);
 
@@ -718,7 +709,6 @@ int Host::post_update_template(string& error)
 
     get_template_attribute("IM_MAD", new_im_mad);
     get_template_attribute("VM_MAD", new_vm_mad);
-    get_template_attribute("VN_MAD", new_vn_mad);
 
     if (new_im_mad != ""){
         im_mad_name = new_im_mad;
@@ -728,13 +718,8 @@ int Host::post_update_template(string& error)
         vmm_mad_name = new_vm_mad;
     }
 
-    if (new_im_mad != ""){
-        vnm_mad_name = new_vn_mad;
-    }
-
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
-    replace_template_attribute("VN_MAD", vnm_mad_name);
 
     return 0;
 };

@@ -150,7 +150,6 @@ int HostPool::allocate (
     const string& hostname,
     const string& im_mad_name,
     const string& vmm_mad_name,
-    const string& vnm_mad_name,
     int           cluster_id,
     const string& cluster_name,
     string& error_str)
@@ -173,11 +172,6 @@ int HostPool::allocate (
         goto error_vmm;
     }
 
-    if ( vnm_mad_name.empty() )
-    {
-        goto error_vnm;
-    }
-
     host = get(hostname,false);
 
     if ( host !=0)
@@ -192,7 +186,6 @@ int HostPool::allocate (
             hostname,
             im_mad_name,
             vmm_mad_name,
-            vnm_mad_name,
             cluster_id,
             cluster_name);
 
@@ -208,10 +201,6 @@ error_im:
 
 error_vmm:
     error_str = "VMM_MAD_NAME cannot be empty.";
-    goto error_common;
-
-error_vnm:
-    error_str = "VNM_MAD_NAME cannot be empty.";
     goto error_common;
 
 error_duplicated:

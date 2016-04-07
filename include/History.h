@@ -276,7 +276,6 @@ public:
         const string& hostname,
         int cid,
         const string& vmm,
-        const string& vnm,
         const string& tmm,
         const string& ds_location,
         int           ds_id,
@@ -323,7 +322,6 @@ private:
     int     cid;
 
     string  vmm_mad_name;
-    string  vnm_mad_name;
     string  tm_mad_name;
 
     string  ds_location;

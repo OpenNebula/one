@@ -1650,7 +1650,6 @@ void VirtualMachine::add_history(
     int   cid,
     const string& hostname,
     const string& vmm_mad,
-    const string& vnm_mad,
     const string& tm_mad,
     const string& ds_location,
     int           ds_id)
@@ -1672,17 +1671,8 @@ void VirtualMachine::add_history(
 
     to_xml_extended(vm_xml, 0);
 
-    history = new History(oid,
-                          seq,
-                          hid,
-                          hostname,
-                          cid,
-                          vmm_mad,
-                          vnm_mad,
-                          tm_mad,
-                          ds_location,
-                          ds_id,
-                          vm_xml);
+    history = new History(oid, seq, hid, hostname, cid, vmm_mad, tm_mad,
+            ds_location, ds_id, vm_xml);
 
     history_records.push_back(history);
 };
@@ -1708,7 +1698,6 @@ void VirtualMachine::cp_history()
                        history->hostname,
                        history->cid,
                        history->vmm_mad_name,
-                       history->vnm_mad_name,
                        history->tm_mad_name,
                        history->ds_location,
                        history->ds_id,
@@ -1741,7 +1730,6 @@ void VirtualMachine::cp_previous_history()
                        previous_history->hostname,
                        previous_history->cid,
                        previous_history->vmm_mad_name,
-                       previous_history->vnm_mad_name,
                        previous_history->tm_mad_name,
                        previous_history->ds_location,
                        previous_history->ds_id,

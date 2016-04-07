@@ -631,12 +631,11 @@ int HostAllocate::pool_allocate(
     string host    = xmlrpc_c::value_string(paramList.getString(1));
     string im_mad  = xmlrpc_c::value_string(paramList.getString(2));
     string vmm_mad = xmlrpc_c::value_string(paramList.getString(3));
-    string vnm_mad = xmlrpc_c::value_string(paramList.getString(4));
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    return hpool->allocate(&id, host, im_mad, vmm_mad, vnm_mad,
-                           cluster_id, cluster_name, att.resp_msg);
+    return hpool->allocate(&id, host, im_mad, vmm_mad, cluster_id, cluster_name,
+            att.resp_msg);
 }
 
 /* -------------------------------------------------------------------------- */
