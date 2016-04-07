@@ -2574,11 +2574,6 @@ int VirtualMachineManager::load_mads(int uid)
             vmm_driver = new LibVirtDriver(uid, vattr->value(),
                                            (uid != 0),vmpool,"qemu");
         }
-        else if ( type == "VMWARE" )
-        {
-            vmm_driver = new LibVirtDriver(uid, vattr->value(),
-                                           (uid != 0),vmpool,"vmware");
-        }
         else if ( type == "XML" )
         {
             vmm_driver = new XMLDriver(uid, vattr->value(),(uid != 0),vmpool);
