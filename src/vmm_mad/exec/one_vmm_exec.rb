@@ -660,12 +660,6 @@ class ExecDriver < VirtualMachineDriver
 
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
-        # Bug #1355, argument character limitation in ESX
-        # Message not used in vmware anyway
-        if @hypervisor == "vmware"
-            drv_message = "drv_message"
-        end
-
         steps = [
             # Perform a PROLOG on the disk
             {

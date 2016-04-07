@@ -86,24 +86,6 @@ module VNMNetwork
             self
         end
     end
-
-    # A NIC using VMware. This class implements functions to get the physical interface
-    # that the NIC is using
-    class NicVMware < Hash
-        VNMNetwork::HYPERVISORS["vmware"] = self
-
-        def initialize
-            super(nil)
-        end
-
-        def get_info(vm)
-        end
-
-        def get_tap(vm)
-            self
-        end
-    end
-
 end
 
 end
