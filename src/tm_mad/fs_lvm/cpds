@@ -55,7 +55,7 @@ VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 DUMP_CMD=$(cat <<EOF
-    $SUDO $DD if=$DEV of=$DST_PATH bs=64k
+    $DD if=$DEV of=$DST_PATH bs=64k
 EOF
 )
 
