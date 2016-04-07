@@ -28,8 +28,8 @@ require 'opennebula'
 include OpenNebula
 
 module OneDBImportSlave
-    VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.85"
+    VERSION = "4.90.0"
+    LOCAL_VERSION = "4.90.0"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||
@@ -63,12 +63,16 @@ EOT
 
     def import_slave(slave_backend, merge_users, merge_groups, merge_vdcs, zone_id)
 
-        users       = Hash.new
-        user_names  = Hash.new
-        groups      = Hash.new
-        vdcs        = Hash.new
+        users           = Hash.new
+        user_names      = Hash.new
+        groups          = Hash.new
+        vdcs            = Hash.new
+        marketplaces    = Hash.new
+        marketplaceapps = Hash.new
 
         @slave_db = slave_backend.db
+
+        zone_name = nil
 
         ########################################################################
         # Zone for the slave
@@ -86,6 +90,8 @@ EOT
         @db.fetch("SELECT oid, name FROM zone_pool WHERE oid = #{zone_id}") do |row|
             found = true
 
+            zone_name = row[:name]
+
             log("The Slave OpenNebula will be imported to the Master OpenNebula as Zone ##{row[:oid]}, #{row[:name]}.")
         end
 
@@ -100,10 +106,12 @@ EOT
         # pool_control
         ########################################################################
 
-        last_user_oid   = last_oid("user_pool")
-        last_group_oid  = last_oid("group_pool")
-        last_vdc_oid    = last_oid("vdc_pool")
-        last_acl_oid    = last_oid("acl")
+        last_user_oid           = last_oid("user_pool")
+        last_group_oid          = last_oid("group_pool")
+        last_vdc_oid            = last_oid("vdc_pool")
+        last_acl_oid            = last_oid("acl")
+        last_marketplace_oid    = last_oid("marketplace_pool")
+        last_marketplaceapp_oid = last_oid("marketplaceapp_pool")
 
         ########################################################################
         # Calculate new IDs and names for users, groups, and vdcs
@@ -300,6 +308,114 @@ EOT
         end
 
         log("")
+        log(<<-EOT
+MarketPlaces will be moved from the slave DB to the master DB. They will need
+a new ID and name.
+Old Slave ID name  =>  New Master ID name
+
+EOT
+            )
+
+        @slave_db.fetch("SELECT oid, name FROM marketplace_pool") do |row|
+            found = false
+            new_oid = -1
+
+            @db.fetch("SELECT oid, name FROM marketplace_pool "<<
+                      "WHERE name = '#{row[:name]}'") do |row_master|
+                found = true
+            end
+
+            if found
+                new_oid  = last_marketplace_oid += 1
+
+                new_name = "#{row[:name]} - #{zone_name}"
+
+                found = false
+
+                @db.fetch("SELECT oid, name FROM marketplace_pool "<<
+                        "WHERE name = '#{new_name}'") do |row_master|
+                    found = true
+                end
+
+                i = 1
+
+                while found do
+                    found = false
+
+                    new_name = "#{row[:name]}-#{i}"
+                    i += 1
+
+                    @db.fetch("SELECT oid, name FROM marketplace_pool "<<
+                            "WHERE name = '#{new_name}'") do |row_master|
+                        found = true
+                    end
+                end
+            else
+                new_oid  = last_marketplace_oid += 1
+                new_name = row[:name]
+            end
+
+            log("%4s %-16s  =>  %4s %-16s" % [row[:oid], row[:name], new_oid, new_name])
+
+            marketplaces[row[:oid]] =
+                {:oid => new_oid, :name => new_name, :merged => false}
+        end
+
+        log("")
+        log(<<-EOT
+MarketPlaceApps will be moved from the slave DB to the master DB. They will need
+a new ID and name.
+Old Slave ID name  =>  New Master ID name
+
+EOT
+            )
+
+        @slave_db.fetch("SELECT oid, name FROM marketplaceapp_pool") do |row|
+            found = false
+            new_oid = -1
+
+            @db.fetch("SELECT oid, name FROM marketplaceapp_pool "<<
+                      "WHERE name = '#{row[:name]}'") do |row_master|
+                found = true
+            end
+
+            if found
+                new_oid  = last_marketplaceapp_oid += 1
+
+                new_name = "#{row[:name]} - #{zone_name}"
+
+                found = false
+
+                @db.fetch("SELECT oid, name FROM marketplace_pool "<<
+                        "WHERE name = '#{new_name}'") do |row_master|
+                    found = true
+                end
+
+                i = 1
+
+                while found do
+                    found = false
+
+                    new_name = "#{row[:name]}-#{i}"
+                    i += 1
+
+                    @db.fetch("SELECT oid, name FROM marketplaceapp_pool "<<
+                            "WHERE name = '#{new_name}'") do |row_master|
+                        found = true
+                    end
+                end
+            else
+                new_oid  = last_marketplaceapp_oid += 1
+                new_name = row[:name]
+            end
+
+            log("%4s %-16s  =>  %4s %-16s" % [row[:oid], row[:name], new_oid, new_name])
+
+            marketplaceapps[row[:oid]] =
+                {:oid => new_oid, :name => new_name, :merged => false}
+        end
+
+        log("")
 
         ########################################################################
         # Change ownership IDs and names for resources
@@ -312,7 +428,7 @@ EOT
         @slave_db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
 
         @slave_db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
-        @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, pid INTEGER, UNIQUE(name,uid));"
+        @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, pid INTEGER, UNIQUE(name,uid));"
 
         @slave_db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
         @slave_db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
@@ -332,9 +448,14 @@ EOT
         @slave_db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
         @slave_db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
 
+        @slave_db.run "ALTER TABLE marketplace_pool RENAME TO old_marketplace_pool;"
+        @slave_db.run "CREATE TABLE marketplace_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @slave_db.run "ALTER TABLE marketplaceapp_pool RENAME TO old_marketplaceapp_pool;"
+        @slave_db.run "CREATE TABLE marketplaceapp_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
 
         @slave_db.transaction do
-            process_new_ownership(@slave_db, users, user_names, groups)
+            process_new_ownership(@slave_db, users, user_names, groups, marketplaces, marketplaceapps)
         end
 
         ########################################################################
@@ -847,6 +968,146 @@ EOT
         end
 
         ########################################################################
+        # Move Marketplaces from slave to master DB, merge if neccessary
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM marketplace_pool") do |row|
+                new_market = marketplaces[row[:oid]]
+
+                slave_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                if new_market[:merged]
+                    master_doc = nil
+
+                    @db.fetch("SELECT body from marketplace_pool "<<
+                              "WHERE oid=#{new_market[:oid]}") do |master_row|
+                        master_doc = Nokogiri::XML(master_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                    end
+
+                    slave_apps_elem  = slave_doc.root.at_xpath("MARKETPLACEAPPS")
+                    master_apps_elem = master_doc.root.at_xpath("MARKETPLACEAPPS")
+
+                    slave_apps_elem.xpath("ID").each do |id|
+                        app = marketplaceapps[id.text.to_i]
+
+                        if !app.nil?
+                            app_id = app[:oid]
+
+                            if master_apps_elem.at_xpath("ID [.=#{app_id}]").nil?
+                                master_apps_elem.add_child(
+                                    master_doc.create_element("ID")).content = app_id
+                            end
+                        end
+                    end
+
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
+                    @db[:marketplace_pool].where(:oid => new_market[:oid]).update(
+                        :body => master_doc.root.to_s)
+                else
+                    slave_doc.root.at_xpath("ID").content    = new_market[:oid]
+                    slave_doc.root.at_xpath("NAME").content  = new_market[:name]
+
+                    apps_elem = slave_doc.root.at_xpath("MARKETPLACEAPPS")
+                    apps_elem.remove
+
+                    new_elem = slave_doc.create_element("MARKETPLACEAPPS")
+
+                    apps_elem.xpath("ID").each do |id|
+                        app = marketplaceapps[id.text.to_i]
+
+                        if !app.nil?
+                            new_elem.add_child(slave_doc.create_element("ID")).
+                                content = app[:oid]
+                        end
+                    end
+
+                    slave_doc.root.add_child(new_elem)
+
+                    # Change the zone_id
+                    slave_doc.root.at_xpath("ZONE_ID").content = zone_id
+
+                    @db[:marketplace_pool].insert(
+                        :oid        => new_market[:oid],
+                        :name       => new_market[:name],
+                        :body       => slave_doc.root.to_s,
+                        :uid        => row[:uid],
+                        :gid        => row[:gid],
+                        :owner_u    => row[:owner_u],
+                        :group_u    => row[:group_u],
+                        :other_u    => row[:other_u])
+                end
+            end
+        end
+
+        ########################################################################
+        # Move Marketplace Apps from slave to master DB, merge if neccessary
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM marketplaceapp_pool") do |row|
+                new_app = marketplaceapps[row[:oid]]
+
+                slave_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                if new_app[:merged]
+                    master_doc = nil
+
+                    @db.fetch("SELECT body from marketplaceapp_pool "<<
+                              "WHERE oid=#{new_app[:oid]}") do |master_row|
+                        master_doc = Nokogiri::XML(master_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+                    end
+
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
+                    @db[:marketplaceapp_pool].where(:oid => new_app[:oid]).update(
+                        :body => master_doc.root.to_s)
+                else
+                    slave_doc.root.at_xpath("ID").content    = new_app[:oid]
+                    slave_doc.root.at_xpath("NAME").content  = new_app[:name]
+
+                    # Change the zone_id
+                    slave_doc.root.at_xpath("ZONE_ID").content = zone_id
+
+                    @db[:marketplaceapp_pool].insert(
+                        :oid        => new_app[:oid],
+                        :name       => new_app[:name],
+                        :body       => slave_doc.root.to_s,
+                        :uid        => row[:uid],
+                        :gid        => row[:gid],
+                        :owner_u    => row[:owner_u],
+                        :group_u    => row[:group_u],
+                        :other_u    => row[:other_u])
+                end
+            end
+        end
+
+        ########################################################################
         # Cleanup shared tables form slave DB
         ########################################################################
 
@@ -857,6 +1118,8 @@ EOT
         @slave_db.run "DROP TABLE old_vm_pool;"
         @slave_db.run "DROP TABLE old_secgroup_pool;"
         @slave_db.run "DROP TABLE old_vrouter_pool;"
+        @slave_db.run "DROP TABLE old_marketplace_pool;"
+        @slave_db.run "DROP TABLE old_marketplaceapp_pool;"
 
         @slave_db.run "DROP TABLE old_group_quotas;"
         @slave_db.run "DROP TABLE old_user_quotas;"
@@ -867,10 +1130,15 @@ EOT
         @slave_db.run "DROP TABLE zone_pool;"
         @slave_db.run "DROP TABLE db_versioning;"
         @slave_db.run "DROP TABLE acl;"
+        @slave_db.run "DROP TABLE marketplace_pool;"
+        @slave_db.run "DROP TABLE marketplaceapp_pool;"
 
         @db.run "UPDATE pool_control SET last_oid = #{last_user_oid} WHERE tablename = 'user_pool';"
         @db.run "UPDATE pool_control SET last_oid = #{last_group_oid} WHERE tablename = 'group_pool';"
+        @db.run "UPDATE pool_control SET last_oid = #{last_vdc_oid} WHERE tablename = 'vdc_pool';"
         @db.run "UPDATE pool_control SET last_oid = #{last_acl_oid} WHERE tablename = 'acl';"
+        @db.run "UPDATE pool_control SET last_oid = #{last_marketplace_oid} WHERE tablename = 'marketplace_pool';"
+        @db.run "UPDATE pool_control SET last_oid = #{last_marketplaceapp_oid} WHERE tablename = 'marketplaceapp_pool';"
 
         log_finish()
 
@@ -906,7 +1174,7 @@ EOT
     end
 
 
-    def process_new_ownership(db, users, user_names, groups)
+    def process_new_ownership(db, users, user_names, groups, marketplaces, marketplaceapps)
 
         db.fetch("SELECT * FROM old_template_pool") do |row|
             new_user = users[row[:uid]]
@@ -1177,5 +1445,79 @@ EOT
                 :other_u    => row[:other_u])
         end
 
+        db.fetch("SELECT * FROM old_marketplace_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            if (new_user.nil?)
+                new_user = users[0]
+                log("User ##{row[:uid]} does not exist anymore. Marketplace ##{row[:oid]} will be assigned to user ##{new_user[:oid]}, #{new_user[:name]}")
+            end
+
+            if (new_group.nil?)
+                new_group = groups[0]
+                log("Group ##{row[:gid]} does not exist anymore. Marketplace ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
+            end
+
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:marketplace_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
+        db.fetch("SELECT * FROM old_marketplaceapp_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            if (new_user.nil?)
+                new_user = users[0]
+                log("User ##{row[:uid]} does not exist anymore. MarketplaceApp ##{row[:oid]} will be assigned to user ##{new_user[:oid]}, #{new_user[:name]}")
+            end
+
+            if (new_group.nil?)
+                new_group = groups[0]
+                log("Group ##{row[:gid]} does not exist anymore. MarketplaceApp ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
+            end
+
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            new_market = marketplaces[doc.root.at_xpath("MARKETPLACE_ID").text.to_i]
+
+            if (!new_market.nil?)
+                doc.root.at_xpath("MARKETPLACE_ID").content = new_market[:oid]
+                doc.root.at_xpath("MARKETPLACE").content    = new_market[:name]
+            else
+                log("Marketplace #{doc.root.at_xpath('MARKETPLACE_ID').text.to_i} does not exist anymore. MarketplaceApp ##{row[:oid]}, #{row[:name]} will probably be left unusable.")
+            end
+
+            db[:marketplaceapp_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
     end
 end
