@@ -102,9 +102,6 @@ public class Host extends PoolElement{
      * @param vmm The name of the virtual machine manager mad name
      * (vmm_mad_name), this values are taken from the oned.conf with the
      * tag name VM_MAD (name)
-     * @param vnm The name of the virtual network manager mad name
-     * (vnm_mad_name), this values are taken from the oned.conf with the
-     * tag name VN_MAD (name)
      *
      * @return If successful the message contains the associated
      * id generated for this host

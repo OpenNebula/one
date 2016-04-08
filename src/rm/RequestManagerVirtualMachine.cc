@@ -678,16 +678,9 @@ static bool set_volatile_disk_info(int ds_id, vector<VectorAttribute *>& vd)
     return found;
 }
 
-static bool set_volatile_disk_info(VirtualMachine *vm)
+static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id)
 {
-    if ( !vm->hasHistory() )
-    {
-        return false;
-    }
-
     vector<VectorAttribute *> disks;
-
-    int ds_id = vm->get_ds_id();
 
     vm->get_template_attribute("DISK", disks);
 
@@ -702,16 +695,9 @@ static bool set_volatile_disk_info(VirtualMachine *vm)
 }
 
 
-static bool set_volatile_disk_info(VirtualMachine *vm, Template& tmpl)
+static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id, Template& tmpl)
 {
-    if ( !vm->hasHistory() )
-    {
-        return false;
-    }
-
     vector<VectorAttribute *> disks;
-
-    int ds_id = vm->get_ds_id();
 
     tmpl.get("DISK", disks);
 
@@ -727,7 +713,7 @@ static bool set_volatile_disk_info(VirtualMachine *vm, Template& tmpl)
 
 /* -------------------------------------------------------------------------- */
 
-int set_vnc_port(VirtualMachine *vm, RequestAttributes& att)
+int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
 {
     ClusterPool * cpool = Nebula::instance().get_clpool();
 
@@ -742,7 +728,7 @@ int set_vnc_port(VirtualMachine *vm, RequestAttributes& att)
     }
     else if (graphics->vector_value("PORT", port) == 0)
     {
-        rc = cpool->set_vnc_port(vm->get_cid(), port);
+        rc = cpool->set_vnc_port(cluster_id, port);
 
         if ( rc != 0 )
         {
@@ -751,7 +737,7 @@ int set_vnc_port(VirtualMachine *vm, RequestAttributes& att)
     }
     else
     {
-        rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
+        rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
 
         if ( rc == 0 )
         {
@@ -954,6 +940,20 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
+    // Add deployment dependent attributes to VM
+    //   - volatile disk (selected system DS driver)
+    //   - vnc port (free in the selected cluster)
+    // ------------------------------------------------------------------------
+    set_volatile_disk_info(vm, ds_id);
+
+    if (set_vnc_port(vm, cluster_id, att) != 0)
+    {
+        failure_response(ACTION, att);
+        vm->unlock();
+        return;
+    }
+
+    // ------------------------------------------------------------------------
     // Add a new history record
     // ------------------------------------------------------------------------
     if (add_history(vm,
@@ -966,20 +966,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                     ds_id,
                     att) != 0)
     {
-        vm->unlock();
-        return;
-    }
-
-    // ------------------------------------------------------------------------
-    // Add deployment dependent attributes to VM
-    //   - volatile disk (selected system DS driver)
-    //   - vnc port (free in the selected cluster)
-    // ------------------------------------------------------------------------
-    set_volatile_disk_info(vm);
-
-    if (set_vnc_port(vm, att) != 0)
-    {
-        failure_response(ACTION, att);
         vm->unlock();
         return;
     }
@@ -1292,6 +1278,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    set_volatile_disk_info(vm, ds_id);
+
     if (add_history(vm,
                     hid,
                     cluster_id,
@@ -1305,8 +1293,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
         return;
     }
-
-    set_volatile_disk_info(vm);
 
     // ------------------------------------------------------------------------
     // Migrate the VM
@@ -1698,7 +1684,16 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->get_permissions(vm_perms);
 
-    volatile_disk = set_volatile_disk_info(vm, tmpl);
+    if ( !vm->hasHistory() )
+    {
+        att.resp_msg = "VM is not running in any host";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+        return;
+    }
+
+    volatile_disk = set_volatile_disk_info(vm, vm->get_ds_id(), tmpl);
 
     if (vm->is_vrouter() &&
             !VirtualRouter::is_action_supported(History::DISK_ATTACH_ACTION))
