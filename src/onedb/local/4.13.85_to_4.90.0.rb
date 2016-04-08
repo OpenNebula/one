@@ -401,6 +401,76 @@ module Migrator
 
     log_time()
 
+    # Remove Xen and VMware Drivers
+
+    @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+
+    @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER);"
+
+    has_xen_hosts    = false
+    has_vmware_hosts = false
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_host_pool") do |row|
+        do_disable = false
+
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        vm_mad = doc.root.at_xpath("VM_MAD").text
+        im_mad = doc.root.at_xpath("IM_MAD").text
+
+        if vm_mad.match(/xen/) || im_mad.match(/xen/)
+          do_disable    = true
+          has_xen_hosts = true
+        end
+
+        if vm_mad.match(/vmware/) || im_mad.match(/vmware/)
+          do_disable       = true
+          has_vmware_hosts = true
+        end
+
+        if do_disable
+          doc.root.at_xpath('STATE').content = 4
+
+          row[:state] = 4
+          row[:body]  = doc.root.to_s
+        end
+
+        @db[:host_pool].insert(row)
+      end
+    end
+
+    @db.run "DROP TABLE old_host_pool;"
+
+    if has_xen_hosts
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "Xen is no longer included in the core distribution. It is"
+      puts "however available as an addon which must be manually installed:"
+      puts "https://github.com/OpenNebula/addon-xen"
+      puts
+      puts "Note that the host has been automatically disabled. After installing"
+      puts "the addon you can manually enable it."
+      puts
+    end
+
+    if has_vmware_hosts
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "VMware is no longer supported. You are encouraged to migrate"
+      puts "to the vCenter driver:"
+      puts "http://docs.opennebula.org/stable/administration/virtualization/vcenterg.html"
+      puts
+      puts "Note that the host has been automatically disabled, but not removed."
+      puts
+    end
+
+    log_time()
+
     return true
   end
 
