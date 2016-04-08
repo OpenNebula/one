@@ -412,6 +412,8 @@ module KVM
                         next if source == snap
                     end
 
+                    next if File.symlink?(snap)
+
                     text = `qemu-img info --output=json #{snap}`
                     next if !$? || !$?.success?
 

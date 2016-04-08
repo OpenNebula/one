@@ -78,7 +78,7 @@ module VNMNetwork
         # Gets the Hypervisor VMMMAD from the Template
         # @return [String] name of the hypervisor driver
         def hypervisor
-            xpath = 'HISTORY_RECORDS/HISTORY[last()]/VMMMAD'
+            xpath = 'HISTORY_RECORDS/HISTORY/VMMMAD'
             @vm_root.root.elements[xpath].text
         end
 

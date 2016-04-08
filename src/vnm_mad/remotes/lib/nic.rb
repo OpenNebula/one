@@ -26,7 +26,7 @@ module VNMNetwork
     # to create VMs of the given hyprtvisor
     class Nics < Array
         def initialize(hypervisor)
-            @nicClass = HYPERVISORS[hypervisor]
+            @nicClass = HYPERVISORS[hypervisor] || NicKVM
         end
 
         def new_nic
