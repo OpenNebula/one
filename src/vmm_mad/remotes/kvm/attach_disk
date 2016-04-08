@@ -106,11 +106,16 @@ cdrom)
     TYPE_XML="file"
     DEVICE="cdrom"
     ;;
-rbd)
+rbd*)
     TYPE_SOURCE="protocol"
     TYPE_XML="network"
     SOURCE="rbd"
-    DEVICE="disk"
+
+    if [ "$TYPE" = "rbd_cdrom" ]; then
+        DEVICE="cdrom"
+    else
+        DEVICE="disk"
+    fi
 
     if [ "$CLONE" = "YES" ]; then
         SOURCE_ARGS="name='${IMG_SRC}-${VMID}-${DISK_ID}'"
