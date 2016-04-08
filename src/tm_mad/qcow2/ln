@@ -74,7 +74,11 @@ set -ex
 
 mkdir -p "${SNAP_DIR}"
 
-SNAP="\$(ls ${SNAP_DIR} | sort -n | tail -n 1)"
+if [ ! -L "${SNAP_DIR}/${SNAP_NAME}" ]; then
+    ln -s "${SNAP_DIR}" "${SNAP_DIR}/${SNAP_NAME}"
+fi
+
+SNAP="\$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1)"
 
 if [ -z "\${SNAP}" ]; then
     SNAP=0
