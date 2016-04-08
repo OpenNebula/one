@@ -19,7 +19,8 @@ define(function(require){
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
   var OpenNebulaImage = require('opennebula/image');
-  var RangeSlider = require('utils/range-slider');
+  var UserInputs = require('utils/user-inputs');
+  var WizardFields = require('utils/wizard-fields');
   var DisksResizeTemplate = require('hbs!./disks-resize/html');
 
   return {
@@ -81,15 +82,16 @@ define(function(require){
           var diskContext;
           $(".disksContainer", disksContext).html("");
           $.each(extendedDisks, function(disk_id, disk) {
-            diskContext = $('<div class="row diskContainer">'+
+            diskContext = $(
+              '<div class="row diskContainer">'+
+                '<div class="small-12 columns">'+
+                  '<label></label>'+
+                '</div>'+
                 '<div class="large-12 columns diskSlider">' +
                 '</div>' +
               '</div>').appendTo($(".disksContainer", disksContext));
 
             diskContext.data('template_disk', disks[disk_id]);
-
-            var sizeGB = Math.round(disk.SIZE / 1024);
-            diskContext.data('original_size', sizeGB);
 
             var disk_snapshot_total_size = 0;
             if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
@@ -100,20 +102,27 @@ define(function(require){
             diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
 
             var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
+            $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
+
             var disabled =
               ( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
                 (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
-            RangeSlider.insert({
-              'label': Locale.tr("DISK") + ' ' + disk_id + ': ' + label,
-              'unitLabel': 'GB',
-              'name': 'SIZE',
-              'min': sizeGB,
-              'max': sizeGB + 500,
-              'step': 10,
-              'initial': sizeGB,
-              'disabled': disabled
-            }, $(".diskSlider", diskContext));
+            var attr;
+
+            if (disabled){
+              attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
+            } else {
+              // Range from original size to size + 500GB
+              var min = parseInt(disk.SIZE);
+              var max = min + 512000;
+
+              attr = UserInputs.parse(
+                "SIZE",
+                "O|range|"+label+"|"+min+".."+max+"|"+min);
+            }
+
+            UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
           })
         }
       })
@@ -124,16 +133,15 @@ define(function(require){
 
   function _retrieve(context) {
     var disks = [];
-    var disk, size;
+    var disk;
     $(".diskContainer", context).each(function(){
       if ($(this).data("template_disk")) {
         disk = $(this).data("template_disk");
 
-        if ($("#SIZE", this).is(':enabled')) {
-          size = $("#SIZE", this).val();
-          if (size) {
-            disk['SIZE'] = Math.ceil(size * 1024);
-          }
+        var fields = WizardFields.retrieve(this);
+
+        if (fields.SIZE != undefined){
+          disk['SIZE'] = fields.SIZE;
         }
       }
 
