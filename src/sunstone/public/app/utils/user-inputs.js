@@ -469,21 +469,19 @@ define(function(require) {
     }
 
     div.html(
-      '<div class="row">' +
-        '<div class="small-10 columns mb_input_wrapper">' +
-          '<div class="mb_input">' +
-            _attributeInput(attr) +
-          '</div>' +
-          '<div class="gb_input">' +
-            _attributeInput(attr_gb) +
-          '</div>' +
+      '<div class="input-group mb_input_wrapper">'+
+        '<div class="mb_input input-group-field">' +
+          _attributeInput(attr) +
         '</div>' +
-        '<div class="small-2 columns">' +
-          '<select id="mb_input_unit">' +
+        '<div class="gb_input input-group-field">' +
+          _attributeInput(attr_gb) +
+        '</div>' +
+        '<div class="input-group-button">'+
+          '<select id="mb_input_unit" style="width: auto;">' +
             '<option value="MB">'+Locale.tr("MB")+'</option>' +
             '<option value="GB" selected>'+Locale.tr("GB")+'</option>' +
           '</select>' +
-        '</div>' +
+        '</div>'+
       '</div>');
 
     _setupAttributeInputMB(div);
@@ -522,7 +520,7 @@ define(function(require) {
       $("input, select", $("div.mb_input", context)).val(val);
     });
 
-    var gb_inputs = $("div.gb_input", context).detach();
+    var gb_inputs = $("div.gb_input", context).children().detach();
 
     // Unit select
     $("#mb_input_unit", context).on('change', function() {
@@ -530,12 +528,12 @@ define(function(require) {
 
       if (mb_input_unit_val == 'GB') {
         $("div.mb_input", context).hide();
-        gb_inputs.appendTo($("div.mb_input_wrapper", context));
+        gb_inputs.appendTo($("div.gb_input", context));
 
         $("div.mb_input input,select",context).trigger("input");
       } else {
         $("div.mb_input", context).show();
-        gb_inputs = $("div.gb_input", context).detach();
+        gb_inputs = $("div.gb_input", context).children().detach();
       }
     });
 

@@ -23,19 +23,21 @@
           {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
         </label>
       </div>
-      <div class="small-8 columns">
-        <div class="mb_unit memory_input">
-          <input type="number" min="0" step="256" wizard_field="MEMORY" id="MEMORY"/>
+      <div class="small-12 columns">
+        <div class="input-group">
+          <div class="mb_unit memory_input input-group-field">
+            <input type="number" min="0" step="256" wizard_field="MEMORY" id="MEMORY"/>
+          </div>
+          <div class="gb_unit memory_gb_input input-group-field">
+            <input type="number" min="0" step="1" name="memory_gb"/>
+          </div>
+          <div class="input-group-button">
+            <select id="memory_unit" name="MEMORY_UNIT" style="width: auto;">
+              <option value="MB">{{tr "MB"}}</option>
+              <option value="GB" selected>{{tr "GB"}}</option>
+            </select>
+          </div>
         </div>
-        <div class="gb_unit memory_gb_input">
-          <input type="number" min="0" step="1" name="memory_gb"/>
-        </div>
-      </div>
-      <div class="small-4 columns">
-        <select id="memory_unit" name="MEMORY_UNIT">
-          <option value="MB">{{tr "MB"}}</option>
-          <option value="GB" selected>{{tr "GB"}}</option>
-        </select>
       </div>
     </div>
   </div>
