@@ -1,0 +1,73 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+<div class="accordion_advanced vcenter_row">
+  <div class="row">
+    <div class="large-12 columns">
+      <ul class="menu simple">
+        <li>
+          <label class="inline">
+            <input type="checkbox" class="check_item" checked/>
+            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            </a>
+            {{data.name}}
+             - <small>{{data.type}}<small>
+             {{#if data.vlan}} - <small>VLAN: {{data.vlan}}<small>{{/if}}
+          </label>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-11 large-centered columns">
+      <div id="{{data.uuid}}Advanced" class="content" hidden>
+        <div class="row">
+          <div class="large-2 medium-3 small-6 columns">
+            <label>
+              {{tr "Size"}}
+              <input type="text" class="netsize" value="255"/>
+            </label>
+          </div>
+          <div class="large-2 medium-3 small-6 columns">
+            <label>
+              {{tr "Type"}}
+              <select class="type_select">
+                <option value="ETHER">eth</option>
+                <option value="IP4">ipv4</option>
+                <option value="IP6">ipv6</option>
+              </select>
+            </label>
+          </div>
+          <div class="large-8 medium-6 small-12 columns net_options">
+            <div class="large-4 medium-6 columns end">
+              <label>
+                {{tr "MAC"}}
+                <input type="text" class="eth_mac_net" placeholder="{{tr "Optional"}}"/>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-11 large-centered columns">
+      <div class="large-1 columns vcenter_network_result">
+      </div>
+      <div class="large-11 columns vcenter_network_response">
+      </div>
+    </div>
+  </div>
+</div>

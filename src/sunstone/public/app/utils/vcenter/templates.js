@@ -61,12 +61,8 @@ define(function(require) {
     var path = '/vcenter/templates';
 
     var context = $(".vcenter_templates", opts.container);
-
-    context.html( TemplateHTML({}) );
-
+    context.html(TemplateHTML());
     context.show();
-
-    $(".accordion_advanced_toggle", context).trigger("click");
 
     $.ajax({
       url: path,
@@ -191,63 +187,6 @@ define(function(require) {
               _fillVCenterTemplates(opts);
               return false;
             });
-
-//            var tbody = $('tbody', newdiv);
-//
-//            $.each(templates, function(id, template){
-//              var trow = $(
-//                '<tr class="vcenter_template">' +
-//                  '<td><input type="checkbox" class="check_item" checked/></td>' +
-//                  '<td>' + template.name + '</td>' +
-//                  '<td>' + template.host + '</td>' +
-//                  '<td><div class="vcenter_template_response"/></td>' +
-//                  '<td><div class="vcenter_template_result"/></td>' +
-//                '</tr>').appendTo(tbody);
-//
-//              $(".check_item", trow).data("template_name", template.name)
-//              $(".check_item", trow).data("one_template", template.one)
-//            });
-
-//            var tmplDataTable = new DomDataTable(
-//              'vcenter_template_table_' + datacenter_name,
-//              {
-//                actions: false,
-//                info: false,
-//                dataTableOptions: {
-//                  "bAutoWidth": false,
-//                  "bSortClasses" : false,
-//                  "bDeferRender": false,
-//                  //"ordering": true,
-//                  "order": [],
-//                  "aoColumnDefs": [
-//                    {"bSortable": false, "aTargets": [0]},
-//                    {"bSortable": true, "aTargets": [1,2]},
-//                    {"sWidth": "35px", "aTargets": [0]},
-//                  ]
-//                },
-//                customTrListener: function(tableObj, tr){
-//                  $("input.check_item", tr).click();
-//                }
-//              });
-//
-//            tmplDataTable.initialize();
-//
-//            newdiv.on("change", '.check_all', function() {
-//              var table = $(this).closest('table');
-//              if ($(this).is(":checked")) { //check all
-//                $('tbody input.check_item', table).prop('checked', true).change();
-//              } else { //uncheck all
-//                $('tbody input.check_item', table).prop('checked', false).change();
-//              }
-//            });
-//
-//            $('table', newdiv).on('draw.dt', function(){
-//              _recountCheckboxes(this);
-//            });
-//
-//            $(".check_item", newdiv).on('change', function(){
-//              _recountCheckboxes($('table', newdiv));
-//            });
           }
         });
       },
