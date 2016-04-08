@@ -73,216 +73,166 @@ define(function(require) {
         "X_VCENTER_PASSWORD": opts.vcenter_password,
         "X_VCENTER_HOST": opts.vcenter_host
       },
-      success: function(response){
+      success: function(response) {
         $(".content", context).html("");
 
         $.each(response, function(datacenter_name, networks) {
-            var content;
-            if (networks.length == 0) {
-              content = 
-                '<fieldset>' +
-                  '<legend>' +
-                    '<ul class="menu simple">' +
-                      '<li> ' +
-                        datacenter_name + ' ' + Locale.tr("DataCenter") +
-                      '</li>' +
-                      '<li>' +
-                        '<span>' +
-                          Locale.tr("No new networks found in this DataCenter") +
-                        '</span>' +
-                      '</li>' +
-                    '</ul>' +
-                  '</legend>' +
-                '</fieldset>';
+          var content;
+          if (networks.length == 0) {
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li>' +
+                      '<span>' +
+                        Locale.tr("No new networks found in this DataCenter") +
+                      '</span>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+              '</fieldset>';
 
-              $(".content", context).append(content);
-            } else {
-              var tableId = "vcenter_network_table_" + datacenter_name;
-              content = 
-                '<fieldset>' +
-                  '<legend>' +
-                    '<ul class="menu simple">' +
-                      '<li> ' +
-                        datacenter_name + ' ' + Locale.tr("DataCenter") +
-                      '</li>' +
-                      '<li> ' +
-                        '<label class="inline">' +
-                          '<input type="checkbox" class="check_all" checked/>' +
-                          Locale.tr("Select All") +
-                        '</label>' +
-                      '</li>' +
-                      '<li> ' +
-                        '<label class="inline">' +
-                          '<input type="checkbox" class="expand_all"/>' +
-                           Locale.tr("Expand Advanced Sections") +
-                        '</label>' +
-                      '</li>' +
-                      '<li> ' +
-                        '<button class="button small success import_selected">' +
-                           Locale.tr("Import Selected Networks") +
-                        '</button>' +
-                      '</li>' +
-                      '<li> ' +
-                        '<button class="button small secondary clear_imported">' +
-                           Locale.tr("Clear Imported Networks") +
-                        '</button>' +
-                      '</li>' +
-                    '</ul>' +
-                  '</legend>' +
-                  '<div class="row">' +
-                    '<div class="large-12 columns">' +
-                      '<table class="dataTable vcenter_network_table" id="' + tableId + '">' +
-                        '<thead>' +
-                          '<th>' + Locale.tr("Name") + '</th>' +
-                        '</thead>' +
-                        '<tbody/>' +
-                      '</table>' +
+            $(".content", context).append(content);
+          } else {
+            var tableId = "vcenter_network_table_" + datacenter_name;
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li> ' +
+                      '<label class="inline">' +
+                        '<input type="checkbox" class="check_all" checked/>' +
+                        Locale.tr("Select All") +
+                      '</label>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<label class="inline">' +
+                        '<input type="checkbox" class="expand_all"/>' +
+                         Locale.tr("Expand Advanced Sections") +
+                      '</label>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small success import_selected">' +
+                         Locale.tr("Import Selected Networks") +
+                      '</button>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small secondary clear_imported">' +
+                         Locale.tr("Clear Imported Networks") +
+                      '</button>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+                '<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<table class="dataTable vcenter_network_table" id="' + tableId + '">' +
+                      '<thead>' +
+                        '<th>' + Locale.tr("Name") + '</th>' +
+                      '</thead>' +
+                      '<tbody/>' +
+                    '</table>' +
+                  '</div>' +
+                '</div>';
+            '</fieldset>';
+
+            $(".content", context).append(content);
+
+            var preDrawCallback = function (settings) {
+                $('#' + tableId).html(EmptyTableTemplate());
+              }
+            var rowCallback = function(row, data, index) {
+                opts.data = data;
+
+                var networkRow = $(RowTemplate(opts)).appendTo($('#' + tableId));
+                $('.check_item', networkRow).data("network_name", data.name)
+                $('.check_item', networkRow).data("one_network", data.one);
+
+                return row;
+              }
+
+            var networksTable = new CustomLayoutDataTable({
+                tableId: '#' + tableId,
+                columns: ['name'],
+                preDrawCallback: preDrawCallback,
+                rowCallback: rowCallback
+              });
+
+            networksTable.addData(networks);
+
+            context.off('click', '.import_selected');
+            context.on('click', '.import_selected', function() {
+              tableContext = $(this).closest('fieldset');
+              _import(tableContext);
+              return false;
+            });
+
+            context.off('click', '.clear_imported');
+            context.on('click', '.clear_imported', function() {
+              _fillVCenterNetworks(opts);
+              return false;
+            });
+
+            context.off('change', '.type_select');
+            context.on("change", '.type_select', function() {
+              var network_context = $(this).closest(".vcenter_row");
+              var type = $(this).val();
+
+              var net_form_str = ''
+
+              switch (type) {
+                case 'ETHER':
+                  net_form_str =
+                    '<div class="large-4 medium-6 columns end">' +
+                      '<label>' + Locale.tr("MAC") +
+                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>';
+                  break;
+                case 'IP4':
+                  net_form_str =
+                    '<div class="large-4 medium-6 columns">' +
+                      '<label>' + Locale.tr("IP Start") +
+                        '<input type="text" class="four_ip_net"/>' +
+                      '</label>' +
                     '</div>' +
-                  '</div>';
-                '</fieldset>';
+                    '<div class="large-4 medium-6 columns end">' +
+                      '<label>' + Locale.tr("MAC") +
+                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>';
+                  break;
+                case 'IP6':
+                  net_form_str =
+                    '<div class="large-6 medium-6 columns">' +
+                      '<label>' + Locale.tr("Global Prefix") +
+                        '<input type="text" class="six_global_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>' +
+                    '<div class="large-4 medium-6 columns end">' +
+                      '<label>' + Locale.tr("MAC") +
+                        '<input type="text" class="eth_mac_net"/>' +
+                      '</label>' +
+                    '</div>' +
+                    '<div class="large-6 medium-6 columns end">' +
+                      '<label>' + Locale.tr("ULA Prefix") +
+                        '<input type="text" class="six_ula_net" placeholder="' + Locale.tr("Optional") + '"/>' +
+                      '</label>' +
+                    '</div>';
+                  break;
+              }
 
-              $(".content", context).append(content);
-
-              var preDrawCallback = function (settings) {
-                  $('#' + tableId).html(EmptyTableTemplate());
-                }
-              var rowCallback = function(row, data, index) {
-                  opts.data = data;
-
-                  var networkRow = $(RowTemplate(opts)).appendTo($('#' + tableId));
-                  $('.check_item', networkRow).data("network_name", data.name)
-                  $('.check_item', networkRow).data("one_network", data.one);
-
-                  return row;
-                }
-
-              var networksTable = new CustomLayoutDataTable({
-                  tableId: '#' + tableId,
-                  columns: ['name'],
-                  preDrawCallback: preDrawCallback,
-                  rowCallback: rowCallback
-                });
-
-              networksTable.addData(networks);
-
-              context.off('click', '.import_selected');
-              context.on('click', '.import_selected', function() {
-                tableContext = $(this).closest('fieldset');
-                _import(tableContext);
-                return false;
-              });
-
-              context.off('click', '.clear_imported');
-              context.on('click', '.clear_imported', function() {
-                _fillVCenterNetworks(opts);
-                return false;
-              });
-
-              context.off('change', '.type_select');
-              context.on("change", '.type_select', function(){
-                var network_context = $(this).closest(".vcenter_row");
-                var type = $(this).val();
-
-                var net_form_str = ''
-
-                switch(type) {
-                  case 'ETHER':
-                    net_form_str =
-                      '<div class="large-4 medium-6 columns end">'+
-                        '<label>' + Locale.tr("MAC") +
-                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
-                        '</label>'+
-                      '</div>';
-                    break;
-                  case 'IP4':
-                    net_form_str =
-                      '<div class="large-4 medium-6 columns">'+
-                        '<label>' + Locale.tr("IP Start") +
-                          '<input type="text" class="four_ip_net"/>' +
-                        '</label>'+
-                      '</div>'+
-                      '<div class="large-4 medium-6 columns end">'+
-                        '<label>' + Locale.tr("MAC") +
-                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
-                        '</label>'+
-                      '</div>';
-                    break;
-                  case 'IP6':
-                    net_form_str =
-                      '<div class="large-6 medium-6 columns">'+
-                        '<label>' + Locale.tr("Global Prefix") +
-                          '<input type="text" class="six_global_net" placeholder="'+Locale.tr("Optional")+'"/>' +
-                        '</label>'+
-                      '</div>'+
-                      '<div class="large-4 medium-6 columns end">'+
-                        '<label>' + Locale.tr("MAC") +
-                          '<input type="text" class="eth_mac_net"/>' +
-                        '</label>'+
-                      '</div>'+
-                      '<div class="large-6 medium-6 columns end">'+
-                        '<label>' + Locale.tr("ULA Prefix") +
-                          '<input type="text" class="six_ula_net" placeholder="'+Locale.tr("Optional")+'"/>' +
-                        '</label>'+
-                      '</div>';
-                    break;
-                }
-
-                $('.net_options', network_context).html(net_form_str);
-              });
-            }
-          });
-
-
-
-
-
-
-
-
-
-
-
-//
-//              $(".check_item", trow).data("one_network", network.one);
-//            });
-//
-//            var networkDataTable = new DomDataTable(
-//              'vcenter_network_table_' + datacenter_name,
-//              {
-//                actions: false,
-//                info: false,
-//                dataTableOptions: {
-//                  "bAutoWidth": false,
-//                  "bSortClasses" : false,
-//                  "bDeferRender": false,
-//                  "ordering": false,
-//                  "aoColumnDefs": [
-//                  ]
-//                }
-//              });
-//
-//            networkDataTable.initialize();
-//
-//            newdiv.on("change", '.check_all', function() {
-//              var table = $(this).closest('table');
-//              if ($(this).is(":checked")) { //check all
-//                $('tbody input.check_item', table).prop('checked', true).change();
-//              } else { //uncheck all
-//                $('tbody input.check_item', table).prop('checked', false).change();
-//              }
-//            });
-//
-//            $('table', newdiv).on('draw.dt', function(){
-//              _recountCheckboxes(this);
-//            });
-//
-//            $(".check_item", newdiv).on('change', function(){
-//              _recountCheckboxes($('table', newdiv));
-//            });
-//          }
-//        });
+              $('.net_options', network_context).html(net_form_str);
+            });
+          }
+        });
       },
-      error: function(response){
+      error: function(response) {
         context.hide();
         Notifier.onError({}, OpenNebulaError(response));
       }
