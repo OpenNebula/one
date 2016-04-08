@@ -610,10 +610,7 @@ int VirtualNetwork::nic_attribute(
 
     set<int> cluster_ids = get_cluster_ids();
 
-    if (!cluster_ids.empty())
-    {
-        nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
-    }
+    nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {

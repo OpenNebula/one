@@ -1288,8 +1288,16 @@ static int check_and_set_cluster_id(
         set<int>               &cluster_ids)
 {
     set<int> vatt_cluster_ids;
+    string   val;
 
-    one_util::split_unique(vatt->vector_value(id_name), ',', vatt_cluster_ids);
+    // If the attr does not exist, the vatt is using a manual path/resource.
+    // This is different to a resource with 0 clusters
+    if (vatt->vector_value(id_name, val) != 0)
+    {
+        return 0;
+    }
+
+    one_util::split_unique(val, ',', vatt_cluster_ids);
 
     if ( vatt_cluster_ids.empty() )
     {
