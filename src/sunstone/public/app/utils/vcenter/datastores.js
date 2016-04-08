@@ -77,31 +77,47 @@ define(function(require) {
       success: function(response){
         $(".content", context).html("");
 
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + Locale.tr("Please select the vCenter Datastores to be imported to OpenNebula.") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", context))
-
         $.each(response, function(datacenter_name, datastores){
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + Locale.tr("DataCenter") +
-                '</h5>' +
-              '</div>' +
-            '</div>').appendTo($(".content", context))
-
+          var content;
           if (datastores.length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      Locale.tr("No new datastores found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", context))
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li>' +
+                      '<span>' +
+                        Locale.tr("No new datastores found in this DataCenter") +
+                      '</span>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+              '</fieldset>';
+
+            $(".content", context).append(content);
           } else {
-            var newdiv = $(
+            var tableId = "vcenter_network_table_" + datacenter_name;
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small success import_selected">' +
+                         Locale.tr("Import Selected Datastores") +
+                      '</button>' +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small secondary clear_imported">' +
+                         Locale.tr("Clear Imported Datastores") +
+                      '</button>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
                 '<div class="row">' +
                   '<div class="large-12 columns">' +
                     '<table class="dataTable vcenter_datastore_table" id="vcenter_datastore_table_' + datacenter_name + '">' +
@@ -117,9 +133,12 @@ define(function(require) {
                       '<tbody/>' +
                     '</table>' +
                   '</div>' +
-                '</div>').appendTo($(".content", context));
+                '</div>';
+            '</fieldset>';
 
-            var tbody = $('tbody', newdiv);
+            $(".content", context).append(content);
+
+            var tbody = $('#vcenter_datastore_table_' + datacenter_name + ' tbody', context);
 
             $.each(datastores, function(id, datastore){
               var trow = $(
@@ -174,6 +193,19 @@ define(function(require) {
 
             $(".check_item", newdiv).on('change', function(){
               _recountCheckboxes($('table', newdiv));
+            });
+
+            context.off('click', '.import_selected');
+            context.on('click', '.import_selected', function() {
+              tableContext = $(this).closest('fieldset');
+              _import(tableContext);
+              return false;
+            });
+
+            context.off('click', '.clear_imported');
+            context.on('click', '.clear_imported', function() {
+              _fillVCenterDatastores(opts);
+              return false;
             });
           }
         });
