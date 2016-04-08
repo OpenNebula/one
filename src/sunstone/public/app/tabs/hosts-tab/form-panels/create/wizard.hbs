@@ -83,47 +83,32 @@
     <fieldset>
       <legend>{{tr "vCenter"}}</legend>
       <div class="row">
-        <div class="medium-6 columns">
-          <label for="vcenter_user">{{tr "User"}}</label>
-          <input type="text" name="vcenter_user" id="vcenter_user" />
-        </div>
-        <div class="medium-6 columns">
+        <div class="large-3 medium-6 columns">
           <label for="vcenter_host">{{tr "Hostname"}}</label>
           <input type="text" name="vcenter_host" id="vcenter_host" />
         </div>
-      </div>
-      <div class="row">
-        <div class="medium-6 columns">
+        <div class="large-3 medium-6 columns">
+          <label for="vcenter_user">{{tr "User"}}</label>
+          <input type="text" name="vcenter_user" id="vcenter_user" />
+        </div>
+        <div class="large-3 medium-6 columns">
           <label for="vcenter_password">{{tr "Password"}}</label>
           <input type="password" name="vcenter_password" id="vcenter_password" />
         </div>
-        <div class="medium-6 columns">
+        <div class="large-3 medium-6 columns">
           <br>
-          <a class="button radius small right" id="get_vcenter_clusters">{{tr "Get vCenter Clusters"}}</a>
+          <a class="button" id="get_vcenter_clusters">
+            {{tr "Get vCenter Clusters"}}
+          </a>
         </div>
       </div>
-      <br>
-      <br>
-      <div>
+      <div class="row collapse">
         {{{vCenterClustersHTML}}}
-      </div>
-      <br>
-      <br>
-      <div>
-        {{{vCenterTemplatesHTML}}}
-      </div>
-      <br>
-      <br>
-      <div class="vcenter_vms"></div>
-      <br>
-      <br>
-      <div>
-        {{{vCenterNetworksHTML}}}
       </div>
       <div class="row import_vcenter_clusters_div" hidden>
         <div class="large-12 columns">
           <br>
-          <a class="button radius small right success" id="import_vcenter_clusters">{{tr "Import"}}</a>
+          <a class="button right success" id="import_vcenter_clusters">{{tr "Import"}}</a>
         </div>
       </div>
     </fieldset>

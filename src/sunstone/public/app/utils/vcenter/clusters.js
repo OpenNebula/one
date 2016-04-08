@@ -56,12 +56,8 @@ define(function(require) {
     var path = '/vcenter';
 
     var context = $(".vcenter_clusters", opts.container);
-
     context.html( TemplateHTML({}) );
-
     context.show();
-
-    $(".accordion_advanced_toggle", context).trigger("click");
 
     $.ajax({
       url: path,
@@ -76,30 +72,52 @@ define(function(require) {
       success: function(response){
         $(".content", context).html("");
 
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + Locale.tr("Please select the vCenter Clusters to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", context));
-
         $.each(response, function(datacenter_name, clusters) {
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + Locale.tr("Datacenter") +
-                '</h5>' +
-              '</div>' +
-            '</div>').appendTo($(".content", context));
-
+          var content;
           if (clusters.length == 0) {
-            $('<div class="row">' +
-                '<div class="large-12 columns">' +
-                  '<label>' +
-                    Locale.tr("No clusters found in this DataCenter") +
-                  '</label>' +
-                '</div>' +
-              '</div>').appendTo($(".content", context));
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li>' +
+                      '<span>' +
+                        Locale.tr("No new clusters found in this DataCenter") +
+                      '</span>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+              '</fieldset>';
+
+            $(".content", context).append(content);
           } else {
+            var tableId = "vcenter_network_table_" + datacenter_name;
+            content = 
+              '<fieldset>' +
+                '<legend>' +
+                  '<ul class="menu simple">' +
+                    '<li> ' +
+                      datacenter_name + ' ' + Locale.tr("DataCenter") +
+                    '</li>' +
+                    '<li> ' +
+                      '<button class="button small secondary clear_imported">' +
+                         Locale.tr("Clear Imported Datastores") +
+                      '</button>' +
+                    '</li>' +
+                  '</ul>' +
+                '</legend>' +
+                '<div class="row">' +
+                  '<div class="large-12 columns" id="vcenter_cluster_table_' + datacenter_name + '">' +
+                  '</div>' +
+                '</div>';
+            '</fieldset>';
+
+            $(".content", context).append(content);
+
+            var tbody = $('#vcenter_cluster_table_' + datacenter_name, context);
+
             $.each(clusters, function(id, cluster_name) {
               var row = $('<div class="vcenter_cluster">' +
                   '<div class="row">' +
@@ -114,10 +132,16 @@ define(function(require) {
                     '<div class="large-2 columns vcenter_host_result">' +
                     '</div>' +
                   '</div>' +
-                '</div>').appendTo($(".content", context));
+                '</div>').appendTo(tbody);
 
               $(".cluster_name", row).data("cluster_name", cluster_name);
               //$(".cluster_name", row).data("datacenter_name", datacenter_name);
+            });
+
+            context.off('click', '.clear_imported');
+            context.on('click', '.clear_imported', function() {
+              _fillVCenterClusters(opts);
+              return false;
             });
           }
         });

@@ -26,8 +26,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var ResourceSelect = require('utils/resource-select');
   var VCenterClusters = require('utils/vcenter/clusters');
-  var VCenterTemplates = require('utils/vcenter/templates');
-  var VCenterNetworks = require('utils/vcenter/networks');
   var Config = require('sunstone-config');
 
   /*
@@ -59,8 +57,6 @@ define(function(require) {
     }
 
     this.vCenterClusters = new VCenterClusters();
-    this.vCenterNetworks = new VCenterNetworks();
-    this.vCenterTemplates = new VCenterTemplates();
 
     var that = this;
 
@@ -99,8 +95,6 @@ define(function(require) {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
-      'vCenterTemplatesHTML': this.vCenterTemplates.html(),
-      'vCenterNetworksHTML': this.vCenterNetworks.html(),
       'vmMadNameList': this.vmMadNameList,
       'imMadNameList': this.imMadNameList
     });
@@ -153,20 +147,6 @@ define(function(require) {
           $("#vcenter_host", context).attr("disabled", "disabled");
           $("#get_vcenter_clusters", context).hide();
           $(".import_vcenter_clusters_div", context).show();
-
-          that.vCenterTemplates.insert({
-            container: context,
-            vcenter_user: vcenter_user,
-            vcenter_password: vcenter_password,
-            vcenter_host: vcenter_host
-          });
-
-          that.vCenterNetworks.insert({
-            container: context,
-            vcenter_user: vcenter_user,
-            vcenter_password: vcenter_password,
-            vcenter_host: vcenter_host
-          });
         }
       });
 
@@ -180,8 +160,6 @@ define(function(require) {
       if (!cluster_id) cluster_id = "-1";
 
       that.vCenterClusters.import(context, cluster_id);
-      that.vCenterTemplates.import(context);
-      that.vCenterNetworks.import(context);
 
       return false;
     });
