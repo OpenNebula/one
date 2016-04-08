@@ -347,9 +347,7 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
 
 string * VirtualMachineManager::format_message(
     const string& hostname,
-    const string& net_drv,
     const string& m_hostname,
-    const string& m_net_drv,
     const string& domain,
     const string& ldfile,
     const string& rdfile,
@@ -373,17 +371,15 @@ string * VirtualMachineManager::format_message(
     }
 
     oss << "<VMM_DRIVER_ACTION_DATA>"
-        <<   "<HOST>"    << hostname << "</HOST>"
-        <<   "<NET_DRV>" << net_drv  << "</NET_DRV>";
+        <<   "<HOST>"    << hostname << "</HOST>";
 
     if (!m_hostname.empty())
     {
-        oss << "<MIGR_HOST>"   << m_hostname << "</MIGR_HOST>"
-            << "<MIGR_NET_DRV>"<< m_net_drv  << "</MIGR_NET_DRV>";
+        oss << "<MIGR_HOST>" << m_hostname << "</MIGR_HOST>";
     }
     else
     {
-        oss << "<MIGR_HOST/><MIGR_NET_DRV/>";
+        oss << "<MIGR_HOST/>";
     }
 
     if (!domain.empty())
@@ -571,8 +567,6 @@ void VirtualMachineManager::deploy_action(int vid)
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         "",
         vm->get_deployment_file(),
@@ -629,7 +623,7 @@ void VirtualMachineManager::save_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
-    string   hostname, vnm_mad, checkpoint_file;
+    string   hostname, checkpoint_file;
     string   vm_tmpl;
     string * drv_msg;
     int      ds_id;
@@ -666,14 +660,12 @@ void VirtualMachineManager::save_action(
         }
 
         hostname        = vm->get_previous_hostname();
-        vnm_mad         = vm->get_previous_vnm_mad();
         checkpoint_file = vm->get_previous_checkpoint_file();
         ds_id           = vm->get_previous_ds_id();
     }
     else
     {
         hostname        = vm->get_hostname();
-        vnm_mad         = vm->get_vnm_mad();
         checkpoint_file = vm->get_checkpoint_file();
         ds_id           = vm->get_ds_id();
     }
@@ -681,8 +673,6 @@ void VirtualMachineManager::save_action(
     // Invoke driver method
     drv_msg = format_message(
         hostname,
-        vnm_mad,
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -762,8 +752,6 @@ void VirtualMachineManager::shutdown_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -839,8 +827,6 @@ void VirtualMachineManager::reboot_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -911,8 +897,6 @@ void VirtualMachineManager::reset_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -984,8 +968,6 @@ void VirtualMachineManager::cancel_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1062,8 +1044,6 @@ void VirtualMachineManager::cancel_previous_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_previous_hostname(),
-        vm->get_previous_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1111,7 +1091,6 @@ void VirtualMachineManager::cleanup_action(
     string   tm_command = "";
 
     string m_hostname = "";
-    string m_net_drv  = "";
 
     const VirtualMachineManagerDriver *   vmd;
 
@@ -1141,7 +1120,6 @@ void VirtualMachineManager::cleanup_action(
     if ( cancel_previous && vm->hasPreviousHistory() )
     {
         m_hostname = vm->get_previous_hostname();
-        m_net_drv  = vm->get_previous_vnm_mad();
     }
 
     if (!vm->get_host_is_cloud())
@@ -1157,9 +1135,7 @@ void VirtualMachineManager::cleanup_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
         m_hostname,
-        m_net_drv,
         vm->get_deploy_id(),
         "",
         "",
@@ -1245,8 +1221,6 @@ void VirtualMachineManager::cleanup_previous_action(int vid)
     // Invoke driver method
     drv_msg = format_message(
         vm->get_previous_hostname(),
-        vm->get_previous_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1330,9 +1304,7 @@ void VirtualMachineManager::migrate_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_previous_hostname(),
-        vm->get_previous_vnm_mad(),
         vm->get_hostname(),
-        vm->get_vnm_mad(),
         vm->get_deploy_id(),
         "",
         "",
@@ -1439,8 +1411,6 @@ void VirtualMachineManager::restore_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1521,8 +1491,6 @@ void VirtualMachineManager::poll_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1696,8 +1664,6 @@ void VirtualMachineManager::timer_action()
 
         drv_msg = format_message(
             vm->get_hostname(),
-            vm->get_vnm_mad(),
-            "",
             "",
             vm->get_deploy_id(),
             "",
@@ -1814,8 +1780,6 @@ void VirtualMachineManager::attach_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -1936,8 +1900,6 @@ void VirtualMachineManager::detach_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2020,8 +1982,6 @@ void VirtualMachineManager::snapshot_create_action(int vid)
 
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2100,8 +2060,6 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
 
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2180,8 +2138,6 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
 
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2291,8 +2247,6 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2405,8 +2359,6 @@ void VirtualMachineManager::attach_nic_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2491,8 +2443,6 @@ void VirtualMachineManager::detach_nic_action(
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2560,8 +2510,6 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
-        vm->get_vnm_mad(),
-        "",
         "",
         vm->get_deploy_id(),
         "",
@@ -2625,11 +2573,6 @@ int VirtualMachineManager::load_mads(int uid)
         {
             vmm_driver = new LibVirtDriver(uid, vattr->value(),
                                            (uid != 0),vmpool,"qemu");
-        }
-        else if ( type == "VMWARE" )
-        {
-            vmm_driver = new LibVirtDriver(uid, vattr->value(),
-                                           (uid != 0),vmpool,"vmware");
         }
         else if ( type == "XML" )
         {

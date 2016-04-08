@@ -51,7 +51,6 @@ public:
         const string& hostname,
         const string& im_mad_name,
         const string& vmm_mad_name,
-        const string& vnm_mad_name,
         int           cluster_id,
         const string& cluster_name,
         string& error_str);
@@ -273,7 +272,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new Host(-1,"","","","",-1,"");
+        return new Host(-1,"","","",-1,"");
     };
 
     /**

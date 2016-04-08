@@ -1,1 +1,0 @@
-../common.d/collectd-client_control.sh

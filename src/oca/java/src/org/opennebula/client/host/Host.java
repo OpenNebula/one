@@ -77,9 +77,6 @@ public class Host extends PoolElement{
      * @param vmm The name of the virtual machine manager mad name
      * (vmm_mad_name), this values are taken from the oned.conf with the
      * tag name VM_MAD (name)
-     * @param vnm The name of the virtual network manager mad name
-     * (vnm_mad_name), this values are taken from the oned.conf with the
-     * tag name VN_MAD (name)
      * @param clusterId The cluster ID. If it is -1, this host won't be
      * added to any cluster.
      *
@@ -90,10 +87,9 @@ public class Host extends PoolElement{
                                        String hostname,
                                        String im,
                                        String vmm,
-                                       String vnm,
                                        int    clusterId)
     {
-        return client.call(ALLOCATE, hostname, im, vmm, vnm, clusterId);
+        return client.call(ALLOCATE, hostname, im, vmm, clusterId);
     }
 
     /**

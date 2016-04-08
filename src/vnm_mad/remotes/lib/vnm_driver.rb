@@ -27,33 +27,26 @@ module VNMMAD
     # drivers FirewallDriver and SGDriver.
     ############################################################################
     class VNMDriver
-        attr_reader :hypervisor, :vm
+        attr_reader :vm
 
         # Creates new driver using:
         #   @param vm_tpl [String] XML String from oned
         #   @param xpath_filter [String] to get relevant NICs for the driver
         #   @param deploy_id [String]
-        #   @param hypervisor [String]
-        def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
+        def initialize(vm_tpl, xpath_filter, deploy_id = nil)
             @locking ||= false
 
-            if !hypervisor
-                @hypervisor = detect_hypervisor
-            else
-                @hypervisor = hypervisor
-            end
-
             @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root,
-                xpath_filter, deploy_id, @hypervisor)
+                                        xpath_filter, deploy_id)
         end
 
-        # Creates a new VNDriver using:
+        # Creates a new VNMDriver using:
         #   @param vm_64 [String] Base64 encoded XML String from oned
         #   @param deploy_id [String]
-        #   @param hypervisor [String]
-        def self.from_base64(vm_64, deploy_id = nil, hypervisor = nil)
-            vm_xml =  Base64::decode64(vm_64)
-            self.new(vm_xml, deploy_id, hypervisor)
+        def self.from_base64(vm_64, xpath_filter = nil, deploy_id = nil)
+            vm_xml = Base64::decode64(vm_64)
+
+            self.new(vm_xml, xpath_filter, deploy_id)
         end
 
         # Locking function to serialized driver operations if needed. Similar
@@ -78,27 +71,11 @@ module VNMMAD
             @vm.each_nic(block)
         end
 
-        # Return a string for the hypervisor
-        #   @return [String] "kvm", "xen" or nil
-        def detect_hypervisor
-            lsmod       = `#{VNMNetwork::COMMANDS[:lsmod]}`
-            xen_file    = "/proc/xen/capabilities"
-            kvm_dir     = "/sys/class/misc/kvm"
-
-            if File.exists?(xen_file)
-                "xen"
-            elsif lsmod.match(/kvm/) || File.exists?(kvm_dir)
-                "kvm"
-            else
-                nil
-            end
-        end
-
         # Returns a filter object based on the contents of the template
         #
         # @return SGDriver object
-        def self.filter_driver(vm_64, deploy_id, hypervisor, xpath)
-            SGDriver.new(vm_64, deploy_id, hypervisor, xpath)
+        def self.filter_driver(vm_64, xpath_filter, deploy_id)
+            SGDriver.new(vm_64, xpath_filter, deploy_id)
         end
 
         # Returns the associated command including sudo and other configuration

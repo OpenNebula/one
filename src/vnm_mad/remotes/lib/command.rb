@@ -18,20 +18,6 @@ module VNMMAD
 
 module VNMNetwork
 
-    # This module include implementation specific functions. It MUST not be
-    # be used in other VNMAD classes.
-    module Configuration
-        # Return the command to talk to the Xen hypervisor xm or xl for
-        # Xen 3 and 4
-        def self.get_xen_command
-            if system("ps axuww | grep -v grep | grep '\\bxend\\b'")
-                "sudo xm"
-            else
-                "sudo xl"
-            end
-        end
-    end
-
     # Command configuration for common network commands. This CAN be adjust
     # to local installations. Any modification requires to sync the hosts with
     # onehost sync command.
@@ -41,7 +27,6 @@ module VNMNetwork
       :brctl    => "sudo brctl",
       :ip       => "sudo ip",
       :virsh    => "virsh -c qemu:///system",
-      :xm       => Configuration::get_xen_command,
       :ovs_vsctl=> "sudo ovs-vsctl",
       :ovs_ofctl=> "sudo ovs-ofctl",
       :lsmod    => "lsmod",

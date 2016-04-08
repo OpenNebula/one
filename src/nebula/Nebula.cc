@@ -517,6 +517,9 @@ void Nebula::start(bool bootstrap_only)
         vector<const SingleAttribute *> vnet_restricted_attrs;
         vector<const VectorAttribute *> vnet_hooks;
 
+        const VectorAttribute * vlan_id;
+        const VectorAttribute * vxlan_id;
+
         nebula_configuration->get("MAC_PREFIX", mac_prefix);
 
         nebula_configuration->get("NETWORK_SIZE", size);
@@ -527,8 +530,12 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
 
+        vlan_id  = nebula_configuration->get("VLAN_ID");
+
+        vxlan_id = nebula_configuration->get("VXLAN_ID");
+
         vnpool = new VirtualNetworkPool(db, mac_prefix, size, vnet_restricted_attrs,
-            vnet_hooks, remotes_location, inherit_vnet_attrs);
+            vnet_hooks, remotes_location, inherit_vnet_attrs, vlan_id, vxlan_id);
 
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const VectorAttribute *> user_hooks;

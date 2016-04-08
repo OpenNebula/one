@@ -23,17 +23,15 @@ require 'Ebtables'
 
 template64   = ARGV[0]
 deploy_id    = ARGV[1]
-hypervisor   = nil
 xpath_filter = EbtablesVLAN::XPATH_FILTER
 
-onevlan = EbtablesVLAN.from_base64(template64, deploy_id)
+onevlan = EbtablesVLAN.from_base64(template64, xpath_filter, deploy_id)
 onevlan.activate
 
 begin
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
-                                                    deploy_id,
-                                                    hypervisor,
-                                                    xpath_filter)
+                                                    xpath_filter,
+                                                    deploy_id)
     filter_driver.activate
 rescue Exception => e
     OpenNebula.log_error(e.message)

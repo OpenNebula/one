@@ -45,6 +45,68 @@ class VirtualNetwork : public PoolObjectSQL, public Clusterable
 {
 public:
 
+    /**
+     *  Defines the Virtual Network type based on its associated driver
+     */
+    enum VirtualNetworkDriver
+    {
+        NONE     = 0,
+        DUMMY    = 1,
+        VLAN     = 2,
+        EBTABLES = 3,
+        FW       = 4,
+        OVSWITCH = 5,
+        VXLAN    = 6
+    };
+
+    static string driver_to_str(VirtualNetworkDriver ob)
+    {
+        switch (ob)
+        {
+            case NONE:     return "";
+            case DUMMY:    return "dummy";
+            case VLAN:     return "802.1Q";
+            case EBTABLES: return "ebtables";
+            case FW:       return "fw";
+            case OVSWITCH: return "ovswtich";
+            case VXLAN:    return "vxlan";
+        }
+    };
+
+    static VirtualNetworkDriver str_to_driver(string& ob)
+    {
+        one_util::toupper(ob);
+
+        if ( ob == "dummy" )
+        {
+            return DUMMY;
+        }
+        else if ( ob == "802.1Q" )
+        {
+            return VLAN;
+        }
+        else if ( ob == "ebtables" )
+        {
+            return EBTABLES;
+        }
+        else if ( ob == "fw" )
+        {
+            return FW;
+        }
+        else if ( ob == "ovswtich" )
+        {
+            return OVSWITCH;
+        }
+        else if ( ob == "vxlan" )
+        {
+            return VXLAN;
+        }
+        else
+        {
+            return NONE;
+        }
+    };
+
     // *************************************************************************
     // Virtual Network Public Methods
     // *************************************************************************

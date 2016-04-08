@@ -17,7 +17,7 @@
 module VNMMAD
 
     ############################################################################
-    # OpenNebula Firewall with Security Groups Based on IPTables (KVM and Xen)
+    # OpenNebula Firewall with Security Groups Based on IPTables (KVM)
     ############################################################################
     class SGDriver < VNMDriver
         DRIVER       = "sg"
@@ -39,16 +39,16 @@ module VNMMAD
         # Creates a new SG driver and scans SG Rules
         # @param [String] VM XML base64 encoded
         # @param [String] hypervisor ID for the VM
-        # @param [String] hypervisor (e.g. 'kvm','xen'...)
+        # @param [String] hypervisor (e.g. 'kvm' ...)
         # @param [String] Xpath for the NICs using the SG driver
-        def initialize(vm_64, deploy_id = nil, hypervisor = nil, xpath = nil)
-            vm =  Base64::decode64(vm_64)
+        def initialize(vm_64, xpath_filter = nil, deploy_id = nil)
+            @locking = true
 
-            xpath_filter = xpath || XPATH_FILTER
+            vm = Base64::decode64(vm_64)
 
-            super(vm, xpath_filter, deploy_id, hypervisor)
+            xpath_filter ||= XPATH_FILTER
+            super(vm, xpath_filter, deploy_id)
 
-            @locking  = true
             @commands = VNMNetwork::Commands.new
 
             rules = {}

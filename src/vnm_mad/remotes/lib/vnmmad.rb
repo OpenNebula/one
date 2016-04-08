@@ -32,6 +32,8 @@ require 'sg_driver'
 require 'vlan'
 require 'scripts_common'
 
+Dir["vnmmad-load.d/*.rb"].each{ |f| require f }
+
 include OpenNebula
 
 begin

@@ -21,8 +21,10 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenvSwitch'
 
-template64 = ARGV[0]
-deploy_id  = ARGV[1]
+template64   = ARGV[0]
+deploy_id    = ARGV[1]
+xpath_filter = OpenvSwitchVLAN::XPATH_FILTER
 
-ovs = OpenvSwitchVLAN.from_base64(template64, deploy_id)
+ovs = OpenvSwitchVLAN.from_base64(template64, xpath_filter, deploy_id)
+
 ovs.activate

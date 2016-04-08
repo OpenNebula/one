@@ -143,9 +143,6 @@ define(function(require) {
         case 'fs':
           _selectFilesystem(dialog);
           break;
-        case 'vmware_vmfs':
-          _selectVmwareVmfs(dialog);
-          break;
         case 'block_lvm':
           _selectBlockLvm(dialog);
           break;
@@ -382,24 +379,6 @@ define(function(require) {
     $('input#restricted_dirs', dialog).removeAttr('disabled');
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().fadeIn();
-  }
-
-  function _selectVmwareVmfs(dialog) {
-    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
-    $('label[for="ds_tmp_dir"],input#ds_tmp_dir', dialog).parent().fadeIn();
-    $('select#ds_mad', dialog).val('vmfs').change();
-    $('select#ds_mad', dialog).attr('disabled', 'disabled');
-    $('select#tm_mad', dialog).val('vmfs');
-    $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
-    $('select#disk_type', dialog).val('file');
-    $('select#disk_type', dialog).attr('disabled', 'disabled');
-    $('input#safe_dirs', dialog).removeAttr('disabled');
-    $('input#base_path', dialog).removeAttr('disabled');
-    $('input#limit_mb', dialog).removeAttr('disabled');
-    $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
   function _selectCeph(dialog) {

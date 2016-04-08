@@ -79,17 +79,6 @@ define(function(require) {
   function _setup(context) {
     CustomTagsTable.setup(context);
 
-    context.on("change", "#raw_type", function() {
-      var choice_str = $(this).val();
-      switch (choice_str) {
-      case 'vmware':
-        $("#data_vmx_div", context).show();
-        break;
-      default:
-        $("#data_vmx_div", context).hide();
-      }
-    });
-
     context.off("click", ".add_pci");
     context.on("click", ".add_pci", function(){
       var tr = $(RowTemplateHTML()).appendTo( $(".pci_devices tbody", context) );

@@ -53,7 +53,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-folder';
     this.title = Locale.tr("Context");
-    this.classes = "hypervisor only_kvm only_vmware only_xen only_vcenter";
+    this.classes = "hypervisor only_kvm only_vcenter";
 
     this.contextFilesTable = new FilesTable(this.wizardTabId + 'ContextTable', {
       'select': true,

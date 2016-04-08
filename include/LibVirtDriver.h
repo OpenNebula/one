@@ -27,54 +27,35 @@ class LibVirtDriver : public VirtualMachineManagerDriver
 {
 public:
 
-    LibVirtDriver(
-        int userid,
-        const map<string,string> &attrs,
-        bool sudo,
-        VirtualMachinePool *    pool,
-        const string _emulator):
-            VirtualMachineManagerDriver(userid, attrs,sudo,pool),
-            emulator(_emulator)
+    LibVirtDriver(int userid, const map<string,string> &attrs, bool sudo,
+        VirtualMachinePool * pool, const string& emu)
+        :VirtualMachineManagerDriver(userid, attrs,sudo,pool), emulator(emu)
     {};
 
     ~LibVirtDriver(){};
 
 private:
-    static const char * vmware_vnm_name;
+    static const float CGROUP_BASE_CPU_SHARES;
 
-    static const float  CGROUP_BASE_CPU_SHARES;
+    static const int   CEPH_DEFAULT_PORT;
 
-    static const int CEPH_DEFAULT_PORT;
+    static const int   GLUSTER_DEFAULT_PORT;
 
-    static const int GLUSTER_DEFAULT_PORT;
+    static const int   ISCSI_DEFAULT_PORT;
 
-    static const int ISCSI_DEFAULT_PORT;
-
-    int deployment_description(
-        const VirtualMachine *  vm,
-        const string&           file_name) const
+    int deployment_description(const VirtualMachine * vm, const string& fn) const
     {
         int   rc = -1;
 
         if (emulator == "kvm" || emulator == "qemu" )
         {
-            rc = deployment_description_kvm(vm,file_name);
-        }
-        else if (emulator == "vmware")
-        {
-            rc = deployment_description_vmware(vm,file_name);
+            rc = deployment_description_kvm(vm, fn);
         }
 
         return rc;
     }
 
-    int deployment_description_kvm(
-        const VirtualMachine *  vm,
-        const string&           file_name) const;
-
-    int deployment_description_vmware(
-        const VirtualMachine *  vm,
-        const string&           file_name) const;
+    int deployment_description_kvm(const VirtualMachine * v, const string& f) const;
 
     const string emulator;
 };

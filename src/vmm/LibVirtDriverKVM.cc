@@ -161,24 +161,24 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<const VectorAttribute *> nic;
 
-    string  mac        = "";
-    string  bridge     = "";
-    string  bridge_ovs = "";
-    string  script     = "";
-    string  model      = "";
-    string  ip         = "";
-    string  filter     = "";
+    string  mac    = "";
+    string  bridge = "";
+    string  vn_mad = "";
+    string  script = "";
+    string  model  = "";
+    string  ip     = "";
+    string  filter = "";
 
     string  default_filter = "";
     string  default_model  = "";
 
     const VectorAttribute * graphics;
 
-    string  listen          = "";
-    string  port            = "";
-    string  passwd          = "";
-    string  keymap          = "";
-    string  spice_options   = "";
+    string  listen        = "";
+    string  port          = "";
+    string  passwd        = "";
+    string  keymap        = "";
+    string  spice_options = "";
 
     const VectorAttribute * input;
 
@@ -834,14 +834,14 @@ int LibVirtDriver::deployment_description_kvm(
 
     for(int i=0; i<num; i++)
     {
-        bridge     = nic[i]->vector_value("BRIDGE");
-        bridge_ovs = nic[i]->vector_value("BRIDGE_OVS");
-        mac        = nic[i]->vector_value("MAC");
-        target     = nic[i]->vector_value("TARGET");
-        script     = nic[i]->vector_value("SCRIPT");
-        model      = nic[i]->vector_value("MODEL");
-        ip         = nic[i]->vector_value("IP");
-        filter     = nic[i]->vector_value("FILTER");
+        bridge = nic[i]->vector_value("BRIDGE");
+        vn_mad = nic[i]->vector_value("VN_MAD");
+        mac    = nic[i]->vector_value("MAC");
+        target = nic[i]->vector_value("TARGET");
+        script = nic[i]->vector_value("SCRIPT");
+        model  = nic[i]->vector_value("MODEL");
+        ip     = nic[i]->vector_value("IP");
+        filter = nic[i]->vector_value("FILTER");
 
         if ( bridge.empty() )
         {
@@ -851,21 +851,14 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t<interface type='bridge'>" << endl;
 
-            string * the_bridge = &bridge;
 
-            if ( vm->get_vnm_mad() == "ovswitch" )
+            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH)
             {
-
-                if ( !bridge_ovs.empty() )
-                {
-                    the_bridge = &bridge_ovs;
-                }
-
                 file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
             }
 
             file << "\t\t\t<source bridge="
-                 << one_util::escape_xml_attr(*the_bridge) << "/>\n";
+                 << one_util::escape_xml_attr(bridge) << "/>\n";
         }
 
         if( !mac.empty() )

@@ -229,9 +229,7 @@ private:
      *  Function to format a VMM Driver message in the form:
      *  <VMM_DRIVER_ACTION_DATA>
      *      <HOST> hostname </HOST>
-     *      <NET_DRV> net_drv </NET_DRV>
      *      <MIGR_HOST> m_hostname </MIGR_HOST>
-     *      <MIGR_NET_DRV> m_net_drv  </MIGR_NET_DRV>
      *      <DOMAIN> domain_id </DOMAIN>
      *      <DEPLOYMENT_FILE> dfile </DEPLOYMENT_FILE>
      *      <CHECKPOINT_FILE> cfile </CHECKPOINT_FILE>
@@ -244,9 +242,7 @@ private:
      *  </VMM_DRIVER_ACTION_DATA>
      *
      *    @param hostname of the host to perform the action
-     *    @param net_drv name of the vlan driver
      *    @param m_hostname name of the host to migrate the VM
-     *    @param m_net_drv name of the vlan driver
      *    @param domain domain id as returned by the hypervisor
      *    @param dfile deployment file to boot the VM
      *    @param cfile checkpoint file to save the VM
@@ -260,9 +256,7 @@ private:
      */
     string * format_message(
         const string& hostname,
-        const string& net_drv,
         const string& m_hostname,
-        const string& m_net_drv,
         const string& domain,
         const string& ldfile,
         const string& rdfile,

@@ -321,7 +321,6 @@ int RequestManagerVirtualMachine::get_host_information(
     int     hid,
     string& name,
     string& vmm,
-    string& vnm,
     int&    cluster_id,
     string& ds_location,
     bool&   is_public_cloud,
@@ -345,7 +344,6 @@ int RequestManagerVirtualMachine::get_host_information(
 
     name = host->get_name();
     vmm  = host->get_vmm_mad();
-    vnm  = host->get_vnm_mad();
 
     cluster_id = host->get_cluster_id();
 
@@ -439,7 +437,6 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              cid,
                                        const string&    hostname,
                                        const string&    vmm_mad,
-                                       const string&    vnm_mad,
                                        const string&    tm_mad,
                                        const string&    ds_location,
                                        int              ds_id,
@@ -449,8 +446,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid, cid, hostname, vmm_mad, vnm_mad, tm_mad, ds_location,
-            ds_id);
+    vm->add_history(hid, cid, hostname, vmm_mad, tm_mad, ds_location, ds_id);
 
     if ( vmpool->update_history(vm) != 0 )
     {
@@ -786,7 +782,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     string hostname;
     string vmm_mad;
-    string vnm_mad;
     int    cluster_id;
     string ds_location;
     bool   is_public_cloud;
@@ -820,7 +815,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
-                             vnm_mad,
                              cluster_id,
                              ds_location,
                              is_public_cloud,
@@ -967,7 +961,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                     cluster_id,
                     hostname,
                     vmm_mad,
-                    vnm_mad,
                     tm_mad,
                     ds_location,
                     ds_id,
@@ -1023,7 +1016,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     string hostname;
     string vmm_mad;
-    string vnm_mad;
     int    cluster_id;
     set<int> ds_cluster_ids;
     string ds_location;
@@ -1066,7 +1058,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if (get_host_information(hid,
                              hostname,
                              vmm_mad,
-                             vnm_mad,
                              cluster_id,
                              ds_location,
                              is_public_cloud,
@@ -1306,7 +1297,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                     cluster_id,
                     hostname,
                     vmm_mad,
-                    vnm_mad,
                     tm_mad,
                     ds_location,
                     ds_id,

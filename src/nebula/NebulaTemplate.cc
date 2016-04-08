@@ -342,7 +342,7 @@ void OpenNebulaTemplate::set_conf_default()
     vattribute = new VectorAttribute("LOG",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
-    // LOG CONFIGURATION
+    // VNC CONFIGURATION
     vvalue.clear();
     vvalue.insert(make_pair("RESERVED",""));
     vvalue.insert(make_pair("START","5900"));
@@ -411,12 +411,25 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 #  NETWORK_SIZE
 #  MAC_PREFIX
+#  VLAN_ID
+#  VXLAN_ID
 #*******************************************************************************
 */
-
     set_conf_single("MAC_PREFIX", "02:00");
     set_conf_single("NETWORK_SIZE", "254");
 
+    vvalue.clear();
+    vvalue.insert(make_pair("RESERVED","0, 4095"));
+    vvalue.insert(make_pair("START","2"));
+
+    vattribute = new VectorAttribute("VLAN_ID",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    vvalue.clear();
+    vvalue.insert(make_pair("START","2"));
+
+    vattribute = new VectorAttribute("VXLAN_ID",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Datastore Configuration

@@ -65,14 +65,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     :format => String
     }
 
-    VNET = {
-    :name   => "net",
-    :short  => "-n vnet_mad",
-    :large  => "--net vnet_mad" ,
-    :description => "Set the network driver for the host",
-    :format => String
-    }
-
     FORCE = {
         :name   => "force",
         :large  => "--force" ,
@@ -87,7 +79,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " rsync command must be installed in the frontend and nodes."
     }
 
-    CREAT_OPTIONS = [ IM, VMM, VNET, OneClusterHelper::CLUSTER ]
+    CREAT_OPTIONS = [ IM, VMM, OneClusterHelper::CLUSTER ]
     SYNC_OPTIONS  = [ OneClusterHelper::CLUSTER, FORCE, RSYNC ]
 
     ########################################################################
@@ -111,11 +103,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, :hostname, :options=>CREAT_OPTIONS do
-        if options[:im].nil? or options[:vm].nil? or options[:net].nil?
+        if options[:im].nil? || options[:vm].nil?
             STDERR.puts "Drivers are mandatory to create a host:"
             STDERR.puts "\t -i information driver"
             STDERR.puts "\t -v hypervisor driver"
-            STDERR.puts "\t -n network driver"
             exit -1
         end
 
@@ -125,7 +116,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 host.allocate(args[0],
                               options[:im],
                               options[:vm],
-                              options[:net],
                               cid)
         end
     end

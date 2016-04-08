@@ -21,9 +21,11 @@ class EbtablesVLAN < VNMMAD::VNMDriver
     DRIVER = "ebtables"
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
 
-    def initialize(vm, deploy_id = nil, hypervisor = nil)
-        super(vm,XPATH_FILTER,deploy_id,hypervisor)
+    def initialize(vm, xpath_filter = nil, deploy_id = nil)
         @locking = true
+
+        xpath_filter ||= XPATH_FILTER
+        super(vm, xpath_filter, deploy_id)
     end
 
     def ebtables(rule)

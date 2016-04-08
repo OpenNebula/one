@@ -52,7 +52,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-tasks';
     this.title = Locale.tr("Storage");
-    this.classes = "hypervisor only_kvm only_vmware only_xen"
+    this.classes = "hypervisor only_kvm"
   }
 
   WizardTab.prototype.constructor = WizardTab;

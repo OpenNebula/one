@@ -18,18 +18,15 @@ module VNMMAD
 
 module VNMNetwork
 
+    # This Hash will be pppulated by the NicKVM and other hypervisor-nic
+    # specific classes.
+    HYPERVISORS = {}
+
     # This class represents the NICS of a VM, it provides a factory method
     # to create VMs of the given hyprtvisor
     class Nics < Array
         def initialize(hypervisor)
-            case hypervisor
-            when "kvm"
-                @nicClass = NicKVM
-            when "xen"
-                @nicClass = NicXen
-            when "vmware"
-                @nicClass = NicVMware
-            end
+            @nicClass = HYPERVISORS[hypervisor] || NicKVM
         end
 
         def new_nic
@@ -47,6 +44,8 @@ module VNMNetwork
     # A NIC using KVM. This class implements functions to get the physical
     # interface that the NIC is using, based on the MAC address
     class NicKVM < Hash
+        VNMNetwork::HYPERVISORS["kvm"] = self
+
         def initialize
             super(nil)
         end
@@ -87,68 +86,6 @@ module VNMNetwork
             self
         end
     end
-
-
-    # A NIC using Xen. This class implements functions to get the physical interface
-    # that the NIC is using
-    class NicXen < Hash
-        def initialize
-            super(nil)
-        end
-
-        def get_info(vm)
-            if vm.deploy_id
-                deploy_id = vm.deploy_id
-            else
-                deploy_id = vm['DEPLOY_ID']
-            end
-
-            if deploy_id and (vm.vm_info[:domid].nil? or vm.vm_info[:networks].nil?)
-                vm.vm_info[:domid]    =`#{VNMNetwork::COMMANDS[:xm]} domid #{deploy_id}`.strip
-                vm.vm_info[:networks] =`#{VNMNetwork::COMMANDS[:xm]} network-list #{deploy_id}`
-
-                vm.vm_info.each_key do |k|
-                    vm.vm_info[k] = nil if vm.vm_info[k].to_s.strip.empty?
-                end
-            end
-        end
-
-        def get_tap(vm)
-            domid = vm.vm_info[:domid]
-
-            if domid
-                networks = vm.vm_info[:networks].split("\n")[1..-1]
-                networks.each do |net|
-                    n = net.split
-
-                    iface_id  = n[0]
-                    iface_mac = n[2]
-
-                    if iface_mac == self[:mac]
-                        self[:tap] = "vif#{domid}.#{iface_id}"
-                        break
-                    end
-                end
-            end
-            self
-        end
-    end
-
-    # A NIC using VMware. This class implements functions to get the physical interface
-    # that the NIC is using
-    class NicVMware < Hash
-        def initialize
-            super(nil)
-        end
-
-        def get_info(vm)
-        end
-
-        def get_tap(vm)
-            self
-        end
-    end
-
 end
 
 end

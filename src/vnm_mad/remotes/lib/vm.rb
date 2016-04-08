@@ -30,19 +30,17 @@ module VNMNetwork
         #   @param vm_root [REXML] XML document representing the VM
         #   @param xpath_filer [String] to get the VM NICs
         #   @param deploy_id [String] refers to the VM in the hypervisor
-        #   @param hypervisor [String]
-        def initialize(vm_root, xpath_filter, deploy_id, hypervisor)
+        def initialize(vm_root, xpath_filter, deploy_id)
             @vm_root      = vm_root
-            @xpath_filter = xpath_filter
             @deploy_id    = deploy_id
-            @hypervisor   = hypervisor
+
             @vm_info      = Hash.new
 
             @deploy_id = nil if deploy_id == "-"
 
-            nics = VNMNetwork::Nics.new(@hypervisor)
+            nics = VNMNetwork::Nics.new(hypervisor)
 
-            @vm_root.elements.each(@xpath_filter) do |nic_element|
+            @vm_root.elements.each(xpath_filter) do |nic_element|
                 nic =  nics.new_nic
 
                 nic_build_hash(nic_element,nic)
@@ -67,7 +65,7 @@ module VNMNetwork
 
         # Access an XML Element of the VM
         #   @param element [String] element name
-        #   @return [String] valule of the element or nil if not found
+        #   @return [String] value of the element or nil if not found
         def [](element)
             if @vm_root
                 val = @vm_root.elements[element]
@@ -75,6 +73,13 @@ module VNMNetwork
             end
 
             nil
+        end
+
+        # Gets the Hypervisor VMMMAD from the Template
+        # @return [String] name of the hypervisor driver
+        def hypervisor
+            xpath = 'HISTORY_RECORDS/HISTORY/VMMMAD'
+            @vm_root.root.elements[xpath].text
         end
 
         private

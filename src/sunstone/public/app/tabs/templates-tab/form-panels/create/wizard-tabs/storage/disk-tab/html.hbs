@@ -65,14 +65,14 @@
     <div class="medium-6 columns">
       <label for="TARGET">
         {{tr "Target"}}
-        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
       </label>
       <input type="text" wizard_field="TARGET" id="TARGET" name="target"/>
     </div>
-    <div class="medium-6 columns hypervisor only_xen only_kvm">
+    <div class="medium-6 columns hypervisor only_kvm">
       <label for="DRIVER">
         {{tr "Driver"}}
-        {{{tip (tr "Specific image mapping driver. Xen: Optional (tap:aio:, file:). KVM: Optional (raw, qcow2). VMWare: Not supported")}}}
+        {{{tip (tr "Specific image mapping driver.")}}}
       </label>
       <input type="text" wizard_field="DRIVER" id="DRIVER" name="driver" />
     </div>
@@ -81,14 +81,14 @@
     <div class="medium-6 columns">
       <label for="DEV_PREFIX">
         {{tr "Device Prefix"}}
-        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used.")}}}
       </label>
       <input type="text" wizard_field="DEV_PREFIX" id="DEV_PREFIX" name="DEV_PREFIX"/>
     </div>
     <div class="medium-6 columns">
       <label for="READONLY">
         {{tr "Read Only"}}
-        {{{tip (tr "Set how the image is exposed by the hypervisor. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Set how the image is exposed by the hypervisor.")}}}
       </label>
       <select wizard_field="READONLY" id="READONLY" name="READONLY">
         <option value=""></option>
@@ -222,14 +222,14 @@
     <div class="medium-6 columns">
       <label for="TARGET">
         {{tr "Target"}}
-        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
       </label>
       <input wizard_field="TARGET" type="text"  id="TARGET" name="target"/>
     </div>
-    <div class="medium-6 columns hypervisor only_xen only_kvm">
+    <div class="medium-6 columns hypervisor only_kvm">
       <label for="DRIVER">
         {{tr "Driver"}}
-        {{{tip (tr "Specific image mapping driver. Xen: Optional (tap:aio:, file:). KVM: Optional (raw, qcow2). VMWare: Not supported")}}}
+        {{{tip (tr "Specific image mapping driver.")}}}
       </label>
       <input wizard_field="DRIVER" type="text" id="DRIVER" name="driver" />
     </div>
@@ -238,14 +238,14 @@
     <div class="medium-6 columns">
       <label for="DEV_PREFIX">
         {{tr "Device Prefix"}}
-        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used.")}}}
       </label>
       <input wizard_field="DEV_PREFIX" type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>
     </div>
     <div class="medium-6 columns">
       <label for="READONLY">
         {{tr "Read Only"}}
-        {{{tip (tr "Set how the image is exposed by the hypervisor. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
+        {{{tip (tr "Set how the image is exposed by the hypervisor.")}}}
       </label>
       <select wizard_field="READONLY" id="READONLY" name="READONLY">
         <option value=""></option>

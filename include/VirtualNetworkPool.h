@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "VirtualNetwork.h"
+#include "BitMap.h"
 
 #include <time.h>
 
@@ -33,13 +34,21 @@ class VirtualNetworkPool : public PoolSQL
 {
 public:
 
-    VirtualNetworkPool(SqlDB * db, const string& str_mac_prefix, int default_size,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const VectorAttribute *>& hook_mads, const string& remotes_location,
-        const vector<const SingleAttribute *>& _inherit_attrs);
+    VirtualNetworkPool(SqlDB * db,
+            const string& str_mac_prefix,
+            int default_size,
+            vector<const SingleAttribute *>& restricted_attrs,
+            vector<const VectorAttribute *>& hook_mads,
+            const string& remotes_location,
+            const vector<const SingleAttribute *>& _inherit_attrs,
+            const VectorAttribute * vlan_conf,
+            const VectorAttribute * vxlan_conf);
 
     ~VirtualNetworkPool(){};
 
+    //--------------------------------------------------------------------------
+    // Virtual Network DB access functions
+    //--------------------------------------------------------------------------
     /**
      *  Function to allocate a new VNET object
      *    @param uid user identifier
@@ -64,6 +73,16 @@ public:
         int *                       oid,
         const set<int>              &cluster_ids,
         string&                     error_str);
+
+    /**
+     *  Drops a Virtual Network and the associated VLAN_ID if needed
+     */
+    int drop(VirtualNetwork * vn, string& error_msg)
+    {
+        release_vlan_id(vn);
+
+        return PoolSQL::drop(vn, error_msg);
+    };
 
     /**
      *  Function to get a VN from the pool, if the object is not in memory
@@ -91,48 +110,20 @@ public:
         return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid,lock));
     };
 
-    //--------------------------------------------------------------------------
-    // Virtual Network DB access functions
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Generates a NIC attribute for VM templates using the VirtualNetwork
-     *  metadata
-     *    @param nic the nic attribute to be generated
-     *    @param nic_id the id for this NIC
-     *    @param uid of the VM owner
-     *    @param vid of the VM requesting the lease
-     *    @param error_str string describing the error
-     *    @return 0 on success,
-     *            -1 error,
-     *            -2 not using the pool
-     */
-    int nic_attribute(
-            PoolObjectSQL::ObjectType   ot,
-            VectorAttribute*            nic,
-            int                         nic_id,
-            int                         uid,
-            int                         vid,
-            string&                     error_str);
-
-    /**
-     *  Generates an Authorization token for a NIC attribute
-     *    @param nic the nic to be authorized
-     *    @param ar the AuthRequest
-     */
-    void authorize_nic(
-            PoolObjectSQL::ObjectType   ot,
-            VectorAttribute *           nic,
-            int                         uid,
-            AuthRequest *               ar);
-
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)
     {
-        return VirtualNetwork::bootstrap(_db);
+        ostringstream oss;
+
+        int rc;
+
+        rc  = VirtualNetwork::bootstrap(_db);
+        rc += _db->exec(BitMap<0>::bootstrap(vlan_table, oss));
+
+        return rc;
     };
 
     /**
@@ -179,21 +170,112 @@ public:
         return PoolSQL::search(oids, VirtualNetwork::table, where);
     };
 
+    //--------------------------------------------------------------------------
+    // NIC Attribute build functions
+    //--------------------------------------------------------------------------
+    /**
+     *  Generates a NIC attribute for VM templates using the VirtualNetwork
+     *  metadata
+     *    @param nic the nic attribute to be generated
+     *    @param nic_id the id for this NIC
+     *    @param uid of the VM owner
+     *    @param vid of the VM requesting the lease
+     *    @param error_str string describing the error
+     *    @return 0 on success,
+     *            -1 error,
+     *            -2 not using the pool
+     */
+    int nic_attribute(
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute*            nic,
+            int                         nic_id,
+            int                         uid,
+            int                         vid,
+            string&                     error_str);
+
+    /**
+     *  Generates an Authorization token for a NIC attribute
+     *    @param nic the nic to be authorized
+     *    @param ar the AuthRequest
+     */
+    void authorize_nic(
+            PoolObjectSQL::ObjectType   ot,
+            VectorAttribute *           nic,
+            int                         uid,
+            AuthRequest *               ar);
 private:
     /**
      *  Holds the system-wide MAC prefix
      */
-    static unsigned int     _mac_prefix;
+    static unsigned int _mac_prefix;
 
     /**
      *  Default size for Virtual Networks
      */
-    static unsigned int     _default_size;
+    static unsigned int _default_size;
 
     /**
      * VNet attributes to be injected into the VM nic
      */
     vector<string> inherit_attrs;
+
+    /**
+     *  Configuration attributes for the vlan_id pool
+     */
+    const VectorAttribute vlan_conf;
+
+    /**
+     *  Bitmap with vlan_id in use for the 802.1Q driver
+     */
+    BitMap<4096> vlan_id_bitmap;
+
+   /**
+    *  ID for the VLAN_BITMAP, to store it in the DB
+    */
+    static const int VLAN_BITMAP_ID;
+
+    /**
+     *  Configuration attributes for the vxlan_id pool
+     */
+    const VectorAttribute vxlan_conf;
+
+    /**
+     * Virtual Network bitmap pool for VLANs table
+     */
+    static const char * vlan_table;
+
+    //--------------------------------------------------------------------------
+    // NIC Attribute build functions
+    //--------------------------------------------------------------------------
+    /**
+     *  Function to get a VirtualNetwork by its name, as provided by a VM
+     *  template
+     */
+    VirtualNetwork * get_nic_by_name(VectorAttribute * nic,
+                                     const string&     name,
+                                     int               _uidi,
+                                     string&           error);
+    /**
+     *  Function to get a VirtualNetwork by its id, as provided by a VM template
+     */
+    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
+
+    //--------------------------------------------------------------------------
+    // VLAN ID management functions
+    //--------------------------------------------------------------------------
+    /**
+     *  Gets a free VLAN_ID, if not set by the user, and for VXLAN, VLAN and
+     *  OVSWTICH networks.
+     *    @param vn pointer to the network
+     *    @return 0 on success
+     */
+    int set_vlan_id(VirtualNetwork * vn);
+
+    /**
+     *  Free a previously allocated VLAN ID if needed
+     *    @param vn pointer to the network
+     */
+    void release_vlan_id(VirtualNetwork *vn);
 
     /**
      *  Factory method to produce VN objects
@@ -204,20 +286,6 @@ private:
         set <int> empty;
         return new VirtualNetwork(-1,-1,"","",0,-1,empty,0);
     };
-
-    /**
-     *  Function to get a VirtualNetwork by its name, as provided by a VM
-     *  template
-     */
-    VirtualNetwork * get_nic_by_name(VectorAttribute * nic,
-                                     const string&     name,
-                                     int               _uidi,
-                                     string&           error);
-
-    /**
-     *  Function to get a VirtualNetwork by its id, as provided by a VM template
-     */
-    VirtualNetwork * get_nic_by_id(const string& id_s, string& error);
 };
 
 #endif /*VIRTUAL_NETWORK_POOL_H_*/

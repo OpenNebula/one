@@ -241,21 +241,14 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/kvm.d \
-          $VAR_LOCATION/remotes/im/xen3.d \
-          $VAR_LOCATION/remotes/im/xen4.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
-          $VAR_LOCATION/remotes/im/xen3-probes.d \
-          $VAR_LOCATION/remotes/im/xen4-probes.d \
-          $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/sl.d \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/vmm \
+          $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
-          $VAR_LOCATION/remotes/vmm/xen3 \
-          $VAR_LOCATION/remotes/vmm/xen4 \
-          $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/sl \
@@ -268,14 +261,12 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/vnm/ovswitch_brcompat \
-          $VAR_LOCATION/remotes/vnm/vmware \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/fs_lvm \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
-          $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
@@ -286,7 +277,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
-          $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
@@ -383,11 +373,6 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
-    IM_PROBES_XEN3_FILES:$VAR_LOCATION/remotes/im/xen3.d
-    IM_PROBES_XEN3_PROBES_FILES:$VAR_LOCATION/remotes/im/xen3-probes.d
-    IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
-    IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
-    IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_SL_FILES:$VAR_LOCATION/remotes/im/sl.d
@@ -400,10 +385,8 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
-    VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
-    VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_SL_SCRIPTS:$VAR_LOCATION/remotes/vmm/sl
@@ -413,7 +396,6 @@ INSTALL_FILES=(
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
-    TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
@@ -423,7 +405,6 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
-    DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
@@ -440,7 +421,6 @@ INSTALL_FILES=(
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
-    NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
@@ -546,7 +526,6 @@ INSTALL_ONEFLOW_ETC_FILES=(
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
-    VMWARE_ETC_FILES:$ETC_LOCATION
     EC2_ETC_FILES:$ETC_LOCATION
     SL_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
@@ -665,6 +644,13 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/market_mad/one_market"
 
 #-------------------------------------------------------------------------------
+# VMM Lib files, used by some VMM Drivers, to be installed in
+# $REMOTES_LOCATION/vmm/lib
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
 #-------------------------------------------------------------------------------
 
@@ -690,74 +676,6 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/shutdown \
                     src/vmm_mad/remotes/kvm/reconfigure \
                     src/vmm_mad/remotes/kvm/prereconfigure"
-
-#-------------------------------------------------------------------------------
-# VMM SH Driver Xen scripts, to be installed under $REMOTES_LOCATION/vmm/xen
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_XEN3_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xen3/xenrc \
-                    src/vmm_mad/remotes/xen/xen3/migrate \
-                    src/vmm_mad/remotes/xen/restore \
-                    src/vmm_mad/remotes/xen/reboot \
-                    src/vmm_mad/remotes/xen/xen3/reset \
-                    src/vmm_mad/remotes/xen/save \
-                    src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
-                    src/vmm_mad/remotes/xen/attach_nic \
-                    src/vmm_mad/remotes/xen/detach_nic \
-                    src/vmm_mad/remotes/xen/snapshot_create \
-                    src/vmm_mad/remotes/xen/snapshot_revert \
-                    src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown \
-                    src/vmm_mad/remotes/xen/reconfigure \
-                    src/vmm_mad/remotes/xen/prereconfigure"
-
-VMM_EXEC_XEN4_SCRIPTS="src/vmm_mad/remotes/xen/cancel \
-                    src/vmm_mad/remotes/xen/deploy \
-                    src/vmm_mad/remotes/xen/xen4/xenrc \
-                    src/vmm_mad/remotes/xen/xen4/migrate \
-                    src/vmm_mad/remotes/xen/restore \
-                    src/vmm_mad/remotes/xen/reboot \
-                    src/vmm_mad/remotes/xen/xen4/reset \
-                    src/vmm_mad/remotes/xen/save \
-                    src/vmm_mad/remotes/xen/poll \
-                    src/vmm_mad/remotes/xen/attach_disk \
-                    src/vmm_mad/remotes/xen/detach_disk \
-                    src/vmm_mad/remotes/xen/attach_nic \
-                    src/vmm_mad/remotes/xen/detach_nic \
-                    src/vmm_mad/remotes/xen/snapshot_create \
-                    src/vmm_mad/remotes/xen/snapshot_revert \
-                    src/vmm_mad/remotes/xen/snapshot_delete \
-                    src/vmm_mad/remotes/xen/shutdown \
-                    src/vmm_mad/remotes/xen/reconfigure \
-                    src/vmm_mad/remotes/xen/prereconfigure"
-#-------------------------------------------------------------------------------
-# VMM Driver VMWARE scripts, to be installed under $REMOTES_LOCATION/vmm/vmware
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
-                         src/vmm_mad/remotes/vmware/attach_disk \
-                         src/vmm_mad/remotes/vmware/detach_disk \
-                         src/vmm_mad/remotes/vmware/attach_nic \
-                         src/vmm_mad/remotes/vmware/detach_nic \
-                         src/vmm_mad/remotes/vmware/snapshot_create \
-                         src/vmm_mad/remotes/vmware/snapshot_revert \
-                         src/vmm_mad/remotes/vmware/snapshot_delete \
-                         src/vmm_mad/remotes/vmware/scripts_common_sh.sh \
-                         src/vmm_mad/remotes/vmware/deploy \
-                         src/vmm_mad/remotes/vmware/migrate \
-                         src/vmm_mad/remotes/vmware/restore \
-                         src/vmm_mad/remotes/vmware/reboot \
-                         src/vmm_mad/remotes/vmware/reset \
-                         src/vmm_mad/remotes/vmware/save \
-                         src/vmm_mad/remotes/vmware/poll \
-                         src/vmm_mad/remotes/vmware/checkpoint \
-                         src/vmm_mad/remotes/vmware/shutdown \
-                         src/vmm_mad/remotes/vmware/vmware_driver.rb \
-                         src/vmm_mad/remotes/vmware/vi_driver.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Driver vCenter scripts, installed under $REMOTES_LOCATION/vmm/vcenter
@@ -871,32 +789,6 @@ IM_PROBES_KVM_PROBES_FILES="src/im_mad/remotes/kvm-probes.d/kvm.rb \
                      src/im_mad/remotes/common.d/version.sh \
                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
-IM_PROBES_XEN3_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
-                      src/im_mad/remotes/xen.d/collectd-client.rb"
-
-IM_PROBES_XEN3_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
-                      src/im_mad/remotes/xen-probes.d/architecture.sh \
-                      src/im_mad/remotes/xen-probes.d/cpu.sh \
-                      src/im_mad/remotes/xen-probes.d/poll3.sh \
-                      src/im_mad/remotes/xen-probes.d/name.sh
-                      src/im_mad/remotes/common.d/monitor_ds.sh \
-                      src/im_mad/remotes/common.d/version.sh \
-                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
-
-IM_PROBES_XEN4_FILES="src/im_mad/remotes/xen.d/collectd-client_control.sh \
-                      src/im_mad/remotes/xen.d/collectd-client.rb"
-
-IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
-                      src/im_mad/remotes/xen-probes.d/architecture.sh \
-                      src/im_mad/remotes/xen-probes.d/cpu.sh \
-                      src/im_mad/remotes/xen-probes.d/poll4.sh \
-                      src/im_mad/remotes/xen-probes.d/name.sh \
-                      src/im_mad/remotes/common.d/monitor_ds.sh \
-                      src/im_mad/remotes/common.d/version.sh \
-                      src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
-
-IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
-
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/vcenter.rb"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
@@ -981,12 +873,6 @@ NETWORK_OVSWITCH_BRCOMPAT_FILES="src/vnm_mad/remotes/ovswitch_brcompat/clean \
                     src/vnm_mad/remotes/ovswitch_brcompat/update_sg \
                     src/vnm_mad/remotes/ovswitch_brcompat/OpenvSwitch.rb"
 
-NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
-                    src/vnm_mad/remotes/vmware/post \
-                    src/vnm_mad/remotes/vmware/pre \
-                    src/vnm_mad/remotes/vmware/update_sg \
-                    src/vnm_mad/remotes/vmware/VMware.rb"
-
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
 #   - SHARED TM, $VAR_LOCATION/tm/shared
@@ -994,7 +880,6 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
-#   - VMWARE TM, $VAR_LOCATION/tm/vmware
 #   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
 #   - DEV TM, $VAR_LOCATION/tm/dev
@@ -1087,23 +972,6 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/cpds"
 
-TM_VMFS_FILES="src/tm_mad/vmfs/clone \
-                 src/tm_mad/vmfs/delete
-                 src/tm_mad/vmfs/ln \
-                 src/tm_mad/vmfs/mkswap \
-                 src/tm_mad/vmfs/mkimage \
-                 src/tm_mad/vmfs/mv \
-                 src/tm_mad/vmfs/context \
-                 src/tm_mad/vmfs/mvds \
-                 src/tm_mad/vmfs/cpds \
-                 src/tm_mad/vmfs/postmigrate \
-                 src/tm_mad/vmfs/snap_create \
-                 src/tm_mad/vmfs/snap_create_live \
-                 src/tm_mad/vmfs/snap_delete \
-                 src/tm_mad/vmfs/snap_revert \
-                 src/tm_mad/vmfs/failmigrate \
-                 src/tm_mad/vmfs/premigrate"
-
 TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/ln \
                  src/tm_mad/lvm/mv \
@@ -1182,7 +1050,6 @@ TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
-#   - VMFS based Image Repository, $REMOTES_LOCATION/datastore/vmfs
 #   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
 
@@ -1214,17 +1081,6 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/snap_flatten \
                          src/datastore_mad/remotes/fs/rm \
                          src/datastore_mad/remotes/fs/export"
-
-DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
-                         src/datastore_mad/remotes/vmfs/mkfs \
-                         src/datastore_mad/remotes/vmfs/stat \
-                         src/datastore_mad/remotes/vmfs/clone \
-                         src/datastore_mad/remotes/vmfs/monitor \
-                         src/datastore_mad/remotes/vmfs/rm \
-                         src/datastore_mad/remotes/vmfs/snap_delete \
-                         src/datastore_mad/remotes/vmfs/snap_revert \
-                         src/datastore_mad/remotes/vmfs/snap_flatten \
-                         src/datastore_mad/remotes/vmfs/vmfs.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/mkfs \
@@ -1367,8 +1223,6 @@ ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
            src/scheduler/etc/sched.conf"
 
-VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
-
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
                src/vmm_mad/remotes/ec2/ec2_driver.default"
 
@@ -1387,9 +1241,6 @@ AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
-                  src/vmm_mad/exec/vmm_exec_xen3.conf \
-                  src/vmm_mad/exec/vmm_exec_xen4.conf \
-                  src/vmm_mad/exec/vmm_exec_vmware.conf \
                   src/vmm_mad/exec/vmm_exec_vcenter.conf"
 
 #-------------------------------------------------------------------------------

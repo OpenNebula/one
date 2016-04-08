@@ -19,7 +19,6 @@
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="IM_MAD" type="xs:string"/>
         <xs:element name="VM_MAD" type="xs:string"/>
-        <xs:element name="VN_MAD" type="xs:string"/>
         <xs:element name="LAST_MON_TIME" type="xs:integer"/>
         <xs:element name="CLUSTER_ID" type="xs:integer"/>
         <xs:element name="CLUSTER" type="xs:string"/>

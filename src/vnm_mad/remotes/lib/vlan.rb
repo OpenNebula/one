@@ -23,10 +23,10 @@ module VNMMAD
     ############################################################################
     class VLANDriver < VNMMAD::VNMDriver
 
-        def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
+        def initialize(vm_tpl, xpath_filter, deploy_id = nil)
             @locking = true
 
-            super(vm_tpl, xpath_filter, deploy_id, hypervisor)
+            super(vm_tpl, xpath_filter, deploy_id)
         end
 
         # Activate the driver and creates bridges and tags devices as needed.

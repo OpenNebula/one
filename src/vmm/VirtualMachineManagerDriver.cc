@@ -99,8 +99,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
 		if (it != attrs.end())
 		{
-			if ( it->second == "kvm" || it->second == "xen3" ||
-                 it->second == "xen" || it->second == "vmware" )
+			if ( it->second == "kvm" || it->second == "xen" )
 			{
 				action_defaults = imported_actions_default;
 			}

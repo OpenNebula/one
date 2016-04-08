@@ -89,13 +89,12 @@ module OpenNebula
         # @param hostname [String] Name of the new Host.
         # @param im [String] Name of the im_driver (information/monitoring)
         # @param vmm [String] Name of the vmm_driver (hypervisor)
-        # @param vnm [String] Name of the vnm_driver (networking)
         # @param cluster_id [String] Id of the cluster, -1 to use default
         #
         # @return [Integer, OpenNebula::Error] the new ID in case of
         #   success, error otherwise
-        def allocate(hostname,im,vmm,vnm,cluster_id=ClusterPool::NONE_CLUSTER_ID)
-            super(HOST_METHODS[:allocate],hostname,im,vmm,vnm,cluster_id)
+        def allocate(hostname, im, vmm, cluster_id=ClusterPool::NONE_CLUSTER_ID)
+            super(HOST_METHODS[:allocate], hostname, im, vmm, cluster_id)
         end
 
         # Deletes the Host
