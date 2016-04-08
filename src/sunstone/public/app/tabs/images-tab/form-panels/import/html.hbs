@@ -15,32 +15,28 @@
 {{! -------------------------------------------------------------------------- }}
 
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
-  <div class="row collapse vcenter_credentials">
-    <div class="row">
-      <div class="large-6 columns">
-        <label for="vcenter_user">{{tr "User"}}</label>
-        <input type="text" name="vcenter_user" id="vcenter_user" />
-      </div>
-      <div class="large-6 columns">
-        <label for="vcenter_host">{{tr "Hostname"}}</label>
-        <input type="text" name="vcenter_host" id="vcenter_host" />
-      </div>
+  <div class="row vcenter_credentials">
+    <div class="large-3 medium-6 columns">
+      <label for="vcenter_host">{{tr "Hostname"}}</label>
+      <input type="text" name="vcenter_host" id="vcenter_host" />
     </div>
-    <div class="row">
-      <div class="large-6 columns">
-        <label for="vcenter_password">{{tr "Password"}}</label>
-        <input type="password" name="vcenter_password" id="vcenter_password" />
-      </div>
-      <div class="large-6 columns">
-        <label for="vcenter_datastore">{{tr "Datastore"}}</label>
-        <input type="text" name="vcenter_datastore" id="vcenter_datastore" />
-      </div>
-      <div class="large-6 columns">
-        <br>
-        <a class="button radius small right" id="get_vcenter_images">
-          {{tr "Get Images"}}
-        </a>
-      </div>
+    <div class="large-2 medium-3 columns">
+      <label for="vcenter_user">{{tr "User"}}</label>
+      <input type="text" name="vcenter_user" id="vcenter_user" />
+    </div>
+    <div class="large-2 medium-3 columns">
+      <label for="vcenter_password">{{tr "Password"}}</label>
+      <input type="password" name="vcenter_password" id="vcenter_password" />
+    </div>
+    <div class="large-2 medium-6 columns">
+      <label for="vcenter_datastore">{{tr "Datastore"}}</label>
+      <input type="text" name="vcenter_datastore" id="vcenter_datastore" />
+    </div>
+    <div class="large-3 medium-6 columns">
+      <br>
+      <a class="button" id="get_vcenter_images">
+        {{tr "Get Images"}}
+      </a>
     </div>
   </div>
   <div class="row collapse">

@@ -56,15 +56,11 @@ define(function(require) {
     }
    */
   function _fillVCenterImages(opts) {
-    var path = '/vcenter/images/'+opts.vcenter_datastore;
+    var path = '/vcenter/images/' + opts.vcenter_datastore;
 
     var context = $(".vcenter_images", opts.container);
-
-    context.html( TemplateHTML({}) );
-
+    context.html(TemplateHTML({}));
     context.show();
-
-    $(".accordion_advanced_toggle", context).trigger("click");
 
     $.ajax({
       url: path,
@@ -76,53 +72,77 @@ define(function(require) {
         "X_VCENTER_PASSWORD": opts.vcenter_password,
         "X_VCENTER_HOST": opts.vcenter_host
       },
-      success: function(response){
+      success: function(response) {
         $(".content", context).html("");
 
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + Locale.tr("Please select the vCenter Images to be imported to OpenNebula.") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", context))
+        if (response.length == 0) {
+          content = 
+            '<fieldset>' +
+              '<legend>' +
+                '<ul class="menu simple">' +
+                  '<li> ' +
+                    opts.vcenter_datastore + ' ' + Locale.tr("Datastore") +
+                  '</li>' +
+                  '<li>' +
+                    '<span>' +
+                      Locale.tr("No new images found in this datastore") +
+                    '</span>' +
+                  '</li>' +
+                '</ul>' +
+              '</legend>' +
+            '</fieldset>';
 
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<h5>' +
-                opts.vcenter_datastore + ' ' + Locale.tr("Datastore") +
-              '</h5>' +
-            '</div>' +
-          '</div>').appendTo($(".content", context))
-
-          if (response.length == 0) {
-            $('<div class="row">' +
+          $(".content", context).append(content);
+        } else {
+          var tableId = "vcenter_image_table_" + opts.vcenter_datastore;
+          content = 
+            '<fieldset>' +
+              '<legend>' +
+                '<ul class="menu simple">' +
+                  '<li> ' +
+                    opts.vcenter_datastore + ' ' + Locale.tr("Datastore") +
+                  '</li>' +
+                  '<li> ' +
+                    '<label class="inline">' +
+                      '<input type="checkbox" class="check_all" checked/>' +
+                      Locale.tr("Select All") +
+                    '</label>' +
+                  '</li>' +
+                  '<li> ' +
+                    '<button class="button small success import_selected">' +
+                       Locale.tr("Import Selected Images") +
+                    '</button>' +
+                  '</li>' +
+                  '<li> ' +
+                    '<button class="button small secondary clear_imported">' +
+                       Locale.tr("Clear Imported Images") +
+                    '</button>' +
+                  '</li>' +
+                '</ul>' +
+              '</legend>' +
+              '<div class="row">' +
                 '<div class="large-12 columns">' +
-                  '<label>' +
-                    Locale.tr("No new images found in this Datastore") +
-                  '</label>' +
+                  '<table class="dataTable vcenter_image_table" id="' + tableId + '">' +
+                    '<thead>' +
+                      '<th class="check">' +
+                        '<input type="checkbox" class="check_all"/>' +
+                      '</th>' +
+                      '<th>' + Locale.tr("Name") + '</th>' +
+                      '<th>' + Locale.tr("Size") + '</th>' +
+                      '<th/>' +
+                      '<th/>' +
+                    '</thead>' +
+                    '<tbody/>' +
+                  '</table>' +
                 '</div>' +
-              '</div>').appendTo($(".content", context))
-          } else {
-            var newdiv = $(
-                '<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<table class="dataTable no-hover vcenter_image_table" id="vcenter_image_table_' + opts.vcenter_datastore + '">' +
-                      '<thead>' +
-                        '<th class="check">' +
-                          '<input type="checkbox" class="check_all"/>' +
-                        '</th>' +
-                        '<th>' + Locale.tr("Name") + '</th>' +
-                        '<th>' + Locale.tr("Size") + '</th>' +
-                        '<th/>' +
-                        '<th/>' +
-                      '</thead>' +
-                      '<tbody/>' +
-                    '</table>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", context));
+              '</div>';
+          '</fieldset>';
 
-            var tbody = $('tbody', newdiv);
+          $(".content", context).append(content);
 
-            $.each(response, function(id, image){
+          var tbody = $('#' + tableId + ' tbody', context);
+
+          $.each(response, function(id, image) {
               var trow = $(
                 '<tr class="vcenter_image">' +
                   '<td><input type="checkbox" class="check_item" checked/></td>' +
@@ -137,8 +157,8 @@ define(function(require) {
             
             });
 
-            var imageDataTable = new DomDataTable(
-              'vcenter_image_table_' + opts.vcenter_datastore,
+          var imageDataTable = new DomDataTable(
+            'vcenter_image_table_' + opts.vcenter_datastore,
               {
                 actions: false,
                 info: false,
@@ -152,9 +172,9 @@ define(function(require) {
                 }
               });
 
-            imageDataTable.initialize();
+          imageDataTable.initialize();
 
-            newdiv.on("change", '.check_all', function() {
+          newdiv.on("change", '.check_all', function() {
               var table = $(this).closest('table');
               if ($(this).is(":checked")) { //check all
                 $('tbody input.check_item', table).prop('checked', true).change();
@@ -163,16 +183,29 @@ define(function(require) {
               }
             });
 
-            $('table', newdiv).on('draw.dt', function(){
+          $('table', newdiv).on('draw.dt', function() {
               _recountCheckboxes(this);
             });
 
-            $(".check_item", newdiv).on('change', function(){
+          $(".check_item", newdiv).on('change', function() {
               _recountCheckboxes($('table', newdiv));
             });
-          }
+
+          context.off('click', '.import_selected');
+          context.on('click', '.import_selected', function() {
+              tableContext = $(this).closest('fieldset');
+              _import(tableContext);
+              return false;
+            });
+
+          context.off('click', '.clear_imported');
+          context.on('click', '.clear_imported', function() {
+              _fillVCenterImages(opts);
+              return false;
+            });
+        }
       },
-      error: function(response){
+      error: function(response) {
         context.hide();
         Notifier.onError({}, OpenNebulaError(response));
       }
