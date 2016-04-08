@@ -113,10 +113,9 @@ public class Host extends PoolElement{
             Client client,
             String hostname,
             String im,
-            String vmm,
-            String vnm)
+            String vmm)
     {
-        return allocate(client, hostname, im, vmm, vnm, -1);
+        return allocate(client, hostname, im, vmm, -1);
     }
 
     /**
