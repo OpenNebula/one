@@ -44,7 +44,8 @@ define(function(require) {
     'unmarshall': _unmarshall,
     'parse': _parse,
     'generateInputElement': _generateInputElement,
-    'attributeInput': _attributeInput
+    'attributeInput': _attributeInput,
+    'insertAttributeInputMB': _insertAttributeInputMB
   };
 
   function _html(){
@@ -433,6 +434,115 @@ define(function(require) {
   }
 
   /**
+   * Inserts an html <input> for the given user input attribute, plus a selector
+   * to change between MB and GB. The source attr is supposed to be in MB
+   * @param  {object} attr structure as returned by parse
+   * @param  {jQuery} div jQuery selector for the div to attach the html to
+   */
+  function _insertAttributeInputMB(attr, div) {
+    // Modified input for GB
+    var attr_gb = $.extend({}, attr);
+
+    if (attr.type == "range"){
+      attr.tick_size = 1024;
+    }
+
+    delete attr_gb.initial;
+
+    attr_gb.wizard_field_disabled = true;
+
+    if (attr_gb.type == "range"){
+      attr_gb.type = "range-float";
+      attr_gb.min = Math.ceil((attr_gb.min / 1024));
+      attr_gb.max = Math.floor((attr_gb.max / 1024));
+      attr_gb.step = "1";
+      attr_gb.tick_size = 1;
+
+    } else if (attr_gb.type == "list"){
+      attr_gb.options = attr_gb.options.map(function(e){
+                          return e / 1024;
+                        });
+
+    } else if (attr_gb.type == "number"){
+      attr_gb.type = "number-float";
+      attr_gb.step = "1";
+    }
+
+    div.html(
+      '<div class="row">' +
+        '<div class="small-10 columns mb_input_wrapper">' +
+          '<div class="mb_input">' +
+            _attributeInput(attr) +
+          '</div>' +
+          '<div class="gb_input">' +
+            _attributeInput(attr_gb) +
+          '</div>' +
+        '</div>' +
+        '<div class="small-2 columns">' +
+          '<select id="mb_input_unit">' +
+            '<option value="MB">'+Locale.tr("MB")+'</option>' +
+            '<option value="GB" selected>'+Locale.tr("GB")+'</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>');
+
+    _setupAttributeInputMB(div);
+
+    // Update memory_gb with the value set in memory
+    $("input, select", $("div.mb_input", div)).trigger("input");
+
+    var mem_value = $("input, select", $("div.mb_input", div)).val();
+    if (mem_value == "" || (mem_value >= 1024 && (mem_value % 1024 == 0))){
+      $("#mb_input_unit", div).val("GB").change();
+    } else {
+      $("#mb_input_unit", div).val("MB").change();
+    }
+  }
+
+  function _setupAttributeInputMB(context) {
+    // MB to GB
+    $("div.mb_input", context).on("input", "input, select", function(){
+      var val = "";
+
+      if (this.value && this.value >= 0) {
+        val = this.value / 1024;
+      }
+
+      $("input, select", $("div.gb_input", context)).val(val);
+    });
+
+    // GB to MB
+    $("div.gb_input", context).on("input", "input, select", function(){
+      var val = "";
+
+      if (this.value && this.value >= 0) {
+        val = Math.floor(this.value * 1024);
+      }
+
+      $("input, select", $("div.mb_input", context)).val(val);
+    });
+
+    var gb_inputs = $("div.gb_input", context).detach();
+
+    // Unit select
+    $("#mb_input_unit", context).on('change', function() {
+      var mb_input_unit_val = $('#mb_input_unit :selected', context).val();
+
+      if (mb_input_unit_val == 'GB') {
+        $("div.mb_input", context).hide();
+        gb_inputs.appendTo($("div.mb_input_wrapper", context));
+
+        $("div.mb_input input,select",context).trigger("input");
+      } else {
+        $("div.mb_input", context).show();
+        gb_inputs = $("div.gb_input", context).detach();
+      }
+    });
+
+    $("#mb_input_unit", context).change();
+  }
+
+  /**
    * Returns an html <input> for the given user input attribute
    * @param  {object} attr structure as returned by parse
    * @return {string}             string containing an html <input> element
@@ -442,19 +552,25 @@ define(function(require) {
 
     var required = (attr.mandatory ? "required" : "");
 
+    var wizard_field = 'wizard_field="' + attr.name + '"';
+
+    if (attr.wizard_field_disabled == true){
+      wizard_field = "";
+    }
+
     switch (attr.type) {
       case "text":
-        input = '<textarea type="text" rows="1" wizard_field="' + attr.name + '" '+required+'/>';
+        input = '<textarea type="text" rows="1" '+wizard_field+' '+required+'/>';
         break;
       case "text64":
-        input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + attr.name + '" '+required+'/>';
+        input = '<textarea type="text" rows="1" wizard_field_64="true" '+wizard_field+' '+required+'/>';
         break;
       case "password":
-        input = '<input type="password" wizard_field="' + attr.name + '" '+required+'/>';
+        input = '<input type="password" '+wizard_field+' '+required+'/>';
         break;
       case "number":
       case "number-float":
-        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+'/>';
+        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" '+wizard_field+' '+required+'/>';
         break;
       case "range":
       case "range-float":
@@ -462,7 +578,7 @@ define(function(require) {
 
         break;
       case "list":
-        input = '<select wizard_field="' + attr.name + '" '+required+'>';
+        input = '<select '+wizard_field+' '+required+'>';
 
         $.each(attr.options, function(){
           var selected = (attr.initial == this);
@@ -477,7 +593,7 @@ define(function(require) {
 
         break;
       case "fixed":
-        input = '<input type="text" value="'+attr.initial+'" wizard_field="' + attr.name + '" '+required+' disabled/>';
+        input = '<input type="text" value="'+attr.initial+'" '+wizard_field+' '+required+' disabled/>';
         break;
     }
 

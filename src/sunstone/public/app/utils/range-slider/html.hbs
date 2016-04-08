@@ -36,7 +36,8 @@
   <div class="small-4 columns">
     <input type="number" class="uinput-slider-val" 
       min="{{min}}" max="{{max}}" step="{{step}}" 
-      value="{{initial}}" wizard_field="{{name}}"
+      value="{{initial}}" 
+      {{#unless wizard_field_disabled}}wizard_field="{{name}}"{{/unless}}
       {{#if disabled}}disabled="true"{{/if}} required/>
   </div>
 </div>

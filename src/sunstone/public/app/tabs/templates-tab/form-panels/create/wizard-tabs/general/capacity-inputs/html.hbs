@@ -14,24 +14,15 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
+
 <div class="row">
-  <div class="large-12 columns">
+  <div class="small-12 columns">
     <label class="" for="MEMORY">
       {{tr "Memory"}}
       {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
     </label>
-  </div>
-  <div class="small-10 columns memory_input_wrapper">
     <div class="memory_input">
     </div>
-    <div class="memory_gb_input">
-    </div>
-  </div>
-  <div class="small-2 columns">
-    <select id="memory_unit" name="MEMORY_UNIT">
-      <option value="MB">{{tr "MB"}}</option>
-      <option value="GB" selected>{{tr "GB"}}</option>
-    </select>
   </div>
 </div>
 <div class="row">
