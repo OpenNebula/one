@@ -247,6 +247,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/sl.d \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/vmm \
+          $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
@@ -384,6 +385,7 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -640,6 +642,13 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/datastore_mad/one_datastore \
               src/market_mad/one_market.rb \
               src/market_mad/one_market"
+
+#-------------------------------------------------------------------------------
+# VMM Lib files, used by some VMM Drivers, to be installed in
+# $REMOTES_LOCATION/vmm/lib
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_LIB_FILES="src/vmm_mad/remotes/lib/poll_common.rb"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
