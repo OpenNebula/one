@@ -531,7 +531,6 @@ public:
         const string& hostname,
         const string& vmm_mad,
         const string& tm_mad,
-        const string& ds_location,
         int           ds_id);
 
     /**

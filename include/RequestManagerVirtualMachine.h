@@ -72,7 +72,6 @@ protected:
         string& name,
         string& vmm,
         int&    cluster_id,
-        string& ds_location,
         bool&   is_public_cloud,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att);
@@ -101,7 +100,6 @@ protected:
                     const string&    hostname,
                     const string&    vmm_mad,
                     const string&    tm_mad,
-                    const string&    ds_location,
                     int              ds_id,
                     RequestAttributes& att);
 

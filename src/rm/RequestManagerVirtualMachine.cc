@@ -322,7 +322,6 @@ int RequestManagerVirtualMachine::get_host_information(
     string& name,
     string& vmm,
     int&    cluster_id,
-    string& ds_location,
     bool&   is_public_cloud,
     PoolObjectAuth&    host_perms,
     RequestAttributes& att)
@@ -352,8 +351,6 @@ int RequestManagerVirtualMachine::get_host_information(
     host->get_permissions(host_perms);
 
     host->unlock();
-
-    nd.get_ds_location(ds_location);
 
     return 0;
 }
@@ -438,7 +435,6 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        const string&    hostname,
                                        const string&    vmm_mad,
                                        const string&    tm_mad,
-                                       const string&    ds_location,
                                        int              ds_id,
                                        RequestAttributes& att)
 {
@@ -446,7 +442,7 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
-    vm->add_history(hid, cid, hostname, vmm_mad, tm_mad, ds_location, ds_id);
+    vm->add_history(hid, cid, hostname, vmm_mad, tm_mad, ds_id);
 
     if ( vmpool->update_history(vm) != 0 )
     {
@@ -769,7 +765,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     string hostname;
     string vmm_mad;
     int    cluster_id;
-    string ds_location;
     bool   is_public_cloud;
 
     PoolObjectAuth host_perms, ds_perms;
@@ -802,7 +797,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                              hostname,
                              vmm_mad,
                              cluster_id,
-                             ds_location,
                              is_public_cloud,
                              host_perms,
                              att) != 0)
@@ -962,7 +956,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                     hostname,
                     vmm_mad,
                     tm_mad,
-                    ds_location,
                     ds_id,
                     att) != 0)
     {
@@ -1004,7 +997,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     string vmm_mad;
     int    cluster_id;
     set<int> ds_cluster_ids;
-    string ds_location;
     bool   is_public_cloud;
     PoolObjectAuth host_perms, ds_perms;
     PoolObjectAuth * auth_ds_perms;
@@ -1045,7 +1037,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                              hostname,
                              vmm_mad,
                              cluster_id,
-                             ds_location,
                              is_public_cloud,
                              host_perms,
                              att) != 0)
@@ -1286,7 +1277,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                     hostname,
                     vmm_mad,
                     tm_mad,
-                    ds_location,
                     ds_id,
                     att) != 0)
     {
