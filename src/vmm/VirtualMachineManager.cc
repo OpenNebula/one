@@ -482,7 +482,7 @@ static int do_context_command(VirtualMachine * vm, const string& password,
 
         os.str("");
 
-        os << vm->get_remote_system_dir() << "/disk." << disk_id;
+        os << vm->get_system_dir() << "/disk." << disk_id;
 
         disk_path = os.str();
     } //else rc == 0 VM has no context
@@ -1773,7 +1773,7 @@ void VirtualMachineManager::attach_action(
 
     disk->vector_value("DISK_ID", disk_id);
 
-    os << vm->get_remote_system_dir() << "/disk." << disk_id;
+    os << vm->get_system_dir() << "/disk." << disk_id;
 
     disk_path = os.str();
 
@@ -1893,7 +1893,7 @@ void VirtualMachineManager::detach_action(
     epilog_cmd = os.str();
 
     os.str("");
-    os << vm->get_remote_system_dir() << "/disk." << disk_id;
+    os << vm->get_system_dir() << "/disk." << disk_id;
 
     disk_path = os.str();
 
@@ -2240,7 +2240,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         goto error_no_tm_command;
     }
 
-    os << vm->get_remote_system_dir() << "/disk." << disk_id;
+    os << vm->get_system_dir() << "/disk." << disk_id;
 
     disk_path = os.str();
 

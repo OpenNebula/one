@@ -499,31 +499,25 @@ public:
     // ------------------------------------------------------------------------
     /**
      *  Returns the remote VM directory. The VM remote dir is in the form:
-     *  $DATASTORE_LOCATION/$SYSTEM_DS_ID/$VM_ID. The remote system_dir stores
+     *  $DATASTORE_LOCATION/$SYSTEM_DS_ID/$VM_ID. The system_dir stores
      *  disks for a running VM in the target host.
      *    @return the remote system directory for the VM
      */
-    const string& get_remote_system_dir() const
+    const string& get_system_dir() const
     {
-        return history->rsystem_dir;
+        return history->system_dir;
     }
 
     /**
-     *  Returns the remote VM directory for the previous host.
+     *  Returns the remote VM directory for the previous host. It maybe different
+     *  if a system ds migration
      *  The hasPreviousHistory() function MUST be called before this one.
      *    @return the remote system directory for the VM
      */
-    const string & get_previous_remote_system_dir() const
+    const string & get_previous_system_dir() const
     {
-        return previous_history->rsystem_dir;
+        return previous_history->system_dir;
     };
-
-    /**
-     *  Returns the local VM directory. The VM local dir is in the form:
-     *  $SYSTEM_DS_BASE_PATH/$VM_ID. Temporary stores VM disks.
-     *    @return the system directory for the VM
-     */
-    string get_system_dir() const;
 
     // ------------------------------------------------------------------------
     // History

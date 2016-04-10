@@ -514,7 +514,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             ostringstream dev;
 
-            dev << vm->get_remote_system_dir() << "/disk." << disk_id;
+            dev << vm->get_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='block' device='disk'>\n"
                  << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
@@ -657,7 +657,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             ostringstream cd_name;
 
-            cd_name << vm->get_remote_system_dir() << "/disk." << disk_id;
+            cd_name << vm->get_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
@@ -667,7 +667,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             ostringstream fname;
 
-            fname << vm->get_remote_system_dir() << "/disk." << disk_id;
+            fname << vm->get_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='file' device='disk'>\n"
                  << "\t\t\t<source file="
@@ -805,7 +805,7 @@ int LibVirtDriver::deployment_description_kvm(
         {
             ostringstream fname;
 
-            fname << vm->get_remote_system_dir() << "/disk." << disk_id;
+            fname << vm->get_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
@@ -1145,7 +1145,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     file << "\t<metadata>\n"
          << "\t\t<system_datastore>"
-         << one_util::escape_xml(vm->get_remote_system_dir())
+         << one_util::escape_xml(vm->get_system_dir())
          << "\t\t</system_datastore>\n"
         // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";

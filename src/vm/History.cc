@@ -45,7 +45,6 @@ History::History(
         cid(-1),
         vmm_mad_name(""),
         tm_mad_name(""),
-        ds_location(""),
         ds_id(0),
         stime(0),
         etime(0),
@@ -69,7 +68,6 @@ History::History(
     int _cid,
     const string& _vmm,
     const string& _tmm,
-    const string& _ds_location,
     int           _ds_id,
     const string& _vm_info):
         oid(_oid),
@@ -79,7 +77,6 @@ History::History(
         cid(_cid),
         vmm_mad_name(_vmm),
         tm_mad_name(_tmm),
-        ds_location(_ds_location),
         ds_id(_ds_id),
         stime(0),
         etime(0),
@@ -104,8 +101,11 @@ void History::non_persistent_data()
     ostringstream os;
 
     string vm_lhome;
+    string ds_location;
 
     Nebula& nd = Nebula::instance();
+
+    nd.get_ds_location(ds_location);
 
     // ----------- Local Locations ------------
     os.str("");
@@ -133,18 +133,16 @@ void History::non_persistent_data()
     token_file = os.str();
 
     // ----------- Remote Locations ------------
-
     os.str("");
-
     os << ds_location << "/" << ds_id << "/" << oid;
 
-    rsystem_dir = os.str();
+    system_dir = os.str();
 
     os << "/checkpoint";
     checkpoint_file = os.str();
 
     os.str("");
-    os << rsystem_dir << "/deployment." << seq;
+    os << system_dir << "/deployment." << seq;
 
     rdeployment_file = os.str();
 }
@@ -304,9 +302,8 @@ string& History::to_xml(string& xml, bool database) const
           "<CID>"        << cid           << "</CID>"   <<
           "<STIME>"      << stime         << "</STIME>" <<
           "<ETIME>"      << etime         << "</ETIME>" <<
-          "<VMMMAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VMMMAD>"<<
-          "<TMMAD>"      << one_util::escape_xml(tm_mad_name) <<"</TMMAD>" <<
-          "<DS_LOCATION>"<< one_util::escape_xml(ds_location) <<"</DS_LOCATION>"<<
+          "<VM_MAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
+          "<TM_MAD>"     << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
           "<DS_ID>"      << ds_id         << "</DS_ID>" <<
           "<PSTIME>"     << prolog_stime  << "</PSTIME>"<<
           "<PETIME>"     << prolog_etime  << "</PETIME>"<<
@@ -344,9 +341,8 @@ int History::rebuild_attributes()
     rc += xpath(cid              , "/HISTORY/CID",         -1);
     rc += xpath<time_t>(stime    , "/HISTORY/STIME",       0);
     rc += xpath<time_t>(etime    , "/HISTORY/ETIME",       0);
-    rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");
-    rc += xpath(tm_mad_name      , "/HISTORY/TMMAD",       "not_found");
-    rc += xpath(ds_location      , "/HISTORY/DS_LOCATION", "not_found");
+    rc += xpath(vmm_mad_name     , "/HISTORY/VM_MAD",      "not_found");
+    rc += xpath(tm_mad_name      , "/HISTORY/TM_MAD",       "not_found");
     rc += xpath(ds_id            , "/HISTORY/DS_ID",       0);
     rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME",      0);
     rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME",      0);

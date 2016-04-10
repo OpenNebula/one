@@ -457,7 +457,7 @@ int TransferManager::prolog_transfer_command(
             << vm_tm_mad << " "
             << size   << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << vm->get_ds_id()
             << endl;
@@ -488,7 +488,7 @@ int TransferManager::prolog_transfer_command(
             << size   << " "
             << format << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << vm->get_ds_id()
             << endl;
@@ -539,7 +539,7 @@ int TransferManager::prolog_transfer_command(
         }
 
         xfr << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id
             << endl;
@@ -591,7 +591,7 @@ static string prolog_os_transfer_commands(
 
     transform(name.begin(), name.end(), name.begin(), (int(*)(int))tolower);
 
-    base_dst << vm->get_remote_system_dir() << "/" << name;
+    base_dst << vm->get_system_dir() << "/" << name;
 
     xfr << "CLONE " << tm_mad << " "
         << opennebula_hostname << ":" << source << " "
@@ -634,7 +634,7 @@ int TransferManager::prolog_context_command(
     }
 
     xfr << vm->get_hostname() << ":"
-        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << vm->get_system_dir() << "/disk." << disk_id << " "
         << vm->get_oid() << " "
         << vm->get_ds_id()
         << endl;
@@ -901,9 +901,9 @@ void TransferManager::prolog_migr_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
-            << vm->get_previous_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_previous_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -912,9 +912,9 @@ void TransferManager::prolog_migr_action(int vid)
     xfr << "MV "
         << vm_tm_mad << " "
         << vm->get_previous_hostname() << ":"
-        << vm->get_previous_remote_system_dir() << " "
+        << vm->get_previous_system_dir() << " "
         << vm->get_hostname() << ":"
-        << vm->get_remote_system_dir() << " "
+        << vm->get_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
@@ -1052,7 +1052,7 @@ void TransferManager::prolog_resume_action(int vid)
             << nd.get_nebula_hostname() << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
             << ds_id << endl;
     }
@@ -1061,7 +1061,7 @@ void TransferManager::prolog_resume_action(int vid)
     xfr << "MV "
         << vm_tm_mad << " "
         << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
-        << vm->get_hostname() << ":" << vm->get_remote_system_dir()<< " "
+        << vm->get_hostname() << ":" << vm->get_system_dir()<< " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
@@ -1250,7 +1250,7 @@ void TransferManager::epilog_transfer_command(
         xfr << "MVDS "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << source << " "
             << vm->get_oid() << " "
             << ds_id
@@ -1280,7 +1280,7 @@ void TransferManager::epilog_transfer_command(
             xfr << "DELETE "
                 << tm_mad << " "
                 << vm->get_hostname() << ":"
-                << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+                << vm->get_system_dir() << "/disk." << disk_id << " "
                 << vm->get_oid() << " "
                 << ds_id_i
                 << endl;
@@ -1351,7 +1351,7 @@ void TransferManager::epilog_action(int vid)
     //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
     xfr << "DELETE "
         << vm_tm_mad << " "
-        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
+        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
@@ -1468,7 +1468,7 @@ void TransferManager::epilog_stop_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_system_dir() << "/disk." << disk_id << " "
             << nd.get_nebula_hostname() << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
@@ -1478,7 +1478,7 @@ void TransferManager::epilog_stop_action(int vid)
     //MV vm_tm_mad hostname:remote_system_dir fe:system_dir vmid dsid(system)
     xfr << "MV "
         << vm_tm_mad << " "
-        << vm->get_hostname() << ":" << vm->get_remote_system_dir() << " "
+        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
         << nd.get_nebula_hostname() << ":" << vm->get_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
@@ -1563,7 +1563,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         }
 
         host       = vm->get_previous_hostname();
-        system_dir = vm->get_previous_remote_system_dir();
+        system_dir = vm->get_previous_system_dir();
 
         vm_tm_mad = vm->get_previous_tm_mad();
         vm_ds_id  = vm->get_previous_ds_id();
@@ -1571,7 +1571,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
     else
     {
         host       = vm->get_hostname();
-        system_dir = vm->get_remote_system_dir();
+        system_dir = vm->get_system_dir();
 
         vm_tm_mad = vm->get_tm_mad();
         vm_ds_id  = vm->get_ds_id();
@@ -2068,7 +2068,7 @@ void TransferManager::saveas_hot_action(int vid)
     xfr << "CPDS "
         << tm_mad << " "
         << vm->get_hostname() << ":"
-        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << vm->get_system_dir() << "/disk." << disk_id << " "
         << src << " "
         << snap_id << " "
         << vm->get_oid() << " "
@@ -2122,7 +2122,7 @@ void TransferManager::migrate_transfer_command(
         << vm->get_tm_mad() << " "
         << vm->get_previous_hostname() << " "
         << vm->get_hostname() << " "
-        << vm->get_remote_system_dir() << " "
+        << vm->get_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id()
         << endl;
@@ -2150,7 +2150,7 @@ int TransferManager::snapshot_transfer_command(
     xfr << snap_action << " "
         << tm_mad << " "
         << vm->get_hostname() << ":"
-        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << vm->get_system_dir() << "/disk." << disk_id << " "
         << snap_id << " "
         << vm->get_oid() << " "
         << ds_id

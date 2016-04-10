@@ -20,9 +20,8 @@
         <xs:element name="CID" type="xs:integer"/>
         <xs:element name="STIME" type="xs:integer"/>
         <xs:element name="ETIME" type="xs:integer"/>
-        <xs:element name="VMMMAD" type="xs:string"/>
-        <xs:element name="VNMMAD" type="xs:string"/>
-        <xs:element name="TMMAD" type="xs:string"/>
+        <xs:element name="VM_MAD" type="xs:string"/>
+        <xs:element name="TM_MAD" type="xs:string"/>
         <xs:element name="DS_LOCATION" type="xs:string"/>
         <xs:element name="DS_ID" type="xs:integer"/>
         <xs:element name="PSTIME" type="xs:integer"/>

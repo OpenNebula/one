@@ -277,7 +277,6 @@ public:
         int cid,
         const string& vmm,
         const string& tmm,
-        const string& ds_location,
         int           ds_id,
         const string& vm_info);
 
@@ -324,7 +323,6 @@ private:
     string  vmm_mad_name;
     string  tm_mad_name;
 
-    string  ds_location;
     int     ds_id;
 
     time_t  stime;
@@ -357,7 +355,7 @@ private:
     // Remote paths
     string  checkpoint_file;
     string  rdeployment_file;
-    string  rsystem_dir;
+    string  system_dir;
 
     /**
      *  Writes the history record in the DB

@@ -346,7 +346,7 @@ int XenDriver::deployment_description(
             }
         }
 
-        file << vm->get_remote_system_dir() << "/disk." << disk_id << ","
+        file << vm->get_system_dir() << "/disk." << disk_id << ","
              << target;
 
         if ( type == "CDROM" )
@@ -387,7 +387,7 @@ int XenDriver::deployment_description(
                 file << default_driver;
             }
 
-            file << vm->get_remote_system_dir() << "/disk." << disk_id
+            file << vm->get_system_dir() << "/disk." << disk_id
                  << "," << target << "," << "r'," << endl;
         }
         else

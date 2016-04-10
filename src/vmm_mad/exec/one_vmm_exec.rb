@@ -142,7 +142,7 @@ class VmmAction
         ID DEPLOY_ID
         TEMPLATE/SECURITY_GROUP_RULE
         HISTORY_RECORDS/HISTORY/HOSTNAME
-        HISTORY_RECORDS/HISTORY/VMMMAD
+        HISTORY_RECORDS/HISTORY/VM_MAD
     )
 
     DRIVER_NAMES = {
@@ -979,7 +979,7 @@ class ExecDriver < VirtualMachineDriver
         action   = ACTION[:disk_snapshot_create]
 
         # Check that live snapshot is supported
-        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
+        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VM_MAD'
         tm_driver_path  = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
 
         vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path)||return
