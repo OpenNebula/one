@@ -145,6 +145,25 @@ helpers do
 
         vm
     end
+    
+    def get_ec2_elastic_ips(vm_id, client)
+        pool = VirtualNetworkPool.new(client)
+        rc = pool.info_all
+        if OpenNebula.is_error?(rc)
+            logger.error {"Error getting virtual networks: #{rc.message}"}
+            halt 404, rc.message
+        end
+        
+        ret = []
+        pool.each do |vnet|
+            addr = vnet.retrieve_elements("TEMPLATE/EC2_ADDRESSES[VMID=\"#{vm_id}\"]/IP")
+            if !addr.nil?
+                ret << addr
+            end
+        end
+        
+        ret.flatten
+    end
 
     # Retrieve the VM id from the header of the request and return
     # an OpenNebula VirtualMachine object
@@ -443,6 +462,7 @@ get '/vm' do
     source_vm = get_source_vm(request.env, client)
 
     response = build_vm_hash(source_vm.to_hash["VM"])
+    response["VM"]["EC2_ELASTIC_IPS"] = get_ec2_elastic_ips(source_vm['ID'], client)
     [200, response.to_json]
 end
 
@@ -461,9 +481,12 @@ get '/vms/:id' do
     check_permissions(:vm, :show_by_id)
     client = authenticate(request.env, params)
 
-    requested_vm = get_requested_vm(params[:id].to_i, request.env, client)
-
-    [200, build_vm_hash(requested_vm.to_hash["VM"]).to_json]
+    vm_id = params[:id].to_i
+    requested_vm = get_requested_vm(vm_id, request.env, client)
+    
+    response = build_vm_hash(requested_vm.to_hash["VM"])
+    response["VM"]["EC2_ELASTIC_IPS"] = get_ec2_elastic_ips(vm_id, client)
+    [200, response.to_json]
 end
 
 post '/vms/:id/action' do
