@@ -550,7 +550,6 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
     ar->add_auth(AuthRequest::USE, perm);
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -559,36 +558,52 @@ void ImagePool::get_image_ids(vector<VectorAttribute *>& disks, set<int>& ids,
 {
     vector<VectorAttribute *>::iterator i;
 
+    int id;
+
+    for ( i = disks.begin() ; i != disks.end(); ++i )
+    {
+        if ( get_image_id(*i, id, uid) == 0 )
+        {
+            ids.insert(id);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImagePool::get_image_id(VectorAttribute * disk, int &id, int uid)
+{
     int    iid;
     string iname;
 
     Image * img = 0;
 
-    for ( i = disks.begin() ; i != disks.end(); ++i )
+    if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        if ( (*i)->vector_value("IMAGE_ID", iid) == 0 )
-        {
-            ids.insert(iid);
-        }
-        else if ( (*i)->vector_value("IMAGE", iname) == 0 )
-        {
-            int uiid = get_disk_uid(*i, uid);
-
-            if ( uiid == -1)
-            {
-                continue;
-            }
-
-            img = get(iname, uiid, true);
-
-            if ( img != 0 )
-            {
-                ids.insert(img->get_oid());
-
-                img->unlock();
-            }
-        }
+        id = iid;
+        return 0;
     }
+    else if ( disk->vector_value("IMAGE", iname) == 0 )
+    {
+        int uiid = get_disk_uid(disk, uid);
+
+        if ( uiid == -1)
+        {
+            return -1;
+        }
+
+        img = get(iname, uiid, true);
+
+        if ( img != 0 )
+        {
+            id = img->get_oid();
+
+            img->unlock();
+        }
+
+        return 0;
+    }
+
+    return -1;
 }
-
-

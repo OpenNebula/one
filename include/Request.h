@@ -300,6 +300,26 @@ protected:
         RequestAttributes& att);
 
     /**
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param pool object pool
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param op operation of the request.
+     *    @param att the specific request attributes
+     *
+     *    @return SUCCESS if the user is authorized.
+     */
+    static ErrorCode basic_authorization(
+            PoolSQL*                pool,
+            int                     oid,
+            AuthRequest::Operation  op,
+            PoolObjectSQL::ObjectType auth_object,
+            RequestAttributes&      att);
+
+    /**
      *  Performs a basic quota check for this request using the uid/gid
      *  from the request. Usage counters are updated for the user/group.
      *  On case of error, the failure_response return values are set

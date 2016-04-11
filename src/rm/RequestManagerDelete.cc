@@ -154,7 +154,33 @@ void TemplateDelete::request_execute(
     int  oid = xmlrpc_c::value_int(paramList.getInt(1));
     bool recursive = false;
 
-    VMTemplate *    object;
+    if (paramList.size() > 2)
+    {
+        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    ErrorCode ec = request_execute(oid, recursive, att);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(oid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+Request::ErrorCode TemplateDelete::request_execute(
+        int oid, bool recursive, RequestAttributes& att)
+{
+    Nebula&          nd   = Nebula::instance();
+    AclManager *     aclm = nd.get_aclm();
+    VMTemplatePool * pool = nd.get_tpool();
+    VMTemplate *     object;
 
     string    error_msg;
     set<int>  error_ids;
@@ -163,26 +189,19 @@ void TemplateDelete::request_execute(
 
     vector<VectorAttribute *> disks;
 
-    if (paramList.size() > 2)
-    {
-        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
-    }
-
-    ec = delete_authorization(pool, oid, auth_op, att);
+    ec = delete_authorization(pool, oid, AuthRequest::MANAGE, att);
 
     if ( ec != SUCCESS )
     {
-        failure_response(ec, att);
-        return;
+        return ec;
     }
 
-    object = static_cast<VMTemplatePool*>(pool)->get(oid, true);
+    object = pool->get(oid, true);
 
     if ( object == 0 )
     {
         att.resp_id = oid;
-        failure_response(NO_EXISTS, att);
-        return;
+        return NO_EXISTS;
     }
 
     int rc = pool->drop(object, error_msg);
@@ -196,16 +215,14 @@ void TemplateDelete::request_execute(
 
     if ( rc != 0 )
     {
-        att.resp_msg = "Cannot delete " + object_name(auth_object) + ". " +  error_msg;
-        failure_response(ACTION, att);
-        return;
+        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::TEMPLATE) + ". " +  error_msg;
+        return ACTION;
     }
 
-    aclm->del_resource_rules(oid, auth_object);
+    aclm->del_resource_rules(oid, PoolObjectSQL::TEMPLATE);
 
     if (recursive)
     {
-        Nebula&   nd     = Nebula::instance();
         ImagePool* ipool = nd.get_ipool();
 
         ipool->get_image_ids(disks, img_ids, att.uid);
@@ -214,7 +231,7 @@ void TemplateDelete::request_execute(
         {
             if ( ImageDelete::delete_img(*it, att) != SUCCESS )
             {
-                NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
+                NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
 
                 error_ids.insert(*it);
                 rc = -1;
@@ -234,13 +251,10 @@ void TemplateDelete::request_execute(
             ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
             error_ids.end(), ',');
 
-        failure_response(ACTION, att);
-        return;
+        return ACTION;
     }
 
-    success_response(oid, att);
-
-    return;
+    return SUCCESS;
 }
 
 /* ------------------------------------------------------------------------- */

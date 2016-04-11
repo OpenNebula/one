@@ -303,6 +303,29 @@ bool Request::basic_authorization(int oid,
                                   AuthRequest::Operation op,
                                   RequestAttributes& att)
 {
+    ErrorCode ec = basic_authorization(pool, oid, op, auth_object, att);
+
+    if (ec == SUCCESS)
+    {
+        return true;
+    }
+    else
+    {
+        failure_response(ec, att);
+        return false;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode Request::basic_authorization(
+        PoolSQL*                pool,
+        int                     oid,
+        AuthRequest::Operation  op,
+        PoolObjectSQL::ObjectType auth_object,
+        RequestAttributes&      att)
+{
     PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
@@ -313,14 +336,14 @@ bool Request::basic_authorization(int oid,
         if ( object == 0 )
         {
             att.resp_id = oid;
-            failure_response(NO_EXISTS, att);
-            return false;
+
+            return NO_EXISTS;
         }
 
         if ( att.uid == 0 )
         {
             object->unlock();
-            return true;
+            return SUCCESS;
         }
 
         object->get_permissions(perms);
@@ -331,7 +354,7 @@ bool Request::basic_authorization(int oid,
     {
         if ( att.uid == 0 )
         {
-            return true;
+            return SUCCESS;
         }
 
         perms.obj_type = auth_object;
@@ -344,12 +367,11 @@ bool Request::basic_authorization(int oid,
     if (UserPool::authorize(ar) == -1)
     {
         att.resp_msg = ar.message;
-        failure_response(AUTHORIZATION, att);
 
-        return false;
+        return AUTHORIZATION;
     }
 
-    return true;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */

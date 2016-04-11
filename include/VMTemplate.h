@@ -88,6 +88,20 @@ public:
 		}
     }
 
+    // Replaces the current DISK attributes with the given ones. The objects
+    // must NOT be deleted by the calling function
+    void replace_disks(vector<VectorAttribute *>& disks)
+    {
+        vector<VectorAttribute *>::iterator i;
+
+        obj_template->erase("DISK");
+
+        for (i = disks.begin(); i != disks.end(); i++)
+        {
+            obj_template->set(*i);
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Virtual Router
     // ------------------------------------------------------------------------

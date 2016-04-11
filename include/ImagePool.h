@@ -213,9 +213,18 @@ public:
       *  Gets the IDs of the images associated to a set of disks
       *    @param dsk a vector with the DISK attributes
       *    @param ids set of image ids
-      *    @param uid effective user id makeing the call
+      *    @param uid effective user id making the call
       */
      void get_image_ids(vector<VectorAttribute *>& dsk, set<int>& ids, int uid);
+
+     /**
+      *  Gets the IDs of the images associated to a set of disks
+      *    @param disk DISK attribute
+      *    @param ids the image id, if found
+      *    @param uid effective user id making the call
+      *    @return 0 if the disk uses an image, -1 otherwise
+      */
+     int get_image_id(VectorAttribute * disk, int &id, int uid);
 
 private:
     //--------------------------------------------------------------------------

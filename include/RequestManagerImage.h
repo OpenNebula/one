@@ -80,6 +80,11 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
+
+    static ErrorCode request_execute(
+            int     id,
+            bool    persistent_flag,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -117,6 +122,13 @@ public:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
+
+    static ErrorCode clone_img(
+            int             clone_id,
+            const string    &name,
+            int             ds_id,
+            int             &new_id,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

@@ -107,6 +107,8 @@ public:
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    static ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

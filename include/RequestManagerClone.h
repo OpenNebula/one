@@ -42,6 +42,12 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                                  RequestAttributes& att);
 
+    ErrorCode clone(
+            int             source_id,
+            const string    &name,
+            int             &new_id,
+            RequestAttributes& att);
+
     virtual Template * clone_template(PoolObjectSQL* obj) = 0;
 
     virtual int pool_allocate(
@@ -59,7 +65,8 @@ class VMTemplateClone : public RequestManagerClone
 public:
     VMTemplateClone():
         RequestManagerClone("VMTemplateClone",
-                            "Clone an existing virtual machine template")
+                            "Clone an existing virtual machine template",
+                            "A:sisb")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -71,6 +78,9 @@ public:
     ~VMTemplateClone(){};
 
     /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 
     Template * clone_template(PoolObjectSQL* obj)
     {
