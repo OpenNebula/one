@@ -142,6 +142,7 @@ void VMTemplateClone::request_execute(
     if ( ec != SUCCESS )
     {
         failure_response(ec, att);
+        return;
     }
 
     if (recursive)
