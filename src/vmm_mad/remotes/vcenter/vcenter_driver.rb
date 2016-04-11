@@ -522,8 +522,7 @@ class VIClient
                      end
 
                      if !vlan_str.empty?
-                         vnet_template << "VLAN=\"YES\"\n" \
-                                          "VLAN_ID=#{vlan_str}\n"
+                         vnet_template << "VLAN_ID=#{vlan_str}\n"
                      end
 
                      one_net = {:name    => net_name,
