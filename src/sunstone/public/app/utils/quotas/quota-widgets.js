@@ -761,12 +761,12 @@ define(function(require) {
 
     quotas_html +=
         '<div class="row">\
-          <div class="large-6 columns">' + vms_quota + '</div>\
-          <div class="large-6 columns">' + cpu_quota + '</div>\
+          <div class="medium-6 columns">' + vms_quota + '</div>\
+          <div class="medium-6 columns">' + cpu_quota + '</div>\
         </div>\
         <div class="row">\
-          <div class="large-6 columns">' + memory_quota + '</div>\
-          <div class="large-6 columns">' + system_disk_size_quota+ '</div>\
+          <div class="medium-6 columns">' + memory_quota + '</div>\
+          <div class="medium-6 columns">' + system_disk_size_quota+ '</div>\
         </div>\
         <br><br>\
         <div class="row">\
@@ -1026,11 +1026,11 @@ define(function(require) {
 
       html +=
           '<div class="small-5 columns">\
-            <ul class="button-group">\
-              <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a></li>\
-              <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a></li>\
-              <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a></li>\
-            </ul>\
+            <div class="button-group">\
+              <a class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a>\
+              <a class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a>\
+              <a class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a>\
+            </div>\
           </div>\
         </div>\
         <div class="row collapse non_editable_quota">\
@@ -1209,10 +1209,10 @@ define(function(require) {
     var datastore_quota = _datastoreWidget(resource_info, default_quotas);
 
     $("#vm_quota", context).html(
-        '<div class="large-6 columns">' + vms_quota + '</div>\
-        <div class="large-6 columns">' + cpu_quota + '</div>\
-        <div class="large-6 columns">' + memory_quota + '</div>\
-        <div class="large-6 columns">' + system_disk_size_quota+ '</div>');
+        '<div class="medium-6 columns">' + vms_quota + '</div>\
+        <div class="medium-6 columns">' + cpu_quota + '</div>\
+        <div class="medium-6 columns">' + memory_quota + '</div>\
+        <div class="medium-6 columns">' + system_disk_size_quota+ '</div>');
 
     $("#datastore_quota", context).html(
         '<div class="large-12 columns">' + datastore_quota + '</div>');
