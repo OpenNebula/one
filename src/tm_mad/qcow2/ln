@@ -53,6 +53,7 @@ SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 SNAP_DIR="${SRC_PATH}.snap"
+SNAP_NAME="$(basename $SRC_DIR)"
 
 #-------------------------------------------------------------------------------
 # Create DST path
