@@ -49,10 +49,12 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 300;
+  font-weight: bold;
   margin-bottom: 1.5rem;
+  color: #555;
   padding: 1rem;
-  box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1);
+  /* box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1); */
+  /* border-bottom: 1px solid #dfdfdf; */
 
 }
 

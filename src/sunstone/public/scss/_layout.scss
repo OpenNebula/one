@@ -1,5 +1,5 @@
 .tab:not(#provision-tab) {
-  margin-top: -2rem;
+  margin-top: -4.3rem;
 }
 
 .right-list,
@@ -10,7 +10,13 @@
 }
 
 #top-row {
-  padding: 1rem 0 0 0;
+  padding: 1rem 0 0.5rem 0;
+  /* box-shadow: 0 0 5px 1px rgba(0,0,0,0.2); */
+  background: #f8f8f8;
+  /* position: relative; */
+  border-bottom: 1px solid #dfdfdf;
+  z-index: 500;
+  position: relative;
 
   .opennebula-img {
     height: 1rem;
@@ -28,7 +34,23 @@
 }
 
 .header-title {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.header-row {
+  z-index: 800;
+  position: relative;
+}
+
+#footer {
+  margin-right: 1rem;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  color: $medium-gray;
+
+  a {
+    color: $dark-gray;
+  }
 }
 
 .action_blocks {

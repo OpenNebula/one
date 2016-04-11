@@ -1,7 +1,14 @@
 #menu {
   margin-right: 1rem;
-  box-shadow: 0 0 5px 1px rgba(0,0,0,0.1);
-  
+  border: 1px solid #dfdfdf;
+  padding-top: 5.5rem;
+  margin-top: -8rem;
+  /* background: #f8f8f8; */
+  /* padding-left: 0.2rem; */
+  /* box-shadow: 0 0 5px 1px rgba(0,0,0,0.1); */
+  /* box-shadow: 3px 0 5px -2px rgba(0,0,0,0.1); */
+  /* position: absolute; */
+
   li {
     position: relative;
     text-overflow: ellipsis;
@@ -12,9 +19,9 @@
 
 
       & > a {
-        text-transform: uppercase;
+        //text-transform: uppercase;
         //@include thin-font;
-        font-size: 0.9rem;
+        //font-size: 0.9rem;
         color: $light-black;
       }
     }
@@ -23,13 +30,13 @@
       color: $dark-gray;
     }
 
-    &.navigation-active-li > a {
+    &.navigation-active-li:not(.topTab) > a {
       color: $black;
-      font-weight: normal;
+      font-weight: bold;
     }
 
     a {
-      font-weight: normal;
+      font-weight: bold;
     }
 
     a:hover {
@@ -47,8 +54,10 @@
 
   #li_support-tab {
     a {
-      background: #efefef;
+      background: #f8f8f8;
       margin-top: 1rem;
+      border-top: 1px solid #dfdfdf;
+      padding: 1rem;
 
       .support_connect {
         span {
