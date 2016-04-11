@@ -268,6 +268,12 @@ EOT
                 'By default is 0.0.0.0 (all interfaces).'
         },
         {
+            :name   => 'vnc_keymap',
+            :large  => '--vnc-keymap keymap',
+            :format => String,
+            :description => 'VNC keyboard layout'
+        },
+        {
             :name   => 'spice',
             :large  => '--spice',
             :description => 'Add spice server to the VM'
@@ -284,6 +290,12 @@ EOT
             :format => String,
             :description => 'spice IP where to listen for connections. '<<
                 'By default is 0.0.0.0 (all interfaces).'
+        },
+        {
+            :name   => 'spice_keymap',
+            :large  => '--spice-keymap keymap',
+            :format => String,
+            :description => 'spice keyboard layout'
         },
         {
             :name   => 'ssh',
@@ -1021,6 +1033,9 @@ EOT
             if options[:vnc_password]
                 template << ", PASSWD=\"#{options[:vnc_password]}\""
             end
+            if options[:vnc_keymap]
+                template << ", KEYMAP=\"#{options[:vnc_keymap]}\""
+            end
             template<<' ]' << "\n"
         end
 
@@ -1029,6 +1044,9 @@ EOT
             template<<"GRAPHICS=[ TYPE=\"spice\", LISTEN=\"#{spice_listen}\""
             if options[:spice_password]
                 template << ", PASSWD=\"#{options[:spice_password]}\""
+            end
+            if options[:spice_keymap]
+                template << ", KEYMAP=\"#{options[:spice_keymap]}\""
             end
             template<<' ]' << "\n"
         end
