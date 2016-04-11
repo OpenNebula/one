@@ -107,6 +107,7 @@ define(function(require) {
       delete nic["NETWORK"];
       delete nic["NETWORK_ID"];
       delete nic["NETWORK_UNAME"];
+      delete nic["NETWORK_UID"];
     
       nic["NETWORK_ID"] = val;
 
