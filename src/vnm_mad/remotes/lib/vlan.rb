@@ -110,16 +110,6 @@ module VNMMAD
     private
         # Generate the name of the vlan device which will be added to the bridge.
         def get_vlan_dev_name
-            if @nic[:vlan_id].nil?
-                if @nic[:parent_network_id]
-                    network_id = @nic[:parent_network_id].to_i
-                else
-                    network_id = @nic[:network_id].to_i
-                end
-
-                @nic[:vlan_id] = CONF[:start_vlan] + network_id
-            end
-
             @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[:vlan_id]}"
         end
 

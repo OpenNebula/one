@@ -50,7 +50,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             end
 
             # Apply VLAN
-            if @nic[:vlan] == "YES"
+            if !@nic[:vlan_id].nil?
                 tag_vlan
                 tag_trunk_vlans
             end
@@ -90,17 +90,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def vlan
-        if @nic[:vlan_id]
-            @nic[:vlan_id]
-        else
-            if @nic[:parent_network_id]
-                network_id = @nic[:parent_network_id].to_i
-            else
-                network_id = @nic[:network_id].to_i
-            end
-
-            @nic[:vlan_id] = CONF[:start_vlan] + network_id
-        end
+        @nic[:vlan_id]
     end
 
     def tag_vlan
@@ -139,7 +129,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             if range? range
                 range.split(",").each do |p|
                     base_rule = "tcp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
-                    base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+                    base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
 
                     add_flow(base_rule,:drop)
                 end
@@ -151,7 +141,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             if range? range
                 range.split(",").each do |p|
                     base_rule = "udp,dl_dst=#{@nic[:mac]},tp_dst=#{p}"
-                    base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+                    base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
 
                     add_flow(base_rule,:drop)
                 end
@@ -162,7 +152,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         if @nic[:icmp]
             if %w(no drop).include? @nic[:icmp].downcase
                 base_rule = "icmp,dl_dst=#{@nic[:mac]}"
-                base_rule << ",dl_vlan=#{vlan}" if @nic[:vlan] == "YES"
+                base_rule << ",dl_vlan=#{vlan}" if !@nic[:vlan_id].nil?
 
                 add_flow(base_rule,:drop)
             end

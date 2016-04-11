@@ -41,8 +41,11 @@ begin
                 File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
             )
 rescue
+    # Default configuration values
     CONF = {
-        :start_vlan => 2
+        :arp_cache_poisoning => true
+        :vxlan_mc            => "239.0.0.0"
+        :vxlan_ttl           => "16"
     }
 end
 
