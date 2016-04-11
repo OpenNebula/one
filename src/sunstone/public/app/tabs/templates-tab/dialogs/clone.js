@@ -64,9 +64,14 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {  
+      e.preventDefault();
+      return false;
+    });
+    
+    $('#' + DIALOG_ID + 'Form', context).on("click", "button ", function() {
       var extra_info;
-      var name = $('input[name="name"]', this).val();
+      var name = $('#' + DIALOG_ID + 'Form input[name="name"]').val();
       var sel_elems = Sunstone.getDataTable(TEMPLATES_TAB_ID).elements();
 
       if (!name || !sel_elems.length)
@@ -77,11 +82,11 @@ define(function(require) {
           //If we are cloning several images we
           //use the name as prefix
           extra_info = name + OpenNebulaTemplate.getName(sel_elems[i]);
-          Sunstone.runAction('Template.clone', sel_elems[i], extra_info);
+          Sunstone.runAction($(this).val(), sel_elems[i], extra_info);
         }
       } else {
         extra_info = name;
-        Sunstone.runAction('Template.clone', sel_elems[0], extra_info)
+        Sunstone.runAction($(this).val(), sel_elems[0], extra_info)
       }
 
       Sunstone.getDialog(DIALOG_ID).hide();

@@ -112,7 +112,9 @@ module OpenNebulaJSON
         end
 
         def clone(params=Hash.new)
-            rc = super(params['name'])
+            recursive = (params['recursive'] == true)
+
+            rc = super(params['name'], recursive)
 
             if OpenNebula.is_error?(rc)
                 return rc

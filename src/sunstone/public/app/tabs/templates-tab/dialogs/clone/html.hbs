@@ -34,8 +34,14 @@
         <input type="text" name="name"/>
       </div>
     </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <p>{{tr "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."}}</p>
+      </div>
+    </div>
     <div class="form_buttons row">
-      <button class="button radius right" id="template_clone_button" value="Template.clone">{{tr "Clone"}}</button>
+      <button class="button radius right" value="Template.clone_recursive">{{tr "Clone with Images"}}</button>
+      <button class="button radius right" value="Template.clone">{{tr "Clone"}}</button>
     </div>
     <div id="{{dialogId}}" class="reveal" data-reveal>
       <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
