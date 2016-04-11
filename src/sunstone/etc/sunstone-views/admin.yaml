@@ -168,8 +168,7 @@ tabs:
             Template.chgrp: true
             Template.chmod: true
             Template.clone_dialog: true
-            Template.delete: true
-            Template.delete_recursive: true
+            Template.delete_dialog: true
             Template.share: true
             Template.unshare: true
         template_creation_tabs:

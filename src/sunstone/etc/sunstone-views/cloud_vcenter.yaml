@@ -25,7 +25,12 @@ tabs:
             flows: true
             templates: false
         actions: &provisionactions
+            # In the cloud view, delete is the equivalent
+            # of 'onetemplate chmod --recursive'
             Template.chmod: false
+
+            # In the cloud view, delete is the equivalent
+            # of 'onetemplate delete --recursive'
             Template.delete: true
             VM.rename: false
             VM.resume: true
