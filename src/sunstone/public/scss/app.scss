@@ -82,6 +82,10 @@ label {
   }
 }
 
+label.secondary.is-invalid-label {
+  background-color: $form-label-color-invalid;
+}
+
 input,
 select,
 textarea {
