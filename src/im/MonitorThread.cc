@@ -78,6 +78,15 @@ void MonitorThread::do_message()
         return;
     }
 
+    if ( host->get_state() == Host::OFFLINE ) //Should not receive any info
+    {
+        delete hinfo;
+
+        host->unlock();
+
+        return;
+    }
+
     // -------------------------------------------------------------------------
     // Monitoring Error. VMs running on the host are moved to UNKNOWN
     // -------------------------------------------------------------------------
@@ -181,14 +190,14 @@ void MonitorThread::do_message()
     rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds,
                 reserved_cpu, reserved_mem);
 
-    hpool->update(host);
-
     if (rc != 0)
     {
         host->unlock();
 
         return;
     }
+
+    hpool->update(host);
 
     hpool->update_monitoring(host);
 

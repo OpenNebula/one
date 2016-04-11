@@ -414,7 +414,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
-    xmlrpc_c::methodPtr host_enable(new HostEnable());
+    xmlrpc_c::methodPtr host_status(new HostStatus());
     xmlrpc_c::methodPtr host_monitoring(new HostMonitoring());
     xmlrpc_c::methodPtr host_pool_monitoring(new HostPoolMonitoring());
 
@@ -527,7 +527,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
 
     /* Host related methods*/
-    RequestManagerRegistry.addMethod("one.host.enable", host_enable);
+    RequestManagerRegistry.addMethod("one.host.status", host_status);
     RequestManagerRegistry.addMethod("one.host.update", host_update);
     RequestManagerRegistry.addMethod("one.host.allocate", host_allocate);
     RequestManagerRegistry.addMethod("one.host.delete", host_delete);

@@ -262,14 +262,10 @@ Request::ErrorCode TemplateDelete::request_execute(
 
 int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    Nebula& nd              = Nebula::instance();
-    InformationManager * im = nd.get_im();
-
-    HostPool * hpool = nd.get_hpool();
+    InformationManager * im = Nebula::instance().get_im();
 
     Host* host = static_cast<Host *>(object);
 
-    //Do not trigger delete event on IM if there are VMs running on the host
     if ( host->get_share_running_vms() > 0 )
     {
         error_msg = "Can not remove a host with running VMs";
@@ -279,13 +275,12 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
         return -1;
     }
 
-    host->disable();
+    string im_mad = host->get_im_mad();
+    string name   = host->get_name();
 
-    hpool->update(host);
+    RequestManagerDelete::drop(oid, object, error_msg);
 
-    host->unlock();
-
-    im->trigger(InformationManager::STOPMONITOR, oid);
+    im->stop_monitor(oid, name, im_mad);
 
     return 0;
 }
