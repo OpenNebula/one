@@ -40,10 +40,12 @@
  \-\-vnc\-password password   VNC password
  \-\-vnc\-listen ip           VNC IP where to listen for connections\. By
                            default is 0\.0\.0\.0 (all interfaces)\.
+ \-\-vnc\-keymap keymap       VNC keyboard layout
  \-\-spice                   Add spice server to the VM
  \-\-spice\-password password spice password
  \-\-spice\-listen ip         spice IP where to listen for connections\. By
                            default is 0\.0\.0\.0 (all interfaces)\.
+ \-\-spice\-keymap keymap     spice keyboard layout
  \-\-ssh [file]              Add an ssh public key to the context\. If the file
                            is omited then the user variable SSH_PUBLIC_KEY
                            will be used\.
@@ -101,7 +103,7 @@ Examples:
 
     onetempate create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \e
                       \-\-disk arch,data
-valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, spice, spice_password, spice_listen, ssh, net_context, context, boot, files_ds, init, dry
+valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, dry
 .
 .fi
 .
@@ -123,7 +125,7 @@ instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the giv
 
 The source Template can be modified adding or replacing attributes with
 the optional file argument, or with the options\.
-valid options: name, multiple, userdata, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, spice, spice_password, spice_listen, ssh, net_context, context, boot, files_ds, init
+valid options: name, multiple, userdata, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init
 .
 .fi
 .
