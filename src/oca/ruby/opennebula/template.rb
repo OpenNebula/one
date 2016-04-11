@@ -98,8 +98,7 @@ module OpenNebula
         # Deletes the Template
         # 
         # @param recursive [true,false] optional, deletes the template plus
-        # any image defined in DISK/IMAGE_ID. Images defined by name are
-        # not affected
+        # any image defined in DISK.
         # 
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -165,8 +164,7 @@ module OpenNebula
         #
         # @param octet [String] Permissions octed , e.g. 640
         # @param recursive [true,false] optional, chmods the template plus
-        # any image defined in DISK/IMAGE_ID. Images defined by name are
-        # not affected
+        # any image defined in DISK.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -189,8 +187,7 @@ module OpenNebula
         # Each [Integer] argument must be 1 to allow, 0 deny, -1 do not change
         #
         # @param recursive [true,false] optional, chmods the template plus
-        # any image defined in DISK/IMAGE_ID. Images defined by name are
-        # not affected
+        # any image defined in DISK.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
@@ -203,13 +200,15 @@ module OpenNebula
         # Clones this Template into a new one
         #
         # @param [String] name for the new Template.
+        # @param recursive [true,false] optional, clones the template plus
+        # any image defined in DISK. The new IMAGE_ID is set into each DISK.
         #
         # @return [Integer, OpenNebula::Error] The new Template ID in case
         #   of success, Error otherwise
-        def clone(name)
+        def clone(name, recursive=false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name)
+            rc = @client.call(TEMPLATE_METHODS[:clone], @pe_id, name, recursive)
 
             return rc
         end

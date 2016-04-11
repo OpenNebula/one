@@ -147,9 +147,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Template from an existing one
     EOT
 
-    command :clone, clone_desc, :templateid, :name do
+    command :clone, clone_desc, :templateid, :name,
+            :options =>OneTemplateHelper::RECURSIVE do
+
+        recursive = (options[:recursive] == true)
+
         helper.perform_action(args[0],options,"cloned") do |t|
-            res = t.clone(args[1])
+            res = t.clone(args[1], recursive)
 
             if !OpenNebula.is_error?(res)
                 puts "ID: #{res}"
@@ -164,7 +168,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :templateid_list],
-            :options =>OneTemplateHelper::RECURSIVE do 
+            :options =>OneTemplateHelper::RECURSIVE do
 
         recursive = (options[:recursive] == true)
 

@@ -55,7 +55,7 @@ EOT
         :name => "recursive",
         :large => "--recursive",
         :description => "Applies the action to the template plus any "+
-        "image defined in DISK/IMAGE_ID. Images defined by name are not affected"
+        "image defined in DISK"
     }
 
     def self.rname
