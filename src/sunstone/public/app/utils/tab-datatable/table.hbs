@@ -18,7 +18,7 @@
   {{! TODO: show also refresh and search box when {info: true} is used in panels}}
   {{#if conf.select}}
   <div class="row select-resources">
-    <div class="large-6 small-12 columns" id="selected_ids_row_{{dataTableId}}">
+    <div class="small-12 medium-6 columns" id="selected_ids_row_{{dataTableId}}">
       <label for="selected_resource_id_{{dataTableId}}" id="select_resource_{{dataTableId}}" class="secondary label">{{selectOptions.select_resource}}</label>
       <span id="selected_resource_{{dataTableId}}" hidden>{{selectOptions.you_selected}}</span>
       <span id="select_resource_multiple_{{dataTableId}}"  class="secondary label" hidden>{{selectOptions.select_resource_multiple}}</span>
@@ -26,10 +26,10 @@
       <span id="selected_resource_name_{{dataTableId}}" class="radius label"></span>
       <input id="selected_resource_id_{{dataTableId}}" type="text" style="visibility: hidden; width:0px !important; height:0px !important;padding: 0px !important;margin: 0px !important;display: inline;"/>
     </div>
-    <div class="large-4 small-10 columns right">
+    <div class="small-10 medium-4 columns right">
       <input id="{{dataTableId}}_search" class="search" type="search" placeholder="{{tr "Search"}}"/>
     </div>
-    <div class="large-2 small-2 columns right">
+    <div class="small-2 columns right">
       <a id="refresh_button_{{dataTableId}}" href="#" class="refresh-table right"> <i class="fa fa-lg fa-fw fa-refresh" /></a>
     </div>
   </div>
