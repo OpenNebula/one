@@ -108,7 +108,6 @@ void Scheduler::start()
 
     string etc_path;
 
-    int          oned_port;
     unsigned int live_rescheds;
 
     pthread_attr_t pattr;
@@ -143,11 +142,7 @@ void Scheduler::start()
         throw runtime_error("Error reading configuration file.");
     }
 
-    conf.get("ONED_PORT", oned_port);
-
-    oss.str("");
-    oss << "http://localhost:" << oned_port << "/RPC2";
-    url = oss.str();
+    conf.get("ONE_XMLRPC", one_xmlrpc);
 
     conf.get("SCHED_INTERVAL", timer);
 
@@ -232,7 +227,7 @@ void Scheduler::start()
 
         conf.get("TIMEOUT", timeout);
 
-        Client::initialize("", url, message_size, timeout);
+        Client::initialize("", one_xmlrpc, message_size, timeout);
 
         oss.str("");
 
