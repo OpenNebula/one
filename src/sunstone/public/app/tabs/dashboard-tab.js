@@ -66,7 +66,7 @@ define(function(require) {
         }
 
         var no_table = true;
-        $("#acct_cpu_graph, #acct_mem_graph", "#dashboard_vdc_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
+        $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_vdc_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
           '<i class="fa fa-spinner fa-spin"></i>'+
         '</span>')
         OpenNebulaVM.accounting({
@@ -106,7 +106,7 @@ define(function(require) {
 
         var no_table = true;
 
-        $("#acct_cpu_graph, #acct_mem_graph", "#dashboard_vm_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
+        $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_vm_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
           '<i class="fa fa-spinner fa-spin"></i>'+
         '</span>')
         OpenNebulaVM.accounting({
