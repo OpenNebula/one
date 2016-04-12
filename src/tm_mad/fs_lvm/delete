@@ -41,12 +41,22 @@ DST_HOST=`arg_host $DST`
 
 # Delete the device if it's a clone (LVM snapshot)
 DELETE_CMD=$(cat <<EOF
+    set -x
     DEV=\$(readlink $DST_PATH)
 
-    # remove link
-    rm -f $DST_PATH
+    if [ -z "$DEV" ]; then
+        exit 0
+    fi
 
-    $SUDO $LVREMOVE -f \$DEV
+    if [ -d "$DST_PATH" ]; then
+        rm -rf "$DST_PATH"
+    else
+        rm -f $DST_PATH
+
+        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+            $SUDO $LVREMOVE -f \$DEV
+        fi
+    fi
 EOF
 )
 
