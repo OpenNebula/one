@@ -58,7 +58,7 @@ protected:
         upool(0),
         acls(0),
         timer(0),
-        url(""),
+        one_xmlrpc(""),
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0)
@@ -155,7 +155,7 @@ private:
 
     time_t  timer;
 
-    string  url;
+    string  one_xmlrpc;
 
     /**
      *  Limit of pending virtual machines to process from the pool.
