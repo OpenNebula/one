@@ -106,7 +106,7 @@ define(function(require) {
             '<br>'+
             '<div class="row flow_error_message" id="" hidden>'+
               '<div class="small-6 columns small-centered text-center">'+
-                  '<div class="alert-box alert radius">'+Locale.tr("Cannot connect to OneFlow server")+'</div>'+
+                  '<div class="label alert radius">'+Locale.tr("Cannot connect to OneFlow server")+'</div>'+
               '</div>'+
             '</div>'+
             '<br>'+

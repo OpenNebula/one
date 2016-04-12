@@ -52,7 +52,7 @@ define(function(require) {
     subheader: '',
     content: '<div class="row oneflow_services_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\
-            <div class="alert-box alert radius">'+Locale.tr("Cannot connect to OneFlow server")+'</div>\
+            <div class="label alert radius">'+Locale.tr("Cannot connect to OneFlow server")+'</div>\
         </div>\
     </div>',
     resource: RESOURCE,

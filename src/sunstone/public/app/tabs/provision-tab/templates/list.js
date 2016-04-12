@@ -257,7 +257,7 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
+          '<div data-alert class="label secondary radius">'+
             '<div class="row">'+
             '<div class="large-9 columns">'+
               '<span>'+
@@ -305,7 +305,7 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
+          '<div data-alert class="label secondary radius">'+
             '<div class="row">'+
             '<div class="large-8 columns">'+
               '<span>'+
@@ -351,7 +351,7 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).first().text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
+          '<div data-alert class="label secondary radius">'+
             '<div class="row">'+
             '<div class="large-8 columns">'+
               '<span>'+

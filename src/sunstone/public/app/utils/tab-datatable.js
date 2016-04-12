@@ -703,7 +703,7 @@ define(function(require) {
           $('#select_resource_multiple_' + that.dataTableId, section).hide();
         }
 
-        $('.alert-box', section).hide();
+        $('.label', section).hide();
 
         return true;
       };
@@ -754,7 +754,7 @@ define(function(require) {
 
         $('#selected_resource_' + that.dataTableId, section).show();
         $('#select_resource_' + that.dataTableId, section).hide();
-        $('.alert-box', section).hide();
+        $('.label', section).hide();
 
         $("td", this).addClass('markrow');
         $('input.check_item', this).prop('checked', true);
@@ -889,7 +889,7 @@ define(function(require) {
         $('#select_resource_multiple_' + that.dataTableId, section).hide();
       }
 
-      $('.alert-box', section).hide();
+      $('.label', section).hide();
 
       that.dataTable.fnDraw();
     } else {
@@ -898,7 +898,7 @@ define(function(require) {
 
       $('#selected_resource_' + that.dataTableId, section).show();
       $('#select_resource_' + that.dataTableId, section).hide();
-      $('.alert-box', section).hide();
+      $('.label', section).hide();
 
       var row_id = undefined;
       var row_name = "";
