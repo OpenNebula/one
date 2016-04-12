@@ -88,25 +88,14 @@ if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
    RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
 fi
 
-case $SRC in
-http://*)
-    log "Downloading $SRC into $DST_PATH"
-    ssh_exec_and_log $DST_HOST \
-                     "$WGET -O $DST_PATH $SRC" \
-                     "Error downloading $SRC"
-    ;;
+log "Cloning $SRC_PATH in $DST"
 
-*)
-    log "Cloning $SRC_PATH in $DST"
+CLONE_CMD="cd ${DST_DIR}; \
+    cp ${SRC_PATH} ${DST_PATH} \
+    ${RESIZE_CMD}"
 
-    CLONE_CMD="cd ${DST_DIR}; \
-        cp ${SRC_PATH} ${DST_PATH} \
-        ${RESIZE_CMD}"
-
-    ssh_exec_and_log $DST_HOST \
-                     "$CLONE_CMD" \
-                     "Error copying $SRC to $DST"
-    ;;
-esac
+ssh_exec_and_log $DST_HOST \
+                 "$CLONE_CMD" \
+                 "Error copying $SRC to $DST"
 
 exit 0

@@ -104,20 +104,7 @@ EOF
 )
 fi
 
-case $SRC in
-http://*)
-    log "Downloading $SRC into $DST_PATH"
-    ssh_exec_and_log $DST_HOST \
-                     "$WGET -O $DST_PATH $SRC" \
-                     "Error downloading $SRC"
-    ;;
-
-*)
-    log "Cloning $SRC_PATH in $DST"
-
-
-    ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" "Error copying $SRC to $DST"
-    ;;
-esac
+log "Cloning $SRC_PATH in $DST"
+ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" "Error copying $SRC to $DST"
 
 exit 0
