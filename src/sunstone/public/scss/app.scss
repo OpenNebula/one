@@ -120,3 +120,8 @@ meter {
   margin-bottom: 0;
 }
 
+table{
+  .has-tip {
+    display: table-cell;
+  }
+}
