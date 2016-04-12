@@ -161,6 +161,9 @@ define(function(require) {
         case 'iscsi':
           _selectISCSI(dialog);
           break;
+        case 'vcenter':
+          _selectvCenter(dialog);
+          break;
         case 'custom':
           _selectCustom(dialog);
           break;
@@ -210,6 +213,7 @@ define(function(require) {
     var iscsi_host      = $('#iscsi_host', dialog).val();
     var iscsi_user      = $('#iscsi_user', dialog).val();
     var iscsi_usage     = $('#iscsi_usage', dialog).val();
+    var vcenter_cluster = $('#vcenter_cluster', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -292,6 +296,9 @@ define(function(require) {
     if (iscsi_usage)
         ds_obj.datastore.iscsi_usage = iscsi_usage;
 
+    if (vcenter_cluster)
+        ds_obj.datastore.vcenter_cluster = vcenter_cluster;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -338,6 +345,7 @@ define(function(require) {
     $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
+    $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
@@ -509,6 +517,25 @@ define(function(require) {
     $('input#base_path', dialog).attr('disabled', 'disabled');
     $('input#limit_mb', dialog).attr('disabled', 'disabled');
     $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+  }
+
+  function _selectvCenter(dialog) {
+    $('select#ds_mad', dialog).val('vcenter').change();
+    $('select#ds_mad', dialog).attr('disabled', 'disabled');
+    $('select#tm_mad', dialog).val('vcenter');
+    $('select#tm_mad', dialog).attr('disabled', 'disabled');
+    $('input#image_ds_type', dialog).click();
+    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('select#disk_type', dialog).val('block');
+    $('select#disk_type', dialog).attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().hide();
+    $('input#safe_dirs', dialog).attr('disabled', 'disabled');
+    $('input#base_path', dialog).attr('disabled', 'disabled');
+    $('input#limit_mb', dialog).attr('disabled', 'disabled');
+    $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
+    $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {

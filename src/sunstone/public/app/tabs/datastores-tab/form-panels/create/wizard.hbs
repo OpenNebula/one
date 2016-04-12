@@ -32,6 +32,7 @@
         <option value="gluster">{{tr "Gluster"}}</option>
         <option value="dev">{{tr "Devices"}}</option>
         <option value="iscsi">{{tr "iSCSI"}}</option>
+        <option value="vcenter">{{tr "vCenter"}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -67,6 +68,7 @@
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
             <option value="iscsi">{{tr "iSCSI"}}</option>
+            <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
@@ -85,6 +87,7 @@
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
             <option value="iscsi">{{tr "iSCSI"}}</option>
+            <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
@@ -284,6 +287,15 @@
         </span>
       </label>
       <input type="text" name="iscsi_usage" id="iscsi_usage" />
+    </div>
+    <div class="medium-6 columns">
+      <label for="vceter_cluster">
+        {{tr "vCenter Cluster"}}
+        <span class="tip">
+          {{tr "The vCenter Cluster that has access to this datastore."}}
+        </span>
+      </label>
+      <input type="text" name="vcenter_cluster" id="vcenter_cluster" />
     </div>
   </div>
 </form>
