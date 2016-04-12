@@ -1,9 +1,8 @@
 .tabs:not(.vertical) {
-  border-bottom: rem-calc(1px) solid $light-gray;
-  box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1);
+  border-bottom: rem-calc(2px) solid $light-gray;
 
   .tabs-title {
-    margin-bottom: rem-calc(-1px);
+    margin-bottom: rem-calc(-2px);
     text-align: center;
 
     a {
@@ -11,10 +10,10 @@
     }
 
     &.is-active {
-      border-bottom: rem-calc(1px) solid $primary-color;
+      border-bottom: rem-calc(2px) solid $primary-color;
       a {
-        color: $black;
-        font-weight: normal;
+        color: $bold-black;
+        font-weight: bold;
       }
     }
     &:not(.is-active) {
@@ -30,10 +29,10 @@
     position: relative;
 
     &.is-active {
-      border-right: rem-calc(1px) solid $primary-color;
+      border-right: rem-calc(2px) solid $primary-color;
       a {
-        color: $black;
-        font-weight: hormal;
+        color: $bold-black;
+        font-weight: bold;
       }
     }
     &:not(.is-active) {
@@ -48,12 +47,16 @@
 
 .tabs-content { 
   & > .tabs-panel {
-    padding: 1rem 2rem;
+    padding: 1rem;
   }
 
   &.vertical {
-    margin-left: rem-calc(-1px);
-    border-left: rem-calc(1px) solid $light-gray;
+    & > .tabs-panel {
+      padding: 1rem 3rem;
+    }
+
+    margin-left: rem-calc(-3px);
+    border-left: rem-calc(2px) solid $light-gray;
 
   }
 }

@@ -1,17 +1,19 @@
 fieldset {
-  padding: 1rem 2rem;
+  padding: 1rem;
 
   legend {
 
-    font-weight: normal;
+    font-weight: bold;
     font-size: 1.2rem;
-    border-bottom: rem-calc(1px) solid $primary-color;
+    border-bottom: rem-calc(2px) solid $primary-color;
     //position: relative;
-    padding: 0rem 1rem 0.5rem 0rem;
+    padding: 0rem 1rem 0.2rem 0.5rem;
     margin-left: -2rem;
+    color: $bold-black;
 
     span {
       font-size: 1rem;
+      font-weight: normal;
       color: $dark-gray;
     }
   }
@@ -19,13 +21,15 @@ fieldset {
 
   &.large-font {
     legend {
-      font-weight: 300;
-      font-size: 1.5rem;
-
-      span {
-        font-weight: 300;
-        font-size: 1.2rem;
-      }
+      //font-weight: bold;
+      //color: $bold-black;
+      //font-size: 1.5rem;
+      //padding: 0rem 1rem 0.5rem 0.5rem;
+//
+      //span {
+      //  font-weight: normal;
+      //  font-size: 1.2rem;
+      //}
     }
 
     .button {

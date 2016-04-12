@@ -18,7 +18,9 @@
   <li>
     <a class="thin-font" href="#">
       <i class="fa fa-user fa-fw header-icon"></i>
-      {{displayName}}
+      <span class="username">
+        {{displayName}}
+      </span>
     </a>
     <ul class="menu">
       {{#if settingsTabEnabled}}
@@ -58,7 +60,9 @@
   <li>
     <a class="thin-font" id="zonelector" href="#">
       <i class="fa fa-globe fa-fw header-icon"></i>
-      {{zoneName}}
+      <span class="zonename">
+        {{zoneName}}
+      </span>
     </a>
     <ul class="menu zone-ul">
     </ul>

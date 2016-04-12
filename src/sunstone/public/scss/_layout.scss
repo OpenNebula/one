@@ -1,5 +1,9 @@
 .tab:not(#provision-tab) {
   margin-top: -4.3rem;
+
+  @include breakpoint(small only) {
+    margin-top: 0;
+  }
 }
 
 .right-list,
@@ -11,19 +15,44 @@
 
 #top-row {
   padding: 1rem 0 0.5rem 0;
-  /* box-shadow: 0 0 5px 1px rgba(0,0,0,0.2); */
-  background: #f8f8f8;
-  /* position: relative; */
-  border-bottom: 1px solid #dfdfdf;
-  z-index: 500;
+  box-shadow: 0 0 5px 1px rgba(0,0,0,0.2);
+  //background: #f8f8f8;
   position: relative;
+  //border-bottom: 1px solid #dfdfdf;
 
+  .user-zone-info {
+    margin-bottom: 0.5rem;
+
+    @include breakpoint(small only) {
+      .username,
+      .zonename {
+        display: none;
+      }
+    }
+  }
+  
   .opennebula-img {
-    height: 1rem;
+    height: 1.2rem;
+    @include breakpoint(medium only) {
+      display: none;
+    }
   }
 
   .logo-header {
     margin-top: 0.5rem;
+  }
+
+  #menu-toggle {
+    z-index: 900;
+    position: relative;
+    @include breakpoint(large) {
+      display: none;
+    }
+  }
+
+  a {
+    font-weight: bold;
+    color: $bold-black;
   }
 }
 
@@ -35,18 +64,16 @@
 
 .header-title {
   margin-bottom: 1.5rem;
+  @include breakpoint(medium only) {
+    margin-left: 3rem;
+  }
 }
 
-.header-row {
-  z-index: 800;
-  position: relative;
-}
 
 #footer {
-  margin-right: 1rem;
   font-size: 0.8rem;
   margin-top: 1rem;
-  color: $medium-gray;
+  color: $dark-gray;
 
   a {
     color: $dark-gray;
