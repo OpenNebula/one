@@ -232,6 +232,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             str = OneQuotaHelper.set_quota(user, args[1])
+
+            helper.set_client(options)
+            user = helper.retrieve_resource(user.id)
+
             rc  = user.set_quota(str)
 
             if OpenNebula.is_error?(rc)
@@ -250,14 +254,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [:file, nil] do
         batch_str = OneQuotaHelper.get_batch_quota(args[1])
 
+	helper.set_client(options)
         helper.perform_actions(args[0], options, "modified") do |user|
             str = OneQuotaHelper.merge_quota(user, batch_str)
 
             if OpenNebula.is_error?(str)
                 str
             else
-                rc  = user.set_quota(str)
-                rc
+                user.set_quota(str)
             end
         end
     end
@@ -279,6 +283,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         str = OneQuotaHelper.set_quota(default_quotas, args[0], true)
 
+        system = System.new(OneUserHelper.get_client(options, true))
         rc  = system.set_user_quotas(str)
 
         if OpenNebula.is_error?(rc)
