@@ -73,9 +73,8 @@ define(function(require) {
   });
 
   function _setupCloseDropdownsOnClick() {
-    $(document).on("click", '[data-dropdown-content] a', function() {
-      var id = $(this).closest('ul').attr('id');
-      $('[data-dropdown=' + id + ']').trigger('click');
+    $(document).on("click", '.is-dropdown-submenu-item > a', function() {
+      $('.is-active > a', $(this).closest('.dropdown')).trigger('click');
     });
   }
 
