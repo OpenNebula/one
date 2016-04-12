@@ -759,10 +759,14 @@ define(function(require) {
         $("td", this).addClass('markrow');
         $('input.check_item', this).prop('checked', true);
 
-        $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
+        if (aData != undefined){
+          $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
+        }
         $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
 
-        $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
+        if (aData != undefined){
+          $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
+        }
         $('#selected_resource_name_' + that.dataTableId, section).show();
 
         that.selectOptions.select_callback(aData, that.selectOptions);
