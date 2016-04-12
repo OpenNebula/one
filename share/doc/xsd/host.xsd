@@ -11,10 +11,11 @@
           MONITORING_MONITORED = 1  Monitoring the host (from monitored)
           MONITORED            = 2  The host has been successfully monitored
           ERROR                = 3  An error ocurrer while monitoring the host
-          DISABLED             = 4  The host is disabled won't be monitored
+          DISABLED             = 4  The host is disabled 
           MONITORING_ERROR     = 5  Monitoring the host (from error)
           MONITORING_INIT      = 6  Monitoring the host (from init)
           MONITORING_DISABLED  = 7  Monitoring the host (from disabled)
+          OFFLINE              = 8  The host is totally offline
         -->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="IM_MAD" type="xs:string"/>

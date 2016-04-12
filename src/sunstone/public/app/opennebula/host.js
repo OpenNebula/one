@@ -43,7 +43,8 @@ define(function(require) {
     Locale.tr("DISABLED"),
     Locale.tr("MONITORING_ERROR"),
     Locale.tr("MONITORING_INIT"),
-    Locale.tr("MONITORING_DISABLED")
+    Locale.tr("MONITORING_DISABLED"),
+    Locale.tr("OFFLINE")
   ];
 
   var SIMPLE_STATES_STR = [
@@ -51,9 +52,10 @@ define(function(require) {
     Locale.tr("UPDATE"),
     Locale.tr("ON"),
     Locale.tr("ERROR"),
-    Locale.tr("OFF"),
+    Locale.tr("DSBL"),
     Locale.tr("RETRY"),
     Locale.tr("INIT"),
+    Locale.tr("DSBL"),
     Locale.tr("OFF")
   ];
 
@@ -65,7 +67,8 @@ define(function(require) {
     DISABLED             : 4,
     MONITORING_ERROR     : 5,
     MONITORING_INIT      : 6,
-    MONITORING_DISABLED  : 7
+    MONITORING_DISABLED  : 7,
+    OFFLINE              : 8
   };
 
   var Host = {
@@ -110,6 +113,10 @@ define(function(require) {
     },
     "disable": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "disable");
+      _clearCache();
+    },
+    "offline": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "offline");
       _clearCache();
     },
     "monitor" : function(params) {

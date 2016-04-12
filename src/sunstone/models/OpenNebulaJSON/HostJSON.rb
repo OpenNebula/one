@@ -49,6 +49,7 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                 when "enable"  then self.enable
                 when "disable" then self.disable
+                when "offline" then self.offline
                 when "update" then self.update(action_hash['params'])
                 when "rename" then self.rename(action_hash['params'])
                 when "import_wild" then self.import_wild(action_hash['params'])
