@@ -37,7 +37,6 @@ void SchedulerTemplate::set_conf_default()
 #-------------------------------------------------------------------------------
 #  MESSAGE_SIZE
 #  TIMEOUT
-#  ONED_PORT
 #  SCHED_INTERVAL
 #  MAX_VM
 #  MAX_DISPATCH
@@ -60,10 +59,10 @@ void SchedulerTemplate::set_conf_default()
     attribute = new SingleAttribute("TIMEOUT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
-    // ONED_PORT
-    value = "2633";
+    //ONE_XMLRPC
+    value = "http://localhost:2633/RPC2";
 
-    attribute = new SingleAttribute("ONED_PORT",value);
+    attribute = new SingleAttribute("ONE_XMLRPC",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // SCHED_INTERVAL
