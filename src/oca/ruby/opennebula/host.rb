@@ -24,28 +24,35 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         HOST_METHODS = {
             :info       => "host.info",
             :allocate   => "host.allocate",
             :delete     => "host.delete",
-            :enable     => "host.enable",
+            :status     => "host.status",
             :update     => "host.update",
             :monitoring => "host.monitoring",
             :rename     => "host.rename"
         }
 
-        HOST_STATES=%w{INIT MONITORING_MONITORED MONITORED ERROR DISABLED MONITORING_ERROR MONITORING_INIT MONITORING_DISABLED}
+        HOST_STATES=%w{INIT MONITORING_MONITORED MONITORED ERROR DISABLED
+            MONITORING_ERROR MONITORING_INIT MONITORING_DISABLED OFFLINE}
 
         SHORT_HOST_STATES={
             "INIT"                 => "init",
             "MONITORING_MONITORED" => "update",
             "MONITORED"            => "on",
             "ERROR"                => "err",
-            "DISABLED"             => "off",
+            "DISABLED"             => "dsbl",
             "MONITORING_ERROR"     => "retry",
             "MONITORING_INIT"      => "init",
-            "MONITORING_DISABLED"  => "off"
+            "MONITORING_DISABLED"  => "dsbl",
+            "OFFLINE"              => "off"
+        }
+
+        HOST_STATUS={
+            "ENABLED"  => 0,
+            "DISABLED" => 1,
+            "OFFLINE"  => 2
         }
 
         # Creates a Host description with just its identifier
@@ -104,12 +111,17 @@ module OpenNebula
 
         # Enables the Host
         def enable()
-            set_enabled(true)
+            set_status("ENABLED")
         end
 
         # Disables the Host
         def disable()
-            set_enabled(false)
+            set_status("DISABLED")
+        end
+
+        # Sets the Host offline
+        def offline()
+            set_status("OFFLINE")
         end
 
         def flush()
@@ -255,10 +267,10 @@ module OpenNebula
         end
 
     private
-        def set_enabled(enabled)
+        def set_status(status)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(HOST_METHODS[:enable], @pe_id, enabled)
+            rc = @client.call(HOST_METHODS[:status], @pe_id, HOST_STATUS[status])
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

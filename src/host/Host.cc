@@ -261,6 +261,11 @@ int Host::update_info(Template        &tmpl,
     int num_zombies = 0;
     int num_wilds   = 0;
 
+    if ( state == OFFLINE )
+    {
+        return -1;
+    }
+
     // -------------------------------------------------------------------------
     // Remove expired information from current template
     // -------------------------------------------------------------------------
@@ -285,31 +290,28 @@ int Host::update_info(Template        &tmpl,
 
     touch(true);
 
-    if (isEnabled())
-    {
-        get_reserved_capacity(reserved_cpu, reserved_mem);
+    get_reserved_capacity(reserved_cpu, reserved_mem);
 
-        erase_template_attribute("TOTALCPU", val);
-        host_share.max_cpu = val - reserved_cpu;
-        erase_template_attribute("TOTALMEMORY", val);
-        host_share.max_mem = val - reserved_mem;
-        erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
-        host_share.max_disk = val;
+    erase_template_attribute("TOTALCPU", val);
+    host_share.max_cpu = val - reserved_cpu;
+    erase_template_attribute("TOTALMEMORY", val);
+    host_share.max_mem = val - reserved_mem;
+    erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
+    host_share.max_disk = val;
 
-        erase_template_attribute("FREECPU", val);
-        host_share.free_cpu = val;
-        erase_template_attribute("FREEMEMORY", val);
-        host_share.free_mem = val;
-        erase_template_attribute("DS_LOCATION_FREE_MB", val);
-        host_share.free_disk = val;
+    erase_template_attribute("FREECPU", val);
+    host_share.free_cpu = val;
+    erase_template_attribute("FREEMEMORY", val);
+    host_share.free_mem = val;
+    erase_template_attribute("DS_LOCATION_FREE_MB", val);
+    host_share.free_disk = val;
 
-        erase_template_attribute("USEDCPU", val);
-        host_share.used_cpu = val;
-        erase_template_attribute("USEDMEMORY", val);
-        host_share.used_mem = val;
-        erase_template_attribute("DS_LOCATION_USED_MB", val);
-        host_share.used_disk = val;
-    }
+    erase_template_attribute("USEDCPU", val);
+    host_share.used_cpu = val;
+    erase_template_attribute("USEDMEMORY", val);
+    host_share.used_mem = val;
+    erase_template_attribute("DS_LOCATION_USED_MB", val);
+    host_share.used_disk = val;
 
     // -------------------------------------------------------------------------
     // Correlate VM information with the list of running VMs
@@ -461,9 +463,35 @@ int Host::update_info(Template        &tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Host::enable()
+{
+    if (state == OFFLINE)
+    {
+        Nebula::instance().get_im()->start_monitor(this, true);
+    }
+
+    state = INIT;
+};
+
+/* -------------------------------------------------------------------------- */
+
 void Host::disable()
 {
+    if (state == OFFLINE)
+    {
+        Nebula::instance().get_im()->start_monitor(this, true);
+    }
+
     state = DISABLED;
+};
+
+/* -------------------------------------------------------------------------- */
+
+void Host::offline()
+{
+    Nebula::instance().get_im()->stop_monitor(get_oid(),get_name(),get_im_mad());
+
+    state = OFFLINE;
 
     host_share.max_cpu = 0;
     host_share.max_mem = 0;
@@ -583,14 +611,14 @@ string& Host::to_xml(string& xml) const
 
     oss <<
     "<HOST>"
-       "<ID>"               << oid              << "</ID>"              <<
-       "<NAME>"             << name             << "</NAME>"            <<
-       "<STATE>"            << state            << "</STATE>"           <<
+       "<ID>"            << oid              << "</ID>"              <<
+       "<NAME>"          << name             << "</NAME>"            <<
+       "<STATE>"         << state            << "</STATE>"           <<
        "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
-       "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
-       "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
-       "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
+       "<LAST_MON_TIME>" << last_monitored   << "</LAST_MON_TIME>"   <<
+       "<CLUSTER_ID>"    << cluster_id       << "</CLUSTER_ID>"      <<
+       "<CLUSTER>"       << cluster          << "</CLUSTER>"         <<
        host_share.to_xml(share_xml)  <<
        vm_collection.to_xml(vm_collection_xml) <<
        obj_template->to_xml(template_xml) <<

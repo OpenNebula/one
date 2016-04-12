@@ -131,7 +131,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     enable_desc = <<-EOT.unindent
-        Enables the given Host
+        Enables the given host, fully operational
     EOT
 
     command :enable, enable_desc, [:range,:hostid_list] do
@@ -141,12 +141,28 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     disable_desc = <<-EOT.unindent
-        Disables the given Host
+        Disables the given host:
+          - monitor: enabled
+          - scheduler deployment: disabled
+          - manual deployment: enabled
     EOT
 
     command :disable, disable_desc, [:range,:hostid_list] do
         helper.perform_actions(args[0],options,"disabled") do |host|
             host.disable
+        end
+    end
+
+    offline_desc = <<-EOT.unindent
+        Sets the host offline:
+          - monitor: disabled
+          - scheduler deployment: disabled
+          - manual deployment: disabled
+    EOT
+
+    command :offline, offline_desc, [:range,:hostid_list] do
+        helper.perform_actions(args[0],options,"offline") do |host|
+            host.offline
         end
     end
 

@@ -341,6 +341,16 @@ int RequestManagerVirtualMachine::get_host_information(
         return -1;
     }
 
+    if ( host->get_state() == Host::OFFLINE )
+    {
+        att.resp_msg = "Host is offline, cannot use it to deploy VM";
+        failure_response(ACTION, att);
+
+        host->unlock();
+
+        return -1;
+    }
+
     name = host->get_name();
     vmm  = host->get_vmm_mad();
 

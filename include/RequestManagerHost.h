@@ -29,9 +29,9 @@ using namespace std;
 class RequestManagerHost: public Request
 {
 protected:
-    RequestManagerHost( const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerHost(const string& method_name,
+                       const string& help,
+                       const string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -51,18 +51,23 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class HostEnable : public RequestManagerHost
+class HostStatus : public RequestManagerHost
 {
 public:
-    HostEnable():
-        RequestManagerHost("HostEnable",
-                            "Enables or disables a host",
-                            "A:sib")
+    enum Status
+    {
+        ENABLED  = 0,
+        DISABLED = 1,
+        OFFLINE  = 2
+    };
+
+    HostStatus():
+        RequestManagerHost("HostStatus", "Sets the status of the host", "A:sii")
     {
         auth_op = AuthRequest::ADMIN;
     };
 
-    ~HostEnable(){};
+    ~HostStatus(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

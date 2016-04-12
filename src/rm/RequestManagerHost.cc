@@ -20,13 +20,11 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
+void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
-    int     id      = xmlrpc_c::value_int(paramList.getInt(1));
-    bool    enable  = xmlrpc_c::value_boolean(paramList.getBoolean(2));
-
-    Host * host;
+    int     id = xmlrpc_c::value_int(paramList.getInt(1));
+    int status = xmlrpc_c::value_int(paramList.getInt(2));
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
@@ -35,7 +33,7 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    host = hpool->get(id,true);
+    Host * host = hpool->get(id,true);
 
     if ( host  == 0 )
     {
@@ -45,13 +43,23 @@ void HostEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( enable == true)
+    switch (status)
     {
-        host->enable();
-    }
-    else
-    {
-        host->disable();
+        case ENABLED:
+            host->enable();
+            break;
+        case DISABLED:
+            host->disable();
+            break;
+        case OFFLINE:
+            host->offline();
+            break;
+        default:
+            att.resp_msg = "Wrong status code";
+            failure_response(INTERNAL, att);
+
+            host->unlock();
+            return;
     }
 
     hpool->update(host);

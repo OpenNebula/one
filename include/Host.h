@@ -34,20 +34,29 @@ class Host : public PoolObjectSQL, public ClusterableSingle
 {
 public:
 
-    // ----------------------------------------------------------------------
-    // Host States
-    // ----------------------------------------------------------------------
+    //  HOST STATES                   +----------------+
+    //                                |  VM DEPLOYMENT |
+    //  +----------------+------------+--------+-------+
+    //  | STATE          | MONITORING | MANUAL | SCHED |
+    //  +----------------+------------+--------+-------+
+    //  | INIT/MONITORED |    Yes     |       Yes      |
+    //  +----------------+------------+--------+-------+
+    //  | DISABLED       |    Yes     | Yes    |  No   |
+    //  +----------------+------------+----------------+
+    //  | OFFLINE        |    No      |        No      |
+    //  +----------------+-----------------------------+
 
     enum HostState
     {
         INIT                 = 0, /**< Initial state for enabled hosts. */
         MONITORING_MONITORED = 1, /**< Monitoring the host (from monitored). */
-        MONITORED            = 2, /**< The host has been successfully monitored. */
-        ERROR                = 3, /**< An error ocurrer while monitoring the host. */
-        DISABLED             = 4, /**< The host is disabled won't be monitored. */
+        MONITORED            = 2, /**< The host has been monitored. */
+        ERROR                = 3, /**< An error ocurrer in host monitoring. */
+        DISABLED             = 4, /**< The host is disabled see above. */
         MONITORING_ERROR     = 5, /**< Monitoring the host (from error). */
         MONITORING_INIT      = 6, /**< Monitoring the host (from init). */
-        MONITORING_DISABLED  = 7  /**< Monitoring the host (from disabled). */
+        MONITORING_DISABLED  = 7, /**< Monitoring the host (from disabled). */
+        OFFLINE              = 8  /**< The host is set offline, see above */
     };
 
     /**
@@ -65,27 +74,6 @@ public:
      */
     int from_xml(const string &xml_str);
 
-    /**
-     *  Check if the host is enabled
-     *    @return true if the host is enabled
-     */
-     bool isEnabled() const
-     {
-        return state != DISABLED && state != MONITORING_DISABLED;
-     }
-
-    /**
-     *  Check if the host is being monitored
-     *    @return true if the host is enabled
-     */
-     bool isMonitoring() const
-     {
-        return ((state == MONITORING_ERROR) ||
-                (state == MONITORING_MONITORED)||
-                (state == MONITORING_INIT)||
-                (state == MONITORING_DISABLED));
-     }
-
      /**
       *  Checks if the host is a remote public cloud
       *    @return true if the host is a remote public cloud
@@ -93,8 +81,15 @@ public:
      bool is_public_cloud() const;
 
     /**
-     *   Disables the current host, it will not be monitored nor used by the
-     *   scheduler
+     *   Sets the current host offline, it will not be monitored nor used by the
+     *   scheduler, manual VM deployment is also restricted
+     */
+    void offline();
+
+    /**
+     *  Sets the current host disable, it will receive monitor updates, manual
+     *  deployment of VMs is allowed and the scheduler will not consider this
+     *  host.
      */
     void disable();
 
@@ -102,10 +97,7 @@ public:
      *   Enables the current host, it will be monitored and could be used by
      *   the scheduler
      */
-    void enable()
-    {
-        state = INIT;
-    };
+    void enable();
 
     /**
      *  Sets the host in error
@@ -125,6 +117,10 @@ public:
 
         switch (state)
         {
+            case OFFLINE:
+                state = OFFLINE;
+            break;
+
             case DISABLED:
             case MONITORING_DISABLED:
                 state = DISABLED;
@@ -144,8 +140,6 @@ public:
                 {
                     state = ERROR;
                 }
-            break;
-            default:
             break;
         }
     };

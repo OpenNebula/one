@@ -31,17 +31,33 @@ public class Host extends PoolElement{
     private static final String ALLOCATE        = METHOD_PREFIX + "allocate";
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
-    private static final String ENABLE          = METHOD_PREFIX + "enable";
+    private static final String STATUS          = METHOD_PREFIX + "status";
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String MONITORING      = METHOD_PREFIX + "monitoring";
     private static final String RENAME          = METHOD_PREFIX + "rename";
 
     private static final String[] HOST_STATES =
         {"INIT", "MONITORING_MONITORED", "MONITORED", "ERROR", "DISABLED",
-         "MONITORING_ERROR",  "MONITORING_INIT", "MONITORING_DISABLED"};
+         "MONITORING_ERROR",  "MONITORING_INIT", "MONITORING_DISABLED", "OFFLINE"};
 
     private static final String[] SHORT_HOST_STATES =
-        {"init", "update", "on", "err", "off", "retry", "init", "off"};
+        {"init", "update", "on", "err", "dsbl", "retry", "init", "dsbl", "off"};
+
+    public enum Status {
+        ENABLED,
+        DISABLED,
+        OFFLINE;
+
+        public int code() {
+            switch(this) {
+                case ENABLED:  return 0;
+                case DISABLED: return 1;
+                case OFFLINE:  return 2;
+            }
+
+            return -1;
+        }
+    }
 
     /**
      * Creates a new Host representation.
@@ -149,9 +165,9 @@ public class Host extends PoolElement{
      * target host, if set false it will disable it.
      * @return A encapsulated response.
      */
-    public static OneResponse enable(Client client, int id, boolean enable)
+    public static OneResponse status(Client client, int id, Status status)
     {
-        return client.call(ENABLE, id, enable);
+        return client.call(STATUS, id, status.code());
     }
 
     /**
@@ -223,23 +239,13 @@ public class Host extends PoolElement{
     }
 
     /**
-     * Enables or disables the host.
-     *
-     * @see Host#enable(Client, int, boolean)
-     */
-    public OneResponse enable(boolean enable)
-    {
-        return enable(client, id, enable);
-    }
-
-    /**
      * Enables the host.
      *
      * @return A encapsulated response.
      */
     public OneResponse enable()
     {
-        return enable(true);
+        return status(client, id, Status.ENABLED);
     }
 
     /**
@@ -249,7 +255,17 @@ public class Host extends PoolElement{
      */
     public OneResponse disable()
     {
-        return enable(false);
+        return status(client, id, Status.DISABLED);
+    }
+
+    /**
+     * Sets the host offline
+     *
+     * @return A encapsulated response.
+     */
+    public OneResponse offline()
+    {
+        return status(client, id, Status.OFFLINE);
     }
 
     /**

@@ -44,6 +44,11 @@ define(function(require) {
       text: Locale.tr("Disable"),
       layout: "main"
     },
+    "Host.offline" : {
+      type: "action",
+      text: Locale.tr("Offline"),
+      layout: "main"
+    },
     "Host.delete" : {
       type: "confirm",
       text: Locale.tr("Delete host"),

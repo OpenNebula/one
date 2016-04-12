@@ -28,6 +28,7 @@ extern "C" void * im_action_loop(void *arg);
 
 class HostPool;
 class ClusterPool;
+class Host;
 
 class InformationManager : public MadManager, public ActionListener
 {
@@ -56,21 +57,6 @@ public:
 
     ~InformationManager(){};
 
-    enum Actions
-    {
-        STOPMONITOR /** Sent by the RM when a host is deleted **/
-    };
-
-    /**
-     *  Triggers specific actions to the Information Manager.
-     *    @param action the IM action
-     *    @param hid Host unique id. This is the argument of the passed to the
-     *    invoked action.
-     */
-    void trigger(
-        Actions action,
-        int     vid);
-
     /**
      *  This functions starts the associated listener thread, and creates a
      *  new thread for the Information Manager. This thread will wait in
@@ -88,10 +74,6 @@ public:
         return im_thread;
     };
 
-    /**
-     *
-     */
-    int load_mads(int uid=0);
 
     /**
      *
@@ -101,7 +83,35 @@ public:
         am.trigger(ACTION_FINALIZE,0);
     };
 
-    void stop_monitor(int hid);
+    /**
+     *   Load the information drivers
+     *     @return 0 on success
+     */
+    int load_mads(int uid=0);
+
+    /**
+     *  Sends a STOPMONITR command to the associated driver and host
+     *    @param hid the host id
+     *    @param name of the host
+     *    @param im_mad the driver name
+     */
+    void stop_monitor(int hid, const string& name, const string& im_mad)
+    {
+        const InformationManagerDriver * imd = get(im_mad);
+
+        if (imd != 0)
+        {
+            imd->stop_monitor(hid, name);
+        }
+    }
+
+    /**
+     *  Starts the monitor process on the host
+     *    @param host to monitor
+     *    @param update_remotes to copy the monitor probes to the host
+     *    @return 0 on success
+     */
+    int start_monitor(Host * host, bool update_remotes);
 
 private:
     /**
