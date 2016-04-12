@@ -391,7 +391,7 @@ define(function(require) {
           str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                              <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
                              <td class="value_vectorial_td"></td>\
-                             <td class="text-right">\
+                             <td class="text-right nowrap">\
                                <span id="div_add_vectorial">\
                                  <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
                                </span>&emsp;\
@@ -424,7 +424,7 @@ define(function(require) {
           str += '<tr>\
                        <td class="key_td key_vectorial_td">&emsp;&emsp;' + Locale.tr(field) + '</td>\
                        <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + value + '</td>\
-                       <td class="text-right">\
+                       <td class="text-right nowrap">\
                          <span id="div_edit_vectorial">\
                            <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
                          </span>&emsp;\
@@ -439,7 +439,7 @@ define(function(require) {
             str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
                              <td class="key_td key_vectorial_td">'                           + Locale.tr(field) + '</td>\
                              <td class="value_vectorial_td"></td>\
-                             <td class="text-right">\
+                             <td class="text-right nowrap">\
                                <span id="div_add_vectorial">\
                                  <a id="div_add_vectorial_'                               + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
                                </span>&emsp;\
@@ -456,7 +456,7 @@ define(function(require) {
                str += '<tr>\
                            <td class="key_td">' + Locale.tr(field) + '</td>\
                            <td class="value_td" id="value_td_input_' + field + '">' + value + '</td>\
-                           <td class="text-right">\
+                           <td class="text-right nowrap">\
                              <span id="div_edit">\
                                <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
                              </span>&emsp;\
