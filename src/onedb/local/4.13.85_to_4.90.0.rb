@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'set'
+
 require 'opennebula'
 
 include OpenNebula
@@ -470,6 +472,211 @@ module Migrator
     end
 
     log_time()
+
+    # Move HOST/VN_MAD --> VNET/VN_MAD
+
+    log_time()
+
+    # Build net_vnmad
+    net_vnmad = {}
+    @db.transaction do
+      @db.fetch("SELECT * FROM vm_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        state = row[:state].to_i
+
+        if state != 6
+          vnmads = Set.new
+          doc.root.xpath("HISTORY_RECORDS/HISTORY/VNMMAD").collect{|v| vnmads << v.text }
+
+          doc.root.xpath("TEMPLATE/NIC/NETWORK_ID").each do |net_id|
+              net_id = net_id.text.to_i
+
+              net_vnmad[net_id] ||= Set.new
+              net_vnmad[net_id] += vnmads
+          end
+        end
+      end
+    end
+
+    # Build cluster_vnmad and fix hosts
+    @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+    @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER);"
+
+    cluster_vnmad = {}
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_host_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        # Get cluster
+        cluster_id = doc.root.xpath('CLUSTER_ID').text.to_i
+
+        # Store VN_MAD
+        vnmad = doc.root.xpath('VN_MAD').text
+
+        cluster_vnmad[cluster_id] ||= Set.new
+        cluster_vnmad[cluster_id] << vnmad
+
+        # Remove VN_MAD
+        doc.root.xpath('//VN_MAD').remove
+
+        row[:body] = doc.root.to_s
+        @db[:host_pool].insert(row)
+      end
+    end
+    @db.run "DROP TABLE old_host_pool;"
+
+    # Fix Networks
+
+    # So far we have two hashes: net_vnmad, which lists the specific vnmad found
+    # for each network, based on the nics of the VMs, and cluster_vnmad, with
+    # the vnmad found in the hosts.
+    #
+    # We will report a warning if either the cluster or the network has more
+    # than one vnmad. We will automatically choose one vnmad from the network
+    # list, or if empty from the cluster list.
+    #
+    # That vnmad may be changed through onedb patch.
+    #
+    # It could happen that no network is found in the net or in the cluster, in
+    # which case the admin **must** run the onedb patch, it's not optional any
+    # more.
+
+    @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
+    @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, pid INTEGER, UNIQUE(name,uid));"
+
+    suggest_patch = false
+    final_net_vnmad = {}
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_network_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        net_id = row[:oid]
+        cluster_id = doc.root.xpath('CLUSTERS/ID').first.text.to_i
+
+        net_vnmad_len     = net_vnmad[net_id].length rescue 0
+        cluster_vnmad_len = cluster_vnmad[cluster_id].length rescue 0
+
+        if (vlan = doc.root.xpath('VLAN'))
+          vlan = vlan.text
+          if !vlan.empty? && vlan.to_i == 0
+            dummy_net = true
+          end
+        end
+
+        doc.root.xpath('//VLAN').remove
+
+        if dummy_net
+          vnmad = "fw"
+        else
+          vnmad = nil
+          other_vnmads = nil
+
+          # net_vnmad_len == 1 => that one
+          # net_vnmad_len > 1 => get first one and show warning
+          # net_vnmad_len == 0 && cluster_vnmad_len == 1 => that one
+          # net_vnmad_len == 0 && cluster_vnmad_len > 1 => first one and show warning
+          # net_vnmad_len == 0 && cluster_vnmad_len == 0 => force onedb patch
+
+          if net_vnmad_len == 1
+            vnmad = net_vnmad[net_id].first
+          elsif net_vnmad_len > 1
+            vnmad = net_vnmad[net_id].first
+            other_vnmads = net_vnmad[net_id] - Set[vnmad]
+          elsif net_vnmad_len == 0 && cluster_vnmad_len == 1
+            vnmad = cluster_vnmad[cluster_id].first
+          elsif net_vnmad_len == 0 && cluster_vnmad_len > 1
+            vnmad = cluster_vnmad[cluster_id].first
+            other_vnmads = cluster_vnmad[cluster_id] - Set[vnmad]
+          end
+
+          if vnmad && other_vnmads
+            if !suggest_patch
+              puts
+              puts "**************************************************************"
+              puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+              puts "**************************************************************"
+            end
+
+            suggest_patch = true
+            puts  "* Net ##{net_id} assigned VN_MAD=#{vnmad}. " <<
+                  "Other options: #{other_vnmads.to_a.join(', ')}"
+          end
+        end
+
+        final_net_vnmad[net_id] = vnmad
+
+        if vnmad
+          doc.root.add_child(doc.create_element("VN_MAD")).content = vnmad
+        end
+
+        row[:body] = doc.root.to_s
+        @db[:network_pool].insert(row)
+      end
+    end
+
+    patch_cmd = "onedb patch [opts] /usr/lib/one/ruby/onedb/patches/vnmad.rb"
+    if suggest_patch
+      puts
+      puts "If you want to change the above assignments, please run:"
+      puts patch_cmd
+    end
+
+    net_unassigned = final_net_vnmad.select{|k,v| v.nil?}.keys
+    if !net_unassigned.empty?
+      puts
+      puts "**************************************************************"
+      puts "* ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR      *"
+      puts "**************************************************************"
+      puts
+      puts "You **must** run:"
+      puts patch_cmd
+      puts
+      puts "to assign a vnmad to the following networks:"
+      net_unassigned.each{|n| puts " - #{n}"}
+      puts
+    end
+
+    @db.run "DROP TABLE old_network_pool;"
+
+    # Fix VMs
+
+    @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+    @db.run "CREATE TABLE IF NOT EXISTS vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_vm_pool") do |row|2
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        state = row[:state].to_i
+
+        if state != 6
+          # Remove vnmad from the history records
+          doc.root.xpath("HISTORY_RECORDS//VNMMAD").remove
+          doc.root.xpath("HISTORY_RECORDS//DS_LOCATION").remove
+
+          # Rename VMMMAD -> VM_MAD and TMMAD -> TM_MAD
+          doc.root.xpath("HISTORY_RECORDS//VMMMAD").each {|e| e.name = "VM_MAD"}
+          doc.root.xpath("HISTORY_RECORDS//TMMAD").each  {|e| e.name = "TM_MAD"}
+
+          # Add vnmad to the nics
+          doc.root.xpath('TEMPLATE/NIC').each do |nic|
+            net_id = nic.xpath("NETWORK_ID").text.to_i rescue nil # NICs without network may exist
+
+            next unless net_id
+
+            vnmad = final_net_vnmad[net_id]
+
+            if vnmad
+                nic.add_child(doc.create_element("VN_MAD")).content = vnmad
+            end
+          end
+
+          row[:body] = doc.root.to_s
+        end
+
+        @db[:vm_pool].insert(row)
+      end
+    end
+    @db.run "DROP TABLE old_vm_pool;"
 
     return true
   end
