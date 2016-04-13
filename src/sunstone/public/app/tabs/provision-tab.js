@@ -460,6 +460,7 @@ define(function(require) {
           QuotaWidgets.initEmptyQuotas(user);
 
           if (!$.isEmptyObject(user.VM_QUOTA)){
+              $("#provision_quotas_dashboard").show();
               var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
 
               var vms = QuotaWidgets.quotaInfo(
@@ -491,6 +492,8 @@ define(function(require) {
               $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
               $("#provision_dashboard_cpu_str").html(cpu["str"]);
               $("#provision_dashboard_cpu_meter").val(cpu["percentage"]);
+          } else {
+            $("#provision_quotas_dashboard").hide();
           }
         }
       })
@@ -692,11 +695,6 @@ define(function(require) {
         // Dashboard
         //
 
-        $(".provision_image_header").on("click", function(){
-          Sunstone.showTab(TAB_ID);
-          $('li', '.provision-header').removeClass("active");
-          show_provision_dashboard();
-        })
 
         $(".configuration").on("click", function(){
           $('li', '.provision-header').removeClass("active");
@@ -704,11 +702,16 @@ define(function(require) {
 
         show_provision_dashboard();
 
-        $('.provision-header').on('click', 'li', function(){
+        $('.provision-header').on('click', 'a', function(){
           Sunstone.showTab(TAB_ID);
           $('li', '.provision-header').removeClass("active");
           $(this).closest('li').addClass("active");
-        })
+        });
+
+        $(document).on("click", ".provision_dashboard_button", function(){
+          OpenNebula.Action.clear_cache("VM");
+          show_provision_dashboard();
+        });
 
         $(document).on("click", ".provision_vms_list_button", function(){
           OpenNebula.Action.clear_cache("VM");
