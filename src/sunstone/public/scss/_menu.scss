@@ -136,3 +136,27 @@
     margin-right: 1rem;
   }
 }
+
+.provision-header {
+  img {
+    height: 1.5rem;
+  }
+
+  & > li > a {
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: $dark-gray;
+  }
+
+  & > li.active > a {
+    background: transparent;
+    font-weight: bold;
+    color: $bold-black;
+  }
+
+  & > li > a:hover {
+    background: transparent;
+    font-weight: bold;
+    color: $bold-black;
+  }
+}

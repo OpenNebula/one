@@ -22,6 +22,11 @@
 
   .user-zone-info {
     margin-bottom: 0.5rem;
+    
+    a {
+      font-weight: bold;
+      color: $bold-black;
+    }
 
     @include breakpoint(small only) {
       .username,
@@ -48,11 +53,6 @@
     @include breakpoint(large) {
       display: none;
     }
-  }
-
-  a {
-    font-weight: bold;
-    color: $bold-black;
   }
 }
 
