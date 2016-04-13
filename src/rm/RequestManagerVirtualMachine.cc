@@ -728,7 +728,7 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     unsigned int port;
     int rc;
 
-    if (graphics == 0 || !vm->hasHistory())
+    if (graphics == 0)
     {
         return 0;
     }
