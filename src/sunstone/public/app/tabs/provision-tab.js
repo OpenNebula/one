@@ -46,8 +46,6 @@ define(function(require) {
 
   // Templates
   var TemplateContent = require('hbs!./provision-tab/content');
-  var TemplateHeader = require('hbs!./provision-tab/header');
-
   var TemplateDashboardQuotas = require('hbs!./provision-tab/dashboard/quotas');
   var TemplateDashboardVdcQuotas = require('hbs!./provision-tab/dashboard/vdc-quotas');
   var TemplateDashboardVms = require('hbs!./provision-tab/dashboard/vms');
@@ -677,8 +675,6 @@ define(function(require) {
       var tab = $("#"+tab_name);
 
       if (Config.isTabEnabled(tab_name)) {
-        //$('.right-header').prepend(TemplateHeader());
-
         $(".right-content").addClass("large-centered small-centered");
         $("#footer").removeClass("right");
         $("#footer").addClass("large-centered small-centered");
