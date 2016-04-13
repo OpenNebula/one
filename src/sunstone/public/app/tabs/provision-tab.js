@@ -296,7 +296,7 @@ define(function(require) {
     $(".section_content").hide();
     $("#provision_dashboard").fadeIn();
 
-    $("#provision_dashboard").html("");
+    $("#provision_dashboard").html('');
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());

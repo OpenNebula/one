@@ -5,10 +5,15 @@
     h3,
     h4 {
       margin: 2rem 0;
+      border-bottom: 1px solid #dfdfdf;
     }
 
     a {
       padding: 0;
+    }
+
+    .provision_back {
+      margin-top: 1rem;
     }
   }
 
@@ -25,7 +30,8 @@
 
   .right {
     &.provision_list_vms_filter,
-    &.provision_list_flows_filter {
+    &.provision_list_flows_filter,
+    &.provision_list_templates_filter {
       margin-top: -0.5rem;
     }
   }

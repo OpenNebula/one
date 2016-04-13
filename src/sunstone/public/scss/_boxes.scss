@@ -11,6 +11,7 @@
       //padding: 1rem;
       //color: $black;
       font-size: 1.1rem;
+      font-weight: bold;
     }
 
     .without-link {
@@ -20,7 +21,8 @@
       //color: $black;
       font-size: 1.1rem;
       display: block;
-      font-weight: normal;
+      font-weight: bold;
+      color: $bold-black;
     }
   }
 

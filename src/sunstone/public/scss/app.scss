@@ -31,6 +31,7 @@
 @import './fieldset';
 @import './boxes';
 @import './vcenter';
+@import './provision';
 
 
 
@@ -51,7 +52,7 @@ h5,
 h6 {
   font-weight: bold;
   color: #555;
-  padding: 1rem;
+  padding: 1rem 0;
   /* box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1); */
   /* border-bottom: 1px solid #dfdfdf; */
 
