@@ -503,8 +503,10 @@ define(function(require) {
 
     if (that.labelsColumn && !SunstoneConfig.isTabEnabled("provision-tab")) {
       if (SunstoneConfig.isTabEnabled(that.tabId)) {
-        LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
-        LabelsUtils.insertLabelsDropdown(that.tabId);
+        if ($("#" + that.tabId).is(':visible')) {
+          LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
+          LabelsUtils.insertLabelsDropdown(that.tabId);
+        }
       }
     }
 
