@@ -602,7 +602,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VM_MAD, ['vcenter', 'az', 'sl']) == -1;
+      return $.inArray(history.VM_MAD, ['vcenter', 'az']) == -1;
     } else {
       return false;
     }
@@ -611,7 +611,7 @@ define(function(require) {
   function isNICAttachSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VM_MAD, ['ec2', 'az', 'sl']) == -1;
+      return $.inArray(history.VM_MAD, ['ec2', 'az']) == -1;
     } else {
       return false;
     }
