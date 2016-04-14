@@ -1,0 +1,24 @@
+/* Growl */
+.jGrowl-notification h1 {
+    display: none !important;
+}
+
+.jGrowl-notification, .jGrowl-notify-submit {
+    background-color: #dfdfdf!important;
+    color: #333;
+    width: 335px !important;
+}
+
+.jGrowl-notify-error {
+    background-color: #F39999!important;
+    color: #660000;
+}
+
+.jGrowl-closer {
+    background-color: #555!important;
+    width: 335px !important;
+}
+
+.jGrowl-close {
+  font-size: 1.5em !important;
+}
