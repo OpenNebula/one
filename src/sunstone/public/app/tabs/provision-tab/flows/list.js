@@ -197,7 +197,7 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<a class="provision_info_flow_button" href="#">'+
                   '<span class="'+ state.color +'-color right" title="'+ state.str +'">'+
-                    '<i class="fa fa-fw fa-lg fa-square"/>'+
+                    '<i class="fa fa-square"/>'+
                   '</span>'+
                   data.NAME +
                 '</a>'+
@@ -315,7 +315,7 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<span class="without-link '+ state.color +'-color">'+
                   '<span class="'+ state.color +'-color right">'+
-                    '<i class="fa fa-fw fa-lg fa-square"/> '+
+                    '<i class="fa fa-square"/> '+
                   '</span>'+
                   state.str+
                 '</span>'+

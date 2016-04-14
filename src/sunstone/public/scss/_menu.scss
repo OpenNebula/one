@@ -3,6 +3,7 @@
   #navigation {
     position: relative;
     z-index: 1;
+    padding: 0 1rem;
   }
 
   li {
@@ -48,8 +49,7 @@
   #li_support-tab {
     a {
       margin-top: 1rem;
-      border-top: 1px solid #dfdfdf;
-      border-bottom: 1px solid #dfdfdf;
+      border: 1px solid #dfdfdf;
       padding: 1rem;
       background: #fff;
 

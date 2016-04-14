@@ -6,6 +6,8 @@
 
 
 .provision-header {
+  background: $white;
+  
   img {
     height: 1.5rem;
   }
@@ -60,7 +62,7 @@
       border-bottom: 1px solid #dfdfdf;
     }
 
-    a {
+    & > a {
       padding: 0;
     }
 

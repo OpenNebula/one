@@ -9,9 +9,15 @@
 .right-list,
 .right-info,
 .right-form,
+.left-header,
 .actions_row {
+  padding: 0 2rem;
+}
+
+.left-header {
   padding: 0 1rem;
 }
+
 
 #top-row {
   padding: 1rem 0 0.5rem 0;
@@ -64,7 +70,7 @@
 
 .header-title {
   margin-bottom: 1.5rem;
-  padding: 1rem;
+  padding: 1rem 2rem;
   @include breakpoint(medium only) {
     margin-left: 3rem;
   }
