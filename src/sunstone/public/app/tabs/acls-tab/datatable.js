@@ -174,6 +174,12 @@ define(function(require) {
       case "VROUTER":
           resources_str+=Locale.tr("Virtual Routers")+", ";
           break;
+      case "MARKETPLACE":
+          resources_str+=Locale.tr("Marketplaces")+", ";
+          break;
+      case "MARKETPLACEAPP":
+          resources_str+=Locale.tr("Marketplace Apps")+", ";
+          break;
       }
     }
     //remove ", " from end
