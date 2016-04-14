@@ -117,11 +117,12 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Foundation.reflow(context, 'tabs');
-    
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
+
+    Foundation.reflow(context, 'tabs');
+    Foundation.reflow(context, 'tooltip');
   }
 
   function _onShow(context) {

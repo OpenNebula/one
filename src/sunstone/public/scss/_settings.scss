@@ -562,13 +562,13 @@ $titlebar-icon-spacing: 0.25rem;
 // 35. Tooltip
 // -----------
 
-$has-tip-font-weight: $global-weight-bold;
+$has-tip-font-weight: bold;
 $has-tip-border-bottom: 0px;
-$tooltip-background-color: $black;
+$tooltip-background-color: $light-black;
 $tooltip-color: $white;
 $tooltip-padding: 0.75rem;
-$tooltip-font-size: $small-font-size;
-$tooltip-pip-width: 0.75rem;
+$tooltip-font-size: 0.9rem;
+$tooltip-pip-width: 1rem;
 $tooltip-pip-height: $tooltip-pip-width * 0.866;
 $tooltip-radius: $global-radius;
 
