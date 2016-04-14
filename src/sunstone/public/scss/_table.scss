@@ -40,6 +40,12 @@ table {
     font-weight: normal;
     //background-color: #cdebf5; 
   }
+
+  &.hover {
+    tr:hover {
+      cursor: pointer;
+    }
+  }
 }
 
 .dataTables_info {
