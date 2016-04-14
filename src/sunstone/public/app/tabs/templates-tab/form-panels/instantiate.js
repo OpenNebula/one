@@ -167,6 +167,7 @@ define(function(require) {
     var idsLength = this.selected_nodes.length;
     var idsDone = 0;
 
+    templatesContext.html("");
     $.each(this.selected_nodes, function(index, template_id) {
       OpenNebulaTemplate.show({
         data : {
