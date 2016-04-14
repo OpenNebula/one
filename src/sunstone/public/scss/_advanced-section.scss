@@ -1,0 +1,27 @@
+.accordion_advanced {
+  .accordion_advanced_toggle {
+    //font-size: 1.2rem;
+
+    &.active {
+      color: $dark-gray;
+      .fa-chevron-down {
+        display: none;
+      }
+    }
+
+    &:not(.active){
+      
+      .fa-chevron-up {
+        display: none;
+      }
+    }
+
+    &:hover {
+      background: #dfdfdf;
+    }
+  }
+
+  .content {
+    margin-top: 0.5rem;
+  }
+}

@@ -22,18 +22,17 @@
   font-size: 1.2rem;
 }
 
+@import './advanced-section';
+@import './boxes';
+@import './fieldset';
+@import './labels';
 @import './layout';
 @import './menu';
-@import './accordion';
+@import './provision';
 @import './range-slider';
 @import './table';
 @import './tabs';
-@import './fieldset';
-@import './boxes';
 @import './vcenter';
-@import './provision';
-
-
 
 //@font-face {
 //  font-family: 'Open Sans';
