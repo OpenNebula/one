@@ -1,0 +1,36 @@
+.labels-tree {
+  margin-left: 1rem;
+  max-height: rem-calc(100px);
+  overflow-y: overlay;
+
+  ul {
+    margin-left: 1rem;
+  }
+
+  .one-label {
+    cursor: pointer;
+    padding-right: 2rem;
+  }
+
+  & > li:last-child {
+    padding-bottom: 1em;
+  }
+
+  li {
+    color: $dark-gray;
+    font-weight: normal;
+
+    .active {
+      color: $light-black;
+      font-weight: bold;
+    }
+  }
+
+  .fa-check-square-o,
+  .fa-square-o,
+  .fa-minus-square-o {
+    cursor: pointer;
+    margin-top: 0.3rem;
+    margin-right: 1rem;
+  }
+}
