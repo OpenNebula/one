@@ -70,9 +70,12 @@ define(function(require) {
     
     that.arTab.setup(context, "update_ar");
 
-    $('#update_ar_form',context).on('invalid.fndtn.abide', function () {
+
+    $('#update_ar_form', context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
         Notifier.notifyError(Locale.tr("One or more required fields are missing."));
-    }).on('valid.fndtn.abide', function () {
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
         var data = that.arTab.retrieve();
 
         data['AR_ID'] = that.arId;
@@ -81,7 +84,10 @@ define(function(require) {
         Sunstone.runAction('Network.update_ar', that.vnetId, obj);
 
         return false;
-    });
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
+      });
   }
 
   function _onShow(context) {
