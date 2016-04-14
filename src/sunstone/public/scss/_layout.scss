@@ -64,6 +64,7 @@
 
 .header-title {
   margin-bottom: 1.5rem;
+  padding: 1rem;
   @include breakpoint(medium only) {
     margin-left: 3rem;
   }
