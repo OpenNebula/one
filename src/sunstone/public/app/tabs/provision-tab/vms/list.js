@@ -516,20 +516,26 @@ define(function(require) {
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
-                  ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
-                '</label>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
-                  ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
-                '</label>'+
+                '<ul class="menu simple">'+
+                  '<li>'+
+                    '<label class="left">'+
+                      '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
+                      ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
+                    '</label>'+
+                  '</li>'+
+                  '<li>'+
+                    '<label class="left">'+
+                      '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
+                      ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
+                    '</label>'+
+                  '</li>'+
+                '</ul>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
-                '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+Locale.tr("Save Virtual Machine to Template")+'</a>'+
+                '<button href"#" class="provision_snapshot_create_button success button right">'+Locale.tr("Save Virtual Machine to Template")+'</button>'+
               '</div>'+
             '</div>'+
             '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -591,7 +597,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_delete_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
+            '<button href"#" class="provision_delete_button alert button right">'+Locale.tr("Delete")+'</button>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -612,7 +618,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_shutdownhard_button alert button large-12 radius right">'+Locale.tr("Delete")+'</a>'+
+            '<button href"#" class="provision_shutdownhard_button alert button right">'+Locale.tr("Delete")+'</button>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -637,15 +643,21 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_poweroff_button button radius right">'+Locale.tr("Power off")+'</a>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
-              ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off the machine")+
-            '</label>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
-              ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal")+
-            '</label>'+
+            '<button href"#" class="provision_poweroff_button button right">'+Locale.tr("Power off")+'</button>'+
+            '<ul class="menu simple">'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
+                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off the machine")+
+                '</label>'+
+              '</li>'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
+                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal")+
+                '</label>'+
+              '</li>'+
+            '</ul>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -670,15 +682,21 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_undeploy_button button radius right">'+Locale.tr("Power off and undeploy")+'</a>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
-              ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
-            '</label>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
-              ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
-            '</label>'+
+          '<button href"#" class="provision_undeploy_button button right">'+Locale.tr("Power off and undeploy")+'</button>'+
+            '<ul class="menu simple">'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
+                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
+                '</label>'+
+              '</li>'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
+                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
+                '</label>'+
+              '</li>'+
+            '</ul>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -703,15 +721,21 @@ define(function(require) {
           '<br>'+
           '<div class="row">'+
           '<div class="large-12 columns">'+
-            '<a href"#" class="provision_reboot_button button radius right">'+Locale.tr("Reboot")+'</a>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_reboot_radio" value="reset" class="provision_reboot_hard_radio">'+
-              ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Reboot the machine")+
-            '</label>'+
-            '<label class="left">'+
-              '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
-              ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the reboot signal")+
-            '</label>'+
+            '<button href"#" class="provision_reboot_button button right">'+Locale.tr("Reboot")+'</button>'+
+            '<ul class="menu simple">'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_reboot_radio" value="reset" class="provision_reboot_hard_radio">'+
+                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Reboot the machine")+
+                '</label>'+
+              '</li>'+
+              '<li>'+
+                '<label class="left">'+
+                  '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
+                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the reboot signal")+
+                '</label>'+
+              '</li>'+
+            '</ul>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
