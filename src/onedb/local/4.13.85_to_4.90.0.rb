@@ -411,6 +411,7 @@ module Migrator
 
     has_xen_hosts    = false
     has_vmware_hosts = false
+    has_sl_hosts     = false
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_host_pool") do |row|
@@ -429,6 +430,12 @@ module Migrator
         if vm_mad.match(/vmware/) || im_mad.match(/vmware/)
           do_disable       = true
           has_vmware_hosts = true
+        end
+
+
+        if vm_mad.match(/sl/) || im_mad.match(/sl/)
+          do_disable       = true
+          has_sl_hosts = true
         end
 
         if do_disable
@@ -468,6 +475,20 @@ module Migrator
       puts "http://docs.opennebula.org/stable/administration/virtualization/vcenterg.html"
       puts
       puts "Note that the host has been automatically disabled, but not removed."
+      puts
+    end
+
+    if has_sl_hosts
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "SoftLayer is no longer included in the core distribution. It is"
+      puts "however available as an addon which must be manually installed:"
+      puts "https://github.com/OpenNebula/addon-softlayer"
+      puts
+      puts "Note that the host has been automatically disabled. After installing"
+      puts "the addon you can manually enable it."
       puts
     end
 
