@@ -382,6 +382,7 @@ tabs:
             Host.rename: true
             Host.enable: true
             Host.disable: true
+            Host.offline: true
             Host.delete: true
     zones-tab:
         panel_tabs:
