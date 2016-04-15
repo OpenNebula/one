@@ -110,19 +110,22 @@ define(function(require){
 
             var attr;
 
-            if (disabled){
-              attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
-            } else {
-              // Range from original size to size + 500GB
-              var min = parseInt(disk.SIZE);
-              var max = min + 512000;
 
-              attr = UserInputs.parse(
-                "SIZE",
-                "O|range|"+label+"|"+min+".."+max+"|"+min);
+            if (disk.SIZE) {
+              if (disabled){
+                attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
+              } else {
+                // Range from original size to size + 500GB
+                var min = parseInt(disk.SIZE);
+                var max = min + 512000;
+
+                attr = UserInputs.parse(
+                  "SIZE",
+                  "O|range|"+label+"|"+min+".."+max+"|"+min);
+              }
+              
+              UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
             }
-
-            UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
           })
         }
       })
