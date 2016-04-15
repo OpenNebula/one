@@ -926,15 +926,17 @@ define(function(require) {
           }
         });
 
-        if (row_id == undefined){
-          $('#selected_resource_id_' + that.dataTableId, section).data("pending_select", selectedResources);
-        }
+        //if (row_id == undefined){
+        //  $('#selected_resource_id_' + that.dataTableId, section).data("pending_select", selectedResources);
+        //}
       }
 
       //        $("td", this).addClass('markrow');
       //        $('input.check_item', this).prop('checked', true);
 
-      $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
+      if (row_id !== undefined) {
+        $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
+      }
 
       $('#selected_resource_name_' + that.dataTableId, section).text(row_name).change();
       $('#selected_resource_name_' + that.dataTableId, section).show();
