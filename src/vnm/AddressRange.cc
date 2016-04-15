@@ -890,6 +890,11 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
         used_addr++;
     }
 
+    if ( used_addr > size )
+    {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -940,6 +945,11 @@ int AddressRange::allocate_addr(
     VectorAttribute*          nic,
     const vector<string>&     inherit)
 {
+    if ( used_addr >= size )
+    {
+        return -1;
+    }
+
     for ( unsigned int i=0; i<size; i++, next = (next+1)%size )
     {
         if ( allocated.count(next) == 0 )
@@ -1314,7 +1324,7 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
         for (unsigned int j=0; j<rsize; j++, i++)
         {
-            if ( allocated.count(i) != 0 )
+            if ( allocated.count(i) != 0  || i >= size )
             {
                 valid = false;
                 break;
