@@ -138,8 +138,7 @@ define(function(require) {
               '</div>';
           '</fieldset>';
 
-          $(".content", context).append(content);
-
+          var newdiv = $(content).appendTo($(".content", context));
           var tbody = $('#' + tableId + ' tbody', context);
 
           $.each(response, function(id, image) {

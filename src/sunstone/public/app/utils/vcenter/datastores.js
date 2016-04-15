@@ -136,8 +136,7 @@ define(function(require) {
                 '</div>';
             '</fieldset>';
 
-            $(".content", context).append(content);
-
+            var newdiv = $(content).appendTo($(".content", context));
             var tbody = $('#vcenter_datastore_table_' + datacenter_name + ' tbody', context);
 
             $.each(datastores, function(id, datastore){
