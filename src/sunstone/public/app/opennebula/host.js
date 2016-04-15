@@ -52,10 +52,10 @@ define(function(require) {
     Locale.tr("UPDATE"),
     Locale.tr("ON"),
     Locale.tr("ERROR"),
-    Locale.tr("DSBL"),
+    Locale.tr("DISABLED"),
     Locale.tr("RETRY"),
     Locale.tr("INIT"),
-    Locale.tr("DSBL"),
+    Locale.tr("DISABLED"),
     Locale.tr("OFF")
   ];
 
