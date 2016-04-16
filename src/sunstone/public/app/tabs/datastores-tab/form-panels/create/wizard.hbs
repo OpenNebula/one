@@ -130,13 +130,13 @@
       <input type="text" name="restricted_dirs" id="restricted_dirs" />
     </div>
     <div class="medium-6 columns">
-      <label for="base_path">
-        {{tr "Base Path"}}
+      <label for="limit_mb">
+        {{tr "Limit"}}
         <span class="tip">
-          {{tr "When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores)."}}
+          {{tr "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."}}
         </span>
       </label>
-      <input type="text" name="base_path" id="base_path" />
+      <input type="text" name="limit_mb" id="limit_mb" />
     </div>
     <div class="medium-6 columns">
       <label for="limit_transfer_bw">
@@ -146,15 +146,6 @@
         </span>
       </label>
       <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />
-    </div>
-    <div class="medium-6 columns">
-      <label for="limit_mb">
-        {{tr "Limit"}}
-        <span class="tip">
-          {{tr "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."}}
-        </span>
-      </label>
-      <input type="text" name="limit_mb" id="limit_mb" />
     </div>
     <div class="large-12 columns">
       <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" />

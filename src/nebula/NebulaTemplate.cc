@@ -435,7 +435,6 @@ void OpenNebulaTemplate::set_conf_default()
 # Datastore Configuration
 #*******************************************************************************
 #  DATASTORE_LOCATION
-#  DATASTORE_BASE_PATH
 #  DATASTORE_CAPACITY_CHECK
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
@@ -443,7 +442,6 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 */
     set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
-    set_conf_single("DATASTORE_BASE_PATH", var_location + "/datastores");
     set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
     set_conf_single("DEFAULT_IMAGE_TYPE", "OS");
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");
