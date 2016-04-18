@@ -7,12 +7,12 @@ enabled_tabs:
     - groups-tab
     #- vdcs-tab
     #- acls-tab
-    - templates-top-tab
-    #- templates-tab
-    - oneflow-templates-tab
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
+    - templates-top-tab
+    #- templates-tab
+    - oneflow-templates-tab
     #- infrastructure-top-tab
     #- clusters-tab
     #- hosts-tab
