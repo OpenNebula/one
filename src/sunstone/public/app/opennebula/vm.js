@@ -32,7 +32,8 @@ define(function(require) {
     "DONE",
     "FAILED",
     "POWEROFF",
-    "UNDEPLOYED"
+    "UNDEPLOYED",
+    "CLONING"
   ];
 
   var STATES = {
@@ -45,7 +46,8 @@ define(function(require) {
     DONE       : 6,
     //FAILED   : 7,
     POWEROFF   : 8,
-    UNDEPLOYED : 9
+    UNDEPLOYED : 9,
+    CLONING    : 10
   };
 
   var LCM_STATES_STR = [

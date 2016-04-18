@@ -220,6 +220,8 @@ public:
 
     int replace(const string& name, const string& value);
 
+    int replace(const string& name, const bool& value);
+
     /**
      *  Adds a new single attribute to the template. It will replace an existing
      *  one if replace_mode was set to true

@@ -50,7 +50,7 @@ module OpenNebula
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
-            POWEROFF UNDEPLOYED}
+            POWEROFF UNDEPLOYED CLONING}
 
         LCM_STATE=%w{
             LCM_INIT
@@ -126,7 +126,8 @@ module OpenNebula
             "DONE"      => "done",
             "FAILED"    => "fail",
             "POWEROFF"  => "poff",
-            "UNDEPLOYED"=> "unde"
+            "UNDEPLOYED"=> "unde",
+            "CLONING"   => "clon"
         }
 
         SHORT_LCM_STATES={

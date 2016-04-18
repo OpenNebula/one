@@ -301,6 +301,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "UPDATESG";
         break;
 
+    case DISK_LOCK_SUCCESS:
+        aname = "DISK_LOCK_SUCCESS";
+        break;
+
+    case DISK_LOCK_FAILURE:
+        aname = "DISK_LOCK_FAILURE";
+        break;
+
     default:
         delete vid;
         return;
@@ -533,6 +541,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "UPDATESG")
     {
         updatesg_action(vid);
+    }
+    else if (action == "DISK_LOCK_SUCCESS")
+    {
+        disk_lock_success(vid);
+    }
+    else if (action == "DISK_LOCK_FAILURE")
+    {
+        disk_lock_failure(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

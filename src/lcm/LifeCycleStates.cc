@@ -1734,7 +1734,7 @@ void LifeCycleManager::saveas_success_action(int vid)
         return;
     }
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     ipool->update(image);
 
@@ -2071,3 +2071,106 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_lock_success(int vid)
+{
+    VirtualMachine * vm = vmpool->get(vid,true);
+    Image *          image;
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_state() != VirtualMachine::CLONING )
+    {
+        //vm->log("LCM",Log::ERROR,"disk_lock_success, VM in a wrong state");
+        vm->unlock();
+        return;
+    }
+
+    set<int> ids = vm->get_cloning_image_ids();
+
+    vm->unlock();
+
+    set<int> ready;
+    set<int> error;
+
+    for (set<int>::iterator id = ids.begin(); id != ids.end(); id++)
+    {
+        image = ipool->get(*id, true);
+
+        if (image != 0)
+        {
+            switch (image->get_state()) {
+                case Image::USED:
+                case Image::USED_PERS:
+                    ready.insert(*id);
+                    break;
+
+                case Image::ERROR:
+                    error.insert(*id);
+                    break;
+
+                case Image::INIT:
+                case Image::READY:
+                case Image::DISABLED:
+                case Image::LOCKED:
+                case Image::CLONE:
+                case Image::DELETE:
+                case Image::LOCKED_USED:
+                case Image::LOCKED_USED_PERS:
+                    break;
+            }
+
+            image->unlock();
+        }
+    }
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    for (set<int>::iterator id = ready.begin(); id != ready.end(); id++)
+    {
+        vm->clear_cloning_image_id(*id);
+    }
+
+    if (ids.size() == ready.size())
+    {
+        bool on_hold = false;
+
+        vm->get_template_attribute("SUBMIT_ON_HOLD", on_hold);
+
+        if(on_hold)
+        {
+            vm->set_state(VirtualMachine::HOLD);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::PENDING);
+        }
+    }
+    else if (error.size() > 0)
+    {
+        // TODO
+        //vm->set_state(VirtualMachine::CLONING_FAILURE);
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_lock_failure(int vid)
+{
+    disk_lock_success(vid);
+}

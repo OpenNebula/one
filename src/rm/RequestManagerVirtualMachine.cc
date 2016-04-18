@@ -1930,6 +1930,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::CLONING:
         break;
 
         case VirtualMachine::STOPPED:
@@ -2049,6 +2050,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::HOLD:
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::CLONING:
             ret = vm->resize(ncpu, nmemory, nvcpu, att.resp_msg);
 
             if (ret != 0)

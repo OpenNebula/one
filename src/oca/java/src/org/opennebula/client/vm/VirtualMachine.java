@@ -63,7 +63,8 @@ public class VirtualMachine extends PoolElement{
         "DONE",
         "FAILED",
         "POWEROFF",
-        "UNDEPLOYED" };
+        "UNDEPLOYED",
+        "CLONING" };
 
     private static final String[] SHORT_VM_STATES =
     {
@@ -76,7 +77,8 @@ public class VirtualMachine extends PoolElement{
         "done",
         "fail",
         "poff",
-        "unde" };
+        "unde",
+        "clon" };
 
     private static final String[] LCM_STATE =
     {

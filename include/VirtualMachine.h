@@ -63,7 +63,8 @@ public:
         DONE       = 6,
         //FAILED   = 7,
         POWEROFF   = 8,
-        UNDEPLOYED = 9
+        UNDEPLOYED = 9,
+        CLONING    = 10
     };
 
     static int vm_state_from_str(string& st, VmState& state)
@@ -79,6 +80,7 @@ public:
         else if ( st == "DONE" ) { state = DONE; }
         else if ( st == "POWEROFF" ) { state = POWEROFF; }
         else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
+        else if ( st == "CLONING" ) { state = CLONING; }
         else {return -1;}
 
         return 0;
@@ -97,6 +99,7 @@ public:
             case DONE      : st = "DONE"; break;
             case POWEROFF  : st = "POWEROFF"; break;
             case UNDEPLOYED: st = "UNDEPLOYED"; break;
+            case CLONING   : st = "CLONING"; break;
         }
 
         return st;
@@ -1615,6 +1618,27 @@ public:
      * Deletes all SNAPSHOT attributes
      */
     void delete_snapshots();
+
+    // ------------------------------------------------------------------------
+    // Cloning state related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if any of the disks is waiting for an image in LOCKED state
+     * @return true if cloning
+     */
+    bool has_cloning_disks();
+
+    /**
+     * Returns the image IDs for the disks waiting for the LOCKED state to finish
+     * @return image IDs
+     */
+    set<int> get_cloning_image_ids();
+
+    /**
+     * Clears the flag for the disks waiting for the given image
+     */
+    void clear_cloning_image_id(int image_id);
 
 private:
 

@@ -988,11 +988,15 @@ define(function(require) {
     var state_str;
 
     switch (state) {
+      case OpenNebulaVM.STATES.CLONING:
+        state_color = 'deploying';
+        state_str = Locale.tr("DEPLOYING") + " (1/4)";
+        break;
       case OpenNebulaVM.STATES.INIT:
       case OpenNebulaVM.STATES.PENDING:
       case OpenNebulaVM.STATES.HOLD:
         state_color = 'deploying';
-        state_str = Locale.tr("DEPLOYING") + " (1/3)";
+        state_str = Locale.tr("DEPLOYING") + " (2/4)";
         break;
       case OpenNebulaVM.STATES.ACTIVE:
         var lcm_state = parseInt(data.LCM_STATE);
@@ -1000,13 +1004,13 @@ define(function(require) {
         switch (lcm_state) {
           case OpenNebulaVM.LCM_STATES.LCM_INIT:
             state_color = 'deploying';
-            state_str = Locale.tr("DEPLOYING") + " (1/3)";
+            state_str = Locale.tr("DEPLOYING") + " (2/4)";
             break;
           case OpenNebulaVM.LCM_STATES.PROLOG:
           case OpenNebulaVM.LCM_STATES.PROLOG_RESUME:
           case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY:
             state_color = 'deploying';
-            state_str = Locale.tr("DEPLOYING") + " (2/3)";
+            state_str = Locale.tr("DEPLOYING") + " (3/4)";
             break;
           case OpenNebulaVM.LCM_STATES.BOOT:
           case OpenNebulaVM.LCM_STATES.BOOT_UNKNOWN:
@@ -1015,7 +1019,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.BOOT_STOPPED:
           case OpenNebulaVM.LCM_STATES.BOOT_UNDEPLOY:
             state_color = 'deploying';
-            state_str = Locale.tr("DEPLOYING") + " (3/3)";
+            state_str = Locale.tr("DEPLOYING") + " (4/4)";
             break;
           case OpenNebulaVM.LCM_STATES.RUNNING:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SNAPSHOT:

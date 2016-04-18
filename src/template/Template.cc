@@ -264,6 +264,47 @@ int Template::replace(const string& name, const string& value)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Template::replace(const string& name, const bool& value)
+{
+    string s_val;
+
+    pair<multimap<string, Attribute *>::iterator,
+         multimap<string, Attribute *>::iterator>   index;
+
+    index = attributes.equal_range(name);
+
+    if (index.first != index.second )
+    {
+        multimap<string, Attribute *>::iterator i;
+
+        for ( i = index.first; i != index.second; i++)
+        {
+            Attribute * attr = i->second;
+            delete attr;
+        }
+
+        attributes.erase(index.first, index.second);
+    }
+
+    if (value)
+    {
+        s_val = "YES";
+    }
+    else
+    {
+        s_val = "NO";
+    }
+
+    SingleAttribute * sattr = new SingleAttribute(name, s_val);
+
+    attributes.insert(make_pair(sattr->name(), sattr));
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Template::erase(const string& name)
 {
     multimap<string, Attribute *>::iterator         i;

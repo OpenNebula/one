@@ -284,6 +284,8 @@ int VirtualMachinePool::allocate (
     if ( _submit_on_hold == true || on_hold )
     {
         vm->state = VirtualMachine::HOLD;
+
+        vm->user_obj_template->replace("SUBMIT_ON_HOLD", true);
     }
     else
     {
@@ -1146,4 +1148,3 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-

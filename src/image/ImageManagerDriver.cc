@@ -223,7 +223,7 @@ static int cp_action(istringstream& is,
 
     image->set_source(source);
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     ipool->update(image);
 
@@ -320,7 +320,7 @@ static int clone_action(istringstream& is,
 
     image->set_source(source);
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     image->clear_cloning_id();
 
@@ -444,7 +444,7 @@ static int mkfs_action(istringstream& is,
 
     if (!is_saving)
     {
-        image->set_state(Image::READY);
+        image->set_state_unlock();
     }
 
     ipool->update(image);
@@ -711,7 +711,7 @@ static void snap_delete_action(istringstream& is,
         return;
     }
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     int snap_id = image->get_target_snapshot();
 
@@ -787,7 +787,7 @@ static void snap_revert_action(istringstream& is,
 
     int snap_id = image->get_target_snapshot();
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     if (snap_id == -1)
     {
@@ -871,7 +871,7 @@ static void snap_flatten_action(istringstream& is,
         NebulaLog::log("ImM", Log::ERROR, oss);
     }
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     image->clear_target_snapshot();
 

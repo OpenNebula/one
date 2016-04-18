@@ -437,6 +437,11 @@ int ImagePool::acquire_disk(int               vm_id,
             (*snap)->set_disk_id(disk_id);
         }
 
+        if (img->get_state() == Image::LOCKED_USED || img->get_state() == Image::LOCKED_USED_PERS)
+        {
+            disk->replace("CLONING", "YES");
+        }
+
         img->unlock();
 
         if ( ds_pool->disk_attribute(datastore_id, disk) == -1 )

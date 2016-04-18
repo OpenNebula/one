@@ -28,6 +28,8 @@
 #include "AuthManager.h"
 #include "UserPool.h"
 #include "NebulaUtil.h"
+#include "LifeCycleManager.h"
+#include "Nebula.h"
 
 #define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
@@ -815,4 +817,80 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     }
 
     return type;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Image::set_state(ImageState _state)
+{
+    if (_state == ERROR && (state == LOCKED_USED || state == LOCKED_USED_PERS))
+    {
+        LifeCycleManager* lcm = Nebula::instance().get_lcm();
+
+        set<int>::iterator i;
+
+        for(i = vm_collection.get_collection().begin();
+            i != vm_collection.get_collection().end(); i++)
+        {
+            lcm->trigger(LifeCycleManager::DISK_LOCK_FAILURE, *i);
+        }
+    }
+
+    state = _state;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Image::set_state_unlock()
+{
+    LifeCycleManager* lcm = Nebula::instance().get_lcm();
+
+    set<int> vms_notify;
+
+    switch (state) {
+        case LOCKED:
+            set_state(READY);
+            break;
+
+        case LOCKED_USED:
+            set_state(USED);
+            vms_notify = vm_collection.clone();
+            break;
+
+        case Image::LOCKED_USED_PERS:
+            set_state(USED_PERS);
+            vms_notify = vm_collection.clone();
+            break;
+
+        case Image::ERROR:
+            if (running_vms == 0)
+            {
+                set_state(READY);
+            }
+            else
+            {
+                if(is_persistent())
+                {
+                    set_state(USED_PERS);
+                }
+                else
+                {
+                    set_state(USED);
+                }
+
+                vms_notify = vm_collection.clone();
+            }
+
+            break;
+
+        default:
+            break;
+    }
+
+    for(set<int>::iterator i = vms_notify.begin(); i != vms_notify.end(); i++)
+    {
+        lcm->trigger(LifeCycleManager::DISK_LOCK_SUCCESS, *i);
+    }
 }

@@ -472,6 +472,20 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_leases_rollback;
     }
 
+    bool on_hold;
+
+    if (user_obj_template->get("SUBMIT_ON_HOLD", on_hold) == true)
+    {
+        user_obj_template->erase("SUBMIT_ON_HOLD");
+
+        obj_template->replace("SUBMIT_ON_HOLD", on_hold);
+    }
+
+    if ( has_cloning_disks())
+    {
+        state = VirtualMachine::CLONING;
+    }
+
     // ------------------------------------------------------------------------
     // PCI Devices
     // ------------------------------------------------------------------------
@@ -2082,6 +2096,83 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachine::has_cloning_disks()
+{
+    bool cloning;
+
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+set<int> VirtualMachine::get_cloning_image_ids()
+{
+    set<int> ids;
+
+    bool cloning;
+    int  image_id;
+
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning && (disks[i]->vector_value("IMAGE_ID", image_id) == 0) )
+        {
+            ids.insert(image_id);
+        }
+    }
+
+    return ids;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_cloning_image_id(int image_id)
+{
+    bool cloning;
+    int  disk_image_id;
+
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning &&
+            (disks[i]->vector_value("IMAGE_ID", disk_image_id) == 0) &&
+            disk_image_id == image_id)
+        {
+            disks[i]->remove("CLONING");
+        }
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& err)
 {
     Nebula&       nd     = Nebula::instance();
@@ -2737,7 +2828,7 @@ void VirtualMachine::release_disk_images()
     for(int i=0; i<num_disks; i++)
     {
         img_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                     state != PENDING && state != HOLD;
+                     state != PENDING && state != HOLD && state != CLONING;
 
         if ( disks[i]->vector_value("IMAGE_ID", iid) == 0 )
         {

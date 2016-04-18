@@ -125,7 +125,23 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
             ipool->update(img);
         break;
 
+        case Image::LOCKED:
+            img->inc_running(vm_id);
+
+            if ( img->is_persistent() )
+            {
+                img->set_state(Image::LOCKED_USED_PERS);
+            }
+            else
+            {
+                img->set_state(Image::LOCKED_USED);
+            }
+
+            ipool->update(img);
+        break;
+
         case Image::USED_PERS:
+        case Image::LOCKED_USED_PERS:
             oss << "Cannot acquire image " << img->get_oid()
                 << ", it is persistent and already in use";
 
@@ -134,13 +150,13 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         break;
 
         case Image::USED:
+        case Image::LOCKED_USED:
             img->inc_running(vm_id);
             ipool->update(img);
         break;
 
         case Image::INIT:
         case Image::DISABLED:
-        case Image::LOCKED:
         case Image::ERROR:
         case Image::DELETE:
         case Image::CLONE:
@@ -204,10 +220,38 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
             img->unlock();
         break;
 
+        case Image::LOCKED_USED_PERS:
+            img->dec_running(vm_id);
+
+            if (failed == true)
+            {
+                img->set_state(Image::ERROR);
+            }
+            else
+            {
+                img->set_state(Image::LOCKED);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+        break;
+
         case Image::USED:
             if ( img->dec_running(vm_id) == 0  && img->get_cloning() == 0 )
             {
                 img->set_state(Image::READY);
+            }
+
+            ipool->update(img);
+
+            img->unlock();
+        break;
+
+        case Image::LOCKED_USED:
+            if ( img->dec_running(vm_id) == 0  && img->get_cloning() == 0 )
+            {
+                img->set_state(Image::LOCKED);
             }
 
             ipool->update(img);
@@ -288,6 +332,8 @@ void ImageManager::release_cloning_resource(
         case Image::ERROR:
         case Image::USED_PERS:
         case Image::LOCKED:
+        case Image::LOCKED_USED:
+        case Image::LOCKED_USED_PERS:
             NebulaLog::log("ImM", Log::ERROR, "Release cloning image"
                 " in wrong state");
             break;
@@ -318,9 +364,13 @@ int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
         switch (img->get_state())
         {
             case Image::DISABLED:
-            case Image::ERROR:
                 img->set_state(Image::READY);
                 ipool->update(img);
+            break;
+            case Image::ERROR:
+                img->set_state_unlock();
+                ipool->update(img);
+            break;
             case Image::READY:
             break;
             default:
@@ -340,6 +390,7 @@ int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
             case Image::ERROR:
                 img->set_state(Image::DISABLED);
                 ipool->update(img);
+            break;
             case Image::DISABLED:
             break;
             default:
@@ -435,6 +486,8 @@ int ImageManager::delete_image(int iid, string& error_str)
 
         case Image::USED:
         case Image::USED_PERS:
+        case Image::LOCKED_USED:
+        case Image::LOCKED_USED_PERS:
             oss << "There are " << img->get_running() << " VMs using it.";
             error_str = oss.str();
 
@@ -585,6 +638,8 @@ int ImageManager::can_clone_image(int cloning_id, ostringstream&  oss_error)
         case Image::ERROR:
         case Image::DELETE:
         case Image::LOCKED:
+        case Image::LOCKED_USED:
+        case Image::LOCKED_USED_PERS:
             oss_error << "Cannot clone image in state: "
                 << Image::state_to_str(state);
 
@@ -644,6 +699,8 @@ int ImageManager::set_clone_state(
         case Image::ERROR:
         case Image::DELETE:
         case Image::LOCKED:
+        case Image::LOCKED_USED:
+        case Image::LOCKED_USED_PERS:
             error = "Cannot clone image in current state";
             rc    = -1;
             break;
@@ -760,7 +817,7 @@ int ImageManager::register_image(int iid,
         }
         else if ( !source.empty() ) //Source in Template
         {
-            img->set_state(Image::READY);
+            img->set_state_unlock();
             ipool->update(img);
 
             oss << "Using source " << source
