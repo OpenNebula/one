@@ -444,7 +444,6 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
 
 int Datastore::insert(SqlDB *db, string& error_str)
 {
-    int    rc;
     string s_disk_type;
     string s_ds_type;
     string datastore_location;
