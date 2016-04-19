@@ -575,6 +575,7 @@ module Migrator
     @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
     @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, pid INTEGER, UNIQUE(name,uid));"
 
+    reserved_vlan_ids = Set.new
     suggest_patch = false
     final_net_vnmad = {}
     @db.transaction do
@@ -584,60 +585,102 @@ module Migrator
         net_id = row[:oid]
         cluster_id = doc.root.xpath('CLUSTERS/ID').first.text.to_i
 
+        # Get possible VN_MADs
         net_vnmad_len     = net_vnmad[net_id].length rescue 0
         cluster_vnmad_len = cluster_vnmad[cluster_id].length rescue 0
 
-        if (vlan = doc.root.xpath('VLAN'))
-          vlan = vlan.text
-          if !vlan.empty? && vlan.to_i == 0
-            dummy_net = true
-          end
-        end
+        # Check if the network has VLAN=NO
+        vlan = doc.root.xpath('VLAN').text rescue nil
+        vlan_no = (vlan == "0")
 
+        # Remove the VLAN attributes
         doc.root.xpath('//VLAN').remove
 
-        if dummy_net
-          vnmad = "fw"
-        else
-          vnmad = nil
-          other_vnmads = nil
+        vnmad = nil
+        other_vnmads = nil
 
-          # net_vnmad_len == 1 => that one
-          # net_vnmad_len > 1 => get first one and show warning
-          # net_vnmad_len == 0 && cluster_vnmad_len == 1 => that one
-          # net_vnmad_len == 0 && cluster_vnmad_len > 1 => first one and show warning
-          # net_vnmad_len == 0 && cluster_vnmad_len == 0 => force onedb patch
+        # Get vnmad
+        #
+        # net_vnmad_len == 1 => that one
+        # net_vnmad_len > 1 => get first one and show warning
+        # net_vnmad_len == 0 && cluster_vnmad_len == 1 => that one
+        # net_vnmad_len == 0 && cluster_vnmad_len > 1 => first one and show warning
+        # net_vnmad_len == 0 && cluster_vnmad_len == 0 => force onedb patch
 
-          if net_vnmad_len == 1
-            vnmad = net_vnmad[net_id].first
-          elsif net_vnmad_len > 1
-            vnmad = net_vnmad[net_id].first
-            other_vnmads = net_vnmad[net_id] - Set[vnmad]
-          elsif net_vnmad_len == 0 && cluster_vnmad_len == 1
-            vnmad = cluster_vnmad[cluster_id].first
-          elsif net_vnmad_len == 0 && cluster_vnmad_len > 1
-            vnmad = cluster_vnmad[cluster_id].first
-            other_vnmads = cluster_vnmad[cluster_id] - Set[vnmad]
-          end
-
-          if vnmad && other_vnmads
-            if !suggest_patch
-              puts
-              puts "**************************************************************"
-              puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
-              puts "**************************************************************"
-            end
-
-            suggest_patch = true
-            puts  "* Net ##{net_id} assigned VN_MAD=#{vnmad}. " <<
-                  "Other options: #{other_vnmads.to_a.join(', ')}"
-          end
+        if net_vnmad_len == 1
+          vnmad = net_vnmad[net_id].first
+        elsif net_vnmad_len > 1
+          vnmad = net_vnmad[net_id].first
+          other_vnmads = net_vnmad[net_id] - Set[vnmad]
+        elsif net_vnmad_len == 0 && cluster_vnmad_len == 1
+          vnmad = cluster_vnmad[cluster_id].first
+        elsif net_vnmad_len == 0 && cluster_vnmad_len > 1
+          vnmad = cluster_vnmad[cluster_id].first
+          other_vnmads = cluster_vnmad[cluster_id] - Set[vnmad]
         end
 
-        final_net_vnmad[net_id] = vnmad
+        # Ambiguous vnmad, require user input (TODO)
+        if vnmad && other_vnmads
+          if !suggest_patch
+            puts
+            puts "**************************************************************"
+            puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+            puts "**************************************************************"
+          end
 
-        if vnmad
-          doc.root.add_child(doc.create_element("VN_MAD")).content = vnmad
+          suggest_patch = true
+          puts  "* Net ##{net_id} assigned VN_MAD=#{vnmad}. " <<
+                "Other options: #{other_vnmads.to_a.join(', ')}"
+        end
+
+        # If VLAN = NO => don't use isolated VN_MADs
+        if vlan_no && vnmad && ["802.1q", "ovswitch", "vxlan", "ebtables"].include?(vnmad.downcase)
+            vnmad = "fw"
+        end
+
+        # Create the VN_MAD element:
+        final_net_vnmad[net_id] = vnmad
+        doc.root.add_child(doc.create_element("VN_MAD")).content = vnmad
+
+        # Create/Move the VLAN_ID and VLAN_ID_AUTOMATIC attributes:
+        #
+        # Manual    => VLAN_ID exists
+        # Automatic => VLAN_ID does not exist
+        #
+        # If VLAN has been set automatically,
+        #
+        #   top-level <VLAN_ID><![CDATA[20]]></VLAN_ID>
+        #   top-level <VLAN_ID_AUTOMATIC>1</VLAN_ID_AUTOMATIC>
+        #   remove VLAN_ID from <TEMPLATE>
+        #
+        # If VLAN has been set manually,
+        #
+        #   top-level <VLAN_ID><![CDATA[20]]></VLAN_ID>
+        #   top-level <VLAN_ID_AUTOMATIC>0</VLAN_ID_AUTOMATIC>
+        #   keep VLAN_ID in <TEMPLATE>
+        #
+        if vnmad && ["802.1q", "ovswitch", "vxlan"].include?(vnmad.downcase)
+          vlan_id = doc.root.xpath('TEMPLATE/VLAN_ID').text rescue nil
+
+          if vlan_id && !vlan_id.empty?
+            vlan_id_automatic = false
+          else
+            # TODO: get from configuration?
+            start_vlan = 2
+
+            vlan_id = start_vlan + (net_id % (4095 - start_vlan))
+            vlan_id_automatic = true
+
+            # Only automatic vlans will be reserved
+            if ["802.1q", "ovswitch"].include?(vnmad.downcase)
+              reserved_vlan_ids << vlan_id
+            end
+
+            doc.root.xpath('//VLAN_ID').remove
+          end
+
+          doc.root.add_child(doc.create_element("VLAN_ID")).content = vlan_id
+          doc.root.add_child(doc.create_element("VLAN_ID_AUTOMATIC")).content = vlan_id_automatic ? "1" : "0"
         end
 
         row[:body] = doc.root.to_s
