@@ -36,7 +36,9 @@ module Migrator
   def up
     init_log_time()
 
+    ############################################################################
     # 4369
+    ############################################################################
 
     @db.run "CREATE TABLE cluster_datastore_relation (cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid));"
     @db.run "CREATE TABLE cluster_network_relation (cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid));"
@@ -204,7 +206,9 @@ module Migrator
 
     log_time()
 
+    ############################################################################
     # 4215
+    ############################################################################
 
     @db.run "CREATE TABLE vrouter_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
@@ -308,7 +312,9 @@ module Migrator
 
     log_time()
 
+    ############################################################################
     # Feature #4217
+    ############################################################################
 
     @db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
     @db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
@@ -335,7 +341,9 @@ module Migrator
 
     log_time()
 
+    ############################################################################
     # Feature #3204
+    ############################################################################
 
     @db.run "ALTER TABLE secgroup_pool RENAME TO old_secgroup_pool;"
     @db.run "CREATE TABLE secgroup_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
@@ -403,7 +411,9 @@ module Migrator
 
     log_time()
 
-    # Remove Xen and VMware Drivers
+    ############################################################################
+    # Remove Xen, VMware and SoftLayer Drivers
+    ############################################################################
 
     @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
 
@@ -494,9 +504,9 @@ module Migrator
 
     log_time()
 
+    ############################################################################
     # Move HOST/VN_MAD --> VNET/VN_MAD
-
-    log_time()
+    ############################################################################
 
     # Build net_vnmad
     net_vnmad = {}
