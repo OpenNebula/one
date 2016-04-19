@@ -530,9 +530,9 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("INHERIT_VNET_ATTR", inherit_vnet_attrs);
 
-        vlan_id  = nebula_configuration->get("VLAN_ID");
+        vlan_id  = nebula_configuration->get("VLAN_IDS");
 
-        vxlan_id = nebula_configuration->get("VXLAN_ID");
+        vxlan_id = nebula_configuration->get("VXLAN_IDS");
 
         vnpool = new VirtualNetworkPool(db, mac_prefix, size, vnet_restricted_attrs,
             vnet_hooks, remotes_location, inherit_vnet_attrs, vlan_id, vxlan_id);

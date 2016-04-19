@@ -419,16 +419,16 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("NETWORK_SIZE", "254");
 
     vvalue.clear();
-    vvalue.insert(make_pair("RESERVED","0, 4095"));
+    vvalue.insert(make_pair("RESERVED","0, 1, 4095"));
     vvalue.insert(make_pair("START","2"));
 
-    vattribute = new VectorAttribute("VLAN_ID",vvalue);
+    vattribute = new VectorAttribute("VLAN_IDS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
     vvalue.clear();
     vvalue.insert(make_pair("START","2"));
 
-    vattribute = new VectorAttribute("VXLAN_ID",vvalue);
+    vattribute = new VectorAttribute("VXLAN_IDS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
