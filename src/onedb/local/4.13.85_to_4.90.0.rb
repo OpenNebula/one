@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'set'
+require 'base64'
+require 'zlib'
 
 require 'opennebula'
 
@@ -751,6 +753,31 @@ module Migrator
       end
     end
     @db.run "DROP TABLE old_vm_pool;"
+
+    log_time()
+
+    ############################################################################
+    # Bug #4376 - VLAN IDs Bitmap
+    ############################################################################
+
+    ## Create and bootstrap 'vlan_bitmap' table
+
+    # Create Table
+    @db.run "CREATE TABLE network_vlan_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
+
+    map = ""
+    4096.times.each do |i|
+        map << (reserved_vlan_ids.include?(4095 - i) ? "1" : "0")
+    end
+
+    map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
+
+    @db[:network_vlan_bitmap].insert(
+      :id      => 0,
+      :map     => map_encoded
+    )
+
+    log_time()
 
     return true
   end
