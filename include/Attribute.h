@@ -294,7 +294,7 @@ public:
     int vector_value(const char *name, bool& value) const;
 
     /**
-     * Returns the integer value
+     * Returns the value of the given element of the VectorAttribute
      *
      * @param name Name of the attribute
      * @param value Integer value, if an error occurred the string returned is

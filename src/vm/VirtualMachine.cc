@@ -498,6 +498,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // -------------------------------------------------------------------------
+    // Set boot order
+    // -------------------------------------------------------------------------
+
+    set_boot_order("");
+
+    // -------------------------------------------------------------------------
     // Parse the context & requirements
     // -------------------------------------------------------------------------
 
@@ -799,6 +805,100 @@ int VirtualMachine::parse_os(string& error_str)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_boot_order(string order)
+{
+	VectorAttribute * os = obj_template->get("OS");
+
+	if (!order.empty())
+	{
+		if ( os == 0 )
+		{
+			map<string,string>  vvalue;
+			vvalue.insert(make_pair("BOOT", order));
+
+   			os = new VectorAttribute("OS",vvalue);
+
+			obj_template->set(os);
+		}
+		else
+		{
+			os->replace("BOOT", order);
+		}
+	}
+	else
+	{
+		if ( os == 0 )
+		{
+			return;
+		}
+
+		order = os->vector_value("BOOT");
+
+		if ( order.empty() )
+		{
+			return;
+		}
+	}
+
+	vector<string> bdevs = one_util::split(order, ',');
+
+    vector<VectorAttribute *> disk;
+    vector<VectorAttribute *> nic;
+
+    int ndisk = obj_template->get("DISK", disk);
+    int nnic  = obj_template->get("NIC", nic);
+
+    for (int i=0; i<ndisk; ++i)
+    {
+        disk[i]->remove("ORDER");
+    }
+
+    for (int i=0; i<nnic; ++i)
+    {
+        nic[i]->remove("ORDER");
+    }
+
+    int index = 1;
+
+    for (vector<string>::iterator i = bdevs.begin(); i != bdevs.end(); ++i)
+    {
+        vector<VectorAttribute *> * dev;
+        int    max;
+        int    id;
+
+        one_util::toupper(*i);
+
+        if ((*i).compare(0,4,"DISK") == 0 && (*i).length() == 5)
+        {
+            id = (*i)[4] - '0';
+
+            max = ndisk;
+            dev = &disk;
+        }
+        else if ((*i).compare(0,3,"NIC") == 0 && (*i).length() == 4)
+        {
+            id = (*i)[3] - '0';
+
+            max = nnic;
+            dev = &nic;
+        }
+        else
+        {
+            continue;
+        }
+
+        if ( id < 0 || id > 9 || id >= max )
+        {
+            continue;
+        }
+
+        (*dev)[id]->replace("ORDER", index++);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

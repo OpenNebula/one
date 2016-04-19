@@ -996,6 +996,14 @@ public:
                               vector<int>& img_ids,
                               string&      error);
 
+
+    /**
+     *  Sets the boot order of disk/nic devices
+     *    @param order, optionally use a different (and update) OS/BOOT
+     *
+     */
+   void set_boot_order(string order);
+
     /**
      *  Factory method for virtual machine templates
      */
