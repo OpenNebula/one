@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,7 +35,7 @@ class AddressRange
 {
 public:
 
-    AddressRange(unsigned int _id):id(_id),next(0),used_addr(0){};
+    AddressRange(string _ipam_mad, unsigned int _id):ipam_mad(_ipam_mad),id(_id),next(0),used_addr(0){};
 
     virtual ~AddressRange(){};
 
@@ -72,6 +72,14 @@ public:
     // *************************************************************************
     // Address Range initialization functions
     // *************************************************************************
+
+    /**
+     *  Return an AddressRangeOne or AddressRangeIPAM
+     *    @param ipam_mad the driver name
+     *    @next_ar id of the next address range
+     *    @return the new address range
+     */
+    static AddressRange * new_ar_by_type(string ipam_mad, unsigned int next_ar); 
 
     /**
      *  Init an Address Range based on a vector attribute the following
@@ -347,7 +355,7 @@ public:
 
     static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs);
 
-private:
+protected:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
     /* ---------------------------------------------------------------------- */
@@ -364,6 +372,27 @@ private:
      *    @param mac in array form
      */
     string mac_to_s(const unsigned int mac[]) const;
+
+    /**
+     *  IP4_SUBNET prefix conversion
+     *  @param subnet in string form 192.168.0.0/24
+     *  @param i_ip4_subnet unsigned int array
+     *  @return 0 on success
+     */
+    int ip4_subnet_to_i(const string& subnet, unsigned int i_ip4_subnet[]) const;
+
+    /**
+     *  IP4_SUBNET to string
+     *  @param i_ip4_subnet unsigned int array
+     *  @return string notation
+     */
+    string ip4_subnet_to_s(const unsigned int i_ip4_subnet[]) const;
+
+    /**
+     *  Check IPv4 subnet
+     *    @param subnet in string form 192.168.0.0/24
+     */
+    int check_ip4_subnet() const;
 
     /**
      *  IP version 4 to binary (32 bits)
@@ -448,6 +477,15 @@ private:
     int  attr_to_allocated(const string& allocated_s);
 
     /**
+     * TODO
+     */
+    virtual int get_free_addr(unsigned int &index) = 0;
+    virtual int get_free_addr_range(unsigned int &index, unsigned int rsize) = 0;
+    virtual int register_addr(unsigned int index) = 0;
+    virtual int register_addr_range(unsigned int index, unsigned int rsize) = 0;
+    virtual int free_addr(unsigned int index) = 0;
+
+    /**
      *  Adds a new allocated address to the map. Updates the ALLOCATED attribute
      */
     void allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
@@ -458,6 +496,9 @@ private:
      */
     int free_addr(PoolObjectSQL::ObjectType ot, int obid,
         unsigned int addr_index);
+
+    void reserve_addr_range(int vid, unsigned int rsize,
+        unsigned int sindex, AddressRange *rar);
 
     /**
      *  Reserve a set of addresses from an starting one
@@ -486,6 +527,14 @@ private:
     void remove_all_except_restricted(VectorAttribute* va);
 
     /* ---------------------------------------------------------------------- */
+    /* IPAM                                                                   */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * IPAM driver name
+     */
+    string ipam_mad;
+
+    /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */
     /* ---------------------------------------------------------------------- */
     /**
@@ -497,6 +546,11 @@ private:
      *  ID for this range, unique within the Virtual Network
      */
     unsigned int id;
+
+    /**
+     *  IPv4 subnet for this range
+     */
+    unsigned int ip4_subnet[2];
 
     /**
      *  Number of addresses in the range

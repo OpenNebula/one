@@ -841,6 +841,27 @@ void Nebula::start(bool bootstrap_only)
        throw runtime_error("Could not start the Marketplace Manager");
     }
 
+    // ---- IPAM Manager ----
+    try
+    {
+        vector<const VectorAttribute *> ipam_mads ;
+
+        nebula_configuration->get("IPAM_MAD", ipam_mads);
+
+        ipamm = new IPAMManager(timer_period, ipam_mads);
+    }
+    catch (bad_alloc&)
+    {
+        throw;
+    }
+
+    rc = ipamm->start();
+
+    if ( rc != 0 )
+    {
+       throw runtime_error("Could not start the IPAM Manager");
+    }
+
     // -----------------------------------------------------------
     // Load mads
     // -----------------------------------------------------------
@@ -875,6 +896,11 @@ void Nebula::start(bool bootstrap_only)
     }
 
     if (marketm->load_mads(0) != 0)
+    {
+        goto error_mad;
+    }
+
+    if (ipamm->load_mads(0) != 0)
     {
         goto error_mad;
     }
@@ -972,6 +998,7 @@ void Nebula::start(bool bootstrap_only)
     hm->finalize();
     imagem->finalize();
     marketm->finalize();
+    ipamm->finalize();
     aclm->finalize();
 
     //sleep to wait drivers???

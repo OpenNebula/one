@@ -66,6 +66,7 @@ env.Prepend(LIBS=[
     'nebula_vdc',
     'nebula_vrouter',
     'nebula_marketplace',
+    'nebula_ipamm',
     'crypto',
     'xml2'
 ])

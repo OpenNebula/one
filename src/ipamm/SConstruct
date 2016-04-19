@@ -18,17 +18,12 @@
 
 Import('env')
 
-lib_name='nebula_vnm'
+lib_name='nebula_ipamm'
 
 # Sources to generate the library
 source_files=[
-    'VirtualNetwork.cc',
-    'VirtualNetworkPool.cc',
-    'AddressRange.cc',
-    'AddressRangeIPAM.cc',
-    'AddressRangeOne.cc',
-    'AddressRangePool.cc',
-    'VirtualNetworkTemplate.cc'
+    'IPAMManager.cc',
+    'IPAMManagerDriver.cc'
 ]
 
 # Build library

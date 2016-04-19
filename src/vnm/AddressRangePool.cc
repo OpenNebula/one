@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AddressRangePool.h"
+#include "AddressRangeIPAM.h"
+#include "AddressRangeOne.h"
 #include "AddressRange.h"
 
 using namespace std;
@@ -37,7 +39,9 @@ AddressRangePool::~AddressRangePool()
 
 int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 {
-    AddressRange * ar = new AddressRange(next_ar);
+    string ipam_mad = va->vector_value("IPAM_MAD");
+
+    AddressRange * ar = AddressRange::new_ar_by_type(ipam_mad, next_ar);
 
     if (ar->from_vattr(va, error_msg) != 0)
     {
@@ -57,7 +61,7 @@ int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 
 AddressRange * AddressRangePool::allocate_ar()
 {
-    return new AddressRange(next_ar++);
+    return AddressRange::new_ar_by_type("default", next_ar++);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -134,7 +138,9 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
     for (int i = 0; i < num_ar; i++)
     {
-        AddressRange * ar = new AddressRange(0);
+        string ipam_mad = var[i]->vector_value("IPAM_MAD");
+    
+        AddressRange * ar = AddressRange::new_ar_by_type(ipam_mad, 0);
 
         if (ar->from_vattr_db(var[i])!= 0)
         {

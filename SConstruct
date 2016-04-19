@@ -85,7 +85,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/secgroup',
     cwd+'/src/vdc',
     cwd+'/src/vrouter',
-    cwd+'/src/market'
+    cwd+'/src/market',
+    cwd+'/src/ipamm'
 ])
 
 # Compile flags
@@ -96,6 +97,7 @@ main_env.Append(CPPFLAGS=[
 
 # Linking flags
 main_env.Append(LINKFLAGS=['-g', '-pthread'])
+main_env.Append(LIBS=['z'])
 
 #######################
 # EXTRA CONFIGURATION #
@@ -239,6 +241,7 @@ build_scripts=[
     'src/vdc/SConstruct',
     'src/vrouter/SConstruct',
     'src/market/SConstruct',
+    'src/ipamm/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',

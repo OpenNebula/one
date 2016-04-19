@@ -1,0 +1,12 @@
+#!/bin/bash
+
+TYPE=$1
+SUBNET=$2
+START_ADDR=$3
+SIZE=$4
+
+if [ SIZE -gt 15 ]; then
+  exit -1
+fi
+
+exit 0
