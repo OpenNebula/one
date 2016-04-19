@@ -2147,7 +2147,7 @@ set<int> VirtualMachine::get_cloning_image_ids()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::clear_cloning_image_id(int image_id)
+void VirtualMachine::clear_cloning_image_id(int image_id, string source)
 {
     bool cloning;
     int  disk_image_id;
@@ -2165,9 +2165,10 @@ void VirtualMachine::clear_cloning_image_id(int image_id)
             disk_image_id == image_id)
         {
             disks[i]->remove("CLONING");
+
+            disks[i]->replace("SOURCE", source);
         }
     }
-
 }
 
 /* -------------------------------------------------------------------------- */

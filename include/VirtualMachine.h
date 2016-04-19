@@ -1638,7 +1638,7 @@ public:
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id);
+    void clear_cloning_image_id(int image_id, string source);
 
 private:
 

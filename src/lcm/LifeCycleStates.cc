@@ -2095,7 +2095,9 @@ void LifeCycleManager::disk_lock_success(int vid)
 
     vm->unlock();
 
-    set<int> ready;
+    vector< pair<int,string> > ready;
+    vector< pair<int,string> >::iterator rit;
+
     set<int> error;
 
     for (set<int>::iterator id = ids.begin(); id != ids.end(); id++)
@@ -2107,7 +2109,7 @@ void LifeCycleManager::disk_lock_success(int vid)
             switch (image->get_state()) {
                 case Image::USED:
                 case Image::USED_PERS:
-                    ready.insert(*id);
+                    ready.push_back( make_pair(*id, image->get_source()) );
                     break;
 
                 case Image::ERROR:
@@ -2136,9 +2138,9 @@ void LifeCycleManager::disk_lock_success(int vid)
         return;
     }
 
-    for (set<int>::iterator id = ready.begin(); id != ready.end(); id++)
+    for (rit = ready.begin(); rit != ready.end(); rit++)
     {
-        vm->clear_cloning_image_id(*id);
+        vm->clear_cloning_image_id(rit->first, rit->second);
     }
 
     if (ids.size() == ready.size())
