@@ -124,7 +124,30 @@ void VMTemplateClone::request_execute(
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
-    int             new_id;
+    int new_id;
+
+    ErrorCode ec = request_execute(source_id, name, recursive, new_id, att);
+
+    if ( ec == SUCCESS )
+    {
+        success_response(new_id, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VMTemplateClone::request_execute(
+                int    source_id,
+                string name,
+                bool   recursive,
+                int    &new_id,
+                RequestAttributes &att)
+{
     VMTemplate *    vmtmpl;
     VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
     ErrorCode       ec;
@@ -141,8 +164,7 @@ void VMTemplateClone::request_execute(
 
     if ( ec != SUCCESS )
     {
-        failure_response(ec, att);
-        return;
+        return ec;
     }
 
     if (recursive)
@@ -160,8 +182,7 @@ void VMTemplateClone::request_execute(
             att.resp_msg = object_name(PoolObjectSQL::TEMPLATE) +
                 " was cloned, but it was deleted before the disks could also be cloned.";
 
-            failure_response(ACTION, att);
-            return;
+            return ACTION;
         }
 
         vmtmpl->get_disks(disks);
@@ -235,9 +256,7 @@ void VMTemplateClone::request_execute(
         vmtmpl->unlock();
     }
 
-    success_response(new_id, att);
-
-    return;
+    return SUCCESS;
 
 error_images:
 
@@ -254,7 +273,7 @@ error_template:
 
     for (i = new_img_ids.begin(); i != new_img_ids.end(); i++)
     {
-        ec = ImageDelete::delete_img(*i, att);
+        ec = ImageDelete::delete_img(*i, img_att);
 
         if (ec != SUCCESS)
         {
@@ -268,9 +287,7 @@ error_template:
         delete *i;
     }
 
-    failure_response(ACTION, att);
-
-    return;
+    return ACTION;
 }
 
 /* -------------------------------------------------------------------------- */

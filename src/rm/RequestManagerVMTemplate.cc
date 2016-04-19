@@ -17,6 +17,7 @@
 #include "RequestManagerVMTemplate.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "RequestManagerClone.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -28,12 +29,18 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string name = xmlrpc_c::value_string(paramList.getString(2));
     bool   on_hold = false; //Optional XML-RPC argument
     string str_uattrs;      //Optional XML-RPC argument
+    bool   clone_template = false;  //Optional XML-RPC argument
 
     if ( paramList.size() > 3 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
 
         str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
+    }
+
+    if ( paramList.size() > 5 )
+    {
+        clone_template = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
     VMTemplate * tmpl = static_cast<VMTemplatePool* > (pool)->get(id,true);
@@ -56,10 +63,27 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    int instantiate_id = id;
+
+    if (clone_template)
+    {
+        int new_id;
+
+        ErrorCode ec = VMTemplateClone::instance().request_execute(id, name, true, new_id, att);
+
+        if (ec != SUCCESS)
+        {
+            failure_response(ec, att);
+            return;
+        }
+
+        instantiate_id = new_id;
+    }
+
     int vid;
     ErrorCode ec;
 
-    ec = instantiate(id, name, on_hold, str_uattrs, 0, vid, att);
+    ec = instantiate(instantiate_id, name, on_hold, str_uattrs, 0, vid, att);
 
     if ( ec == SUCCESS )
     {

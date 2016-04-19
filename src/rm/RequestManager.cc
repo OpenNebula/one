@@ -370,7 +370,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
 
     // Clone Methods
-    xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
+    xmlrpc_c::methodPtr template_clone( &VMTemplateClone::instance() );
     xmlrpc_c::methodPtr doc_clone(new DocumentClone());
     xmlrpc_c::methodPtr secg_clone(new SecurityGroupClone());
 

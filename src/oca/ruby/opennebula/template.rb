@@ -114,18 +114,22 @@ module OpenNebula
         #   true to create it on hold
         # @param template [String] User provided Template to merge with the
         #   one being instantiated
+        # @param persistent [true,false] true to create a private persistent
+        #   copy of the template plus any image defined in DISK, and instantiate
+        #   that copy
         #
         # @return [Integer, OpenNebula::Error] The new VM id, Error
         #   otherwise
-        def instantiate(name="", hold=false, template="")
+        def instantiate(name="", hold=false, template="", persistent=false)
             return Error.new('ID not defined') if !@pe_id
 
             name ||= ""
             hold = false if hold.nil?
             template ||= ""
+            persistent = false if persistent.nil?
 
-            rc = @client.call(
-                TEMPLATE_METHODS[:instantiate], @pe_id, name, hold, template)
+            rc = @client.call(TEMPLATE_METHODS[:instantiate], @pe_id,
+                name, hold, template, persistent)
 
             return rc
         end

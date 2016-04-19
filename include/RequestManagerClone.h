@@ -63,24 +63,25 @@ protected:
 class VMTemplateClone : public RequestManagerClone
 {
 public:
-    VMTemplateClone():
-        RequestManagerClone("VMTemplateClone",
-                            "Clone an existing virtual machine template",
-                            "A:sisb")
+
+    static VMTemplateClone& instance()
     {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_tpool();
+        static VMTemplateClone instance;
 
-        auth_object = PoolObjectSQL::TEMPLATE;
-        auth_op     = AuthRequest::USE;
+        return instance;
     };
-
-    ~VMTemplateClone(){};
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+
+    ErrorCode request_execute(
+            int    source_id,
+            string name,
+            bool   recursive,
+            int    &new_id,
+            RequestAttributes &att);
 
     Template * clone_template(PoolObjectSQL* obj)
     {
@@ -101,6 +102,21 @@ public:
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
                 ttmpl, &id, att.resp_msg);
     };
+
+private:
+    VMTemplateClone():
+        RequestManagerClone("VMTemplateClone",
+                            "Clone an existing virtual machine template",
+                            "A:sisb")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_tpool();
+
+        auth_object = PoolObjectSQL::TEMPLATE;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~VMTemplateClone(){};
 };
 
 
