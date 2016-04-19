@@ -46,7 +46,6 @@ module Migrator
   def up
     init_log_time()
 
-=begin
     # Feature #3671
 
     @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
@@ -197,7 +196,7 @@ module Migrator
     @db.run "REPLACE INTO pool_control VALUES('acl', #{last_oid+1});"
 
     log_time()
-=end
+
     return true
   end
 
