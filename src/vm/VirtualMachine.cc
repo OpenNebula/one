@@ -869,35 +869,55 @@ void VirtualMachine::set_boot_order(string order)
     {
         vector<VectorAttribute *> * dev;
         int    max;
-        int    id;
+        int    disk_id;
+        size_t pos;
+
+        const char * id_name;
 
         one_util::toupper(*i);
 
-        if ((*i).compare(0,4,"DISK") == 0 && (*i).length() == 5)
+        if ((*i).compare(0,4,"DISK") == 0)
         {
-            id = (*i)[4] - '0';
+            pos = 4;
 
             max = ndisk;
             dev = &disk;
+
+            id_name = "DISK_ID";
         }
-        else if ((*i).compare(0,3,"NIC") == 0 && (*i).length() == 4)
+        else if ((*i).compare(0,3,"NIC") == 0)
         {
-            id = (*i)[3] - '0';
+            pos = 3;
 
             max = nnic;
             dev = &nic;
+
+            id_name = "NIC_ID";
         }
         else
         {
             continue;
         }
 
-        if ( id < 0 || id > 9 || id >= max )
+        istringstream iss((*i).substr(pos, string::npos));
+
+        iss >> disk_id;
+
+        if (iss.fail())
         {
             continue;
         }
 
-        (*dev)[id]->replace("ORDER", index++);
+        for (int j=0; j<max; ++j)
+        {
+            int j_disk_id;
+
+            if ( (*dev)[j]->vector_value(id_name, j_disk_id) == 0 &&
+                   j_disk_id == disk_id )
+            {
+                (*dev)[j]->replace("ORDER", index++);
+            }
+        }
     }
 }
 
