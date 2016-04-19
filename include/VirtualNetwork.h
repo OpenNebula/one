@@ -540,6 +540,11 @@ private:
     string  vlan_id;
 
     /**
+     *  If the VLAN has been set automatically
+     */
+    bool  vlan_id_automatic;
+
+    /**
      *  Parent VNET ID if any
      */
     int     parent_vid;
