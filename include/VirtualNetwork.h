@@ -68,20 +68,20 @@ public:
             case VLAN:     return "802.1Q";
             case EBTABLES: return "ebtables";
             case FW:       return "fw";
-            case OVSWITCH: return "ovswtich";
+            case OVSWITCH: return "ovswitch";
             case VXLAN:    return "vxlan";
         }
     };
 
     static VirtualNetworkDriver str_to_driver(string& ob)
     {
-        one_util::toupper(ob);
+        one_util::tolower(ob);
 
         if ( ob == "dummy" )
         {
             return DUMMY;
         }
-        else if ( ob == "802.1Q" )
+        else if ( ob == "802.1q" )
         {
             return VLAN;
         }
@@ -93,7 +93,7 @@ public:
         {
             return FW;
         }
-        else if ( ob == "ovswtich" )
+        else if ( ob == "ovswitch" )
         {
             return OVSWITCH;
         }

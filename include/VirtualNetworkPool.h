@@ -265,7 +265,7 @@ private:
     //--------------------------------------------------------------------------
     /**
      *  Gets a free VLAN_ID, if not set by the user, and for VXLAN, VLAN and
-     *  OVSWTICH networks.
+     *  OVSWITCH networks.
      *    @param vn pointer to the network
      *    @return 0 on success
      */
