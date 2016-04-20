@@ -80,7 +80,33 @@ define(function(require) {
     });
   }
 
-  function _setup(context) { 
+  function _setup(context) {
+    var that = this;
+
+    $("input.instantiate_pers", context).on("change", function(){
+      if($(this).prop('checked')){
+        $("#vm_n_times_disabled", context).show();
+        $("#vm_n_times", context).hide();
+
+        $.each(that.template_objects, function(index, template_json) {
+          DisksResize.insert(
+            template_json,
+            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+            {force_persistent: true});
+        });
+
+      } else {
+        $("#vm_n_times_disabled", context).hide();
+        $("#vm_n_times", context).show();
+
+        $.each(that.template_objects, function(index, template_json) {
+          DisksResize.insert(
+            template_json,
+            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+            {force_persistent: false});
+        });
+      }
+    });
   }
 
   function _submitWizard(context) {
@@ -94,13 +120,22 @@ define(function(require) {
     var n_times = $('#vm_n_times', context).val();
     var n_times_int = 1;
 
+    if (n_times.length) {
+      n_times_int = parseInt(n_times, 10);
+    }
+
     var hold = $('#hold', context).prop("checked");
 
-    $.each(this.selected_nodes, function(index, template_id) {
-      if (n_times.length) {
-        n_times_int = parseInt(n_times, 10);
-      }
+    var action;
 
+    if ($("input.instantiate_pers", context).prop("checked")){
+      action = "instantiate_persistent";
+      n_times_int = 1;
+    }else{
+      action = "instantiate_quiet";
+    }
+
+    $.each(this.selected_nodes, function(index, template_id) {
       var extra_msg = "";
       if (n_times_int > 1) {
         extra_msg = n_times_int + " times";
@@ -128,31 +163,10 @@ define(function(require) {
 
       extra_info['template'] = tmp_json;
 
-      if (!vm_name.length) { //empty name use OpenNebula core default
-        for (var i = 0; i < n_times_int; i++) {
-          extra_info['vm_name'] = "";
-          Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-        }
-      } else {
-        if (vm_name.indexOf("%i") == -1) {//no wildcard, all with the same name
-          extra_info['vm_name'] = vm_name;
+      for (var i = 0; i < n_times_int; i++) {
+        extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
 
-          for (var i = 0; i < n_times_int; i++) {
-            Sunstone.runAction(
-                "Template.instantiate_quiet",
-                template_id,
-                extra_info);
-          }
-        } else { //wildcard present: replace wildcard
-          for (var i = 0; i < n_times_int; i++) {
-            extra_info['vm_name'] = vm_name.replace(/%i/gi, i);
-
-            Sunstone.runAction(
-                "Template.instantiate_quiet",
-                template_id,
-                extra_info);
-          }
-        }
+        Sunstone.runAction("Template."+action, template_id, extra_info);
       }
     });
 
@@ -160,7 +174,10 @@ define(function(require) {
   }
 
   function _setTemplateIds(context, selected_nodes) {
+    var that = this;
+
     this.selected_nodes = selected_nodes;
+    this.template_objects = [];
 
     var templatesContext = $(".list_of_templates", context);
 
@@ -175,13 +192,18 @@ define(function(require) {
         },
         timeout: true,
         success: function (request, template_json) {
+          that.template_objects.push(template_json);
+
           templatesContext.append(
             TemplateRowHTML(
               { element: template_json.VMTEMPLATE,
                 capacityInputsHTML: CapacityInputs.html()
               }) );
 
-          DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
+          DisksResize.insert(
+            template_json,
+            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+            {force_persistent: $("input.instantiate_pers", context).prop("checked")});
 
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),

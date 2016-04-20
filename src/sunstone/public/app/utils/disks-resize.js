@@ -28,7 +28,17 @@ define(function(require){
     'retrieve': _retrieve
   };
 
-  function _insert(template_json, disksContext) {
+  /**
+   * @param      {Object}  opts    Options:
+   *                       - force_persistent {bool}: mark all disks as if they
+   *                          were persistent, disabling resize inputs
+   */
+  function _insert(template_json, disksContext, opts) {
+
+    if (opts == undefined){
+      opts = {};
+    }
+
     var template_disk = template_json.VMTEMPLATE.TEMPLATE.DISK
     var disks = []
     if ($.isArray(template_disk)) {
@@ -105,7 +115,8 @@ define(function(require){
             $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
 
             var disabled =
-              ( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
+              ( opts.force_persistent ||
+                (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
                 (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
             var attr;

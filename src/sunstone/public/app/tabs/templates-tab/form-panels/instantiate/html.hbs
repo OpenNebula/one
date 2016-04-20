@@ -19,6 +19,15 @@
     <div class="large-12 large-centered columns selectTemplateTable">
     </div>
   </div>
+  <div class="row">
+    <div class="large-12 large-centered columns">
+      <label>
+        <input type="checkbox" class="instantiate_pers"/>
+        {{tr "Instantiate as persistent"}}
+        {{{tip (tr "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy")}}}
+      </label>
+    </div>
+  </div>
   <div class="row nameContainer">
     <div class="medium-4 columns">
       <label for="vm_name">
@@ -36,7 +45,8 @@
           {{tr "Number of Virtual Machines that will be created using this template"}}.
         </span>
       </label>
-      <input type="text" name="vm_n_times" id="vm_n_times" value="1">
+      <input type="number" name="vm_n_times" id="vm_n_times" value="1">
+      <input type="number" name="vm_n_times_disabled" id="vm_n_times_disabled" value="1" disabled>
     </div>
     <div class="medium-4 columns">
       <input type="checkbox" name="hold" id="hold"/>

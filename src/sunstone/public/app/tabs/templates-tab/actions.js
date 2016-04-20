@@ -185,6 +185,20 @@ define(function(require) {
           });
       }
     },
+    "Template.instantiate_persistent":
+    {
+      type: "single",
+      call: OpenNebulaResource.instantiate_persistent,
+      callback: function(req) {
+        Sunstone.hideFormPanel(TAB_ID);
+        OpenNebulaAction.clear_cache("VM");
+      },
+      error: function(request, response){
+        // without tab id param to work for both templates and vms tab
+        Sunstone.hideFormPanelLoading();
+        Notifier.onError(request, response);
+      }
+    },
     "Template.clone_dialog" : {
       type: "custom",
       call: function(){
