@@ -462,4 +462,21 @@ private:
     ImagePool* ipool;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineUpdateConf: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineUpdateConf():
+        RequestManagerVirtualMachine("VirtualMachineUpdateConf",
+                           "Updates several configuration attributes of a VM",
+                           "A:sis"){};
+
+    ~VirtualMachineUpdateConf(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 #endif

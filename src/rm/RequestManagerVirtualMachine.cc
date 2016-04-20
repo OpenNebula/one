@@ -2827,3 +2827,74 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineUpdateConf::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int     id       = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    VirtualMachine * vm;
+    VirtualMachineTemplate tmpl;
+
+    // -------------------------------------------------------------------------
+    // Parse template
+    // -------------------------------------------------------------------------
+    int rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the operation & restricted attributes                       */
+    /* ---------------------------------------------------------------------- */
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        string aname;
+
+        if (tmpl.check(aname))
+        {
+            att.resp_msg = "Template includes a restricted attribute " + aname;
+            failure_response(AUTHORIZATION, att);
+
+            return;
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Update VirtualMachine Configuration                                    */
+    /* ---------------------------------------------------------------------- */
+
+    vm = static_cast<VirtualMachinePool *>(pool)->get(id, true);
+
+    if (vm == 0)
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
+    {
+        failure_response(INTERNAL, att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    static_cast<VirtualMachinePool *>(pool)->update(vm);
+
+    vm->unlock();
+}
+

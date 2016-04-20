@@ -325,8 +325,8 @@ EOT
         },
         {
             :name   => 'boot',
-            :large  => '--boot device',
-            :description => 'Select boot device (hd|fd|cdrom|network)',
+            :large  => '--boot device_list',
+            :description => 'Set boot device list e.g. disk0,disk2,nic0',
             :format => String
         },
         {
@@ -350,9 +350,13 @@ EOT
         :description => 'Overwrite the file'
     }
 
-    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
+    TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
 
-    CAPACITY_OPTIONS_VM=[TEMPLATE_OPTIONS[0],TEMPLATE_OPTIONS[1],TEMPLATE_OPTIONS[3]]
+    CAPACITY_OPTIONS_VM   = [TEMPLATE_OPTIONS[0], TEMPLATE_OPTIONS[1],
+      TEMPLATE_OPTIONS[3]]
+
+    UPDATECONF_OPTIONS_VM = TEMPLATE_OPTIONS[6..15] + [TEMPLATE_OPTIONS[2],
+      TEMPLATE_OPTIONS[18]]
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 

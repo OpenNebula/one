@@ -983,7 +983,6 @@ public:
     int  parse_template_attribute(const string& attribute,
                                   string&       parsed,
                                   string&       error);
-
     /**
      *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
      *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
@@ -995,14 +994,15 @@ public:
     int  parse_file_attribute(string       attribute,
                               vector<int>& img_ids,
                               string&      error);
-
-
     /**
-     *  Sets the boot order of disk/nic devices
-     *    @param order, optionally use a different (and update) OS/BOOT
+     *  Updates the configuration attributes based on a template, the state of
+     *  the virtual machine is checked to assure operation consistency
+     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES, GRAPHICS
+     *    @param err description if any
      *
+     *    @return 0 on success
      */
-   void set_boot_order(string order);
+    int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
     /**
      *  Factory method for virtual machine templates

@@ -46,7 +46,8 @@ module OpenNebula
             :disksaveas     => "vm.disksaveas",
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
-            :disksnapshotdelete => "vm.disksnapshotdelete"
+            :disksnapshotdelete => "vm.disksnapshotdelete",
+            :updateconf     => "vm.updateconf"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -672,6 +673,20 @@ module OpenNebula
             return call(VM_METHODS[:recover], @pe_id, result)
         end
 
+		#  Changes the attributes of a VM in power off, failure and undeploy
+		#  states
+		#  @param new_conf, string describing the new attributes. Each attribute
+        #  will replace the existing ones or delete it if empty. Attributes that
+        #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
+        #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
+        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, DEVICE_MODE},
+        #  and GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP}
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+		def updateconf(new_conf)
+            return call(VM_METHODS[:updateconf], @pe_id, new_conf)
+		end
+
         ########################################################################
         # Helpers to get VirtualMachine information
         ########################################################################
@@ -723,6 +738,7 @@ module OpenNebula
             !self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
                 self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
         end
+
 
         # Clones the VM's source Template, replacing the disks with live snapshots
         # of the current disks. The VM capacity and NICs are also preserved

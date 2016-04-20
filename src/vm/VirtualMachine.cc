@@ -279,6 +279,101 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void set_boot_order(Template * tmpl)
+{
+	VectorAttribute * os = tmpl->get("OS");
+
+    if ( os == 0 )
+    {
+        return;
+    }
+
+    string order = os->vector_value("BOOT");
+
+    if ( order.empty() )
+    {
+        return;
+    }
+
+	vector<string> bdevs = one_util::split(order, ',');
+
+    vector<VectorAttribute *> disk;
+    vector<VectorAttribute *> nic;
+
+    int ndisk = tmpl->get("DISK", disk);
+    int nnic  = tmpl->get("NIC", nic);
+
+    for (int i=0; i<ndisk; ++i)
+    {
+        disk[i]->remove("ORDER");
+    }
+
+    for (int i=0; i<nnic; ++i)
+    {
+        nic[i]->remove("ORDER");
+    }
+
+    int index = 1;
+
+    for (vector<string>::iterator i = bdevs.begin(); i != bdevs.end(); ++i)
+    {
+        vector<VectorAttribute *> * dev;
+        int    max;
+        int    disk_id;
+        size_t pos;
+
+        const char * id_name;
+
+        one_util::toupper(*i);
+
+        if ((*i).compare(0,4,"DISK") == 0)
+        {
+            pos = 4;
+
+            max = ndisk;
+            dev = &disk;
+
+            id_name = "DISK_ID";
+        }
+        else if ((*i).compare(0,3,"NIC") == 0)
+        {
+            pos = 3;
+
+            max = nnic;
+            dev = &nic;
+
+            id_name = "NIC_ID";
+        }
+        else
+        {
+            continue;
+        }
+
+        istringstream iss((*i).substr(pos, string::npos));
+
+        iss >> disk_id;
+
+        if (iss.fail())
+        {
+            continue;
+        }
+
+        for (int j=0; j<max; ++j)
+        {
+            int j_disk_id;
+
+            if ( (*dev)[j]->vector_value(id_name, j_disk_id) == 0 &&
+                   j_disk_id == disk_id )
+            {
+                (*dev)[j]->replace("ORDER", index++);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
@@ -501,7 +596,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Set boot order
     // -------------------------------------------------------------------------
 
-    set_boot_order("");
+    set_boot_order(obj_template);
 
     // -------------------------------------------------------------------------
     // Parse the context & requirements
@@ -807,119 +902,6 @@ int VirtualMachine::parse_os(string& error_str)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::set_boot_order(string order)
-{
-	VectorAttribute * os = obj_template->get("OS");
-
-	if (!order.empty())
-	{
-		if ( os == 0 )
-		{
-			map<string,string>  vvalue;
-			vvalue.insert(make_pair("BOOT", order));
-
-   			os = new VectorAttribute("OS",vvalue);
-
-			obj_template->set(os);
-		}
-		else
-		{
-			os->replace("BOOT", order);
-		}
-	}
-	else
-	{
-		if ( os == 0 )
-		{
-			return;
-		}
-
-		order = os->vector_value("BOOT");
-
-		if ( order.empty() )
-		{
-			return;
-		}
-	}
-
-	vector<string> bdevs = one_util::split(order, ',');
-
-    vector<VectorAttribute *> disk;
-    vector<VectorAttribute *> nic;
-
-    int ndisk = obj_template->get("DISK", disk);
-    int nnic  = obj_template->get("NIC", nic);
-
-    for (int i=0; i<ndisk; ++i)
-    {
-        disk[i]->remove("ORDER");
-    }
-
-    for (int i=0; i<nnic; ++i)
-    {
-        nic[i]->remove("ORDER");
-    }
-
-    int index = 1;
-
-    for (vector<string>::iterator i = bdevs.begin(); i != bdevs.end(); ++i)
-    {
-        vector<VectorAttribute *> * dev;
-        int    max;
-        int    disk_id;
-        size_t pos;
-
-        const char * id_name;
-
-        one_util::toupper(*i);
-
-        if ((*i).compare(0,4,"DISK") == 0)
-        {
-            pos = 4;
-
-            max = ndisk;
-            dev = &disk;
-
-            id_name = "DISK_ID";
-        }
-        else if ((*i).compare(0,3,"NIC") == 0)
-        {
-            pos = 3;
-
-            max = nnic;
-            dev = &nic;
-
-            id_name = "NIC_ID";
-        }
-        else
-        {
-            continue;
-        }
-
-        istringstream iss((*i).substr(pos, string::npos));
-
-        iss >> disk_id;
-
-        if (iss.fail())
-        {
-            continue;
-        }
-
-        for (int j=0; j<max; ++j)
-        {
-            int j_disk_id;
-
-            if ( (*dev)[j]->vector_value(id_name, j_disk_id) == 0 &&
-                   j_disk_id == disk_id )
-            {
-                (*dev)[j]->replace("ORDER", index++);
-            }
-        }
-    }
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -4812,3 +4794,147 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context)
     return net_context;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Replaces the values of a vector value, preserving the existing ones
+ */
+static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
+        const char * name, const string * vnames, int num)
+{
+    string value;
+
+    VectorAttribute * new_attr = new_tmpl->get(name);
+
+    if ( new_attr == 0 )
+    {
+        return;
+    }
+
+    VectorAttribute * old_attr = old_tmpl->get(name);
+
+    if ( old_attr == 0 )
+    {
+        old_attr = new VectorAttribute(name);
+        old_tmpl->set(old_attr);
+    }
+
+    for (int i=0; i < num; i++)
+    {
+        if ( new_attr->vector_value(vnames[i].c_str(), value) == -1 )
+        {
+            continue;
+        }
+
+        if (value.empty())
+        {
+            old_attr->remove(vnames[i].c_str());
+        }
+        else
+        {
+            old_attr->replace(vnames[i].c_str(), value);
+        }
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
+{
+    switch (state)
+    {
+        case PENDING:
+        case HOLD:
+        case STOPPED:
+        case POWEROFF:
+        case UNDEPLOYED:
+        case CLONING:
+            break;
+
+        case ACTIVE:
+            switch (lcm_state)
+            {
+                case LCM_INIT:
+                case PROLOG:
+                case SAVE_STOP:
+                case EPILOG_STOP:
+                case EPILOG:
+                case SHUTDOWN:
+                case CLEANUP_RESUBMIT:
+                case SHUTDOWN_POWEROFF:
+                case CLEANUP_DELETE:
+                case HOTPLUG_SAVEAS_POWEROFF:
+                case SHUTDOWN_UNDEPLOY:
+                case EPILOG_UNDEPLOY:
+                case PROLOG_UNDEPLOY:
+                case HOTPLUG_PROLOG_POWEROFF:
+                case HOTPLUG_EPILOG_POWEROFF:
+                case BOOT_FAILURE:
+                case PROLOG_FAILURE:
+                case EPILOG_FAILURE:
+                case EPILOG_STOP_FAILURE:
+                case EPILOG_UNDEPLOY_FAILURE:
+                case PROLOG_MIGRATE_POWEROFF:
+                case PROLOG_MIGRATE_POWEROFF_FAILURE:
+                case BOOT_UNDEPLOY_FAILURE:
+                case PROLOG_UNDEPLOY_FAILURE:
+                case DISK_SNAPSHOT_POWEROFF:
+                case DISK_SNAPSHOT_REVERT_POWEROFF:
+                case DISK_SNAPSHOT_DELETE_POWEROFF:
+                    break;
+
+                default:
+                    err = "configuration cannot be updated in state " + state_str();
+                    return -1;
+            };
+
+        case INIT:
+        case DONE:
+        case SUSPENDED:
+            err = "configuration cannot be update in state " + state_str();
+            return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Update OS
+    // -------------------------------------------------------------------------
+
+    string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
+        "BOOT"};
+
+    replace_vector_values(obj_template, &tmpl, "OS", os_names, 6);
+
+    set_boot_order(obj_template);
+
+    // -------------------------------------------------------------------------
+    // Update FEATURES:
+    // -------------------------------------------------------------------------
+    string features_names[] = {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
+        "DEVICE_MODE"};
+
+    replace_vector_values(obj_template, &tmpl, "FEATURES", features_names, 6);
+
+    // -------------------------------------------------------------------------
+    // Update INPUT:
+    // -------------------------------------------------------------------------
+    string input_names[] = {"TYPE", "BUS"};
+
+    replace_vector_values(obj_template, &tmpl, "INPUT", input_names, 2);
+
+    // -------------------------------------------------------------------------
+    // Update GRAPHICS:
+    // -------------------------------------------------------------------------
+    string graphics_names[] = {"TYPE", "LISTEN", "PASSWD", "KEYMAP"};
+
+    replace_vector_values(obj_template, &tmpl, "GRAPHICS", graphics_names, 4);
+
+    // -------------------------------------------------------------------------
+    // Update RAW:
+    // -------------------------------------------------------------------------
+    string raw_names[] = {"TYPE", "DATA", "DATA_VMX"};
+
+    replace_vector_values(obj_template, &tmpl, "RAW", raw_names, 3);
+
+    return 0;
+}
