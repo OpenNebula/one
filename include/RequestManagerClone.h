@@ -45,6 +45,7 @@ protected:
     ErrorCode clone(
             int             source_id,
             const string    &name,
+            const string    &str_uattrs,
             int             &new_id,
             RequestAttributes& att);
 
@@ -55,6 +56,14 @@ protected:
             Template *                  tmpl,
             int&                        id,
             RequestAttributes&          att) = 0;
+
+    virtual ErrorCode merge(
+            Template *      tmpl,
+            const string    &str_uattrs,
+            RequestAttributes& att)
+    {
+        return SUCCESS;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -77,11 +86,12 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 
     ErrorCode request_execute(
-            int    source_id,
-            string name,
-            bool   recursive,
-            int    &new_id,
-            RequestAttributes &att);
+            int                 source_id,
+            string              name,
+            bool                recursive,
+            const string        &str_uattrs,
+            int                 &new_id,
+            RequestAttributes   &att);
 
     Template * clone_template(PoolObjectSQL* obj)
     {
@@ -102,6 +112,11 @@ public:
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
                 ttmpl, &id, att.resp_msg);
     };
+
+    ErrorCode merge(
+                Template *      tmpl,
+                const string    &str_uattrs,
+                RequestAttributes& att);
 
 private:
     VMTemplateClone():

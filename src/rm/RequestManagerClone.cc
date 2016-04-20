@@ -17,6 +17,7 @@
 #include "RequestManagerClone.h"
 #include "RequestManagerImage.h"
 #include "RequestManagerDelete.h"
+#include "RequestManagerVMTemplate.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 
@@ -32,7 +33,7 @@ void RequestManagerClone::request_execute(
 
     int    new_id;
 
-    ErrorCode ec = clone(source_id, name, new_id, att);
+    ErrorCode ec = clone(source_id, name, "", new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -50,6 +51,7 @@ void RequestManagerClone::request_execute(
 Request::ErrorCode RequestManagerClone::clone(
         int             source_id,
         const string    &name,
+        const string    &str_uattrs,
         int             &new_id,
         RequestAttributes& att)
 {
@@ -73,6 +75,14 @@ Request::ErrorCode RequestManagerClone::clone(
     source_obj->get_permissions(perms);
 
     source_obj->unlock();
+
+    ErrorCode ec = merge(tmpl, str_uattrs, att);
+
+    if (ec != SUCCESS)
+    {
+        delete tmpl;
+        return ec;
+    }
 
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME",name));
@@ -126,7 +136,7 @@ void VMTemplateClone::request_execute(
 
     int new_id;
 
-    ErrorCode ec = request_execute(source_id, name, recursive, new_id, att);
+    ErrorCode ec = request_execute(source_id, name, recursive, "", new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -142,11 +152,12 @@ void VMTemplateClone::request_execute(
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VMTemplateClone::request_execute(
-                int    source_id,
-                string name,
-                bool   recursive,
-                int    &new_id,
-                RequestAttributes &att)
+                int                 source_id,
+                string              name,
+                bool                recursive,
+                const string        &str_uattrs,
+                int                 &new_id,
+                RequestAttributes   &att)
 {
     VMTemplate *    vmtmpl;
     VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
@@ -160,7 +171,7 @@ Request::ErrorCode VMTemplateClone::request_execute(
     RequestAttributes img_att(att);
     img_att.resp_obj = PoolObjectSQL::IMAGE;
 
-    ec = clone(source_id, name, new_id, att);
+    ec = clone(source_id, name, str_uattrs, new_id, att);
 
     if ( ec != SUCCESS )
     {
@@ -293,3 +304,13 @@ error_template:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Request::ErrorCode VMTemplateClone::merge(
+                Template *      tmpl,
+                const string    &str_uattrs,
+                RequestAttributes& att)
+{
+    return VMTemplateInstantiate::merge(tmpl, str_uattrs, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -54,6 +54,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     bool is_vrouter = tmpl->is_vrouter();
 
+    string original_tmpl_name = tmpl->get_name();
+
     tmpl->unlock();
 
     if (is_vrouter)
@@ -69,7 +71,15 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     {
         int new_id;
 
-        ErrorCode ec = VMTemplateClone::instance().request_execute(id, name, true, new_id, att);
+        string tmpl_name = name;
+
+        if (tmpl_name.empty())
+        {
+            tmpl_name = original_tmpl_name + "-copy";
+        }
+
+        ErrorCode ec = VMTemplateClone::instance().request_execute(
+                                id, tmpl_name, true, str_uattrs, new_id, att);
 
         if (ec != SUCCESS)
         {
@@ -78,6 +88,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         instantiate_id = new_id;
+        str_uattrs = "";
     }
 
     int vid;
@@ -99,7 +110,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
-        bool on_hold, string str_uattrs, Template* extra_attrs, int& vid,
+        bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
         RequestAttributes& att)
 {
     int rc;
@@ -139,46 +150,12 @@ Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
 
     rtmpl->unlock();
 
-    // Parse & merge user attributes (check if the request user is not oneadmin)
-    if (!str_uattrs.empty())
+    ErrorCode ec = merge(tmpl, str_uattrs, att);
+
+    if (ec != SUCCESS)
     {
-        rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
-
-        if ( rc != 0 )
-        {
-            delete tmpl;
-            return INTERNAL;
-        }
-
-        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
-        {
-            if (uattrs.check(aname))
-            {
-                att.resp_msg ="User Template includes a restricted attribute " + aname;
-
-                delete tmpl;
-                return AUTHORIZATION;
-            }
-        }
-
-        rc = tmpl->merge(&uattrs, att.resp_msg);
-
-        if ( rc != 0 )
-        {
-            delete tmpl;
-            return INTERNAL;
-        }
-    }
-
-    if (extra_attrs != 0)
-    {
-        rc = tmpl->merge(extra_attrs, att.resp_msg);
-
-        if ( rc != 0 )
-        {
-            delete tmpl;
-            return INTERNAL;
-        }
+        delete tmpl;
+        return ec;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -262,3 +239,43 @@ Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+Request::ErrorCode VMTemplateInstantiate::merge(
+                Template *      tmpl,
+                const string    &str_uattrs,
+                RequestAttributes& att)
+{
+    // Parse & merge user attributes (check if the request user is not oneadmin)
+    if (!str_uattrs.empty())
+    {
+        int rc;
+
+        VirtualMachineTemplate  uattrs;
+        string                  aname;
+
+        rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            return INTERNAL;
+        }
+
+        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        {
+            if (uattrs.check(aname))
+            {
+                att.resp_msg ="User Template includes a restricted attribute " + aname;
+
+                return AUTHORIZATION;
+            }
+        }
+
+        rc = tmpl->merge(&uattrs, att.resp_msg);
+
+        if ( rc != 0 )
+        {
+            return INTERNAL;
+        }
+    }
+
+    return SUCCESS;
+}

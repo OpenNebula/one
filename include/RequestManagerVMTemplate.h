@@ -83,7 +83,13 @@ public:
      * @return ErroCode for the request.
      */
     static ErrorCode instantiate(int id, string name, bool on_hold,
-            string str_uattrs, Template* extra_attrs, int& vid, RequestAttributes& att);
+            const string &str_uattrs, Template* extra_attrs, int& vid,
+            RequestAttributes& att);
+
+    static ErrorCode merge(
+                    Template *      tmpl,
+                    const string    &str_uattrs,
+                    RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */
