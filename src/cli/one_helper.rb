@@ -341,6 +341,12 @@ EOT
             :large  => '--init script1,script2',
             :format => Array,
             :description => 'Script or scripts to start in context'
+        },
+        {
+            :name   => 'startscript',
+            :large  => '--startscript [file]',
+            :format => String,
+            :description => 'Start script to be executed'
         }
     ]
 
@@ -947,7 +953,7 @@ EOT
     end
 
     def self.create_context(options)
-        context_options = [:ssh, :net_context, :context, :init, :files_ds]
+        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript]
         if !(options.keys & context_options).empty?
             lines=[]
 
@@ -983,6 +989,18 @@ EOT
 
             if options[:init]
                 lines << %Q<INIT_SCRIPTS="#{options[:init].join(' ')}">
+            end
+
+            if options[:startscript]
+                script = nil
+                begin
+                    script = File.read(options[:startscript]).strip
+                rescue Exception => e
+                    STDERR.puts e.message
+                    exit(-1)
+                end
+                script = Base64::strict_encode64(script)
+                lines<<"START_SCRIPT_BASE64=\"#{script}\""
             end
 
             if !lines.empty?
