@@ -21,5 +21,9 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'vlan_tag_driver'
 
-hm = VLANTagDriver.from_base64(ARGV[0], xpath_filter, deploy_id)
+template64   = ARGV[0]
+deploy_id    = ARGV[1]
+xpath_filter = VLANTagDriver::XPATH_FILTER
+
+hm = VLANTagDriver.from_base64(template64, xpath_filter, deploy_id)
 exit hm.activate
