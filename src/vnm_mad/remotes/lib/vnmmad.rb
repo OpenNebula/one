@@ -43,8 +43,8 @@ begin
 rescue
     # Default configuration values
     CONF = {
-        :arp_cache_poisoning => true
-        :vxlan_mc            => "239.0.0.0"
+        :arp_cache_poisoning => true,
+        :vxlan_mc            => "239.0.0.0",
         :vxlan_ttl           => "16"
     }
 end
