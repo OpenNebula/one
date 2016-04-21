@@ -55,20 +55,16 @@ protected:
 
     ~RequestManagerDelete(){};
 
-    /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att);
+        RequestAttributes& att);
 
-    static ErrorCode delete_authorization(
-            PoolSQL*                pool,
-            int                     oid,
-            AuthRequest::Operation  auth_op,
-            RequestAttributes&      att);
+    ErrorCode delete_object(int oid, bool recursive,
+        RequestAttributes& att);
 
     /* -------------------------------------------------------------------- */
 
-    virtual int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    virtual int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 
     virtual set<int> get_cluster_ids(PoolObjectSQL * object)
     {
@@ -81,9 +77,11 @@ protected:
         return -1;
     };
 
-protected:
-    ClusterPool *   clpool;
-    AclManager *    aclm;
+    /* -------------------------------------------------------------------- */
+
+    ClusterPool * clpool;
+
+    AclManager *  aclm;
 };
 
 
@@ -105,10 +103,14 @@ public:
 
     ~TemplateDelete(){};
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att)
+    {
+        return delete_object(oid, recursive, att);
+    }
 
-    static ErrorCode request_execute(int oid, bool recursive, RequestAttributes& att);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -128,7 +130,7 @@ public:
 
     ~VirtualNetworkDelete(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
     set<int> get_cluster_ids(PoolObjectSQL * object)
     {
@@ -140,7 +142,7 @@ public:
         return cluster->del_vnet(id, error_msg);
     };
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -159,10 +161,14 @@ public:
 
     ~ImageDelete(){};
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+    ErrorCode request_execute(int oid, RequestAttributes& att)
+    {
+        return delete_object(oid, false, att);
+    };
 
-    static ErrorCode delete_img(int oid, RequestAttributes& att);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -182,7 +188,7 @@ public:
 
     ~HostDelete(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
     set<int> get_cluster_ids(PoolObjectSQL * object)
     {
@@ -198,9 +204,7 @@ public:
         return cluster->del_host(id, error_msg);
     };
 
-    /* -------------------------------------------------------------------- */
-
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -221,9 +225,9 @@ public:
 
     ~GroupDelete(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -245,13 +249,11 @@ public:
 
     ~UserDelete(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
     GroupPool *  gpool;
 
-    /* -------------------------------------------------------------------- */
-
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -301,7 +303,9 @@ public:
 
     ~ClusterDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -339,7 +343,9 @@ public:
 
     ~ZoneDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -359,7 +365,9 @@ public:
 
     ~SecurityGroupDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -415,7 +423,9 @@ public:
 
     ~MarketPlaceDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -435,7 +445,9 @@ public:
 
     ~MarketPlaceAppDelete(){};
 
-    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+protected:
+
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

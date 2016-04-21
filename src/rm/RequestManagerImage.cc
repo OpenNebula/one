@@ -293,7 +293,7 @@ void ImageClone::request_execute(
         ds_id = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    ErrorCode ec = clone_img(clone_id, name, ds_id, new_id, att);
+    ErrorCode ec = request_execute(clone_id, name, ds_id, new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -308,7 +308,7 @@ void ImageClone::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode ImageClone::clone_img(
+Request::ErrorCode ImageClone::request_execute(
         int             clone_id,
         const string&   name,
         int             ds_id,

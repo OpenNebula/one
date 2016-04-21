@@ -18,6 +18,7 @@
 #define REQUEST_MANAGER_CLONE_H
 
 #include "Request.h"
+#include "RequestManagerVMTemplate.h"
 #include "Nebula.h"
 
 using namespace std;
@@ -29,41 +30,46 @@ using namespace std;
 class RequestManagerClone: public Request
 {
 protected:
-    RequestManagerClone(const string& method_name,
-                             const string& help,
-                             const string& params = "A:sis")
-        :Request(method_name,params,help)
-    {};
+    RequestManagerClone(const string& method_name, const string& help,
+        const string& params = "A:sis"):
+        Request(method_name,params,help){};
 
     ~RequestManagerClone(){};
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
-
-    ErrorCode clone(
-            int             source_id,
-            const string    &name,
-            const string    &str_uattrs,
-            int             &new_id,
+    void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
 
+    /* -------------------------------------------------------------------- */
+    /* Especialization Functions for specific Clone actions                 */
+    /* -------------------------------------------------------------------- */
+
+	/**
+     *  Function to clone the object
+     */
+    virtual ErrorCode clone(int source_id, const string &name, int &new_id,
+            bool recursive, const string& s_uattr, RequestAttributes& att);
+
+	/**
+     *  Function to clone the base template
+     */
     virtual Template * clone_template(PoolObjectSQL* obj) = 0;
 
-    virtual int pool_allocate(
-            int                         source_id,
-            Template *                  tmpl,
-            int&                        id,
-            RequestAttributes&          att) = 0;
-
-    virtual ErrorCode merge(
-            Template *      tmpl,
-            const string    &str_uattrs,
+	/**
+     *  Function to merge user/additional attributes in the cloned object
+     */
+    virtual ErrorCode merge(Template * tmpl, const string &str_uattrs,
             RequestAttributes& att)
     {
         return SUCCESS;
     }
+
+	/**
+     *  Function to allocated the new clone object
+     */
+    virtual int pool_allocate(int source_id, Template * tmpl, int& id,
+            RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -72,57 +78,9 @@ protected:
 class VMTemplateClone : public RequestManagerClone
 {
 public:
-
-    static VMTemplateClone& instance()
-    {
-        static VMTemplateClone instance;
-
-        return instance;
-    };
-
-    /* -------------------------------------------------------------------- */
-
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
-
-    ErrorCode request_execute(
-            int                 source_id,
-            string              name,
-            bool                recursive,
-            const string        &str_uattrs,
-            int                 &new_id,
-            RequestAttributes   &att);
-
-    Template * clone_template(PoolObjectSQL* obj)
-    {
-        return static_cast<VMTemplate*>(obj)->clone_template();
-    };
-
-    int pool_allocate(
-            int                         source_id,
-            Template *                  tmpl,
-            int&                        id,
-            RequestAttributes&          att)
-    {
-        VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
-
-        VirtualMachineTemplate * ttmpl =
-                static_cast<VirtualMachineTemplate *>(tmpl);
-
-        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                ttmpl, &id, att.resp_msg);
-    };
-
-    ErrorCode merge(
-                Template *      tmpl,
-                const string    &str_uattrs,
-                RequestAttributes& att);
-
-private:
     VMTemplateClone():
-        RequestManagerClone("VMTemplateClone",
-                            "Clone an existing virtual machine template",
-                            "A:sisb")
+        RequestManagerClone("VMTemplateClone","Clone a virtual machine template",
+                "A:sisb")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -132,6 +90,38 @@ private:
     };
 
     ~VMTemplateClone(){};
+
+    ErrorCode request_execute(int source_id, const string &name, int &new_id,
+            bool recursive, const string& s_uattrs, RequestAttributes& att)
+    {
+        return clone(source_id, name, new_id, recursive, s_uattrs, att);
+    };
+
+protected:
+
+    ErrorCode clone(int source_id, const string &name, int &new_id,
+            bool recursive, const string& s_a, RequestAttributes& att);
+
+    Template * clone_template(PoolObjectSQL* obj)
+    {
+        return static_cast<VMTemplate*>(obj)->clone_template();
+    };
+
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    {
+        VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
+        VirtualMachineTemplate * t = static_cast<VirtualMachineTemplate*>(tmpl);
+
+        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                t, &id, att.resp_msg);
+    };
+
+    ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att)
+	{
+		VMTemplateInstantiate vm_instantiate;
+
+		return vm_instantiate.merge(tmpl, s_a, att);
+	};
 };
 
 
@@ -142,8 +132,7 @@ class DocumentClone : public RequestManagerClone
 {
 public:
     DocumentClone():
-        RequestManagerClone("DocumentClone",
-                            "Clone an existing generic document")
+        RequestManagerClone("DocumentClone", "Clone existing document")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_docpool();
@@ -154,26 +143,29 @@ public:
 
     ~DocumentClone(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
     Template * clone_template(PoolObjectSQL* obj)
     {
         return static_cast<Document*>(obj)->clone_template();
     };
 
-    int pool_allocate(
-            int                         source_id,
-            Template *                  tmpl,
-            int&                        id,
-            RequestAttributes&          att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc         = docpool->get(source_id, true);
+        Document * doc         = docpool->get(sid, true);
+
+        if ( doc == 0 )
+        {
+            return -1;
+        }
+
+        int dtype = doc->get_document_type();
 
         doc->unlock();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, doc->get_document_type(), tmpl, &id, att.resp_msg);
+            att.umask, dtype, tmpl, &id, att.resp_msg);
     };
 };
 
@@ -184,8 +176,7 @@ class SecurityGroupClone : public RequestManagerClone
 {
 public:
     SecurityGroupClone():
-        RequestManagerClone("SecurityGroupClone",
-                            "Clone an existing security group")
+        RequestManagerClone("SecurityGroupClone", "Clone a security group")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_secgrouppool();
@@ -196,26 +187,22 @@ public:
 
     ~SecurityGroupClone(){};
 
-    /* -------------------------------------------------------------------- */
+protected:
 
     Template * clone_template(PoolObjectSQL* obj)
     {
         return static_cast<SecurityGroup*>(obj)->clone_template();
     };
 
-    int pool_allocate(
-            int                         source_id,
-            Template *                  tmpl,
-            int&                        id,
-            RequestAttributes&          att)
+    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
     {
-        SecurityGroupPool * secgrouppool = static_cast<SecurityGroupPool *>(pool);
+        SecurityGroupPool * sg = static_cast<SecurityGroupPool *>(pool);
 
-        return secgrouppool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, tmpl, &id, att.resp_msg);
+        return sg->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                tmpl, &id, att.resp_msg);
     };
 };
-/* -------------------------------------------------------------------------- */
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

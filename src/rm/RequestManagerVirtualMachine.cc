@@ -2233,7 +2233,8 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
+    if (vm->is_vrouter() &&
+            !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2258,7 +2259,7 @@ void VirtualMachineAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Perform the attach
     // -------------------------------------------------------------------------
-    ErrorCode ec = attach(id, tmpl, att);
+    ErrorCode ec = request_execute(id, tmpl, att);
 
     if ( ec == SUCCESS )
     {
@@ -2273,8 +2274,8 @@ void VirtualMachineAttachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VirtualMachineAttachNic::attach(int id, VirtualMachineTemplate& tmpl,
-        RequestAttributes& att)
+Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
+    VirtualMachineTemplate& tmpl, RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -2370,7 +2371,8 @@ void VirtualMachineDetachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter() &&
+            !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2384,7 +2386,7 @@ void VirtualMachineDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Perform the detach
     // -------------------------------------------------------------------------
-    ErrorCode ec = detach(id, nic_id, att);
+    ErrorCode ec = request_execute(id, nic_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -2399,7 +2401,7 @@ void VirtualMachineDetachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VirtualMachineDetachNic::detach(int id, int nic_id,
+Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
         RequestAttributes& att)
 {
     Nebula&             nd      = Nebula::instance();

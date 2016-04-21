@@ -27,14 +27,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 {
     int    id   = xmlrpc_c::value_int(paramList.getInt(1));
     string name = xmlrpc_c::value_string(paramList.getString(2));
-    bool   on_hold = false; //Optional XML-RPC argument
-    string str_uattrs;      //Optional XML-RPC argument
-    bool   clone_template = false;  //Optional XML-RPC argument
+    bool   on_hold = false;        //Optional XML-RPC argument
+    string str_uattrs;             //Optional XML-RPC argument
+    bool   clone_template = false; //Optional XML-RPC argument
 
     if ( paramList.size() > 3 )
     {
-        on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(3));
-
+        on_hold    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
         str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
 
@@ -60,7 +59,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (is_vrouter)
     {
-        att.resp_msg = "Virtual router templates cannot be instantiated as stand-alone VMs";
+        att.resp_msg = "Virtual router templates cannot be instantiated";
         failure_response(ACTION, att);
         return;
     }
@@ -70,6 +69,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     if (clone_template)
     {
         int new_id;
+        VMTemplateClone tmpl_clone;
 
         string tmpl_name = name;
 
@@ -78,8 +78,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             tmpl_name = original_tmpl_name + "-copy";
         }
 
-        ErrorCode ec = VMTemplateClone::instance().request_execute(
-                                id, tmpl_name, true, str_uattrs, new_id, att);
+        ErrorCode ec = tmpl_clone.request_execute(id, name, new_id, true,
+			str_uattrs, att);
 
         if (ec != SUCCESS)
         {
@@ -88,13 +88,13 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         instantiate_id = new_id;
-        str_uattrs = "";
+        str_uattrs     = "";
     }
 
-    int vid;
+    int       vid;
     ErrorCode ec;
 
-    ec = instantiate(instantiate_id, name, on_hold, str_uattrs, 0, vid, att);
+    ec = request_execute(instantiate_id, name, on_hold, str_uattrs, 0, vid, att);
 
     if ( ec == SUCCESS )
     {
@@ -109,7 +109,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VMTemplateInstantiate::instantiate(int id, string name,
+Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
         RequestAttributes& att)
 {
@@ -244,38 +244,39 @@ Request::ErrorCode VMTemplateInstantiate::merge(
                 const string    &str_uattrs,
                 RequestAttributes& att)
 {
-    // Parse & merge user attributes (check if the request user is not oneadmin)
-    if (!str_uattrs.empty())
+    if (str_uattrs.empty())
     {
-        int rc;
+		return SUCCESS;
+	}
 
-        VirtualMachineTemplate  uattrs;
-        string                  aname;
+	int rc;
 
-        rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
+	VirtualMachineTemplate  uattrs;
+	string                  aname;
 
-        if ( rc != 0 )
-        {
-            return INTERNAL;
-        }
+	rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
 
-        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
-        {
-            if (uattrs.check(aname))
-            {
-                att.resp_msg ="User Template includes a restricted attribute " + aname;
+	if ( rc != 0 )
+	{
+		return INTERNAL;
+	}
 
-                return AUTHORIZATION;
-            }
-        }
+	if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+	{
+		if (uattrs.check(aname))
+		{
+			att.resp_msg ="User Template includes a restricted attribute " + aname;
 
-        rc = tmpl->merge(&uattrs, att.resp_msg);
+			return AUTHORIZATION;
+		}
+	}
 
-        if ( rc != 0 )
-        {
-            return INTERNAL;
-        }
-    }
+	rc = tmpl->merge(&uattrs, att.resp_msg);
+
+	if ( rc != 0 )
+	{
+		return INTERNAL;
+	}
 
     return SUCCESS;
 }

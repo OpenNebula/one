@@ -75,7 +75,7 @@ public:
 	 * are copied and must be freed by the calling function.
 	 *   @param a vector to store the disks.
      */
-    void get_disks(vector<VectorAttribute *>& disks)
+    void clone_disks(vector<VectorAttribute *>& disks)
     {
 		vector<const VectorAttribute *> _disks;
 
@@ -88,18 +88,18 @@ public:
 		}
     }
 
-    // Replaces the current DISK attributes with the given ones. The objects
-    // must NOT be deleted by the calling function
+    /**
+     * Replaces the current DISK attributes with the given ones. The objects
+     * must NOT be deleted by the calling function, and should be obtained
+     * through a clone_disks() call.
+     *   @param disks a vector with the new disks
+     *
+     */
     void replace_disks(vector<VectorAttribute *>& disks)
     {
-        vector<VectorAttribute *>::iterator i;
-
         obj_template->erase("DISK");
 
-        for (i = disks.begin(); i != disks.end(); i++)
-        {
-            obj_template->set(*i);
-        }
+        obj_template->set(disks);
     }
 
     // ------------------------------------------------------------------------
