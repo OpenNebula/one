@@ -56,6 +56,8 @@ define(function(require) {
       }
     };
 
+    this.template_objects = [];
+
     BaseFormPanel.call(this);
   }
 
@@ -84,28 +86,23 @@ define(function(require) {
     var that = this;
 
     $("input.instantiate_pers", context).on("change", function(){
-      if($(this).prop('checked')){
+      var persistent = $(this).prop('checked');
+
+      if(persistent){
         $("#vm_n_times_disabled", context).show();
         $("#vm_n_times", context).hide();
-
-        $.each(that.template_objects, function(index, template_json) {
-          DisksResize.insert(
-            template_json,
-            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-            {force_persistent: true});
-        });
-
       } else {
         $("#vm_n_times_disabled", context).hide();
         $("#vm_n_times", context).show();
-
-        $.each(that.template_objects, function(index, template_json) {
-          DisksResize.insert(
-            template_json,
-            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-            {force_persistent: false});
-        });
       }
+
+      $.each(that.template_objects, function(index, template_json) {
+        DisksResize.insert({
+          template_json:    template_json,
+          disksContext:     $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+          force_persistent: persistent
+        });
+      });
     });
   }
 
@@ -188,7 +185,8 @@ define(function(require) {
     $.each(this.selected_nodes, function(index, template_id) {
       OpenNebulaTemplate.show({
         data : {
-          id: template_id
+          id: template_id,
+          extended: true
         },
         timeout: true,
         success: function (request, template_json) {
@@ -200,10 +198,11 @@ define(function(require) {
                 capacityInputsHTML: CapacityInputs.html()
               }) );
 
-          DisksResize.insert(
-            template_json,
-            $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-            {force_persistent: $("input.instantiate_pers", context).prop("checked")});
+          DisksResize.insert({
+            template_json: template_json,
+            disksContext: $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
+            force_persistent: $("input.instantiate_pers", context).prop("checked")
+          });
 
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
@@ -266,6 +265,8 @@ define(function(require) {
 
   function _onShow(context) {
     Sunstone.disableFormPanelSubmit(TAB_ID);
+
+    $("input.instantiate_pers", context).change();
 
     var templatesContext = $(".list_of_templates", context);
     templatesContext.html("");
