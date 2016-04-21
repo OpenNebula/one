@@ -24,9 +24,14 @@
       <input type="text" id="vm_name" class="provision-input" placeholder="{{tr "Virtual Machine Name"}}"/>
     </div>
     <div class="large-3 columns">
-      <label>
-        <input type="checkbox" class="instantiate_pers"/>
-        {{tr "Persistent copy"}}
+      <div class="switch left">
+        <input class="switch-input instantiate_pers" id="instantiate_pers" type="checkbox">
+        <label class="switch-paddle" for="instantiate_pers">
+        </label>
+      </div>
+      <label class="left">
+        &nbsp;&nbsp;
+        {{tr "Persistent"}}
         {{{tip (tr "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy")}}}
       </label>
     </div>

@@ -21,8 +21,13 @@
   </div>
   <div class="row">
     <div class="large-12 large-centered columns">
-      <label>
-        <input type="checkbox" class="instantiate_pers"/>
+      <div class="switch left">
+        <input class="switch-input instantiate_pers" id="{{formPanelId}}instantiate_pers" type="checkbox">
+        <label class="switch-paddle" for="{{formPanelId}}instantiate_pers">
+        </label>
+      </div>
+      <label class="left">
+        &nbsp;&nbsp;
         {{tr "Instantiate as persistent"}}
         {{{tip (tr "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy")}}}
       </label>
