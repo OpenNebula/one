@@ -168,6 +168,7 @@ Request::ErrorCode VMTemplateClone::request_execute(
     vector<int> new_img_ids;
     vector<int>::iterator i;
 
+    RequestAttributes del_att(att);
     RequestAttributes img_att(att);
     img_att.resp_obj = PoolObjectSQL::IMAGE;
 
@@ -220,10 +221,10 @@ Request::ErrorCode VMTemplateClone::request_execute(
                     {
                         NebulaLog::log("ReM", Log::ERROR, failure_message(ec, img_att));
 
-                        ImageDelete::delete_img(img_id, img_att);
-
                         att.resp_msg = "Failure while making the cloned "
-                                    "images persistent. "+img_att.resp_msg;
+                                    "images persistent. "+failure_message(ec, img_att);
+
+                        ImageDelete::delete_img(img_id, img_att);
 
                         goto error_images;
                     }
@@ -241,7 +242,7 @@ Request::ErrorCode VMTemplateClone::request_execute(
                     NebulaLog::log("ReM", Log::ERROR, failure_message(ec, img_att));
 
                     att.resp_msg = "Failure while cloning the "
-                                    "template images. "+img_att.resp_msg;
+                                    "template images. "+failure_message(ec, img_att);
 
                     goto error_images;
                 }
@@ -270,12 +271,11 @@ Request::ErrorCode VMTemplateClone::request_execute(
     return SUCCESS;
 
 error_images:
-
-    ec = TemplateDelete::request_execute(new_id, false, att);
+    ec = TemplateDelete::request_execute(new_id, false, del_att);
 
     if (ec != SUCCESS)
     {
-        NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
+        NebulaLog::log("ReM", Log::ERROR, failure_message(ec, del_att));
     }
 
     goto error_template;

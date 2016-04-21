@@ -154,6 +154,7 @@ int ImagePool::allocate (
     {
         if (imagem->can_clone_image(cloning_id, oss) == -1)
         {
+            error_str = oss.str();
             goto error_clone_state;
         }
 
