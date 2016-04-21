@@ -28,7 +28,9 @@ define(function(require) {
     Locale.tr("ERROR"),
     Locale.tr("CLONE"),
     Locale.tr("DELETE"),
-    Locale.tr("USED_PERS")
+    Locale.tr("USED_PERS"),
+    Locale.tr("LOCKED_USED"),
+    Locale.tr("LOCKED_USED_PERS")
   ];
 
   var TYPES_STR = [
@@ -40,6 +42,20 @@ define(function(require) {
     Locale.tr("CONTEXT")
   ];
 
+  var STATES_COLOR = [
+    'off',        // INIT
+    'running',    // READY
+    'running',    // USED
+    'error',      // DISABLED
+    'deploying',  // LOCKED
+    'error',      // ERROR
+    'error',      // CLONE
+    'error',      // DELETE
+    'error',      // USED_PERS
+    'deploying',  // LOCKED_USED
+    'error'       // LOCKED_USED_PERS
+  ];
+
   var STATES = {
     INIT      : 0,
     READY     : 1,
@@ -49,7 +65,9 @@ define(function(require) {
     ERROR     : 5,
     CLONE     : 6,
     DELETE    : 7,
-    USED_PERS : 8
+    USED_PERS : 8,
+    LOCKED_USED : 9,
+    LOCKED_USED_PERS : 10
   };
 
   var TYPES = {
@@ -65,6 +83,13 @@ define(function(require) {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
       return STATES_STR[stateId];
+    },
+    /**
+     * @return {String} css class for this state. Use:
+     *                  color + '-color' font color class
+     */
+    "stateColor": function(stateId) {
+      return STATES_COLOR[stateId];
     },
     "STATES": STATES,
     "typeStr": function(typeId) {

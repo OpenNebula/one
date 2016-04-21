@@ -99,13 +99,32 @@ define(function(require){
         var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
         $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
 
-        var disabled =
+        var persistent =
           ( opts.force_persistent ||
-            (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
+            (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") );
+
+        var disabled =
+          ( persistent ||
             (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
-        var attr;
+        if (persistent){
+          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-floppy-o" title="' +
+              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + '"></i>')
 
+        }else{
+          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-recycle" title="' +
+              Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + '"></i>')
+
+        }
+
+        if (disk.IMAGE_STATE){
+          var color_class = OpenNebulaImage.stateColor(disk.IMAGE_STATE) + "-color";
+
+          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+              Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
+        }
+
+        var attr;
 
         if (disk.SIZE) {
           if (disabled){
@@ -119,9 +138,11 @@ define(function(require){
               "SIZE",
               "O|range|"+label+"|"+min+".."+max+"|"+min);
           }
-
-          UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
+        } else {
+          attr = UserInputs.parse("SIZE","O|fixed|"+label+"||-");
         }
+
+        UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
       })
 
     } else {

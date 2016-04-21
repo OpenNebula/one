@@ -551,6 +551,8 @@ void Image::disk_attribute( VectorAttribute *       disk,
         disk->replace("DRIVER",template_driver);
     }
 
+    disk->replace("IMAGE_STATE", state);
+
     //--------------------------------------------------------------------------
     //   READONLY attribute
     //--------------------------------------------------------------------------
