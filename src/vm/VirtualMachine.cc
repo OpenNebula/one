@@ -4860,7 +4860,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     {
         case PENDING:
         case HOLD:
-        case STOPPED:
         case POWEROFF:
         case UNDEPLOYED:
         case CLONING:
@@ -4872,8 +4871,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
             {
                 case LCM_INIT:
                 case PROLOG:
-                case SAVE_STOP:
-                case EPILOG_STOP:
                 case EPILOG:
                 case SHUTDOWN:
                 case CLEANUP_RESUBMIT:
@@ -4888,7 +4885,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
                 case BOOT_FAILURE:
                 case PROLOG_FAILURE:
                 case EPILOG_FAILURE:
-                case EPILOG_STOP_FAILURE:
                 case EPILOG_UNDEPLOY_FAILURE:
                 case PROLOG_MIGRATE_POWEROFF:
                 case PROLOG_MIGRATE_POWEROFF_FAILURE:
@@ -4907,6 +4903,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         case INIT:
         case DONE:
         case SUSPENDED:
+        case STOPPED:
+
             err = "configuration cannot be update in state " + state_str();
             return -1;
     }
