@@ -2921,8 +2921,6 @@ void VirtualMachine::release_disk_images()
     vector<const VectorAttribute * > disks;
     ImageManager *              imagem;
 
-    string  disk_base_path = "";
-
     Nebula& nd = Nebula::instance();
     imagem     = nd.get_imagem();
 
