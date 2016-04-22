@@ -680,7 +680,7 @@ module OpenNebula
         #  will replace the existing ones or delete it if empty. Attributes that
         #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
         #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
-        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, DEVICE_MODE},
+        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, DEVICE_MODEL},
         #  and GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP}
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise

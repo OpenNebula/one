@@ -950,7 +950,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         This command also accepts a template, the full list of configuration
         attributes are (not all supported via options):
         OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "DEVICE_MODE"]
+        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "DEVICE_MODEL"]
         INPUT    = ["TYPE", "BUS"]
         GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW      = ["DATA", "DATA_VMX", "TYPE"]
