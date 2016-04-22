@@ -2086,12 +2086,13 @@ void LifeCycleManager::disk_lock_success(int vid)
 
     if ( vm->get_state() != VirtualMachine::CLONING )
     {
-        //vm->log("LCM",Log::ERROR,"disk_lock_success, VM in a wrong state");
         vm->unlock();
         return;
     }
 
-    set<int> ids = vm->get_cloning_image_ids();
+    set<int> ids;
+
+    vm->get_cloning_image_ids(ids);
 
     vm->unlock();
 

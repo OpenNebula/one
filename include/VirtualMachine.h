@@ -1640,14 +1640,14 @@ public:
 
     /**
      * Returns the image IDs for the disks waiting for the LOCKED state to finish
-     * @return image IDs
+     * @param ids image ID set
      */
-    set<int> get_cloning_image_ids();
+    void get_cloning_image_ids(set<int>& ids);
 
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, string source);
+    void clear_cloning_image_id(int image_id, const string& source);
 
 private:
 

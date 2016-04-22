@@ -2222,10 +2222,8 @@ bool VirtualMachine::has_cloning_disks()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-set<int> VirtualMachine::get_cloning_image_ids()
+void VirtualMachine::get_cloning_image_ids(set<int> &ids)
 {
-    set<int> ids;
-
     bool cloning;
     int  image_id;
 
@@ -2242,14 +2240,12 @@ set<int> VirtualMachine::get_cloning_image_ids()
             ids.insert(image_id);
         }
     }
-
-    return ids;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::clear_cloning_image_id(int image_id, string source)
+void VirtualMachine::clear_cloning_image_id(int image_id, const string& source)
 {
     bool cloning;
     int  disk_image_id;

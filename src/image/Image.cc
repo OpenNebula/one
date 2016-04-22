@@ -829,11 +829,9 @@ void Image::set_state(ImageState _state)
     if (_state == ERROR && (state == LOCKED_USED || state == LOCKED_USED_PERS))
     {
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
+        const set<int>& vms   = vm_collection.get_collection();
 
-        set<int>::iterator i;
-
-        for(i = vm_collection.get_collection().begin();
-            i != vm_collection.get_collection().end(); i++)
+        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
         {
             lcm->trigger(LifeCycleManager::DISK_LOCK_FAILURE, *i);
         }
@@ -849,7 +847,7 @@ void Image::set_state_unlock()
 {
     LifeCycleManager* lcm = Nebula::instance().get_lcm();
 
-    set<int> vms_notify;
+    bool vms_notify = false;
 
     switch (state) {
         case LOCKED:
@@ -858,12 +856,12 @@ void Image::set_state_unlock()
 
         case LOCKED_USED:
             set_state(USED);
-            vms_notify = vm_collection.clone();
+            vms_notify = true;
             break;
 
         case Image::LOCKED_USED_PERS:
             set_state(USED_PERS);
-            vms_notify = vm_collection.clone();
+            vms_notify = true;
             break;
 
         case Image::ERROR:
@@ -882,17 +880,21 @@ void Image::set_state_unlock()
                     set_state(USED);
                 }
 
-                vms_notify = vm_collection.clone();
+                vms_notify = true;
             }
-
             break;
 
         default:
             break;
     }
 
-    for(set<int>::iterator i = vms_notify.begin(); i != vms_notify.end(); i++)
+    if ( vms_notify )
     {
-        lcm->trigger(LifeCycleManager::DISK_LOCK_SUCCESS, *i);
+        const set<int>& vms = vm_collection.get_collection();
+
+        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        {
+            lcm->trigger(LifeCycleManager::DISK_LOCK_SUCCESS, *i);
+        }
     }
 }
