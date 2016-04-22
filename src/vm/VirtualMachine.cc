@@ -2925,7 +2925,8 @@ void VirtualMachine::release_disk_images()
     for(int i=0; i<num_disks; i++)
     {
         img_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                     state != PENDING && state != HOLD && state != CLONING;
+                     state != PENDING && state != HOLD &&
+                     state != CLONING && state != CLONING_FAILURE;
 
         if ( disks[i]->vector_value("IMAGE_ID", iid) == 0 )
         {
@@ -4863,6 +4864,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         case POWEROFF:
         case UNDEPLOYED:
         case CLONING:
+        case CLONING_FAILURE:
             break;
 
         case ACTIVE:

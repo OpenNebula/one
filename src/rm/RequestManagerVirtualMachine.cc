@@ -1931,6 +1931,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::HOLD:
         case VirtualMachine::UNDEPLOYED:
         case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
         break;
 
         case VirtualMachine::STOPPED:
@@ -2051,6 +2052,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
         case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
             ret = vm->resize(ncpu, nmemory, nvcpu, att.resp_msg);
 
             if (ret != 0)
@@ -2473,7 +2475,8 @@ void VirtualMachineRecover::request_execute(
         return;
     }
 
-    if(vm->get_state() != VirtualMachine::ACTIVE)
+    if(vm->get_state() != VirtualMachine::ACTIVE &&
+       vm->get_state() != VirtualMachine::CLONING_FAILURE)
     {
         att.resp_msg = "Recover action is not available for state " + vm->state_str();
         failure_response(ACTION, att);

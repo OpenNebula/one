@@ -1075,7 +1075,22 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
+void LifeCycleManager::recover(VirtualMachine * vm, bool success)
+{
+    if (vm->get_state() == VirtualMachine::ACTIVE)
+    {
+        recover_lcm_state(vm, success);
+    }
+    else
+    {
+        recover_state(vm, success);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::recover_lcm_state(VirtualMachine * vm, bool success)
 {
     LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
 
@@ -1292,7 +1307,52 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::recover_state(VirtualMachine * vm, bool success)
+{
+    LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::CLONING_FAILURE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::DISK_LOCK_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DISK_LOCK_FAILURE;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    if (lcm_action != LifeCycleManager::FINALIZE)
+    {
+        trigger(lcm_action, vm->get_oid());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void LifeCycleManager::retry(VirtualMachine * vm)
+{
+    if (vm->get_state() == VirtualMachine::ACTIVE)
+    {
+        retry_lcm_state(vm);
+    }
+    else
+    {
+        retry_state(vm);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::retry_lcm_state(VirtualMachine * vm)
 {
     int vid = vm->get_oid();
 
@@ -1504,6 +1564,17 @@ void LifeCycleManager::retry(VirtualMachine * vm)
     }
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::retry_state(VirtualMachine * vm)
+{
+    if (vm->get_state() == VirtualMachine::CLONING_FAILURE)
+    {
+        trigger(LifeCycleManager::DISK_LOCK_SUCCESS, vm->get_oid());
+    }
 }
 
 /*  -------------------------------------------------------------------------- */

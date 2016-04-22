@@ -54,17 +54,18 @@ public:
      */
     enum VmState
     {
-        INIT       = 0,
-        PENDING    = 1,
-        HOLD       = 2,
-        ACTIVE     = 3,
-        STOPPED    = 4,
-        SUSPENDED  = 5,
-        DONE       = 6,
-        //FAILED   = 7,
-        POWEROFF   = 8,
-        UNDEPLOYED = 9,
-        CLONING    = 10
+        INIT            = 0,
+        PENDING         = 1,
+        HOLD            = 2,
+        ACTIVE          = 3,
+        STOPPED         = 4,
+        SUSPENDED       = 5,
+        DONE            = 6,
+        //FAILED        = 7,
+        POWEROFF        = 8,
+        UNDEPLOYED      = 9,
+        CLONING         = 10,
+        CLONING_FAILURE = 11
     };
 
     static int vm_state_from_str(string& st, VmState& state)
@@ -81,6 +82,7 @@ public:
         else if ( st == "POWEROFF" ) { state = POWEROFF; }
         else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
         else if ( st == "CLONING" ) { state = CLONING; }
+        else if ( st == "CLONING_FAILURE" ) { state = CLONING_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -90,16 +92,17 @@ public:
     {
         switch (state)
         {
-            case INIT      : st = "INIT"; break;
-            case PENDING   : st = "PENDING"; break;
-            case HOLD      : st = "HOLD"; break;
-            case ACTIVE    : st = "ACTIVE"; break;
-            case STOPPED   : st = "STOPPED"; break;
-            case SUSPENDED : st = "SUSPENDED"; break;
-            case DONE      : st = "DONE"; break;
-            case POWEROFF  : st = "POWEROFF"; break;
-            case UNDEPLOYED: st = "UNDEPLOYED"; break;
-            case CLONING   : st = "CLONING"; break;
+            case INIT               : st = "INIT"; break;
+            case PENDING            : st = "PENDING"; break;
+            case HOLD               : st = "HOLD"; break;
+            case ACTIVE             : st = "ACTIVE"; break;
+            case STOPPED            : st = "STOPPED"; break;
+            case SUSPENDED          : st = "SUSPENDED"; break;
+            case DONE               : st = "DONE"; break;
+            case POWEROFF           : st = "POWEROFF"; break;
+            case UNDEPLOYED         : st = "UNDEPLOYED"; break;
+            case CLONING            : st = "CLONING"; break;
+            case CLONING_FAILURE    : st = "CLONING_FAILURE"; break;
         }
 
         return st;

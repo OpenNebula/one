@@ -148,7 +148,7 @@ public:
      *    @param vm to be recovered
      *    @param success trigger successful transition if true, fail otherwise
      */
-    void  recover(VirtualMachine * vm, bool success);
+    void recover(VirtualMachine * vm, bool success);
 
     /**
      *  Retries the last VM operation that lead to a failure. The underlying
@@ -342,6 +342,14 @@ private:
     void clean_action(int vid);
 
     void timer_action();
+
+    void recover_lcm_state(VirtualMachine * vm, bool success);
+
+    void recover_state(VirtualMachine * vm, bool success);
+
+    void retry_lcm_state(VirtualMachine * vm);
+
+    void retry_state(VirtualMachine * vm);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

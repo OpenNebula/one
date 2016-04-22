@@ -2084,7 +2084,8 @@ void LifeCycleManager::disk_lock_success(int vid)
         return;
     }
 
-    if ( vm->get_state() != VirtualMachine::CLONING )
+    if ( vm->get_state() != VirtualMachine::CLONING &&
+         vm->get_state() != VirtualMachine::CLONING_FAILURE )
     {
         vm->unlock();
         return;
@@ -2161,8 +2162,11 @@ void LifeCycleManager::disk_lock_success(int vid)
     }
     else if (error.size() > 0)
     {
-        // TODO
-        //vm->set_state(VirtualMachine::CLONING_FAILURE);
+        vm->set_state(VirtualMachine::CLONING_FAILURE);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::CLONING);
     }
 
     vmpool->update(vm);

@@ -51,7 +51,7 @@ module OpenNebula
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
-            POWEROFF UNDEPLOYED CLONING}
+            POWEROFF UNDEPLOYED CLONING CLONING_FAILURE}
 
         LCM_STATE=%w{
             LCM_INIT
@@ -118,17 +118,18 @@ module OpenNebula
         }
 
         SHORT_VM_STATES={
-            "INIT"      => "init",
-            "PENDING"   => "pend",
-            "HOLD"      => "hold",
-            "ACTIVE"    => "actv",
-            "STOPPED"   => "stop",
-            "SUSPENDED" => "susp",
-            "DONE"      => "done",
-            "FAILED"    => "fail",
-            "POWEROFF"  => "poff",
-            "UNDEPLOYED"=> "unde",
-            "CLONING"   => "clon"
+            "INIT"              => "init",
+            "PENDING"           => "pend",
+            "HOLD"              => "hold",
+            "ACTIVE"            => "actv",
+            "STOPPED"           => "stop",
+            "SUSPENDED"         => "susp",
+            "DONE"              => "done",
+            "FAILED"            => "fail",
+            "POWEROFF"          => "poff",
+            "UNDEPLOYED"        => "unde",
+            "CLONING"           => "clon",
+            "CLONING_FAILURE"   => "fail"
         }
 
         SHORT_LCM_STATES={

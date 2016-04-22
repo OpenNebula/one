@@ -866,6 +866,7 @@ int DispatchManager::finalize(
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
             finalize_cleanup(vm);
         break;
 
@@ -922,6 +923,7 @@ int DispatchManager::resubmit(
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
         break;
 
         case VirtualMachine::STOPPED:
