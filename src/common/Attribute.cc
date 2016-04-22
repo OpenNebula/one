@@ -237,7 +237,7 @@ void VectorAttribute::remove(const string& name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string VectorAttribute::vector_value(const char *name) const
+string VectorAttribute::vector_value(const string& name) const
 {
     map<string,string>::const_iterator it;
 
@@ -256,7 +256,7 @@ string VectorAttribute::vector_value(const char *name) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const char *name, string& value) const
+int VectorAttribute::vector_value(const string& name, string& value) const
 {
     map<string,string>::const_iterator it;
 
@@ -275,7 +275,7 @@ int VectorAttribute::vector_value(const char *name, string& value) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VectorAttribute::vector_value(const char *name, bool& value) const
+int VectorAttribute::vector_value(const string& name, bool& value) const
 {
     map<string,string>::const_iterator it;
 

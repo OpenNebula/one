@@ -251,7 +251,7 @@ public:
      *
      *    @return the value of the attribute if found, empty otherwise
      */
-    string vector_value(const char *name) const;
+    string vector_value(const string& name) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -262,7 +262,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     template<typename T>
-    int vector_value(const char *name, T& value) const
+    int vector_value(const string& name, T& value) const
     {
         map<string,string>::const_iterator it;
 
@@ -289,9 +289,9 @@ public:
         return 0;
     }
 
-    int vector_value(const char *name, string& value) const;
+    int vector_value(const string& name, string& value) const;
 
-    int vector_value(const char *name, bool& value) const;
+    int vector_value(const string& name, bool& value) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -303,7 +303,7 @@ public:
      * @return the value in string form on success, "" otherwise
      */
     template<typename T>
-    string vector_value_str(const char *name, T& value) const
+    string vector_value_str(const string& name, T& value) const
     {
         map<string,string>::const_iterator it;
 

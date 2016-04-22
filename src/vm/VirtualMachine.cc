@@ -4820,20 +4820,39 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
         old_tmpl->set(old_attr);
     }
 
-    for (int i=0; i < num; i++)
+    if ( num > 0 && vnames != 0 )
     {
-        if ( new_attr->vector_value(vnames[i].c_str(), value) == -1 )
+        for (int i=0; i < num; i++)
         {
-            continue;
+            if ( new_attr->vector_value(vnames[i], value) == -1 )
+            {
+                continue;
+            }
+            else if (value.empty())
+            {
+                old_attr->remove(vnames[i]);
+            }
+            else
+            {
+                old_attr->replace(vnames[i], value);
+            }
         }
+    }
+    else //replace all
+    {
+        const map<string, string> contents = new_attr->value();
+        map<string, string>::const_iterator it;
 
-        if (value.empty())
+        for ( it = contents.begin() ; it != contents.end() ; ++it )
         {
-            old_attr->remove(vnames[i].c_str());
-        }
-        else
-        {
-            old_attr->replace(vnames[i].c_str(), value);
+            if ( it->second.empty() )
+            {
+                old_attr->remove(it->first);
+            }
+            else
+            {
+                old_attr->replace(it->first, it->second);
+            }
         }
     }
 };
@@ -4935,6 +4954,11 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     string raw_names[] = {"TYPE", "DATA", "DATA_VMX"};
 
     replace_vector_values(obj_template, &tmpl, "RAW", raw_names, 3);
+
+    // -------------------------------------------------------------------------
+    // Update CONTEXT: any value
+    // -------------------------------------------------------------------------
+    replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
 
     return 0;
 }
