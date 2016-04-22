@@ -4954,5 +4954,14 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
 
-    return 0;
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+	int rc = 0;
+
+    if ( context != 0 )
+    {
+		rc = parse_context_variables(&context, err);
+    }
+
+    return rc;
 }

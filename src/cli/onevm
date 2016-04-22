@@ -945,7 +945,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - Change the DNS for ETH0 device and add PASSWORD:
 
-            onevm updateconf myvm --context "ETH0_DNS=\\"8.8.8.8\\", PASSWORD=\\"1234\\""
+            onevm updateconf myvm --context 'ETH0_DNS="8.8.8.8", PASSWORD="$USER[PASSWORD]"'
 
         This command also accepts a template, the full list of configuration
         attributes are (not all supported via options):
@@ -954,7 +954,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         INPUT    = ["TYPE", "BUS"]
         GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW      = ["DATA", "DATA_VMX", "TYPE"]
-        CONTEXT (any value, **no variable substitution will be made**)
+        CONTEXT (any value, **variable substitution will be made**)
 
         *NOTE* Update will replace or add attributes, to remove an existing one
         add an empty value.
