@@ -333,7 +333,6 @@ Request::ErrorCode ImageClone::request_execute(
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = nd.get_ipool();
 
-
     // ------------------------- Get source Image info -------------------------
 
     img = ipool->get(clone_id, true);
@@ -475,16 +474,22 @@ Request::ErrorCode ImageClone::request_execute(
         string      tmpl_str;
 
         // ------------------ Check permissions and ACLs  ----------------------
-
+        // Create image
+        // Use original image
+        // Use target datastore
+        // Use original datastore, if different
+        // ---------------------------------------------------------------------
         tmpl->to_xml(tmpl_str);
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str); // CREATE IMAGE
+        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
 
-        ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+        ar.add_auth(AuthRequest::USE, perms);
 
-        if (ds_id != ds_id_orig) // USE (original) DATASTORE
+        ar.add_auth(AuthRequest::USE, ds_perms);
+
+        if (ds_id != ds_id_orig)
         {
-            ar.add_auth(AuthRequest::USE, ds_perms_orig); // USE DATASTORE
+            ar.add_auth(AuthRequest::USE, ds_perms_orig);
         }
 
         if (UserPool::authorize(ar) == -1)
