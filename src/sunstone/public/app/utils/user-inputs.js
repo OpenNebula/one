@@ -122,6 +122,10 @@ define(function(require) {
 
         var attr = _unmarshall(value);
 
+        if (templateJSON[key] != undefined){
+          attr.initial = templateJSON[key];
+        }
+
         $(".user_input_type", trcontext).val(attr.type).change();
         $(".user_input_description", trcontext).val(attr.description);
 
@@ -168,7 +172,11 @@ define(function(require) {
     delete inputs["MEMORY"];
     delete inputs["VCPU"];
 
-    return _generateInstantiateUserInputs(div, inputs, opts);
+    opts.div = div;
+    opts.user_inputs = inputs;
+    opts.defaults = $.extend({}, template_json.VMTEMPLATE.TEMPLATE);
+
+    return _generateInstantiateUserInputs(opts);
   }
 
   // It will replace the div's html with a row for each USER_INPUTS
@@ -176,15 +184,28 @@ define(function(require) {
   // opts.network_header: header text for the network inputs
   // returns true if at least one input was inserted
   function _generateServiceTemplateUserInputs(div, template_json, opts) {
-    return _generateInstantiateUserInputs(
-        div, template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs, opts);
+    opts.div = div;
+    opts.user_inputs = template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs;
+
+    return _generateInstantiateUserInputs(opts);
   }
 
   // It will replace the div's html with a row for each USER_INPUTS
+  // opts.div: where to insert the html
+  // opts.user_inputs: Object with the USER_INPUTS section
+  // opts.defaults: Object with the first level attributes (TEMPLATE)
   // opts.text_header: header text for the text & password inputs
   // opts.network_header: header text for the network inputs
   // returns true if at least one input was inserted
-  function _generateInstantiateUserInputs(div, user_inputs, opts) {
+  function _generateInstantiateUserInputs(opts) {
+    var div = opts.div;
+    var user_inputs = opts.user_inputs;
+
+    var defaults = opts.defaults;
+    if (defaults == undefined){
+      defaults = {};
+    }
+
     div.empty();
 
     var html = '';
@@ -210,6 +231,10 @@ define(function(require) {
 
     $.each(user_inputs, function(key, value) {
       var attrs = _parse(key, value);
+
+      if (opts.defaults[key] != undefined){
+        attrs.initial = opts.defaults[key];
+      }
 
       if (attrs.type == "vnet_id"){
         network_attrs.push(attrs);
@@ -556,19 +581,25 @@ define(function(require) {
       wizard_field = "";
     }
 
+    var value = "";
+
+    if (attr.initial != undefined){
+      value = attr.initial;
+    }
+
     switch (attr.type) {
       case "text":
-        input = '<textarea type="text" rows="1" '+wizard_field+' '+required+'/>';
+        input = '<textarea type="text" rows="1" '+wizard_field+' '+required+'>'+TemplateUtils.htmlDecode(value)+'</textarea>';
         break;
       case "text64":
-        input = '<textarea type="text" rows="1" wizard_field_64="true" '+wizard_field+' '+required+'/>';
+        input = '<textarea type="text" rows="1" wizard_field_64="true" '+wizard_field+' '+required+'>'+TemplateUtils.htmlDecode(atob(value))+'</textarea>';
         break;
       case "password":
-        input = '<input type="password" '+wizard_field+' '+required+'/>';
+        input = '<input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "number":
       case "number-float":
-        input = '<input type="number" step="'+attr.step+'" value="'+attr.initial+'" '+wizard_field+' '+required+'/>';
+        input = '<input type="number" step="'+attr.step+'" value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "range":
       case "range-float":
@@ -591,7 +622,7 @@ define(function(require) {
 
         break;
       case "fixed":
-        input = '<input type="text" value="'+attr.initial+'" '+wizard_field+' '+required+' disabled/>';
+        input = '<input type="text" value="'+value+'" '+wizard_field+' '+required+' disabled/>';
         break;
     }
 
