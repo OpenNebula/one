@@ -33,21 +33,23 @@ define(function(require) {
     "FAILED",
     "POWEROFF",
     "UNDEPLOYED",
-    "CLONING"
+    "CLONING",
+    "CLONING_FAILURE"
   ];
 
   var STATES = {
-    INIT       : 0,
-    PENDING    : 1,
-    HOLD       : 2,
-    ACTIVE     : 3,
-    STOPPED    : 4,
-    SUSPENDED  : 5,
-    DONE       : 6,
-    //FAILED   : 7,
-    POWEROFF   : 8,
-    UNDEPLOYED : 9,
-    CLONING    : 10
+    INIT            : 0,
+    PENDING         : 1,
+    HOLD            : 2,
+    ACTIVE          : 3,
+    STOPPED         : 4,
+    SUSPENDED       : 5,
+    DONE            : 6,
+    //FAILED        : 7,
+    POWEROFF        : 8,
+    UNDEPLOYED      : 9,
+    CLONING         : 10,
+    CLONING_FAILURE : 11
   };
 
   var LCM_STATES_STR = [

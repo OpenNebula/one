@@ -49,6 +49,11 @@ define(function(require) {
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"];
 
+  STATE_ACTIONS[OpenNebulaVM.STATES.CLONING] =
+    ["VM.delete", "VM.delete_recreate"];
+
+  STATE_ACTIONS[OpenNebulaVM.STATES.CLONING_FAILURE] =
+    ["VM.delete", "VM.delete_recreate", "VM.recover"];
 
   var LCM_STATE_ACTIONS = {};
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.LCM_INIT ] = [];

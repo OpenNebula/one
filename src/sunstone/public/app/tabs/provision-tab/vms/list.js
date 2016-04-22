@@ -988,10 +988,6 @@ define(function(require) {
     var state_str;
 
     switch (state) {
-      case OpenNebulaVM.STATES.CLONING:
-        state_color = 'deploying';
-        state_str = Locale.tr("DEPLOYING") + " (1/4)";
-        break;
       case OpenNebulaVM.STATES.INIT:
       case OpenNebulaVM.STATES.PENDING:
       case OpenNebulaVM.STATES.HOLD:
@@ -1107,6 +1103,17 @@ define(function(require) {
         state_str = Locale.tr("UNDEPLOYED");
 
         break;
+
+      case OpenNebulaVM.STATES.CLONING:
+        state_color = 'deploying';
+        state_str = Locale.tr("DEPLOYING") + " (1/4)";
+        break;
+
+      case OpenNebulaVM.STATES.CLONING_FAILURE:
+        state_color = 'error';
+        state_str = Locale.tr("ERROR");
+        break;
+
       default:
         state_color = 'powering_off';
         state_str = Locale.tr("UNKNOWN");
