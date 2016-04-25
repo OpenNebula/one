@@ -27,6 +27,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var HostsTable = require('tabs/hosts-tab/datatable');
   var ClustersTable = require('tabs/clusters-tab/datatable');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -49,7 +50,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-sitemap';
     this.title = Locale.tr("Scheduling");
 

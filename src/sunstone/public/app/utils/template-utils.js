@@ -21,7 +21,7 @@ define(function(require) {
 
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
-    if (string != undefined) {
+    if (string != undefined && typeof(string) == "string") {
       return string.replace(/\\/g, '\\').replace(/"/g, '\\"');
     } else {
       return string;

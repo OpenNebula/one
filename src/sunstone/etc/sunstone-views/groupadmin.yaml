@@ -214,6 +214,7 @@ tabs:
             vm_snapshot_tab: false
             vm_placement_tab: false
             vm_actions_tab: false
+            vm_conf_tab: false
             vm_template_tab: false
             vm_log_tab: false
         table_columns:
@@ -272,6 +273,7 @@ tabs:
             VM.resched: false
             VM.unresched: false
             VM.saveas_template: true
+            VM.updateconf: false
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true

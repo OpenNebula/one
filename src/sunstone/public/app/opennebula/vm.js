@@ -476,6 +476,10 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
+    "updateconf": function(params) {
+      var action_obj = {"template_raw" : params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "updateconf", action_obj);
+    },
     "monitor" : function(params) {
       OpenNebulaAction.monitor(params, RESOURCE, false);
     },

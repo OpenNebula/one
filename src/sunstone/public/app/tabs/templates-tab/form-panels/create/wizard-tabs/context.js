@@ -28,6 +28,7 @@ define(function(require) {
   var FilesTable = require('tabs/files-tab/datatable')
   var OpenNebulaHost = require('opennebula/host');
   var UserInputs = require('utils/user-inputs');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -50,12 +51,12 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-folder';
     this.title = Locale.tr("Context");
     this.classes = "hypervisor only_kvm only_vcenter";
 
-    this.contextFilesTable = new FilesTable(this.wizardTabId + 'ContextTable', {
+    this.contextFilesTable = new FilesTable('ContextTable' + UniqueId.id(), {
       'select': true,
       'selectOptions': {
         'multiple_choice': true,

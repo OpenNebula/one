@@ -25,6 +25,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var Config = require('sunstone-config');
   var UserInputs = require('utils/user-inputs');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -43,7 +44,7 @@ define(function(require) {
    */
 
   function WizardTab() {
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");
   }

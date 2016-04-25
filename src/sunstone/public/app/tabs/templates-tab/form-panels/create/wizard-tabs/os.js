@@ -25,6 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var FilesTable = require('tabs/files-tab/datatable');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -141,21 +142,23 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-power-off';
     this.title = Locale.tr("OS Booting");
     this.classes = "hypervisor only_kvm"
 
-    this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {
-      'select': true,
-      'selectOptions': {
-        "filter_fn": function(file) { return file.TYPE == 3; } // KERNEL
+    this.kernelFilesTable = new FilesTable(
+      this.wizardTabId + UniqueId.id(),
+      { 'select': true,
+        'selectOptions': {
+          "filter_fn": function(file) { return file.TYPE == 3; } // KERNEL
       }
     });
-    this.initrdFilesTable = new FilesTable(this.wizardTabId + 'InitrdTable', {
-      'select': true,
-      'selectOptions': {
-        "filter_fn": function(file) { return file.TYPE == 4; } // RAMDISK
+    this.initrdFilesTable = new FilesTable(
+      this.wizardTabId + UniqueId.id(),
+      { 'select': true,
+        'selectOptions': {
+          "filter_fn": function(file) { return file.TYPE == 4; } // RAMDISK
       }
     });
   }
@@ -272,6 +275,15 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var osJSON = templateJSON['OS'];
     if (osJSON) {
+
+      if (osJSON['KERNEL_DS'] == undefined && osJSON['KERNEL'] != undefined){
+        $('input#radioKernelPath', context).click();
+      }
+
+      if (osJSON['INITRD_DS'] == undefined && osJSON['INITRD'] != undefined){
+        $('input#radioInitrdPath', context).click();
+      }
+
       WizardFields.fill(context, osJSON);
 
       if (osJSON && osJSON['BOOT']) {

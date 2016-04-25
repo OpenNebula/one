@@ -24,6 +24,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -46,7 +47,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-exchange';
     this.title = Locale.tr("Input/Output");
   }

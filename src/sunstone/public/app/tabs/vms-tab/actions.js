@@ -31,6 +31,7 @@ define(function(require) {
   var VNC_DIALOG_ID              = require('./dialogs/vnc/dialogId');
   var SPICE_DIALOG_ID            = require('./dialogs/spice/dialogId');
   var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
+  var UPDATECONF_FORM_ID         = require('./form-panels/updateconf/formPanelId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -208,6 +209,24 @@ define(function(require) {
       },
       notify: false
     },
+    "VM.updateconf": {
+      type: "single",
+      call: OpenNebulaVM.updateconf,
+      callback: function (req) {
+        Sunstone.resetFormPanel(TAB_ID, UPDATECONF_FORM_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+
+        Sunstone.runAction("VM.refresh");
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
+      notify: false
+    }
   };
 
   return _actions;

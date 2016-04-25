@@ -99,19 +99,17 @@
             <label for="ENCODE_START_SCRIPT">{{tr "  Encode Script in Base64"}}</label>
           </div>
         </div>
-        <hr>
-        <div class="">
-          <div class="large-12 columns">
-            <fieldset class="row">
-              <legend> 
-              <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
-              {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
-              </legend>
-              <div class="row">
-                <div class="large-12 columns">{{{userInputsHTML}}}</div>
-              </div>
-            </fieldset>
-          </div>
+        <br/>
+        <div class="large-12 columns vm_updateconf_hide">
+          <fieldset class="row">
+            <legend> 
+            <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
+            {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
+            </legend>
+            <div class="row">
+              <div class="large-12 columns">{{{userInputsHTML}}}</div>
+            </div>
+          </fieldset>
         </div>
       </div>
       <div class="wizard_internal_tab tabs-panel" id="filesTab">

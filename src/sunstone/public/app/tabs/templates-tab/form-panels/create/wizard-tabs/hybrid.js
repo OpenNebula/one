@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -229,7 +230,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
   }
