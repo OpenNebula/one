@@ -493,6 +493,7 @@ class VIClient
                          TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
                      vnet_template = "NAME   = \"#{net_name}\"\n" \
                                      "BRIDGE = \"#{n[:name]}\"\n" \
+                                     "VN_MAD = \"dummy\"\n" \
                                      "VCENTER_TYPE = \"Distributed Port Group\""
 
 
