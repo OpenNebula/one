@@ -1179,8 +1179,7 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.13.85_to_4.90.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
-                   src/onedb/patches/history_times.rb \
-                   src/onedb/patches/vnmad.rb"
+                   src/onedb/patches/history_times.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
