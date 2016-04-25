@@ -513,20 +513,18 @@ module Migrator
     # Build net_vnmad
     net_vnmad = {}
     @db.transaction do
-      @db.fetch("SELECT * FROM vm_pool") do |row|
+      @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
         state = row[:state].to_i
 
-        if state != 6
-          vnmads = Set.new
-          doc.root.xpath("HISTORY_RECORDS/HISTORY/VNMMAD").collect{|v| vnmads << v.text }
+        vnmads = Set.new
+        doc.root.xpath("HISTORY_RECORDS/HISTORY/VNMMAD").collect{|v| vnmads << v.text }
 
-          doc.root.xpath("TEMPLATE/NIC/NETWORK_ID").each do |net_id|
-              net_id = net_id.text.to_i
+        doc.root.xpath("TEMPLATE/NIC/NETWORK_ID").each do |net_id|
+            net_id = net_id.text.to_i
 
-              net_vnmad[net_id] ||= Set.new
-              net_vnmad[net_id] += vnmads
-          end
+            net_vnmad[net_id] ||= Set.new
+            net_vnmad[net_id] += vnmads
         end
       end
     end
@@ -578,13 +576,15 @@ module Migrator
     @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, pid INTEGER, UNIQUE(name,uid));"
 
     reserved_vlan_ids = Set.new
-    suggest_patch = false
     final_net_vnmad = {}
+    manual_intervention = false
     @db.transaction do
       @db.fetch("SELECT * FROM old_network_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-        net_id = row[:oid]
+        net_id   = row[:oid]
+        net_name = row[:name]
+
         cluster_id = doc.root.xpath('CLUSTERS/ID').first.text.to_i
 
         # Get possible VN_MADs
@@ -604,40 +604,74 @@ module Migrator
         # Get vnmad
         #
         # net_vnmad_len == 1 => that one
-        # net_vnmad_len > 1 => get first one and show warning
+        # net_vnmad_len > 1 => interactive
         # net_vnmad_len == 0 && cluster_vnmad_len == 1 => that one
-        # net_vnmad_len == 0 && cluster_vnmad_len > 1 => first one and show warning
-        # net_vnmad_len == 0 && cluster_vnmad_len == 0 => force onedb patch
+        # net_vnmad_len == 0 && cluster_vnmad_len > 1 => interactive
+        # net_vnmad_len == 0 && cluster_vnmad_len == 0 => interactive
 
         if net_vnmad_len == 1
           vnmad = net_vnmad[net_id].first
         elsif net_vnmad_len > 1
-          vnmad = net_vnmad[net_id].first
-          other_vnmads = net_vnmad[net_id] - Set[vnmad]
+          other_vnmads = net_vnmad[net_id]
         elsif net_vnmad_len == 0 && cluster_vnmad_len == 1
           vnmad = cluster_vnmad[cluster_id].first
         elsif net_vnmad_len == 0 && cluster_vnmad_len > 1
-          vnmad = cluster_vnmad[cluster_id].first
-          other_vnmads = cluster_vnmad[cluster_id] - Set[vnmad]
+          other_vnmads = cluster_vnmad[cluster_id]
         end
 
         # Ambiguous vnmad, require user input (TODO)
-        if vnmad && other_vnmads
-          if !suggest_patch
+        if vnmad.nil?
+
+          if !manual_intervention
+            manual_intervention = true
             puts
-            puts "**************************************************************"
-            puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
-            puts "**************************************************************"
+            puts  "Manual Intervention required. Please input the VN_MAD " <<
+                  " for the following networks:"
+            puts
           end
 
-          suggest_patch = true
-          puts  "* Net ##{net_id} assigned VN_MAD=#{vnmad}. " <<
-                "Other options: #{other_vnmads.to_a.join(', ')}"
+          suggested = if other_vnmads
+            " (suggested: [#{other_vnmads.to_a.join(', ')}])"
+          else
+            ""
+          end
+
+          input = ""
+          while (input.empty?) do
+            puts "* Net ##{net_id} (#{net_name}) VN_MAD#{suggested}:"
+            input = STDIN.gets.chomp.strip
+
+            if input.match(/[^\w\-.]/)
+              puts "Invalid char found."
+              input = ""
+            end
+          end
+
+          vnmad = input
         end
 
         # If VLAN = NO => don't use isolated VN_MADs
         if vlan_no && vnmad && ["802.1q", "ovswitch", "vxlan", "ebtables"].include?(vnmad.downcase)
-            vnmad = "fw"
+            input = ""
+            while (input.empty?) do
+              puts "Net ##{net_id} (#{net_name}) has VN_MAD='#{vnmad}' but it also has VLAN=NO. Change to 'fw'? (y/n)"
+
+              input = STDIN.gets.chomp.strip
+
+              case input
+              when 'y'
+                vnmad = 'fw'
+              when 'n'
+              else
+                puts "Invalid value."
+                input = ""
+              end
+            end
+        end
+
+        if vnmad.nil?
+          STDERR.puts "Error getting VN_MAD for Network #{net_id}."
+          exit 1
         end
 
         # Create the VN_MAD element:
@@ -690,28 +724,6 @@ module Migrator
       end
     end
 
-    patch_cmd = "onedb patch [opts] /usr/lib/one/ruby/onedb/patches/vnmad.rb"
-    if suggest_patch
-      puts
-      puts "If you want to change the above assignments, please run:"
-      puts patch_cmd
-    end
-
-    net_unassigned = final_net_vnmad.select{|k,v| v.nil?}.keys
-    if !net_unassigned.empty?
-      puts
-      puts "**************************************************************"
-      puts "* ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR      *"
-      puts "**************************************************************"
-      puts
-      puts "You **must** run:"
-      puts patch_cmd
-      puts
-      puts "to assign a vnmad to the following networks:"
-      net_unassigned.each{|n| puts " - #{n}"}
-      puts
-    end
-
     @db.run "DROP TABLE old_network_pool;"
 
     # Fix VMs
@@ -720,7 +732,7 @@ module Migrator
     @db.run "CREATE TABLE IF NOT EXISTS vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)"
 
     @db.transaction do
-      @db.fetch("SELECT * FROM old_vm_pool") do |row|2
+      @db.fetch("SELECT * FROM old_vm_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
         state = row[:state].to_i
 
@@ -765,9 +777,11 @@ module Migrator
     # Create Table
     @db.run "CREATE TABLE network_vlan_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
 
+    size = 4096
+
     map = ""
-    4096.times.each do |i|
-        map << (reserved_vlan_ids.include?(4095 - i) ? "1" : "0")
+    size.times.each do |i|
+        map << (reserved_vlan_ids.include?(size - 1 - i) ? "1" : "0")
     end
 
     map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
