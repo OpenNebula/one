@@ -793,6 +793,50 @@ module Migrator
 
     log_time()
 
+    ############################################################################
+    # VNC Bitmap
+    ############################################################################
+
+    cluster_vnc = {}
+    @db.transaction do
+      @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        port = doc.root.at_xpath('TEMPLATE/GRAPHICS[TYPE="vnc"]/PORT').text.to_i rescue nil
+        cluster_id = doc.root.at_xpath('HISTORY_RECORDS/HISTORY[last()]/CID').text.to_i rescue nil
+
+        # skip if no port is defined or if it's not assigned to a cluster (not deployed yet!)
+        next if cluster_id.nil? || port.nil?
+
+
+        cluster_id = 0 if cluster_id == -1
+
+        cluster_vnc[cluster_id] ||= Set.new
+        cluster_vnc[cluster_id] << port
+      end
+    end
+
+    # Create Table
+    @db.run "CREATE TABLE cluster_vnc_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
+
+    size = 65536
+
+    cluster_vnc.keys.sort.each do |cluster_id|
+      map = ""
+      size.times.each do |i|
+          map << (cluster_vnc[cluster_id].include?(size - 1 - i) ? "1" : "0")
+      end
+
+      map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
+
+      @db[:cluster_vnc_bitmap].insert(
+        :id      => cluster_id,
+        :map     => map_encoded
+      )
+    end
+
+    log_time()
+
     return true
   end
 
