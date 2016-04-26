@@ -94,16 +94,9 @@ void VectorAttribute::to_xml(ostringstream &oss) const
             continue;
         }
 
-        if ( it->second.empty() )
-        {
-            oss << "<" << it->first << "/>";
-        }
-        else
-        {
-            oss << "<" << it->first << ">"
-                << one_util::escape_xml(it->second)
-                << "</" << it->first << ">";
-        }
+        oss << "<" << it->first << ">"
+            << one_util::escape_xml(it->second)
+            << "</" << it->first << ">";
     }
 
     oss << "</"<< name() << ">";
