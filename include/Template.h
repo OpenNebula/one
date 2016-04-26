@@ -394,11 +394,8 @@ public:
      *  replacing the existing ones
      *
      *    @param from_tmpl the template to be merged
-     *    @param error_str string describing the error
-     *
-     *    @return 0 on success.
      */
-     int merge(const Template * from_tmpl, string& error_str);
+     void merge(const Template * from_tmpl);
 
      /**
       * Deletes all restricted attributes

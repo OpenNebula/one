@@ -248,8 +248,6 @@ int Host::update_info(Template        &tmpl,
     int   vmid;
     float val;
 
-    string error_st;
-
     ostringstream zombie;
     ostringstream wild;
 
@@ -286,7 +284,7 @@ int Host::update_info(Template        &tmpl,
     // Copy monitor, extract share info & update last_monitored and state
     // -------------------------------------------------------------------------
 
-    obj_template->merge(&tmpl, error_st);
+    obj_template->merge(&tmpl);
 
     touch(true);
 

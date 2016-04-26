@@ -587,7 +587,7 @@ int Template::from_xml_node(const xmlNodePtr node)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Template::merge(const Template * from_tmpl, string& error_str)
+void Template::merge(const Template * from_tmpl)
 {
     multimap<string,Attribute *>::const_iterator it;
 
@@ -600,8 +600,6 @@ int Template::merge(const Template * from_tmpl, string& error_str)
     {
         this->set(it->second->clone());
     }
-
-    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

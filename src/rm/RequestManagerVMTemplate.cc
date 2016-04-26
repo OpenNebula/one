@@ -271,12 +271,7 @@ Request::ErrorCode VMTemplateInstantiate::merge(
 		}
 	}
 
-	rc = tmpl->merge(&uattrs, att.resp_msg);
-
-	if ( rc != 0 )
-	{
-		return INTERNAL;
-	}
+	tmpl->merge(&uattrs);
 
     return SUCCESS;
 }

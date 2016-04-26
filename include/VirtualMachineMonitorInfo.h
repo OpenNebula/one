@@ -41,20 +41,22 @@ public:
      */
     int update(const string& monitor_data, string& error)
     {
+        VirtualMachineMonitorInfo new_info;
+
         char * error_c = 0;
 
-        clear();
-
-        int rc = parse(monitor_data, &error_c);
-
-        if (rc != 0)
+        if (new_info.parse(monitor_data, &error_c) != 0)
         {
             error = error_c;
 
             free(error_c);
+
+            return -1;
         }
 
-        return rc;
+        merge(&new_info);
+
+        return 0;
     };
 
     char remove_state()

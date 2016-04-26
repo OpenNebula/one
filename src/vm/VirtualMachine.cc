@@ -4166,8 +4166,7 @@ int VirtualMachine::replace_template(
         {
             user_obj_template->remove_all_except_restricted();
 
-            string aux_error;
-            new_tmpl->merge(user_obj_template, aux_error);
+            new_tmpl->merge(user_obj_template);
         }
     }
 
@@ -4208,7 +4207,7 @@ int VirtualMachine::append_template(
 
     if (user_obj_template != 0)
     {
-        user_obj_template->merge(new_tmpl, error);
+        user_obj_template->merge(new_tmpl);
         delete new_tmpl;
     }
     else

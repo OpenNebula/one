@@ -200,8 +200,7 @@ int PoolObjectSQL::replace_template(
         {
             obj_template->remove_all_except_restricted();
 
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
+            new_tmpl->merge(obj_template);
         }
     }
 
@@ -260,7 +259,8 @@ int PoolObjectSQL::append_template(
     {
         old_tmpl = new Template(*obj_template);
 
-        obj_template->merge(new_tmpl, error);
+        obj_template->merge(new_tmpl);
+
         delete new_tmpl;
     }
     else
