@@ -122,6 +122,11 @@ define(function(require){
 
           $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
               Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
+        } else {
+          var color_class = "error-color";
+
+          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+              Locale.tr("Image was not found") + '"></i>')
         }
 
         var attr;
