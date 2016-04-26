@@ -1908,19 +1908,22 @@ private:
      *  Parse and generate the ETH_ network attributed of a NIC
      *    @param context attribute
      *    @param nic attribute
+     *    @param replace attributes if the exist
      *
      *    @return 0 on success
      */
-    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
+    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic,
+            bool replace);
 
     /**
      *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
      *  is invoked when ever the context is prepared for the VM to capture
      *  netowrking updates.
      *    @param context attribute of the VM
+     *    @param replace attributes if the exist
      *    @return true if the net context was generated.
      */
-    bool generate_network_context(VectorAttribute * context);
+    bool generate_network_context(VectorAttribute * context, bool replace);
 
     /**
      * Parse the "NIC_DEFAULT" attribute

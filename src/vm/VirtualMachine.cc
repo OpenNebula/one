@@ -1021,7 +1021,7 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // Add network context and parse variables
     // -------------------------------------------------------------------------
-    generate_network_context(context);
+    generate_network_context(context, false);
 
     if (parse_context_variables(&context, error_str) == -1)
     {
@@ -3322,7 +3322,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     //Generate dynamic context attributes
-    if ( generate_network_context(context) )
+    if ( generate_network_context(context, false) )
     {
         string error;
 
@@ -4720,7 +4720,7 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, VectorAttribute * nic)
+        VectorAttribute * context, VectorAttribute * nic, bool replace)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -4733,7 +4733,7 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
         cval = context->vector_value(cvar.str().c_str());
 
-        if (!cval.empty())
+        if (!cval.empty() && !replace)
         {
             continue;
         }
@@ -4754,21 +4754,22 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
+void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n,
+        bool rpl)
 {
-    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n);
+    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n, rpl);
 
     if (!n->vector_value("IP6_GLOBAL").empty())
     {
-        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n, rpl);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::generate_network_context(VectorAttribute * context)
+bool VirtualMachine::generate_network_context(VectorAttribute * context, bool r)
 {
-    bool    net_context;
+    bool net_context;
 
     context->vector_value("NETWORK", net_context);
 
@@ -4783,7 +4784,7 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context)
 
     for(int i=0; i<num_vatts; i++)
     {
-        parse_nic_context(context, vatts[i]);
+        parse_nic_context(context, vatts[i], r);
     }
 
     return net_context;
@@ -4912,7 +4913,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update OS
     // -------------------------------------------------------------------------
-
     string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
         "BOOT"};
 
@@ -4960,7 +4960,9 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
     if ( context != 0 )
     {
-		rc = parse_context_variables(&context, err);
+        generate_network_context(context, true);
+
+        rc = parse_context_variables(&context, err);
     }
 
     return rc;
