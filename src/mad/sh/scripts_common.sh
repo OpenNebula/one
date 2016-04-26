@@ -157,12 +157,13 @@ function exec_and_log
 # the command fails
 function monitor_and_log
 {
-    EXEC_OUT=`bash -s 2>/dev/null <<EOF
+    EXEC_OUT="$(bash -s 2>/dev/null <<EOF
 export LANG=C
 export LC_ALL=C
 set -xv
 $1
-EOF`
+EOF
+)"
     EXEC_RC=$?
 
     if [ $EXEC_RC -ne 0 ]; then
@@ -176,7 +177,7 @@ EOF`
         exit $EXEC_RC
     fi
 
-    echo $EXEC_OUT
+    echo "$EXEC_OUT"
 }
 
 # Executes a command, if it fails returns error message and exits. Similar to
@@ -410,11 +411,12 @@ EOF`
 # the command fails
 function ssh_monitor_and_log
 {
-    SSH_EXEC_OUT=`$SSH $1 sh -s 2>/dev/null <<EOF
+    SSH_EXEC_OUT="$($SSH $1 sh -s 2>/dev/null <<EOF
 export LANG=C
 export LC_ALL=C
 $2
-EOF`
+EOF
+)"
     SSH_EXEC_RC=$?
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
@@ -428,7 +430,7 @@ EOF`
         exit $SSH_EXEC_RC
     fi
 
-    echo $SSH_EXEC_OUT
+    echo "$SSH_EXEC_OUT"
 }
 
 #Creates path ($2) at $1
