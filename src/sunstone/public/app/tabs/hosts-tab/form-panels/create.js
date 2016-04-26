@@ -63,14 +63,24 @@ define(function(require) {
     that.vmMadNameList = [];
     if (Config.onedConf.VM_MAD !== undefined) {
       $.each(Config.onedConf.VM_MAD, function(index, vmMad) {
-        that.vmMadNameList.push(vmMad["NAME"]);
+        if (vmMad.SUNSTONE_NAME !== undefined) {
+          that.vmMadNameList.push({
+              'displayName': vmMad["SUNSTONE_NAME"],
+              'driverName' : vmMad["NAME"]
+          });
+        }
       });
     }
 
     that.imMadNameList = [];
     if (Config.onedConf.IM_MAD !== undefined) {
       $.each(Config.onedConf.IM_MAD, function(index, imMad) {
-        that.imMadNameList.push(imMad["NAME"]);
+        if (imMad.SUNSTONE_NAME !== undefined) {
+          that.imMadNameList.push({
+              'displayNme': imMad["SUNSTONE_NAME"],
+              'driverName': imMad["NAME"]
+          });
+        }
       });
     }
 
