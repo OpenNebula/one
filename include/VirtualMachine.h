@@ -1925,6 +1925,15 @@ private:
      */
     bool generate_network_context(VectorAttribute * context, bool replace);
 
+
+    /**
+     *  Generate the ONE_GATE token & url
+     *    @param context attribute of the VM
+     *    @param error_str describing the error
+     *    @return 0 if success
+     */
+    int generate_token_context(VectorAttribute * context, string& error_str);
+
     /**
      * Parse the "NIC_DEFAULT" attribute
      *    @param error_str Returns the error reason, if any

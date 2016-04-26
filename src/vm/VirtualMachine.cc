@@ -1105,27 +1105,9 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // OneGate URL
     // -------------------------------------------------------------------------
-    bool token;
-    context->vector_value("TOKEN", token);
-
-    if (token)
+    if ( generate_token_context(context, error_str) != 0 )
     {
-        string ep;
-
-        Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
-
-        if ( ep.empty() )
-        {
-            error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
-                "defined in oned.conf or CONTEXT.";
-            return -1;
-        }
-
-        context->replace("ONEGATE_ENDPOINT", ep);
-        context->replace("VMID", oid);
-
-        // Store the original owner to compute token_password in case of a chown
-        add_template_attribute("CREATED_BY", uid);
+        return -1;
     }
 
     // -------------------------------------------------------------------------
@@ -4791,6 +4773,37 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context, bool r)
 }
 
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
+{
+    bool   token;
+    string ep;
+
+    context->vector_value("TOKEN", token);
+
+    if ( token == false )
+    {
+        return 0;
+    }
+
+    Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
+
+    if ( ep.empty() )
+    {
+        e = "TOKEN set, but onegate endpoint was not defined in oned.conf.";
+        return -1;
+    }
+
+    context->replace("ONEGATE_ENDPOINT", ep);
+    context->replace("VMID", oid);
+
+    // Store the original owner to compute token_password in case of a chown
+    add_template_attribute("CREATED_BY", uid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -4952,18 +4965,26 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
     // -------------------------------------------------------------------------
+    VectorAttribute * context     = obj_template->get("CONTEXT");
+    VectorAttribute * context_bck = context->clone();
+
     replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-	int rc = 0;
 
     if ( context != 0 )
     {
         generate_network_context(context, true);
 
-        rc = parse_context_variables(&context, err);
+        if ( generate_token_context(context, err) != 0 ||
+                parse_context_variables(&context, err) )
+        {
+            obj_template->erase("CONTEXT");
+            obj_template->set(context_bck);
+
+            return -1;
+        }
     }
 
-    return rc;
+    delete context_bck;
+
+    return 0;
 }
