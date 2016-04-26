@@ -1688,7 +1688,7 @@ class VCenterVm
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
 
-        @esx_host       = host.name
+        @esx_host       = @vm.summary.runtime.host.name
         @guest_ip       = @vm.guest.ipAddress
         @guest_state    = @vm.guest.guestState
         @vmware_tools   = @vm.guest.toolsRunningStatus
