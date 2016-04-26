@@ -37,44 +37,34 @@ define(function(require) {
     if (unshown_values)
       template_json = $.extend({}, template_json, unshown_values);
 
-    var template_str = "\n";
+    var template_str = "";
     $.each(template_json, function(key, value) {
-      // value can be an array
       if (!value) {
-        template_str = template_str + key + "=\n";
+        template_str += key + " = \"\"\n";
       } else {
-        if (value.constructor == Array) {
-          var it = null;
-          $.each(value, function(index, element) {
-            if (!element) return true;
-            // current value can be an object
-            if (typeof element == 'object') {
-              template_str += key + "=[";
-              for (var current_key in element) {
-                template_str += current_key + "=\"" + element[current_key].toString().replace(/"/g, "\\\"") + "\",";
-              }
-              template_str = template_str.substring(0, template_str.length - 1);
-              template_str += "]\n";
-            } else // or a string
-              {
-                template_str = template_str + key + "=\"" + element.toString().replace(/"/g, "\\\"") + "\"\n";
-              }
-          });
-        } else // or a single value
-        {
-          // which in turn can be an object
-          if (typeof value == 'object') {
-            template_str += key + "=[";
-            for (var current_key in value) {
-              template_str += current_key + "=\"" + value[current_key].toString().replace(/"/g, "\\\"") + "\",";
-            }
-            template_str = template_str.substring(0, template_str.length - 1);
-            template_str += "]\n";
-          } else // or a string
-          {
-            template_str = template_str + key + "=\"" + value.toString().replace(/"/g, "\\\"") + "\"\n";
-          }
+        var values;
+
+        if ($.isArray(value)){
+          values = value;
+        }else{
+          values = [value];
         }
+
+        $.each(values, function(index, element) {
+          if (!element) return true;
+          // current value can be an object
+          if (typeof element == 'object') {
+            template_str += key + " = [\n";
+
+            template_str += Object.keys(element).map(function(k){
+              return "  " + k + " = \"" + element[k].toString().replace(/"/g, "\\\"") + "\"";
+            }).join(",\n")
+
+            template_str += " ]\n";
+          } else { // or a string
+            template_str += key + " = \"" + element.toString().replace(/"/g, "\\\"") + "\"\n";
+          }
+        });
       }
     });
 
