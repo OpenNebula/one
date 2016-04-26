@@ -35,101 +35,101 @@
       <div class="wizard_internal_tab is-active tabs-panel bootTab" id="bootTab{{uniqueId}}">
         <div class="row">
           <div class="medium-4 columns">
-            <label for="ARCH">
+            <label>
               {{tr "Arch"}}
-            {{{tip (tr "CPU architecture to virtualization")}}}
+              {{{tip (tr "CPU architecture to virtualization")}}}
+              <select wizard_field="ARCH">
+                <option value=""></option>
+                <option value="i686">i686</option>
+                <option value="x86_64">x86_64</option>
+              </select>
             </label>
-            <select wizard_field="ARCH" id="ARCH" name="arch">
-              <option id="no_arch" name="no_arch" value=""></option>
-              <option value="i686">i686</option>
-              <option value="x86_64">x86_64</option>
-            </select>
           </div>
           <div class="medium-8 columns hypervisor only_kvm">
-            <label for="MACHINE">
+            <label>
               {{tr "Machine type"}}
-            {{{tip (tr "libvirt machine type, only for KVM")}}}
+              {{{tip (tr "libvirt machine type, only for KVM")}}}
+              <input type="text" wizard_field="MACHINE"/>
             </label>
-            <input type="text" wizard_field="MACHINE" id="MACHINE" name="machine" />
           </div>
         </div>
         <div class="row">
           <div class="medium-4 columns">
-            <label for="ROOT">
+            <label>
               {{tr "Root"}}
-            {{{tip (tr "Device to be mounted as root")}}}
+              {{{tip (tr "Device to be mounted as root")}}}
+              <input type="text" wizard_field="ROOT"/>
             </label>
-            <input type="text" wizard_field="ROOT" id="ROOT" name="root"/>
           </div>
         </div>
         <br>
         <div class="row">
           <div class="medium-4 columns">
-            <label for="BOOT_0">
+            <label>
               {{tr "1st Boot"}}
-            {{{tip (tr "1st Boot device type")}}}
+              {{{tip (tr "1st Boot device type")}}}
+              <select id="BOOT_0" name="boot">
+                <option value=""></option>
+                <option value="hd">{{tr "HD"}}</option>
+                <option value="fd">{{tr "FD"}}</option>
+                <option value="cdrom">{{tr "CDROM"}}</option>
+                <option value="network">{{tr "NETWORK"}}</option>
+              </select>
             </label>
-            <select id="BOOT_0" name="boot">
-              <option id="no_boot" name="no_boot" value=""></option>
-              <option value="hd">{{tr "HD"}}</option>
-              <option value="fd">{{tr "FD"}}</option>
-              <option value="cdrom">{{tr "CDROM"}}</option>
-              <option value="network">{{tr "NETWORK"}}</option>
-            </select>
           </div>
           <div class="medium-4 columns">
-            <label for="BOOT_1">
+            <label>
               {{tr "2nd Boot"}}
-            {{{tip (tr "2nd Boot device type")}}}
+              {{{tip (tr "2nd Boot device type")}}}
+              <select id="BOOT_1" name="boot">
+                <option value=""></option>
+                <option value="hd">{{tr "HD"}}</option>
+                <option value="fd">{{tr "FD"}}</option>
+                <option value="cdrom">{{tr "CDROM"}}</option>
+                <option value="network">{{tr "NETWORK"}}</option>
+              </select>
             </label>
-            <select id="BOOT_1" name="boot">
-              <option id="no_boot" name="no_boot" value=""></option>
-              <option value="hd">{{tr "HD"}}</option>
-              <option value="fd">{{tr "FD"}}</option>
-              <option value="cdrom">{{tr "CDROM"}}</option>
-              <option value="network">{{tr "NETWORK"}}</option>
-            </select>
           </div>
           <div class="medium-4 columns">
-            <label for="BOOT_2">
+            <label>
               {{tr "3rd Boot"}}
-            {{{tip (tr "3rd Boot device type")}}}
+              {{{tip (tr "3rd Boot device type")}}}
+              <select id="BOOT_2" name="boot">
+                <option value=""></option>
+                <option value="hd">{{tr "HD"}}</option>
+                <option value="fd">{{tr "FD"}}</option>
+                <option value="cdrom">{{tr "CDROM"}}</option>
+                <option value="network">{{tr "NETWORK"}}</option>
+              </select>
             </label>
-            <select id="BOOT_2" name="boot">
-              <option id="no_boot" name="no_boot" value=""></option>
-              <option value="hd">{{tr "HD"}}</option>
-              <option value="fd">{{tr "FD"}}</option>
-              <option value="cdrom">{{tr "CDROM"}}</option>
-              <option value="network">{{tr "NETWORK"}}</option>
-            </select>
           </div>
         </div>
         <div class="row">
           <div class="large-12 columns">
-            <label for="KERNEL_CMD">
+            <label>
               {{tr "Kernel cmd"}}
-            {{{tip (tr "Arguments for the booting kernel")}}}
+              {{{tip (tr "Arguments for the booting kernel")}}}
+              <input type="text" wizard_field="KERNEL_CMD"/>
             </label>
-            <input type="text" wizard_field="KERNEL_CMD" id="KERNEL_CMD" name="kernel_cmd" />
           </div>
         </div>
         <div class="row">
           <div class="large-12 columns">
-            <label for="BOOTLOADER">
+            <label>
               {{tr "Bootloader"}}
-            {{{tip (tr "Path to the bootloader executable")}}}
+              {{{tip (tr "Path to the bootloader executable")}}}
+              <input type="text" wizard_field="BOOTLOADER"/>
             </label>
-            <input type="text" wizard_field="BOOTLOADER" id="BOOTLOADER" name="bootloader" />
           </div>
         </div>
       </div>
       <div id="kernelTab{{uniqueId}}" class="wizard_internal_tab tabs-panel kernelTab">
         <div class="row">
           <div class="large-12 columns text-center">
-            <input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/>
-            <label for="radioKernelDs">{{tr "Registered Image"}}</label>
-            <input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/>
-            <label for="radioKernelPath">{{tr "Remote PATH"}}</label>
+            <input id="radioKernelDs{{uniqueId}}" type="radio" name="kernel_type" value="kernel_ds" checked/>
+            <label for="radioKernelDs{{uniqueId}}">{{tr "Registered Image"}}</label>
+            <input id="radioKernelPath{{uniqueId}}" type="radio" name="kernel_type" value="kernel_path"/>
+            <label for="radioKernelPath{{uniqueId}}">{{tr "Remote path"}}</label>
           </div>
         </div>
         <br>
@@ -137,28 +137,30 @@
           {{{kernelFilesTableHTML}}}
           <div id="kernel_ds_inputs" class="row">
             <div class="large-12 columns">
-              <label for="KERNEL_DS">{{tr "KERNEL_DS"}}</label>
-              <input type="text" wizard_field="KERNEL_DS" id="KERNEL_DS" name="KERNEL_DS"/>
+              <label>
+                {{tr "KERNEL_DS"}}
+                <input type="text" wizard_field="KERNEL_DS" id="KERNEL_DS" name="KERNEL_DS"/>
+              </label>
             </div>
           </div>
         </div>
         <div id="kernel_path_inputs" class="kernel_path row" hidden>
           <div class="large-12 columns">
-            <label for="KERNEL">
-              {{tr "PATH"}}
-            {{{tip (tr "Path to the OS kernel to boot the image")}}}
+            <label>
+              {{tr "Path"}}
+              {{{tip (tr "Path to the OS kernel to boot the image")}}}
+              <input type="text" wizard_field="KERNEL"/>
             </label>
-            <input type="text" wizard_field="KERNEL" id="KERNEL" name="kernel" />
           </div>
         </div>
       </div>
       <div id="ramdiskTab{{uniqueId}}" class="wizard_internal_tab tabs-panel ramdiskTab">
         <div class="row">
           <div class="large-12 columns text-center">
-            <input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked>
-            <label for="radioInintrdDs">{{tr "Registered Image "}}</label>
-            <input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path">
-            <label for="radioInitrdPath">{{tr "Remote PATH"}}</label>
+            <input id="radioInintrdDs{{uniqueId}}" type="radio" name="initrd_type" value="initrd_ds" checked>
+            <label for="radioInintrdDs{{uniqueId}}">{{tr "Registered Image "}}</label>
+            <input id="radioInitrdPath{{uniqueId}}" type="radio" name="initrd_type" value="initrd_path">
+            <label for="radioInitrdPath{{uniqueId}}">{{tr "Remote path"}}</label>
           </div>
         </div>
         <br>
@@ -166,19 +168,21 @@
           {{{initrdFilesTableHTML}}}
           <div class="row">
             <div class="large-12 columns">
-              <label for="INITRD_DS">{{tr "INITRD_DS"}}</label>
-              <input type="text" wizard_field="INITRD_DS" id="INITRD_DS" name="initrd_id"/>
+              <label>
+                {{tr "INITRD_DS"}}
+                <input type="text" wizard_field="INITRD_DS" id="INITRD_DS" name="initrd_id"/>
+              </label>
             </div>
           </div>
         </div>
         <div id="initrd_path_inputs" class="initrd_path" hidden>
           <div class="row">
             <div class="large-12 columns">
-              <label for="INITRD">
-                {{tr "PATH"}}
-              {{{tip (tr "Path to the initrd image")}}}
+              <label>
+                {{tr "Path"}}
+                {{{tip (tr "Path to the initrd image")}}}
+                <input type="text" wizard_field="INITRD"/>
               </label>
-              <input type="text" wizard_field="INITRD" id="INITRD" name="initrd"/>
             </div>
           </div>
         </div>
@@ -186,63 +190,63 @@
       <div class="wizard_internal_tab tabs-panel featuresTab" id="featuresTab{{uniqueId}}">
         <div class="row">
           <div class="medium-6 columns">
-            <label for="ACPI">
+            <label>
               {{tr "ACPI"}}
-            {{{tip (tr "Add support in the VM for Advanced Configuration and Power Interface (ACPI)")}}}
+              {{{tip (tr "Add support in the VM for Advanced Configuration and Power Interface (ACPI)")}}}
+              <select wizard_field="ACPI">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
             </label>
-            <select wizard_field="ACPI" id="ACPI" name="acpi">
-              <option id="no_apci" name="no_apci" value=""></option>
-              <option value="yes">{{tr "Yes"}}</option>
-              <option value="no">{{tr "No"}}</option>
-            </select>
           </div>
           <div class="medium-6 columns">
-            <label for="PAE">
+            <label>
               {{tr "PAE"}}
-            {{{tip (tr "Add support in the VM for Physical Address Extension (PAE)")}}}
+              {{{tip (tr "Add support in the VM for Physical Address Extension (PAE)")}}}
+              <select wizard_field="PAE">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
             </label>
-            <select wizard_field="PAE" id="PAE" name="pae">
-              <option id="no_pae" name="no_pae" value=""></option>
-              <option value="yes">{{tr "Yes"}}</option>
-              <option value="no">{{tr "No"}}</option>
-            </select>
           </div>
         </div>
         <div class="row">
           <div class="medium-6 columns">
-            <label for="APIC">
+            <label>
               {{tr "APIC"}}
-            {{{tip (tr "Enables the advanced programmable IRQ management.")}}}
+              {{{tip (tr "Enables the advanced programmable IRQ management.")}}}
+              <select wizard_field="APIC">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
             </label>
-            <select wizard_field="APIC" id="APIC" name="apic">
-              <option id="no_apic" name="no_apic" value=""></option>
-              <option value="yes">{{tr "Yes"}}</option>
-              <option value="no">{{tr "No"}}</option>
-            </select>
           </div>
           <div class="medium-6 columns">
-            <label for="HYPERV">
+            <label>
               {{tr "HYPERV"}}
-            {{{tip (tr "Add support in the VM for hyper-v features (HYPERV)")}}}
+              {{{tip (tr "Add support in the VM for hyper-v features (HYPERV)")}}}
+              <select wizard_field="HYPERV">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
             </label>
-            <select wizard_field="HYPERV" id="HYPERV" name="hyperv">
-              <option id="no_hyperv" name="no_hyperv" value=""></option>
-              <option value="yes">{{tr "Yes"}}</option>
-              <option value="no">{{tr "No"}}</option>
-            </select>
           </div>
         </div>
         <div class="row">
           <div class="medium-6 columns">
-            <label for="LOCALTIME">
+            <label>
               {{tr "Localtime"}}
-            {{{tip (tr "The guest clock will be synchronized to the hosts configured timezone when booted.")}}}
+              {{{tip (tr "The guest clock will be synchronized to the hosts configured timezone when booted.")}}}
+              <select wizard_field="LOCALTIME">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
             </label>
-            <select wizard_field="LOCALTIME" id="LOCALTIME" name="localtime">
-              <option id="no_localtime" name="no_localtime" value=""></option>
-              <option value="yes">{{tr "Yes"}}</option>
-              <option value="no">{{tr "No"}}</option>
-            </select>
           </div>
         </div>
       </div>

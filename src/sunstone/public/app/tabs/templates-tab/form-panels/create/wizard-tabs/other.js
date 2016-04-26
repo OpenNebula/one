@@ -147,11 +147,11 @@ define(function(require) {
     var templateJSON = CustomTagsTable.retrieve(context);
 
     var rawJSON = {}
-    var rawData = TemplateUtils.escapeDoubleQuotes($('#raw_data', context).val());
+    var rawData = TemplateUtils.escapeDoubleQuotes($('.raw_data', context).val());
     if (rawData != "") {
       rawJSON['DATA'] = rawData;
 
-      var rawType = $('#raw_type', context).val();
+      var rawType = $('.raw_type', context).val();
       if (rawType != undefined) {
         rawJSON['TYPE'] = rawType;
       }
@@ -177,10 +177,9 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var rawJSON = templateJSON.RAW;
     if (rawJSON) {
-      $('#raw_type', context).val(rawJSON['TYPE']);
-      $('#raw_type', context).change();
-      $('#raw_data', context).val(TemplateUtils.htmlDecode(rawJSON['DATA']));
-      $('#raw_data_vmx', context).val(TemplateUtils.htmlDecode(rawJSON['DATA_VMX']));
+      $('.raw_type', context).val(rawJSON['TYPE']);
+      $('.raw_type', context).change();
+      $('.raw_data', context).val(TemplateUtils.htmlDecode(rawJSON['DATA']));
 
       delete templateJSON.RAW
     }

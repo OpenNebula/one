@@ -278,11 +278,11 @@ define(function(require) {
     if (osJSON) {
 
       if (osJSON['KERNEL_DS'] == undefined && osJSON['KERNEL'] != undefined){
-        $('input#radioKernelPath', context).click();
+        $('input[value="kernel_path"]', context).click();
       }
 
       if (osJSON['INITRD_DS'] == undefined && osJSON['INITRD'] != undefined){
-        $('input#radioInitrdPath', context).click();
+        $('input[value="initrd_path"]', context).click();
       }
 
       WizardFields.fill(context, osJSON);

@@ -66,7 +66,7 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateHTML();
+    return TemplateHTML({'uniqueId': UniqueId.id()});
   }
 
   function _onShow(context, panelForm) {
@@ -76,9 +76,9 @@ define(function(require) {
     $("input[name='graphics_type']", context).change(function() {
       $("#TYPE", context).val($(this).attr("value"));
       if ($(this).attr("value") !== '') {
-        $("#LISTEN", context).val("0.0.0.0");
+        $('input[wizard_field="LISTEN"]', context).val("0.0.0.0");
       } else {
-        $("#LISTEN", context).val('');
+        $('input[wizard_field="LISTEN"]', context).val('');
       }
     });
 
@@ -117,7 +117,7 @@ define(function(require) {
     var templateJSON = {};
     var graphicsJSON = WizardFields.retrieve(context);
 
-    if (!$.isEmptyObject(graphicsJSON) && $("#RANDOM_PASSWD:checked", context).length > 0) {
+    if (!$.isEmptyObject(graphicsJSON) && $(".RANDOM_PASSWD:checked", context).length > 0) {
       graphicsJSON["RANDOM_PASSWD"] = "YES";
     }
 
@@ -147,7 +147,7 @@ define(function(require) {
       }
 
       if (graphicsJSON["RANDOM_PASSWD"] == "YES") {
-        $("#RANDOM_PASSWD", context).attr("checked", "checked");
+        $(".RANDOM_PASSWD", context).attr("checked", "checked");
       }
 
       WizardFields.fill(context, graphicsJSON);
