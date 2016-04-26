@@ -36,19 +36,19 @@
   <div class="medium-2 columns">
     <ul id="context_tabs" class="tabs vertical" data-tabs>
       <li class="tabs-title is-active">
-        <a href="#netsshTab">{{tr "Configuration"}}</a>
+        <a href="#netsshTab{{uniqueId}}">{{tr "Configuration"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#filesTab">{{tr "Files"}}</a>
+        <a href="#filesTab{{uniqueId}}">{{tr "Files"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#zcustomTab">{{tr "Custom vars"}}</a>
+        <a href="#customTab{{uniqueId}}">{{tr "Custom vars"}}</a>
       </li>
     </ul>
   </div>
   <div class="medium-10 columns">
     <div class="tabs-content vertical" data-tabs-content="context_tabs">
-      <div class="wizard_internal_tab is-active tabs-panel" id="netsshTab">
+      <div class="wizard_internal_tab is-active tabs-panel netsshTab" id="netsshTab{{uniqueId}}">
         <div class="row">
           <div class="columns medium-6">
             <div class="row">
@@ -112,7 +112,7 @@
           </fieldset>
         </div>
       </div>
-      <div class="wizard_internal_tab tabs-panel" id="filesTab">
+      <div class="wizard_internal_tab tabs-panel filesTab" id="filesTab{{uniqueId}}">
         {{{contextFilesTableHTML}}}
         <div class="row">
           <div class="large-12 columns">
@@ -133,7 +133,7 @@
           </div>
         </div>
       </div>
-      <div class="wizard_internal_tab tabs-panel" id="zcustomTab">{{{customTagsTableHTML}}}</div>
+      <div class="wizard_internal_tab tabs-panel customTab" id="customTab{{uniqueId}}">{{{customTagsTableHTML}}}</div>
     </div>
   </div>
 </div>

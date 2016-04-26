@@ -80,6 +80,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
+      'uniqueId': UniqueId.id(),
       'userInputsHTML': UserInputs.html(),
       'customTagsTableHTML': CustomTagsTable.html(),
       'contextFilesTableHTML': this.contextFilesTable.dataTableHTML

@@ -178,6 +178,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
+      'uniqueId': UniqueId.id(),
       'guestOS': GUESTOS,
       'kernelFilesTableHTML': this.kernelFilesTable.dataTableHTML,
       'initrdFilesTableHTML': this.initrdFilesTable.dataTableHTML
@@ -246,9 +247,9 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var osJSON = {}
-    $.extend(osJSON, WizardFields.retrieve('#bootTab', context));
-    $.extend(osJSON, WizardFields.retrieve('#kernelTab', context));
-    $.extend(osJSON, WizardFields.retrieve('#ramdiskTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.bootTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.kernelTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.ramdiskTab', context));
 
     var boot = "";
     var val;
@@ -266,7 +267,7 @@ define(function(require) {
 
     if (!$.isEmptyObject(osJSON)) { templateJSON['OS'] = osJSON; };
 
-    var featuresJSON = WizardFields.retrieve('#featuresTab', context)
+    var featuresJSON = WizardFields.retrieve('.featuresTab', context)
     if (!$.isEmptyObject(featuresJSON)) { templateJSON['FEATURES'] = featuresJSON; };
 
     return templateJSON;

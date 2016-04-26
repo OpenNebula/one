@@ -17,22 +17,22 @@
   <div class="medium-2 columns">
     <ul class="tabs vertical" id="osTabs" data-tabs>
       <li class="tabs-title is-active">
-        <a href="#bootTab">{{tr "Boot"}}</a>
+        <a href="#bootTab{{uniqueId}}">{{tr "Boot"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#kernelTab">{{tr "Kernel"}}</a>
+        <a href="#kernelTab{{uniqueId}}">{{tr "Kernel"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#ramdiskTab">{{tr "Ramdisk"}}</a>
+        <a href="#ramdiskTab{{uniqueId}}">{{tr "Ramdisk"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#featuresTab">{{tr "Features"}}</a>
+        <a href="#featuresTab{{uniqueId}}">{{tr "Features"}}</a>
       </li>
     </ul>
   </div>
   <div class="medium-10 columns">
     <div class="tabs-content vertical" data-tabs-content="osTabs">
-      <div class="wizard_internal_tab is-active tabs-panel" id="bootTab">
+      <div class="wizard_internal_tab is-active tabs-panel bootTab" id="bootTab{{uniqueId}}">
         <div class="row">
           <div class="medium-4 columns">
             <label for="ARCH">
@@ -123,7 +123,7 @@
           </div>
         </div>
       </div>
-      <div id="kernelTab" class="wizard_internal_tab tabs-panel">
+      <div id="kernelTab{{uniqueId}}" class="wizard_internal_tab tabs-panel kernelTab">
         <div class="row">
           <div class="large-12 columns text-center">
             <input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/>
@@ -152,7 +152,7 @@
           </div>
         </div>
       </div>
-      <div id="ramdiskTab" class="wizard_internal_tab tabs-panel">
+      <div id="ramdiskTab{{uniqueId}}" class="wizard_internal_tab tabs-panel ramdiskTab">
         <div class="row">
           <div class="large-12 columns text-center">
             <input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked>
@@ -183,7 +183,7 @@
           </div>
         </div>
       </div>
-      <div class="wizard_internal_tab tabs-panel" id="featuresTab">
+      <div class="wizard_internal_tab tabs-panel featuresTab" id="featuresTab{{uniqueId}}">
         <div class="row">
           <div class="medium-6 columns">
             <label for="ACPI">
