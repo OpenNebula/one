@@ -1375,7 +1375,7 @@ class VCenterVm
     def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
-                shutdown(deploy_id, hostname, lcm_state, keep_disks)
+                shutdown(deploy_id, hostname, lcm_state, keep_disks, disks)
             when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT", "SHUTDOWN", "CLEANUP_DELETE"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
