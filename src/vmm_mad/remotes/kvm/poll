@@ -364,67 +364,6 @@ module KVM
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
                 end
-            elsif file
-                # Search the disk in system datastore when the source
-                # is a persistent image with snapshots
-                source = nil
-                current_snap_id = nil
-
-                if !file.match(/.*disk\.\d+$/) && systemds
-                    source = file.gsub(%r{/+}, '/')
-
-                    disks = Dir["#{systemds}/disk.*"]
-
-                    disks.each do |disk|
-                        next if !File.symlink?(disk)
-                        link = File.readlink(disk).gsub(%r{/+}, '/')
-
-                        if link == source
-                            file = disk
-                            current_snap_id = link.split('/').last
-                            break
-                        end
-                    end
-                else
-                    if File.symlink?(file)
-                        link = File.readlink(file)
-                        current_snap_id = link.split('/').last
-                    end
-                end
-
-                # Regular Disk
-                text = `qemu-img info --output=json #{file}`
-                next if !$? || !$?.success?
-
-                json = JSON.parse(text)
-
-                disk_id = file.split(".")[-1]
-
-                disk_size = json['actual-size'].to_f/1024/1024
-
-                data[:disk_size] << {:id => disk_id, :size => disk_size.round}
-
-                # Get snapshots
-                Dir[file + '.snap/*'].each do |snap|
-                    if current_snap_id
-                        next if snap.split('/').last == current_snap_id
-                    else
-                        next if source == snap
-                    end
-
-                    next if File.symlink?(snap)
-
-                    text = `qemu-img info --output=json #{snap}`
-                    next if !$? || !$?.success?
-
-                    json = JSON.parse(text)
-
-                    snap_id = snap.split("/")[-1]
-
-                    snap_size = json['actual-size'].to_f/1024/1024
-
-                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snap_size.round}
-                end
             end
         end
         rescue Exception => e
