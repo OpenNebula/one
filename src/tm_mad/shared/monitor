@@ -54,40 +54,14 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Compute datastore usage -------------
 
-LVM_VG_PREFIX="vg-one-"
-LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
-
 MONITOR_SCRIPT=$(cat <<EOF
 if [ ! -d $BASE_PATH ]; then
     mkdir -p $BASE_PATH
 fi
 
-# If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore
-# we return the space of the lvm, no of the filesystem
-if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
-    LVM_SIZE=\$(sudo vgdisplay \
-                    --separator : \
-                    --units m \
-                    -o vg_size,vg_free \
-                    --nosuffix \
-                    --noheadings \
-                    -C \
-                    ${LVM_VG_PREFIX}${DS_ID} 2>/dev/null)
-fi
-
-if [ -n "\$LVM_SIZE" ]; then
-    LVM_TOTAL=\$(echo \$LVM_SIZE | cut -d: -f1 | sed 's/\..*//;s/^\s*//')
-    LVM_FREE=\$(echo \$LVM_SIZE | cut -d: -f2 | sed 's/\..*//;s/^\s*//')
-    LVM_USED=\$(( \$LVM_TOTAL - \$LVM_FREE ))
-
-    TOTAL_MB=\${LVM_TOTAL:-"0"}
-    FREE_MB=\${LVM_FREE:-"0"}
-    USED_MB=\${LVM_USED:-"0"}
-else
-    USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
-    TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
-    FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
-fi
+USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
+TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
+FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
     msg="Empty value found"
@@ -98,6 +72,37 @@ fi
 echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
+
+vms=\$(ls "$BASE_PATH" | grep '^[0-9]$')
+
+for vm in \$vms; do
+    vmdir="${BASE_PATH}/\${vm}"
+    disks=\$(ls "\$vmdir" | grep '^disk\.[0-9]\+$')
+
+    [ -z \$disks ] && continue
+
+    echo -n "VM=[ID=\$vm,POLL=\""
+
+    for disk in \$disks; do
+        disk_id="\$(echo "\$disk" | cut -d. -f2)"
+        disk_size="\$(du -mL "\${vmdir}/\${disk}" | awk '{print \$1}')"
+        snap_dir="\${vmdir}/\${disk}.snap"
+
+        echo -n "DISK_SIZE=[ID=\${disk_id},SIZE=\${disk_size}] "
+
+        if [ -e "\$snap_dir" ]; then
+            snaps="\$(ls "\$snap_dir" | grep '^[0-9]$')"
+
+            for snap in \$snaps; do
+                snap_size="\$(du -mL "\${snap_dir}/\${snap}" | awk '{print \$1}')"
+                echo -n "SNAPSHOT_SIZE=[ID=\${snap},DISK_ID=\${disk_id},SIZE=\${snap_size}] "
+            done
+        fi
+    done
+
+    echo "\"]"
+done
+
 EOF
 )
 
@@ -111,7 +116,7 @@ fi
 MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA" | tr ' ' '\n'
+    echo "$MONITOR_DATA"
     exit 0
 else
     echo "$MONITOR_DATA"
