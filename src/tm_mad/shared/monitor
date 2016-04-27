@@ -73,7 +73,7 @@ echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
-vms=\$(ls "$BASE_PATH" | grep '^[0-9]$')
+vms=\$(ls "$BASE_PATH" | grep '^[0-9]\+$')
 
 for vm in \$vms; do
     vmdir="${BASE_PATH}/\${vm}"
