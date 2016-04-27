@@ -72,6 +72,37 @@ fi
 echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
+
+vms=\$(ls "$BASE_PATH" | grep '^[0-9]$')
+
+for vm in \$vms; do
+    vmdir="${BASE_PATH}/\${vm}"
+    disks=\$(ls "\$vmdir" | grep '^disk\.[0-9]\+$')
+
+    [ -z \$disks ] && continue
+
+    echo -n "VM=[ID=\$vm,POLL=\""
+
+    for disk in \$disks; do
+        disk_id="\$(echo "\$disk" | cut -d. -f2)"
+        disk_size="\$(du -mL "\${vmdir}/\${disk}" | awk '{print \$1}')"
+        snap_dir="\${vmdir}/\${disk}.snap"
+
+        echo -n "DISK_SIZE=[ID=\${disk_id},SIZE=\${disk_size}] "
+
+        if [ -e "\$snap_dir" ]; then
+            snaps="\$(ls "\$snap_dir" | grep '^[0-9]$')"
+
+            for snap in \$snaps; do
+                snap_size="\$(du -mL "\${snap_dir}/\${snap}" | awk '{print \$1}')"
+                echo -n "SNAPSHOT_SIZE=[ID=\${snap},DISK_ID=\${disk_id},SIZE=\${snap_size}] "
+            done
+        fi
+    done
+
+    echo "\"]"
+done
+
 EOF
 )
 
@@ -85,7 +116,7 @@ fi
 MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA" | tr ' ' '\n'
+    echo "$MONITOR_DATA"
     exit 0
 else
     echo "$MONITOR_DATA"
