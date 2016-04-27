@@ -184,6 +184,10 @@ define(function(require) {
   // opts.network_header: header text for the network inputs
   // returns true if at least one input was inserted
   function _generateServiceTemplateUserInputs(div, template_json, opts) {
+    if(opts == undefined){
+      opts = {};
+    }
+
     opts.div = div;
     opts.user_inputs = template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs;
 
