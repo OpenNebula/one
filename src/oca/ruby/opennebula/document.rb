@@ -134,6 +134,21 @@ module OpenNebula
             super(DOCUMENT_METHODS[:update], new_template, append ? 1 : 0)
         end
 
+        # Replaces the raw template contents
+        #
+        # @param template [String] New template contents, in the form KEY = VAL
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update_raw(template_raw, append=false)
+            rc = check_type()
+            return rc if OpenNebula.is_error?(rc)
+
+            return call(DOCUMENT_METHODS[:update], @pe_id, template_raw, append ? 1 : 0)
+        end
+
         # Changes the owner/group
         #
         # @param [Integer] uid the new owner id. Set to -1 to leave the current one

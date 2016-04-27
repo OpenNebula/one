@@ -193,6 +193,7 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
+            #- 5        # Labels
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: false
@@ -324,6 +325,7 @@ tabs:
             #- 3         # Group
             - 4         # Name
             - 5         # State
+            #- 6        # Labels
         actions:
             Service.refresh: true
             Service.chown: true

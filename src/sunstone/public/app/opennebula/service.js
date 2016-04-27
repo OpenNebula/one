@@ -89,6 +89,23 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj, PATH);
     },
+    "append": function(params) {
+      params.cache_name = CACHE_NAME;
+
+      var action_obj = {};
+
+      try {
+        JSON.parse(params.data.extra_param);
+        action_obj["template_json"] = params.data.extra_param;
+      }
+      catch(err) {
+        action_obj["template_raw"] = params.data.extra_param;
+      }
+
+      action_obj["append"] = true;
+
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
+    },
     "stateStr" : function(stateId) {
       return STATES_STR[stateId];
     },
