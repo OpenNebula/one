@@ -443,7 +443,7 @@ if [ ! -d $2 ]; then
    mkdir -p $2
 
    if [ "monitor" = "$3" ]; then
-       touch "$2/.monitor"
+       touch "\$(dirname $2)/.monitor"
    fi
 fi
 EOF`
