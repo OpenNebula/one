@@ -1288,7 +1288,7 @@ EOT
                 end
             end
         end
-        
+
         if !db_version[:is_slave]
             @db.transaction do
                 apps_fix.each do |id, body|
@@ -1337,7 +1337,7 @@ EOT
 
             markets_fix[row[:oid]] = doc.root.to_s
         end
-        
+
         if !db_version[:is_slave]
             @db.transaction do
                 markets_fix.each do |id, body|
@@ -1734,7 +1734,7 @@ EOT
                     elsif (binary_magic & NET_BIN != 0)
                         lease[:vnet] = lease_oid
                         lease_obj = "VNet"
-                    else #(binary_magic & VROUTER_BIN != 0) 
+                    else #(binary_magic & VROUTER_BIN != 0)
                         lease[:vrouter] = lease_oid
                         lease_obj = "VRouter"
                     end
@@ -2344,6 +2344,7 @@ EOT
     end
 
     def mac_s_to_i(mac)
+        return nil if mac.empty?
         return mac.split(":").map {|e|
             e.to_i(16).to_s(16).rjust(2,"0")}.join("").to_i(16)
     end
@@ -2355,6 +2356,7 @@ EOT
     end
 
     def ip6_prefix_s_to_i(prefix)
+        return nil if prefix.empty?
         return prefix.split(":", 4).map {|e|
             e.to_i(16).to_s(16).rjust(4, "0")}.join("").to_i(16)
     end
