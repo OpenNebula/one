@@ -1,5 +1,5 @@
 .open-control:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .nowrap {
@@ -10,11 +10,7 @@
   overflow-x: hidden;
   text-overflow: ellipsis;
 }
-/*
-#user_ssh_public_key_text, #config_ssh_public_key_text {
-  overflow-x:hidden;
-  text-overflow: ellipsis;
+
+.monospace {
+  font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
 }
-*/
-// padding: 0px 10px;
-// height: 120px;
