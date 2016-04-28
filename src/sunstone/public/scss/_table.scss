@@ -74,3 +74,9 @@ table {
     margin-top: 0.5rem;
   }
 }
+
+table{
+  .has-tip {
+    display: table-cell;
+  }
+}

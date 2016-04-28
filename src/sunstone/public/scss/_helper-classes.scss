@@ -1,0 +1,20 @@
+.open-control:hover {
+    cursor: pointer;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.ellipsis {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+/*
+#user_ssh_public_key_text, #config_ssh_public_key_text {
+  overflow-x:hidden;
+  text-overflow: ellipsis;
+}
+*/
+// padding: 0px 10px;
+// height: 120px;

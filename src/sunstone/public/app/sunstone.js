@@ -304,7 +304,7 @@ define(function(require) {
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
           icon = button.icon ? button.icon : '<i class="fa fa-refresh"/>';
           text = button.text ? icon + ' ' + button.text : icon;
-          strClass.push("white_button", "refresh", "button",  "secondary");
+          strClass.push("refresh", "button",  "secondary");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "top":
@@ -313,7 +313,7 @@ define(function(require) {
               '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>' +
               '<i class="fa fa-play fa-stack-1x"></i>' +
             '</span>';
-          strClass.push("white_button", "toggle_top_button", "only-right-list", "button",  "hollow");
+          strClass.push("toggle_top_button", "only-right-list", "button",  "hollow");
           buttonCode = '<a class="' + strClass.join(' ') + '" style="padding-left:0px; margin-right: 20px">' + text + '</a>';
           break;
         case "main":

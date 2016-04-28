@@ -34,6 +34,8 @@
 @import './table';
 @import './tabs';
 @import './vcenter';
+@import './tree';
+@import './helper-classes';
 
 //@font-face {
 //  font-family: 'Open Sans';
@@ -120,18 +122,8 @@ meter {
   margin-bottom: 0;
 }
 
-table{
-  .has-tip {
-    display: table-cell;
-  }
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-
 .disk-resize-icon {
   color: $bold-black;
   font-weight: $global-weight-normal;
-
 }
+
