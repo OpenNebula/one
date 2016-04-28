@@ -53,7 +53,7 @@ DST_HOST=`arg_host $DST`
 
 DST_DIR=`dirname $DST_PATH`
 
-ssh_make_path $DST_HOST $DST_DIR
+ssh_make_path $DST_HOST $DST_DIR "monitor"
 
 #-------------------------------------------------------------------------------
 # Get Image information
