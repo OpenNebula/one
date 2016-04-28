@@ -43,15 +43,15 @@ define(function(require) {
 
     // Enable / disable vnc button
     if (OpenNebulaVM.isVNCSupported(element)) {
-      $(".vnc-right-info").show();
+      $(".vnc-sunstone-info").show();
     } else {
-      $(".vnc-right-info").hide();
+      $(".vnc-sunstone-info").hide();
     }
 
     if (OpenNebulaVM.isSPICESupported(element)) {
-      $(".spice-right-info").show();
+      $(".spice-sunstone-info").show();
     } else {
-      $(".spice-right-info").hide();
+      $(".spice-sunstone-info").hide();
     }
   }
 

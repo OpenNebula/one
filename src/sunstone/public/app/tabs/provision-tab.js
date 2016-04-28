@@ -688,7 +688,7 @@ define(function(require) {
       var tab = $("#"+tab_name);
 
       if (Config.isTabEnabled(tab_name)) {
-        $(".right-content").addClass("large-centered small-centered");
+        $(".sunstone-content").addClass("large-centered small-centered");
         $("#footer").removeClass("right");
         $("#footer").addClass("large-centered small-centered");
 

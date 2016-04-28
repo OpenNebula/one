@@ -67,7 +67,7 @@ define(function(require) {
         id: -1
       },
       success: function(request, user_json) {
-        Sunstone.insertPanels(TAB_ID, user_json, TAB_ID, $(".right-list", $("#" + TAB_ID)))
+        Sunstone.insertPanels(TAB_ID, user_json, TAB_ID, $(".sunstone-list", $("#" + TAB_ID)))
       }
     });
   }

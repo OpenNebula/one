@@ -1160,7 +1160,7 @@ define(function(require) {
   function _quotas_tmpl(uniqueId){
     return '<div class="row">\
         <div class="large-12 columns">\
-          <dl id="' + uniqueId + 'Tabs" class="tabs right-info-tabs text-center" data-tabs>\
+          <dl id="' + uniqueId + 'Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>\
                <dd class="tabs-title is-active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
                <dd class="tabs-title"><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
                <dd class="tabs-title"><a href="#image_quota"><i class="fa fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\

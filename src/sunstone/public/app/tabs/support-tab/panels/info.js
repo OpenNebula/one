@@ -103,7 +103,7 @@ define(function(require) {
     });
 
     $(".accordion_advanced_toggle", context).trigger("click");
-    $("dl.right-info-tabs", context).hide();
+    $("dl.sunstone-info-tabs", context).hide();
 
     return false;
   }

@@ -43,17 +43,17 @@ define(function(require) {
 
   function _setup(){
     $('#menu-toggle').on('click', function(){
-      var hiding = $('.right-content').hasClass("large-10");
+      var hiding = $('.sunstone-content').hasClass("large-10");
 
       if(!hiding){
-        $('.right-content').toggleClass('large-10');
-        $('.right-content').toggleClass('large-12');
+        $('.sunstone-content').toggleClass('large-10');
+        $('.sunstone-content').toggleClass('large-12');
       }
 
       $('#menu-wrapper').toggle(200, function(){
         if(hiding){
-          $('.right-content').toggleClass('large-10');
-          $('.right-content').toggleClass('large-12');
+          $('.sunstone-content').toggleClass('large-10');
+          $('.sunstone-content').toggleClass('large-12');
         }
       });
     });

@@ -154,9 +154,9 @@ define(function(require) {
       dataTable.initialize();
       if (dataTable.labelsColumn) {
         $('#' + tabName + 'labels_buttons').html(
-          '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list top_button secondary button dropdown">' +
+          '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list top_button secondary button dropdown">' +
             '<i class="fa fa-tags"/></button>' +
-          '<div id="' + tabName + 'LabelsDropdown" class="only-right-info only-right-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
+          '<div id="' + tabName + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
 
       }
     }
@@ -179,7 +179,7 @@ define(function(require) {
     } else {
       tabInfo['tabName'] = tabName;
       var TabTemplate = require('hbs!sunstone/tab')
-      $('div.right-content').append(TabTemplate(tabInfo));
+      $('div.sunstone-content').append(TabTemplate(tabInfo));
     }
 
     var liItem;
@@ -227,7 +227,7 @@ define(function(require) {
     }
 
     if (tabInfo.setup) {
-      var context = $('div#' + tabName, $('div.right-content'));
+      var context = $('div#' + tabName, $('div.sunstone-content'));
 
       tabInfo.setup(context);
     }
@@ -246,7 +246,7 @@ define(function(require) {
       context = customContext;
     } else {
       customId = tabName;
-      context = $('div#' + tabName, $('div.right-content'));
+      context = $('div#' + tabName, $('div.sunstone-content'));
     }
 
     var actionBlock = $('div.action_blocks', context)
@@ -313,7 +313,7 @@ define(function(require) {
               '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>' +
               '<i class="fa fa-play fa-stack-1x"></i>' +
             '</span>';
-          strClass.push("toggle_top_button", "only-right-list", "button",  "hollow");
+          strClass.push("toggle_top_button", "only-sunstone-list", "button",  "hollow");
           buttonCode = '<a class="' + strClass.join(' ') + '" style="padding-left:0px; margin-right: 20px">' + text + '</a>';
           break;
         case "main":
@@ -504,9 +504,9 @@ define(function(require) {
 
   var _setupTabs = function() {
     Foundation.reflow($('#menu'), 'accordion-menu');
-    Foundation.reflow($('div.right-content'), 'sticky')
-    var topTabs = $(".left-content ul li.topTab");
-    var subTabs = $(".left-content ul li.subTab > a");
+    Foundation.reflow($('div.sunstone-content'), 'sticky')
+    var topTabs = $(".sunstone-menu-content ul li.topTab");
+    var subTabs = $(".sunstone-menu-content ul li.subTab > a");
 
     subTabs.on("click", function() {
       if ($(this).closest('li').hasClass('topTab')) {
@@ -540,12 +540,12 @@ define(function(require) {
     $(".tab").hide();
     tab.show();
 
-    $(".right-info", tab).hide();
-    $(".right-form", tab).hide();
-    $(".right-list", tab).fadeIn();
-    $(".only-right-info", tab).hide();
-    $(".only-right-form", tab).hide();
-    $(".only-right-list", tab).fadeIn();
+    $(".sunstone-info", tab).hide();
+    $(".sunstone-form", tab).hide();
+    $(".sunstone-list", tab).fadeIn();
+    $(".only-sunstone-info", tab).hide();
+    $(".only-sunstone-form", tab).hide();
+    $(".only-sunstone-list", tab).fadeIn();
     $('.action_blocks', tab).removeClass('large-12').addClass('large-9');
   };
 
@@ -554,12 +554,12 @@ define(function(require) {
     $(".tab").hide();
     tab.show();
 
-    $(".right-list", tab).hide();
-    $(".right-form", tab).hide();
-    $(".right-info", tab).fadeIn();
-    $(".only-right-list", tab).hide();
-    $(".only-right-form", tab).hide();
-    $(".only-right-info", tab).fadeIn();
+    $(".sunstone-list", tab).hide();
+    $(".sunstone-form", tab).hide();
+    $(".sunstone-info", tab).fadeIn();
+    $(".only-sunstone-list", tab).hide();
+    $(".only-sunstone-form", tab).hide();
+    $(".only-sunstone-info", tab).fadeIn();
     $('.action_blocks', tab).removeClass('large-9').addClass('large-12');
   }
 
@@ -611,7 +611,7 @@ define(function(require) {
     $(".resource-info-header", context).text("");
 
     var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
-    $(".right-info", context).html(loading);
+    $(".sunstone-info", context).html(loading);
     _showRighInfo(tabName);
 
     Sunstone.runAction(infoAction, elementId);
@@ -621,12 +621,12 @@ define(function(require) {
 
   // Returns the element that is currently shown in the right info
   var _getElementRightInfo = function(tabName, context) {
-    var context = context || $(".right-info", $("#" + tabName));
+    var context = context || $(".sunstone-info", $("#" + tabName));
     return context.data('element');
   }
 
   var _insertPanels = function(tabName, info, contextTabId, context) {
-    var context = context || $(".right-info", $("#" + tabName));
+    var context = context || $(".sunstone-info", $("#" + tabName));
 
     context.data('element', info[Object.keys(info)[0]]);
 
@@ -894,7 +894,7 @@ define(function(require) {
     // Workaround until Foundation.abide support hidden forms
     
     var context = $("#" + tabId);
-    $(".right-form-title", context).text(Locale.tr("Submitting..."));
+    $(".sunstone-form-title", context).text(Locale.tr("Submitting..."));
     $(".submit_button", context).text(Locale.tr("Submitting..."));
 
     setTimeout(function() {
@@ -951,7 +951,7 @@ define(function(require) {
       context = $(".tab:visible");  // current tab
       tabId = context.attr("id");
     }
-    //$(".right-form", context).html(content);
+    //$(".sunstone-form", context).html(content);
 
     $(".loadingForm", context).hide();
     $(".tabs-contentForm", context).hide();
@@ -959,7 +959,7 @@ define(function(require) {
     var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
     if (formPanelInstance) {
       // Set title and button strings
-      $(".right-form-title", context).text(formPanelInstance.title());
+      $(".sunstone-form-title", context).text(formPanelInstance.title());
       $(".submit_button", context).text(formPanelInstance.buttonText());
 
       $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).fadeIn();
@@ -974,15 +974,15 @@ define(function(require) {
 
   function _popFormPanelLoading(tabId) {
     var context = $("#" + tabId);
-    $(".right-list", context).hide();
-    $(".right-info", context).hide();
-    $(".right-form", context).show();
-    $(".only-right-list", context).hide();
-    $(".only-right-info", context).hide();
-    $(".only-right-form", context).show();
+    $(".sunstone-list", context).hide();
+    $(".sunstone-info", context).hide();
+    $(".sunstone-form", context).show();
+    $(".only-sunstone-list", context).hide();
+    $(".only-sunstone-info", context).hide();
+    $(".only-sunstone-form", context).show();
     $('.action_blocks', context).removeClass('large-9').addClass('large-12');
 
-    $(".right-form-title", context).text(Locale.tr("Loading..."));
+    $(".sunstone-form-title", context).text(Locale.tr("Loading..."));
     $(".submit_button", context).text(Locale.tr("Loading..."));
 
     $(".tabs-contentForm", context).hide();
@@ -1025,11 +1025,11 @@ define(function(require) {
   }
 
   var _rightInfoVisible = function(context) {
-    return $(".right-info", context).is(':visible');
+    return $(".sunstone-info", context).is(':visible');
   }
 
   var _rightListVisible = function(context) {
-    return $(".right-list", context).is(':visible');
+    return $(".sunstone-list", context).is(':visible');
   }
 
   var _rightInfoResourceId = function(context) {

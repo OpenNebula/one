@@ -17,10 +17,10 @@
   {{#if listHeader }}
   <div class="row header-row">
     <div class="large-12 columns">
-      <h5 class="header-title only-right-list">
+      <h5 class="header-title only-sunstone-list">
         <span class="header-resource">{{{listHeader}}}</span>
       </h5>
-      <h5 class="header-title only-right-info" hidden>
+      <h5 class="header-title only-sunstone-info" hidden>
         <span class="header-resource">
           {{{infoHeader}}} 
           <small class="resource-id"></small> 
@@ -28,15 +28,15 @@
           <small class="resource-info-header-small"></small>
         </span>
       </h5>
-      <h5 class="header-title only-right-form" hidden>
-        <span class="right-form-title"></span>
+      <h5 class="header-title only-sunstone-form" hidden>
+        <span class="sunstone-form-title"></span>
       </h5>
     </div>
     {{#if buttons}}
     <div class="actions_row">
       <div class="medium-12 large-9 columns action_blocks"></div>
       <div class="medium-4 large-3 columns">
-        <div class="only-right-list">
+        <div class="only-sunstone-list">
           {{#if dataTable.searchInputHTML}}
             {{{dataTable.searchInputHTML}}}
           {{/if}}
@@ -47,7 +47,7 @@
   </div>
   {{/if}}
 
-  <div class="right-list">
+  <div class="sunstone-list">
     {{#if dataTable.dataTableHTML}}
     <div class="row">
       <div class="large-12 columns">{{{dataTable.dataTableHTML}}}</div>
@@ -71,9 +71,9 @@
     {{/if}}
   </div>
 
-  <div class="right-info" hidden></div>
+  <div class="sunstone-info" hidden></div>
 
-  <div class="large-12 small-12 right-form" hidden>
+  <div class="large-12 small-12 sunstone-form" hidden>
     <div class="loadingForm">
       <br>
       <br>

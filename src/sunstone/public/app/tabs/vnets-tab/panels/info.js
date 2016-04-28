@@ -86,13 +86,13 @@ define(function(require) {
           <td></td>\
         </tr>';
 
-      $(".reserve-right-info").prop("disabled", true);
-      $(".reserve-right-info").addClass("has-tip");
-      $(".reserve-right-info").attr("title", Locale.tr("This Network is already a reservation"));
+      $(".reserve-sunstone-info").prop("disabled", true);
+      $(".reserve-sunstone-info").addClass("has-tip");
+      $(".reserve-sunstone-info").attr("title", Locale.tr("This Network is already a reservation"));
     } else{
-      $(".reserve-right-info").prop("disabled", false);
-      $(".reserve-right-info").removeClass("has-tip");
-      $(".reserve-right-info").removeAttr("title");
+      $(".reserve-sunstone-info").prop("disabled", false);
+      $(".reserve-sunstone-info").removeClass("has-tip");
+      $(".reserve-sunstone-info").removeAttr("title");
     }
     //====
 

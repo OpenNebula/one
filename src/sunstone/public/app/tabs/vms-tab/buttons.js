@@ -201,13 +201,13 @@ define(function(require) {
     "VM.startvnc" : {
       type: "action",
       text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("VNC"),
-      custom_classes: "only-right-info vnc-right-info",
+      custom_classes: "only-sunstone-info vnc-sunstone-info",
       tip: Locale.tr("VNC")
     },
     "VM.startspice" : {
       type: "action",
       text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("SPICE"),
-      custom_classes: "only-right-info spice-right-info",
+      custom_classes: "only-sunstone-info spice-sunstone-info",
       tip: Locale.tr("SPICE")
     },
     "VM.saveas_template" : {

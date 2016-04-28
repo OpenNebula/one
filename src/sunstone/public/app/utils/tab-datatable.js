@@ -326,7 +326,7 @@ define(function(require) {
       context = this.conf.customTabContext;
     } else {
       context = table.parents('.tab');
-      if ($(".right-info", context).is(':visible')) {
+      if ($(".sunstone-info", context).is(':visible')) {
         return;
       }
     }
