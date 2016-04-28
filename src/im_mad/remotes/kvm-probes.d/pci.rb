@@ -31,7 +31,7 @@
 # FILTER = '10de:11bf:0300' # only GK104GL [GRID K2]
 # FILTER = '8086::0300,::0106' # all Intel VGA cards and any SATA controller
 
-FILTER = nil
+FILTER = "::0300"
 
 require 'shellwords'
 
