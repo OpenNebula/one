@@ -91,10 +91,10 @@ define(function(require) {
             that.element.LCM_STATE) &&
           OpenNebulaVM.isNICAttachSupported(that.element)) {
         html += '\
-             <button id="attach_nic" class="button tiny success right radius" >' + Locale.tr("Attach nic") + '</button>'
+             <button id="attach_nic" class="button small success right radius" >' + Locale.tr("Attach nic") + '</button>'
       } else {
         html += '\
-             <button id="attach_nic" class="button tiny success right radius" disabled="disabled">' + Locale.tr("Attach nic") + '</button>'
+             <button id="attach_nic" class="button small success right radius" disabled="disabled">' + Locale.tr("Attach nic") + '</button>'
       }
     }
 

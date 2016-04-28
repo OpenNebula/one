@@ -78,10 +78,10 @@ define(function(require) {
       // If VM is not RUNNING, then we forget about the attach disk form.
       if (that.element.STATE == OpenNebulaVM.STATES.ACTIVE && that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.RUNNING) {
         html += '\
-           <button id="take_snapshot" class="button tiny success right radius" >' + Locale.tr("Take snapshot") + '</button>'
+           <button id="take_snapshot" class="button small success right radius" >' + Locale.tr("Take snapshot") + '</button>'
       } else {
         html += '\
-           <button id="take_snapshot" class="button tiny success right radius" disabled="disabled">' + Locale.tr("Take snapshot") + '</button>'
+           <button id="take_snapshot" class="button small success right radius" disabled="disabled">' + Locale.tr("Take snapshot") + '</button>'
       }
     }
 
