@@ -143,9 +143,6 @@ define(function(require) {
         case 'fs':
           _selectFilesystem(dialog);
           break;
-        case 'block_lvm':
-          _selectBlockLvm(dialog);
-          break;
         case 'fs_lvm':
           _selectFsLvm(dialog);
           break;
@@ -403,25 +400,6 @@ define(function(require) {
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
     $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
     $('select#disk_type', dialog).val('RBD');
-    $('select#disk_type', dialog).attr('disabled', 'disabled');
-    $('input#safe_dirs', dialog).removeAttr('disabled');
-    $('input#limit_mb', dialog).removeAttr('disabled');
-    $('input#restricted_dirs', dialog).removeAttr('disabled');
-  }
-
-  function _selectBlockLvm(dialog) {
-    $('select#ds_mad', dialog).val('lvm').change();
-    $('select#ds_mad', dialog).attr('disabled', 'disabled');
-    $('select#tm_mad', dialog).val('lvm');
-    $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('input#image_ds_type', dialog).click();
-    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
-    $('label[for="vg_name"],input#vg_name', dialog).fadeIn();
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
-    $('select#disk_type', dialog).val('block');
     $('select#disk_type', dialog).attr('disabled', 'disabled');
     $('input#safe_dirs', dialog).removeAttr('disabled');
     $('input#limit_mb', dialog).removeAttr('disabled');
