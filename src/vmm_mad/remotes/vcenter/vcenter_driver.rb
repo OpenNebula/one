@@ -471,6 +471,7 @@ class VIClient
                             :type    => "Port Group",
                             :one     => "NAME   = \"#{net_name}\"\n" \
                                         "BRIDGE = \"#{n[:name]}\"\n" \
+                                        "VN_MAD = \"dummy\"\n" \
                                         "VCENTER_TYPE = \"Port Group\""
                         }
                     end
@@ -1343,21 +1344,9 @@ class VCenterVm
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
             vm          = connection.find_vm_template(deploy_id)
+            xml         = REXML::Document.new xml_text
 
-            # Find out if we need to reconfigure capacity
-            xml = REXML::Document.new xml_text
-
-            expected_cpu    = xml.root.elements["/VM/TEMPLATE/VCPU"] ? xml.root.elements["/VM/TEMPLATE/VCPU"].text : 1
-            expected_memory = xml.root.elements["/VM/TEMPLATE/MEMORY"].text
-            current_cpu     = vm.config.hardware.numCPU
-            current_memory  = vm.config.hardware.memoryMB
-
-            if current_cpu != expected_cpu or current_memory != expected_memory
-                capacity_hash = {:numCPUs  => expected_cpu.to_i,
-                                 :memoryMB => expected_memory }
-                spec = RbVmomi::VIM.VirtualMachineConfigSpec(capacity_hash)
-                vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-            end
+            reconfigure_vm(vm, xml, false)
 
             vm.PowerOnVM_Task.wait_for_completion
             return vm.config.uuid
@@ -2042,14 +2031,13 @@ private
         raise "Cannot find VM_TEMPLATE in vCenter element." if uuid.nil?
 
         uuid         = uuid.text
-        vmid         =  xml.root.elements["/VM/ID"].text
+        vmid         = xml.root.elements["/VM/ID"].text
         vmname_prefix.gsub!("$i", vmid)
         vcenter_name = "#{vmname_prefix}#{xml.root.elements["/VM/NAME"].text}"
         hid          = xml.root.elements["/VM/HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
@@ -2149,9 +2137,30 @@ private
                 :spec   => clone_spec).wait_for_completion
         end
 
-        vm_uuid = vm.config.uuid
+        reconfigure_vm(vm, xml, true)
+
+        # Power on the VM
+        vm.PowerOnVM_Task.wait_for_completion
+
+        return vm.config.uuid
+    end
+
+    ########################################################################
+    # Reconfigures a VM with new deployment description
+    ########################################################################
+    def self.reconfigure_vm(vm, xml, newvm)
+        vm_uuid     = vm.config.uuid
+        vmid        = xml.root.elements["/VM/ID"].text
+        context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
+
+        # Read existing context if it is not a new VM
+        if !newvm
+            old_context = vm.config.extraConfig.select{|val|
+                       val[:key]=="guestinfo.opennebula.context"}
+        end
 
         # Add VMID to VM's extraConfig
+
         config_array = [{:key=>"opennebula.vm.id",:value=>vmid}]
 
         # VNC Section
@@ -2185,7 +2194,9 @@ private
 
             # OneGate
             onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
-            if onegate_token_flag and onegate_token_flag.text == "YES"
+            if onegate_token_flag and
+               onegate_token_flag.text == "YES" and
+               !newvm
                 # Create the OneGate token string
                 vmid_str  = xml.root.elements["/VM/ID"].text
                 stime_str = xml.root.elements["/VM/STIME"].text
@@ -2228,7 +2239,19 @@ private
                 context_text += "ONEGATE_TOKEN='#{onegate_token_64}'\n"
             end
 
+            # If there is an old VM, we need to honor the existing ONEGATE_TOKEN
+            if !newvm
+                onegate_token =
+                    Base64.decode64(old_context[0][:value]).split("\n").
+                    select{|line| line.start_with?("ONEGATE_TOKEN")}[0]
+
+                if onegate_token
+                  context_text += onegate_token
+                end
+            end
+
             context_text = Base64.encode64(context_text.chop)
+
             config_array +=
                      [{:key=>"guestinfo.opennebula.context",
                        :value=>context_text}]
@@ -2244,6 +2267,20 @@ private
 
         nics     = xml.root.get_elements("/VM/TEMPLATE/NIC")
         nic_spec = {}
+
+        # If the VM is not new, avoid readding NiCs
+        if !newvm
+            vm.config.hardware.device.each{ |dv|
+                if is_nic?(dv)
+                   nics.each{|nic|
+                      if nic.elements["MAC"].text == dv.macAddress and
+                         nic.elements["BRIDGE"].text == dv.deviceInfo.summary
+                         nics.delete(nic)
+                      end
+                   }
+                end
+            }
+        end
 
         if !nics.nil?
             nic_array = []
@@ -2261,6 +2298,19 @@ private
 
         disks     = xml.root.get_elements("/VM/TEMPLATE/DISK")
         disk_spec = {}
+
+        # If the VM is not new, avoid readding DISKS
+        if !newvm
+            vm.config.hardware.device.select { |d|
+                if is_disk?(d)
+                   disks.each{|disk|
+                      if disk.elements["SOURCE"].text == d.backing.fileName
+                         disks.delete(disk)
+                      end
+                   }
+                end
+            }
+        end
 
         if !disks.nil?
             disk_array = []
@@ -2289,11 +2339,6 @@ private
 
         spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-
-        # Power on the VM
-        vm.PowerOnVM_Task.wait_for_completion
-
-        return vm_uuid
     end
 
     ############################################################################
