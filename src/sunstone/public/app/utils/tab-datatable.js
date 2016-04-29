@@ -765,9 +765,9 @@ define(function(require) {
           $('#select_resource_' + that.dataTableId, section).hide();
           $('.label', section).hide();
 
-          $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
+          $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).trigger("change");
 
-          $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
+          $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).trigger("change");
           $('#selected_resource_name_' + that.dataTableId, section).show();
 
           that.selectOptions.select_callback(aData, that.selectOptions);
@@ -937,10 +937,10 @@ define(function(require) {
       //        $('input.check_item', this).prop('checked', true);
 
       if (row_id !== undefined) {
-        $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
+        $('#selected_resource_id_' + that.dataTableId, section).val(row_id).trigger("change");
       }
 
-      $('#selected_resource_name_' + that.dataTableId, section).text(row_name).change();
+      $('#selected_resource_name_' + that.dataTableId, section).text(row_name).trigger("change");
       $('#selected_resource_name_' + that.dataTableId, section).show();
 
       that.refreshResourceTableSelect(section, that.dataTableId);

@@ -45,7 +45,7 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
+  function WizardTab(opts) {
     if (!Config.isTemplateCreationTabEnabled('storage')) {
       throw "Wizard Tab not enabled";
     }
@@ -54,6 +54,10 @@ define(function(require) {
     this.icon = 'fa-tasks';
     this.title = Locale.tr("Storage");
     this.classes = "hypervisor only_kvm only_vcenter"
+
+    if(opts.listener != undefined){
+      this.listener = opts.listener;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -98,6 +102,12 @@ define(function(require) {
     });
 
     that.addDiskTab(context);
+
+    if(that.listener != undefined){
+      $(context).on("change", "input", function(){
+        that.listener.notify();
+      });
+    }
   }
 
   function _retrieve(context) {
@@ -186,5 +196,9 @@ define(function(require) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
     })
+
+    if(this.listener != undefined){
+      this.listener.notify();
+    }
   }
 });

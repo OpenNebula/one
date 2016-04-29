@@ -62,46 +62,16 @@
             </label>
           </div>
         </div>
-        <br>
         <div class="row">
-          <div class="medium-4 columns">
+          <div class="medium-8 columns">
             <label>
-              {{tr "1st Boot"}}
-              {{{tip (tr "1st Boot device type")}}}
-              <select id="BOOT_0" name="boot">
-                <option value=""></option>
-                <option value="hd">{{tr "HD"}}</option>
-                <option value="fd">{{tr "FD"}}</option>
-                <option value="cdrom">{{tr "CDROM"}}</option>
-                <option value="network">{{tr "NETWORK"}}</option>
-              </select>
+              {{tr "Boot order"}}
+              {{{tip (tr "Select the devices to boot from, and their order")}}}
             </label>
-          </div>
-          <div class="medium-4 columns">
-            <label>
-              {{tr "2nd Boot"}}
-              {{{tip (tr "2nd Boot device type")}}}
-              <select id="BOOT_1" name="boot">
-                <option value=""></option>
-                <option value="hd">{{tr "HD"}}</option>
-                <option value="fd">{{tr "FD"}}</option>
-                <option value="cdrom">{{tr "CDROM"}}</option>
-                <option value="network">{{tr "NETWORK"}}</option>
-              </select>
-            </label>
-          </div>
-          <div class="medium-4 columns">
-            <label>
-              {{tr "3rd Boot"}}
-              {{{tip (tr "3rd Boot device type")}}}
-              <select id="BOOT_2" name="boot">
-                <option value=""></option>
-                <option value="hd">{{tr "HD"}}</option>
-                <option value="fd">{{tr "FD"}}</option>
-                <option value="cdrom">{{tr "CDROM"}}</option>
-                <option value="network">{{tr "NETWORK"}}</option>
-              </select>
-            </label>
+            <table class="boot-order dataTable" value="">
+              <tbody>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="row">

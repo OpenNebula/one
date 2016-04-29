@@ -153,5 +153,14 @@ define(function(require) {
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
     });
+
+    // After all tabs have been filled, perform a notify.
+    // There isn't a proper listener because this wizard does not allow to edit
+    // the disks and nics
+    $.each(this.wizardTabs, function(index, wizardTab) {
+      if (wizardTab.notify != undefined){
+        wizardTab.notify($('#' + wizardTab.wizardTabId, context), templateJSON);
+      }
+    });
   }
 });

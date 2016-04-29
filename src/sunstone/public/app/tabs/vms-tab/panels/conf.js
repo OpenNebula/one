@@ -97,7 +97,7 @@ define(function(require) {
 
         Sunstone.showFormPanel(TAB_ID, UPDATECONF_FORM_ID, "updateconf",
           function(formPanelInstance, context) {
-            formPanelInstance.fill(context, that.element.ID, that.conf);
+            formPanelInstance.fill(context, that.element.ID, that.element.TEMPLATE);
           });
 
         return false;
