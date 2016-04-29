@@ -52,8 +52,8 @@ define(function(require) {
     this.tabId = TAB_ID;
     this.actions = {
       'export': {
-        'title': Locale.tr("Export App To OpenNebula"),
-        'buttonText': Locale.tr("Export"),
+        'title': Locale.tr("Download App To OpenNebula"),
+        'buttonText': Locale.tr("Download"),
         'resetButton': false
       }
     };

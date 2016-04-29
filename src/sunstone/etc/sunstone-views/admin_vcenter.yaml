@@ -547,8 +547,8 @@ tabs:
         actions:
             MarketPlaceApp.refresh: true
             MarketPlaceApp.create_dialog: true
-            MarketPlaceApp.export_dialog: true
-            MarketPlaceApp.download: true
+            MarketPlaceApp.download_opennebula_dialog: true
+            MarketPlaceApp.download_local: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true

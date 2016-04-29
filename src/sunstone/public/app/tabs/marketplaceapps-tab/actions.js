@@ -35,7 +35,7 @@ define(function(require) {
   var _actions = {
     "MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
     "MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
-    "MarketPlaceApp.export_dialog" : {
+    "MarketPlaceApp.download_opennebula_dialog" : {
       type: "custom",
       call: function() {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
@@ -91,7 +91,7 @@ define(function(require) {
       },
       notify: true
     },
-    "MarketPlaceApp.download": {
+    "MarketPlaceApp.download_local": {
       type: "multiple",
       call: function(params) {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();

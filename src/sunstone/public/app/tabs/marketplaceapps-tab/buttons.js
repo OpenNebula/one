@@ -27,13 +27,13 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "MarketPlaceApp.export_dialog" : {
+    "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: Locale.tr("Export to OpenNebula")
+      text: '<i class="fa fa-share"/> '+ Locale.tr("OpenNebula")
     },
-    "MarketPlaceApp.download" : {
+    "MarketPlaceApp.download_local" : {
       type: "action",
-      text: '<i class="fa fa-download"/>'
+      text: '<i class="fa fa-lg fa-cloud-download"/>'
     },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",
