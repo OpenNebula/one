@@ -252,7 +252,7 @@ define(function(require) {
 
           idsDone += 1;
           if (idsLength == idsDone){
-            Sunstone.enableFormPanelSubmit(TAB_ID);
+            Sunstone.enableFormPanelSubmit(that.tabId);
           }
         },
         error: function(request, error_json, container) {
@@ -264,7 +264,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    Sunstone.disableFormPanelSubmit(TAB_ID);
+    Sunstone.disableFormPanelSubmit(this.tabId);
 
     $("input.instantiate_pers", context).change();
 

@@ -427,7 +427,7 @@ define(function(require) {
         return false;
       })
 
-      $('#' + customId + 'submit_button', actionBlock).on("click", function() {
+      $('.submit_button', actionBlock).on("click", function() {
         _submitFormPanel(tabName);
         return false;
       })
@@ -828,7 +828,6 @@ define(function(require) {
   function _showFormPanel(tabId, formPanelId, action, onShow2) {
     var context = $("#" + tabId);
     _popFormPanelLoading(tabId);
-    _enableFormPanelSubmit(tabId);
     _showFormPanelSubmit(tabId);
 
     setTimeout(function() {
@@ -897,6 +896,8 @@ define(function(require) {
     $(".sunstone-form-title", context).text(Locale.tr("Submitting..."));
     $(".submit_button", context).text(Locale.tr("Submitting..."));
 
+    _disableFormPanelSubmit(tabId);
+
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
@@ -910,7 +911,6 @@ define(function(require) {
 
   var _resetFormPanel = function(tabId, formPanelId) {
     _popFormPanelLoading(tabId);
-    _enableFormPanelSubmit(tabId);
 
     setTimeout(function() {
       var formPanelInstance;
@@ -965,6 +965,7 @@ define(function(require) {
       $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).fadeIn();
     }
 
+    _enableFormPanelSubmit(tabId);
   }
 
   function _hideFormPanel(tabId) {
@@ -984,6 +985,7 @@ define(function(require) {
 
     $(".sunstone-form-title", context).text(Locale.tr("Loading..."));
     $(".submit_button", context).text(Locale.tr("Loading..."));
+    _disableFormPanelSubmit(tabId);
 
     $(".tabs-contentForm", context).hide();
     $(".loadingForm", context).show();
