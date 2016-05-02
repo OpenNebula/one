@@ -25,7 +25,6 @@ static const History::VMAction action[12] = {
     History::HOLD_ACTION,
     History::RELEASE_ACTION,
     History::RESUME_ACTION,
-    History::BOOT_ACTION,
     History::REBOOT_ACTION,
     History::REBOOT_HARD_ACTION,
     History::RESCHED_ACTION,
@@ -159,7 +158,7 @@ int VirtualRouter::drop(SqlDB * db)
 
 int VirtualRouter::shutdown_vms()
 {
-    DispatchManager* dm = Nebula::instance().get_dm();
+    DispatchManager * dm = Nebula::instance().get_dm();
 
     set<int> _vms;
     set<int>::iterator  it;
@@ -172,7 +171,7 @@ int VirtualRouter::shutdown_vms()
 
     for (it = _vms.begin(); it != _vms.end(); it++)
     {
-        rc = dm->shutdown(*it, true, error);
+        rc = dm->terminate(*it, true, error);
 
         if (rc != 0)
         {
@@ -180,7 +179,7 @@ int VirtualRouter::shutdown_vms()
 
             if (rc == -2)
             {
-                dm->finalize(*it, error);
+                dm->delete_vm(*it, error);
             }
         }
     }

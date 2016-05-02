@@ -1765,7 +1765,7 @@ void VirtualMachineManager::attach_action(
 
     os.str("");
 
-    tm->epilog_transfer_command(vm, disk, os);
+    tm->epilog_transfer_command(vm, vm->get_hostname(), disk, os);
 
     epilog_cmd = os.str();
 
@@ -1853,7 +1853,8 @@ void VirtualMachineManager::detach_action(
     const VectorAttribute * disk;
     int disk_id;
 
-    Nebula&          nd = Nebula::instance();
+    Nebula&           nd = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
 
     // Get the VM from the pool
     vm = vmpool->get(vid,true);
@@ -1888,7 +1889,7 @@ void VirtualMachineManager::detach_action(
 
     disk->vector_value("DISK_ID", disk_id);
 
-    Nebula::instance().get_tm()->epilog_transfer_command(vm, disk, os);
+    tm->epilog_transfer_command(vm, vm->get_hostname(), disk, os);
 
     epilog_cmd = os.str();
 

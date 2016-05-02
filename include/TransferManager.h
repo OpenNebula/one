@@ -51,6 +51,7 @@ public:
         PROLOG_RESUME,
         PROLOG_ATTACH,
         EPILOG,
+        EPILOG_LOCAL,
         EPILOG_STOP,
         EPILOG_DELETE,
         EPILOG_DELETE_PREVIOUS,
@@ -145,12 +146,14 @@ public:
      * Inserts a transfer command in the xfs stream
      *
      * @param vm The VM
+     * @param host where the operation will be performed fe or host
      * @param disk Disk to transfer
      * @param disk_index Disk index
      * @param xfr Stream where the transfer command will be written
      */
     void epilog_transfer_command(
             VirtualMachine *        vm,
+            const string&           host,
             const VectorAttribute * disk,
             ostream&                xfr);
     /**
@@ -294,7 +297,7 @@ private:
     /**
      *  This function starts the epilog sequence
      */
-    void epilog_action(int vid);
+    void epilog_action(bool local, int vid);
 
     /**
      *  This function starts the epilog_stop sequence

@@ -495,22 +495,14 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     VirtualMachine * vm;
 
-    // Compatibility with 3.8
-    if (action_st == "cancel")
+    // Compatibility with 4.x
+    if (action_st == "shutdown-hard" || action_st == "delete" )
     {
-        action_st = "shutdown-hard";
+        action_st = "terminate-hard";
     }
-    else if (action_st == "finalize")
+    else if (action_st == "shutdown")
     {
-        action_st = "delete";
-    }
-    else if (action_st == "resubmit")
-    {
-        action_st = "delete-recreate";
-    }
-    else if (action_st == "reset")
-    {
-        action_st = "reboot-hard";
+        action_st = "terminate";
     }
 
     History::action_from_str(action_st, action);
@@ -532,7 +524,9 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
-        att.resp_msg = "Action \"" + action_st + "\" is not supported for imported VMs";
+        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
+            "imported VMs";
+
         failure_response(ACTION, att);
 
         vm->unlock();
@@ -543,10 +537,9 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         bool failure = true;
 
-        // Delete operation is allowed for orphan virtual router VMs.
-        if (action == History::DELETE_ACTION ||
-            action == History::SHUTDOWN_ACTION ||
-            action == History::SHUTDOWN_HARD_ACTION)
+        // Terminate operation is allowed for orphan virtual router VMs.
+        if ( action == History::TERMINATE_ACTION ||
+                action == History::TERMINATE_HARD_ACTION )
         {
             VirtualRouterPool* vrpool = Nebula::instance().get_vrouterpool();
             failure = (vrpool->get(vm->get_vrouter_id(), false) != 0);
@@ -554,8 +547,9 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
         if (failure)
         {
-            att.resp_msg = "Action \""+action_st+"\" is not supported for "
+            att.resp_msg = "Action \"" + action_st + "\" is not supported for "
                 "virtual router VMs";
+
             failure_response(ACTION, att);
 
             vm->unlock();
@@ -567,8 +561,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     switch (action)
     {
-        case History::SHUTDOWN_ACTION:
-            rc = dm->shutdown(id, false, error);
+        case History::TERMINATE_ACTION:
+            rc = dm->terminate(id, false, error);
+            break;
+        case History::TERMINATE_HARD_ACTION:
+            rc = dm->terminate(id, true, error);
             break;
         case History::HOLD_ACTION:
             rc = dm->hold(id, error);
@@ -579,32 +576,23 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         case History::STOP_ACTION:
             rc = dm->stop(id, error);
             break;
-        case History::SHUTDOWN_HARD_ACTION:
-            rc = dm->shutdown(id, true, error);
-            break;
         case History::SUSPEND_ACTION:
             rc = dm->suspend(id, error);
             break;
         case History::RESUME_ACTION:
             rc = dm->resume(id, error);
             break;
-        case History::DELETE_ACTION:
-            rc = dm->finalize(id, error);
-            break;
-        case History::DELETE_RECREATE_ACTION:
-            rc = dm->resubmit(id, error);
-            break;
         case History::REBOOT_ACTION:
             rc = dm->reboot(id, false, error);
+            break;
+        case History::REBOOT_HARD_ACTION:
+            rc = dm->reboot(id, true, error);
             break;
         case History::RESCHED_ACTION:
             rc = dm->resched(id, true, error);
             break;
         case History::UNRESCHED_ACTION:
             rc = dm->resched(id, false, error);
-            break;
-        case History::REBOOT_HARD_ACTION:
-            rc = dm->reboot(id, true, error);
             break;
         case History::POWEROFF_ACTION:
             rc = dm->poweroff(id, false, error);
@@ -628,25 +616,29 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         case 0:
             success_response(id, att);
             break;
+
         case -1:
             att.resp_id = id;
             failure_response(NO_EXISTS, att);
             break;
+
         case -2:
-            oss << "Error performing action \"" << action_st << "\" on "
-                << object_name(auth_object) << " [" << id << "]. " << error;
-            att.resp_msg = oss.str();
+            oss << "Error performing action \"" << action_st << "\": " << error;
 
+            att.resp_msg = oss.str();
             failure_response(ACTION, att);
             break;
+
         case -3:
-            oss << "Virtual machine action \"" << action_st << "\" is not supported";
-            att.resp_msg = oss.str();
+            oss << "Action \"" << action_st << "\" is not supported";
 
+            att.resp_msg = oss.str();
             failure_response(ACTION, att);
             break;
+
         default:
             att.resp_msg = "Internal error. Action result not defined";
+
             failure_response(INTERNAL, att);
     }
 
@@ -2460,41 +2452,45 @@ void VirtualMachineRecover::request_execute(
     int id = xmlrpc_c::value_int(paramList.getInt(1));
     int op = xmlrpc_c::value_int(paramList.getInt(2));
 
-    VirtualMachine * vm;
+    int    rc;
+    string error;
 
-    Nebula& nd             = Nebula::instance();
-    LifeCycleManager*  lcm = nd.get_lcm();
+    DispatchManager * dm = Nebula::instance().get_dm();
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
 
-    if ((vm = get_vm(id, att)) == 0)
-    {
-        return;
-    }
+    VirtualMachine * vm=(static_cast<VirtualMachinePool *>(pool))->get(id,true);
 
-    if(vm->get_state() != VirtualMachine::ACTIVE &&
-       vm->get_state() != VirtualMachine::CLONING_FAILURE)
+    if (vm == 0)
     {
-        att.resp_msg = "Recover action is not available for state " + vm->state_str();
-        failure_response(ACTION, att);
-
-        vm->unlock();
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
     switch (op)
     {
-        case 0:
-            lcm->recover(vm, false);
+        case 0: //recover-failure
+            rc = dm->recover(vm, false, error);
             break;
-        case 1:
-            lcm->recover(vm, true);
+
+        case 1: //recover-success
+            rc = dm->recover(vm, true, error);
             break;
-        case 2:
-            lcm->retry(vm);
+
+        case 2: //retry
+            rc = dm->retry(vm, error);
+            break;
+
+        case 3: //delete
+            rc = dm->delete_vm(vm, error);
+            break;
+
+        case 4: //delete-recreate
+            rc = dm->delete_recreate(vm, error);
             break;
 
         default:
@@ -2505,9 +2501,17 @@ void VirtualMachineRecover::request_execute(
             return;
     }
 
-    success_response(id, att);
 
-    vm->unlock();
+    if ( rc == 0 )
+    {
+        success_response(id, att);
+    }
+    else
+    {
+        att.resp_msg = error;
+        failure_response(ACTION, att);
+
+    }
 
     return;
 }

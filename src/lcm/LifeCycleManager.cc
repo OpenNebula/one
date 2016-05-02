@@ -281,8 +281,8 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DELETE";
         break;
 
-    case CLEAN:
-        aname = "CLEAN";
+    case DELETE_RECREATE:
+        aname = "DELETE_RECREATE";
         break;
 
     case FINALIZE:
@@ -526,9 +526,9 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         delete_action(vid);
     }
-    else if (action == "CLEAN")
+    else if (action == "DELETE_RECREATE")
     {
-        clean_action(vid);
+        delete_recreate_action(vid);
     }
     else if (action == "POWEROFF")
     {

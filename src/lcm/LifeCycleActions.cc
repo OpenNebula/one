@@ -387,7 +387,7 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
 
         if (hard)
         {
-            vm->set_action(History::SHUTDOWN_HARD_ACTION);
+            vm->set_action(History::TERMINATE_HARD_ACTION);
 
             //----------------------------------------------------
 
@@ -395,7 +395,7 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
         }
         else
         {
-            vm->set_action(History::SHUTDOWN_ACTION);
+            vm->set_action(History::TERMINATE_ACTION);
 
             //----------------------------------------------------
 
@@ -410,16 +410,12 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
     else if (vm->get_state() == VirtualMachine::SUSPENDED ||
              vm->get_state() == VirtualMachine::POWEROFF)
     {
-        //----------------------------------------------------
-        //   Bypass SHUTDOWN
-        //----------------------------------------------------
-
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG);
 
         vmpool->update(vm);
 
-        vm->set_action(History::SHUTDOWN_ACTION);
+        vm->set_action(History::TERMINATE_ACTION);
 
         vm->set_epilog_stime(time(0));
 
@@ -427,7 +423,25 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::EPILOG,vid);
+        tm->trigger(TransferManager::EPILOG, vid);
+    }
+    else if (vm->get_state() == VirtualMachine::STOPPED ||
+             vm->get_state() == VirtualMachine::UNDEPLOYED)
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::EPILOG);
+
+        vmpool->update(vm);
+
+        vm->set_action(History::TERMINATE_ACTION);
+
+        vm->set_epilog_stime(time(0));
+
+        vmpool->update_history(vm);
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_LOCAL, vid);
     }
     else
     {
@@ -738,7 +752,7 @@ void LifeCycleManager::delete_action(int vid)
 
     if ( image_id != -1 )
     {
-        Image*     image = ipool->get(image_id, true);
+        Image * image = ipool->get(image_id, true);
 
         if ( image != 0 )
         {
@@ -754,7 +768,7 @@ void LifeCycleManager::delete_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::clean_action(int vid)
+void LifeCycleManager::delete_recreate_action(int vid)
 {
     Template *           vm_quotas = 0;
     map<int, Template *> ds_quotas;
@@ -832,16 +846,17 @@ void  LifeCycleManager::clean_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& image_id)
+void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
+        int& image_id)
 {
-    int    cpu, mem, disk;
+    int cpu, mem, disk;
     unsigned int port;
 
     vector<VectorAttribute *> pci;
     time_t the_time = time(0);
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
-    int                      vid   = vm->get_oid();
+    int vid   = vm->get_oid();
 
     if (dispose)
     {
@@ -1077,21 +1092,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 
 void LifeCycleManager::recover(VirtualMachine * vm, bool success)
 {
-    if (vm->get_state() == VirtualMachine::ACTIVE)
-    {
-        recover_lcm_state(vm, success);
-    }
-    else
-    {
-        recover_state(vm, success);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LifeCycleManager::recover_lcm_state(VirtualMachine * vm, bool success)
-{
     LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
 
     switch (vm->get_lcm_state())
@@ -1307,52 +1307,7 @@ void LifeCycleManager::recover_lcm_state(VirtualMachine * vm, bool success)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::recover_state(VirtualMachine * vm, bool success)
-{
-    LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
-
-    switch (vm->get_state())
-    {
-        case VirtualMachine::CLONING_FAILURE:
-            if (success)
-            {
-                lcm_action = LifeCycleManager::DISK_LOCK_SUCCESS;
-            }
-            else
-            {
-                lcm_action = LifeCycleManager::DISK_LOCK_FAILURE;
-            }
-            break;
-
-        default:
-            break;
-    }
-
-    if (lcm_action != LifeCycleManager::FINALIZE)
-    {
-        trigger(lcm_action, vm->get_oid());
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void LifeCycleManager::retry(VirtualMachine * vm)
-{
-    if (vm->get_state() == VirtualMachine::ACTIVE)
-    {
-        retry_lcm_state(vm);
-    }
-    else
-    {
-        retry_state(vm);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LifeCycleManager::retry_lcm_state(VirtualMachine * vm)
 {
     int vid = vm->get_oid();
 
@@ -1494,13 +1449,13 @@ void LifeCycleManager::retry_lcm_state(VirtualMachine * vm)
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
-            if (vm->get_action() == History::SHUTDOWN_HARD_ACTION)
+            if (vm->get_action() == History::TERMINATE_ACTION)
             {
-                vmm->trigger(VirtualMachineManager::CANCEL,vid);
+                vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
             }
             else
             {
-                vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+                vmm->trigger(VirtualMachineManager::CNCEL,vid);
             }
             break;
 
@@ -1564,17 +1519,6 @@ void LifeCycleManager::retry_lcm_state(VirtualMachine * vm)
     }
 
     return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LifeCycleManager::retry_state(VirtualMachine * vm)
-{
-    if (vm->get_state() == VirtualMachine::CLONING_FAILURE)
-    {
-        trigger(LifeCycleManager::DISK_LOCK_SUCCESS, vm->get_oid());
-    }
 }
 
 /*  -------------------------------------------------------------------------- */

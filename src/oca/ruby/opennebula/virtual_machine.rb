@@ -207,7 +207,7 @@ module OpenNebula
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
             poweroff-hard disk-attach disk-detach nic-attach nic-detach
-            snap-create snap-delete}
+            snap-create snap-delete terminate terminate-hard}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -342,9 +342,11 @@ module OpenNebula
         end
 
         # Shutdowns an already deployed VM
-        def shutdown(hard=false)
-            action(hard ? 'shutdown-hard' : 'shutdown')
+        def terminate(hard=false)
+            action(hard ? 'terminate-hard' : 'terminate')
         end
+
+        alias_method :shutdown, :terminate
 
         # Shuts down an already deployed VM, saving its state in the system DS
         def undeploy(hard=false)
@@ -359,16 +361,6 @@ module OpenNebula
         # Reboots an already deployed VM
         def reboot(hard=false)
             action(hard ? 'reboot-hard' : 'reboot')
-        end
-
-        # @deprecated use {#reboot}
-        def reset
-            reboot(true)
-        end
-
-        # @deprecated use {#shutdown}
-        def cancel
-            shutdown(true)
         end
 
         # Sets a VM to hold state, scheduler will not deploy it
@@ -434,25 +426,6 @@ module OpenNebula
         #   otherwise
         def nic_detach(nic_id)
             return call(VM_METHODS[:detachnic], @pe_id, nic_id)
-        end
-
-        # Deletes a VM from the pool
-        def delete(recreate=false)
-            if recreate
-                action('delete-recreate')
-            else
-                action('delete')
-            end
-        end
-
-        # @deprecated use {#delete} instead
-        def finalize(recreate=false)
-            delete(recreate)
-        end
-
-        # @deprecated use {#delete} instead
-        def resubmit
-            action('delete-recreate')
         end
 
         # Sets the re-scheduling flag for the VM
@@ -665,13 +638,22 @@ module OpenNebula
 
         # Recovers an ACTIVE VM
         #
-        # @param result [Integer] Recover with failure (0), success (1) or
-        # retry (2)
+        # @param result [Integer] Recover with failure (0), success (1),
+        # retry (2), delete (3), delete-recreate (4)
         # @param result [info] Additional information needed to recover the VM
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def recover(result)
             return call(VM_METHODS[:recover], @pe_id, result)
+        end
+
+        # Deletes a VM from the pool
+        def delete(recreate=false)
+            if recreate
+                recover(4)
+            else
+                recover(3)
+            end
         end
 
 		#  Changes the attributes of a VM in power off, failure and undeploy

@@ -136,7 +136,7 @@ void VirtualRouterInstantiate::request_execute(
 
             for (vmid = vms.begin(); vmid != vms.end(); vmid++)
             {
-                dm->finalize(*vmid, att.resp_msg);
+                dm->delete_vm(*vmid, att.resp_msg);
             }
 
             return;

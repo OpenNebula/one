@@ -40,8 +40,8 @@ public:
         NONE_ACTION            = 0,
         MIGRATE_ACTION         = 1,
         LIVE_MIGRATE_ACTION    = 2,
-        SHUTDOWN_ACTION        = 3,
-        SHUTDOWN_HARD_ACTION   = 4,
+        //SHUTDOWN_ACTION        = 3,
+        //SHUTDOWN_HARD_ACTION   = 4,
         UNDEPLOY_ACTION        = 5,
         UNDEPLOY_HARD_ACTION   = 6,
         HOLD_ACTION            = 7,
@@ -49,7 +49,7 @@ public:
         STOP_ACTION            = 9,
         SUSPEND_ACTION         = 10,
         RESUME_ACTION          = 11,
-        BOOT_ACTION            = 12,
+        //BOOT_ACTION            = 12,
         DELETE_ACTION          = 13,
         DELETE_RECREATE_ACTION = 14,
         REBOOT_ACTION          = 15,
@@ -63,7 +63,9 @@ public:
         NIC_ATTACH_ACTION      = 23,
         NIC_DETACH_ACTION      = 24,
         DISK_SNAPSHOT_CREATE_ACTION = 25,
-        DISK_SNAPSHOT_DELETE_ACTION = 26
+        DISK_SNAPSHOT_DELETE_ACTION = 26,
+        TERMINATE_ACTION       = 27,
+        TERMINATE_HARD_ACTION  = 28
     };
 
     static string action_to_str(VMAction action)
@@ -78,11 +80,11 @@ public:
             case LIVE_MIGRATE_ACTION:
                 st = "live-migrate";
             break;
-            case SHUTDOWN_ACTION:
-                st = "shutdown";
+            case TERMINATE_ACTION:
+                st = "terminate";
             break;
-            case SHUTDOWN_HARD_ACTION:
-                st = "shutdown-hard";
+            case TERMINATE_HARD_ACTION:
+                st = "terminate-hard";
             break;
             case UNDEPLOY_ACTION:
                 st = "undeploy";
@@ -148,7 +150,6 @@ public:
                 st = "snap-delete";
             break;
             case NONE_ACTION:
-            case BOOT_ACTION:
                 st = "none";
             break;
         }
@@ -166,13 +167,13 @@ public:
         {
             action = LIVE_MIGRATE_ACTION;
         }
-        else if (st == "shutdown")
+        else if (st == "terminate")
         {
-            action = SHUTDOWN_ACTION;
+            action = TERMINATE_ACTION;
         }
-        else if (st == "shutdown-hard")
+        else if (st == "terminate-hard")
         {
-            action = SHUTDOWN_HARD_ACTION;
+            action = TERMINATE_HARD_ACTION;
         }
         else if (st == "undeploy")
         {
@@ -258,7 +259,7 @@ public:
         {
             action = DISK_SNAPSHOT_DELETE_ACTION;
         }
-        else //BOOT_ACTION and others
+        else
         {
             action = NONE_ACTION;
             return -1;

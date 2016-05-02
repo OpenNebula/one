@@ -221,11 +221,42 @@ error:
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int DispatchManager::shutdown (
+void DispatchManager::free_vm_resources(VirtualMachine * vm)
+{
+    Template *    tmpl;
+
+    int uid;
+    int gid;
+
+    vm->release_network_leases();
+    vm->release_disk_images();
+
+    vm->set_exit_time(time(0));
+
+    vm->set_state(VirtualMachine::LCM_INIT);
+    vm->set_state(VirtualMachine::DONE);
+    vmpool->update(vm);
+
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
+    tmpl = vm->clone_template();
+
+    vm->unlock();
+
+    Quotas::vm_del(uid, gid, tmpl);
+
+    delete tmpl;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::terminate(
         int     vid,
         bool    hard,
         string& error_str)
 {
+    int rc = 0;
     ostringstream oss;
 
     VirtualMachine * vm = vmpool->get(vid,true);
@@ -235,44 +266,62 @@ int DispatchManager::shutdown (
         return -1;
     }
 
-    oss << "Shutting down VM " << vid;
+    oss << "Terminating VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::POWEROFF ||
-        vm->get_state()     == VirtualMachine::SUSPENDED ||
-       (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
+    switch (vm->get_state())
     {
-        if (hard)
-        {
-            lcm->trigger(LifeCycleManager::CANCEL,vid);
-        }
-        else
-        {
-            lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
-        }
+        //Hard has no effect, VM is not RUNNING
+        case VirtualMachine::SUSPENDED:
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::UNDEPLOYED:
+            lcm->trigger(LifeCycleManager::SHUTDOWN, vid);
+            vm->unlock();
+            break;
+
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
+            free_vm_resources(vm);
+            break;
+
+        case VirtualMachine::DONE:
+            vm->unlock();
+            break;
+
+        case VirtualMachine::ACTIVE:
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::RUNNING:
+                case VirtualMachine::UNKNOWN:
+                    if (hard)
+                    {
+                        lcm->trigger(LifeCycleManager::CANCEL,vid);
+                    }
+                    else
+                    {
+                        lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
+                    }
+                    break;
+
+                default:
+                    oss.str("");
+                    oss << "Could not terminate VM " << vid << ", wrong state.";
+
+                    NebulaLog::log("DiM",Log::ERROR,oss);
+                    error_str = oss.str();
+
+                    rc = -2;
+                    break;
+            }
+            vm->unlock();
+            break;
     }
-    else
-    {
-        goto error;
-    }
 
-    vm->unlock();
-
-    return 0;
-
-error:
-    oss.str("");
-    oss << "Could not shutdown VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
-
-    oss.str("");
-    oss << "This action is not available for state " << vm->state_str();
-    error_str = oss.str();
-
-    vm->unlock();
-    return -2;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -745,72 +794,92 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void DispatchManager::finalize_cleanup(VirtualMachine * vm)
+int DispatchManager::recover(VirtualMachine * vm, bool success, string& error)
 {
-    Template *    tmpl;
+    int rc = 0;
 
-    int uid;
-    int gid;
+    switch (vm->get_state())
+    {
+        case VirtualMachine::CLONING_FAILURE:
+            if (success)
+            {
+                lcm->trigger(LifeCycleManager::DISK_LOCK_SUCCESS,vm->get_oid());
+            }
+            else
+            {
+                lcm->trigger(LifeCycleManager::DISK_LOCK_FAILURE,vm->get_oid());
+            }
+            break;
 
-    vm->release_network_leases();
-    vm->release_disk_images();
+        case VirtualMachine::ACTIVE:
+            lcm->recover(vm, success);
+            break;
 
-    vm->set_exit_time(time(0));
-
-    vm->set_state(VirtualMachine::LCM_INIT);
-    vm->set_state(VirtualMachine::DONE);
-    vmpool->update(vm);
-
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-    tmpl = vm->clone_template();
+        default:
+            rc    = -1;
+            error = "Cannot recover VM operation";
+            break;
+    }
 
     vm->unlock();
 
-    Quotas::vm_del(uid, gid, tmpl);
-
-    delete tmpl;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::finalize(
-    int     vid,
-    string& error_str)
+int DispatchManager::retry(VirtualMachine * vm, string& error)
 {
-    VirtualMachine * vm;
-    Host * host;
+    int rc = 0;
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::ACTIVE:
+            lcm->retry(vm);
+            break;
+
+        default:
+            rc    = -1;
+            error = "The VM operation cannot be retried";
+            break;
+    }
+
+    vm->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::delete_vm(VirtualMachine * vm, string& error)
+{
     ostringstream oss;
 
+    int cpu, mem, disk;
     vector<VectorAttribute *> pci;
 
-    VirtualMachine::VmState state;
     bool is_public_host = false;
     int  host_id = -1;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
 
     if(vm->hasHistory())
     {
         host_id = vm->get_hid();
     }
 
-    vm->unlock();
+    int vid = vm->get_oid();
 
     if(host_id != -1)
     {
-        host = hpool->get(host_id,true);
+        Host * host = hpool->get(host_id,true);
 
         if ( host == 0 )
         {
             oss << "Error getting host " << host_id;
-            error_str = oss.str();
+            error = oss.str();
+
+            vm->unlock();
 
             return -1;
         }
@@ -820,46 +889,41 @@ int DispatchManager::finalize(
         host->unlock();
     }
 
-    vm = vmpool->get(vid,true);
-
-    state = vm->get_state();
-
-    oss << "Finalizing VM " << vid;
+    oss << "Deleting VM " << vm->get_oid();
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    switch (state)
+    switch (vm->get_state())
     {
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::POWEROFF:
-            int cpu, mem, disk;
-
             vm->get_requirements(cpu, mem, disk, pci);
-            hpool->del_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
+
+            hpool->del_capacity(vm->get_hid(), vid, cpu, mem, disk, pci);
 
             if (is_public_host)
             {
-                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+                vmm->trigger(VirtualMachineManager::CLEANUP, vid);
             }
             else
             {
-                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+                tm->trigger(TransferManager::EPILOG_DELETE, vid);
             }
 
-            finalize_cleanup(vm);
+            free_vm_resources(vm);
         break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
             if (is_public_host)
             {
-                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+                vmm->trigger(VirtualMachineManager::CLEANUP, vid);
             }
             else
             {
-                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+                tm->trigger(TransferManager::EPILOG_DELETE, vid);
             }
 
-            finalize_cleanup(vm);
+            free_vm_resources(vm);
         break;
 
         case VirtualMachine::INIT:
@@ -867,11 +931,11 @@ int DispatchManager::finalize(
         case VirtualMachine::HOLD:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            finalize_cleanup(vm);
+            free_vm_resources(vm);
         break;
 
         case VirtualMachine::ACTIVE:
-            lcm->trigger(LifeCycleManager::DELETE,vid);
+            lcm->trigger(LifeCycleManager::DELETE, vid);
             vm->unlock();
         break;
 
@@ -886,38 +950,29 @@ int DispatchManager::finalize(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::resubmit(
-    int     vid,
-    string& error_str)
+int DispatchManager::delete_recreate(VirtualMachine * vm, string& error)
 {
-    VirtualMachine * vm;
-    ostringstream    oss;
-    int              rc = 0;
+    ostringstream oss;
+
+    int rc = 0;
 
     Template *           vm_quotas = 0;
     map<int, Template *> ds_quotas;
 
     int vm_uid, vm_gid;
 
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
     switch (vm->get_state())
     {
         case VirtualMachine::POWEROFF:
-            error_str = "Cannot delete-recreate a powered off VM. Resume it first";
-            NebulaLog::log("DiM",Log::ERROR,error_str);
-            rc = -2;
+            error = "Cannot delete-recreate a powered off VM. Resume it first";
+            NebulaLog::log("DiM", Log::ERROR, error);
+            rc = -1;
         break;
 
         case VirtualMachine::SUSPENDED:
-            error_str = "Cannot delete-recreate a suspended VM. Resume it first";
-            NebulaLog::log("DiM",Log::ERROR,error_str);
-            rc = -2;
+            error = "Cannot delete-recreate a suspended VM. Resume it first";
+            NebulaLog::log("DiM", Log::ERROR, error);
+            rc = -1;
         break;
 
         case VirtualMachine::INIT:
@@ -947,13 +1002,13 @@ int DispatchManager::resubmit(
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
-            lcm->trigger(LifeCycleManager::CLEAN, vid);
+            lcm->trigger(LifeCycleManager::DELETE_RECREATE, vm->get_oid());
         break;
 
         case VirtualMachine::DONE:
-            error_str = "Cannot delete-recreate a VM already in DONE state";
-            NebulaLog::log("DiM",Log::ERROR,error_str);
-            rc = -2;
+            error = "Cannot delete-recreate a VM already in DONE state";
+            NebulaLog::log("DiM", Log::ERROR, error);
+            rc = -1;
         break;
     }
 

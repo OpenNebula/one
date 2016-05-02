@@ -285,7 +285,22 @@ void TransferManager::do_action(const string &action, void * arg)
         }
         else
         {
-            epilog_action(vid);
+            epilog_action(false, vid);
+        }
+    }
+    else if (action == "EPILOG_LOCAL")
+    {
+        if (host_is_cloud)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
+        }
+        else if (vm_no_history)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
+        }
+        else
+        {
+            epilog_action(true, vid);
         }
     }
     else if (action == "EPILOG_STOP")
@@ -1216,19 +1231,16 @@ error_common:
 
 void TransferManager::epilog_transfer_command(
         VirtualMachine *        vm,
+        const string&           host,
         const VectorAttribute * disk,
         ostream&                xfr)
 {
     int    disk_id;
-
-
-    string save  = disk->vector_value("SAVE");
+    string save = disk->vector_value("SAVE");
 
     disk->vector_value("DISK_ID", disk_id);
 
-    transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
-
-    if ( save == "YES" )
+    if ( one_util::toupper(save) == "YES" )
     {
         string source = disk->vector_value("SOURCE");
         string tm_mad = disk->vector_value("TM_MAD");
@@ -1249,8 +1261,7 @@ void TransferManager::epilog_transfer_command(
         //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
         xfr << "MVDS "
             << tm_mad << " "
-            << vm->get_hostname() << ":"
-            << vm->get_system_dir() << "/disk." << disk_id << " "
+            << host << ":" << vm->get_system_dir() << "/disk." << disk_id << " "
             << source << " "
             << vm->get_oid() << " "
             << ds_id
@@ -1279,8 +1290,7 @@ void TransferManager::epilog_transfer_command(
             //DELETE tm_mad hostname:remote_system_dir/disk.i vmid ds_id
             xfr << "DELETE "
                 << tm_mad << " "
-                << vm->get_hostname() << ":"
-                << vm->get_system_dir() << "/disk." << disk_id << " "
+                << host << ":" << vm->get_system_dir() << "/disk." << disk_id << " "
                 << vm->get_oid() << " "
                 << ds_id_i
                 << endl;
@@ -1291,13 +1301,15 @@ void TransferManager::epilog_transfer_command(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::epilog_action(int vid)
+void TransferManager::epilog_action(bool local, int vid)
 {
-    ofstream        xfr;
-    ostringstream   os;
+    ofstream      xfr;
+    ostringstream os;
+
     string xfr_name;
     string vm_tm_mad;
     string error_str;
+    string host;
 
     VirtualMachine *    vm;
     Nebula&             nd = Nebula::instance();
@@ -1338,6 +1350,15 @@ void TransferManager::epilog_action(int vid)
         goto error_file;
     }
 
+    if (local)
+    {
+        host = nd.get_nebula_hostname();
+    }
+    else
+    {
+        host = vm->get_hostname();
+    }
+
     // -------------------------------------------------------------------------
     // copy back VM image (DISK with SAVE="yes")
     // -------------------------------------------------------------------------
@@ -1345,13 +1366,13 @@ void TransferManager::epilog_action(int vid)
 
     for (int i=0; i < num; i++)
     {
-        epilog_transfer_command(vm, disk[i], xfr);
+        epilog_transfer_command(vm, host, disk[i], xfr);
     }
 
     //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
     xfr << "DELETE "
         << vm_tm_mad << " "
-        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
+        << host << ":" << vm->get_system_dir() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;
 
@@ -1922,7 +1943,7 @@ void TransferManager::epilog_detach_action(int vid)
         goto error_disk;
     }
 
-    epilog_transfer_command(vm, disk, xfr);
+    epilog_transfer_command(vm, vm->get_hostname(), disk, xfr);
 
     xfr.close();
 

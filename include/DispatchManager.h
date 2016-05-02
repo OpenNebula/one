@@ -138,13 +138,13 @@ public:
         VirtualMachine * vm);
 
     /**
-     *  Shuts down a VM.
+     *  Terminates a VM.
      *    @param vid VirtualMachine identification
      *    @param hard True to force the shutdown (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int shutdown (
+    int terminate (
         int     vid,
         bool    hard,
         string& error_str);
@@ -225,23 +225,50 @@ public:
 
     /**
      *  Ends a VM life cycle inside ONE.
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
+     *    @param vm VirtualMachine object
+     *    @return 0 on success, the VM mutex is unlocked
      */
-    int finalize(
-        int     vid,
-        string& error_str);
+    int delete_vm(VirtualMachine * vm, string& error_str);
+
+    /**
+     *  VM ID interface
+     */
+    int delete_vm(int vid, string& error_str)
+    {
+        VirtualMachine * vm;
+
+        vm = vmpool->get(vid, true);
+
+        if ( vm == 0 )
+        {
+            error_str = "Virtual machine does not exist";
+            return -1;
+        }
+
+        return delete_vm(vm, error_str);
+    }
 
     /**
      *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
+     *    @param vm VirtualMachine object
+     *    @return 0 on success
      */
-    int resubmit(
-        int     vid,
-        string& error_str);
+    int delete_recreate(VirtualMachine * vm, string& error_str);
+
+    /**
+     *  Recover the last operation on the VM
+     *    @param vm VirtualMachine object
+     *    @param success if the operation is assumed to succeed or not
+     *    @return 0 on success
+     */
+    int recover(VirtualMachine * vm, bool success, string& error_str);
+
+    /**
+     *  Retry the last operation on the VM
+     *    @param vm VirtualMachine object
+     *    @return 0 on success
+     */
+    int retry(VirtualMachine * vm, string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
@@ -413,6 +440,7 @@ public:
         int           snap_id,
         string&       error_str);
 
+
 private:
     /**
      *  Thread id for the Dispatch Manager
@@ -470,11 +498,9 @@ private:
         void *          arg);
 
     /**
-     * Called from finalize(). Releases the images and networks acquired by this
-     * vm, and unlocks it.
-     *   @param vm the VM
+     *  Frees the resources associated to a VM: disks, ip addresses and Quotas
      */
-    void finalize_cleanup(VirtualMachine * vm);
+    void free_vm_resources(VirtualMachine * vm);
 
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
