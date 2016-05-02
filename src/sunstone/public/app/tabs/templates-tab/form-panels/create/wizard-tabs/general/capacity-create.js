@@ -167,8 +167,6 @@ define(function(require) {
 
     var userInputsJSON = element['USER_INPUTS'];
 
-    $("[class$=_modify_type]", context).val("fixed").change();
-
     if (userInputsJSON) {
       $.each(["memory","cpu","vcpu"], function(i,classname){
         var name = classname.toUpperCase();

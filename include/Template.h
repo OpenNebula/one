@@ -220,6 +220,8 @@ public:
 
     int replace(const string& name, const string& value);
 
+    int replace(const string& name, const bool& value);
+
     /**
      *  Adds a new single attribute to the template. It will replace an existing
      *  one if replace_mode was set to true
@@ -392,11 +394,8 @@ public:
      *  replacing the existing ones
      *
      *    @param from_tmpl the template to be merged
-     *    @param error_str string describing the error
-     *
-     *    @return 0 on success.
      */
-     int merge(const Template * from_tmpl, string& error_str);
+     void merge(const Template * from_tmpl);
 
      /**
       * Deletes all restricted attributes

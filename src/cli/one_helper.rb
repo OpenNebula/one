@@ -325,8 +325,8 @@ EOT
         },
         {
             :name   => 'boot',
-            :large  => '--boot device',
-            :description => 'Select boot device (hd|fd|cdrom|network)',
+            :large  => '--boot device_list',
+            :description => 'Set boot device list e.g. disk0,disk2,nic0',
             :format => String
         },
         {
@@ -341,6 +341,12 @@ EOT
             :large  => '--init script1,script2',
             :format => Array,
             :description => 'Script or scripts to start in context'
+        },
+        {
+            :name   => 'startscript',
+            :large  => '--startscript [file]',
+            :format => String,
+            :description => 'Start script to be executed'
         }
     ]
 
@@ -350,9 +356,13 @@ EOT
         :description => 'Overwrite the file'
     }
 
-    TEMPLATE_OPTIONS_VM=[TEMPLATE_NAME_VM]+TEMPLATE_OPTIONS+[DRY]
+    TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
 
-    CAPACITY_OPTIONS_VM=[TEMPLATE_OPTIONS[0],TEMPLATE_OPTIONS[1],TEMPLATE_OPTIONS[3]]
+    CAPACITY_OPTIONS_VM   = [TEMPLATE_OPTIONS[0], TEMPLATE_OPTIONS[1],
+      TEMPLATE_OPTIONS[3]]
+
+    UPDATECONF_OPTIONS_VM = TEMPLATE_OPTIONS[6..15] + [TEMPLATE_OPTIONS[2],
+      TEMPLATE_OPTIONS[17], TEMPLATE_OPTIONS[18]]
 
     OPTIONS = XML, NUMERIC, KILOBYTES
 
@@ -943,7 +953,7 @@ EOT
     end
 
     def self.create_context(options)
-        context_options = [:ssh, :net_context, :context, :init, :files_ds]
+        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript]
         if !(options.keys & context_options).empty?
             lines=[]
 
@@ -979,6 +989,18 @@ EOT
 
             if options[:init]
                 lines << %Q<INIT_SCRIPTS="#{options[:init].join(' ')}">
+            end
+
+            if options[:startscript]
+                script = nil
+                begin
+                    script = File.read(options[:startscript]).strip
+                rescue Exception => e
+                    STDERR.puts e.message
+                    exit(-1)
+                end
+                script = Base64::strict_encode64(script)
+                lines<<"START_SCRIPT_BASE64=\"#{script}\""
             end
 
             if !lines.empty?

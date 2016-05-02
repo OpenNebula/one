@@ -20,7 +20,7 @@
       <label for="host_type">{{tr "Type"}}</label>
       <select id="host_type_mad" name="host_type">
         {{#each vmMadNameList}}
-          <option value="{{this}}">{{this}}</option>
+          <option value="{{this.driverName}}">{{this.displayName}}</option>
         {{/each}}
         <option value="custom">{{tr "Custom"}}</option>
       </select>
@@ -48,7 +48,7 @@
               <label for="vmm">{{tr "Virtualization"}}</label>
               <select id="vmm_mad" name="vmm">
                 {{#each vmMadNameList}}
-                  <option value="{{this}}">{{this}}</option>
+                  <option value="{{this.driverName}}">{{this.displayName}}</option>
                 {{/each}}
                 <option value="custom">{{tr "Custom"}}</option>
               </select>
@@ -65,7 +65,7 @@
               <label for="im">{{tr "Information"}}</label>
               <select id="im_mad" name="im">
                 {{#each imMadNameList}}
-                  <option value="{{this}}">{{this}}</option>
+                  <option value="{{this.driverName}}">{{this.displayName}}</option>
                 {{/each}}
                 <option value="custom">{{tr "Custom"}}</option>
               </select>

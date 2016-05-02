@@ -7,12 +7,12 @@ enabled_tabs:
     #- groups-tab
     #- vdcs-tab
     #- acls-tab
-    - templates-top-tab
-    - templates-tab
-    - oneflow-templates-tab
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
+    - templates-top-tab
+    - templates-tab
+    - oneflow-templates-tab
     #- infrastructure-top-tab
     #- clusters-tab
     #- hosts-tab
@@ -195,6 +195,7 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
+            #- 5        # Labels
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: true
@@ -218,6 +219,7 @@ tabs:
             vm_snapshot_tab: true
             vm_placement_tab: false
             vm_actions_tab: true
+            vm_conf_tab: true
             vm_template_tab: false
             vm_log_tab: false
         table_columns:
@@ -276,6 +278,7 @@ tabs:
             VM.resched: false
             VM.unresched: false
             VM.saveas_template: true
+            VM.updateconf: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
@@ -324,6 +327,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             - 5         # State
+            #- 6        # Labels
         actions:
             Service.refresh: true
             Service.chown: false
@@ -386,6 +390,7 @@ tabs:
             Host.rename: true
             Host.enable: true
             Host.disable: true
+            Host.offline: true
             Host.delete: true
     zones-tab:
         panel_tabs:
@@ -459,7 +464,7 @@ tabs:
             Image.refresh: true
             Image.create_dialog: true
             Image.import_dialog: false
-            Image.export_dialog: true
+            Image.upload_marketplace_dialog: true
             Image.rename: true
             Image.chown: false
             Image.chgrp: false
@@ -546,8 +551,8 @@ tabs:
         actions:
             MarketPlaceApp.refresh: true
             MarketPlaceApp.create_dialog: true
-            MarketPlaceApp.export_dialog: true
-            MarketPlaceApp.download: true
+            MarketPlaceApp.download_opennebula_dialog: true
+            MarketPlaceApp.download_local: true
             MarketPlaceApp.rename: true
             MarketPlaceApp.chown: true
             MarketPlaceApp.chgrp: true

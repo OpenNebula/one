@@ -25,6 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var NicTab = require('./network/nic-tab');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -44,15 +45,19 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
+  function WizardTab(opts) {
     if (!Config.isTemplateCreationTabEnabled('network')) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-globe';
     this.title = Locale.tr("Network");
     this.classes = "hypervisor only_kvm only_vcenter"
+
+    if(opts.listener != undefined){
+      this.listener = opts.listener;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -97,6 +102,12 @@ define(function(require) {
     });
 
     that.addNicTab(context);
+
+    if(that.listener != undefined){
+      $(context).on("change", "input", function(){
+        that.listener.notify();
+      });
+    }
   }
 
   function _retrieve(context) {
@@ -201,5 +212,9 @@ define(function(require) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
     })
+
+    if(this.listener != undefined){
+      this.listener.notify();
+    }
   }
 });

@@ -279,6 +279,101 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void set_boot_order(Template * tmpl)
+{
+	VectorAttribute * os = tmpl->get("OS");
+
+    if ( os == 0 )
+    {
+        return;
+    }
+
+    string order = os->vector_value("BOOT");
+
+    if ( order.empty() )
+    {
+        return;
+    }
+
+	vector<string> bdevs = one_util::split(order, ',');
+
+    vector<VectorAttribute *> disk;
+    vector<VectorAttribute *> nic;
+
+    int ndisk = tmpl->get("DISK", disk);
+    int nnic  = tmpl->get("NIC", nic);
+
+    for (int i=0; i<ndisk; ++i)
+    {
+        disk[i]->remove("ORDER");
+    }
+
+    for (int i=0; i<nnic; ++i)
+    {
+        nic[i]->remove("ORDER");
+    }
+
+    int index = 1;
+
+    for (vector<string>::iterator i = bdevs.begin(); i != bdevs.end(); ++i)
+    {
+        vector<VectorAttribute *> * dev;
+        int    max;
+        int    disk_id;
+        size_t pos;
+
+        const char * id_name;
+
+        one_util::toupper(*i);
+
+        if ((*i).compare(0,4,"DISK") == 0)
+        {
+            pos = 4;
+
+            max = ndisk;
+            dev = &disk;
+
+            id_name = "DISK_ID";
+        }
+        else if ((*i).compare(0,3,"NIC") == 0)
+        {
+            pos = 3;
+
+            max = nnic;
+            dev = &nic;
+
+            id_name = "NIC_ID";
+        }
+        else
+        {
+            continue;
+        }
+
+        istringstream iss((*i).substr(pos, string::npos));
+
+        iss >> disk_id;
+
+        if (iss.fail())
+        {
+            continue;
+        }
+
+        for (int j=0; j<max; ++j)
+        {
+            int j_disk_id;
+
+            if ( (*dev)[j]->vector_value(id_name, j_disk_id) == 0 &&
+                   j_disk_id == disk_id )
+            {
+                (*dev)[j]->replace("ORDER", index++);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
@@ -472,6 +567,20 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_leases_rollback;
     }
 
+    bool on_hold;
+
+    if (user_obj_template->get("SUBMIT_ON_HOLD", on_hold) == true)
+    {
+        user_obj_template->erase("SUBMIT_ON_HOLD");
+
+        obj_template->replace("SUBMIT_ON_HOLD", on_hold);
+    }
+
+    if ( has_cloning_disks())
+    {
+        state = VirtualMachine::CLONING;
+    }
+
     // ------------------------------------------------------------------------
     // PCI Devices
     // ------------------------------------------------------------------------
@@ -482,6 +591,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     {
         goto error_pci;
     }
+
+    // -------------------------------------------------------------------------
+    // Set boot order
+    // -------------------------------------------------------------------------
+
+    set_boot_order(obj_template);
 
     // -------------------------------------------------------------------------
     // Parse the context & requirements
@@ -787,6 +902,7 @@ int VirtualMachine::parse_os(string& error_str)
     return 0;
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -905,7 +1021,7 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // Add network context and parse variables
     // -------------------------------------------------------------------------
-    generate_network_context(context);
+    generate_network_context(context, false);
 
     if (parse_context_variables(&context, error_str) == -1)
     {
@@ -989,27 +1105,9 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // OneGate URL
     // -------------------------------------------------------------------------
-    bool token;
-    context->vector_value("TOKEN", token);
-
-    if (token)
+    if ( generate_token_context(context, error_str) != 0 )
     {
-        string ep;
-
-        Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
-
-        if ( ep.empty() )
-        {
-            error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
-                "defined in oned.conf or CONTEXT.";
-            return -1;
-        }
-
-        context->replace("ONEGATE_ENDPOINT", ep);
-        context->replace("VMID", oid);
-
-        // Store the original owner to compute token_password in case of a chown
-        add_template_attribute("CREATED_BY", uid);
+        return -1;
     }
 
     // -------------------------------------------------------------------------
@@ -2082,20 +2180,118 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_disk_info(int&         max_disk_id,
-                                   set<string>& used_targets)
+bool VirtualMachine::has_cloning_disks()
 {
-    vector<VectorAttribute  *> disk;
-    VectorAttribute * context;
+    bool cloning;
 
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::get_cloning_image_ids(set<int> &ids)
+{
+    bool cloning;
+    int  image_id;
+
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning && (disks[i]->vector_value("IMAGE_ID", image_id) == 0) )
+        {
+            ids.insert(image_id);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_cloning_image_id(int image_id, const string& source)
+{
+    bool cloning;
+    int  disk_image_id;
+
+    vector<VectorAttribute *> disks;
+
+    int num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i < num_disks; i++)
+    {
+        disks[i]->vector_value("CLONING", cloning);
+
+        if (cloning &&
+            (disks[i]->vector_value("IMAGE_ID", disk_image_id) == 0) &&
+            disk_image_id == image_id)
+        {
+            disks[i]->remove("CLONING");
+
+            disks[i]->replace("SOURCE", source);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& err)
+{
+    Nebula&       nd     = Nebula::instance();
+    ImagePool *   ipool  = nd.get_ipool();
+    ImageManager* imagem = nd.get_imagem();
+
+    string           dev_prefix;
+    Image::ImageType img_type;
+
+    set<string> used_targets;
+    int         max_disk_id = -1;
+
+    int    image_id;
     string target;
+    string disk_cluster_ids;
+
+    Snapshots * snap = 0;
+
+    // -------------------------------------------------------------------------
+    // Get the DISK attribute from the template
+    // -------------------------------------------------------------------------
+    VectorAttribute * new_disk = tmpl->get("DISK");
+
+    if ( new_disk == 0 )
+    {
+        err = "Internal error parsing DISK attribute";
+        return -1;
+    }
+
+    new_disk = new_disk->clone();
+
+    // -------------------------------------------------------------------------
+    // Get the list of used targets and max_disk_id
+    // -------------------------------------------------------------------------
+    vector<VectorAttribute *> disk;
 
     int disk_id;
-    int num_disks;
-
-    max_disk_id = -1;
-
-    num_disks = obj_template->get("DISK", disk);
+    int num_disks = get_template_attribute("DISK", disk);
 
     for(int i=0; i<num_disks; i++)
     {
@@ -2114,9 +2310,7 @@ void VirtualMachine::get_disk_info(int&         max_disk_id,
         }
     }
 
-    disk.clear();
-
-    context = obj_template->get("CONTEXT");
+    VectorAttribute * context = get_template_attribute("CONTEXT");
 
     if ( context != 0 )
     {
@@ -2134,64 +2328,16 @@ void VirtualMachine::get_disk_info(int&         max_disk_id,
             max_disk_id = disk_id;
         }
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::set_up_attach_disk(
-                int                      vm_id,
-                VirtualMachineTemplate * tmpl,
-                set<string>&             used_targets,
-                int                      max_disk_id,
-                int                      uid,
-                int&                     image_id,
-                Snapshots **             snap,
-                string&                  error_str)
-{
-    VectorAttribute * new_disk;
-
-    string target;
-
-    Nebula&       nd     = Nebula::instance();
-    ImagePool *   ipool  = nd.get_ipool();
-    ImageManager* imagem = nd.get_imagem();
-
-    string           dev_prefix;
-    Image::ImageType img_type;
-
-    image_id = -1;
-    *snap    = 0;
-
-    // -------------------------------------------------------------------------
-    // Get the DISK attribute from the template
-    // -------------------------------------------------------------------------
-    new_disk = tmpl->get("DISK");
-
-    if ( new_disk == 0 )
-    {
-        error_str = "Internal error parsing DISK attribute";
-        return 0;
-    }
-
-    new_disk = new_disk->clone();
 
     // -------------------------------------------------------------------------
     // Acquire the new disk image
     // -------------------------------------------------------------------------
-    int rc = ipool->acquire_disk(vm_id,
-                                 new_disk,
-                                 max_disk_id + 1,
-                                 img_type,
-                                 dev_prefix,
-                                 uid,
-                                 image_id,
-                                 snap,
-                                 error_str);
+    int rc = ipool->acquire_disk(oid, new_disk, max_disk_id + 1, img_type,
+                                 dev_prefix, uid, image_id, &snap, err);
     if ( rc != 0 )
     {
         delete new_disk;
-        return 0;
+        return -1;
     }
 
     target = new_disk->vector_value("TARGET");
@@ -2200,20 +2346,14 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     {
         if (  used_targets.insert(target).second == false )
         {
-            ostringstream oss;
+            err = "Target " + target + " is already in use.";
 
-            oss << "Target " << target << " is already in use.";
-            error_str = oss.str();
-
-            imagem->release_image(vm_id, image_id, false);
+            imagem->release_image(oid, image_id, false);
 
             delete new_disk;
-            delete *snap;
+            delete snap;
 
-            *snap    = 0;
-            image_id = -1;
-
-            return 0;
+            return -1;
         }
     }
     else
@@ -2225,7 +2365,49 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
         assign_disk_targets(disks_queue, used_targets);
     }
 
-    return new_disk;
+    // -------------------------------------------------------------------------
+    // Check that we don't have a cluster incompatibility.
+    // -------------------------------------------------------------------------
+    if (new_disk->vector_value("CLUSTER_ID", disk_cluster_ids) == 0)
+    {
+        set<int> cluster_ids;
+        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
+
+        if (cluster_ids.count(get_cid()) == 0)
+        {
+            ostringstream oss;
+
+            oss << "Image [" << image_id << "] is not part of cluster ["
+                << get_cid() << "]";
+
+            err = oss.str();
+
+            imagem->release_image(oid, image_id, false);
+
+            delete new_disk;
+            delete snap;
+
+            return -1;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Add new disk to template and set info in history before attaching
+    // -------------------------------------------------------------------------
+    set_vm_info();
+
+    new_disk->replace("ATTACH", "YES");
+
+    obj_template->set(new_disk);
+
+    if (snap != 0)
+    {
+        new_disk->vector_value("DISK_ID", disk_id);
+
+        snapshots.insert(pair<int, Snapshots *>(disk_id, snap));
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2445,26 +2627,39 @@ string VirtualMachine::disk_tm_target(const VectorAttribute *  disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * VirtualMachine::get_attach_nic_info(
-                            VirtualMachineTemplate * tmpl,
-                            int&                     max_nic_id,
-                            string&                  error_str)
+int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err)
 {
-    vector<VectorAttribute *> nics;
-    VectorAttribute * nic;
+    Nebula&             nd     = Nebula::instance();
+    VirtualNetworkPool* vnpool = nd.get_vnpool();
+    SecurityGroupPool*  sgpool = nd.get_secgrouppool();
 
-    int nic_id;
-    int num_nics;
+    // -------------------------------------------------------------------------
+    // Get the new NIC attribute from the template
+    // -------------------------------------------------------------------------
+    VectorAttribute * new_nic = tmpl->get("NIC");
+
+    if ( new_nic == 0 )
+    {
+        err = "Wrong format or missing NIC attribute";
+        return -1;
+    }
+
+    new_nic = new_nic->clone();
+
+    merge_nic_defaults(new_nic);
 
     // -------------------------------------------------------------------------
     // Get the highest NIC_ID
     // -------------------------------------------------------------------------
-    max_nic_id = -1;
+    vector<VectorAttribute *> nics;
 
-    num_nics = obj_template->get("NIC", nics);
+    int max_nic_id = -1;
+    int num_nics   = obj_template->get("NIC", nics);
 
     for(int i=0; i<num_nics; i++)
     {
+        int nic_id;
+
         nics[i]->vector_value("NIC_ID", nic_id);
 
         if ( nic_id > max_nic_id )
@@ -2474,48 +2669,54 @@ VectorAttribute * VirtualMachine::get_attach_nic_info(
     }
 
     // -------------------------------------------------------------------------
-    // Get the new NIC attribute from the template
+    // Acquire a new network lease
     // -------------------------------------------------------------------------
-    nic = tmpl->get("NIC");
-
-    if ( nic == 0 )
-    {
-        error_str = "Wrong format or missing NIC attribute";
-        return 0;
-    }
-
-    nic = nic->clone();
-
-    merge_nic_defaults(nic);
-
-    return nic;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_up_attach_nic(
-                        int                      vm_id,
-                        set<int>&                vm_sgs,
-                        VectorAttribute *        new_nic,
-                        vector<VectorAttribute*> &rules,
-                        int                      max_nic_id,
-                        int                      uid,
-                        string&                  error_str)
-{
-    Nebula&             nd     = Nebula::instance();
-    VirtualNetworkPool* vnpool = nd.get_vnpool();
-    SecurityGroupPool*  sgpool = nd.get_secgrouppool();
-
-    set<int> nic_sgs;
-
-    int rc = vnpool->nic_attribute(PoolObjectSQL::VM,
-                        new_nic, max_nic_id+1, uid, vm_id, error_str);
+    int rc = vnpool->nic_attribute(PoolObjectSQL::VM, new_nic, max_nic_id+1,
+            uid, oid, err);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
+        delete new_nic;
         return -1;
     }
+
+    // -------------------------------------------------------------------------
+    // Check that we don't have a cluster incompatibility.
+    // -------------------------------------------------------------------------
+    string nic_cluster_ids;
+
+    if (new_nic->vector_value("CLUSTER_ID", nic_cluster_ids) == 0)
+    {
+        set<int> cluster_ids;
+        one_util::split_unique(nic_cluster_ids, ',', cluster_ids);
+
+        if (cluster_ids.count(get_cid()) == 0)
+        {
+            ostringstream oss;
+
+            release_network_leases(new_nic, oid);
+
+            delete new_nic;
+
+            oss << "Virtual network is not part of cluster [" << get_cid() << "]";
+
+            err = oss.str();
+
+            NebulaLog::log("DiM", Log::ERROR, err);
+
+            return -1;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Get security groups for the new nic
+    // -------------------------------------------------------------------------
+    set<int> nic_sgs, vm_sgs;
+
+    vector<VectorAttribute*> sg_rules;
+    vector<VectorAttribute*>::iterator it;
+
+    get_security_groups(vm_sgs);
 
     get_security_groups(new_nic, nic_sgs);
 
@@ -2524,7 +2725,21 @@ int VirtualMachine::set_up_attach_nic(
         nic_sgs.erase(*it);
     }
 
-    sgpool->get_security_group_rules(vm_id, nic_sgs, rules);
+    sgpool->get_security_group_rules(oid, nic_sgs, sg_rules);
+
+    // -------------------------------------------------------------------------
+    // Add new nic to template and set info in history before attaching
+    // -------------------------------------------------------------------------
+    set_vm_info();
+
+    new_nic->replace("ATTACH", "YES");
+
+    obj_template->set(new_nic);
+
+    for(it = sg_rules.begin(); it != sg_rules.end(); it++ )
+    {
+        obj_template->set(*it);
+    }
 
     return 0;
 }
@@ -2630,26 +2845,6 @@ VectorAttribute * VirtualMachine::detach_nic_success()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::set_attach_nic(VectorAttribute * new_nic,
-        vector<VectorAttribute*> &rules)
-{
-    string err;
-
-    vector<VectorAttribute*>::iterator it;
-
-    new_nic->replace("ATTACH", "YES");
-
-    obj_template->set(new_nic);
-
-    for(it = rules.begin(); it != rules.end(); it++ )
-    {
-        obj_template->set(*it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::set_detach_nic(int nic_id)
 {
     int n_id;
@@ -2704,8 +2899,6 @@ void VirtualMachine::release_disk_images()
     vector<const VectorAttribute * > disks;
     ImageManager *              imagem;
 
-    string  disk_base_path = "";
-
     Nebula& nd = Nebula::instance();
     imagem     = nd.get_imagem();
 
@@ -2714,7 +2907,8 @@ void VirtualMachine::release_disk_images()
     for(int i=0; i<num_disks; i++)
     {
         img_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                     state != PENDING && state != HOLD;
+                     state != PENDING && state != HOLD &&
+                     state != CLONING && state != CLONING_FAILURE;
 
         if ( disks[i]->vector_value("IMAGE_ID", iid) == 0 )
         {
@@ -3110,7 +3304,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     //Generate dynamic context attributes
-    if ( generate_network_context(context) )
+    if ( generate_network_context(context, false) )
     {
         string error;
 
@@ -3972,8 +4166,7 @@ int VirtualMachine::replace_template(
         {
             user_obj_template->remove_all_except_restricted();
 
-            string aux_error;
-            new_tmpl->merge(user_obj_template, aux_error);
+            new_tmpl->merge(user_obj_template);
         }
     }
 
@@ -4014,7 +4207,7 @@ int VirtualMachine::append_template(
 
     if (user_obj_template != 0)
     {
-        user_obj_template->merge(new_tmpl, error);
+        user_obj_template->merge(new_tmpl);
         delete new_tmpl;
     }
     else
@@ -4508,7 +4701,7 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, VectorAttribute * nic)
+        VectorAttribute * context, VectorAttribute * nic, bool replace)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -4521,7 +4714,7 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
         cval = context->vector_value(cvar.str().c_str());
 
-        if (!cval.empty())
+        if (!cval.empty() && !replace)
         {
             continue;
         }
@@ -4542,21 +4735,22 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
+void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n,
+        bool rpl)
 {
-    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n);
+    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n, rpl);
 
     if (!n->vector_value("IP6_GLOBAL").empty())
     {
-        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n, rpl);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::generate_network_context(VectorAttribute * context)
+bool VirtualMachine::generate_network_context(VectorAttribute * context, bool r)
 {
-    bool    net_context;
+    bool net_context;
 
     context->vector_value("NETWORK", net_context);
 
@@ -4571,9 +4765,225 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context)
 
     for(int i=0; i<num_vatts; i++)
     {
-        parse_nic_context(context, vatts[i]);
+        parse_nic_context(context, vatts[i], r);
     }
 
     return net_context;
 }
 
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
+{
+    bool   token;
+    string ep;
+
+    context->vector_value("TOKEN", token);
+
+    if ( token == false )
+    {
+        return 0;
+    }
+
+    Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
+
+    if ( ep.empty() )
+    {
+        e = "TOKEN set, but onegate endpoint was not defined in oned.conf.";
+        return -1;
+    }
+
+    context->replace("ONEGATE_ENDPOINT", ep);
+    context->replace("VMID", oid);
+
+    // Store the original owner to compute token_password in case of a chown
+    add_template_attribute("CREATED_BY", uid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Replaces the values of a vector value, preserving the existing ones
+ */
+static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
+        const char * name, const string * vnames, int num)
+{
+    string value;
+
+    VectorAttribute * new_attr = new_tmpl->get(name);
+
+    if ( new_attr == 0 )
+    {
+        return;
+    }
+
+    VectorAttribute * old_attr = old_tmpl->get(name);
+
+    if ( old_attr == 0 )
+    {
+        old_attr = new VectorAttribute(name);
+        old_tmpl->set(old_attr);
+    }
+
+    if ( num > 0 && vnames != 0 )
+    {
+        for (int i=0; i < num; i++)
+        {
+            if ( new_attr->vector_value(vnames[i], value) == -1 )
+            {
+                continue;
+            }
+            else if (value.empty())
+            {
+                old_attr->remove(vnames[i]);
+            }
+            else
+            {
+                old_attr->replace(vnames[i], value);
+            }
+        }
+    }
+    else //replace all
+    {
+        const map<string, string> contents = new_attr->value();
+        map<string, string>::const_iterator it;
+
+        for ( it = contents.begin() ; it != contents.end() ; ++it )
+        {
+            if ( it->second.empty() )
+            {
+                old_attr->remove(it->first);
+            }
+            else
+            {
+                old_attr->replace(it->first, it->second);
+            }
+        }
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
+{
+    switch (state)
+    {
+        case PENDING:
+        case HOLD:
+        case POWEROFF:
+        case UNDEPLOYED:
+        case CLONING:
+        case CLONING_FAILURE:
+            break;
+
+        case ACTIVE:
+            switch (lcm_state)
+            {
+                case LCM_INIT:
+                case PROLOG:
+                case EPILOG:
+                case SHUTDOWN:
+                case CLEANUP_RESUBMIT:
+                case SHUTDOWN_POWEROFF:
+                case CLEANUP_DELETE:
+                case HOTPLUG_SAVEAS_POWEROFF:
+                case SHUTDOWN_UNDEPLOY:
+                case EPILOG_UNDEPLOY:
+                case PROLOG_UNDEPLOY:
+                case HOTPLUG_PROLOG_POWEROFF:
+                case HOTPLUG_EPILOG_POWEROFF:
+                case BOOT_FAILURE:
+                case PROLOG_FAILURE:
+                case EPILOG_FAILURE:
+                case EPILOG_UNDEPLOY_FAILURE:
+                case PROLOG_MIGRATE_POWEROFF:
+                case PROLOG_MIGRATE_POWEROFF_FAILURE:
+                case BOOT_UNDEPLOY_FAILURE:
+                case PROLOG_UNDEPLOY_FAILURE:
+                case DISK_SNAPSHOT_POWEROFF:
+                case DISK_SNAPSHOT_REVERT_POWEROFF:
+                case DISK_SNAPSHOT_DELETE_POWEROFF:
+                    break;
+
+                default:
+                    err = "configuration cannot be updated in state " + state_str();
+                    return -1;
+            };
+
+        case INIT:
+        case DONE:
+        case SUSPENDED:
+        case STOPPED:
+
+            err = "configuration cannot be update in state " + state_str();
+            return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Update OS
+    // -------------------------------------------------------------------------
+    string os_names[] = {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER",
+        "BOOT"};
+
+    replace_vector_values(obj_template, &tmpl, "OS", os_names, 6);
+
+    set_boot_order(obj_template);
+
+    // -------------------------------------------------------------------------
+    // Update FEATURES:
+    // -------------------------------------------------------------------------
+    string features_names[] = {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
+        "DEVICE_MODEL"};
+
+    replace_vector_values(obj_template, &tmpl, "FEATURES", features_names, 6);
+
+    // -------------------------------------------------------------------------
+    // Update INPUT:
+    // -------------------------------------------------------------------------
+    string input_names[] = {"TYPE", "BUS"};
+
+    replace_vector_values(obj_template, &tmpl, "INPUT", input_names, 2);
+
+    // -------------------------------------------------------------------------
+    // Update GRAPHICS:
+    // -------------------------------------------------------------------------
+    string graphics_names[] = {"TYPE", "LISTEN", "PASSWD", "KEYMAP"};
+
+    replace_vector_values(obj_template, &tmpl, "GRAPHICS", graphics_names, 4);
+
+    // -------------------------------------------------------------------------
+    // Update RAW:
+    // -------------------------------------------------------------------------
+    string raw_names[] = {"TYPE", "DATA", "DATA_VMX"};
+
+    replace_vector_values(obj_template, &tmpl, "RAW", raw_names, 3);
+
+    // -------------------------------------------------------------------------
+    // Update CONTEXT: any value
+    // -------------------------------------------------------------------------
+    VectorAttribute * context     = obj_template->get("CONTEXT");
+    VectorAttribute * context_bck = context->clone();
+
+    replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
+
+    if ( context != 0 )
+    {
+        generate_network_context(context, true);
+
+        if ( generate_token_context(context, err) != 0 ||
+                parse_context_variables(&context, err) )
+        {
+            obj_template->erase("CONTEXT");
+            obj_template->set(context_bck);
+
+            return -1;
+        }
+    }
+
+    delete context_bck;
+
+    return 0;
+}

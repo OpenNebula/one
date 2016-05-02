@@ -1734,7 +1734,7 @@ void LifeCycleManager::saveas_success_action(int vid)
         return;
     }
 
-    image->set_state(Image::READY);
+    image->set_state_unlock();
 
     ipool->update(image);
 
@@ -2071,3 +2071,113 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_lock_success(int vid)
+{
+    VirtualMachine * vm = vmpool->get(vid,true);
+    Image *          image;
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_state() != VirtualMachine::CLONING &&
+         vm->get_state() != VirtualMachine::CLONING_FAILURE )
+    {
+        vm->unlock();
+        return;
+    }
+
+    set<int> ids;
+
+    vm->get_cloning_image_ids(ids);
+
+    vm->unlock();
+
+    vector< pair<int,string> > ready;
+    vector< pair<int,string> >::iterator rit;
+
+    set<int> error;
+
+    for (set<int>::iterator id = ids.begin(); id != ids.end(); id++)
+    {
+        image = ipool->get(*id, true);
+
+        if (image != 0)
+        {
+            switch (image->get_state()) {
+                case Image::USED:
+                case Image::USED_PERS:
+                    ready.push_back( make_pair(*id, image->get_source()) );
+                    break;
+
+                case Image::ERROR:
+                    error.insert(*id);
+                    break;
+
+                case Image::INIT:
+                case Image::READY:
+                case Image::DISABLED:
+                case Image::LOCKED:
+                case Image::CLONE:
+                case Image::DELETE:
+                case Image::LOCKED_USED:
+                case Image::LOCKED_USED_PERS:
+                    break;
+            }
+
+            image->unlock();
+        }
+    }
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    for (rit = ready.begin(); rit != ready.end(); rit++)
+    {
+        vm->clear_cloning_image_id(rit->first, rit->second);
+    }
+
+    if (ids.size() == ready.size())
+    {
+        bool on_hold = false;
+
+        vm->get_template_attribute("SUBMIT_ON_HOLD", on_hold);
+
+        if(on_hold)
+        {
+            vm->set_state(VirtualMachine::HOLD);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::PENDING);
+        }
+    }
+    else if (error.size() > 0)
+    {
+        vm->set_state(VirtualMachine::CLONING_FAILURE);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::CLONING);
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_lock_failure(int vid)
+{
+    disk_lock_success(vid);
+}

@@ -991,6 +991,11 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
         used_addr++;
     }
 
+    if ( used_addr > size )
+    {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -1045,6 +1050,11 @@ int AddressRange::allocate_addr(
     const vector<string>&     inherit)
 {
     unsigned int index = 0;
+
+    if ( used_addr >= size )
+    {
+        return -1;
+    }
 
     if (get_free_addr(index) == 0)
     {  

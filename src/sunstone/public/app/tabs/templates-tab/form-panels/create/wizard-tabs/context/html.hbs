@@ -25,36 +25,39 @@
 </div>
 <div class="row hypervisor only_vcenter context_type context_type_vcenter" hidden>
   <div class="columns medium-6">
-    <label for="vcenter_customizations">{{tr "vCenter customizations"}}:</label>
-    <select id="vcenter_customizations"/>
+    <label>
+      {{tr "vCenter customizations"}}:
+      <select class="vcenter_customizations"/>
+    </label>
   </div>
   <div class="columns medium-6">
     <label>&nbsp;</label>
-    <input id="vcenter_customizations_value" type="text"></div>
+    <input class="vcenter_customizations_value" type="text">
+  </div>
 </div>
 <div class="context_type context_type_opennebula row collapse">
   <div class="medium-2 columns">
     <ul id="context_tabs" class="tabs vertical" data-tabs>
       <li class="tabs-title is-active">
-        <a href="#netsshTab">{{tr "Configuration"}}</a>
+        <a href="#netsshTab{{uniqueId}}">{{tr "Configuration"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#filesTab">{{tr "Files"}}</a>
+        <a href="#filesTab{{uniqueId}}">{{tr "Files"}}</a>
       </li>
       <li class="tabs-title">
-        <a href="#zcustomTab">{{tr "Custom vars"}}</a>
+        <a href="#customTab{{uniqueId}}">{{tr "Custom vars"}}</a>
       </li>
     </ul>
   </div>
   <div class="medium-10 columns">
     <div class="tabs-content vertical" data-tabs-content="context_tabs">
-      <div class="wizard_internal_tab is-active tabs-panel" id="netsshTab">
+      <div class="wizard_internal_tab is-active tabs-panel netsshTab" id="netsshTab{{uniqueId}}">
         <div class="row">
           <div class="columns medium-6">
             <div class="row">
               <div class="columns large-12">
-                <input type="checkbox" name="ssh_context" id="ssh_context" checked>
-                <label for="ssh_context">
+                <input type="checkbox" class="ssh_context" id="ssh_context{{uniqueId}}" checked>
+                <label for="ssh_context{{uniqueId}}">
                   {{tr "  Add SSH contextualization"}}
                 {{{tip (tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")}}}
                 </label>
@@ -62,16 +65,18 @@
             </div>
             <div class="row">
               <div class="large-12 columns">
-                <label for="ssh_public_key">{{tr "Public Key"}}:</label>
-                <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
+                <label>
+                  {{tr "Public Key"}}:
+                  <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
+                </label>
               </div>
             </div>
           </div>
           <div class="columns medium-6">
             <div class="row">
               <div class="columns large-12">
-                <input type="checkbox" name="network_context" id="network_context" checked>
-                <label for="network_context">
+                <input type="checkbox" class="network_context" id="network_context{{uniqueId}}" checked>
+                <label for="network_context{{uniqueId}}">
                   {{tr "  Add Network contextualization"}}
                 {{{tip (tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")}}}
                 </label>
@@ -79,8 +84,8 @@
             </div>
             <div class="row">
               <div class="columns large-12">
-                <input type="checkbox" name="token_context" id="token_context">
-                <label for="token_context">
+                <input type="checkbox" class="token_context" id="token_context{{uniqueId}}">
+                <label for="token_context{{uniqueId}}">
                   {{tr "  Add OneGate token"}}
                 {{{tip (tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")}}}
                 </label>
@@ -90,52 +95,52 @@
         </div>
         <div class="row">
           <div class="large-12 columns">
-            <label for="START_SCRIPT">
+            <label>
               {{tr "Start Script"}}
-            {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script. For example 'yum upgrade'")}}}
+              {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script. For example 'yum upgrade'")}}}
+              <textarea rows="4" type="text" class="START_SCRIPT"/>
             </label>
-            <textarea rows="4" type="text" id="START_SCRIPT" name="START_SCRIPT" />
-            <input type="checkbox" name="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT">
-            <label for="ENCODE_START_SCRIPT">{{tr "  Encode Script in Base64"}}</label>
+            <input type="checkbox" class="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT{{uniqueId}}">
+            <label for="ENCODE_START_SCRIPT{{uniqueId}}">{{tr "  Encode Script in Base64"}}</label>
           </div>
         </div>
-        <hr>
-        <div class="">
-          <div class="large-12 columns">
-            <fieldset class="row">
-              <legend> 
-              <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
-              {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
-              </legend>
-              <div class="row">
-                <div class="large-12 columns">{{{userInputsHTML}}}</div>
-              </div>
-            </fieldset>
-          </div>
+        <br/>
+        <div class="large-12 columns vm_updateconf_hide">
+          <fieldset class="row">
+            <legend> 
+            <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
+            {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
+            </legend>
+            <div class="row">
+              <div class="large-12 columns">{{{userInputsHTML}}}</div>
+            </div>
+          </fieldset>
         </div>
       </div>
-      <div class="wizard_internal_tab tabs-panel" id="filesTab">
-        {{{contextFilesTableHTML}}}
-        <div class="row">
+      <div class="wizard_internal_tab tabs-panel filesTab" id="filesTab{{uniqueId}}">
+        <div class="vm_updateconf_hide">
+          {{{contextFilesTableHTML}}}
+        </div>
+        <div class="row vm_updateconf_hide">
           <div class="large-12 columns">
-            <label for="FILES_DS">
+            <label>
               {{tr "FILES_DS"}}
-            {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
+              {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
+              <input type="text" wizard_field="FILES_DS" class="FILES_DS" />
             </label>
-            <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
           </div>
         </div>
         <div class="row">
           <div class="large-12 columns">
-            <label for="INIT_SCRIPTS">
+            <label>
               {{tr "Init scripts"}}
-            {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
+              {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
+              <input type="text" wizard_field="INIT_SCRIPTS" class="INIT_SCRIPTS"/>
             </label>
-            <input type="text" wizard_field="INIT_SCRIPTS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
           </div>
         </div>
       </div>
-      <div class="wizard_internal_tab tabs-panel" id="zcustomTab">{{{customTagsTableHTML}}}</div>
+      <div class="wizard_internal_tab tabs-panel customTab" id="customTab{{uniqueId}}">{{{customTagsTableHTML}}}</div>
     </div>
   </div>
 </div>

@@ -39,4 +39,37 @@ for ds in $dirs; do
     echo "  TOTAL_MB = $TOTAL_MB,"
     echo "  FREE_MB = $FREE_MB"
     echo "]"
+
+    # Skip if datastore is not marked for monitoring (ssh)
+    [ -e "${dir}/.monitor" ] || continue
+
+    vms=$(ls "$dir" | grep '^[0-9]\+$')
+
+    for vm in $vms; do
+        vmdir="${dir}/${vm}"
+        disks=$(ls "$vmdir" | grep '^disk\.[0-9]\+$')
+
+        [ -z "$disks" ] && continue
+
+        echo -n "VM=[ID=$vm,POLL=\""
+
+        for disk in $disks; do
+            disk_id="$(echo "$disk" | cut -d. -f2)"
+            disk_size="$(du -mL "${vmdir}/${disk}" | awk '{print $1}')"
+            snap_dir="${vmdir}/${disk}.snap"
+
+            echo -n "DISK_SIZE=[ID=${disk_id},SIZE=${disk_size}] "
+
+            if [ -e "$snap_dir" ]; then
+                snaps="$(ls "$snap_dir" | grep '^[0-9]$')"
+
+                for snap in $snaps; do
+                    snap_size="$(du -mL "${snap_dir}/${snap}" | awk '{print $1}')"
+                    echo -n "SNAPSHOT_SIZE=[ID=${snap},DISK_ID=${disk_id},SIZE=${snap_size}] "
+                done
+            fi
+        done
+
+        echo "\"]"
+    done
 done

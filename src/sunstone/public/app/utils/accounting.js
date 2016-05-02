@@ -294,7 +294,7 @@ define(function(require) {
           color: "#999",
           size: 10
         },
-        ticks: 4,
+        ticks: 3,
         minTickSize: [1, "day"]
       },
       yaxis : { min: 0,

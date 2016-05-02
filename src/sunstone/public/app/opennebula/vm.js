@@ -32,20 +32,24 @@ define(function(require) {
     "DONE",
     "FAILED",
     "POWEROFF",
-    "UNDEPLOYED"
+    "UNDEPLOYED",
+    "CLONING",
+    "CLONING_FAILURE"
   ];
 
   var STATES = {
-    INIT       : 0,
-    PENDING    : 1,
-    HOLD       : 2,
-    ACTIVE     : 3,
-    STOPPED    : 4,
-    SUSPENDED  : 5,
-    DONE       : 6,
-    //FAILED   : 7,
-    POWEROFF   : 8,
-    UNDEPLOYED : 9
+    INIT            : 0,
+    PENDING         : 1,
+    HOLD            : 2,
+    ACTIVE          : 3,
+    STOPPED         : 4,
+    SUSPENDED       : 5,
+    DONE            : 6,
+    //FAILED        : 7,
+    POWEROFF        : 8,
+    UNDEPLOYED      : 9,
+    CLONING         : 10,
+    CLONING_FAILURE : 11
   };
 
   var LCM_STATES_STR = [
@@ -472,6 +476,10 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
+    "updateconf": function(params) {
+      var action_obj = {"template_raw" : params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "updateconf", action_obj);
+    },
     "monitor" : function(params) {
       OpenNebulaAction.monitor(params, RESOURCE, false);
     },
@@ -602,7 +610,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VM_MAD, ['vcenter', 'az', 'sl']) == -1;
+      return $.inArray(history.VM_MAD, ['vcenter', 'az']) == -1;
     } else {
       return false;
     }
@@ -611,7 +619,7 @@ define(function(require) {
   function isNICAttachSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VM_MAD, ['ec2', 'az', 'sl']) == -1;
+      return $.inArray(history.VM_MAD, ['ec2', 'az']) == -1;
     } else {
       return false;
     }

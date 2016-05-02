@@ -28,8 +28,17 @@ define(function(require){
     'retrieve': _retrieve
   };
 
-  function _insert(template_json, disksContext) {
-    var template_disk = template_json.VMTEMPLATE.TEMPLATE.DISK
+  /**
+   * @param {Object} opts - template_json: extended info template (with DISK/SIZE)
+   *                      - disksContext: jquery selector, where to place the html
+   *                      - force_persistent {bool}: mark all disks as if they
+   *                          were persistent, disabling resize inputs
+   */
+  function _insert(opts) {
+
+    var disksContext = opts.disksContext;
+
+    var template_disk = opts.template_json.VMTEMPLATE.TEMPLATE.DISK
     var disks = []
     if ($.isArray(template_disk)) {
       disks = template_disk
@@ -40,92 +49,107 @@ define(function(require){
     if (disks.length > 0) {
       disksContext.html(DisksResizeTemplate());
 
-      OpenNebula.Template.show({
-        data : {
-            id: template_json.VMTEMPLATE.ID,
-            extended: true
-        },
-        success: function(request, extendedTemplateJSON) {
-          var extendedTemplateDisk = extendedTemplateJSON.VMTEMPLATE.TEMPLATE.DISK;
-          var extendedDisks = []
-          if ($.isArray(extendedTemplateDisk)) {
-            extendedDisks = extendedTemplateDisk
-          } else if (!$.isEmptyObject(extendedTemplateDisk)) {
-            extendedDisks = [extendedTemplateDisk]
-          }
+      var disk_cost = opts.template_json.VMTEMPLATE.TEMPLATE.DISK_COST;
 
-          var disk_cost = template_json.VMTEMPLATE.TEMPLATE.DISK_COST;
+      if (disk_cost == undefined) {
+        disk_cost = Config.onedConf.DEFAULT_COST.DISK_COST;
+      }
 
-          if (disk_cost == undefined) {
-            disk_cost = Config.onedConf.DEFAULT_COST.DISK_COST;
-          }
+      if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
+        $(".provision_create_template_disk_cost_div", disksContext).show();
 
-          if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
-            $(".provision_create_template_disk_cost_div", disksContext).show();
-
-            disksContext.on("input", '.uinput-slider', function(){
-              var cost = 0;
-              $('.uinput-slider-val', disksContext).each(function(){
-                if ($(this).val() > 0) {
-                  cost += $(this).val() * 1024 * disk_cost;
-                }
-
-                var diskContext = $(this).closest(".diskContainer");
-                cost += diskContext.data('disk_snapshot_total_cost');
-              })
-              $(".cost_value", disksContext).html(cost.toFixed(2));
-            });
-          } else {
-            $(".provision_create_template_disk_cost_div", disksContext).hide();
-          }
-
-          var diskContext;
-          $(".disksContainer", disksContext).html("");
-          $.each(extendedDisks, function(disk_id, disk) {
-            diskContext = $(
-              '<div class="row diskContainer">'+
-                '<div class="small-12 columns">'+
-                  '<label></label>'+
-                '</div>'+
-                '<div class="large-12 columns diskSlider">' +
-                '</div>' +
-              '</div>').appendTo($(".disksContainer", disksContext));
-
-            diskContext.data('template_disk', disks[disk_id]);
-
-            var disk_snapshot_total_size = 0;
-            if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
-              disk_snapshot_total_size = parseInt(disk.DISK_SNAPSHOT_TOTAL_SIZE);
+        disksContext.on("input", '.uinput-slider', function(){
+          var cost = 0;
+          $('.uinput-slider-val', disksContext).each(function(){
+            if ($(this).val() > 0) {
+              cost += $(this).val() * 1024 * disk_cost;
             }
 
-            diskContext.data('disk_snapshot_total_size', disk_snapshot_total_size);
-            diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
-
-            var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
-            $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
-
-            var disabled =
-              ( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
-                (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
-
-            var attr;
-
-            if (disabled){
-              attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
-            } else {
-              // Range from original size to size + 500GB
-              var min = parseInt(disk.SIZE);
-              var max = min + 512000;
-
-              attr = UserInputs.parse(
-                "SIZE",
-                "O|range|"+label+"|"+min+".."+max+"|"+min);
-            }
-
-            UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
+            var diskContext = $(this).closest(".diskContainer");
+            cost += diskContext.data('disk_snapshot_total_cost');
           })
+          $(".cost_value", disksContext).html(cost.toFixed(2));
+        });
+      } else {
+        $(".provision_create_template_disk_cost_div", disksContext).hide();
+      }
+
+      var diskContext;
+      $(".disksContainer", disksContext).html("");
+      $.each(disks, function(disk_id, disk) {
+        diskContext = $(
+          '<div class="row diskContainer">'+
+            '<div class="small-12 columns">'+
+              '<label></label>'+
+            '</div>'+
+            '<div class="large-12 columns diskSlider">' +
+            '</div>' +
+          '</div>').appendTo($(".disksContainer", disksContext));
+
+        diskContext.data('template_disk', disk);
+
+        var disk_snapshot_total_size = 0;
+        if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
+          disk_snapshot_total_size = parseInt(disk.DISK_SNAPSHOT_TOTAL_SIZE);
         }
+
+        diskContext.data('disk_snapshot_total_size', disk_snapshot_total_size);
+        diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
+
+        var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
+        $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
+
+        var persistent =
+          ( opts.force_persistent ||
+            (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") );
+
+        var disabled =
+          ( persistent ||
+            (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
+
+        if (persistent){
+          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-floppy-o" title="' +
+              Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + '"></i>')
+
+        }else{
+          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-recycle" title="' +
+              Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + '"></i>')
+
+        }
+
+        if (disk.IMAGE_STATE){
+          var color_class = OpenNebulaImage.stateColor(disk.IMAGE_STATE) + "-color";
+
+          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+              Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
+        } else {
+          var color_class = "error-color";
+
+          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+              Locale.tr("Image was not found") + '"></i>')
+        }
+
+        var attr;
+
+        if (disk.SIZE) {
+          if (disabled){
+            attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
+          } else {
+            // Range from original size to size + 500GB
+            var min = parseInt(disk.SIZE);
+            var max = min + 512000;
+
+            attr = UserInputs.parse(
+              "SIZE",
+              "O|range|"+label+"|"+min+".."+max+"|"+min);
+          }
+        } else {
+          attr = UserInputs.parse("SIZE","O|fixed|"+label+"||-");
+        }
+
+        UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
       })
+
     } else {
       disksContext.html("");
     }

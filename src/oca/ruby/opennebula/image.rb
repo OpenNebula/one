@@ -41,7 +41,8 @@ module OpenNebula
             :snapshotflatten=> "image.snapshotflatten"
         }
 
-        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
+        IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE
+            USED_PERS LOCKED_USED LOCKED_USED_PERS}
 
         SHORT_IMAGE_STATES={
             "INIT"      => "init",
@@ -52,7 +53,9 @@ module OpenNebula
             "ERROR"     => "err",
             "CLONE"     => "clon",
             "DELETE"    => "dele",
-            "USED_PERS" => "used"
+            "USED_PERS" => "used",
+            "LOCKED_USED" => "lock",
+            "LOCKED_USED_PERS" => "lock"
         }
 
         IMAGE_TYPES=%w{OS CDROM DATABLOCK KERNEL RAMDISK CONTEXT}

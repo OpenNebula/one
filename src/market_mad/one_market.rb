@@ -76,7 +76,7 @@ class MarketPlaceDriver < OpenNebulaDriver
                 d.split('/')[-1]
             end
         elsif market_type.class == String
-            @types = [marke_type]
+            @types = [market_type]
         else
             @types = market_type
         end

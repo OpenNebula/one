@@ -244,14 +244,12 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/kvm-probes.d \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
-          $VAR_LOCATION/remotes/im/sl.d \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
-          $VAR_LOCATION/remotes/vmm/sl \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
@@ -260,7 +258,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/ovswitch \
-          $VAR_LOCATION/remotes/vnm/ovswitch_brcompat \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -378,7 +375,6 @@ INSTALL_FILES=(
     IM_PROBES_KVM_PROBES_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
-    IM_PROBES_SL_FILES:$VAR_LOCATION/remotes/im/sl.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
@@ -394,7 +390,6 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
-    VMM_EXEC_SL_SCRIPTS:$VAR_LOCATION/remotes/vmm/sl
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -425,7 +420,6 @@ INSTALL_FILES=(
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
-    NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
@@ -532,7 +526,6 @@ INSTALL_ONEFLOW_ETC_FILES=(
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     EC2_ETC_FILES:$ETC_LOCATION
-    SL_ETC_FILES:$ETC_LOCATION
     AZ_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
@@ -598,8 +591,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
-                src/vmm_mad/remotes/ec2/ec2_driver.rb \
-                src/vmm_mad/remotes/sl/sl_driver.rb"
+                src/vmm_mad/remotes/ec2/ec2_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -731,29 +723,6 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/prereconfigure"
 
 #------------------------------------------------------------------------------
-# VMM Driver SoftLayer scripts, to be installed under $REMOTES_LOCATION/vmm/sl
-#------------------------------------------------------------------------------
-
-VMM_EXEC_SL_SCRIPTS="src/vmm_mad/remotes/sl/cancel \
-                     src/vmm_mad/remotes/sl/attach_disk \
-                     src/vmm_mad/remotes/sl/detach_disk \
-                     src/vmm_mad/remotes/sl/attach_nic \
-                     src/vmm_mad/remotes/sl/detach_nic \
-                     src/vmm_mad/remotes/sl/snapshot_create \
-                     src/vmm_mad/remotes/sl/snapshot_revert \
-                     src/vmm_mad/remotes/sl/snapshot_delete \
-                     src/vmm_mad/remotes/sl/deploy \
-                     src/vmm_mad/remotes/sl/migrate \
-                     src/vmm_mad/remotes/sl/restore \
-                     src/vmm_mad/remotes/sl/reboot \
-                     src/vmm_mad/remotes/sl/reset \
-                     src/vmm_mad/remotes/sl/save \
-                     src/vmm_mad/remotes/sl/poll \
-                     src/vmm_mad/remotes/sl/shutdown \
-                     src/vmm_mad/remotes/sl/reconfigure \
-                     src/vmm_mad/remotes/sl/prereconfigure"
-
-#------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
 #------------------------------------------------------------------------------
 
@@ -800,7 +769,6 @@ IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/vcenter.rb"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
-IM_PROBES_SL_FILES="src/im_mad/remotes/sl.d/poll"
 IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
@@ -885,12 +853,6 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
-
-NETWORK_OVSWITCH_BRCOMPAT_FILES="src/vnm_mad/remotes/ovswitch_brcompat/clean \
-                    src/vnm_mad/remotes/ovswitch_brcompat/post \
-                    src/vnm_mad/remotes/ovswitch_brcompat/pre \
-                    src/vnm_mad/remotes/ovswitch_brcompat/update_sg \
-                    src/vnm_mad/remotes/ovswitch_brcompat/OpenvSwitch.rb"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -1236,8 +1198,7 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.13.85_to_4.90.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
-                   src/onedb/patches/history_times.rb \
-                   src/onedb/patches/vnmad.rb"
+                   src/onedb/patches/history_times.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -1250,18 +1211,13 @@ ETC_FILES="share/etc/oned.conf \
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
                src/vmm_mad/remotes/ec2/ec2_driver.default"
 
-SL_ETC_FILES="src/vmm_mad/remotes/sl/sl_driver.conf \
-              src/vmm_mad/remotes/sl/sl_driver.default"
-
 AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
               src/vmm_mad/remotes/az/az_driver.default"
-
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION
 #   - ssh, $ETC_LOCATION/vmm_exec
 #-------------------------------------------------------------------------------
-
 
 VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
@@ -1373,6 +1329,7 @@ COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
                       src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb \
+                      src/cloud/common/CloudAuth/RemoteCloudAuth.rb \
                       src/cloud/common/CloudAuth/OneGateCloudAuth.rb \
                       src/cloud/common/CloudAuth/OpenNebulaCloudAuth.rb"
 

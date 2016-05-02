@@ -6,16 +6,22 @@
   }
 }
 
-.right-list,
-.right-info,
-.right-form,
+.sunstone-list,
+.sunstone-info,
+.sunstone-form,
+.sunstone-menu-header,
 .actions_row {
+  padding: 0 2rem;
+}
+
+.sunstone-menu-header {
   padding: 0 1rem;
 }
 
+
 #top-row {
   padding: 1rem 0 0.5rem 0;
-  box-shadow: 0 0 5px 1px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 1px rgba(0,0,0,.14);
   //background: #f8f8f8;
   position: relative;
   //border-bottom: 1px solid #dfdfdf;
@@ -28,7 +34,7 @@
       color: $bold-black;
     }
 
-    @include breakpoint(small only) {
+    @include breakpoint(medium down) {
       .username,
       .zonename {
         display: none;
@@ -64,6 +70,7 @@
 
 .header-title {
   margin-bottom: 1.5rem;
+  padding: 1rem 2rem;
   @include breakpoint(medium only) {
     margin-left: 3rem;
   }

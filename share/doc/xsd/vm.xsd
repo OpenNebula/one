@@ -152,7 +152,6 @@
                     <xs:element name="ETIME" type="xs:integer"/>
                     <xs:element name="VM_MAD" type="xs:string"/>
                     <xs:element name="TM_MAD" type="xs:string"/>
-                    <xs:element name="DS_LOCATION" type="xs:string"/>
                     <xs:element name="DS_ID" type="xs:integer"/>
                     <xs:element name="PSTIME" type="xs:integer"/>
                     <xs:element name="PETIME" type="xs:integer"/>

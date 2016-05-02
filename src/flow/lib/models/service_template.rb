@@ -198,12 +198,42 @@ module OpenNebula
             @body.to_json
         end
 
-        def update(template_json)
+        # Replaces the template contents
+        #
+        # @param template_json [String] New template contents
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template_json, append=false)
             template = JSON.parse(template_json)
+
+            if(append)
+                rc = info()
+
+                if(OpenNebula.is_error?(rc))
+                    return rc
+                end
+
+                template = @body.merge(template)
+            end
 
             ServiceTemplate.validate(template)
 
             super(template.to_json)
+        end
+
+        # Replaces the raw template contents
+        #
+        # @param template [String] New template contents, in the form KEY = VAL
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update_raw(template_raw, append=false)
+            super(template_raw, append)
         end
 
         def self.validate(template)

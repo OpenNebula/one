@@ -28,6 +28,7 @@ define(function(require) {
   var FilesTable = require('tabs/files-tab/datatable')
   var OpenNebulaHost = require('opennebula/host');
   var UserInputs = require('utils/user-inputs');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -50,12 +51,12 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-folder';
     this.title = Locale.tr("Context");
     this.classes = "hypervisor only_kvm only_vcenter";
 
-    this.contextFilesTable = new FilesTable(this.wizardTabId + 'ContextTable', {
+    this.contextFilesTable = new FilesTable('ContextTable' + UniqueId.id(), {
       'select': true,
       'selectOptions': {
         'multiple_choice': true,
@@ -79,6 +80,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
+      'uniqueId': UniqueId.id(),
       'userInputsHTML': UserInputs.html(),
       'customTagsTableHTML': CustomTagsTable.html(),
       'contextFilesTableHTML': this.contextFilesTable.dataTableHTML
@@ -106,19 +108,19 @@ define(function(require) {
       }
     });
 
-    context.on("change", "select#vcenter_customizations", function(){
+    context.on("change", "select.vcenter_customizations", function(){
       var option = $("option:selected", this);
 
       if (option.attr("custom") == "true"){
-        $('input#vcenter_customizations_value', context).show();
+        $('input.vcenter_customizations_value', context).show();
       } else {
-        $('input#vcenter_customizations_value', context).hide();
+        $('input.vcenter_customizations_value', context).hide();
       }
 
-      $('input#vcenter_customizations_value', context).val( $(this).val() );
+      $('input.vcenter_customizations_value', context).val( $(this).val() );
     });
 
-    $('input#vcenter_customizations_value', context).hide();
+    $('input.vcenter_customizations_value', context).hide();
 
     OpenNebulaHost.vcenterCustomizations({
       data : {},
@@ -134,14 +136,14 @@ define(function(require) {
       }
     });
 
-    context.on("change", "input#vcenter_customizations_value", function(){
+    context.on("change", "input.vcenter_customizations_value", function(){
       var opt =
         $('option'+
-          '[value="'+$('input#vcenter_customizations_value', context).val()+'"]', context);
+          '[value="'+$('input.vcenter_customizations_value', context).val()+'"]', context);
 
       if (opt.size() == 0){
         opt = $('option[custom="true"]', context);
-        $('input#vcenter_customizations_value', context).show();
+        $('input.vcenter_customizations_value', context).show();
       }
 
       opt.attr('selected', 'selected');
@@ -178,14 +180,14 @@ define(function(require) {
 
     html += '</select>';
 
-    $("#vcenter_customizations", context).html(html);
+    $(".vcenter_customizations", context).html(html);
   }
 
   function _retrieve(context) {
     var templateJSON = {};
 
     if($("input[name='context_type']:checked", context).val() == "context_type_vcenter"){
-      var customization = $('input#vcenter_customizations_value', context).val();
+      var customization = $('input.vcenter_customizations_value', context).val();
 
       if (customization) {
         templateJSON["VCENTER_PUBLIC_CLOUD"] = {
@@ -196,7 +198,7 @@ define(function(require) {
       var contextJSON = WizardFields.retrieve(context);
       $.extend(contextJSON, CustomTagsTable.retrieve(context));
 
-      if ($("#ssh_context", context).is(":checked")) {
+      if ($(".ssh_context", context).is(":checked")) {
         var public_key = $("#ssh_public_key", context).val();
         if (public_key) {
           contextJSON["SSH_PUBLIC_KEY"] = TemplateUtils.escapeDoubleQuotes(public_key);
@@ -205,11 +207,11 @@ define(function(require) {
         }
       }
 
-      if ($("#network_context", context).is(":checked")) {
+      if ($(".network_context", context).is(":checked")) {
         contextJSON["NETWORK"] = "YES";
       }
 
-      if ($("#token_context", context).is(":checked")) {
+      if ($(".token_context", context).is(":checked")) {
         contextJSON["TOKEN"] = "YES";
       }
 
@@ -220,9 +222,9 @@ define(function(require) {
         contextJSON[name] = "$" + name;
       });
 
-      var start_script = $("#START_SCRIPT", context).val();
+      var start_script = $(".START_SCRIPT", context).val();
       if (start_script != "") {
-        if ($("#ENCODE_START_SCRIPT", context).is(":checked")) {
+        if ($(".ENCODE_START_SCRIPT", context).is(":checked")) {
           contextJSON["START_SCRIPT_BASE64"] = btoa(start_script);
         } else {
           contextJSON["START_SCRIPT"] = start_script;
@@ -253,7 +255,7 @@ define(function(require) {
           $("input#context_type_vcenter", context).click();
 
           if(this["CUSTOMIZATION_SPEC"]){
-            $('input#vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
+            $('input.vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
           } else if(userInputsJSON || contextJSON) {
             $("input#context_type_opennebula", context).click();
           }
@@ -263,8 +265,8 @@ define(function(require) {
       });
     }
 
-    $("#ssh_context", context).removeAttr('checked');
-    $("#network_context", context).removeAttr('checked');
+    $(".ssh_context", context).removeAttr('checked');
+    $(".network_context", context).removeAttr('checked');
 
     if (userInputsJSON) {
       UserInputs.fill(context, templateJSON);
@@ -291,19 +293,19 @@ define(function(require) {
       var customTagsJSON = {};
       $.each(contextJSON, function(key, value) {
         if (ssh_regexp.test(key)) {
-          $("#ssh_context", context).prop('checked', 'checked');
+          $(".ssh_context", context).prop('checked', 'checked');
 
           if (!publickey_regexp.test(value)) {
             $("#ssh_public_key", context).val(TemplateUtils.htmlDecode(value));
           }
         } else if (token_regexp.test(key)) {
-          $("#token_context", context).prop('checked', 'checked');
+          $(".token_context", context).prop('checked', 'checked');
         } else if (net_regexp.test(key)) {
-          $("#network_context", context).prop('checked', 'checked');
+          $(".network_context", context).prop('checked', 'checked');
         } else if ("INIT_SCRIPTS" == key) {
-          $("input#INIT_SCRIPTS").val(TemplateUtils.htmlDecode(value));
+          $("input.INIT_SCRIPTS").val(TemplateUtils.htmlDecode(value));
         } else if ("FILES_DS" == key) {
-          $('#FILES_DS', context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(contextJSON["FILES_DS"])))
+          $('.FILES_DS', context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(contextJSON["FILES_DS"])))
           var files = [];
           while (match = file_ds_regexp.exec(value)) {
             files.push(match[1])
@@ -314,10 +316,10 @@ define(function(require) {
             }
           that.contextFilesTable.selectResourceTableSelect(selectedResources);
         } else if ("START_SCRIPT_BASE64" == key) {
-          $("#ENCODE_START_SCRIPT", context).prop('checked', 'checked');
-          $("#START_SCRIPT", context).val(atob(value));
+          $(".ENCODE_START_SCRIPT", context).prop('checked', 'checked');
+          $(".START_SCRIPT", context).val(atob(value));
         } else if ("START_SCRIPT" ==  key) {
-          $("#START_SCRIPT", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value)));
+          $(".START_SCRIPT", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value)));
         } else {
           customTagsJSON[key] = value;
         }
@@ -337,6 +339,6 @@ define(function(require) {
       req_string.push("$FILE[IMAGE_ID="+ fileId +"]");
     });
 
-    $('#FILES_DS', context).val(req_string.join(" "));
+    $('.FILES_DS', context).val(req_string.join(" "));
   };
 });

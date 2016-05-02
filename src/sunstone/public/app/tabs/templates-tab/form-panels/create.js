@@ -76,7 +76,7 @@ define(function(require) {
     var wizardTabInstance;
     $.each(WIZARD_TABS, function(index, wizardTab) {
       try {
-        wizardTabInstance = new wizardTab();
+        wizardTabInstance = new wizardTab({listener: that});
         wizardTabInstance.contentHTML = wizardTabInstance.html();
         that.wizardTabs.push(wizardTabInstance);
       } catch (err) {
@@ -97,6 +97,8 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.submitAdvanced = _submitAdvanced;
   FormPanel.prototype.fill = _fill;
+  FormPanel.prototype.notify = _notify;
+  FormPanel.prototype.retrieve = _retrieve;
 
   return FormPanel;
 
@@ -117,11 +119,12 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Foundation.reflow(context, 'tabs');
-    
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
+
+    Foundation.reflow(context, 'tabs');
+    Foundation.reflow(context, 'tooltip');
   }
 
   function _onShow(context) {
@@ -133,7 +136,7 @@ define(function(require) {
     });
   }
 
-  function _submitWizard(context) {
+  function _retrieve(context) {
     var templateJSON = {}
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
@@ -152,6 +155,12 @@ define(function(require) {
 
       delete templateJSON["VCENTER_PUBLIC_CLOUD"];
     }
+
+    return templateJSON;
+  }
+
+  function _submitWizard(context) {
+    var templateJSON = this.retrieve(context);
 
     if (this.action == "create") {
       Sunstone.runAction("Template.create", {'vmtemplate': templateJSON});
@@ -187,5 +196,34 @@ define(function(require) {
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
     });
+
+    // After all tabs have been filled, perform a notify
+    this.notify();
+  }
+
+  var in_progress = false;
+
+  function _notify() {
+    var that = this;
+
+    // Avoid lots of calls (debounce)
+    if(in_progress){
+      return;
+    }
+
+    in_progress = true;
+
+    setTimeout(function(){
+      var context = that.formContext;
+      var templateJSON = that.retrieve(context);
+
+      $.each(that.wizardTabs, function(index, wizardTab) {
+        if (wizardTab.notify != undefined){
+          wizardTab.notify($('#' + wizardTab.wizardTabId, context), templateJSON);
+        }
+      });
+
+      in_progress = false;
+    }, 500);
   }
 });

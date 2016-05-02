@@ -2,6 +2,7 @@ input[type=range] {
   -webkit-appearance: none;
   width: 100%;
   margin: 5.8px 0;
+  background: transparent;
 }
 input[type=range]:focus {
   outline: none;
@@ -53,7 +54,7 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 input[type=range]::-ms-fill-lower {
-  background: #bdbdbd;
+  background: transparent;
   border: 0.1px solid $medium-gray;
   border-radius: 2px;
   box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;

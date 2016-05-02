@@ -382,17 +382,19 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
     unsigned int start_vlan, hint_vlan;
     unsigned int vlan_id;
 
-    if ( vn->PoolObjectSQL::get_template_attribute("VLAN_ID", vlan_id) )
+    ostringstream oss;
+
+    if ( !vn->vlan_id.empty() )
     {
         return 0;
     }
 
-    if ( !vn->PoolObjectSQL::get_template_attribute("VN_MAD", vn_mad) )
+    if ( vn->vn_mad.empty() )
     {
         return 0;
     }
 
-    switch (VirtualNetwork::str_to_driver(vn_mad))
+    switch (VirtualNetwork::str_to_driver(vn->vn_mad))
     {
         case VirtualNetwork::VXLAN:
             if (vxlan_conf.vector_value("START", start_vlan) != 0)
@@ -401,8 +403,11 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             }
 
             vlan_id = start_vlan + vn->get_oid();
+            oss << vlan_id;
 
-            vn->add_template_attribute("VLAN_ID", vlan_id);
+            vn->vlan_id = oss.str();
+
+            vn->vlan_id_automatic = true;
 
             update(vn);
 
@@ -411,15 +416,17 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
         case VirtualNetwork::VLAN:
         case VirtualNetwork::OVSWITCH:
             start_vlan = vlan_id_bitmap.get_start_bit();
-            hint_vlan  = start_vlan + (vn->get_oid() % (4095 -start_vlan ));
+            hint_vlan  = start_vlan + (vn->get_oid() % (4095 - start_vlan ));
 
             if ( vlan_id_bitmap.get(hint_vlan, vlan_id) != 0 )
             {
                 return -1;
             }
 
-            vn->add_template_attribute("VLAN_ID", vlan_id);
-            vn->add_template_attribute("VLAN_ID_AUTOMATIC", true);
+            oss << vlan_id;
+
+            vn->vlan_id = oss.str();
+            vn->vlan_id_automatic = true;
 
             vlan_id_bitmap.update(db);
 
@@ -439,27 +446,29 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
 
 void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
 {
-    string vn_mad;
+    istringstream  is;
+
     unsigned int vlan_id;
-    bool vlan_auto;
 
-    if ( !vn->PoolObjectSQL::get_template_attribute("VLAN_ID_AUTOMATIC",
-            vlan_auto) || vlan_auto == false )
+    if ( !vn->vlan_id_automatic )
     {
         return;
     }
 
-    if ( !vn->PoolObjectSQL::get_template_attribute("VLAN_ID", vlan_id) )
+    if ( vn->vlan_id.empty() )
     {
         return;
     }
 
-    if ( !vn->PoolObjectSQL::get_template_attribute("VN_MAD", vn_mad) )
+    if ( vn->vn_mad.empty() )
     {
         return;
     }
 
-    switch (VirtualNetwork::str_to_driver(vn_mad))
+    is.str(vn->vlan_id);
+    is >> vlan_id;
+
+    switch (VirtualNetwork::str_to_driver(vn->vn_mad))
     {
         case VirtualNetwork::VLAN:
         case VirtualNetwork::OVSWITCH:

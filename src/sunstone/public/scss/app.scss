@@ -22,17 +22,20 @@
   font-size: 1.2rem;
 }
 
+@import './advanced-section';
+@import './boxes';
+@import './fieldset';
+@import './jgrowl';
+@import './labels';
 @import './layout';
 @import './menu';
-@import './accordion';
+@import './provision';
 @import './range-slider';
 @import './table';
 @import './tabs';
-@import './fieldset';
-@import './boxes';
 @import './vcenter';
-
-
+@import './tree';
+@import './helper-classes';
 
 //@font-face {
 //  font-family: 'Open Sans';
@@ -51,7 +54,7 @@ h5,
 h6 {
   font-weight: bold;
   color: #555;
-  padding: 1rem;
+  padding: 1rem 0;
   /* box-shadow: 0 5px 5px -4px rgba(0,0,0,0.1); */
   /* border-bottom: 1px solid #dfdfdf; */
 
@@ -119,12 +122,8 @@ meter {
   margin-bottom: 0;
 }
 
-table{
-  .has-tip {
-    display: table-cell;
-  }
+.disk-resize-icon {
+  color: $bold-black;
+  font-weight: $global-weight-normal;
 }
 
-.nowrap {
-  white-space: nowrap;
-}

@@ -103,7 +103,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     string  kernel     = "";
     string  initrd     = "";
-    string  boot       = "";
     string  root       = "";
     string  kernel_cmd = "";
     string  bootloader = "";
@@ -153,6 +152,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  default_write_iops_sec  = "";
 
     int     disk_id;
+    int     order;
     string  default_driver          = "";
     string  default_driver_cache    = "";
     string  default_driver_disk_io  = "";
@@ -281,7 +281,6 @@ int LibVirtDriver::deployment_description_kvm(
     {
         kernel     = os->vector_value("KERNEL");
         initrd     = os->vector_value("INITRD");
-        boot       = os->vector_value("BOOT");
         root       = os->vector_value("ROOT");
         kernel_cmd = os->vector_value("KERNEL_CMD");
         bootloader = os->vector_value("BOOTLOADER");
@@ -328,16 +327,6 @@ int LibVirtDriver::deployment_description_kvm(
         get_default("OS","BOOTLOADER",bootloader);
     }
 
-    if ( boot.empty() )
-    {
-        get_default("OS","BOOT",boot);
-
-        if ( boot.empty() )
-        {
-            goto error_boot;
-        }
-    }
-
     if ( root.empty() )
     {
         get_default("OS","ROOT",root);
@@ -374,13 +363,6 @@ int LibVirtDriver::deployment_description_kvm(
     {
         file << "\t\t<bootloader>" << one_util::escape_xml(bootloader)
              << "</bootloader>\n";
-    }
-
-    boots = one_util::split(boot, ',');
-
-    for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
-    {
-        file << "\t\t<boot dev=" << one_util::escape_xml_attr(*it) << "/>\n";
     }
 
     file << "\t</os>" << endl;
@@ -678,6 +660,14 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
 
+        // ---- boot order for this device ----
+
+        if ( disk[i]->vector_value("ORDER", order) == 0 )
+        {
+            file << "\t\t\t<boot order=" << one_util::escape_xml_attr(order)
+                 << "/>\n";
+        }
+
         // ---- readonly attribute for the disk ----
 
         if (readonly)
@@ -870,6 +860,12 @@ int LibVirtDriver::deployment_description_kvm(
         if( !target.empty() )
         {
             file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target)
+                 << "/>\n";
+        }
+
+        if ( nic[i]->vector_value("ORDER", order) == 0 )
+        {
+            file << "\t\t\t<boot order=" << one_util::escape_xml_attr(order)
                  << "/>\n";
         }
 
@@ -1167,11 +1163,6 @@ error_memory:
 
 error_arch:
     vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
-    file.close();
-    return -1;
-
-error_boot:
-    vm->log("VMM", Log::ERROR, "No BOOT device defined and no default provided.");
     file.close();
     return -1;
 

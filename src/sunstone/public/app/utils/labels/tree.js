@@ -73,7 +73,7 @@ define(function(require) {
       }
 
       html += tree.htmlStr;
-      html += '<i class="fa fa-fw fa-square-o labelsCheckbox"></i> ';
+      html += '<i class="fa fa-fw fa-square-o labelsCheckbox right"></i> ';
       html += '<ul class="menu vertical is-active">';
     }
 

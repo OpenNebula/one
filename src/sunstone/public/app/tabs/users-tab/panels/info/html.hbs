@@ -42,8 +42,8 @@
         <tr>
           <td class="key_td">{{tr "Password"}}</td>
           <td class="value_td" colspan="2">
-            <button id="update_password" type="button" class="button tiny radius secondary" >
-              {{tr "Update password"}} <a><i class="fa fa-pencil-square-o"/></a>
+            <button id="update_password" type="button" class="button small radius secondary" >
+              {{tr "Update password"}} <i class="fa fa-pencil-square-o"/>
             </button>
           </td>
         </tr>
@@ -91,7 +91,7 @@
     <textarea rows="6" type="text" id="user_ssh_public_key_textarea" name="ssh_public_key" hidden>
       {{~element.TEMPLATE.SSH_PUBLIC_KEY~}}
     </textarea>
-    <p id="user_ssh_public_key_text" name="ssh_public_key">
+    <p id="user_ssh_public_key_text" class="ellipsis" name="ssh_public_key">
       {{#if element.TEMPLATE.SSH_PUBLIC_KEY}}
         {{element.TEMPLATE.SSH_PUBLIC_KEY}}
       {{else}}

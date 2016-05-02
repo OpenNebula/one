@@ -865,6 +865,8 @@ int DispatchManager::finalize(
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
             finalize_cleanup(vm);
         break;
 
@@ -920,6 +922,8 @@ int DispatchManager::resubmit(
 
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
         break;
 
         case VirtualMachine::STOPPED:
@@ -973,21 +977,9 @@ int DispatchManager::resubmit(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::attach(int vid,
-                            VirtualMachineTemplate * tmpl,
-                            string &                 error_str)
+int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl, string & err)
 {
     ostringstream oss;
-
-    int max_disk_id;
-    int uid;
-    int oid;
-    int image_id;
-    string disk_cluster_ids;
-
-    set<string>       used_targets;
-    VectorAttribute * disk;
-    Snapshots *       snap;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -995,9 +987,9 @@ int DispatchManager::attach(int vid,
     {
         oss << "Could not attach a new disk to VM " << vid
             << ", VM does not exist" ;
-        error_str = oss.str();
+        err = oss.str();
 
-        NebulaLog::log("DiM", Log::ERROR, error_str);
+        NebulaLog::log("DiM", Log::ERROR, err);
 
         return -1;
     }
@@ -1016,52 +1008,17 @@ int DispatchManager::attach(int vid,
     {
         oss << "Could not attach a new disk to VM " << vid << ", wrong state "
             << vm->state_str() << ".";
-        error_str = oss.str();
+        err = oss.str();
 
-        NebulaLog::log("DiM", Log::ERROR, error_str);
+        NebulaLog::log("DiM", Log::ERROR, err);
 
         vm->unlock();
         return -1;
     }
 
-    vm->get_disk_info(max_disk_id, used_targets);
-
     vm->set_resched(false);
 
-    uid = vm->get_uid();
-    oid = vm->get_oid();
-
-    vmpool->update(vm);
-
-    vm->unlock();
-
-    disk = VirtualMachine::set_up_attach_disk(oid,
-                                              tmpl,
-                                              used_targets,
-                                              max_disk_id,
-                                              uid,
-                                              image_id,
-                                              &snap,
-                                              error_str);
-    vm = vmpool->get(vid, true);
-
-    if ( vm == 0 )
-    {
-		if ( disk != 0 )
-		{
-			imagem->release_image(oid, image_id, false);
-
-			delete snap;
-			delete disk;
-		}
-
-        error_str = "VM does not exist after setting its state to HOTPLUG.";
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-        return -1;
-    }
-
-    if ( disk == 0 )
+    if ( vm->set_up_attach_disk(tmpl, err) != 0 )
     {
         if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
         {
@@ -1077,55 +1034,9 @@ int DispatchManager::attach(int vid,
 
         vm->unlock();
 
-        NebulaLog::log("DiM", Log::ERROR, error_str);
+        NebulaLog::log("DiM", Log::ERROR, err);
         return -1;
     }
-
-    // Check that we don't have a cluster incompatibility.
-    if (disk->vector_value("CLUSTER_ID", disk_cluster_ids) == 0)
-    {
-        set<int> cluster_ids;
-        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
-
-        if (cluster_ids.count(vm->get_cid()) == 0)
-        {
-            imagem->release_image(oid, image_id, false);
-
-            delete snap;
-            delete disk;
-
-            if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-            {
-                vm->set_state(VirtualMachine::RUNNING);
-            }
-            else
-            {
-                vm->set_state(VirtualMachine::LCM_INIT);
-                vm->set_state(VirtualMachine::POWEROFF);
-            }
-
-            vmpool->update(vm);
-
-            vm->unlock();
-
-            oss << "Could not attach disk because "
-                << Request::object_name(PoolObjectSQL::IMAGE)
-                << " [" << image_id << "] is not part of "
-                << Request::object_name(PoolObjectSQL::CLUSTER)
-                << " [" << vm->get_cid() << "].";
-
-            error_str = oss.str();
-
-            NebulaLog::log("DiM", Log::ERROR, error_str);
-            return -1;
-        }
-    }
-
-    // Set the VM info in the history before the disk is attached to the
-    // VM template
-    vm->set_vm_info();
-
-    vm->set_attach_disk(disk, snap);
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
@@ -1459,18 +1370,6 @@ int DispatchManager::attach_nic(
 {
     ostringstream oss;
 
-    int max_nic_id;
-    int uid;
-    int oid;
-    int rc;
-    string tmp_error;
-    string nic_cluster_ids;
-
-    set<int> vm_sgs;
-
-    VectorAttribute *        nic;
-    vector<VectorAttribute*> sg_rules;
-
     VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
@@ -1498,18 +1397,6 @@ int DispatchManager::attach_nic(
         return -1;
     }
 
-    nic = vm->get_attach_nic_info(tmpl, max_nic_id, error_str);
-
-    if ( nic == 0 )
-    {
-        vm->unlock();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-        return -1;
-    }
-
-    vm->get_security_groups(vm_sgs);
-
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
@@ -1518,56 +1405,8 @@ int DispatchManager::attach_nic(
 
     vm->set_resched(false);
 
-    uid  = vm->get_uid();
-    oid  = vm->get_oid();
-
-    vmpool->update(vm);
-
-    vm->unlock();
-
-    rc = VirtualMachine::set_up_attach_nic(oid,
-                                    vm_sgs,
-                                    nic,
-                                    sg_rules,
-                                    max_nic_id,
-                                    uid,
-                                    error_str);
-    vm = vmpool->get(vid, true);
-
-    if ( vm == 0 )
+    if ( vm->set_up_attach_nic(tmpl, error_str) != 0 )
     {
-        if ( rc == 0 )
-        {
-            VirtualMachine::release_network_leases(nic, vid);
-
-            vector<VectorAttribute*>::iterator it;
-            for(it = sg_rules.begin(); it != sg_rules.end(); it++)
-            {
-                delete *it;
-            }
-        }
-
-        delete nic;
-
-        oss << "Could not attach a new NIC to VM " << vid
-            << ", VM does not exist after setting its state to HOTPLUG." ;
-        error_str = oss.str();
-
-        NebulaLog::log("DiM", Log::ERROR, error_str);
-
-        return -1;
-    }
-
-    if ( rc != 0 )
-    {
-        delete nic;
-
-        vector<VectorAttribute*>::iterator it;
-        for(it = sg_rules.begin(); it != sg_rules.end(); it++)
-        {
-            delete *it;
-        }
-
         if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
         {
             vm->set_state(VirtualMachine::RUNNING);
@@ -1581,53 +1420,6 @@ int DispatchManager::attach_nic(
 
         return -1;
     }
-
-    // Check that we don't have a cluster incompatibility.
-    if (nic->vector_value("CLUSTER_ID", nic_cluster_ids) == 0)
-    {
-        set<int> cluster_ids;
-        one_util::split_unique(nic_cluster_ids, ',', cluster_ids);
-
-        if (cluster_ids.count(vm->get_cid()) == 0)
-        {
-            VirtualMachine::release_network_leases(nic, vid);
-
-            vector<VectorAttribute*>::iterator it;
-            for(it = sg_rules.begin(); it != sg_rules.end(); it++)
-            {
-                delete *it;
-            }
-
-            delete nic;
-
-            oss << "Could not attach nic because "
-                    << Request::object_name(PoolObjectSQL::NET)
-            << " is not part of "
-            << Request::object_name(PoolObjectSQL::CLUSTER)
-            << " [" << vm->get_cid() << "].";
-
-            error_str = oss.str();
-
-            if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
-            {
-                vm->set_state(VirtualMachine::RUNNING);
-            }
-
-            vmpool->update(vm);
-
-            vm->unlock();
-
-            NebulaLog::log("DiM", Log::ERROR, error_str);
-
-            return -1;
-        }
-    }
-
-    // Set the VM info in the history before the nic is attached to the
-    // VM template
-    vm->set_vm_info();
-
-    vm->set_attach_nic(nic, sg_rules);
 
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {

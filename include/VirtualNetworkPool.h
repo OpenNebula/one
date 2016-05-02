@@ -77,9 +77,9 @@ public:
     /**
      *  Drops a Virtual Network and the associated VLAN_ID if needed
      */
-    int drop(VirtualNetwork * vn, string& error_msg)
+    int drop(PoolObjectSQL * vn, string& error_msg)
     {
-        release_vlan_id(vn);
+        release_vlan_id(static_cast<VirtualNetwork *>(vn));
 
         return PoolSQL::drop(vn, error_msg);
     };
@@ -265,7 +265,7 @@ private:
     //--------------------------------------------------------------------------
     /**
      *  Gets a free VLAN_ID, if not set by the user, and for VXLAN, VLAN and
-     *  OVSWTICH networks.
+     *  OVSWITCH networks.
      *    @param vn pointer to the network
      *    @return 0 on success
      */

@@ -45,10 +45,12 @@ public class Image extends PoolElement
 
     private static final String[] IMAGE_STATES =
         {"INIT", "READY", "USED", "DISABLED", "LOCKED",
-        "ERROR", "CLONE", "DELETE", "USED_PERS"};
+        "ERROR", "CLONE", "DELETE", "USED_PERS",
+        "LOCKED_USED", "LOCKED_USED_PERS"};
 
     private static final String[] SHORT_IMAGE_STATES =
-        {"init", "rdy", "used", "disa", "lock", "err", "clon", "dele", "used"};
+        {"init", "rdy", "used", "disa", "lock", "err", "clon", "dele", "used",
+        "lock", "lock"};
 
     private static final String[] IMAGE_TYPES =
         {"OS", "CDROM", "DATABLOCK", "KERNEL", "RAMDISK", "CONTEXT"};

@@ -66,6 +66,12 @@ $black: #0a0a0a;
 $dark-black: #000;
 //$black: #333;
 $white: #fefefe;
+$deploying-color: #C7731F;
+$error-color: #cf280e;
+$powering_off-color: #cf280e;
+$off-color: #555;
+$running-color: #368a54;
+
 $body-background: $white;
 $body-font-color: $black;
 $body-font-family: 'Lato', 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
@@ -134,7 +140,7 @@ $header-color: inherit;
 $header-lineheight: 1.4;
 $header-margin-bottom: 0.5rem;
 $header-text-rendering: optimizeLegibility;
-$small-font-size: 80%;
+$small-font-size: 60%;
 $header-small-font-color: $dark-gray;
 $paragraph-lineheight: 1.6;
 $paragraph-margin-bottom: 1rem;
@@ -446,8 +452,8 @@ $pagination-item-color: $black;
 $pagination-item-padding: rem-calc(3 10);
 $pagination-item-spacing: rem-calc(1);
 $pagination-radius: $global-radius;
-$pagination-item-background-hover: $light-gray;
-$pagination-item-background-current: $primary-color;
+$pagination-item-background-hover: $medium-gray;
+$pagination-item-background-current: $light-gray;
 $pagination-item-color-current: foreground($pagination-item-background-current);
 $pagination-item-color-disabled: $medium-gray;
 $pagination-ellipsis-color: $black;
@@ -562,13 +568,13 @@ $titlebar-icon-spacing: 0.25rem;
 // 35. Tooltip
 // -----------
 
-$has-tip-font-weight: $global-weight-bold;
+$has-tip-font-weight: bold;
 $has-tip-border-bottom: 0px;
-$tooltip-background-color: $black;
+$tooltip-background-color: $light-black;
 $tooltip-color: $white;
 $tooltip-padding: 0.75rem;
-$tooltip-font-size: $small-font-size;
-$tooltip-pip-width: 0.75rem;
+$tooltip-font-size: 0.9rem;
+$tooltip-pip-width: 1rem;
 $tooltip-pip-height: $tooltip-pip-width * 0.866;
 $tooltip-radius: $global-radius;
 

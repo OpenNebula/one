@@ -22,6 +22,8 @@ define(function(require) {
   var Sunstone = require('sunstone');
 
   function BaseFormPanel() {
+    this.formContext = $("#" + this.tabId+" div[form-panel-id="+this.formPanelId+"]");
+
     return this;
   }
 

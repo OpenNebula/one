@@ -119,13 +119,15 @@ void VirtualRouterInstantiate::request_execute(
         name = "vr-" + vr_name + "-%i";
     }
 
+    VMTemplateInstantiate tmpl_instantiate;
+
     for (int i=0; i<n_vms; oss.str(""), i++)
     {
         oss << i;
 
         tmp_name = one_util::gsub(name, "%i", oss.str());
 
-        ErrorCode ec = VMTemplateInstantiate::instantiate(tmpl_id, tmp_name,
+        ErrorCode ec = tmpl_instantiate.request_execute(tmpl_id, tmp_name,
                 true, str_uattrs, extra_attrs, vid, att);
 
         if (ec != SUCCESS)
@@ -271,13 +273,15 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Attach NIC to each VM
     // -------------------------------------------------------------------------
+    VirtualMachineAttachNic vm_attach_nic;
+
     for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
     {
         VirtualMachineTemplate tmpl;
 
         tmpl.set(nic->clone());
 
-        ErrorCode ec = VirtualMachineAttachNic::attach(*vmid, tmpl, att);
+        ErrorCode ec = vm_attach_nic.request_execute(*vmid, tmpl, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {
@@ -373,9 +377,11 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Detach NIC from each VM
     // -------------------------------------------------------------------------
+    VirtualMachineDetachNic vm_detach_nic;
+
     for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
     {
-        ErrorCode ec = VirtualMachineDetachNic::detach(*vmid, nic_id, att);
+        ErrorCode ec = vm_detach_nic.request_execute(*vmid, nic_id, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {

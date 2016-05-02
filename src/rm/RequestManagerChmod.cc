@@ -38,11 +38,18 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
     int other_m = xmlrpc_c::value_int(paramList.getInt(9));
     int other_a = xmlrpc_c::value_int(paramList.getInt(10));
 
+    bool recursive = false;
+
+    if (paramList.size() > 11)
+    {
+        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
+    }
+
     ErrorCode ec = chmod(pool, oid,
                         owner_u, owner_m, owner_a,
                         group_u, group_m, group_a,
                         other_u, other_m, other_a,
-                        att);
+                        recursive, att);
 
     if ( ec == SUCCESS )
     {
@@ -69,6 +76,7 @@ Request::ErrorCode RequestManagerChmod::chmod(
         int other_u,
         int other_m,
         int other_a,
+		bool recursive,
         RequestAttributes& att)
 {
     PoolObjectSQL * object;
@@ -174,105 +182,8 @@ Request::ErrorCode RequestManagerChmod::chmod(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TemplateChmod::request_execute(xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int oid     = xmlrpc_c::value_int(paramList.getInt(1));
-
-    int owner_u = xmlrpc_c::value_int(paramList.getInt(2));
-    int owner_m = xmlrpc_c::value_int(paramList.getInt(3));
-    int owner_a = xmlrpc_c::value_int(paramList.getInt(4));
-
-    int group_u = xmlrpc_c::value_int(paramList.getInt(5));
-    int group_m = xmlrpc_c::value_int(paramList.getInt(6));
-    int group_a = xmlrpc_c::value_int(paramList.getInt(7));
-
-    int other_u = xmlrpc_c::value_int(paramList.getInt(8));
-    int other_m = xmlrpc_c::value_int(paramList.getInt(9));
-    int other_a = xmlrpc_c::value_int(paramList.getInt(10));
-
-    bool recursive = false;
-
-    if (paramList.size() > 11)
-    {
-        recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
-    }
-
-    ErrorCode ec = chmod(pool, oid,
-            owner_u, owner_m, owner_a,
-            group_u, group_m, group_a,
-            other_u, other_m, other_a,
-            att);
-
-    if ( ec != SUCCESS )
-    {
-        failure_response(ec, att);
-        return;
-    }
-
-    if (recursive)
-    {
-        VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
-
-        vector<VectorAttribute *> disks;
-
-        int rc = 0;
-
-        set<int> error_ids;
-        set<int> img_ids;
-
-        Nebula&   nd     = Nebula::instance();
-        ImagePool* ipool = nd.get_ipool();
-
-        if ( tmpl == 0 )
-        {
-            att.resp_id = oid;
-            failure_response(NO_EXISTS, att);
-            return;
-        }
-
-        tmpl->get_disks(disks);
-
-        tmpl->unlock();
-
-        ipool->get_image_ids(disks, img_ids, att.uid);
-
-        for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
-        {
-            if ( ImageChmod::chmod(*it, owner_u, owner_m, owner_a, group_u,
-                    group_m, group_a, other_u, other_m, other_a, att) != SUCCESS)
-            {
-                NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
-
-                error_ids.insert(*it);
-                rc = -1;
-            }
-        }
-
-        for (vector<VectorAttribute *>::iterator i = disks.begin();
-                i != disks.end() ; i++)
-        {
-            delete *i;
-        }
-
-        if ( rc != 0 )
-        {
-            att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
-                ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
-                error_ids.end(), ',');
-
-            failure_response(ACTION, att);
-            return;
-        }
-    }
-
-    success_response(oid, att);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-Request::ErrorCode ImageChmod::chmod(
+Request::ErrorCode TemplateChmod::chmod(
+        PoolSQL * pool,
         int oid,
         int owner_u,
         int owner_m,
@@ -283,13 +194,77 @@ Request::ErrorCode ImageChmod::chmod(
         int other_u,
         int other_m,
         int other_a,
+		bool recursive,
         RequestAttributes& att)
+
 {
-    return RequestManagerChmod::chmod(
-            Nebula::instance().get_ipool(),
-            oid,
+    ErrorCode ec = RequestManagerChmod::chmod(pool, oid,
             owner_u, owner_m, owner_a,
             group_u, group_m, group_a,
             other_u, other_m, other_a,
-            att);
+            false, att);
+
+    if ( ec != SUCCESS )
+    {
+        return ec;
+    }
+    else if (!recursive)
+    {
+		return SUCCESS;
+    }
+
+	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get(oid, true);
+
+	vector<VectorAttribute *> disks;
+	vector<VectorAttribute *>::iterator i;
+
+	set<int> error_ids;
+	set<int> img_ids;
+
+	ImageChmod img_chmod;
+
+	Nebula&   nd     = Nebula::instance();
+	ImagePool* ipool = nd.get_ipool();
+
+	if ( tmpl == 0 )
+	{
+		att.resp_id = oid;
+		return NO_EXISTS;
+	}
+
+	tmpl->clone_disks(disks);
+
+	tmpl->unlock();
+
+	ipool->get_image_ids(disks, img_ids, att.uid);
+
+	for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
+	{
+        ec = img_chmod.request_execute(ipool, *it, owner_u, owner_m, owner_a,
+                group_u, group_m, group_a, other_u, other_m, other_a, att);
+
+		if ( ec != SUCCESS )
+		{
+			NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
+
+			error_ids.insert(*it);
+		}
+	}
+
+	for (i = disks.begin(); i != disks.end() ; i++)
+	{
+		delete *i;
+	}
+
+	if ( !error_ids.empty() )
+	{
+		att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
+			": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+			error_ids.end(), ',');
+
+		return ACTION;
+	}
+
+	return SUCCESS;
 }
+

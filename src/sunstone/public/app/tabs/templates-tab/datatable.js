@@ -25,7 +25,6 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var Tree = require('utils/labels/tree');
   var Notifier = require('utils/notifier');
   var LabelsUtils = require('utils/labels/utils');
 

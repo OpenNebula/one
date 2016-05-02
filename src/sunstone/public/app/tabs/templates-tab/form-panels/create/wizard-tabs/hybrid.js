@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -141,109 +142,6 @@ define(function(require) {
         tooltip: Locale.tr("Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation.")
       }
     ],
-    softlayer: [
-      {
-        name: "BLOCKDEVICETEMPLATE",
-        label: Locale.tr("Block Device Template"),
-        tooltip: Locale.tr("A global identifier for the template to be used to provision the computing instance")
-      },
-      {
-        name: "BLOCKDEVICE",
-        label: Locale.tr("Block Device Size"),
-        tooltip: Locale.tr("Size of the block device size to be presented to the VM")
-      },
-      {
-        name: "DATACENTER",
-        label: Locale.tr("Datacenter"),
-        tooltip: Locale.tr("Specifies which datacenter the instance is to be provisioned in")
-      },
-      {
-        name: "DEDICATEDHOST",
-        label: Locale.tr("Dedicated Host"),
-        tooltip: Locale.tr("Specifies whether or not the instance must only run on hosts with instances from the same account")
-      },
-      {
-        name: "DOMAIN",
-        label: Locale.tr("Domain"),
-        tooltip: Locale.tr("Domain for the computing instance"),
-        required: true
-      },
-      {
-        name: "HOSTNAME",
-        label: Locale.tr("Hostname"),
-        tooltip: Locale.tr("Hostname for the computing instance"),
-        required: true
-      },
-      {
-        name: "HOURLYBILLING",
-        label: Locale.tr("Hourly Billing"),
-        tooltip: Locale.tr("Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis"),
-        required: true
-      },
-      {
-        name: "INSTANCE_TYPE",
-        label: Locale.tr("Instance Type"),
-        tooltip: Locale.tr("Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded"),
-        required: true
-      },
-      {
-        name: "LOCALDISK",
-        label: Locale.tr("Local Disk"),
-        tooltip: Locale.tr("Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned"),
-        required: true
-      },
-      {
-        name: "MAXMEMORY",
-        label: Locale.tr("Max Memory"),
-        tooltip: Locale.tr("The amount of memory to allocate in megabytes")
-      },
-      {
-        name: "NETWORKCOMPONENTSMAXSPEED",
-        label: Locale.tr("Network Components Max Speed"),
-        tooltip: Locale.tr("Specifies the connection speed for the instance's network components")
-      },
-      {
-        name: "OPERATINGSYSTEM",
-        label: Locale.tr("Operating System"),
-        tooltip: Locale.tr("An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here"),
-        required: true
-      },
-      {
-        name: "POSTSCRIPT",
-        label: Locale.tr("Postscript"),
-        tooltip: Locale.tr("Specifies the uri location of the script to be downloaded and run after installation is complete")
-      },
-      {
-        name: "PRIVATENETWORKONLY",
-        label: Locale.tr("Private Netwrok Only"),
-        tooltip: Locale.tr("Specifies whether or not the instance only has access to the private network  (ie, if it is going to have a public IP interface or not)")
-      },
-      {
-        name: "PRIMARYNETWORKVLAN",
-        label: Locale.tr("Primary Network VLAN"),
-        tooltip: Locale.tr("Specifies the network vlan which is to be used for the frontend interface of the computing instance")
-      },
-      {
-        name: "PRIMARYBACKENDNETWORKVLAN",
-        label: Locale.tr("Primary Backed Network VLAN"),
-        tooltip: Locale.tr("Specifies the network vlan which is to be used for the backend interface of the computing instance")
-      },
-      {
-        name: "SSHKEYS",
-        label: Locale.tr("SSH Keys"),
-        tooltip: Locale.tr("SSH keys to install on the computing instance upon provisioning")
-      },
-      {
-        name: "STARTCPUS",
-        label: Locale.tr("Start CPUs"),
-        tooltip: Locale.tr("The number of CPU cores to allocate to the VM")
-      },
-      {
-        name: "USERDATA",
-        label: Locale.tr("User Data"),
-        tooltip: Locale.tr("Arbitrary data to be made available to the computing instance")
-      }
-    ],
     azure: [
       {
         name: "AFFINITY_GROUP",
@@ -332,7 +230,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
   }
@@ -385,10 +283,6 @@ define(function(require) {
         switch (hybrid) {
           case 'ec2':
             ec2JSON.push(hash);
-            break;
-          case 'softlayer':
-            hash["TYPE"] = hybrid.toUpperCase();
-            publicCloudJSON.push(hash);
             break;
           case 'azure':
             hash["TYPE"] = hybrid.toUpperCase();
@@ -448,7 +342,6 @@ define(function(require) {
         '<div class="large-12 columns">' +
           '<label>' + Locale.tr("Hybrid Cloud") + '</label>' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="ec2" id="amazonRadio' + htmlId + '"><label for="amazonRadio' + htmlId + '">Amazon EC2</label>' +
-          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="softlayer" id="softlayerRadio' + htmlId + '"><label for="softlayerRadio' + htmlId + '">IBM Softlayer</label>' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="azure" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
         '</div>' +
       '</div>' +

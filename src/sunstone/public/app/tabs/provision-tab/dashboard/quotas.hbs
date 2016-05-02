@@ -13,60 +13,58 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
+<div id="provision_quotas_dashboard" hidden>
 <div class="row">
-  <div class="large-11 large-centered columns">
-    <h2 class="subheader">{{tr "Quotas"}}</h2>
-    <br></div>
+  <div class="large-12 columns">
+    <h4>{{tr "Quotas"}}</h2>
+  </div>
 </div>
 <div class="row">
-  <div class="large-10 large-centered columns">
+  <div class="large-11 medium-12 large-centered columns">
     <div class="row">
-      <div class="large-4 columns text-center">
-        <span id="provision_dashboard_rvms_percentage"  style="font-size:50px">0</span>
-        <span style="font-size:20px; color: #999">%</span></div>
-        <div class="large-4 columns text-center">
-          <span id="provision_dashboard_cpu_percentage"  style="font-size:50px">0</span>
-          <span style="font-size:20px; color: #999">%</span></div>
-          <div class="large-4 columns text-center">
-            <span id="provision_dashboard_memory_percentage"  style="font-size:50px">0</span>
-            <span style="font-size:20px; color: #999">%</span></div>
-          </div>
-          <div class="row">
-            <div class="large-4 columns text-center">
-              <div class="progress large radius">
-                <span id="provision_dashboard_rvms_meter" class="meter"></span>
-              </div>
-            </div>
-            <div class="large-4 columns text-center">
-              <div class="progress large radius">
-                <span id="provision_dashboard_cpu_meter" class="meter"></span>
-              </div>
-            </div>
-            <div class="large-4 columns text-center">
-              <div class="progress large radius">
-                <span id="provision_dashboard_memory_meter" class="meter"></span>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="large-4 columns text-center">
-              <span>{{tr "RUNNING VMS"}}</span>
-              <br>
-              <span id="provision_dashboard_rvms_str" style="color: #999; font-size: 14px;"></span>
-            </div>
-            <div class="large-4 columns text-center">
-              <span>{{tr "CPU"}}</span>
-              <br>
-              <span id="provision_dashboard_cpu_str" style="color: #999; font-size: 14px;"></span>
-            </div>
-            <div class="large-4 columns text-center">
-              <span>{{tr "MEMORY"}}</span>
-              <br>
-              <span id="provision_dashboard_memory_str" style="color: #999; font-size: 14px;"></span>
-            </div>
-          </div>
+      <div class="large-4 medium-4 columns text-center">
+        <h3>
+          <span id="provision_dashboard_rvms_percentage">0</span>
+          <small>%</small>
+        </h3>
+        <div class="progress large radius">
+          <meter id="provision_dashboard_rvms_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
         </div>
+        <h6>
+          <span id="provision_dashboard_rvms_str"></span>
+          <br>
+          <span class="subheader">{{tr "RUNNING VMS"}}</span>
+        </h6>
       </div>
-      <br>
-      <br>
+      <div class="large-4 medium-4 columns text-center">
+        <h3>
+          <span id="provision_dashboard_cpu_percentage">0</span>
+          <small>%</small>
+        </h3>
+        <div class="progress large radius">
+          <meter id="provision_dashboard_cpu_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+        </div>
+        <h6>
+          <span id="provision_dashboard_cpu_str"></span>
+          <br>
+          <span class="subheader">{{tr "CPU"}}</span>
+        </h6>
+      </div>
+      <div class="large-4 medium-4 columns text-center">
+        <h3>
+          <span id="provision_dashboard_memory_percentage">0</span>
+          <small>%</small>
+        </h3>
+        <div class="progress large radius">
+          <meter id="provision_dashboard_memory_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+        </div>
+        <h6>
+          <span id="provision_dashboard_memory_str"></span>
+          <br>
+          <span class="subheader">{{tr "MEMORY"}}</span>
+        </h6>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

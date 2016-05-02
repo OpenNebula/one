@@ -1930,6 +1930,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
         case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
         break;
 
         case VirtualMachine::STOPPED:
@@ -2049,6 +2051,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::HOLD:
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
             ret = vm->resize(ncpu, nmemory, nvcpu, att.resp_msg);
 
             if (ret != 0)
@@ -2231,7 +2235,8 @@ void VirtualMachineAttachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
+    if (vm->is_vrouter() &&
+            !VirtualRouter::is_action_supported(History::NIC_ATTACH_ACTION))
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2256,7 +2261,7 @@ void VirtualMachineAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Perform the attach
     // -------------------------------------------------------------------------
-    ErrorCode ec = attach(id, tmpl, att);
+    ErrorCode ec = request_execute(id, tmpl, att);
 
     if ( ec == SUCCESS )
     {
@@ -2271,8 +2276,8 @@ void VirtualMachineAttachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VirtualMachineAttachNic::attach(int id, VirtualMachineTemplate& tmpl,
-        RequestAttributes& att)
+Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
+    VirtualMachineTemplate& tmpl, RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -2368,7 +2373,8 @@ void VirtualMachineDetachNic::request_execute(
         return;
     }
 
-    if (vm->is_vrouter() && !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
+    if (vm->is_vrouter() &&
+            !VirtualRouter::is_action_supported(History::NIC_DETACH_ACTION))
     {
         att.resp_msg = "Action is not supported for virtual router VMs";
         failure_response(Request::ACTION, att);
@@ -2382,7 +2388,7 @@ void VirtualMachineDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Perform the detach
     // -------------------------------------------------------------------------
-    ErrorCode ec = detach(id, nic_id, att);
+    ErrorCode ec = request_execute(id, nic_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -2397,7 +2403,7 @@ void VirtualMachineDetachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VirtualMachineDetachNic::detach(int id, int nic_id,
+Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
         RequestAttributes& att)
 {
     Nebula&             nd      = Nebula::instance();
@@ -2469,7 +2475,8 @@ void VirtualMachineRecover::request_execute(
         return;
     }
 
-    if(vm->get_state() != VirtualMachine::ACTIVE)
+    if(vm->get_state() != VirtualMachine::ACTIVE &&
+       vm->get_state() != VirtualMachine::CLONING_FAILURE)
     {
         att.resp_msg = "Recover action is not available for state " + vm->state_str();
         failure_response(ACTION, att);
@@ -2823,5 +2830,76 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     }
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineUpdateConf::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int     id       = xmlrpc_c::value_int(paramList.getInt(1));
+    string  str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    VirtualMachine * vm;
+    VirtualMachineTemplate tmpl;
+
+    // -------------------------------------------------------------------------
+    // Parse template
+    // -------------------------------------------------------------------------
+    int rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the operation & restricted attributes                       */
+    /* ---------------------------------------------------------------------- */
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        string aname;
+
+        if (tmpl.check(aname))
+        {
+            att.resp_msg = "Template includes a restricted attribute " + aname;
+            failure_response(AUTHORIZATION, att);
+
+            return;
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Update VirtualMachine Configuration                                    */
+    /* ---------------------------------------------------------------------- */
+
+    vm = static_cast<VirtualMachinePool *>(pool)->get(id, true);
+
+    if (vm == 0)
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
+    {
+        failure_response(INTERNAL, att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    static_cast<VirtualMachinePool *>(pool)->update(vm);
+
+    vm->unlock();
 }
 

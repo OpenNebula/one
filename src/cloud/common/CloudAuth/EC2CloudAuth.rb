@@ -22,7 +22,7 @@ module EC2CloudAuth
             abstract_request = Rack::Auth::AbstractRequest.new(req_env)
             auth_attrs = {}
             if abstract_request.scheme == "aws4-hmac-sha256"
-                abstract_request.params.split(', ').each { |attr|
+                abstract_request.params.gsub(', ', ',').split(',').each { |attr|
                     key, value = attr.split('=')
                     auth_attrs[key] = value
                 }

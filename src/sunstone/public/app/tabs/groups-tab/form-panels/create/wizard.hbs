@@ -22,7 +22,7 @@
       </label>
     </div>
     <div class="columns medium-7">
-      <dl id="{{formPanelId}}Tabs" class="tabs right-info-tabs text-center right" data-tabs>
+      <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs text-center right" data-tabs>
         <dd class="tabs-title is-active">
           <a href="#resource_views"> <i class="fa fa-eye"></i>
             <br>{{tr "Views"}}</a>
@@ -68,12 +68,12 @@
           {{#each viewTypes}}
           <div class="row">
             <div class="large-7 columns">
-              <h4>
+              <h6>
                 {{name}}
               {{#if description}}
                 <span class="tip">{{description}}</span>
                 {{/if}}
-              </h4>
+              </h6>
               <table class="dataTable">
                 <tr>
                   <th style='width: 60%;'></th>

@@ -70,13 +70,24 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/TM_MAD)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+TM_MAD="${XPATH_ELEMENTS[j++]}"
 
+if [ "$TM_MAD" = "ssh" ]; then
+    MONITOR="monitor"
+else
+    MONITOR=""
+fi
 
-ssh_make_path $DST_HOST $DST_DIR
+#-------------------------------------------------------------------------------
+# Create DST path
+#-------------------------------------------------------------------------------
+
+ssh_make_path $DST_HOST $DST_DIR $MONITOR
 
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST

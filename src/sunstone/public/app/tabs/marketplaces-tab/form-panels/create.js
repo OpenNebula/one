@@ -112,6 +112,12 @@ define(function(require) {
       label: Locale.tr("Force Path Style"),
       tooltip: Locale.tr("Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 'YES'."),
       driver: 's3'
+    },
+    {
+      name: 'READ_LENGTH',
+      label: Locale.tr("Read Length"),
+      tooltip: Locale.tr("Split the file into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."),
+      driver: 's3'
     }
   ]
   /*

@@ -45,6 +45,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
             Clusterable(_cluster_ids),
             bridge(""),
+            vlan_id_automatic(false),
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
@@ -146,6 +147,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         erase_template_attribute("VLAN_ID", vlan_id);
 
         add_template_attribute("VLAN_ID", vlan_id);
+
+        vlan_id_automatic = false;
     }
 
     // ------------ BRIDGE --------------------
@@ -276,9 +279,11 @@ int VirtualNetwork::post_update_template(string& error)
 
     add_template_attribute("PHYDEV", phydev);
 
-    erase_template_attribute("VLAN_ID", vlan_id);
-
-    add_template_attribute("VLAN_ID", vlan_id);
+    if (!vlan_id_automatic)
+    {
+        erase_template_attribute("VLAN_ID", vlan_id);
+        add_template_attribute("VLAN_ID", vlan_id);
+    }
 
     erase_template_attribute("BRIDGE",new_bridge);
 
@@ -415,6 +420,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string leases_xml;
     string perm_str;
 
+    int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
+
     os <<
         "<VNET>" <<
             "<ID>"     << oid      << "</ID>"    <<
@@ -457,10 +464,13 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     if (!vlan_id.empty())
     {
         os << "<VLAN_ID>" << one_util::escape_xml(vlan_id) << "</VLAN_ID>";
+        os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic
+           <<"</VLAN_ID_AUTOMATIC>";
     }
     else
     {
         os << "<VLAN_ID/>";
+        os << "<VLAN_ID_AUTOMATIC/>";
     }
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
@@ -486,6 +496,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     vector<xmlNodePtr> content;
 
     int rc = 0;
+    int int_vlan_id_automatic;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
@@ -506,6 +517,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(phydev, "/VNET/PHYDEV", "");
     xpath(vlan_id,"/VNET/VLAN_ID","");
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
+    xpath(int_vlan_id_automatic,"/VNET/VLAN_ID_AUTOMATIC",0);
+
+    vlan_id_automatic = int_vlan_id_automatic;
 
     // Set of cluster IDs
     rc += Clusterable::from_xml(this, "/VNET/");

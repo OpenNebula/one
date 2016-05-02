@@ -54,16 +54,18 @@ public:
      */
     enum VmState
     {
-        INIT       = 0,
-        PENDING    = 1,
-        HOLD       = 2,
-        ACTIVE     = 3,
-        STOPPED    = 4,
-        SUSPENDED  = 5,
-        DONE       = 6,
-        //FAILED   = 7,
-        POWEROFF   = 8,
-        UNDEPLOYED = 9
+        INIT            = 0,
+        PENDING         = 1,
+        HOLD            = 2,
+        ACTIVE          = 3,
+        STOPPED         = 4,
+        SUSPENDED       = 5,
+        DONE            = 6,
+        //FAILED        = 7,
+        POWEROFF        = 8,
+        UNDEPLOYED      = 9,
+        CLONING         = 10,
+        CLONING_FAILURE = 11
     };
 
     static int vm_state_from_str(string& st, VmState& state)
@@ -79,6 +81,8 @@ public:
         else if ( st == "DONE" ) { state = DONE; }
         else if ( st == "POWEROFF" ) { state = POWEROFF; }
         else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
+        else if ( st == "CLONING" ) { state = CLONING; }
+        else if ( st == "CLONING_FAILURE" ) { state = CLONING_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -88,15 +92,17 @@ public:
     {
         switch (state)
         {
-            case INIT      : st = "INIT"; break;
-            case PENDING   : st = "PENDING"; break;
-            case HOLD      : st = "HOLD"; break;
-            case ACTIVE    : st = "ACTIVE"; break;
-            case STOPPED   : st = "STOPPED"; break;
-            case SUSPENDED : st = "SUSPENDED"; break;
-            case DONE      : st = "DONE"; break;
-            case POWEROFF  : st = "POWEROFF"; break;
-            case UNDEPLOYED: st = "UNDEPLOYED"; break;
+            case INIT               : st = "INIT"; break;
+            case PENDING            : st = "PENDING"; break;
+            case HOLD               : st = "HOLD"; break;
+            case ACTIVE             : st = "ACTIVE"; break;
+            case STOPPED            : st = "STOPPED"; break;
+            case SUSPENDED          : st = "SUSPENDED"; break;
+            case DONE               : st = "DONE"; break;
+            case POWEROFF           : st = "POWEROFF"; break;
+            case UNDEPLOYED         : st = "UNDEPLOYED"; break;
+            case CLONING            : st = "CLONING"; break;
+            case CLONING_FAILURE    : st = "CLONING_FAILURE"; break;
         }
 
         return st;
@@ -980,7 +986,6 @@ public:
     int  parse_template_attribute(const string& attribute,
                                   string&       parsed,
                                   string&       error);
-
     /**
      *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
      *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
@@ -992,6 +997,16 @@ public:
     int  parse_file_attribute(string       attribute,
                               vector<int>& img_ids,
                               string&      error);
+    /**
+     *  Updates the configuration attributes based on a template, the state of
+     *  the virtual machine is checked to assure operation consistency
+     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
+     *      CONTEXT and GRAPHICS.
+     *    @param err description if any
+     *
+     *    @return 0 on success
+     */
+    int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
     /**
      *  Factory method for virtual machine templates
@@ -1414,34 +1429,18 @@ public:
     // -------------------------------------------------------------------------
     // Hotplug related functions
     // -------------------------------------------------------------------------
-    /**
-     *  Collects information about VM DISKS
-     *    @param max_disk_id of the VM
-     *    @param used_targets by the DISKS of the VM
-     */
-    void get_disk_info(int& max_disk_id, set<string>& used_targets);
 
     /**
-     * Generate a DISK attribute to be attached to the VM.
+     * Generate and attach a new DISK attribute to the VM. This method check
+     * that the DISK is compatible with the VM cluster allocation and disk target
+     * usage.
      *   @param tmpl Template containing a single DISK vector attribute.
-     *   @param used_targets targets in use by current DISKS
-     *   @param max_disk_id Max DISK/DISK_ID of the VM
-     *   @param uid of the VM owner
-     *   @param image_id returns the id of the acquired image
      *   @param error_str describes the error
      *
-     *   @return a new VectorAttribute with the DISK (should be freed if not
-     *   added to the template), 0 in case of error;
+     *   @return 0 if success
      */
-    static VectorAttribute * set_up_attach_disk(
-                            int                      vm_id,
-                            VirtualMachineTemplate * tmpl,
-                            set<string>&             used_targets,
-                            int                      max_disk_id,
-                            int                      uid,
-                            int&                     image_id,
-                            Snapshots **             snap,
-                            string&                  error_str);
+    int set_up_attach_disk(VirtualMachineTemplate * tmpl, string& error_str);
+
     /**
      * Returns the disk that is waiting for an attachment action
      *
@@ -1462,27 +1461,6 @@ public:
     VectorAttribute * delete_attach_disk(Snapshots **snap);
 
     /**
-     *  Adds a new disk to the virtual machine template. The disk should be
-     *  generated by the build_attach_disk
-     *    @param new_disk must be allocated in the heap
-     *    @param snap list of snapshots associated to the disk
-     */
-    void set_attach_disk(VectorAttribute * new_disk, Snapshots * snap)
-    {
-        new_disk->replace("ATTACH", "YES");
-
-        obj_template->set(new_disk);
-
-        if (snap != 0)
-        {
-            int disk_id;
-
-            new_disk->vector_value("DISK_ID", disk_id);
-            snapshots.insert(pair<int, Snapshots *>(disk_id, snap));
-        }
-    }
-
-    /**
      *  Sets the attach attribute to the given disk
      *    @param disk_id of the DISK
      *    @return 0 if the disk_id was found -1 otherwise
@@ -1494,49 +1472,15 @@ public:
     // ------------------------------------------------------------------------
 
     /**
-     * Gets info about the new NIC to attach
+     * Generate and attach a new NIC attribute to the VM. This method check
+     * that the NIC is compatible with the VM cluster allocation and fills SG
+     * information.
+     *   @param tmpl Template containing a single NIC vector attribute.
+     *   @param error_str error reason, if any
      *
-     * @param tmpl Template containing a single NIC vector attribute.
-     * @param max_nic_id Returns the max NIC_ID of the VM
-     * @param error_str error reason, if any
-     * @return a new VectorAttribute with the NIC (should be freed if not
-     *   added to the template), 0 in case of error
+     *   @return 0 on success, -1 otherwise
      */
-    VectorAttribute * get_attach_nic_info(
-                            VirtualMachineTemplate * tmpl,
-                            int&                     max_nic_id,
-                            string&                  error_str);
-
-    /**
-     * Setups the new NIC attribute to be attached to the VM.
-     *
-     * @param vm_id Id of the VM where this nic will be attached
-     * @param vm_sgs the securty group ids already present in the VM
-     * @param new_nic New NIC vector attribute, obtained from get_attach_nic_info
-     * @param rules Security Group rules will be added at the end of this
-     * vector. If not used, the VectorAttributes must be freed by the calling
-     * method
-     * @param max_nic_id Max NIC/NIC_ID of the VM
-     * @param uid of the VM owner
-     * @param error_str error reason, if any
-     * @return 0 on success, -1 otherwise
-     */
-    static int set_up_attach_nic(
-                            int                      vm_id,
-                            set<int>&                vm_sgs,
-                            VectorAttribute *        new_nic,
-                            vector<VectorAttribute*> &rules,
-                            int                      max_nic_id,
-                            int                      uid,
-                            string&                  error_str);
-
-    /**
-     *  Adds a new NIC to the virtual machine template. The NIC should be
-     *  generated by the build_attach_nic
-     *    @param new_nic must be allocated in the heap
-     *    @param rules Security Group rules obtained from set_up_attach_nic
-     */
-    void set_attach_nic(VectorAttribute * new_nic, vector<VectorAttribute*> &rules);
+    int set_up_attach_nic(VirtualMachineTemplate *tmpl, string& error_str);
 
     /**
      * Cleans the ATTACH = YES attribute from the NICs
@@ -1686,6 +1630,27 @@ public:
      * Deletes all SNAPSHOT attributes
      */
     void delete_snapshots();
+
+    // ------------------------------------------------------------------------
+    // Cloning state related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if any of the disks is waiting for an image in LOCKED state
+     * @return true if cloning
+     */
+    bool has_cloning_disks();
+
+    /**
+     * Returns the image IDs for the disks waiting for the LOCKED state to finish
+     * @param ids image ID set
+     */
+    void get_cloning_image_ids(set<int>& ids);
+
+    /**
+     * Clears the flag for the disks waiting for the given image
+     */
+    void clear_cloning_image_id(int image_id, const string& source);
 
 private:
 
@@ -1943,19 +1908,31 @@ private:
      *  Parse and generate the ETH_ network attributed of a NIC
      *    @param context attribute
      *    @param nic attribute
+     *    @param replace attributes if the exist
      *
      *    @return 0 on success
      */
-    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
+    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic,
+            bool replace);
 
     /**
      *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
      *  is invoked when ever the context is prepared for the VM to capture
      *  netowrking updates.
      *    @param context attribute of the VM
+     *    @param replace attributes if the exist
      *    @return true if the net context was generated.
      */
-    bool generate_network_context(VectorAttribute * context);
+    bool generate_network_context(VectorAttribute * context, bool replace);
+
+
+    /**
+     *  Generate the ONE_GATE token & url
+     *    @param context attribute of the VM
+     *    @param error_str describing the error
+     *    @return 0 if success
+     */
+    int generate_token_context(VectorAttribute * context, string& error_str);
 
     /**
      * Parse the "NIC_DEFAULT" attribute

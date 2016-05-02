@@ -20,6 +20,7 @@ require 'socket'
 require 'base64'
 require 'resolv'
 require 'ipaddr'
+require 'zlib'
 
 
 DIRNAME = File.dirname(__FILE__)
@@ -68,7 +69,8 @@ class CollectdClient
         data   = `#{@run_probes_cmd} 2>&1`
         code   = $?.exitstatus == 0
 
-        data64 = Base64::encode64(data).strip.delete("\n")
+        zdata  = Zlib::Deflate.deflate(data, Zlib::BEST_COMPRESSION)
+        data64 = Base64::encode64(zdata).strip.delete("\n")
 
         [data64, code]
     end

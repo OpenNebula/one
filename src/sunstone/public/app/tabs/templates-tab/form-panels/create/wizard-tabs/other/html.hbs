@@ -14,30 +14,31 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="">
+<div class="row">
   <div class="large-12 columns">
     <fieldset class="hypervisor only_kvm">
       <legend>{{tr "RAW data"}}</legend>
       <div >
         <div class="medium-4 columns">
-          <label for="raw_type">{{tr "TYPE"}}</label>
-          <select id="raw_type" name="raw_type">
-            <option value=""></option>
-            <option value="kvm">{{tr "kvm"}}</option>
-          </select>
+          <label>
+            {{tr "Type"}}
+            <select class="raw_type" disabled>
+              <option value="kvm">{{tr "kvm"}}</option>
+            </select>
+          </label>
         </div>
         <div class="medium-8 columns">
-          <label class="" for="raw_data">
-            {{tr "DATA"}}
+          <label>
+            {{tr "Data"}}
             {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
+            <textarea rows="2" type="text" class="raw_data"/>
           </label>
-          <textarea rows="2" type="text" id="raw_data" name="raw_data" />
         </div>
       </div>
     </fieldset>
-    <fieldset class="hypervisor only_kvm">
+    <fieldset class="hypervisor only_kvm vm_updateconf_hide">
       <legend>{{tr "PCI Devices"}}</legend>
-      <div >
+      <div>
         <div class="large-12 columns">
           <table class="dataTable pci_devices">
             <thead>
@@ -64,7 +65,7 @@
         </div>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="vm_updateconf_hide">
       <legend>{{tr "Custom Tags"}}</legend>
       {{{customTagsTableHTML}}}
     </fieldset>

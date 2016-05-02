@@ -72,20 +72,29 @@ define(function(require) {
     "Provision.instantiate" : {
       type: "single",
       call: OpenNebula.Template.instantiate,
-      callback: function(){
-        OpenNebula.Action.clear_cache("VM");
-        ProvisionVmsList.show(0);
-        var context = $("#provision_create_vm");
-        $("#vm_name", context).val('');
-        $(".provision_selected_networks").html("");
-        $(".provision-pricing-table", context).removeClass("selected");
-        $(".alert-box-error", context).hide();
+      callback: _clearVMCreate,
+      error: Notifier.onError
+    },
 
-        $('#provision_vm_instantiate_templates_owner_filter').val('all').change();
-        $('#provision_vm_instantiate_template_search').val('').trigger('input');
-      },
+    "Provision.instantiate_persistent" : {
+      type: "single",
+      call: OpenNebula.Template.instantiate_persistent,
+      callback: _clearVMCreate,
       error: Notifier.onError
     }
+  }
+
+  function _clearVMCreate(){
+    OpenNebula.Action.clear_cache("VM");
+    ProvisionVmsList.show(0);
+    var context = $("#provision_create_vm");
+    $("#vm_name", context).val('');
+    $(".provision_selected_networks").html("");
+    $(".provision-pricing-table", context).removeClass("selected");
+    $(".alert-box-error", context).hide();
+
+    $('#provision_vm_instantiate_templates_owner_filter').val('all').change();
+    $('#provision_vm_instantiate_template_search').val('').trigger('input');
   }
 
   //$(document).foundation();
@@ -296,7 +305,7 @@ define(function(require) {
     $(".section_content").hide();
     $("#provision_dashboard").fadeIn();
 
-    $("#provision_dashboard").html("");
+    $("#provision_dashboard").html('');
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
@@ -460,6 +469,7 @@ define(function(require) {
           QuotaWidgets.initEmptyQuotas(user);
 
           if (!$.isEmptyObject(user.VM_QUOTA)){
+              $("#provision_quotas_dashboard").show();
               var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
 
               var vms = QuotaWidgets.quotaInfo(
@@ -470,7 +480,7 @@ define(function(require) {
 
               $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
               $("#provision_dashboard_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
+              $("#provision_dashboard_rvms_meter").val(vms["percentage"]);
 
               var memory = QuotaWidgets.quotaMBInfo(
                   user.VM_QUOTA.VM.MEMORY_USED,
@@ -480,7 +490,7 @@ define(function(require) {
 
               $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
               $("#provision_dashboard_memory_str").html(memory["str"]);
-              $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
+              $("#provision_dashboard_memory_meter").val(memory["percentage"]);
 
               var cpu = QuotaWidgets.quotaFloatInfo(
                   user.VM_QUOTA.VM.CPU_USED,
@@ -490,7 +500,9 @@ define(function(require) {
 
               $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
               $("#provision_dashboard_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
+              $("#provision_dashboard_cpu_meter").val(cpu["percentage"]);
+          } else {
+            $("#provision_quotas_dashboard").hide();
           }
         }
       })
@@ -559,6 +571,7 @@ define(function(require) {
 
     $("#provision_create_vm .provision_capacity_selector").html("");
     $("#provision_create_vm .provision_disk_selector").html("");
+    $("#provision_create_vm .provision_disk_selector").removeData("template_json");
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
@@ -675,7 +688,7 @@ define(function(require) {
       var tab = $("#"+tab_name);
 
       if (Config.isTabEnabled(tab_name)) {
-        $(".right-content").addClass("large-centered small-centered");
+        $(".sunstone-content").addClass("large-centered small-centered");
         $("#footer").removeClass("right");
         $("#footer").addClass("large-centered small-centered");
 
@@ -692,11 +705,6 @@ define(function(require) {
         // Dashboard
         //
 
-        $(".provision_image_header").on("click", function(){
-          Sunstone.showTab(TAB_ID);
-          $('li', '.provision-header').removeClass("active");
-          show_provision_dashboard();
-        })
 
         $(".configuration").on("click", function(){
           $('li', '.provision-header').removeClass("active");
@@ -704,11 +712,16 @@ define(function(require) {
 
         show_provision_dashboard();
 
-        $('.provision-header').on('click', 'li', function(){
+        $('.provision-header').on('click', 'a', function(){
           Sunstone.showTab(TAB_ID);
           $('li', '.provision-header').removeClass("active");
           $(this).closest('li').addClass("active");
-        })
+        });
+
+        $(document).on("click", ".provision_dashboard_button", function(){
+          OpenNebula.Action.clear_cache("VM");
+          show_provision_dashboard();
+        });
 
         $(document).on("click", ".provision_vms_list_button", function(){
           OpenNebula.Action.clear_cache("VM");
@@ -868,6 +881,23 @@ define(function(require) {
           ProvisionTemplatesList.updateDatatable(provision_vm_instantiate_templates_datatable);
         });
 
+        $("#provision_create_vm input.instantiate_pers").on("change", function(){
+          var create_vm_context = $("#provision_create_vm");
+
+          var disksContext = $(".provision_disk_selector", create_vm_context);
+          var template_json = disksContext.data("template_json");
+
+          if (template_json != undefined &&
+              Config.provision.create_vm.isEnabled("disk_resize")) {
+
+            DisksResize.insert({
+              template_json: template_json,
+              disksContext: disksContext,
+              force_persistent: $(this).prop('checked')
+            });
+          }
+        });
+
         tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
           var create_vm_context = $("#provision_create_vm");
 
@@ -893,41 +923,60 @@ define(function(require) {
 
             $(".provision_accordion_template a").first().trigger("click");
 
-            generate_provision_capacity_accordion(
-              $(".provision_capacity_selector", create_vm_context),
-              template_json.VMTEMPLATE);
+            OpenNebula.Template.show({
+              data : {
+                id: template_id,
+                extended: true
+              },
+              timeout: true,
+              success: function (request, template_json) {
+                generate_provision_capacity_accordion(
+                  $(".provision_capacity_selector", create_vm_context),
+                  template_json.VMTEMPLATE);
 
-            provisionInvalidCapacity = function(input){
-              if(!$(input).closest(".accordion-item").hasClass("is-active")){
-                $("a", $(input).closest(".accordion-item")).click();
+                provisionInvalidCapacity = function(input){
+                  if(!$(input).closest(".accordion-item").hasClass("is-active")){
+                    $("a", $(input).closest(".accordion-item")).click();
+                  }
+                };
+
+                $(".provision_capacity_selector input[required]", create_vm_context).attr("oninvalid", "provisionInvalidCapacity(this)");
+
+                var disksContext = $(".provision_disk_selector", create_vm_context);
+                disksContext.data("template_json", template_json);
+
+                if (Config.provision.create_vm.isEnabled("disk_resize")) {
+                  DisksResize.insert({
+                    template_json: template_json,
+                    disksContext: disksContext,
+                    force_persistent: $("input.instantiate_pers", create_vm_context).prop("checked")
+                  });
+                } else {
+                  disksContext.html("");
+                }
+
+                if (Config.provision.create_vm.isEnabled("network_select")) {
+                  NicsSection.insert(template_json, create_vm_context,
+                    {'securityGroups': Config.isFeatureEnabled("secgroups")});
+                } else {
+                  $(".provision_network_selector", create_vm_context).html("");
+                }
+
+                if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
+                  UserInputs.vmTemplateInsert(
+                      $(".provision_custom_attributes_selector", create_vm_context),
+                      template_json,
+                      {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+
+                } else {
+                  $(".provision_custom_attributes_selector", create_vm_context).html("");
+                }
+
+              },
+              error: function(request, error_json, container) {
+                Notifier.onError(request, error_json, container);
               }
-            };
-
-            $(".provision_capacity_selector input[required]", create_vm_context).attr("oninvalid", "provisionInvalidCapacity(this)");
-
-            var disksContext = $(".provision_disk_selector", create_vm_context);
-            if (Config.provision.create_vm.isEnabled("disk_resize")) {
-              DisksResize.insert(template_json, disksContext);
-            } else {
-              disksContext.html("");
-            }
-
-            if (Config.provision.create_vm.isEnabled("network_select")) {
-              NicsSection.insert(template_json, create_vm_context,
-                {'securityGroups': Config.isFeatureEnabled("secgroups")});
-            } else {
-              $(".provision_network_selector", create_vm_context).html("");
-            }
-
-            if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
-              UserInputs.vmTemplateInsert(
-                  $(".provision_custom_attributes_selector", create_vm_context),
-                  template_json,
-                  {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
-
-            } else {
-              $(".provision_custom_attributes_selector", create_vm_context).html("");
-            }
+            });
 
             return false;
           }
@@ -982,7 +1031,15 @@ define(function(require) {
              $.extend(extra_info.template, user_inputs_values)
           }
 
-          Sunstone.runAction("Provision.instantiate", template_id, extra_info);
+          var action;
+
+          if ($("input.instantiate_pers", context).prop("checked")){
+            action = "instantiate_persistent";
+          }else{
+            action = "instantiate";
+          }
+
+          Sunstone.runAction("Provision."+action, template_id, extra_info);
           return false;
         })
 

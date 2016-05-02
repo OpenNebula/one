@@ -105,7 +105,9 @@ public:
         DELETE,           /**< Sent by the DM to delete a VM                  */
         CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
         FINALIZE,
-        UPDATESG          /**< Sent by RM/VMM to trigger the secgroup update  */
+        UPDATESG,         /**< Sent by RM/VMM to trigger the secgroup update  */
+        DISK_LOCK_SUCCESS, /**< Sent by IM when an image moves from locked to ready */
+        DISK_LOCK_FAILURE, /**< Sent by IM when an image moves from locked to error */
     };
 
     /**
@@ -146,7 +148,7 @@ public:
      *    @param vm to be recovered
      *    @param success trigger successful transition if true, fail otherwise
      */
-    void  recover(VirtualMachine * vm, bool success);
+    void recover(VirtualMachine * vm, bool success);
 
     /**
      *  Retries the last VM operation that lead to a failure. The underlying
@@ -303,6 +305,10 @@ private:
 
     void disk_snapshot_failure(int vid);
 
+    void disk_lock_success(int vid);
+
+    void disk_lock_failure(int vid);
+
     void deploy_action(int vid);
 
     void suspend_action(int vid);
@@ -336,6 +342,14 @@ private:
     void clean_action(int vid);
 
     void timer_action();
+
+    void recover_lcm_state(VirtualMachine * vm, bool success);
+
+    void recover_state(VirtualMachine * vm, bool success);
+
+    void retry_lcm_state(VirtualMachine * vm);
+
+    void retry_state(VirtualMachine * vm);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

@@ -29,34 +29,20 @@ using namespace std;
 class RequestManagerChmod : public Request
 {
 protected:
-    RequestManagerChmod(const string& method_name,
-                        const string& help)
-        :Request(method_name, "A:siiiiiiiiii", help){};
-
-    RequestManagerChmod(const string& method_name,
-                        const string& params,
-                        const string& help)
-        :Request(method_name, params, help){};
+    RequestManagerChmod(const string& method_name, const string& help,
+        const string& params = "A:siiiiiiiiii"):
+            Request(method_name, params, help){};
 
     ~RequestManagerChmod(){};
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att);
 
-    static ErrorCode chmod( PoolSQL * pool,
-                            int oid,
-                            int owner_u,
-                            int owner_m,
-                            int owner_a,
-                            int group_u,
-                            int group_m,
-                            int group_a,
-                            int other_u,
-                            int other_m,
-                            int other_a,
-                            RequestAttributes& att);
+    virtual ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, bool recursive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -84,9 +70,8 @@ class TemplateChmod : public RequestManagerChmod
 {
 public:
     TemplateChmod():
-        RequestManagerChmod("TemplateChmod",
-                            "A:siiiiiiiiiib"
-                            "Changes permission bits of a virtual machine template")
+        RequestManagerChmod("TemplateChmod", "Changes permission bits of a "
+            "virtual machine template", "A:siiiiiiiiiib")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -95,11 +80,22 @@ public:
 
     ~TemplateChmod(){};
 
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+    ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, bool recursive, RequestAttributes& att)
+    {
+        return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
+                group_a, other_u, other_m, other_a, recursive, att);
+    }
+
+protected:
+
+    ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, bool recursive, RequestAttributes& att);
 };
 
-/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
 class VirtualNetworkChmod: public RequestManagerChmod
@@ -115,7 +111,6 @@ public:
     };
 
     ~VirtualNetworkChmod(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -135,17 +130,13 @@ public:
 
     ~ImageChmod(){};
 
-    static ErrorCode chmod( int oid,
-                            int owner_u,
-                            int owner_m,
-                            int owner_a,
-                            int group_u,
-                            int group_m,
-                            int group_a,
-                            int other_u,
-                            int other_m,
-                            int other_a,
-                            RequestAttributes& att);
+    ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, RequestAttributes& att)
+    {
+        return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
+                group_a, other_u, other_m, other_a, false, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -164,7 +155,6 @@ public:
     };
 
     ~DatastoreChmod(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -201,7 +191,6 @@ public:
     };
 
     ~SecurityGroupChmod(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -238,7 +227,6 @@ public:
     };
 
     ~MarketPlaceChmod(){};
-
 };
 
 /* ------------------------------------------------------------------------- */
@@ -257,7 +245,6 @@ public:
     };
 
     ~MarketPlaceAppChmod(){};
-
 };
 
 /* -------------------------------------------------------------------------- */

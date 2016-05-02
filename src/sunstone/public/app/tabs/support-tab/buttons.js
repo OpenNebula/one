@@ -27,7 +27,7 @@ define(function(require) {
       type: "action",
       layout: "main",
       text: '<i class="fa fa-cloud-upload" style="color: rgb(111, 111, 111)"/> '+Locale.tr("Upload a file"),
-      custom_classes: "only-right-info"
+      custom_classes: "only-sunstone-info"
     },
     "Support.signout" : {
       type: "action",

@@ -27,9 +27,9 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "Image.export_dialog" : {
+    "Image.upload_marketplace_dialog" : {
       type: "action",
-      text: '<i class="fa fa-share-alt"/>'
+      text: '<i class="fa fa-share"/> '+ Locale.tr("MarketPlace")
     },
     "Image.import_dialog" : {
       type: "create_dialog",

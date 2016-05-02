@@ -14,23 +14,22 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<table class="dataTable">
-  <thead>
-    <tr>
-      <th colspan="2">{{tr "Labels"}}</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class="value_td">
-        <input type="text" name="new_value" class="newLabel"/>
-      </td>
-      <td class="text-right">
-        <button type="button" class="button small secondary addLabel">{{tr "Add"}}</button>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2" class="value_td">{{{labelsTreeHTML}}}</td>
-    </tr>
-  </tbody>
-</table>
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div>
+    <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs" data-tabs>
+      {{#each wizardTabs}}
+      <dd class='tabs-title {{classes}}'>
+        <a href='#{{wizardTabId}}'> <i class='fa {{icon}}'></i>
+          <br>{{title}}</a>
+      </dd>
+      {{/each}}
+    </dl>
+    <div class="tabs-content" data-tabs-content="{{formPanelId}}Tabs">
+      {{#each wizardTabs}}
+        <div id="{{wizardTabId}}" class="wizard_tab tabs-panel">
+          {{{contentHTML}}}
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</form>

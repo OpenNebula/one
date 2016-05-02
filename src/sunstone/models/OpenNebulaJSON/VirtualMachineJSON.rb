@@ -72,6 +72,7 @@ module OpenNebulaJSON
                  when "attachnic"    then self.nic_attach(action_hash['params'])
                  when "detachnic"    then self.nic_detach(action_hash['params'])
                  when "update"       then self.update(action_hash['params'])
+                 when "updateconf"   then self.updateconf(action_hash['params'])
                  when "rename"       then self.rename(action_hash['params'])
                  when "undeploy"     then self.undeploy(action_hash['params'])
                  when "resched"      then self.resched
@@ -178,6 +179,10 @@ module OpenNebulaJSON
             else
                 super(params['template_raw'])
             end
+        end
+
+        def updateconf(params=Hash.new)
+            super(params['template_raw'])
         end
 
         def rename(params=Hash.new)

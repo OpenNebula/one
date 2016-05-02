@@ -22,26 +22,22 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode RequestManagerDelete::delete_authorization(
-        PoolSQL*                pool,
-        int                     oid,
-        AuthRequest::Operation  auth_op,
-        RequestAttributes&      att)
+static Request::ErrorCode delete_authorization(PoolSQL* pool,
+        int oid, AuthRequest::Operation auth_op, RequestAttributes& att)
 {
-    PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
     if ( att.uid == 0 )
     {
-        return SUCCESS;
+        return Request::SUCCESS;
     }
 
-    object = pool->get(oid, true);
+    PoolObjectSQL * object = pool->get(oid, true);
 
     if ( object == 0 )
     {
         att.resp_id = oid;
-        return NO_EXISTS;
+        return Request::NO_EXISTS;
     }
 
     object->get_permissions(perms);
@@ -50,108 +46,24 @@ Request::ErrorCode RequestManagerDelete::delete_authorization(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms);    // <MANAGE|ADMIN> OBJECT
+    ar.add_auth(auth_op, perms); // <MANAGE|ADMIN> OBJECT
 
     if (UserPool::authorize(ar) == -1)
     {
         att.resp_msg = ar.message;
-        return AUTHORIZATION;
+        return Request::AUTHORIZATION;
     }
 
-    return SUCCESS;
+    return Request::SUCCESS;
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
 void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
-                                           RequestAttributes& att)
+        RequestAttributes& att)
 {
-    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    PoolObjectSQL * object;
-    string          error_msg;
-    ErrorCode       ec;
-
-    ec = delete_authorization(pool, oid, auth_op, att);
-
-    if ( ec != SUCCESS )
-    {
-        failure_response(ec, att);
-        return;
-    }
-
-    object = pool->get(oid,true);
-
-    if ( object == 0 )
-    {
-        att.resp_id = oid;
-        failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    int rc = drop(oid, object, error_msg);
-
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Cannot delete " + object_name(auth_object) + ". " +  error_msg;
-        failure_response(ACTION, att);
-        return;
-    }
-
-    aclm->del_resource_rules(oid, auth_object);
-
-    success_response(oid, att);
-
-    return;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-int RequestManagerDelete::drop(
-        int             oid,
-        PoolObjectSQL * object,
-        string&         error_msg)
-{
-    set<int> cluster_ids = get_cluster_ids(object);
-
-    int rc = pool->drop(object, error_msg);
-
-    object->unlock();
-
-    if(rc == 0)
-    {
-        for(set<int>::iterator it=cluster_ids.begin(); it!=cluster_ids.end(); it++)
-        {
-            Cluster * cluster = clpool->get(*it, true);
-
-            if( cluster != 0 )
-            {
-                rc = del_from_cluster(cluster, oid, error_msg);
-
-                if ( rc < 0 )
-                {
-                    cluster->unlock();
-                    return rc;
-                }
-
-                clpool->update(cluster);
-
-                cluster->unlock();
-            }
-        }
-    }
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void TemplateDelete::request_execute(
-        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
-{
-    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    int  oid       = xmlrpc_c::value_int(paramList.getInt(1));
     bool recursive = false;
 
     if (paramList.size() > 2)
@@ -159,7 +71,7 @@ void TemplateDelete::request_execute(
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    ErrorCode ec = request_execute(oid, recursive, att);
+    ErrorCode ec = delete_object(oid, recursive, att);
 
     if ( ec == SUCCESS )
     {
@@ -171,32 +83,22 @@ void TemplateDelete::request_execute(
     }
 }
 
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-Request::ErrorCode TemplateDelete::request_execute(
-        int oid, bool recursive, RequestAttributes& att)
+Request::ErrorCode RequestManagerDelete::delete_object(int oid,
+	bool recursive, RequestAttributes& att)
 {
-    Nebula&          nd   = Nebula::instance();
-    AclManager *     aclm = nd.get_aclm();
-    VMTemplatePool * pool = nd.get_tpool();
-    VMTemplate *     object;
-
-    string    error_msg;
-    set<int>  error_ids;
-    set<int>  img_ids;
-    ErrorCode ec;
-
-    vector<VectorAttribute *> disks;
-
-    ec = delete_authorization(pool, oid, AuthRequest::MANAGE, att);
+    string    err;
+    ErrorCode ec = delete_authorization(pool, oid, auth_op, att);
 
     if ( ec != SUCCESS )
     {
         return ec;
     }
 
-    object = pool->get(oid, true);
+    PoolObjectSQL * object = pool->get(oid, true);
 
     if ( object == 0 )
     {
@@ -204,55 +106,17 @@ Request::ErrorCode TemplateDelete::request_execute(
         return NO_EXISTS;
     }
 
-    int rc = pool->drop(object, error_msg);
-
-    if (recursive)
-    {
-        object->get_disks(disks);
-    }
-
-    object->unlock();
+    int rc = drop(object, recursive, att);
 
     if ( rc != 0 )
     {
-        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::TEMPLATE) + ". " +  error_msg;
-        return ACTION;
-    }
-
-    aclm->del_resource_rules(oid, PoolObjectSQL::TEMPLATE);
-
-    if (recursive)
-    {
-        ImagePool* ipool = nd.get_ipool();
-
-        ipool->get_image_ids(disks, img_ids, att.uid);
-
-        for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
-        {
-            if ( ImageDelete::delete_img(*it, att) != SUCCESS )
-            {
-                NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
-
-                error_ids.insert(*it);
-                rc = -1;
-            }
-        }
-
-        for (vector<VectorAttribute *>::iterator i = disks.begin() ;
-                i != disks.end() ; i++)
-        {
-            delete *i;
-        }
-    }
-
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::IMAGE) +
-            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
-            error_ids.end(), ',');
+        att.resp_msg = "Cannot delete " + object_name(auth_object) + ". "
+			+ att.resp_msg;
 
         return ACTION;
     }
+
+    aclm->del_resource_rules(oid, auth_object);
 
     return SUCCESS;
 }
@@ -260,7 +124,114 @@ Request::ErrorCode TemplateDelete::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int RequestManagerDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
+{
+    set<int> cluster_ids = get_cluster_ids(object);
+
+	int oid = object->get_oid();
+
+    int rc  = pool->drop(object, att.resp_msg);
+
+    object->unlock();
+
+	if ( rc != 0 )
+    {
+		return rc;
+    }
+
+	set<int>::iterator it;
+
+	for(it = cluster_ids.begin(); it != cluster_ids.end(); it++)
+	{
+		Cluster * cluster = clpool->get(*it, true);
+
+		if( cluster != 0 )
+		{
+			rc = del_from_cluster(cluster, oid, att.resp_msg);
+
+			if ( rc < 0 )
+			{
+				cluster->unlock();
+				return rc;
+			}
+
+			clpool->update(cluster);
+
+			cluster->unlock();
+		}
+	}
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int TemplateDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
+{
+    vector<VectorAttribute *> disks;
+    vector<VectorAttribute *>::iterator i;
+
+    if (recursive)
+    {
+		static_cast<VMTemplate *>(object)->clone_disks(disks);
+    }
+
+	int rc = RequestManagerDelete::drop(object, false, att);
+
+	if ( rc != 0 )
+	{
+		return rc;
+	}
+    else if ( !recursive )
+    {
+        return 0;
+    }
+
+    set<int> error_ids;
+    set<int> img_ids;
+
+    ImagePool* ipool = Nebula::instance().get_ipool();
+
+	ImageDelete img_delete;
+
+    ipool->get_image_ids(disks, img_ids, att.uid);
+
+    for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
+    {
+
+        if ( img_delete.request_execute(*it, att) != SUCCESS )
+        {
+            NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
+
+            error_ids.insert(*it);
+        }
+    }
+
+    for (i = disks.begin(); i != disks.end() ; i++)
+    {
+        delete *i;
+    }
+
+    if ( !error_ids.empty() )
+    {
+        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::IMAGE) +
+            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+            error_ids.end(), ',');
+
+        return -1;
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int HostDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
     InformationManager * im = Nebula::instance().get_im();
 
@@ -268,7 +239,7 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     if ( host->get_share_running_vms() > 0 )
     {
-        error_msg = "Can not remove a host with running VMs";
+        att.resp_msg = "Can not remove a host with running VMs";
 
         host->unlock();
 
@@ -277,8 +248,9 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     string im_mad = host->get_im_mad();
     string name   = host->get_name();
+	int    oid    = host->get_oid();
 
-    RequestManagerDelete::drop(oid, object, error_msg);
+    RequestManagerDelete::drop(object, false, att);
 
     im->stop_monitor(oid, name, im_mad);
 
@@ -288,74 +260,27 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-void ImageDelete::request_execute(
-        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+int ImageDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
-    int oid = xmlrpc_c::value_int(paramList.getInt(1));
-
-    ErrorCode ec = delete_img(oid, att);
-
-    if ( ec == SUCCESS )
-    {
-        success_response(oid, att);
-    }
-    else
-    {
-        failure_response(ec, att);
-    }
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-Request::ErrorCode ImageDelete::delete_img(int oid, RequestAttributes& att)
-{
-    Image *         object;
-    string          error_msg;
-    ErrorCode       ec;
-
     Nebula&        nd     = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
-    AclManager *   aclm   = nd.get_aclm();
-    ImagePool *    pool   = nd.get_ipool();
 
-    PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::IMAGE;
+	int oid = object->get_oid();
 
-    ec = delete_authorization(pool, oid, AuthRequest::MANAGE, att);
+    object->unlock();
 
-    if ( ec != SUCCESS )
-    {
-        att.resp_obj = auth_object;
-        return ec;
-    }
-
-    object = pool->get(oid, false);
-
-    if ( object == 0 )
-    {
-        att.resp_id = oid;
-        return NO_EXISTS;
-    }
-
-    int rc = imagem->delete_image(oid, error_msg);
-
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Cannot delete " + object_name(auth_object) + ". " +  error_msg;
-        return ACTION;
-    }
-
-    aclm->del_resource_rules(oid, auth_object);
-
-    return SUCCESS;
+    return imagem->delete_image(oid, att.resp_msg);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int GroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int GroupDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
-    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+	int oid= object->get_oid();
+    int rc = RequestManagerDelete::drop(object, false, att);
 
     if ( rc == 0 )
     {
@@ -368,9 +293,11 @@ int GroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int ClusterDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int ClusterDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
-    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+	int oid= object->get_oid();
+    int rc = RequestManagerDelete::drop(object, false, att);
 
     if ( rc == 0 )
     {
@@ -383,23 +310,25 @@ int ClusterDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int UserDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
-    set<int>            group_set;
-    set<int>::iterator  it;
-
     User * user = static_cast<User *>(object);
-    group_set   = user->get_groups();
+
+    set<int> group_set = user->get_groups();
+    set<int>::iterator it;
+
+	int oid = user->get_oid();
 
     if (oid == 0)
     {
-        error_msg = "oneadmin cannot be deleted.";
+        att.resp_msg = "oneadmin cannot be deleted.";
 
         object->unlock();
         return -1;
     }
 
-    int rc = pool->drop(object, error_msg);
+    int rc = pool->drop(object, att.resp_msg);
 
     object->unlock();
 
@@ -431,9 +360,11 @@ int UserDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int ZoneDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
-    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+	int oid= object->get_oid();
+    int rc = RequestManagerDelete::drop(object, false, att);
 
     if ( rc == 0 )
     {
@@ -446,13 +377,15 @@ int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
+	int oid= object->get_oid();
     VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
 
     if ( vnet->get_used() > 0 )
     {
-        error_msg = "Can not remove a virtual network with leases in use";
+        att.resp_msg = "Can not remove a virtual network with leases in use";
 
         vnet->unlock();
 
@@ -463,7 +396,7 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
     int uid  = vnet->get_uid();
     int gid  = vnet->get_gid();
 
-    int rc  = RequestManagerDelete::drop(oid, object, error_msg);
+    int rc  = RequestManagerDelete::drop(object, false, att);
 
     if (pvid != -1)
     {
@@ -490,7 +423,7 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
                 oss << " NIC = [ NETWORK_ID = " << pvid << " ]" << endl;
             }
 
-            tmpl.parse_str_or_xml(oss.str(), error_msg);
+            tmpl.parse_str_or_xml(oss.str(), att.resp_msg);
 
             Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
         }
@@ -502,11 +435,12 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+int SecurityGroupDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
     if (object->get_oid() == 0)
     {
-        error_msg = "The default security group (ID 0) cannot be deleted.";
+        att.resp_msg  = "The default security group (ID 0) cannot be deleted.";
 
         object->unlock();
 
@@ -517,20 +451,21 @@ int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg
 
     if ( sgroup->get_vms() > 0 )
     {
-        error_msg = "The security group has VMs using it";
+        att.resp_msg = "The security group has VMs using it";
 
         sgroup->unlock();
 
         return -1;
     }
 
-    return RequestManagerDelete::drop(oid, object, error_msg);
+    return RequestManagerDelete::drop(object, false, att);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
+int MarketPlaceAppDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -541,6 +476,7 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     int mp_id   = app->get_market_id();
     int zone_id = app->get_zone_id();
+	int oid     = app->get_oid();
 
     app->unlock();
 
@@ -549,7 +485,7 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
         std::ostringstream oss;
 
         oss << "Marketapp can only be deleted from zone " << zone_id;
-        emsg = oss.str();
+        att.resp_msg = oss.str();
 
         return -1;
     }
@@ -558,7 +494,7 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     if ( mp == 0 )
     {
-        emsg = "Cannot find associated MARKETPLACE";
+        att.resp_msg = "Cannot find associated MARKETPLACE";
         return -1;
     }
 
@@ -567,7 +503,7 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     if ( !mp->is_action_supported(MarketPlaceApp::DELETE) )
     {
-        emsg = "Delete disabled for market: " + mp_name;
+        att.resp_msg = "Delete disabled for market: " + mp_name;
         mp->unlock();
 
         return -1;
@@ -577,13 +513,14 @@ int MarketPlaceAppDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     mp->unlock();
 
-    return marketm->delete_app(oid, mp_data, emsg);
+    return marketm->delete_app(oid, mp_data, att.resp_msg);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
+int MarketPlaceDelete::drop(PoolObjectSQL * object, bool recursive,
+		RequestAttributes& att)
 {
     MarketPlace * mp      = static_cast<MarketPlace *>(object);
     std::set<int> apps    = mp->get_marketapp_ids();
@@ -596,7 +533,7 @@ int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
         oss << object_name(PoolObjectSQL::MARKETPLACE) << "  "
             << mp->get_oid() << " is not empty.";
-        emsg = oss.str();
+        att.resp_msg = oss.str();
 
         mp->unlock();
 
@@ -632,7 +569,7 @@ int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
            oss << "Cannot remove " << object_name(PoolObjectSQL::MARKETPLACEAPP)
                << " " << *i << ": " << app_error << ". ";
 
-           emsg = emsg + oss.str();
+           att.resp_msg = att.resp_msg + oss.str();
 
            rc = -1;
        }
@@ -646,14 +583,14 @@ int MarketPlaceDelete::drop(int oid, PoolObjectSQL * object, string& emsg)
 
     if (mp == 0)
     {
-        emsg = "MarketPlace no longer exists";
+        att.resp_msg = "MarketPlace no longer exists";
 
         return -1;
     }
 
     if ( rc == 0 )
     {
-        mppool->drop(mp, emsg);
+        mppool->drop(mp, att.resp_msg);
     }
     else if (old_monitor)
     {

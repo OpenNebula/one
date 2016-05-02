@@ -929,6 +929,69 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    updateconf_desc = <<-EOT.unindent
+        Updates the configuration of a VM. The VM cannot be in a active (running)
+        state, valid states are: pending, failure, poweroff, undeploy, hold or
+        clonning.
+        Examples:
+
+          - Update boot order:
+
+            onevm updateconf myvm --boot disk2,nic0
+
+          - Change arch and add vnc:
+
+            onevm updateconf myvm --arch x86_64 --vnc
+
+          - Change the DNS for ETH0 device and add PASSWORD:
+
+            onevm updateconf myvm --context 'ETH0_DNS="8.8.8.8", PASSWORD="$USER[PASSWORD]"'
+
+        This command also accepts a template, the full list of configuration
+        attributes are (not all supported via options):
+        OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
+        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "DEVICE_MODEL"]
+        INPUT    = ["TYPE", "BUS"]
+        GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
+        RAW      = ["DATA", "DATA_VMX", "TYPE"]
+        CONTEXT (any value, **variable substitution will be made**)
+
+        *NOTE* Update will replace or add attributes, to remove an existing one
+        add an empty value.
+
+    EOT
+
+    command :updateconf, updateconf_desc, :vmid, [:file, nil], :options =>
+            OpenNebulaHelper::UPDATECONF_OPTIONS_VM do
+
+        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
+            STDERR.puts "You can not use both a file and update options."
+            exit -1
+        end
+
+        begin
+            if args[1]
+                template=File.read(args[1])
+            else
+                res = OpenNebulaHelper.create_template(options)
+
+                if res.first != 0
+                    STDERR.puts res.last
+                    exit -1
+                end
+
+                template = res.last
+            end
+        rescue Exception => e
+            STDERR.puts "Error reading template."
+            exit -1
+        end
+
+        helper.perform_action(args[0], options, "Updating VM configuration") do |vm|
+            vm.updateconf(template)
+        end
+    end
+
     # Deprecated commands
 
     deprecated_command(:attachdisk, 'disk-attach')

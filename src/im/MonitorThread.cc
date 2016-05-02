@@ -66,11 +66,19 @@ extern "C" void * do_message_thread(void *arg)
 void MonitorThread::do_message()
 {
     // -------------------------------------------------------------------------
-    // Decode from base64
+    // Decode from base64, check if it is compressed
     // -------------------------------------------------------------------------
     string* hinfo = one_util::base64_decode(hinfo64);
+    string* zinfo = one_util::zlib_decompress(*hinfo, false);
 
-    Host* host    = hpool->get(host_id,true);
+    if ( zinfo != 0 )
+    {
+        delete hinfo;
+
+        hinfo = zinfo;
+    }
+
+    Host* host = hpool->get(host_id,true);
 
     if ( host == 0 )
     {

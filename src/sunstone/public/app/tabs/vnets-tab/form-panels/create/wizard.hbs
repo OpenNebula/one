@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
-  <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tabs>
+  <dl id="vnet_create_tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     <dd class="tabs-title is-active">
       <a href="#vnetCreateGeneralTab"> <i class="fa fa-globe"></i>
         <br>{{tr "General"}}</a>
@@ -83,7 +83,7 @@
             </span>
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
-            <option value="default">{{tr "Default"}}</option>
+            <option value="dummy">{{tr "Default"}}</option>
             <option value="fw">{{tr "Firewall"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>

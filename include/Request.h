@@ -70,10 +70,14 @@ public:
 
         password = ra.password;
 
-        session  = ra.session;
-        retval   = ra.retval;
+        group_ids = ra.group_ids;
 
-        umask = ra.umask;
+        session  = ra.session;
+        req_id   = ra.req_id;
+
+        umask    = ra.umask;
+
+        retval   = ra.retval;
 
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
@@ -87,12 +91,18 @@ public:
 
         password = "";
 
+        group_ids = ra.group_ids;
+
         uname = "";
         gname = "";
 
         umask = 0;
 
         session  = ra.session;
+        req_id   = ra.req_id;
+
+        umask    = ra.umask;
+
         retval   = ra.retval;
 
         resp_obj = PoolObjectSQL::NONE;

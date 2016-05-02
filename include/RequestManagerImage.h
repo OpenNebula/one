@@ -61,6 +61,8 @@ public:
 
     ~ImageEnable(){};
 
+protected:
+
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 };
@@ -78,13 +80,12 @@ public:
 
     ~ImagePersistent(){};
 
+    ErrorCode request_execute(int id, bool persis_flag, RequestAttributes& att);
+
+protected:
+
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
-
-    static ErrorCode request_execute(
-            int     id,
-            bool    persistent_flag,
-            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -94,11 +95,12 @@ class ImageChangeType : public RequestManagerImage
 {
 public:
     ImageChangeType():
-        RequestManagerImage("ImageChangeType",
-                            "Changes the type of an image",
+        RequestManagerImage("ImageChangeType", "Changes the type of an image",
                             "A:sis"){};
 
     ~ImageChangeType(){};
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
@@ -111,24 +113,20 @@ class ImageClone : public RequestManagerImage
 {
 public:
     ImageClone():
-        RequestManagerImage("ImageClone",
-                "Clones an existing image",
-                "A:sis")
+        RequestManagerImage("ImageClone", "Clones an existing image", "A:sis")
     {
         auth_op = AuthRequest::USE;
     };
 
     ~ImageClone(){};
 
+    ErrorCode request_execute(int clone_id, const string &name, int ds_id,
+        int &new_id, RequestAttributes& att);
+
+protected:
+
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
-
-    static ErrorCode clone_img(
-            int             clone_id,
-            const string    &name,
-            int             ds_id,
-            int             &new_id,
-            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -139,10 +137,11 @@ class ImageSnapshotRevert : public RequestManagerImage
 public:
     ImageSnapshotRevert():
         RequestManagerImage("ImageSnapshotRevert",
-                "Reverts image state to a previous snapshot",
-                "A:sii"){};
+                "Reverts image state to a previous snapshot", "A:sii"){};
 
     ~ImageSnapshotRevert(){};
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
@@ -156,10 +155,11 @@ class ImageSnapshotFlatten : public RequestManagerImage
 public:
     ImageSnapshotFlatten():
         RequestManagerImage("ImageSnapshotFlatten",
-                "Flattens the selected image snapshot",
-                "A:sii"){};
+                "Flattens the selected image snapshot", "A:sii"){};
 
     ~ImageSnapshotFlatten(){};
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
@@ -173,10 +173,11 @@ class ImageSnapshotDelete : public RequestManagerImage
 public:
     ImageSnapshotDelete():
         RequestManagerImage("ImageSnapshotDelete",
-                "Deletes a snapshot from image",
-                "A:sii"){};
+                "Deletes a snapshot from image", "A:sii"){};
 
     ~ImageSnapshotDelete(){};
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);

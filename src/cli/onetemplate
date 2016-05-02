@@ -55,7 +55,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OneTemplateHelper::VM_NAME,
         OneTemplateHelper::MULTIPLE,
         OneTemplateHelper::USERDATA,
-        OneVMHelper::HOLD
+        OneVMHelper::HOLD,
+        OneTemplateHelper::PERSISTENT,
     ]
 
     ########################################################################
@@ -231,7 +232,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                 extra_template << "\n" << user_inputs
 
-                res = t.instantiate(name, on_hold, extra_template)
+                persistent = options[:persistent] != nil
+
+                res = t.instantiate(name, on_hold, extra_template, persistent)
 
                 if !OpenNebula.is_error?(res)
                     puts "VM ID: #{res}"

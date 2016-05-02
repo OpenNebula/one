@@ -419,23 +419,22 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("NETWORK_SIZE", "254");
 
     vvalue.clear();
-    vvalue.insert(make_pair("RESERVED","0, 4095"));
+    vvalue.insert(make_pair("RESERVED","0, 1, 4095"));
     vvalue.insert(make_pair("START","2"));
 
-    vattribute = new VectorAttribute("VLAN_ID",vvalue);
+    vattribute = new VectorAttribute("VLAN_IDS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
     vvalue.clear();
     vvalue.insert(make_pair("START","2"));
 
-    vattribute = new VectorAttribute("VXLAN_ID",vvalue);
+    vattribute = new VectorAttribute("VXLAN_IDS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 /*
 #*******************************************************************************
 # Datastore Configuration
 #*******************************************************************************
 #  DATASTORE_LOCATION
-#  DATASTORE_BASE_PATH
 #  DATASTORE_CAPACITY_CHECK
 #  DEFAULT_IMAGE_TYPE
 #  DEFAULT_DEVICE_PREFIX
@@ -443,7 +442,6 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 */
     set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
-    set_conf_single("DATASTORE_BASE_PATH", var_location + "/datastores");
     set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
     set_conf_single("DEFAULT_IMAGE_TYPE", "OS");
     set_conf_single("DEFAULT_DEVICE_PREFIX", "hd");

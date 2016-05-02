@@ -149,7 +149,7 @@ define(function(require) {
 
     var disks = [];
     if ($.isArray(that.element.TEMPLATE.DISK))
-      disks = that.element.TEMPLATE.DISK;
+      disks = that.element.TEMPLATE.DISK.slice(0); // clone
     else if (!$.isEmptyObject(that.element.TEMPLATE.DISK))
       disks = [that.element.TEMPLATE.DISK];
 

@@ -305,9 +305,9 @@ std::string one_util::trim(const std::string& str)
 
     std::string::const_iterator wlast(rwlast.base());
 
-	std::string tstr(wfirst, wlast);
+    std::string tstr(wfirst, wlast);
 
-	return tstr;
+    return tstr;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -449,12 +449,26 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
         zs.next_in  = (unsigned char *) const_cast<char *>(in.c_str());
     }
 
+    if ( zs.avail_in <= 2 ) //At least 2 byte header
+    {
+        inflateEnd(&zs);
+
+        if ( base64 )
+        {
+            delete in64;
+        }
+
+        return 0;
+    }
+
     do
     {
         zs.avail_out = ZBUFFER;
         zs.next_out  = out;
 
-        if ( (rc = inflate(&zs, Z_FINISH)) == Z_STREAM_ERROR )
+        rc = inflate(&zs, Z_FINISH);
+
+        if ( rc != Z_STREAM_END && rc != Z_OK && rc != Z_BUF_ERROR )
         {
             inflateEnd(&zs);
 

@@ -14,29 +14,31 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div class="right-content small-12 large-10 columns">
+<div class="sunstone-content small-12 large-10 columns">
   <div class="row">
     <div class="small-12 medium-8 columns">
       <ul class="menu provision-header text-center">
         <li>
-          <a href="#" class="provision_image_header" >
             <img src="{{logo}}">
+        </li>
+        <li class="active">
+          <a href"#" class="provision_dashboard_button" id=""> <i class="fa fa-lg fa-fw fa-dashboard"/>{{tr "Dashboard"}}
           </a>
         </li>
         <li>
-          <a href"#" class="provision_vms_list_button" id=""> <i class="fa fa-fw fa-th"/>{{tr "VMs"}}
+          <a href"#" class="provision_vms_list_button" id=""> <i class="fa fa-lg fa-fw fa-th"/>{{tr "VMs"}}
           </a>
         </li>
         {{#isProvisionTabEnabled "provision-tab" "templates"}}
         <li>
-          <a href"#" class="provision_templates_list_button"> <i class="fa fa-fw fa-save"/>{{tr "Templates"}}
+          <a href"#" class="provision_templates_list_button"> <i class="fa fa-lg fa-fw fa-save"/>{{tr "Templates"}}
           </a>
         </li>
         {{/isProvisionTabEnabled}}
           {{#isProvisionTabEnabled "provision-tab" "flows"}}
         <li>
           <a href"#" class="provision_flows_list_button" id="">
-            <i class="fa fa-fw fa-cubes"/>
+            <i class="fa fa-lg fa-fw fa-cubes"/>
             {{tr "Services"}}
           </a>
         </li>

@@ -257,20 +257,22 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="label secondary radius">'+
+          '<div data-closable class="callout large secondary">'+
             '<div class="row">'+
-            '<div class="large-9 columns">'+
-              '<span>'+
+            '<div class="large-12 columns">'+
+              '<p>'+
                 Locale.tr("Handle with care! This action will immediately destroy the template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated.") +
-              '</span>'+
+              '</p>'+
             '</div>'+
-            '<div class="large-3 columns">'+
-              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
+            '<div class="large-12 columns">'+
+              '<button href"#" class="provision_delete_template_button alert button right" template_id="'+template_id+'">'+Locale.tr("Delete")+'</button>'+
             '</div>'+
             '</div>'+
-            '<a href="#" class="close">&times;</a>'+
+            '<button class="close-button" aria-label="Dismiss alert" type="button" data-close>' +
+              '<span aria-hidden="true">&times;</span>' +
+            '</button>' +
           '</div>');
       });
 

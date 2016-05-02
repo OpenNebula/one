@@ -154,6 +154,7 @@ int ImagePool::allocate (
     {
         if (imagem->can_clone_image(cloning_id, oss) == -1)
         {
+            error_str = oss.str();
             goto error_clone_state;
         }
 
@@ -435,6 +436,11 @@ int ImagePool::acquire_disk(int               vm_id,
         {
             *snap = new Snapshots(img->snapshots);
             (*snap)->set_disk_id(disk_id);
+        }
+
+        if (img->get_state() == Image::LOCKED_USED || img->get_state() == Image::LOCKED_USED_PERS)
+        {
+            disk->replace("CLONING", "YES");
         }
 
         img->unlock();

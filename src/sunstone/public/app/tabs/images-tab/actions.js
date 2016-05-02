@@ -62,7 +62,7 @@ define(function(require) {
     "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
     "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
-    "Image.export_dialog" : {
+    "Image.upload_marketplace_dialog" : {
       type: "custom",
       call: function(params) {
         var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();

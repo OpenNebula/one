@@ -26,6 +26,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var CustomTagsTable = require('utils/custom-tags-table');
   var OpenNebulaHost = require('opennebula/host');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -49,7 +50,7 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-ellipsis-h';
     this.title = Locale.tr("Other");
   }
@@ -146,12 +147,15 @@ define(function(require) {
     var templateJSON = CustomTagsTable.retrieve(context);
 
     var rawJSON = {}
-    t = $('#raw_type', context).val();
-    if (t) { rawJSON['TYPE'] = t; }
-    t = TemplateUtils.escapeDoubleQuotes($('#raw_data', context).val());
-    if (t) { rawJSON['DATA'] = t; }
-    t = TemplateUtils.escapeDoubleQuotes($('#raw_data_vmx', context).val());
-    if (t) { rawJSON['DATA_VMX'] = t; }
+    var rawData = TemplateUtils.escapeDoubleQuotes($('.raw_data', context).val());
+    if (rawData != "") {
+      rawJSON['DATA'] = rawData;
+
+      var rawType = $('.raw_type', context).val();
+      if (rawType != undefined) {
+        rawJSON['TYPE'] = rawType;
+      }
+    }
 
     if (!$.isEmptyObject(rawJSON)) { templateJSON['RAW'] = rawJSON; };
 
@@ -173,10 +177,9 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var rawJSON = templateJSON.RAW;
     if (rawJSON) {
-      $('#raw_type', context).val(rawJSON['TYPE']);
-      $('#raw_type', context).change();
-      $('#raw_data', context).val(TemplateUtils.htmlDecode(rawJSON['DATA']));
-      $('#raw_data_vmx', context).val(TemplateUtils.htmlDecode(rawJSON['DATA_VMX']));
+      $('.raw_type', context).val(rawJSON['TYPE']);
+      $('.raw_type', context).change();
+      $('.raw_data', context).val(TemplateUtils.htmlDecode(rawJSON['DATA']));
 
       delete templateJSON.RAW
     }

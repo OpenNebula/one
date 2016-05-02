@@ -35,7 +35,39 @@ define(function(require) {
     },
     "update": function(params) {
       params.cache_name = CACHE_NAME;
-      var action_obj = {"template_json" : params.data.extra_param};
+
+      var action_obj = {};
+
+      try {
+        JSON.parse(params.data.extra_param);
+        action_obj["template_json"] = params.data.extra_param;
+      }
+      catch(err) {
+        action_obj["template_raw"] = params.data.extra_param;
+      }
+
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
+    },
+    "append": function(params) {
+      params.cache_name = CACHE_NAME;
+
+      var action_obj = {};
+
+      try {
+        JSON.parse(params.data.extra_param);
+        action_obj["template_json"] = params.data.extra_param;
+      }
+      catch(err) {
+        action_obj["template_raw"] = params.data.extra_param;
+      }
+
+      action_obj["append"] = true;
+
+      OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
+    },
+    "update_labels": function(params) {
+      params.cache_name = CACHE_NAME;
+      var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj, PATH);
     },
     "del": function(params) {

@@ -58,6 +58,13 @@ EOT
         "image defined in DISK"
     }
 
+    PERSISTENT={
+        :name => "persistent",
+        :large => "--persistent",
+        :description => "Creates a private persistent copy of the template "+
+        "plus any image defined in DISK, and instantiates that copy"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end

@@ -247,6 +247,22 @@ post '/service/:id/action' do
             end
         when 'rename'
             service.rename(opts['name'])
+        when 'update'
+            if opts && opts['template_raw']
+                if (opts['append'] == true)
+                    rc = service.update_raw(
+                        opts['template_raw'],
+                        (opts['append'] == true))
+
+                    status 204
+                else
+                    OpenNebula::Error.new("Action #{action['perform']}: " <<
+                            "Only supported for append")
+                end
+            else
+                OpenNebula::Error.new("Action #{action['perform']}: " <<
+                        "You have to provide a raw template")
+            end
         else
             OpenNebula::Error.new("Action #{action['perform']} not supported")
         end
@@ -499,11 +515,20 @@ post '/service_template/:id/action' do
     when 'update'
         if opts && opts['template_json']
             begin
-                rc = service_template.update(opts['template_json'])
+                rc = service_template.update(
+                    opts['template_json'],
+                    (opts['append'] == true))
+
                 status 204
             rescue Validator::ParseException, JSON::ParserError
                 OpenNebula::Error.new($!.message)
             end
+        elsif opts && opts['template_raw']
+            rc = service_template.update_raw(
+                opts['template_raw'],
+                (opts['append'] == true))
+
+            status 204
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to provide a template")

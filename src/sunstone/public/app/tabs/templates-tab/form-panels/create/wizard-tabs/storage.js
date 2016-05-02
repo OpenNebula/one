@@ -25,6 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var DiskTab = require('./storage/disk-tab');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -44,15 +45,19 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
+  function WizardTab(opts) {
     if (!Config.isTemplateCreationTabEnabled('storage')) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-tasks';
     this.title = Locale.tr("Storage");
-    this.classes = "hypervisor only_kvm"
+    this.classes = "hypervisor only_kvm only_vcenter"
+
+    if(opts.listener != undefined){
+      this.listener = opts.listener;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -97,6 +102,12 @@ define(function(require) {
     });
 
     that.addDiskTab(context);
+
+    if(that.listener != undefined){
+      $(context).on("change", "input", function(){
+        that.listener.notify();
+      });
+    }
   }
 
   function _retrieve(context) {
@@ -185,5 +196,9 @@ define(function(require) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
     })
+
+    if(this.listener != undefined){
+      this.listener.notify();
+    }
   }
 });

@@ -444,11 +444,11 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
 
 int Datastore::insert(SqlDB *db, string& error_str)
 {
-    int           rc;
+    string s_disk_type;
+    string s_ds_type;
+    string datastore_location;
+
     ostringstream oss;
-    string        s_disk_type;
-    string        s_ds_type;
-    string        datastore_location;
 
     // -------------------------------------------------------------------------
     // Check default datastore attributes
@@ -492,20 +492,14 @@ int Datastore::insert(SqlDB *db, string& error_str)
         goto error_common;
     }
 
-    erase_template_attribute("BASE_PATH", base_path);
+    remove_template_attribute("BASE_PATH");
 
-    if (base_path.empty() == true )
-    {
-        Nebula& nd = Nebula::instance();
-        nd.get_configuration_attribute("DATASTORE_BASE_PATH", base_path);
-    }
+    Nebula::instance().get_ds_location(base_path);
 
     if ( base_path.at(base_path.size()-1) != '/' )
     {
         base_path += "/";
     }
-
-    add_template_attribute("BASE_PATH", base_path);
 
     oss << base_path << oid;
 
@@ -526,10 +520,7 @@ int Datastore::insert(SqlDB *db, string& error_str)
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
-
-    rc = insert_replace(db, false, error_str);
-
-    return rc;
+    return insert_replace(db, false, error_str);
 
 error_exclusive:
     error_str = "SYSTEM datastores cannot have DS_MAD defined.";
@@ -651,9 +642,9 @@ string& Datastore::to_xml(string& xml) const
         "<GNAME>"               << gname        << "</GNAME>"     <<
         "<NAME>"                << name         << "</NAME>"      <<
         perms_to_xml(perms_xml) <<
-        "<DS_MAD>"        << one_util::escape_xml(ds_mad)   << "</DS_MAD>"   <<
-        "<TM_MAD>"        << one_util::escape_xml(tm_mad)   << "</TM_MAD>"   <<
-        "<BASE_PATH>"     << one_util::escape_xml(base_path)<< "</BASE_PATH>"<<
+        "<DS_MAD>"    << one_util::escape_xml(ds_mad)    << "</DS_MAD>"    <<
+        "<TM_MAD>"    << one_util::escape_xml(tm_mad)    << "</TM_MAD>"    <<
+        "<BASE_PATH>" << one_util::escape_xml(base_path) << "</BASE_PATH>" <<
         "<TYPE>"                << type         << "</TYPE>"      <<
         "<DISK_TYPE>"           << disk_type    << "</DISK_TYPE>" <<
         "<STATE>"               << state        << "</STATE>"     <<
@@ -681,6 +672,8 @@ int Datastore::from_xml(const string& xml)
     int int_state;
     vector<xmlNodePtr> content;
 
+    ostringstream oss;
+
     // Initialize the internal XML object
     update_from_str(xml);
 
@@ -693,7 +686,6 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(name,         "/DATASTORE/NAME",      "not_found");
     rc += xpath(ds_mad,       "/DATASTORE/DS_MAD",    "not_found");
     rc += xpath(tm_mad,       "/DATASTORE/TM_MAD",    "not_found");
-    rc += xpath(base_path,    "/DATASTORE/BASE_PATH", "not_found");
     rc += xpath(int_ds_type,  "/DATASTORE/TYPE",      -1);
     rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
     rc += xpath(int_state,    "/DATASTORE/STATE",     0);
@@ -726,6 +718,17 @@ int Datastore::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
+
+    Nebula::instance().get_ds_location(base_path);
+
+    if ( base_path.at(base_path.size()-1) != '/' )
+    {
+        base_path += "/";
+    }
+
+    oss << base_path << oid;
+
+    base_path = oss.str();
 
     if (rc != 0)
     {
@@ -869,28 +872,6 @@ int Datastore::post_update_template(string& error_str)
         ds_mad    = old_ds_mad;
 
         return -1;
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Set the BASE_PATH of the Datastore (class & template)                  */
-    /* ---------------------------------------------------------------------- */
-
-    erase_template_attribute("BASE_PATH", new_base_path);
-
-    if ( !new_base_path.empty())
-    {
-        ostringstream oss;
-
-        if ( new_base_path.at(new_base_path.size()-1) != '/' )
-        {
-            new_base_path += "/";
-        }
-
-        add_template_attribute("BASE_PATH", new_base_path);
-
-        oss << new_base_path << oid;
-
-        base_path = oss.str();
     }
 
     return 0;

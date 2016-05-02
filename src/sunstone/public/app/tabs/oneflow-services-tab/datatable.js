@@ -23,6 +23,7 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaService = require('opennebula/service');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -31,6 +32,8 @@ define(function(require) {
   var RESOURCE = "Service";
   var XML_ROOT = "DOCUMENT";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 6;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -42,6 +45,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -60,7 +64,8 @@ define(function(require) {
       Locale.tr("Owner") ,
       Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("State")
+      Locale.tr("State"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -96,7 +101,8 @@ define(function(require) {
         element.UNAME,
         element.GNAME,
         element.NAME,
-        OpenNebulaService.stateStr(element.TEMPLATE.BODY.state)
+        OpenNebulaService.stateStr(element.TEMPLATE.BODY.state),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });

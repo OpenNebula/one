@@ -1,0 +1,138 @@
+#provision_dashboard,
+#provision_create_vm,
+#provision_create_flow {
+  padding: 2rem;
+}
+
+
+.provision-header {
+  background: $white;
+  
+  img {
+    height: 1.5rem;
+  }
+
+  & > li > a {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: $medium-gray;
+  }
+
+  & > li.active > a {
+    background: transparent;
+    font-weight: bold;
+    color: $bold-black;
+  }
+
+  & > li > a:hover {
+    background: transparent;
+    font-weight: bold;
+    color: $bold-black;
+  }
+}
+
+.provision_accordion_template,
+.provision_accordion_flow_template {
+  .accordion-item > a {
+    padding: 0;
+    font-size: 1.2rem;
+
+    i {
+      color: $primary-color;
+    }
+  }
+
+  .accordion-content {
+    margin-top: 1rem;
+
+    .provision_select_template,
+    .provision_select_flow_template {
+      margin-top: 1rem;
+    }
+  }
+}
+
+.accordion_list {
+  .accordion-item {
+    padding: 0;
+
+    h3,
+    h4 {
+      margin: 2rem 0;
+      border-bottom: 1px solid #dfdfdf;
+    }
+
+    & > a {
+      padding: 0;
+    }
+
+    .provision_back {
+      margin-top: 1rem;
+    }
+  }
+
+  .provision-search-input {
+    width: 25%;
+    vertical-align: middle;
+    display: inline;
+  }
+
+  .resource_list_select {
+    //width: auto;
+    //vertical-align: middle;
+  }
+
+  .right {
+    &.provision_list_vms_filter,
+    &.provision_list_flows_filter,
+    &.provision_list_templates_filter {
+      margin-top: -0.5rem;
+    }
+  }
+
+  .provision_create_flow_button,
+  .provision_create_vm_button {
+    margin-right: 1rem;
+  }
+}
+
+.accordion {
+  .accordion-item {
+    &.is-active {
+      .only-not-active {
+        display: none !important;
+      }
+    }
+    &:not(.is-active) {
+      .only-active {
+        display: none !important;
+      }
+    }
+  }
+
+  .button,
+  input,
+  select {
+    margin-bottom: 0;
+  }
+}
+
+.deploying-color {
+  color: $deploying-color;
+}
+
+.error-color {
+  color: $error-color;
+}
+
+.powering_off-color {
+  color: $powering_off-color;
+}
+
+.off-color {
+  color: $off-color;
+}
+
+.running-color {
+  color: $running-color;
+}

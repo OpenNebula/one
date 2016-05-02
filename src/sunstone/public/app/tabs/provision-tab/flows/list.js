@@ -197,7 +197,7 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<a class="provision_info_flow_button" href="#">'+
                   '<span class="'+ state.color +'-color right" title="'+ state.str +'">'+
-                    '<i class="fa fa-fw fa-lg fa-square"/>'+
+                    '<i class="fa fa-square"/>'+
                   '</span>'+
                   data.NAME +
                 '</a>'+
@@ -315,7 +315,7 @@ define(function(require) {
               '<li class="provision-title">'+
                 '<span class="without-link '+ state.color +'-color">'+
                   '<span class="'+ state.color +'-color right">'+
-                    '<i class="fa fa-fw fa-lg fa-square"/> '+
+                    '<i class="fa fa-square"/> '+
                   '</span>'+
                   state.str+
                 '</span>'+
@@ -437,15 +437,17 @@ define(function(require) {
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<div class="row">'+
-                '<div class="large-4 columns">'+
-                  '<span class="cardinality_value">'+role.cardinality+'</span>'+
+                '<div class="large-4 columns text-center">'+
+                  '<h5 class="cardinality_value">'+role.cardinality+
                   '<br>'+
-                  '<span>'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
+                  '<small>'+role.name + ' ' + Locale.tr("VMs")+'</small>'+
+                  '</h5>'+
                 '</div>'+
                 '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
                 '</div>'+
-                '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
+                '<br>'+
+                '<button href"#" class="provision_change_cardinality_button success button right" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</button>'+
                 '<div class="cardinality_no_slider_div">'+
                   '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
                 '</div>'+
@@ -515,7 +517,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_delete_button alert button large-12 radius">'+Locale.tr("Delete")+'</a>'+
+            '<button href"#" class="provision_delete_button alert button large-12 radius">'+Locale.tr("Delete")+'</button>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
@@ -536,7 +538,7 @@ define(function(require) {
             '</span>'+
           '</div>'+
           '<div class="large-3 columns">'+
-            '<a href"#" class="provision_shutdown_button alert button large-12 radius">'+Locale.tr("Shutdown")+'</a>'+
+            '<button href"#" class="provision_shutdown_button alert button large-12 radius">'+Locale.tr("Shutdown")+'</button>'+
           '</div>'+
           '</div>'+
           '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +

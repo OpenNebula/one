@@ -43,7 +43,7 @@ define(function(require) {
       type: "action",
       layout: "main",
       text: Locale.tr("Reserve"),
-      custom_classes: "only-right-info reserve-right-info",
+      custom_classes: "only-sunstone-info reserve-sunstone-info",
     },
     "Network.addtocluster" : {
       type : "action",

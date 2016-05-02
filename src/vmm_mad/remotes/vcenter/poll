@@ -35,9 +35,10 @@ host      = ARGV[1]
 
 host_id      = VCenterDriver::VIClient.translate_hostname(host)
 vi_client    = VCenterDriver::VIClient.new host_id
+host         = VCenterDriver::VCenterHost.new vi_client
 vm           = vi_client.find_vm_template(deploy_id)
 vm           = VCenterDriver::VCenterVm.new(vi_client, vm)
 
-vm.monitor
+vm.monitor(host)
 
 puts vm.info

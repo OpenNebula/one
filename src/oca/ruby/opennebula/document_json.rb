@@ -70,6 +70,18 @@ module OpenNebula
             super(text, append)
         end
 
+        # Replaces the raw template contents
+        #
+        # @param template [String] New template contents, in the form KEY = VAL
+        # @param append [true, false] True to append new attributes instead of
+        #   replace the whole template
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update_raw(template_raw, append=false)
+            super(template_raw, append)
+        end
+
         # Generates a json representing the object
         #
         # @param [true, false] pretty_generate

@@ -25,6 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var FilesTable = require('tabs/files-tab/datatable');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -141,21 +142,23 @@ define(function(require) {
       throw "Wizard Tab not enabled";
     }
 
-    this.wizardTabId = WIZARD_TAB_ID;
+    this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-power-off';
     this.title = Locale.tr("OS Booting");
     this.classes = "hypervisor only_kvm"
 
-    this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {
-      'select': true,
-      'selectOptions': {
-        "filter_fn": function(file) { return file.TYPE == 3; } // KERNEL
+    this.kernelFilesTable = new FilesTable(
+      this.wizardTabId + UniqueId.id(),
+      { 'select': true,
+        'selectOptions': {
+          "filter_fn": function(file) { return file.TYPE == 3; } // KERNEL
       }
     });
-    this.initrdFilesTable = new FilesTable(this.wizardTabId + 'InitrdTable', {
-      'select': true,
-      'selectOptions': {
-        "filter_fn": function(file) { return file.TYPE == 4; } // RAMDISK
+    this.initrdFilesTable = new FilesTable(
+      this.wizardTabId + UniqueId.id(),
+      { 'select': true,
+        'selectOptions': {
+          "filter_fn": function(file) { return file.TYPE == 4; } // RAMDISK
       }
     });
   }
@@ -166,6 +169,7 @@ define(function(require) {
   WizardTab.prototype.onShow = _onShow;
   WizardTab.prototype.retrieve = _retrieve;
   WizardTab.prototype.fill = _fill;
+  WizardTab.prototype.notify = _notify;
 
   return WizardTab;
 
@@ -175,6 +179,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
+      'uniqueId': UniqueId.id(),
       'guestOS': GUESTOS,
       'kernelFilesTableHTML': this.kernelFilesTable.dataTableHTML,
       'initrdFilesTableHTML': this.initrdFilesTable.dataTableHTML
@@ -187,6 +192,28 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Foundation.reflow(context, 'tabs');
+
+    context.on("click", "button.boot-order-up", function(){
+      var tr = $(this).closest("tr");
+      tr.prev().before(tr);
+
+      _refreshBootValue(context);
+
+      return false;
+    });
+
+    context.on("click", "button.boot-order-down", function(){
+      var tr = $(this).closest("tr");
+      tr.next().after(tr);
+
+      _refreshBootValue(context);
+
+      return false;
+    });
+
+    $("table.boot-order tbody", context).on("change", "input", function(){
+      _refreshBootValue(context);
+    });
 
     var kernelDSContext = $(".kernel_ds",  context);
     var kernelDSInputsContext = $("#kernel_path_inputs",  context);
@@ -243,19 +270,11 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var osJSON = {}
-    $.extend(osJSON, WizardFields.retrieve('#bootTab', context));
-    $.extend(osJSON, WizardFields.retrieve('#kernelTab', context));
-    $.extend(osJSON, WizardFields.retrieve('#ramdiskTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.bootTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.kernelTab', context));
+    $.extend(osJSON, WizardFields.retrieve('.ramdiskTab', context));
 
-    var boot = "";
-    var val;
-    for (var i = 0; i < 3; i++) {
-      val = $('#BOOT_' + i, context).val();
-      if (val != undefined && val.length > 0) {
-        if (boot.length > 0) {boot += ","}
-        boot += val;
-      }
-    }
+    var boot = _retrieveBootValue(context);
 
     if (boot.length > 0) {
       osJSON["BOOT"] = boot;
@@ -263,7 +282,7 @@ define(function(require) {
 
     if (!$.isEmptyObject(osJSON)) { templateJSON['OS'] = osJSON; };
 
-    var featuresJSON = WizardFields.retrieve('#featuresTab', context)
+    var featuresJSON = WizardFields.retrieve('.featuresTab', context)
     if (!$.isEmptyObject(featuresJSON)) { templateJSON['FEATURES'] = featuresJSON; };
 
     return templateJSON;
@@ -272,14 +291,19 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var osJSON = templateJSON['OS'];
     if (osJSON) {
+
+      if (osJSON['KERNEL_DS'] == undefined && osJSON['KERNEL'] != undefined){
+        $('input[value="kernel_path"]', context).click();
+      }
+
+      if (osJSON['INITRD_DS'] == undefined && osJSON['INITRD'] != undefined){
+        $('input[value="initrd_path"]', context).click();
+      }
+
       WizardFields.fill(context, osJSON);
 
       if (osJSON && osJSON['BOOT']) {
-        var boot_vals = osJSON['BOOT'].split(",");
-
-        for (var i = 0; i < 3 && i < boot_vals.length; i++) {
-          $('#BOOT_' + i, context).val(boot_vals[i]);
-        }
+        _fillBootValue(context, osJSON['BOOT']);
       }
 
       delete templateJSON['OS'];
@@ -289,6 +313,110 @@ define(function(require) {
     if (featuresJSON) {
       WizardFields.fill(context, featuresJSON);
       delete templateJSON['FEATURES'];
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  // Boot order
+  //----------------------------------------------------------------------------
+
+  function _retrieveBootValue(context) {
+    return $("table.boot-order", context).attr("value");
+  }
+
+  function _fillBootValue(context, value) {
+    return $("table.boot-order", context).attr("value", value);
+  }
+
+  function _refreshBootValue(context) {
+    var table = $("table.boot-order", context);
+
+    var devices = [];
+
+    $.each($("tr", table), function(){
+      if ($("input", this).is(":checked")){
+        devices.push( $(this).attr("value") );
+      }
+    });
+
+    table.attr("value", devices.join(','));
+  }
+
+  function _addBootRow(context, value, label) {
+    $("table.boot-order tbody", context).append(
+      '<tr value="'+value+'">'+
+        '<td><input type="checkbox"/></td>'+
+        '<td>'+value+'</td>'+
+        '<td><label>'+label+'</label></td>'+
+        '<td>'+
+          '<button class="boot-order-up button radius tiny hollow secondary"><i class="fa fa-lg fa-arrow-up" aria-hidden="true"></i></button>'+
+          '<button class="boot-order-down button radius tiny hollow secondary"><i class="fa fa-lg fa-arrow-down" aria-hidden="true"></i></button>'+
+        '</td>'+
+      '</tr>');
+  }
+
+  function _notify(context, templateJSON) {
+    var table = $("table.boot-order", context);
+    var prev_value = $(table).attr("value");
+
+    $("table.boot-order tbody", context).html("");
+
+    if (templateJSON.DISK != undefined){
+      var disks = templateJSON.DISK;
+
+      if (!$.isArray(disks)){
+        disks = [disks];
+      }
+
+      $.each(disks, function(i,disk){
+        var label = '<i class="fa fa-fw fa-lg fa-tasks"></i> ';
+
+        if (disk.IMAGE != undefined){
+          label += disk.IMAGE;
+        } else if (disk.IMAGE_ID != undefined){
+          label += Locale.tr("Image ID") + " " + disk.IMAGE_ID;
+        } else {
+          label += Locale.tr("Volatile");
+        }
+
+        _addBootRow(context, 'disk'+i, label);
+      });
+    }
+
+    if (templateJSON.NIC != undefined){
+      var nics = templateJSON.NIC;
+
+      if (!$.isArray(nics)){
+        nics = [nics];
+      }
+      $.each(nics, function(i,nic){
+        var label = '<i class="fa fa-fw fa-lg fa-globe"></i> ';
+
+        if (nic.NETWORK != undefined){
+          label += nic.NETWORK;
+        } else if (nic.NETWORK_ID != undefined){
+          label += Locale.tr("Network ID") + " " + nic.NETWORK_ID;
+        } else {
+          label += Locale.tr("Manual settings");
+        }
+
+        _addBootRow(context, 'nic'+i, label);
+      });
+    }
+
+    if (prev_value.length > 0){
+      var pos = 0;
+
+      $.each(prev_value.split(','), function(i,device){
+        var tr = $('tr[value="'+device+'"]', table);
+
+        if(tr.length > 0){
+          $($("tr", table)[pos]).before(tr);
+          $("input", tr).click();
+
+          pos += 1;
+        }
+      });
     }
   }
 });

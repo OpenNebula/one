@@ -58,19 +58,23 @@
     <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="{{str_ar_tab_id}}_ula_prefix"/>
   </div>
 </div>
-{{#advancedSection (tr "Advanced Options") }}
-  <fieldset>
-    <legend>{{tr "Custom attributes"}}</legend>
-    <div class="row" id="{{str_ar_tab_id}}_custom_tags">
-      <div class="12 columns">
-        {{{customTagsHTML}}}
-      </div>
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend>{{tr "Security Groups"}}</legend>
-    <div class="row" id="{{str_ar_tab_id}}_security_groups">
-      {{{securityGroupsTableHTML}}}
-    </div>
-  </fieldset>
-{{/advancedSection}}
+<div class="row">
+  <div class="medium-12 columns">
+    {{#advancedSection (tr "Advanced Options") }}
+      <fieldset>
+        <legend>{{tr "Custom attributes"}}</legend>
+        <div class="row" id="{{str_ar_tab_id}}_custom_tags">
+          <div class="12 columns">
+            {{{customTagsHTML}}}
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{{tr "Security Groups"}}</legend>
+        <div class="row" id="{{str_ar_tab_id}}_security_groups">
+          {{{securityGroupsTableHTML}}}
+        </div>
+      </fieldset>
+    {{/advancedSection}}
+  </div>
+</div>

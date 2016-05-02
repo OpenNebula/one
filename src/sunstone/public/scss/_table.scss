@@ -40,6 +40,12 @@ table {
     font-weight: normal;
     //background-color: #cdebf5; 
   }
+
+  &.hover {
+    tr:hover {
+      cursor: pointer;
+    }
+  }
 }
 
 .dataTables_info {
@@ -66,5 +72,11 @@ table {
 .select-resources {
   .refresh-table {
     margin-top: 0.5rem;
+  }
+}
+
+table{
+  .has-tip {
+    display: table-cell;
   }
 }

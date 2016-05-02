@@ -132,7 +132,9 @@ public:
         ERROR     = 5, /** < Error state the operation FAILED*/
         CLONE     = 6, /** < Image is being cloned */
         DELETE    = 7, /** < DS is deleting the image */
-        USED_PERS = 8  /** < Image is in use and persistent */
+        USED_PERS = 8, /** < Image is in use and persistent */
+        LOCKED_USED = 9,      /** < FS operation in progress, VMs waiting */
+        LOCKED_USED_PERS = 10 /** < FS operation in progress, VMs waiting. Persistent */
     };
 
     /**
@@ -144,16 +146,18 @@ public:
     {
         switch(state)
         {
-            case INIT:      return "INIT";      break;
-            case READY:     return "READY";     break;
-            case USED:      return "USED";      break;
-            case DISABLED:  return "DISABLED";  break;
-            case LOCKED:    return "LOCKED";    break;
-            case ERROR:     return "ERROR";     break;
-            case CLONE:     return "CLONE";     break;
-            case DELETE:    return "DELETE";    break;
-            case USED_PERS: return "USED";      break;
-            default:        return "";
+            case INIT:              return "INIT";          break;
+            case READY:             return "READY";         break;
+            case USED:              return "USED";          break;
+            case DISABLED:          return "DISABLED";      break;
+            case LOCKED:            return "LOCKED";        break;
+            case ERROR:             return "ERROR";         break;
+            case CLONE:             return "CLONE";         break;
+            case DELETE:            return "DELETE";        break;
+            case USED_PERS:         return "USED";          break;
+            case LOCKED_USED:       return "LOCKED_USED";   break;
+            case LOCKED_USED_PERS:  return "LOCKED_USED";   break;
+            default:                return "";
         }
     };
 
@@ -259,10 +263,12 @@ public:
      *  Sets the image state
      *     @param state of image
      */
-    void set_state(ImageState _state)
-    {
-        state = _state;
-    }
+    void set_state(ImageState _state);
+
+    /**
+     * Moves the image from the locked* states to ready, used, used_persistent
+     */
+    void set_state_unlock();
 
     /**
      *  Return the ID of the image we are cloning this one from (if any)
@@ -315,6 +321,11 @@ public:
     int get_running() const
     {
         return running_vms;
+    }
+
+    set<int> get_running_ids() const
+    {
+        return vm_collection.clone();
     }
 
     int get_cloning() const
@@ -403,6 +414,8 @@ public:
             case USED:
             case CLONE:
             case USED_PERS:
+            case LOCKED_USED:
+            case LOCKED_USED_PERS:
                 oss << "Image cannot be in state " << state_to_str(state) <<".";
                 error_str = oss.str();
                 return -1;
