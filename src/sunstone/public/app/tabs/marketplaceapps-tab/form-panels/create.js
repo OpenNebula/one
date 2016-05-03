@@ -183,16 +183,6 @@ define(function(require) {
     var marketPlaceJSON = {};
     $.extend(marketPlaceJSON, WizardFields.retrieve(context));
 
-    var vmTemplate = $('#VMTEMPLATE', context).val();
-    if (vmTemplate) {
-      marketPlaceJSON['VMTEMPLATE64'] = btoa(vmTemplate);
-    }
-
-    var appTemplate = $('#APPTEMPLATE', context).val();
-    if (appTemplate) {
-      marketPlaceJSON['APPTEMPLATE64'] = btoa(appTemplate);
-    }
-
     var marketPlaceAppObj = {
       "marketplaceapp" : marketPlaceJSON,
       "mp_id" : this.marketPlacesTable.idInput().val()

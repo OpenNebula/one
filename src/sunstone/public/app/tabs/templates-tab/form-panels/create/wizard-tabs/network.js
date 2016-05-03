@@ -121,7 +121,7 @@ define(function(require) {
 
     if (nicsJSON.length > 0) { templateJSON['NIC'] = nicsJSON; };
 
-    var nicDefault = $('#DEFAULT_MODEL', context).val();
+    var nicDefault = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
     if (nicDefault) {
       templateJSON['NIC_DEFAULT'] = {
         'MODEL': nicDefault
@@ -157,7 +157,7 @@ define(function(require) {
     var nicDefault = templateJSON.NIC_DEFAULT
     if (nicDefault != undefined) {
       if (nicDefault.MODEL) {
-        $('#DEFAULT_MODEL', context).val(nicDefault.MODEL);
+        WizardFields.fillInput($('#DEFAULT_MODEL', context), nicDefault.MODEL);
       }
 
       delete templateJSON.NIC_DEFAULT;

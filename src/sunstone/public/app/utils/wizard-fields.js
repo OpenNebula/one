@@ -24,7 +24,9 @@ define(function(require) {
 
   return {
     'retrieve': _retrieveWizardFields,
-    'fill': _fillWizardFields
+    'fill': _fillWizardFields,
+    'retrieveInput': _retrieveInput,
+    'fillInput': _fillInput
   }
 
   function _retrieveWizardFields(context) {
@@ -43,12 +45,16 @@ define(function(require) {
         if (field.attr('wizard_field_64') == "true"){
           templateJSON[field_name] = btoa(field.val());
         } else {
-          templateJSON[field_name] = field.val();
+          templateJSON[field_name] = _retrieveInput(field);
         }
       }
     });
 
     return templateJSON;
+  }
+
+  function _retrieveInput(input) {
+    return TemplateUtils.escapeDoubleQuotes(input.val());
   }
 
   // TODO: wizard_field_64 for fill method
@@ -88,10 +94,7 @@ define(function(require) {
             }
             break;
           default:
-            field.val(
-              TemplateUtils.escapeDoubleQuotes(
-                TemplateUtils.htmlDecode(field_val)));
-            field.change();
+            _fillInput(field, field_val)
           }
         }
 
@@ -99,4 +102,13 @@ define(function(require) {
       }
     });
   }
+
+  function _fillInput(input, value) {
+    input.val(
+      TemplateUtils.escapeDoubleQuotes(
+        TemplateUtils.htmlDecode(value)));
+
+    input.change();
+  }
+
 });

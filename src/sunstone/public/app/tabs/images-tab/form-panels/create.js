@@ -31,6 +31,7 @@ define(function(require) {
   var CustomTagsTable = require('utils/custom-tags-table');
   var BrowserInfo = require('utils/browser-info');
   var Config = require('sunstone-config');
+  var WizardFields = require('utils/wizard-fields');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -265,48 +266,48 @@ define(function(require) {
 
     var img_json = {};
 
-    var name = $('#img_name', context).val();
+    var name = WizardFields.retrieveInput($('#img_name', context));
     img_json["NAME"] = name;
 
-    var desc = $('#img_desc', context).val();
+    var desc = WizardFields.retrieveInput($('#img_desc', context));
     if (desc.length) {
       img_json["DESCRIPTION"] = desc;
     }
 
-    var type = $('#img_type', context).val();
+    var type = WizardFields.retrieveInput($('#img_type', context));
     img_json["TYPE"] = type;
 
     img_json["PERSISTENT"] = $('#img_persistent:checked', context).length ? "YES" : "NO";
 
-    var dev_prefix = $('#img_dev_prefix', context).val();
+    var dev_prefix = WizardFields.retrieveInput($('#img_dev_prefix', context));
     if (dev_prefix.length) {
       img_json["DEV_PREFIX"] = dev_prefix;
     }
 
-    var driver = $('#img_driver', context).val();
+    var driver = WizardFields.retrieveInput($('#img_driver', context));
     if (driver.length)
         img_json["DRIVER"] = driver;
 
-    var target = $('#img_target', context).val();
+    var target = WizardFields.retrieveInput($('#img_target', context));
     if (target)
         img_json["TARGET"] = target;
 
-    var adapter_type = $('#adapter_type', context).val();
+    var adapter_type = WizardFields.retrieveInput($('#adapter_type', context));
     if (adapter_type)
         img_json["ADAPTER_TYPE"] = adapter_type;
 
-    var disk_type = $('#disk_type', context).val();
+    var disk_type = WizardFields.retrieveInput($('#disk_type', context));
     if (disk_type)
         img_json["DISK_TYPE"] = disk_type;
 
     switch ($('#src_path_select input:checked', context).val()){
     case "path":
-      path = $('#img_path', context).val();
+      path = WizardFields.retrieveInput($('#img_path', context));
       if (path) img_json["PATH"] = path;
       break;
     case "datablock":
-      size = $('#img_size', context).val();
-      fstype = $('#img_fstype', context).val();
+      size = WizardFields.retrieveInput($('#img_size', context));
+      fstype = WizardFields.retrieveInput($('#img_fstype', context));
       if (size) img_json["SIZE"] = size;
       if (fstype) img_json["FSTYPE"] = fstype;
       break;

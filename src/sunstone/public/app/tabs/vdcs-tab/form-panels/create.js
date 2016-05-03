@@ -319,13 +319,10 @@ define(function(require) {
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.templateToEditor(element.TEMPLATE));
 
-
-    $('[wizard_field="NAME"]',context).val(
-        TemplateUtils.escapeDoubleQuotes( TemplateUtils.htmlDecode(element.NAME) )).
-        prop("disabled", true).
-        prop('wizard_field_disabled', true);
+    WizardFields.fillInput($('[wizard_field="NAME"]',context), element.NAME);
+    $('[wizard_field="NAME"]',context).prop("disabled", true).prop('wizard_field_disabled', true);
 
     WizardFields.fill($("#vdcCreateGeneralTab", context), element.TEMPLATE);
 

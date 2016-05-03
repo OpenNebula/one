@@ -105,12 +105,12 @@ define(function(require) {
 
     var tcp = $("input.tcp_type:checked", context).val();
     if (tcp) {
-      nicJSON[tcp] = $("#TCP_PORTS", context).val();
+      nicJSON[tcp] = WizardFields.retrieveInput($("#TCP_PORTS", context));
     }
 
     var udp = $("input.udp_type:checked", context).val();
     if (udp) {
-      nicJSON[udp] = $("#UDP_PORTS", context).val();
+      nicJSON[udp] = WizardFields.retrieveInput($("#UDP_PORTS", context));
     }
 
     if ($("#icmp_type", context).is(":checked")) {
@@ -147,24 +147,24 @@ define(function(require) {
       var field = $("input.tcp_type[value='WHITE_PORTS_TCP']", context);
       field.click();
 
-      $("#TCP_PORTS", context).val(templateJSON["WHITE_PORTS_TCP"]);
+      WizardFields.fillInput($("#TCP_PORTS", context), templateJSON["WHITE_PORTS_TCP"]);
     } else if (templateJSON["BLACK_PORTS_TCP"]) {
       var field = $("input.tcp_type[value='BLACK_PORTS_TCP']", context);
       field.click();
 
-      $("#TCP_PORTS", context).val(templateJSON["BLACK_PORTS_TCP"]);
+      WizardFields.fillInput($("#TCP_PORTS", context), templateJSON["BLACK_PORTS_TCP"]);
     }
 
     if (templateJSON["WHITE_PORTS_UDP"]) {
       var field = $("input.udp_type[value='WHITE_PORTS_UDP']", context);
       field.click();
 
-      $("#UDP_PORTS", context).val(templateJSON["WHITE_PORTS_UDP"]);
+      WizardFields.fillInput($("#UDP_PORTS", context), templateJSON["WHITE_PORTS_UDP"]);
     } else if (templateJSON["BLACK_PORTS_UDP"]) {
       var field = $("input.udp_type[value='BLACK_PORTS_UDP']", context);
       field.click();
 
-      $("#UDP_PORTS", context).val(templateJSON["BLACK_PORTS_UDP"]);
+      WizardFields.fillInput($("#UDP_PORTS", context), templateJSON["BLACK_PORTS_UDP"]);
     }
 
     if (templateJSON["ICMP"]) {

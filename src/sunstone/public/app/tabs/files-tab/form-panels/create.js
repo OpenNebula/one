@@ -29,6 +29,7 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var BrowserInfo = require('utils/browser-info');
   var OpenNebulaDatastore = require('opennebula/datastore');
+  var WizardFields = require('utils/wizard-fields');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -199,20 +200,20 @@ define(function(require) {
 
     var img_json = {};
 
-    var name = $('#file_name', context).val();
+    var name = WizardFields.retrieveInput($('#file_name', context));
     img_json["NAME"] = name;
 
-    var desc = $('#file_desc', context).val();
+    var desc = WizardFields.retrieveInput($('#file_desc', context));
     if (desc.length) {
       img_json["DESCRIPTION"] = desc;
     }
 
-    var type = $('#file_type', context).val();
+    var type = WizardFields.retrieveInput($('#file_type', context));
     img_json["TYPE"] = type;
 
     switch ($('#src_path_select input:checked', context).val()){
     case "path":
-      path = $('#file_path', context).val();
+      path = WizardFields.retrieveInput($('#file_path', context));
       if (path) img_json["PATH"] = path;
       break;
     case "upload":

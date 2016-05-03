@@ -187,7 +187,7 @@ define(function(require) {
     var templateJSON = {};
 
     if($("input[name='context_type']:checked", context).val() == "context_type_vcenter"){
-      var customization = $('input.vcenter_customizations_value', context).val();
+      var customization = WizardFields.retrieveInput($('input.vcenter_customizations_value', context));
 
       if (customization) {
         templateJSON["VCENTER_PUBLIC_CLOUD"] = {
@@ -199,9 +199,9 @@ define(function(require) {
       $.extend(contextJSON, CustomTagsTable.retrieve(context));
 
       if ($(".ssh_context", context).is(":checked")) {
-        var public_key = $("#ssh_public_key", context).val();
+        var public_key = WizardFields.retrieveInput($("#ssh_public_key", context));
         if (public_key) {
-          contextJSON["SSH_PUBLIC_KEY"] = TemplateUtils.escapeDoubleQuotes(public_key);
+          contextJSON["SSH_PUBLIC_KEY"] = public_key;
         } else {
           contextJSON["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
         }
@@ -222,10 +222,10 @@ define(function(require) {
         contextJSON[name] = "$" + name;
       });
 
-      var start_script = $(".START_SCRIPT", context).val();
+      var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));
       if (start_script != "") {
         if ($(".ENCODE_START_SCRIPT", context).is(":checked")) {
-          contextJSON["START_SCRIPT_BASE64"] = btoa(start_script);
+          contextJSON["START_SCRIPT_BASE64"] = btoa($(".START_SCRIPT", context).val());
         } else {
           contextJSON["START_SCRIPT"] = start_script;
         }
@@ -255,7 +255,7 @@ define(function(require) {
           $("input#context_type_vcenter", context).click();
 
           if(this["CUSTOMIZATION_SPEC"]){
-            $('input.vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
+            WizardFields.fillInput($('input.vcenter_customizations_value', context), this["CUSTOMIZATION_SPEC"]);
           } else if(userInputsJSON || contextJSON) {
             $("input#context_type_opennebula", context).click();
           }
@@ -296,16 +296,16 @@ define(function(require) {
           $(".ssh_context", context).prop('checked', 'checked');
 
           if (!publickey_regexp.test(value)) {
-            $("#ssh_public_key", context).val(TemplateUtils.htmlDecode(value));
+            WizardFields.fillInput($("#ssh_public_key", context), value);
           }
         } else if (token_regexp.test(key)) {
           $(".token_context", context).prop('checked', 'checked');
         } else if (net_regexp.test(key)) {
           $(".network_context", context).prop('checked', 'checked');
         } else if ("INIT_SCRIPTS" == key) {
-          $("input.INIT_SCRIPTS").val(TemplateUtils.htmlDecode(value));
+          WizardFields.fillInput($("input.INIT_SCRIPTS", context), value);
         } else if ("FILES_DS" == key) {
-          $('.FILES_DS', context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(contextJSON["FILES_DS"])))
+          WizardFields.fillInput($('.FILES_DS', context), contextJSON["FILES_DS"]);
           var files = [];
           while (match = file_ds_regexp.exec(value)) {
             files.push(match[1])
@@ -319,7 +319,7 @@ define(function(require) {
           $(".ENCODE_START_SCRIPT", context).prop('checked', 'checked');
           $(".START_SCRIPT", context).val(atob(value));
         } else if ("START_SCRIPT" ==  key) {
-          $(".START_SCRIPT", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value)));
+          WizardFields.fillInput($(".START_SCRIPT", context), value);
         } else {
           customTagsJSON[key] = value;
         }

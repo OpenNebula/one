@@ -173,14 +173,14 @@ define(function(require) {
       })
       .on('formvalid.zf.abide', function(ev, frm) {      
         var rule = {};
-        rule["PROTOCOL"] = $(".security_group_rule_protocol", context).val();
-        rule["RULE_TYPE"] = $(".security_group_rule_type", context).val();
+        rule["PROTOCOL"] = WizardFields.retrieveInput($(".security_group_rule_protocol", context));
+        rule["RULE_TYPE"] = WizardFields.retrieveInput($(".security_group_rule_type", context));
 
         switch ($('.security_group_rule_range_sel', context).val()) {
         case "ALL":
           break;
         case "RANGE":
-          rule["RANGE"] = $(".security_group_rule_range input", context).val();
+          rule["RANGE"] = WizardFields.retrieveInput($(".security_group_rule_range input", context));
           break;
         }
 
@@ -188,8 +188,8 @@ define(function(require) {
         case "ANY":
           break;
         case "NETWORK":
-          rule["IP"] = $('#security_group_rule_first_ip', context).val();
-          rule["SIZE"] = $('#security_group_rule_size', context).val();
+          rule["IP"] = WizardFields.retrieveInput($('#security_group_rule_first_ip', context));
+          rule["SIZE"] = WizardFields.retrieveInput($('#security_group_rule_size', context));
           break;
         case "VNET":
           rule["NETWORK_ID"] = that.vnetsTable.retrieveResourceTableSelect();
@@ -197,7 +197,7 @@ define(function(require) {
         }
 
         if (rule["PROTOCOL"] == "ICMP" ){
-          var icmp_type_val = $(".security_group_rule_icmp_type", context).val();
+          var icmp_type_val = WizardFields.retrieveInput($(".security_group_rule_icmp_type", context));
 
           if (icmp_type_val != ""){
             rule["ICMP_TYPE"] = icmp_type_val;
@@ -254,8 +254,8 @@ define(function(require) {
 
   function _submitWizard(context) {
 
-    var name = $('#security_group_name', context).val();
-    var description = $('#security_group_description', context).val();
+    var name = WizardFields.retrieveInput($('#security_group_name', context));
+    var description = WizardFields.retrieveInput($('#security_group_description', context));
 
     var rules =  [];
 
@@ -311,14 +311,12 @@ define(function(require) {
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.templateToEditor(element.TEMPLATE));
 
-    $('#security_group_name',context).val(
-      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.NAME ))).
-      prop("disabled", true);
+    WizardFields.fillInput($('#security_group_name',context), element.NAME);
+    $('#security_group_name',context).prop("disabled", true);
 
-    $('#security_group_description', context).val(
-      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.TEMPLATE.DESCRIPTION )) );
+    WizardFields.fillInput($('#security_group_description', context), element.TEMPLATE.DESCRIPTION );
 
     var rules = element.TEMPLATE.RULE;
 

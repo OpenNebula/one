@@ -205,7 +205,7 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
-    var name = $('#name', context).val();
+    var name = WizardFields.retrieveInput($('#name', context));
     if (!name) {
       Sunstone.hideFormPanelLoading(this.tabId);
       Notifier.notifyError(Locale.tr("Host name missing!"));
@@ -216,9 +216,9 @@ define(function(require) {
     if (!cluster_id) cluster_id = "-1";
 
     var vmm_mad = $('select#vmm_mad', context).val();
-    vmm_mad = vmm_mad == "custom" ? $('input[name="custom_vmm_mad"]').val() : vmm_mad;
+    vmm_mad = vmm_mad == "custom" ? WizardFields.retrieveInput($('input[name="custom_vmm_mad"]')) : vmm_mad;
     var im_mad = $('select#im_mad', context).val();
-    im_mad = im_mad == "custom" ? $('input[name="custom_im_mad"]').val() : im_mad;
+    im_mad = im_mad == "custom" ? WizardFields.retrieveInput($('input[name="custom_im_mad"]')) : im_mad;
 
     var host_json = {
       "host": {

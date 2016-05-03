@@ -22,7 +22,18 @@ define(function(require) {
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
     if (string != undefined && typeof(string) == "string") {
-      return string.replace(/\\/g, '\\').replace(/"/g, '\\"');
+      // Recursive to deal with strings like: 'aa""b"'
+      // The second " would not match
+
+      var prev;
+      var result = string;
+
+      do {
+        prev = result;
+        result = prev.replace(/([^\\]|^)"/g, '$1\\"');
+      } while (prev != result)
+
+      return result;
     } else {
       return string;
     }
@@ -57,22 +68,27 @@ define(function(require) {
             template_str += key + " = [\n";
 
             template_str += Object.keys(element).map(function(k){
-              return "  " + k + " = \"" + element[k].toString().replace(/"/g, "\\\"") + "\"";
+              return "  " + k + " = \"" + _escapeDoubleQuotes(element[k].toString()) + "\"";
             }).join(",\n")
 
             template_str += " ]\n";
           } else { // or a string
-            template_str += key + " = \"" + element.toString().replace(/"/g, "\\\"") + "\"\n";
+            template_str += key + " = \"" + _escapeDoubleQuotes(element.toString()) + "\"\n";
           }
         });
       }
     });
 
-    return _htmlDecode(template_str);
+    return template_str;
+  }
+
+  function _templateToEditor(template_json, unshown_values) {
+    return _htmlDecode(_convert_template_to_string(template_json, unshown_values));
   }
 
   return {
     'templateToString': _convert_template_to_string,
+    'templateToEditor': _templateToEditor,
     'htmlDecode': _htmlDecode,
     'escapeDoubleQuotes': _escapeDoubleQuotes
   };

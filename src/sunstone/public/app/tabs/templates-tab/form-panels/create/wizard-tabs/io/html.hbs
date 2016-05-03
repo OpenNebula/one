@@ -20,19 +20,18 @@
       <legend>{{tr "Graphics"}}</legend>
       <div class="">
         <div class="large-12 columns text-center">
-          <input type="radio" name="graphics_type" ID="radioNoneType{{uniqueId}}" value="" checked>
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioNoneType{{uniqueId}}" value="" checked>
           <label for="radioNoneType{{uniqueId}}">{{tr "None"}}</label>
-          <input type="radio" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC">
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC">
           <label for="radioVncType{{uniqueId}}">VNC</label>
-          <input type="radio" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm" >
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm" >
           <label class="hypervisor only_kvm"  for="radioSdlType{{uniqueId}}">SDL</label>
-          <input type="radio" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm" >
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm" >
           <label  class="hypervisor only_kvm" for="radioSpiceType{{uniqueId}}">SPICE</label>
         </div>
       </div>
       <br>
       <div class="">
-        <input type="hidden" wizard_field="TYPE" name="graphics_type" ID="TYPE">
         <div class="large-12 columns">
           <label>
             {{tr "Listen IP"}}
