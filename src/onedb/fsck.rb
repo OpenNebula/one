@@ -800,6 +800,7 @@ EOT
         log_time()
 
         vms_fix = {}
+        cluster_vnc = {}
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
@@ -807,6 +808,15 @@ EOT
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i
+
+            # VNC ports per cluster
+            cid = doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
+            port = doc.root.at_xpath("TEMPLATE/GRAPHICS[TYPE='vnc']/PORT").text.to_i rescue nil
+
+            if cid && port
+                cluster_vnc[cid] ||= Set.new
+                cluster_vnc[cid] << port
+            end
 
             # Images used by this VM
             vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
@@ -942,6 +952,29 @@ EOT
             vms_fix.each do |id, body|
                 @db[:vm_pool].where(:oid => id).update(:body => body)
             end
+        end
+
+        log_time()
+
+        # VNC Bitmap
+
+        @db.run "DROP TABLE cluster_vnc_bitmap;"
+        @db.run "CREATE TABLE cluster_vnc_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
+
+        size = 65536
+
+        cluster_vnc.keys.sort.each do |cluster_id|
+          map = ""
+          size.times.each do |i|
+              map << (cluster_vnc[cluster_id].include?(size - 1 - i) ? "1" : "0")
+          end
+
+          map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
+
+          @db[:cluster_vnc_bitmap].insert(
+            :id      => cluster_id,
+            :map     => map_encoded
+          )
         end
 
         log_time()
