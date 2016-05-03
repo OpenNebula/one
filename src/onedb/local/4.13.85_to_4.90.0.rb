@@ -17,6 +17,7 @@
 require 'set'
 require 'base64'
 require 'zlib'
+require 'pathname'
 
 require 'opennebula'
 
@@ -764,7 +765,6 @@ module Migrator
         if state != 6
           # Remove vnmad from the history records
           doc.root.xpath("HISTORY_RECORDS//VNMMAD").remove
-          doc.root.xpath("HISTORY_RECORDS//DS_LOCATION").remove
 
           # Rename VMMMAD -> VM_MAD and TMMAD -> TM_MAD
           doc.root.xpath("HISTORY_RECORDS//VMMMAD").each {|e| e.name = "VM_MAD"}
@@ -782,6 +782,9 @@ module Migrator
                 nic.add_child(doc.create_element("VN_MAD")).content = vnmad
             end
           end
+
+          # Remove DS_LOCATION (Feature #4316 - Remove BASE_PATH)
+          doc.root.xpath("HISTORY_RECORDS//DS_LOCATION").remove
 
           row[:body] = doc.root.to_s
         end
@@ -858,6 +861,54 @@ module Migrator
         :map     => map_encoded
       )
     end
+
+    log_time()
+
+    ############################################################################
+    # Feature #4316 - Remove BASE_PATH
+    ############################################################################
+
+    conf_datastore_location = File.read(File.join(VAR_LOCATION, 'config')).match(/DATASTORE_LOCATION=(.*)$/)[1] rescue nil
+
+    @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
+    @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+        ds_id   = row[:oid]
+        ds_name = row[:name]
+
+        base_path = doc.root.at_xpath("TEMPLATE/BASE_PATH").remove rescue nil
+
+        if base_path
+          base_path = base_path.text
+
+          if Pathname(base_path).cleanpath != Pathname(conf_datastore_location).cleanpath
+            puts "**************************************************************"
+            puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+            puts "**************************************************************"
+            puts
+            puts "The Datastore Attribute BASE_PATH has been deprecated. It has been removed from"
+            puts "the Datastore template."
+            puts
+            puts "We have detected that for the datastore ##{ds_id} (#{ds_name}), it does not match"
+            puts "the global DATASTORE_LOCATION."
+            puts
+            puts "You **MUST** create a symbolic link in the nodes to link them:"
+            puts "$ ln -s #{base_path} #{conf_datastore_location}"
+            puts
+          end
+
+          row[:body] = doc.root.to_s
+        end
+
+        @db[:datastore_pool].insert(row)
+      end
+    end
+
+    @db.run "DROP TABLE old_datastore_pool;"
 
     log_time()
 
