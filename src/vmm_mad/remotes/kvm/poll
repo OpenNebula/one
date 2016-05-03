@@ -146,7 +146,6 @@ module KVM
             xml = dump_xml(name)
 
             values.merge!(get_interface_statistics(name, xml))
-            values.merge!(get_disk_usage(xml))
 
             if !name.match(/^one-\d+/)
                 uuid, template = xml_to_one(xml)
@@ -315,64 +314,6 @@ module KVM
             else
                 '-'
         end
-    end
-
-    def self.get_disk_usage(xml)
-        return {} if !JSON_LOADED
-
-        doc  = REXML::Document.new(xml)
-        size = 0
-        systemds = doc.elements['domain/metadata/system_datastore'] rescue nil
-        systemds = systemds.text.gsub(/\/+/, '/') if systemds
-
-        data = {
-            :disk_size       => [],
-            :snapshot_size   => []
-        }
-
-        begin
-        doc.elements.each('domain/devices/disk/source') do |ele|
-            # read the disk path (for regular disks)
-            file = ele.attributes['file'] rescue nil
-
-            # get protocol and name (for ceph)
-            protocol = ele.attributes['protocol'] rescue nil
-            name = ele.attributes['name'] rescue nil
-
-            if protocol == "rbd"
-                # Ceph
-                auth = ele.parent.elements["auth"].attributes["username"] rescue nil
-                auth = "--id #{auth}" if !auth.nil?
-
-                pool, image = name.split('/')
-                disk_id = image.split('-')[-1].to_i
-
-                images_list = rbd_pool(pool, auth)
-                images_doc  = REXML::Document.new(images_list)
-
-                xpath = "images/image[image='#{image}']/size"
-                disk_size = images_doc.elements[xpath].text.to_f/1024/1024
-
-                data[:disk_size] << {:id => disk_id, :size => disk_size.round}
-
-                images_doc.elements.each("images/snapshot") do |snap|
-                    next unless snap.elements["image"].text.start_with?(image)
-
-                    snap_id = snap.elements["snapshot"].text.to_i
-                    snapshot_size = snap.elements["size"].text.to_f/1024/1024
-
-                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
-
-                end
-            end
-        end
-        rescue Exception => e
-            STDERR.puts "Error getting disk information."
-            STDERR.puts e.message
-            STDERR.puts e.backtrace.join("\n  ")
-        end
-
-        data
     end
 
     # Convert the output of dumpxml to an OpenNebula template
