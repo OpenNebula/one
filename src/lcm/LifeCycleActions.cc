@@ -1455,7 +1455,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             }
             else
             {
-                vmm->trigger(VirtualMachineManager::CNCEL,vid);
+                vmm->trigger(VirtualMachineManager::CANCEL,vid);
             }
             break;
 
