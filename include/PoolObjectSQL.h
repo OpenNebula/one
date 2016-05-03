@@ -354,6 +354,12 @@ public:
         return obj_template->get(name,values);
     };
 
+	template<typename T>
+    int get_template_attribute(const char * name, vector<T*>& values) const
+    {
+        return obj_template->get(name,values);
+    };
+
     /**
      *  These methods gets the value of a SingleAttribute and converts it to the
 	 *  target type
