@@ -638,7 +638,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
         default:
             att.resp_msg = "Internal error. Action result not defined";
-
             failure_response(INTERNAL, att);
     }
 

@@ -4797,7 +4797,7 @@ int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
     context->replace("VMID", oid);
 
     // Store the original owner to compute token_password in case of a chown
-    add_template_attribute("CREATED_BY", uid);
+    replace_template_attribute("CREATED_BY", uid);
 
     return 0;
 }
