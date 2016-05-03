@@ -106,7 +106,7 @@ else
 cd $DST_DIR
 mkdir -p ${DST_PATH}.snap
 rm -f $DST_PATH
-$QEMU_IMG create -b $SRC_PATH -f qcow2 ${DST_PATH}.snap/0
+$QEMU_IMG create -b $SRC_PATH -f qcow2 $QCOW2_OPTIONS ${DST_PATH}.snap/0
 ln -s ${DST_FILE}.snap/0 ${DST_PATH}
 cd ${DST_PATH}.snap
 ln -s . ${DST_PATH}.snap/${DST_FILE}.snap
