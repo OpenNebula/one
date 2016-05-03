@@ -178,6 +178,31 @@ module Migrator
 
     log_time()
 
+    @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+    @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)"
+
+    @db.transaction do
+      @db.fetch("SELECT * FROM old_vm_pool") do |row|
+        if row[:state] != 6
+          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+          cid = doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
+
+          if cid == -1
+            doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").content = 0
+          end
+
+          row[:body] = doc.root.to_s
+        end
+
+        @db[:vm_pool].insert(row)
+      end
+    end
+
+    @db.run "DROP TABLE old_vm_pool;"
+
+    log_time()
+
     default_cl_xml = '<CLUSTER><ID>0</ID><NAME>default</NAME><HOSTS></HOSTS><DATASTORES></DATASTORES><VNETS></VNETS><TEMPLATE><RESERVED_CPU><![CDATA[]]></RESERVED_CPU><RESERVED_MEM><![CDATA[]]></RESERVED_MEM></TEMPLATE></CLUSTER>'
     doc = Nokogiri::XML(default_cl_xml,nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
@@ -729,7 +754,7 @@ module Migrator
     # Fix VMs
 
     @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
-    @db.run "CREATE TABLE IF NOT EXISTS vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)"
+    @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER)"
 
     @db.transaction do
       @db.fetch("SELECT * FROM old_vm_pool") do |row|
@@ -807,7 +832,6 @@ module Migrator
 
         # skip if no port is defined or if it's not assigned to a cluster (not deployed yet!)
         next if cluster_id.nil? || port.nil?
-
 
         cluster_id = 0 if cluster_id == -1
 
