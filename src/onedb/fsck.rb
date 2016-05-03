@@ -1246,7 +1246,8 @@ EOT
                     # IP
                     first_ip = nil
                     if (!ar.at_xpath("IP").nil?)
-                        first_ip = IPAddr.new(ar.at_xpath("IP").text, Socket::AF_INET)
+                        first_ip = IPAddr.new(ar.at_xpath("IP").text.strip,
+                                              Socket::AF_INET)
                     end
 
                     # IP6
@@ -1347,7 +1348,8 @@ EOT
                 # IP
                 first_ip = nil
                 if !net_ar.at_xpath("IP").nil?
-                    first_ip = IPAddr.new(net_ar.at_xpath("IP").text, Socket::AF_INET)
+                    first_ip = IPAddr.new(net_ar.at_xpath("IP").text.strip,
+                                          Socket::AF_INET)
                 end
 
                 # IP6
@@ -2004,6 +2006,7 @@ EOT
     end
 
     def mac_s_to_i(mac)
+        return nil if mac.empty?
         return mac.split(":").map {|e|
             e.to_i(16).to_s(16).rjust(2,"0")}.join("").to_i(16)
     end
@@ -2015,6 +2018,7 @@ EOT
     end
 
     def ip6_prefix_s_to_i(prefix)
+        return nil if prefix.empty?
         return prefix.split(":", 4).map {|e|
             e.to_i(16).to_s(16).rjust(4, "0")}.join("").to_i(16)
     end
