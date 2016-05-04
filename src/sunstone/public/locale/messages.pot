@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2015, OpenNebula Project, OpenNebula Systems
+# Copyright (C) YEAR 2002-2016, OpenNebula Project, OpenNebula Systems
 # This file is distributed under the same license as the OpenNebula package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #

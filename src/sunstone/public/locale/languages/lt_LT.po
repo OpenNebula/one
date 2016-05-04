@@ -1,11 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
 # Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
 # Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
-# Linas Bukauskas, 2014-2015
+# Linas Bukauskas, 2014-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"

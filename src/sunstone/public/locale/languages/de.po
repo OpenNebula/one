@@ -1,9 +1,9 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Bastian Widmer <bastian.widmer@gmail.com>, 2012-2015
+# Bastian Widmer <bastian.widmer@gmail.com>, 2012-2016
 # Bastian Widmer <bastian.widmer@gmail.com>, 2012
 # jules <>, 2012
 # jules <>, 2012

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
