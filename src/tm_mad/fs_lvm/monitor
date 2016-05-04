@@ -105,6 +105,8 @@ vm_previous='n'
 
 while IFS="\n" read -r line; do
     vm=\$(echo "\$line" | cut -d':' -f1)
+    [ -n "\$vm" ] || continue
+
     disk=\$(echo "\$line" | cut -d':' -f2)
     size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
 
