@@ -32,21 +32,22 @@ define(function(require) {
     @returns {String} HTML table
    */
   function _html(templateJSON, resourceType, tableName) {
-    var str = '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs"  cellpadding="0" cellspacing="0" border="0">\
-                   <thead>\
-                     <tr>\
-                       <th colspan="3">'                     +
-                      tableName +
-                     '</th>\
-                     </tr>\
-                    </thead>' +
-                  fromJSONtoHTMLTable(templateJSON, resourceType) +
-                  '<tr>\
-                      <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
-                      <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
-                      <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + Locale.tr("Add") + '</button>\</td>\
-                    </tr>'                  +
-                 '</table>'
+    var str =
+      '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
+        <thead>\
+          <tr>\
+            <th colspan="3">' +
+           tableName +
+          '</th>\
+          </tr>\
+         </thead>' +
+       fromJSONtoHTMLTable(templateJSON, resourceType) +
+       '<tr>\
+           <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
+           <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
+           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + Locale.tr("Add") + '</button>\</td>\
+         </tr>\
+      </table>'
 
     return str;
   }
@@ -298,10 +299,10 @@ define(function(require) {
         }
 
         $(this).parent().parent().after('<tr>\
-                                                <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
-                                                <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
-                                                <td class=""><button class="' + vectorial_key + " " + ocurrence + '" id="button_add_value_vectorial">' + Locale.tr("Add") + '</button>\</td>\
-                                               </tr>');
+           <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
+           <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
+           <td class=""><button class="' + vectorial_key + " " + ocurrence + '" id="button_add_value_vectorial">' + Locale.tr("Add") + '</button>\</td>\
+          </tr>');
       }
     });
 
@@ -389,16 +390,16 @@ define(function(require) {
         // if value is object, we are dealing with a vectorial value
         if (typeof current_value == 'object') {
           str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
-                             <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
-                             <td class="value_vectorial_td"></td>\
-                             <td class="text-right nowrap">\
-                               <span id="div_add_vectorial">\
-                                 <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                               </span>&emsp;\
-                               <span id="div_minus">\
-                                 <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
-                               </span>\
-                             </td>'
+                    <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
+                    <td class="value_vectorial_td"></td>\
+                    <td class="text-right nowrap">\
+                      <span id="div_add_vectorial">\
+                        <a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                      </span>&emsp;\
+                      <span id="div_minus">\
+                        <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
+                      </span>\
+                    </td>'
 
           str += fromJSONtoHTMLTable(current_value,
                                      resourceType,
@@ -422,31 +423,31 @@ define(function(require) {
         // If it comes from a vectorial daddy key, then reflect so in the html
         if (vectorial_key) {
           str += '<tr>\
-                       <td class="key_td key_vectorial_td">&emsp;&emsp;' + Locale.tr(field) + '</td>\
-                       <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + value + '</td>\
-                       <td class="text-right nowrap">\
-                         <span id="div_edit_vectorial">\
-                           <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                         </span>&emsp;\
-                         <span id="div_minus_vectorial">\
-                           <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
-                         </span>\
-                       </td>\
-                     </tr>'                 ;
+                    <td class="key_td key_vectorial_td">&emsp;&emsp;' + Locale.tr(field) + '</td>\
+                    <td class="value_td value_vectorial_td value_td_input_' + field + ocurrence_str + ' vectorial_key_' + vectorial_key + '" id="value_td_input_' + field + '">' + value + '</td>\
+                    <td class="text-right nowrap">\
+                      <span id="div_edit_vectorial">\
+                        <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                      </span>&emsp;\
+                      <span id="div_minus_vectorial">\
+                        <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + ' vectorial_key_' + vectorial_key + '" href="#"><i class="fa fa-trash-o"/></a>\
+                      </span>\
+                    </td>\
+                  </tr>';
         } else {
           // If it is not comming from a vectorial daddy key, it can still vectorial itself
           if (typeof value == 'object') {
             str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '">\
-                             <td class="key_td key_vectorial_td">'                           + Locale.tr(field) + '</td>\
-                             <td class="value_vectorial_td"></td>\
-                             <td class="text-right nowrap">\
-                               <span id="div_add_vectorial">\
-                                 <a id="div_add_vectorial_'                               + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
-                               </span>&emsp;\
-                               <span id="div_minus">\
-                                 <a id="div_minus_'                               + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                               </span>\
-                             </td>'
+                      <td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td>\
+                      <td class="value_vectorial_td"></td>\
+                      <td class="text-right nowrap">\
+                        <span id="div_add_vectorial">\
+                          <a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fa fa-plus-sign"/></a>\
+                        </span>&emsp;\
+                        <span id="div_minus">\
+                          <a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                        </span>\
+                      </td>'
             str += fromJSONtoHTMLTable(value,
                        resourceType,
                        field,
@@ -454,17 +455,17 @@ define(function(require) {
           } else // or, just a single value
              {
                str += '<tr>\
-                           <td class="key_td">' + Locale.tr(field) + '</td>\
-                           <td class="value_td" id="value_td_input_' + field + '">' + value + '</td>\
-                           <td class="text-right nowrap">\
-                             <span id="div_edit">\
-                               <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
-                             </span>&emsp;\
-                             <span id="div_minus">\
-                               <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
-                             </span>\
-                           </td>\
-                         </tr>'                      ;
+                        <td class="key_td">' + Locale.tr(field) + '</td>\
+                        <td class="value_td" id="value_td_input_' + field + '">' + value + '</td>\
+                        <td class="text-right nowrap">\
+                          <span id="div_edit">\
+                            <a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fa fa-pencil-square-o"/></a>\
+                          </span>&emsp;\
+                          <span id="div_minus">\
+                            <a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fa fa-trash-o"/></a>\
+                          </span>\
+                        </td>\
+                      </tr>';
              }
         }
 
