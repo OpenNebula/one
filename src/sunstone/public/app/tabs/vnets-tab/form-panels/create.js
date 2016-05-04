@@ -349,7 +349,7 @@ define(function(require) {
 
     $("#default_sg_warning").hide();
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToEditor(element.TEMPLATE));
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
     WizardFields.fillInput($('[wizard_field="NAME"]', context), element.NAME);
     $('[wizard_field="NAME"]', context).prop("disabled", true).prop('wizard_field_disabled', true);

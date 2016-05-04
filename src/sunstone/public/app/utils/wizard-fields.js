@@ -54,7 +54,7 @@ define(function(require) {
   }
 
   function _retrieveInput(input) {
-    return TemplateUtils.escapeDoubleQuotes(input.val());
+    return TemplateUtils.escapeDoubleQuotes( input.val() );
   }
 
   // TODO: wizard_field_64 for fill method
@@ -104,9 +104,7 @@ define(function(require) {
   }
 
   function _fillInput(input, value) {
-    input.val(
-      TemplateUtils.escapeDoubleQuotes(
-        TemplateUtils.htmlDecode(value)));
+    input.val(TemplateUtils.escapeDoubleQuotes(value));
 
     input.change();
   }

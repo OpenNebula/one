@@ -22,7 +22,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -81,7 +80,7 @@ define(function(require) {
           case "vnet_id":
             $.each(that.element.TEMPLATE.BODY.roles, function(index, value){
               if (value.vm_template_contents){
-                var reg = new RegExp("\\$"+TemplateUtils.htmlDecode(key)+"\\b");
+                var reg = new RegExp("\\$"+key+"\\b");
 
                 if(reg.exec(value.vm_template_contents) != null){
                   roles_using_net.push(value.name);

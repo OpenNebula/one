@@ -59,14 +59,6 @@ define(function(require) {
     });
   }
 
-  $.ajaxSetup({
-    converters: {
-      "text json": function(textValue) {
-        return jQuery.parseJSON(jQuery('<div/>').text(textValue).html());
-      }
-    }
-  });
-
   var OpenNebula = {
     'Helper': Helper,
     'Action': Action,

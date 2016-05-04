@@ -236,7 +236,7 @@ define(function(require) {
     $.each(user_inputs, function(key, value) {
       var attrs = _parse(key, value);
 
-      if (opts.defaults[key] != undefined){
+      if (defaults[key] != undefined){
         attrs.initial = opts.defaults[key];
       }
 
@@ -274,7 +274,7 @@ define(function(require) {
             '<div class="large-12 large-centered columns">' +
               separator +
               '<h5>' +
-                TemplateUtils.htmlDecode(vnet_attr.description) +
+                TemplateUtils.htmlEncode(vnet_attr.description) +
               '</h5>' +
               vnetsTable.dataTableHTML +
             '</div>' +
@@ -310,7 +310,7 @@ define(function(require) {
           '<div class="row">' +
             '<div class="large-12 large-centered columns">' +
               '<label>' +
-                TemplateUtils.htmlDecode(custom_attr.description) +
+                TemplateUtils.htmlEncode(custom_attr.description) +
                 _attributeInput(custom_attr) +
               '</label>' +
             '</div>' +
@@ -579,7 +579,7 @@ define(function(require) {
 
     var required = (attr.mandatory ? "required" : "");
 
-    var wizard_field = 'wizard_field="' + attr.name + '"';
+    var wizard_field = 'wizard_field="' + TemplateUtils.htmlEncode(attr.name) + '"';
 
     if (attr.wizard_field_disabled == true){
       wizard_field = "";
@@ -588,15 +588,20 @@ define(function(require) {
     var value = "";
 
     if (attr.initial != undefined){
-      value = attr.initial;
+      value = TemplateUtils.htmlEncode(attr.initial);
     }
 
     switch (attr.type) {
       case "text":
-        input = '<textarea type="text" rows="1" '+wizard_field+' '+required+'>'+TemplateUtils.htmlDecode(value)+'</textarea>';
+        input = '<textarea type="text" rows="1" '+wizard_field+' '+required+'>'+TemplateUtils.htmlEncode(value)+'</textarea>';
         break;
       case "text64":
-        input = '<textarea type="text" rows="1" wizard_field_64="true" '+wizard_field+' '+required+'>'+TemplateUtils.htmlDecode(atob(value))+'</textarea>';
+        try {
+          input = '<textarea type="text" rows="1" wizard_field_64="true" '+wizard_field+' '+required+'>'+TemplateUtils.htmlEncode(atob(value))+'</textarea>';
+        } catch(e){
+          console.error(e.message);
+          input = "<p>"+e.message+"</p>";
+        }
         break;
       case "password":
         input = '<input type="password" value="'+value+'" '+wizard_field+' '+required+'/>';

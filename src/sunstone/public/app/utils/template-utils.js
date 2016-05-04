@@ -39,11 +39,21 @@ define(function(require) {
     }
   }
 
+  // Transforms text:
+  //  input:      &lt;b&gt;bold&lt;/b&gt; "text"
+  //  output:     <b>bold</b> "text"
   function _htmlDecode(value) {
     return $('<div/>').html(value).text();
   }
 
-  // Convert from hash to string
+  // Transforms text:
+  //  input:      <b>bold</b> "text"
+  //  output:     &lt;b&gt;bold&lt;/b&gt; "text"
+  function _htmlEncode(value) {
+    return $('<div/>').text(value).html();
+  }
+
+  // Transforms an object to an opennebula template string
   function _convert_template_to_string(template_json, unshown_values) {
     if (unshown_values)
       template_json = $.extend({}, template_json, unshown_values);
@@ -82,14 +92,10 @@ define(function(require) {
     return template_str;
   }
 
-  function _templateToEditor(template_json, unshown_values) {
-    return _htmlDecode(_convert_template_to_string(template_json, unshown_values));
-  }
-
   return {
     'templateToString': _convert_template_to_string,
-    'templateToEditor': _templateToEditor,
     'htmlDecode': _htmlDecode,
+    'htmlEncode': _htmlEncode,
     'escapeDoubleQuotes': _escapeDoubleQuotes
   };
 });

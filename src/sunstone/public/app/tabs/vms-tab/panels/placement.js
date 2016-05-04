@@ -22,6 +22,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var OpenNebulaVM = require('opennebula/vm');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -138,7 +139,7 @@ define(function(require) {
                     </thead>\
                     <tbody>\
                        <tr>\
-                        <td>' + that.element.USER_TEMPLATE.SCHED_MESSAGE + '</td>\
+                        <td>' + TemplateUtils.htmlEncode(that.element.USER_TEMPLATE.SCHED_MESSAGE) + '</td>\
                       </tr>\
                     </tbody>\
            </table>\
@@ -146,10 +147,10 @@ define(function(require) {
          </div>'      ;
     }
 
-    var requirements_str = that.element.USER_TEMPLATE.SCHED_REQUIREMENTS ? that.element.USER_TEMPLATE.SCHED_REQUIREMENTS : "-";
-    var rank_str = that.element.USER_TEMPLATE.SCHED_RANK ? that.element.USER_TEMPLATE.SCHED_RANK : "-";
-    var ds_requirements_str = that.element.USER_TEMPLATE.SCHED_DS_REQUIREMENTS ? that.element.USER_TEMPLATE.SCHED_DS_REQUIREMENTS : "-";
-    var ds_rank_str = that.element.USER_TEMPLATE.SCHED_DS_RANK ? that.element.USER_TEMPLATE.SCHED_DS_RANK : "-";
+    var requirements_str = TemplateUtils.htmlEncode(that.element.USER_TEMPLATE.SCHED_REQUIREMENTS ? that.element.USER_TEMPLATE.SCHED_REQUIREMENTS : "-");
+    var rank_str = TemplateUtils.htmlEncode(that.element.USER_TEMPLATE.SCHED_RANK ? that.element.USER_TEMPLATE.SCHED_RANK : "-");
+    var ds_requirements_str = TemplateUtils.htmlEncode(that.element.USER_TEMPLATE.SCHED_DS_REQUIREMENTS ? that.element.USER_TEMPLATE.SCHED_DS_REQUIREMENTS : "-");
+    var ds_rank_str = TemplateUtils.htmlEncode(that.element.USER_TEMPLATE.SCHED_DS_RANK ? that.element.USER_TEMPLATE.SCHED_DS_RANK : "-");
 
     html += '<div class="row">\
        <div class="large-9 columns">\

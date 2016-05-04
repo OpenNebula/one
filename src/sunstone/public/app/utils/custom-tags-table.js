@@ -88,7 +88,7 @@ define(function(require) {
         $("tbody.custom_tags", context).append(
                               VectorRowTemplateHTML({key: key, value: value}));
       } else {
-        var val = TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value));
+        var val = TemplateUtils.escapeDoubleQuotes(value);
 
         $("tbody.custom_tags", context).append(
                             RowTemplateHTML({

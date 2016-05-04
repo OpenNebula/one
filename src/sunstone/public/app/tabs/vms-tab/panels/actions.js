@@ -223,11 +223,11 @@ define(function(require) {
 
     var str = "";
     str += '<tr class="tr_action_' + scheduling_action.ID + '">\
-       <td class="id_row">' + scheduling_action.ID + '</td>\
-       <td class="action_row">' + scheduling_action.ACTION + '</td>\
+       <td class="id_row">' + TemplateUtils.htmlEncode(scheduling_action.ID) + '</td>\
+       <td class="action_row">' + TemplateUtils.htmlEncode(scheduling_action.ACTION) + '</td>\
        <td nowrap class="time_row">' + time_str + '</td>\
        <td class="done_row">' + done_str + '</td>\
-       <td class="message_row">' + message_str + '</td>\
+       <td class="message_row">' + TemplateUtils.htmlEncode(message_str) + '</td>\
        <td>\
          <div>\
            <a id="minus_' + scheduling_action.ID + '" class="remove_action_x" href="#"><i class="fa fa-trash-o"/></a>\

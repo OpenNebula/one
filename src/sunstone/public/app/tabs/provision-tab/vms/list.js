@@ -25,6 +25,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
   var Graphs = require('utils/graphs');
+  var TemplateUtils = require('utils/template-utils');
 
   var TemplateVmsList = require('hbs!./list');
 
@@ -173,7 +174,7 @@ define(function(require) {
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
+                  (TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+'MB'))+
                 ' - '+
                 get_provision_disk_image(data) +
               '</li>'+
@@ -382,10 +383,10 @@ define(function(require) {
               '<li class="provision-bullet-item" >'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-laptop"/> '+
-                  'x'+data.TEMPLATE.CPU+' - '+
+                  'x'+TemplateUtils.htmlEncode(data.TEMPLATE.CPU)+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    (data.TEMPLATE.MEMORY+'MB'))+
+                    (TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+'MB'))+
                 '</span>'+
                 ' - '+
                 '<span>'+

@@ -148,7 +148,7 @@ define(function(require) {
 
     // Populates the Avanced mode Tab
     $('#template', context).val(
-      TemplateUtils.templateToEditor(templateJSON));
+      TemplateUtils.templateToString(templateJSON));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);

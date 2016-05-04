@@ -26,7 +26,6 @@ define(function(require) {
   var Config = require('sunstone-config');
   var UserInputs = require('utils/user-inputs');
   var UniqueId = require('utils/unique-id');
-  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -94,7 +93,7 @@ define(function(require) {
     context.on("change", "#LOGO", function() {
       $("#template_create_logo", context).show();
       $("#template_create_logo", context).html('<span  class="">' +
-          '<img src="' + TemplateUtils.htmlDecode($(this).val()) + '">' +
+          '<img src="' + $(this).val() + '">' +
         '</span>');
     });
 

@@ -19,7 +19,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/templates-tab/datatable');
-  var TemplateUtils = require('utils/template-utils');
 
   var TemplateHTML = require('hbs!./role-tab/html');
   var TemplateElasticityRowHTML = require('hbs!./role-tab/elasticity-row');
@@ -182,10 +181,10 @@ define(function(require) {
   }
 
   function _fill(context, value, network_names) {
-    $("#role_name", context).val(TemplateUtils.htmlDecode(value.name));
+    $("#role_name", context).val(value.name);
     $("#role_name", context).change();
 
-    $("#cardinality", context).val(TemplateUtils.htmlDecode(value.cardinality));
+    $("#cardinality", context).val(value.cardinality);
 
     this.templatesTable.selectResourceTableSelect({ids : value.vm_template});
 
@@ -198,14 +197,14 @@ define(function(require) {
         }
       });
 
-      $(".vm_template_contents", context).val(TemplateUtils.htmlDecode(value.vm_template_contents));
+      $(".vm_template_contents", context).val(value.vm_template_contents);
     }
 
     $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
 
-    $("#min_vms", context).val(TemplateUtils.htmlDecode(value.min_vms));
-    $("#max_vms", context).val(TemplateUtils.htmlDecode(value.max_vms));
-    $("#cooldown", context).val(TemplateUtils.htmlDecode(value.cooldown));
+    $("#min_vms", context).val(value.min_vms);
+    $("#max_vms", context).val(value.max_vms);
+    $("#cooldown", context).val(value.cooldown);
 
     if (value['elasticity_policies'].length > 0 ||
         value['scheduled_policies'].length > 0) {
@@ -219,14 +218,14 @@ define(function(require) {
       $.each(value['elasticity_policies'], function(){
         $("#tf_btn_elas_policies", context).click();
         var td = $("#elasticity_policies_tbody tr", context).last();
-        $("#type" ,td).val(TemplateUtils.htmlDecode(this['type']));
+        $("#type" ,td).val(this['type']);
         $("#type" ,td).change();
-        $("#adjust" ,td).val(TemplateUtils.htmlDecode(this['adjust'] ));
-        $("#min_adjust_step" ,td).val(TemplateUtils.htmlDecode(this['min_adjust_step'] || ""));
-        $("#expression" ,td).val(TemplateUtils.htmlDecode(this.expression));
-        $("#period_number" ,td).val(TemplateUtils.htmlDecode(this['period_number'] || ""));
-        $("#period" ,td).val(TemplateUtils.htmlDecode(this['period'] || "" ));
-        $("#cooldown" ,td).val(TemplateUtils.htmlDecode(this['cooldown'] || "" ));
+        $("#adjust" ,td).val(this['adjust'] );
+        $("#min_adjust_step" ,td).val(this['min_adjust_step'] || "");
+        $("#expression" ,td).val(this.expression);
+        $("#period_number" ,td).val(this['period_number'] || "");
+        $("#period" ,td).val(this['period'] || "" );
+        $("#cooldown" ,td).val(this['cooldown'] || "" );
       });
     }
 
@@ -234,17 +233,17 @@ define(function(require) {
       $.each(value['scheduled_policies'], function(){
         $("#tf_btn_sche_policies", context).click();
         var td = $("#scheduled_policies_tbody tr", context).last();
-        $("#type", td).val(TemplateUtils.htmlDecode(this['type']));
+        $("#type", td).val(this['type']);
         $("#type" ,td).change();
-        $("#adjust", td).val(TemplateUtils.htmlDecode(this['adjust'] ));
-        $("#min_adjust_step", td).val(TemplateUtils.htmlDecode(this['min_adjust_step']  || ""));
+        $("#adjust", td).val(this['adjust'] );
+        $("#min_adjust_step", td).val(this['min_adjust_step']  || "");
 
         if (this['start_time']) {
           $("#time_format", td).val('start_time');
-          $("#time", td).val(TemplateUtils.htmlDecode(this['start_time']));
+          $("#time", td).val(this['start_time']);
         } else if (this['recurrence']) {
           $("#time_format", td).val('recurrence');
-          $("#time", td).val(TemplateUtils.htmlDecode(this['recurrence']));
+          $("#time", td).val(this['recurrence']);
         }
       });
     }

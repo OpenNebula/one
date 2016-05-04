@@ -311,7 +311,7 @@ define(function(require) {
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToEditor(element.TEMPLATE));
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
     WizardFields.fillInput($('#security_group_name',context), element.NAME);
     $('#security_group_name',context).prop("disabled", true);

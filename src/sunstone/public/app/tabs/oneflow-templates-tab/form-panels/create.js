@@ -25,7 +25,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
-  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -267,14 +266,13 @@ define(function(require) {
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.htmlDecode(
-                          JSON.stringify(element.TEMPLATE.BODY, null, "  ")));
+    $('#template', context).val(JSON.stringify(element.TEMPLATE.BODY, null, "  "));
 
 
     $("#service_name", context).attr("disabled", "disabled");
-    $("#service_name", context).val(TemplateUtils.htmlDecode(element.NAME));
+    $("#service_name", context).val(element.NAME);
 
-    $("#description", context).val(TemplateUtils.htmlDecode(element.TEMPLATE.BODY.description));
+    $("#description", context).val(element.TEMPLATE.BODY.description);
 
     $('select[name="deployment"]', context).val(element.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
@@ -301,8 +299,8 @@ define(function(require) {
             $(".add_service_network", context).trigger("click");
 
             var tr = $(".service_networks tbody tr", context).last();
-            $(".service_network_name", tr).val(TemplateUtils.htmlDecode(attrs.name)).change();
-            $(".service_network_description", tr).val(TemplateUtils.htmlDecode(attrs.description));
+            $(".service_network_name", tr).val(attrs.name).change();
+            $(".service_network_description", tr).val(attrs.description);
 
             break;
         }

@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTRUCTOR
@@ -192,7 +193,7 @@ define(function(require) {
              border-bottom:' + border_bottom + ';\
              padding-top:' + padding_top_bottom + 'px;\
              padding-bottom:' + padding_top_bottom + 'px;">' +
-          field +
+          TemplateUtils.htmlEncode(field) +
         '</td>\
         <td class="value_td" style=\
             "border-bottom:' + border_bottom + ';\
@@ -211,13 +212,13 @@ define(function(require) {
             border-bottom:' + border_bottom + ';\
             padding-top:' + padding_top_bottom + 'px;\
             padding-bottom:' + padding_top_bottom + 'px">' +
-          field +
+          TemplateUtils.htmlEncode(field) +
         '</td>\
         <td class="value_td" style="\
             border-bottom:' + border_bottom + ';\
             padding-top:' + padding_top_bottom + 'px;\
             padding-bottom:' + padding_top_bottom + 'px">' +
-          value +
+          TemplateUtils.htmlEncode(value) +
         '</td>\
       </tr>';
     };

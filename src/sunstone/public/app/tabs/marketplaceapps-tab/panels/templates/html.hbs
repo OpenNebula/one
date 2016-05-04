@@ -29,7 +29,7 @@
     <textarea rows="6" type="text" id="appTemplate_textarea" hidden>{{appTemplate}}</textarea>
       {{#if appTemplate}}
         <pre id="appTemplate_text" class="info_text">
-        {{~htmlDecode appTemplate~}}
+        {{~appTemplate~}}
         </pre>
       {{else}}
         <p id="appTemplate_text" class="info_text">
@@ -51,7 +51,7 @@
     <textarea rows="6" type="text" id="vmTemplate_textarea" hidden>{{vmTemplate}}</textarea>
       {{#if vmTemplate}}
         <pre id="vmTemplate_text" class="info_text">
-        {{~htmlDecode vmTemplate~}}
+        {{~vmTemplate~}}
         </pre>
       {{else}}
         <p id="vmTemplate_text" class="info_text">

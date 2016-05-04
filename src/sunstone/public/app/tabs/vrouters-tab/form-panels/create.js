@@ -24,7 +24,6 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var TemplateUtils = require('utils/template-utils');
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var NicsSection = require('utils/nics-section');
