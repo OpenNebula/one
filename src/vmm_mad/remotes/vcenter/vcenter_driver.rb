@@ -1667,7 +1667,7 @@ class VCenterVm
         end
 
         @used_memory = @summary.quickStats.hostMemoryUsage * 1024
-        cpuMhz = host.cpumhz
+        cpuMhz       = @vm.runtime.host.cpumhz
 
         @used_cpu   =
                 ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
