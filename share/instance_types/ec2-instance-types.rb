@@ -14,8 +14,8 @@ content = JSON.parse(content)
 types = {}
 content["products"].each do |k,v|
     instanceType = v["attributes"]["instanceType"]
-    memory       = v["attributes"]["memory"].split[0] rescue nil
-    cpu          = v["attributes"]["vcpu"]
+    memory       = v["attributes"]["memory"].split[0].to_f rescue nil
+    cpu          = v["attributes"]["vcpu"].to_i
 
     if types[instanceType].nil? && instanceType && memory && cpu
         types[instanceType] = {"cpu" => cpu, "memory" => memory}
