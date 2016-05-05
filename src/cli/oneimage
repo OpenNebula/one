@@ -109,8 +109,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - a datablock image of 400MB:
 
-            oneimage create -d 1 --name data --type DATABLOCK --size 400 \\
-                            --fstype ext2
+            oneimage create -d 1 --name data --type DATABLOCK --size 400
 
     EOT
 

@@ -146,20 +146,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 end
             end
         },
-        {
-            :name => "fstype",
-            :large => "--fstype fstype",
-            :description => "Type of file system to be built. This can be \n"<<
-                            " "*31<<"any value understood by mkfs unix command.",
-            :format => String,
-            :proc => lambda do |o, options|
-                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
-                    [-1, "FSTYPE is only used for DATABLOCK type images"]
-                else
-                    [0, o]
-                end
-            end
-        },
         OpenNebulaHelper::DRY
     ]
 
