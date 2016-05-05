@@ -4936,7 +4936,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // Update FEATURES:
     // -------------------------------------------------------------------------
     string features_names[] = {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV",
-        "DEVICE_MODEL"};
+        "GUEST_AGENT"};
 
     replace_vector_values(obj_template, &tmpl, "FEATURES", features_names, 6);
 

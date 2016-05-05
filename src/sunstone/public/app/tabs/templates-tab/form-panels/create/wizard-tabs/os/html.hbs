@@ -218,6 +218,17 @@
               </select>
             </label>
           </div>
+          <div class="medium-6 columns">
+            <label>
+              {{tr "GUEST AGENT"}}
+              {{{tip (tr "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM.")}}}
+              <select wizard_field="GUEST_AGENT">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
     </div>
