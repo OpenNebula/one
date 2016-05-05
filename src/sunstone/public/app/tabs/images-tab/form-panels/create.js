@@ -211,13 +211,13 @@ define(function(require) {
       });
     }
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
+    $('#img_path,#img_size,#file-uploader', context).closest('.row').hide();
 
     $("input[name='src_path']", context).change(function() {
       var value = $(this).val();
       switch (value){
       case "path":
-        $('#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
+        $('#img_size,#file-uploader', context).closest('.row').hide();
         $('#img_path', context).closest('.row').show();
 
         $('#img_path', context).attr('required', '');
@@ -225,13 +225,13 @@ define(function(require) {
         break;
       case "datablock":
         $('#img_path,#file-uploader', context).closest('.row').hide();
-        $('#img_fstype,#img_size', context).closest('.row').show();
+        $('#img_size', context).closest('.row').show();
 
         $('#img_path', context).removeAttr('required');
         $('#img_size', context).attr('required', '');
         break;
       case "upload":
-        $('#img_path,#img_fstype,#img_size', context).closest('.row').hide();
+        $('#img_path,#img_size', context).closest('.row').hide();
         $('#file-uploader', context).closest('.row').show();
 
         $('#img_path', context).removeAttr('required');
@@ -320,12 +320,19 @@ define(function(require) {
 
     var dev_prefix = WizardFields.retrieveInput($('#img_dev_prefix', context));
     if (dev_prefix.length) {
+      if (dev_prefix == "custom") {
+        dev_prefix = WizardFields.retrieveInput($('#custom_img_dev_prefix', context));
+      }
       img_json["DEV_PREFIX"] = dev_prefix;
     }
 
     var driver = WizardFields.retrieveInput($('#img_driver', context));
-    if (driver.length)
+    if (driver.length) {
+        if (driver == "custom") {
+          driver = WizardFields.retrieveInput($('#custom_img_driver', context));
+        }
         img_json["DRIVER"] = driver;
+    }
 
     var target = WizardFields.retrieveInput($('#img_target', context));
     if (target)
@@ -346,9 +353,7 @@ define(function(require) {
       break;
     case "datablock":
       size = WizardFields.retrieveInput($('#img_size', context));
-      fstype = WizardFields.retrieveInput($('#img_fstype', context));
       if (size) img_json["SIZE"] = size;
-      if (fstype) img_json["FSTYPE"] = fstype;
 
       var disk_type = WizardFields.retrieveInput($('#disk_type', context));
       if (disk_type) {
