@@ -56,6 +56,10 @@ rescue Exception => e
     exit -1
 end
 
+if disk_type.nil? or disk_type.empty?
+  disk_type = "thin"
+end
+
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
