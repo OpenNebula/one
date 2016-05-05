@@ -166,7 +166,7 @@ define(function(require) {
             $('#img_persistent', context).prop('disabled', false);
           }
 
-          // Set the dialog
+          // Display adequate values in the dialog.
           switch (mad) {
           case "vcenter":
             $(".only_vcenter").show();
@@ -176,12 +176,40 @@ define(function(require) {
             $(".only_vcenter").hide();
             $(".not_vcenter").show();
           }
+
+          // Fill in the default driver
+          if (tm_mad == "qcow2"){
+            $('select#img_driver',context).val("qcow2");
+          } else {
+            $('select#img_driver',context).val("raw");
+          }
         },
         error: function(request, error_json, container){
           Notifier.onError(request, error_json, container);
         }
       });
     });
+
+    // Custom Adapter Type
+    var custom_attrs = ["adapter_type",
+                        "disk_type",
+                        "img_dev_prefix",
+                        "img_driver"];
+
+    for (var i in custom_attrs){
+      var field = custom_attrs[i];
+      $('input[name="custom_'+field+'"]',context).parent().hide();
+      $('select#'+field,context).change(function(){
+        var field = $(this).attr('name');
+        if ($(this).val() == "custom"){
+          $('input[name="custom_'+field+'"]',context).parent().show();
+          $('input[name="custom_'+field+'"]',context).attr('required', '');
+        } else {
+          $('input[name="custom_'+field+'"]',context).parent().hide();
+          $('input[name="custom_'+field+'"]',context).removeAttr('required');
+        }
+      });
+    }
 
     $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
 
@@ -304,12 +332,12 @@ define(function(require) {
         img_json["TARGET"] = target;
 
     var adapter_type = WizardFields.retrieveInput($('#adapter_type', context));
-    if (adapter_type)
-        img_json["ADAPTER_TYPE"] = adapter_type;
-
-    var disk_type = WizardFields.retrieveInput($('#disk_type', context));
-    if (disk_type)
-        img_json["DISK_TYPE"] = disk_type;
+    if (adapter_type) {
+      if (adapter_type == "custom") {
+        adapter_type = WizardFields.retrieveInput($('#custom_adapter_type', context));
+      }
+      img_json["ADAPTER_TYPE"] = adapter_type;
+    }
 
     switch ($('#src_path_select input:checked', context).val()){
     case "path":
@@ -321,6 +349,15 @@ define(function(require) {
       fstype = WizardFields.retrieveInput($('#img_fstype', context));
       if (size) img_json["SIZE"] = size;
       if (fstype) img_json["FSTYPE"] = fstype;
+
+      var disk_type = WizardFields.retrieveInput($('#disk_type', context));
+      if (disk_type) {
+        if (disk_type == "custom"){
+          disk_type = WizardFields.retrieveInput($('#custom_disk_type', context));
+        }
+        img_json["DISK_TYPE"] = disk_type;
+      }
+
       break;
     case "upload":
       upload = true;
