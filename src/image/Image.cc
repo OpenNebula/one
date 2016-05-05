@@ -108,6 +108,7 @@ int Image::insert(SqlDB *db, string& error_str)
     string source_attr;
     string saved_id;
     string size_attr;
+    string driver;
 
     istringstream iss;
     ostringstream oss;
@@ -195,10 +196,13 @@ int Image::insert(SqlDB *db, string& error_str)
                 goto error_no_path;
             }
 
-            erase_template_attribute("FSTYPE", fs_type);
+            get_template_attribute("DRIVER", driver);
 
-            // DATABLOCK image needs FSTYPE
-            if (fs_type.empty())
+            if (driver == "qcow2")
+            {
+                fs_type = "qcow2";
+            }
+            else
             {
                 fs_type = "raw";
             }
