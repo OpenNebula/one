@@ -65,7 +65,8 @@ int DispatchManager::deploy (
 error:
 
     oss.str("");
-    oss << "Could not deploy VM " << vid << ", wrong state.";
+    oss << "Could not deploy VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
@@ -169,7 +170,8 @@ int DispatchManager::migrate(
 
 error:
     oss.str("");
-    oss << "Could not migrate VM " << vid << ", wrong state.";
+    oss << "Could not migrate VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
@@ -211,7 +213,8 @@ int DispatchManager::live_migrate(
 
 error:
     oss.str("");
-    oss << "Could not live-migrate VM " << vid << ", wrong state.";
+    oss << "Could not live-migrate VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     vm->unlock();
@@ -309,7 +312,8 @@ int DispatchManager::terminate(
 
                 default:
                     oss.str("");
-                    oss << "Could not terminate VM " << vid << ", wrong state.";
+                    oss << "Could not terminate VM " << vid
+                        << ", wrong state " << vm->state_str() << ".";
 
                     NebulaLog::log("DiM",Log::ERROR,oss);
                     error_str = oss.str();
@@ -369,7 +373,8 @@ int DispatchManager::undeploy(
 
 error:
     oss.str("");
-    oss << "Could not undeploy VM " << vid << ", wrong state.";
+    oss << "Could not undeploy VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -425,7 +430,8 @@ int DispatchManager::poweroff (
 error:
 
     oss.str("");
-    oss << "Could not power off VM " << vid << ", wrong state.";
+    oss << "Could not power off VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -473,7 +479,8 @@ int DispatchManager::hold(
 error:
 
     oss.str("");
-    oss << "Could not hold VM " << vid << ", wrong state.";
+    oss << "Could not hold VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -520,7 +527,8 @@ int DispatchManager::release(
 
 error:
     oss.str("");
-    oss << "Could not release VM " << vid << ", wrong state.";
+    oss << "Could not release VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -567,7 +575,8 @@ int DispatchManager::stop(
 
 error:
     oss.str("");
-    oss << "Could not stop VM " << vid << ", wrong state.";
+    oss << "Could not stop VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -613,7 +622,8 @@ int DispatchManager::suspend(
 
 error:
     oss.str("");
-    oss << "Could not suspend VM " << vid << ", wrong state.";
+    oss << "Could not suspend VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -671,7 +681,8 @@ int DispatchManager::resume(
 
 error:
     oss.str("");
-    oss << "Could not resume VM " << vid << ", wrong state.";
+    oss << "Could not resume VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -729,7 +740,8 @@ int DispatchManager::reboot(
 
 error:
     oss.str("");
-    oss << "Could not reboot VM " << vid << ", wrong state.";
+    oss << "Could not reboot VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -779,7 +791,8 @@ int DispatchManager::resched(
 
 error:
     oss.str("");
-    oss << "Could not set rescheduling flag for VM " << vid << ", wrong state.";
+    oss << "Could not set rescheduling flag for VM " << vid
+        << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");
@@ -817,7 +830,12 @@ int DispatchManager::recover(VirtualMachine * vm, bool success, string& error)
 
         default:
             rc    = -1;
-            error = "Cannot recover VM operation";
+
+            ostringstream oss;
+            oss << "Could not perform a recover operation on VM " << vm->get_oid()
+                << ", wrong state " << vm->state_str() << ".";
+            error = oss.str();
+
             break;
     }
 
@@ -841,7 +859,12 @@ int DispatchManager::retry(VirtualMachine * vm, string& error)
 
         default:
             rc    = -1;
-            error = "The VM operation cannot be retried";
+
+            ostringstream oss;
+            oss << "Could not perform a retry on VM " << vm->get_oid()
+                << ", wrong state " << vm->state_str() << ".";
+            error = oss.str();
+
             break;
     }
 

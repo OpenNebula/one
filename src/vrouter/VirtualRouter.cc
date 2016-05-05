@@ -19,7 +19,7 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 
-static const History::VMAction action[12] = {
+static const History::VMAction action[11] = {
     History::MIGRATE_ACTION,
     History::LIVE_MIGRATE_ACTION,
     History::HOLD_ACTION,
@@ -33,7 +33,7 @@ static const History::VMAction action[12] = {
     History::DISK_SNAPSHOT_DELETE_ACTION
 };
 
-const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 12);
+const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 11);
 
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
