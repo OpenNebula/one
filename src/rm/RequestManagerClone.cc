@@ -133,7 +133,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     {
         return ec;
     }
-    else if ( !recursive)
+    else if ( !recursive )
     {
         return SUCCESS;
     }

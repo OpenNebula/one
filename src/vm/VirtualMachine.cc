@@ -1354,14 +1354,15 @@ void VirtualMachine::parse_well_known_attributes()
      * INPUT
      * FEATURES
      * RAW
+     * CLONING_TEMPLATE_ID
      */
 
     vector<Attribute *>             v_attr;
     vector<Attribute *>::iterator   it;
 
-    string names[] = {"INPUT", "FEATURES", "RAW"};
+    string names[] = {"INPUT", "FEATURES", "RAW", "CLONING_TEMPLATE_ID"};
 
-    for (int i=0; i<3; i++)
+    for (int i=0; i<4; i++)
     {
         v_attr.clear();
 

@@ -69,16 +69,18 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     if (clone_template)
     {
         int new_id;
-        VMTemplateClone tmpl_clone;
 
-        string tmpl_name = name;
+        VMTemplateClone tmpl_clone;
+        string          tmpl_name = name;
+
+        ostringstream   oss;
 
         if (tmpl_name.empty())
         {
             tmpl_name = original_tmpl_name + "-copy";
         }
 
-        ErrorCode ec = tmpl_clone.request_execute(id, name, new_id, true,
+        ErrorCode ec = tmpl_clone.request_execute(id, tmpl_name, new_id, true,
 			str_uattrs, att);
 
         if (ec != SUCCESS)
@@ -88,7 +90,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         }
 
         instantiate_id = new_id;
-        str_uattrs     = "";
+
+        oss << "CLONING_TEMPLATE_ID=" << id << "\n";
+
+        str_uattrs = oss.str();
     }
 
     int       vid;
