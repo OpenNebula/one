@@ -129,7 +129,6 @@ define(function(require) {
       default:
         $('#datablock_img', context).attr('disabled', 'disabled');
         $('#path_image', context).click();
-
       }
     });
 
@@ -142,7 +141,9 @@ define(function(require) {
         },
         timeout: true,
         success: function(request, ds){
-          var mad = ds["DATASTORE"]["DS_MAD"];
+          var mad    = ds["DATASTORE"]["DS_MAD"];
+          var tm_mad = ds["DATASTORE"]["TM_MAD"];
+
           var pers_forced = false;
 
           // Set the persistency
@@ -165,6 +166,16 @@ define(function(require) {
             $('#img_persistent', context).prop('disabled', false);
           }
 
+          // Set the dialog
+          switch (mad) {
+          case "vcenter":
+            $(".only_vcenter").show();
+            $(".not_vcenter").hide();
+            break;
+          default:
+            $(".only_vcenter").hide();
+            $(".not_vcenter").show();
+          }
         },
         error: function(request, error_json, container){
           Notifier.onError(request, error_json, container);
