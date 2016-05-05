@@ -119,7 +119,7 @@ define(function(require) {
       tip = this.button.tip
     }
 
-    $('#confirm_with_select_tip', dialog).text(tip);
+    $('#confirm_with_select_tip', dialog).html(tip);
 
     var action = Sunstone.getAction(this.actionId);
     var elements = action.elements();

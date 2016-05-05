@@ -140,33 +140,18 @@ define(function(require) {
       tip: Locale.tr("Shuts down the given VM. The VM is saved in the system Datastore."),
       custom_classes : "state-dependent"
     },
-    "VM.shutdown" : {
+    "VM.terminate" : {
       type: "confirm",
-      text: Locale.tr("Shutdown"),
+      text: Locale.tr("Terminate"),
       layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will initiate the shutdown process in the selected VMs"),
+      tip: Locale.tr("This will initiate the terminate process in the selected VMs"),
       custom_classes : "state-dependent"
     },
-    "VM.shutdown_hard" : {
+    "VM.terminate_hard" : {
       type: "confirm",
-      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
+      text: Locale.tr("Terminate") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
       layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will initiate the shutdown-hard (forced) process in the selected VMs"),
-      custom_classes : "state-dependent"
-    },
-
-    "VM.delete" : {
-      type: "confirm",
-      text: Locale.tr("Delete"),
-      layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will delete the selected VMs from the database"),
-      custom_classes : "state-dependent"
-    },
-    "VM.delete_recreate" : {
-      type: "confirm",
-      text: Locale.tr("Delete") + ' <span class="label secondary radius">' + Locale.tr("recreate") + '</span>',
-      layout: "vmsrepeat_buttons",
-      tip: Locale.tr("This will delete and recreate VMs to PENDING state"),
+      tip: Locale.tr("This will initiate the terminate-hard (forced) process in the selected VMs"),
       custom_classes : "state-dependent"
     },
     "VM.resched" : {
@@ -188,14 +173,19 @@ define(function(require) {
       text: Locale.tr("Recover"),
       layout: "vmsplanification_buttons",
       custom_select: '<select class="resource_list_select">\
-                    <option value="2">'              + Locale.tr("retry") + '</option>\
-                    <option value="1">'              + Locale.tr("success") + '</option>\
-                    <option value="0">'              + Locale.tr("failure") + '</option>\
-                    </select>'              ,
+                    <option value="2">' + Locale.tr("retry") + '</option>\
+                    <option value="1">' + Locale.tr("success") + '</option>\
+                    <option value="0">' + Locale.tr("failure") + '</option>\
+                    <option value="3">' + Locale.tr("delete") + '</option>\
+                    <option value="4">' + Locale.tr("delete-recreate") + '</option>\
+                  </select>'              ,
       tip: Locale.tr("Recovers a stuck VM that is waiting for a driver operation. \
                     The recovery may be done by failing, succeeding or retrying the current operation. \
                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                    was successful or not, or if it can be retried."),
+                    was successful or not, or if it can be retried.\
+                    <br/>\
+                    <br/>Delete: This will delete the selected VMs\
+                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state"),
       custom_classes : "state-dependent"
     },
     "VM.startvnc" : {
@@ -210,7 +200,7 @@ define(function(require) {
       custom_classes: "only-sunstone-info spice-sunstone-info",
       tip: Locale.tr("SPICE")
     },
-    "VM.saveas_template" : {
+    "VM.save_as_template" : {
       type: "action",
       text: '<i class="fa fa-save"/>',
       tip: Locale.tr("This Virtual Machine will be saved in a new Template. You can then create a new Virtual Machine using this Template"),

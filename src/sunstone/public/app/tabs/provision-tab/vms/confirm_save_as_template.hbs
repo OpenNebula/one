@@ -1,0 +1,55 @@
+<div data-closable class="callout large secondary">
+  <div class="row">
+    <div class="large-12 columns">
+      <span>
+        {{tr "This Virtual Machine will be saved in a new Template."}}
+        <br>
+        {{tr "You can then create a new Virtual Machine using this Template."}}
+      </span>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="large-11 large-centered columns">
+      <input type="text" class="provision_snapshot_name" placeholder="{{tr "Template Name"}}"/>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="large-12 columns">
+      <span>
+        {{tr "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."}}
+      </span>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="large-12 columns">
+      <ul class="menu simple">
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_snapshot_radio" value="persistent">
+            <i class="fa fa-fw fa-save"/> {{tr "Persistent"}}
+          </label>
+        </li>
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_snapshot_radio" value="nonpersistent" checked>
+            <i class="fa fa-fw fa-trash-o"/> {{tr "Non-persistent"}}
+          </label>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="large-11 large-centered columns">
+      <button href"#" class="provision_save_as_template_button success button right">
+        {{tr "Save Virtual Machine to Template"}}
+      </button>
+    </div>
+  </div>
+  <button class="close-button" aria-label="Close" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

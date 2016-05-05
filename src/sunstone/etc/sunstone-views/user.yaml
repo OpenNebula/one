@@ -259,10 +259,8 @@ tabs:
             VM.poweroff_hard: true
             VM.undeploy: true
             VM.undeploy_hard: true
-            VM.shutdown: true
-            VM.shutdown_hard: true
-            VM.delete: true
-            VM.delete_recreate: true
+            VM.terminate: true
+            VM.terminate_hard: true
             VM.resize: true
             VM.attachdisk: true
             VM.detachdisk: true
@@ -277,7 +275,7 @@ tabs:
             VM.disk_snapshot_delete: true
             VM.resched: false
             VM.unresched: false
-            VM.saveas_template: true
+            VM.save_as_template: true
             VM.updateconf: true
     oneflow-services-tab:
         panel_tabs:

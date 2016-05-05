@@ -43,61 +43,46 @@
               <button title="{{tr "You have to boot the Virtual Machine first"}}" class="button radius white provision_vnc_button_disabled disabled tip-top" disabled>
                 <i class="fa fa-fw fa-lg fa-desktop"/></button>
             </li>
-              {{#isProvisionTabEnabled "provision-tab" "templates"}}
+            {{#isTabActionEnabled "provision-tab" "VM.save_as_template"}}
             <li>
-              <button href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="button radius success provision_snapshot_button tip-top">
+              <button href"#" title="{{tr "The disks of the Virtual Machine will be saved in a new Image"}}" class="button radius success provision_save_as_template_confirm_button tip-top">
                 <i class="fa fa-fw fa-lg fa-save"/>
               </button>
             </li>
             <li>
-              <button title="{{tr "You have to power-off the virtual machine first"}}" class="button radius white provision_snapshot_button_disabled disabled tip-top" disabled>
+              <button title="{{tr "You have to power-off the virtual machine first"}}" class="button radius white provision_save_as_template_confirm_button_disabled disabled tip-top" disabled>
                 <i class="fa fa-fw fa-lg fa-save"/>
               </button>
             </li>
-              {{/isProvisionTabEnabled}}
+            {{/isTabActionEnabled}}
             <li>
-              {{#isTabActionEnabled "provision-tab" "VM.delete"}}
             <li>
-              <button href"#" title="{{tr "Delete"}}" class="button radius alert provision_delete_confirm_button tip-top">
+              <button href"#" title="{{tr "Terminate"}}" class="button radius alert provision_terminate_confirm_button tip-top">
                 <i class="fa fa-fw fa-lg fa-trash-o"/>
               </button>
             </li>
-              {{/isTabActionEnabled}}
-              {{#isTabActionEnabled "provision-tab" "VM.shutdown_hard"}}
-            <li>
-              <button href"#" title="{{tr "Delete"}}" class="button radius alert provision_shutdownhard_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-trash-o"/>
-              </button>
-            </li>
-              {{/isTabActionEnabled}}
-              {{#isTabActionEnabled "provision-tab" "VM.poweroff"}}
             <li>
               <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_poweroff_confirm_button tip-top">
                 <i class="fa fa-fw fa-lg fa-power-off"/>
               </button>
             </li>
-              {{/isTabActionEnabled}}
-              {{#isTabActionEnabled "provision-tab" "VM.undeploy"}}
             <li>
               <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_undeploy_confirm_button tip-top">
                 <i class="fa fa-fw fa-lg fa-power-off"/>
               </button>
             </li>
-              {{/isTabActionEnabled}}
-              {{#isTabActionEnabled "provision-tab" "VM.resume"}}
+            {{#isTabActionEnabled "provision-tab" "VM.resume"}}
             <li>
-              <button href"#" title="{{tr "Power on"}}" class="button radius secondary provision_poweron_button tip-top">
+              <button href"#" title="{{tr "Power on"}}" class="button radius secondary provision_resume_button tip-top">
                 <i class="fa fa-fw fa-lg fa-play"/>
               </button>
             </li>
-              {{/isTabActionEnabled}}
-              {{#isTabActionEnabled "provision-tab" "VM.reboot"}}
+            {{/isTabActionEnabled}}
             <li>
               <button href"#" title="{{tr "Reboot"}}" class="button radius secondary provision_reboot_confirm_button tip-top">
                 <i class="fa fa-fw fa-lg fa-repeat"/>
               </button>
             </li>
-              {{/isTabActionEnabled}}
           </ul>
         </li>
       </ul>

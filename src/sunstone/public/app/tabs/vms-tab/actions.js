@@ -56,24 +56,21 @@ define(function(require) {
       error: Notifier.onError
     },
     "VM.refresh": _commonActions.refresh(),
-    "VM.delete":  _commonActions.del(),
     "VM.chown": _commonActions.multipleAction('chown'),
     "VM.chgrp": _commonActions.multipleAction('chgrp'),
-
     "VM.hold":    _commonActions.multipleAction('hold'),
     "VM.release": _commonActions.multipleAction('release'),
     "VM.suspend": _commonActions.multipleAction('suspend'),
     "VM.resume": _commonActions.multipleAction('resume'),
     "VM.stop": _commonActions.multipleAction('stop'),
-    "VM.reboot_hard": _commonActions.multipleAction('reset'),
-    "VM.delete_recreate": _commonActions.multipleAction('resubmit'),
     "VM.reboot": _commonActions.multipleAction('reboot'),
+    "VM.reboot_hard": _commonActions.multipleAction('reboot_hard'),
     "VM.poweroff": _commonActions.multipleAction('poweroff'),
     "VM.poweroff_hard": _commonActions.multipleAction('poweroff_hard'),
     "VM.undeploy": _commonActions.multipleAction('undeploy'),
     "VM.undeploy_hard": _commonActions.multipleAction('undeploy_hard'),
-    "VM.shutdown": _commonActions.multipleAction('shutdown'),
-    "VM.shutdown_hard": _commonActions.multipleAction('shutdown_hard'),
+    "VM.terminate": _commonActions.multipleAction('terminate'),
+    "VM.terminate_hard": _commonActions.multipleAction('terminate_hard'),
     "VM.recover": _commonActions.multipleAction('recover'),
     "VM.resched": _commonActions.multipleAction('resched'),
     "VM.unresched": _commonActions.multipleAction('unresched'),
@@ -198,7 +195,7 @@ define(function(require) {
       },
       notify: true
     },
-    "VM.saveas_template" : {
+    "VM.save_as_template" : {
       type: "single",
       call: function() {
        var dialog = Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID);

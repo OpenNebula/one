@@ -1,0 +1,47 @@
+<div data-closable class="callout large secondary">
+  <div class="row">
+    <div class="large-11 columns">
+      <span>
+        {{tr "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"}}
+        {{#if opts.both}}
+        <br/>
+        <br/>
+        {{tr "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."}}
+        {{/if}}
+      </span>
+    </div>
+  </div>
+  <br/>
+  <div class="row">
+    <div class="large-12 columns">
+      <button href"#" class="provision_poweroff_button button right">
+        {{tr "Power off"}}
+      </button>
+      {{#if opts.both}}
+      <ul class="menu simple">
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_poweroff_radio" value="poweroff_hard">
+            <i class="fa fa-fw fa-bolt"/> {{tr "Power off the machine"}}
+          </label>
+        </li>
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_poweroff_radio" value="poweroff" checked>
+            <i class="fa fa-fw fa-power-off"/> {{tr "Send the power off signal"}}
+          </label>
+        </li>
+      </ul>
+      {{else}}
+        {{#if opts.hard}}
+        <input checked hidden type="radio" name="provision_poweroff_radio" value="poweroff_hard">
+        {{else}}
+        <input checked hidden type="radio" name="provision_poweroff_radio" value="poweroff">
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+  <button class="close-button" aria-label="Close" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

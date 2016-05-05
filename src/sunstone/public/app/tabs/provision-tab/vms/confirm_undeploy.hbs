@@ -1,0 +1,47 @@
+<div data-closable class="callout large secondary">
+  <div class="row">
+    <div class="large-11 columns">
+      <span>
+        {{tr "This action will power off this Virtual Machine and will be undeployed from the physical machine"}}
+        {{#if opts.both}}
+        <br/>
+        <br/>
+        {{tr "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."}}
+        {{/if}}
+      </span>
+    </div>
+  </div>
+  <br/>
+  <div class="row">
+    <div class="large-12 columns">
+      <button href"#" class="provision_undeploy_button button right">
+        {{tr "Power off and undeploy"}}
+      </button>
+      {{#if opts.both}}
+      <ul class="menu simple">
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_undeploy_radio" value="undeploy_hard">
+            <i class="fa fa-fw fa-bolt"/> {{tr "Power off and undeploy the VM"}}
+          </label>
+        </li>
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_undeploy_radio" value="undeploy" checked>
+            <i class="fa fa-fw fa-power-off"/> {{tr "Send the power off signal and undeploy the VM"}}
+          </label>
+        </li>
+      </ul>
+      {{else}}
+        {{#if opts.hard}}
+        <input checked hidden type="radio" name="provision_undeploy_radio" value="undeploy_hard">
+        {{else}}
+        <input checked hidden type="radio" name="provision_undeploy_radio" value="undeploy">
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+  <button class="close-button" aria-label="Close" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

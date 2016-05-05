@@ -1,0 +1,47 @@
+<div data-closable class="callout large secondary">
+  <div class="row">
+    <div class="large-11 columns">
+      <span>
+        {{tr "This action will reboot this Virtual Machine."}}
+        {{#if opts.both}}
+        <br/>
+        <br/>
+        {{tr "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."}}
+        {{/if}}
+      </span>
+    </div>
+  </div>
+  <br/>
+  <div class="row">
+    <div class="large-12 columns">
+      <button href"#" class="provision_reboot_button button right">
+        {{tr "Reboot"}}
+      </button>
+      {{#if opts.both}}
+      <ul class="menu simple">
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_reboot_radio" value="reboot_hard">
+            <i class="fa fa-fw fa-bolt"/> {{tr "Reboot the machine"}}
+          </label>
+        </li>
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_reboot_radio" value="reboot" checked>
+            <i class="fa fa-fw fa-power-off"/> {{tr "Send the reboot signal"}}
+          </label>
+        </li>
+      </ul>
+      {{else}}
+        {{#if opts.hard}}
+        <input checked hidden type="radio" name="provision_reboot_radio" value="reboot_hard">
+        {{else}}
+        <input checked hidden type="radio" name="provision_reboot_radio" value="reboot">
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+  <button class="close-button" aria-label="Close" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
