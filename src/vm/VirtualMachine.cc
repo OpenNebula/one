@@ -4964,13 +4964,14 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
     // -------------------------------------------------------------------------
-    VectorAttribute * context     = obj_template->get("CONTEXT");
-    VectorAttribute * context_bck = context->clone();
-
-    replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
+    VectorAttribute * context = obj_template->get("CONTEXT");
 
     if ( context != 0 )
     {
+        VectorAttribute * context_bck = context->clone();
+
+        replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
+
         generate_network_context(context, true);
 
         if ( generate_token_context(context, err) != 0 ||
@@ -4981,9 +4982,10 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
             return -1;
         }
-    }
 
-    delete context_bck;
+        delete context_bck;
+    }
 
     return 0;
 }
+
