@@ -146,7 +146,7 @@ module Instance
                 if OpenNebula::is_error?(rc)
                     if erb_vms.size < min_count.to_i
                         erb_vms.each { |vm|
-                            vm.finalize
+                            vm.shutdown(true)
                         }
 
                         return rc
@@ -219,7 +219,7 @@ module Instance
                 if OpenNebula::is_error?(rc)
                     if erb_vms.size < min_count.to_i
                         erb_vms.each { |vm|
-                            vm.finalize
+                            vm.shutdown(true)
                         }
 
                         return rc
@@ -284,7 +284,7 @@ module Instance
             if vm.status == 'runn'
                 vm.send(EC2_ACTIONS[:terminate])
             else
-                vm.finalize
+                vm.shutdown(true)
             end
         }
     end
