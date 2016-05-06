@@ -1333,6 +1333,9 @@ void VirtualMachineDiskSaveas::request_execute(
     long long      avail;
     bool           ds_check;
 
+    string ds_mad;
+    string tm_mad;
+
     string driver;
     string target;
     string dev_prefix;
@@ -1427,6 +1430,8 @@ void VirtualMachineDiskSaveas::request_execute(
 
     ds_check     = ds->get_avail_mb(avail);
     ds_disk_type = ds->get_disk_type();
+    ds_mad       = ds->get_ds_mad();
+    ds_mad       = ds->get_tm_mad();
 
     ds->unlock();
 
@@ -1504,6 +1509,8 @@ void VirtualMachineDiskSaveas::request_execute(
                          ds_disk_type,
                          ds_data,
                          Datastore::IMAGE_DS,
+                         ds_mad,
+                         tm_mad,
                          "",
                          -1,
                          &iid,

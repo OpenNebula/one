@@ -187,25 +187,11 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    if (!is_saving()) //Not a saving image
+    if (!is_saving())
     {
-        if ( source.empty() && path.empty() )
+        if ( source.empty() && path.empty() && type != DATABLOCK )
         {
-            if (type != DATABLOCK)
-            {
-                goto error_no_path;
-            }
-
-            get_template_attribute("DRIVER", driver);
-
-            if (driver == "qcow2")
-            {
-                fs_type = "qcow2";
-            }
-            else
-            {
-                fs_type = "raw";
-            }
+            goto error_no_path;
         }
         else if ( !source.empty() && !path.empty() )
         {
@@ -228,7 +214,7 @@ int Image::insert(SqlDB *db, string& error_str)
     return rc;
 
 error_no_path:
-    error_str = "No PATH in template.";
+    error_str = "No PATH nor SOURCE in template.";
     goto error_common;
 
 error_path_and_source:

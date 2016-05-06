@@ -87,6 +87,8 @@ int ImagePool::allocate (
         Image::DiskType          disk_type,
         const string&            ds_data,
         Datastore::DatastoreType ds_type,
+        const string&            ds_mad,
+        const string&            tm_mad,
         const string&            extra_data,
         int                      cloning_id,
         int *                    oid,
@@ -99,6 +101,8 @@ int ImagePool::allocate (
     Image *         img_aux = 0;
     string          name;
     string          type;
+    string          fs_type;
+    string          driver;
     ostringstream   oss;
 
     int rc;
@@ -159,6 +163,45 @@ int ImagePool::allocate (
         }
 
         img->set_cloning_id(cloning_id);
+    }
+
+    // ---------------------------------------------------------------------
+    // Get FSTYPE
+    // ---------------------------------------------------------------------
+    img->get_template_attribute("FSTYPE", fs_type);
+
+    if (!fs_type.empty())
+    {
+        img->fs_type = fs_type;
+    }
+    else
+    {
+        img->get_template_attribute("DRIVER", driver);
+
+        if (!driver.empty())
+        {
+            // infer fs_type from driver
+            one_util::tolower(driver);
+
+            if (driver == "qcow2")
+            {
+                img->fs_type = "qcow2";
+            }
+            else
+            {
+                img->fs_type = "raw";
+            }
+        } else {
+            // no driver, infer ds_type from tm_mad
+            if (tm_mad == "qcow2")
+            {
+                img->fs_type = "qcow2";
+            }
+            else
+            {
+                img->fs_type = "raw";
+            }
+        }
     }
 
     // ---------------------------------------------------------------------

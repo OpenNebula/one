@@ -86,6 +86,8 @@ public:
         Image::DiskType          disk_type,
         const string&            ds_data,
         Datastore::DatastoreType ds_type,
+        const string&            ds_mad,
+        const string&            tm_mad,
         const string&            extra_data,
         int                      source_img_id,
         int *                    oid,
