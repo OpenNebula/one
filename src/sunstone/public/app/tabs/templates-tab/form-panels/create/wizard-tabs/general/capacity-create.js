@@ -218,6 +218,11 @@ define(function(require) {
 
       attr.type = $("."+classname+"_modify_type", context).val();
 
+      if (attr.type == "number" || attr.type == "number-float"){
+        // Continue. No user input is the same as 'any value'
+        return true;
+      }
+
       attr.name = classname.toUpperCase();
       attr.mandatory = true;
       attr.description = "";
