@@ -28,8 +28,8 @@ module OpenNebula
 
         # Actions that can be performed on the VMs of a given Role
         SCHEDULE_ACTIONS = [
-            'shutdown',
-            'shutdown-hard',
+            'terminate',
+            'terminate-hard',
             'undeploy',
             'undeploy-hard',
             'hold',
@@ -37,8 +37,6 @@ module OpenNebula
             'stop',
             'suspend',
             'resume',
-            'delete',
-            'delete-recreate',
             'reboot',
             'reboot-hard',
             'poweroff',
@@ -315,12 +313,12 @@ module OpenNebula
             return [true, nil]
         end
 
-        # Shutdown all the nodes in this role
+        # Terminate all the nodes in this role
         #
-        # @param scale_down [true, false] true to shutdown and dispose the
+        # @param scale_down [true, false] true to terminate and dispose the
         #   number of VMs needed to get down to cardinality nodes
         # @return [Array<true, nil>, Array<false, String>] true if all the VMs
-        # were shutdown, false and the error reason if there was a problem
+        # were terminated, false and the error reason if there was a problem
         # shutting down the VMs
         def shutdown(scale_down=false)
             success = true
@@ -348,10 +346,10 @@ module OpenNebula
                 Log.debug LOG_COMP, "Role #{name} : Deleting VM #{vm_id}", @service.id()
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                rc = vm.shutdown(true)
+                rc = vm.terminate(true)
 
                 if OpenNebula.is_error?(rc)
-                    rc = vm.finalize
+                    rc = vm.delete
                 end
 
                 if OpenNebula.is_error?(rc)
@@ -553,7 +551,7 @@ module OpenNebula
             if diff > 0
                 return deploy(true)
             elsif diff < 0
-                return shutdown(true)
+                return terminate(true)
             end
 
             return [true, nil]
@@ -886,7 +884,7 @@ module OpenNebula
 
                 elsif ( Role.vm_failure?(vm_state, lcm_state) )
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    rc = vm.finalize
+                    rc = vm.shutdown(true)
 
                     if !OpenNebula.is_error?(rc)
                         # Store the VM id in the array of disposed nodes
@@ -933,14 +931,14 @@ module OpenNebula
             nodes.each { |node|
                 vm_id = node['deploy_id']
 
-                Log.debug LOG_COMP, "Role #{name} : Shutting down VM #{vm_id}", @service.id()
+                Log.debug LOG_COMP, "Role #{name} : Terminating VM #{vm_id}", @service.id()
 
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
 
-                if action == 'shutdown-hard'
-                    rc = vm.shutdown(true)
+                if action == 'terminate-hard'
+                    rc = vm.terminate(true)
                 else
-                    rc = vm.shutdown
+                    rc = vm.terminate
                 end
 
                 if scale_down
@@ -948,11 +946,17 @@ module OpenNebula
                 end
 
                 if OpenNebula.is_error?(rc)
-                    msg = "Role #{name} : Shutdown failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
+                    msg = "Role #{name} : Terminate failed for VM #{vm_id}, will perform a Delete; #{rc.message}"
                     Log.error LOG_COMP, msg, @service.id()
                     @service.log_error(msg)
 
-                    rc = vm.finalize
+                    if action != 'terminate-hard'
+                        rc = vm.terminate(true)
+                    end
+
+                    if OpenNebula.is_error?(rc)
+                        rc = vm.delete
+                    end
 
                     if OpenNebula.is_error?(rc)
                         msg = "Role #{name} : Delete failed for VM #{vm_id}; #{rc.message}"
@@ -965,7 +969,7 @@ module OpenNebula
                         Log.debug LOG_COMP, "Role #{name} : Delete success for VM #{vm_id}", @service.id()
                     end
                 else
-                    Log.debug LOG_COMP, "Role #{name} : Shutdown success for VM #{vm_id}", @service.id()
+                    Log.debug LOG_COMP, "Role #{name} : Terminate success for VM #{vm_id}", @service.id()
                 end
             }
         end

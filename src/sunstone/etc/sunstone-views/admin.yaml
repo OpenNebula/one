@@ -293,10 +293,8 @@ tabs:
                 Role.poweroff_hard: true
                 Role.undeploy: true
                 Role.undeploy_hard: true
-                Role.shutdown: true
-                Role.shutdown_hard: true
-                Role.delete: true
-                Role.delete_recreate: true
+                Role.terminate: true
+                Role.terminate_hard: true
                 RoleVM.hold: true
                 RoleVM.release: true
                 RoleVM.suspend: true
@@ -308,10 +306,8 @@ tabs:
                 RoleVM.poweroff_hard: true
                 RoleVM.undeploy: true
                 RoleVM.undeploy_hard: true
-                RoleVM.shutdown: true
-                RoleVM.shutdown_hard: true
-                RoleVM.delete: true
-                RoleVM.delete_recreate: true
+                RoleVM.terminate: true
+                RoleVM.terminate_hard: true
                 RoleVM.resched: true
                 RoleVM.unresched: true
                 RoleVM.recover: true

@@ -30,10 +30,8 @@ define(function(require) {
     "RoleVM.poweroff_hard" : VMButtons["VM.poweroff_hard"],
     "RoleVM.undeploy" : VMButtons["VM.undeploy"],
     "RoleVM.undeploy_hard" : VMButtons["VM.undeploy_hard"],
-    "RoleVM.shutdown" : VMButtons["VM.shutdown"],
-    "RoleVM.shutdown_hard" : VMButtons["VM.shutdown_hard"],
-    "RoleVM.delete" : VMButtons["VM.delete"],
-    "RoleVM.delete_recreate" : VMButtons["VM.delete_recreate"],
+    "RoleVM.terminate" : VMButtons["VM.terminate"],
+    "RoleVM.terminate_hard" : VMButtons["VM.terminate_hard"],
     "RoleVM.resched" : VMButtons["VM.resched"],
     "RoleVM.unresched" : VMButtons["VM.unresched"]
   };

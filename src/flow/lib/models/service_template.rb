@@ -48,7 +48,7 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w{shutdown shutdown-hard},
+                    :enum => %w{terminate terminate-hard shutdown shutdown-hard},
                     :required => false
                 },
                 'min_vms' => {
@@ -158,7 +158,7 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w{shutdown shutdown-hard},
+                    :enum => %w{terminate terminate-hard shutdown shutdown-hard},
                     :required => false
                 },
                 'roles' => {

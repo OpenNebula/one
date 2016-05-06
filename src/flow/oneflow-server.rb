@@ -65,7 +65,7 @@ end
 conf[:debug_level]  ||= 2
 conf[:lcm_interval] ||= 30
 conf[:default_cooldown] ||= 300
-conf[:shutdown_action] ||= 'shutdown'
+conf[:shutdown_action] ||= 'terminate'
 conf[:action_number] ||= 1
 conf[:action_period] ||= 60
 

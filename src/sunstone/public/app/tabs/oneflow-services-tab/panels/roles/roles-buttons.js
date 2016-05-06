@@ -89,29 +89,17 @@ define(function(require) {
       layout: "vmsstop_buttons",
       tip: Locale.tr("Shuts down the given VM. The VM is saved in the system Datastore.")
     },
-    "Role.shutdown" : {
+    "Role.terminate" : {
       type: "action",
-      text: Locale.tr("Shutdown"),
+      text: Locale.tr("Terminate"),
       layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will initiate the shutdown process in the selected VMs")
+      tip: Locale.tr("This will initiate the terminate process in the selected VMs")
     },
-    "Role.shutdown_hard" : {
+    "Role.terminate_hard" : {
       type: "action",
-      text: Locale.tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
+      text: Locale.tr("Terminate") + ' <span class="label secondary radius">hard</span>',
       layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
-    },
-    "Role.delete" : {
-      type: "action",
-      text: Locale.tr("Delete"),
-      layout: "vmsdelete_buttons",
-      tip: Locale.tr("This will delete the selected VMs from the database")
-    },
-    "Role.delete_recreate" : {
-      type: "action",
-      text: Locale.tr("Delete") + ' <span class="label secondary radius">recreate</span>',
-      layout: "vmsrepeat_buttons",
-      tip: Locale.tr("This will delete and recreate VMs to PENDING state")
+      tip: Locale.tr("This will initiate the terminate-hard (forced) process in the selected VMs")
     }
   };
 

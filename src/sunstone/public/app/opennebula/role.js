@@ -97,13 +97,6 @@ define(function(require) {
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "delete_recreate" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "delete-recreate",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
     "reboot" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
@@ -153,24 +146,17 @@ define(function(require) {
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "shutdown" : function(params) {
+    "terminate" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
-                                      "shutdown",
+                                      "terminate",
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "shutdown_hard" : function(params) {
+    "terminate_hard" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
-                                      "shutdown-hard",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
-    "del" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "delete",
+                                      "terminate-hard",
                                       generate_batch_action_params(),
                                       PATH);
     },
