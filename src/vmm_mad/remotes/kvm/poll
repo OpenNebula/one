@@ -160,6 +160,35 @@ module KVM
         return vms_info
     end
 
+    def self.number_of_processors
+        %x{nproc}.to_i
+    end
+
+    def self.get_cpu_jiffies
+        stat = File.read("/proc/stat")
+        jiffies = 0
+
+        # skip cpu string and guest jiffies
+        stat.lines.first.split(' ')[1..-3].each do |num|
+            jiffies += num.to_i
+        end
+
+        jiffies
+    end
+
+    def self.get_process_jiffies(pid)
+        stat = File.read("/proc/#{pid}/stat")
+        jiffies = 0
+
+        data = stat.lines.first.split(' ')
+
+        [13, 14, 15, 16].each do |col|
+            jiffies += data[col].to_i
+        end
+
+        jiffies
+    end
+
     # Gathers process information from a set of VMs.
     #   @param vms [Hash] of vms indexed by name. Value is a hash with :pid
     #   @return  [Hash] with ps information
@@ -167,33 +196,23 @@ module KVM
         pids = vms.map {|name, vm| vm[:pid] }
         pids.compact!
 
+        multiplier = number_of_processors * 100
+
         cpu = Hash.new
 
-        pids.each_slice(20) do |slice|
-            data = %x{#{CONF[:top]} #{slice.join(',')}}
+        start_cpu_jiffies = get_cpu_jiffies
 
-            lines = data.strip.split("\n")
+        pids.each do |pid|
+            cpu[pid] = get_process_jiffies(pid).to_f
+        end
 
-            block_size  = lines.length/2
-            valid_lines = lines.last(block_size)
+        sleep 1
 
-            first_domain = 7
+        cpu_jiffies = get_cpu_jiffies - start_cpu_jiffies
 
-            cpu_field = nil
-            valid_lines.each_with_index{ |l,i|
-                if l.match 'PID USER'
-                    first_domain=i+1
-                    cpu_field = l.strip.split.index("%CPU")
-                    break
-                end
-            }
-
-            domain_lines = valid_lines[first_domain..-1]
-
-            domain_lines.each do |line|
-                d = line.split
-                cpu[d[0]] = d[cpu_field]
-            end
+        pids.each do |pid|
+            cpu[pid] = ( get_process_jiffies(pid) - cpu[pid] ) / cpu_jiffies
+            cpu[pid] = ( cpu[pid] * multiplier ).round(2)
         end
 
         cpu
