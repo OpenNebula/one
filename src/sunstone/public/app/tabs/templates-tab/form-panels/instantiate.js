@@ -206,7 +206,9 @@ define(function(require) {
 
           NicsSection.insert(template_json,
             $(".nicsContext"  + template_json.VMTEMPLATE.ID, context),
-            {'securityGroups': Config.isFeatureEnabled("secgroups")});
+            { 'forceIPv4': true,
+              'securityGroups': Config.isFeatureEnabled("secgroups")
+            });
 
           var inputs_div = $(".template_user_inputs" + template_json.VMTEMPLATE.ID, context);
 
