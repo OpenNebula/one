@@ -129,7 +129,7 @@ public:
      * Calls one.vm.action
      *
      * @param vid The VM id
-     * @param action Action argument (shutdown, hold, release...)
+     * @param action Action argument (terminate, hold, release...)
      * @param error_msg Error reason, if any
      *
      * @return 0 on success, -1 otherwise

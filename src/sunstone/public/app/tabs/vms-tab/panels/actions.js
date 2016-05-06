@@ -90,15 +90,13 @@ define(function(require) {
           <td></td>\
           <td>\
             <select id="select_new_action" class="select_new_action" name="select_action">\
-              <option value="shutdown">' + Locale.tr("shutdown") + '</option>\
-              <option value="shutdown-hard">' + Locale.tr("shutdown-hard") + '</option>\
+              <option value="terminate">' + Locale.tr("terminate") + '</option>\
+              <option value="terminate-hard">' + Locale.tr("terminate-hard") + '</option>\
               <option value="hold">' + Locale.tr("hold") + '</option>\
               <option value="release">' + Locale.tr("release") + '</option>\
               <option value="stop">' + Locale.tr("stop") + '</option>\
               <option value="suspend">' + Locale.tr("suspend") + '</option>\
               <option value="resume">' + Locale.tr("resume") + '</option>\
-              <option value="delete">' + Locale.tr("delete") + '</option>\
-              <option value="delete-recreate">' + Locale.tr("delete-recreate") + '</option>\
               <option value="reboot">' + Locale.tr("reboot") + '</option>\
               <option value="reboot-hard">' + Locale.tr("reboot-hard") + '</option>\
               <option value="poweroff">' + Locale.tr("poweroff") + '</option>\
