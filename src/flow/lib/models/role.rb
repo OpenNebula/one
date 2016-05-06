@@ -884,7 +884,7 @@ module OpenNebula
 
                 elsif ( Role.vm_failure?(vm_state, lcm_state) )
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    rc = vm.shutdown(true)
+                    rc = vm.terminate(true)
 
                     if !OpenNebula.is_error?(rc)
                         # Store the VM id in the array of disposed nodes

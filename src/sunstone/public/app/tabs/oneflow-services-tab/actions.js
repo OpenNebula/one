@@ -331,16 +331,7 @@ define(function(require) {
 
     "RoleVM.reboot_hard" : {
       type: "multiple",
-      call: OpenNebulaVM.reset,
-      callback: roleCallback,
-      elements: roleVMElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "RoleVM.delete_recreate" : {
-      type: "multiple",
-      call: OpenNebulaVM.resubmit,
+      call: OpenNebulaVM.reboot_hard,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,
