@@ -47,8 +47,13 @@ keep_disks    = !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS
                  drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
 disks         = drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]
 
+cloned_tmplt = nil
+if !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
+    cloned_tmplt  =  drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
+end
+
 begin
-    VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state, keep_disks, disks)
+    VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state, keep_disks, disks, cloned_tmplt)
 rescue Exception => e
     STDERR.puts "Shutdown of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
