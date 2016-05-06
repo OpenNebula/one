@@ -51,13 +51,11 @@ DST_DIR=`dirname $DST_PATH`
 #-------------------------------------------------------------------------------
 ssh_make_path $DST_HOST $DST_DIR
 
-CREATE_IMAGE="$QEMU_IMG create -f raw $DST_PATH ${SIZE}M"
 MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
 
 MKSCRIPT=$(cat <<EOF
 set -e
 export PATH=/usr/sbin:/sbin:\$PATH
-$CREATE_IMAGE
 $MKFS_CMD
 EOF
 )

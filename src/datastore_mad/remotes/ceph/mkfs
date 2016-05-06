@@ -111,12 +111,6 @@ REGISTER_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
 
     $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
-
-    if [ "$FSTYPE" != "raw" ]; then
-        $SUDO $RBD map $RBD_SOURCE || exit \$?
-        $SUDO $MKFS_CMD
-        $SUDO $RBD unmap /dev/rbd/$RBD_SOURCE
-    fi
 EOF
 )
 

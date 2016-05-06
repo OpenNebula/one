@@ -315,42 +315,20 @@ function force_shutdown {
 # filesystem with its proper parameters based on the filesystem type
 function mkfs_command {
     DST=$1
-    FSTYPE=${2:-ext3}
+    FSTYPE=$2
     SIZE=${3:-0}
 
-    # Specific options for different FS
-    case "$FSTYPE" in
-        "ext2"|"ext3"|"ext4"|"ntfs")
-            OPTS="-F"
-            ;;
+    if [ "$FSTYPE" = "qcow2" ]; then
+        QEMU_FORMAT="qcow2"
+    else
+        QEMU_FORMAT="raw"
+    fi
 
-        "reiserfs"|"xfs")
-            OPTS="-f -q"
-            ;;
+    echo "$QEMU_IMG create -f ${QEMU_FORMAT} ${DST} ${SIZE}M"
 
-        "jfs")
-            OPTS="-q"
-            ;;
-        "raw"|"")
-            echo ""
-            return 0
-            ;;
-        "swap")
-            echo "$MKSWAP -L swap $DST"
-            return 0
-            ;;
-        "qcow2")
-            echo "$QEMU_IMG create -f qcow2 $DST ${SIZE}M"
-            return 0
-            ;;
-        *)
-            echo ""
-            echo "Filesystem '$FSTYPE' not valid." 1>&2
-            return 1
-            ;;
-    esac
-
-    echo "$MKFS -t $FSTYPE $OPTS $DST"
+    if [ "$FSTYPE" = "swap" ]; then
+        echo "$MKSWAP -L swap $DST"
+    fi
 }
 
 #This function executes $2 at $1 host and report error $3
