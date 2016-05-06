@@ -151,11 +151,12 @@ const int VirtualMachine::NUM_NETWORK_CONTEXT = 10;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
+        {"IP6_ULA", "IP6_ULA"},
         {"GATEWAY6", "GATEWAY6"},
         {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"},
         {"VROUTER_IP6", "VROUTER_IP6_GLOBAL"}};
 
-const int VirtualMachine::NUM_NETWORK6_CONTEXT = 4;
+const int VirtualMachine::NUM_NETWORK6_CONTEXT = 5;
 
 const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
         "VROUTER_ID",
@@ -1021,7 +1022,7 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // Add network context and parse variables
     // -------------------------------------------------------------------------
-    generate_network_context(context, false);
+    generate_network_context(context);
 
     if (parse_context_variables(&context, error_str) == -1)
     {
@@ -3305,7 +3306,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     //Generate dynamic context attributes
-    if ( generate_network_context(context, false) )
+    if ( generate_network_context(context) )
     {
         string error;
 
@@ -4702,7 +4703,7 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, VectorAttribute * nic, bool replace)
+        VectorAttribute * context, VectorAttribute * nic)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -4714,12 +4715,6 @@ static void parse_context_network(const char* vars[][2], int num_vars,
         cvar << "ETH" << nic_id << "_" << vars[i][0];
 
         cval = context->vector_value(cvar.str().c_str());
-
-        if (!cval.empty() && !replace)
-        {
-            continue;
-        }
-
         cval = nic->vector_value(vars[i][1]); //Check the NIC
 
         if (cval.empty()) //Will check the AR and VNET
@@ -4736,20 +4731,15 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n,
-        bool rpl)
+void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
 {
-    parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, c, n, rpl);
-
-    if (!n->vector_value("IP6_GLOBAL").empty())
-    {
-        parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n, rpl);
-    }
+    parse_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,  c, n);
+    parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
 }
 
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::generate_network_context(VectorAttribute * context, bool r)
+bool VirtualMachine::generate_network_context(VectorAttribute * context)
 {
     bool net_context;
 
@@ -4760,13 +4750,15 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context, bool r)
         return net_context;
     }
 
+    context->remove("NETWORK");
+
     vector<VectorAttribute *> vatts;
 
     int num_vatts = obj_template->get("NIC", vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
-        parse_nic_context(context, vatts[i], r);
+        parse_nic_context(context, vatts[i]);
     }
 
     return net_context;
@@ -4785,6 +4777,8 @@ int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
     {
         return 0;
     }
+
+    context->remove("TOKEN");
 
     Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
 
@@ -4815,52 +4809,27 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     string value;
 
     VectorAttribute * new_attr = new_tmpl->get(name);
+    VectorAttribute * old_attr = old_tmpl->get(name);
 
     if ( new_attr == 0 )
     {
-        return;
+        old_tmpl->erase(name);
     }
-
-    VectorAttribute * old_attr = old_tmpl->get(name);
-
-    if ( old_attr == 0 )
+    else if ( old_attr == 0 )
     {
-        old_attr = new VectorAttribute(name);
-        old_tmpl->set(old_attr);
+        old_tmpl->set(new_attr->clone());
     }
-
-    if ( num > 0 && vnames != 0 )
+    else
     {
         for (int i=0; i < num; i++)
         {
             if ( new_attr->vector_value(vnames[i], value) == -1 )
-            {
-                continue;
-            }
-            else if (value.empty())
             {
                 old_attr->remove(vnames[i]);
             }
             else
             {
                 old_attr->replace(vnames[i], value);
-            }
-        }
-    }
-    else //replace all
-    {
-        const map<string, string> contents = new_attr->value();
-        map<string, string>::const_iterator it;
-
-        for ( it = contents.begin() ; it != contents.end() ; ++it )
-        {
-            if ( it->second.empty() )
-            {
-                old_attr->remove(it->first);
-            }
-            else
-            {
-                old_attr->replace(it->first, it->second);
             }
         }
     }
@@ -4965,18 +4934,29 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
     // -------------------------------------------------------------------------
-    VectorAttribute * context = obj_template->get("CONTEXT");
+    VectorAttribute * context_bck = obj_template->get("CONTEXT");
+    VectorAttribute * context_new = tmpl.get("CONTEXT");
 
-    if ( context != 0 )
+    if ( context_bck == 0 && context_new != 0 )
     {
-        VectorAttribute * context_bck = context->clone();
+        err = "Virtual machine does not have context, cannot add a new one.";
 
-        replace_vector_values(obj_template, &tmpl, "CONTEXT", 0, -1);
+        return -1;
+    }
+    else if ( context_bck != 0 && context_new != 0 )
+    {
+        context_new = context_new->clone();
 
-        generate_network_context(context, true);
+        context_new->replace("TARGET",  context_bck->vector_value("TARGET"));
+        context_new->replace("DISK_ID", context_bck->vector_value("DISK_ID"));
 
-        if ( generate_token_context(context, err) != 0 ||
-                parse_context_variables(&context, err) )
+        obj_template->remove(context_bck);
+        obj_template->set(context_new);
+
+        generate_network_context(context_new);
+
+        if ( generate_token_context(context_new, err) != 0 ||
+                parse_context_variables(&context_new, err) )
         {
             obj_template->erase("CONTEXT");
             obj_template->set(context_bck);
