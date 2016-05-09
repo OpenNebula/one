@@ -40,7 +40,8 @@ define(function(require) {
     require('utils/dialogs/confirm'),
     require('utils/dialogs/confirm-with-select'),
     require('utils/dialogs/generic-confirm'),
-    require('utils/dialogs/clusters')
+    require('utils/dialogs/clusters'),
+    require('utils/dialogs/overcommit')
   ]
 
 

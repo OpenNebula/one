@@ -73,6 +73,29 @@
         </tr>
       </tbody>
     </table>
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Overcommitment"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "Reserved CPU"}}</td>
+          <td class="value_td" style="width:50%;">{{valOrDefault element.TEMPLATE.RESERVED_CPU "-"}}</td>
+          <td>
+            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+          </td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Reserved Memory"}}</td>
+          <td class="value_td" style="width:50%;">{{humanizeSize "KB" element.TEMPLATE.RESERVED_MEM}}</td>
+          <td>
+            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     {{{datastoresCapacityTableHTML}}}
   </div>
 </div>
