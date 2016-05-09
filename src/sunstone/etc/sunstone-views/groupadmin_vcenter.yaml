@@ -2,11 +2,6 @@ small_logo: images/opennebula-sunstone-v4.14-small.png
 provision_logo: images/one_small_logo.png
 enabled_tabs:
     - dashboard-tab
-    - system-top-tab
-    - users-tab
-    - groups-tab
-    #- vdcs-tab
-    #- acls-tab
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
@@ -28,6 +23,11 @@ enabled_tabs:
     - vrouters-tab
     - vnets-topology-tab
     #- secgroups-tab
+    - system-top-tab
+    - users-tab
+    - groups-tab
+    #- vdcs-tab
+    #- acls-tab
     - settings-tab
     #- support-tab
 autorefresh: true
