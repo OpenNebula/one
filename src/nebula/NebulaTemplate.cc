@@ -127,14 +127,14 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # vmfs
 #******
 */
-    set_conf_ds("dev",    "DISK_TYPE",            "YES");
-    set_conf_ds("iscsi",  "DISK_TYPE,ISCSI_HOST", "YES");
-    set_conf_ds("dummy",  "",                     "NO");
-    set_conf_ds("fs",     "",                     "NO");
-    set_conf_ds("lvm",    "DISK_TYPE",            "NO");
-    set_conf_ds("shared", "",                     "NO");
-    set_conf_ds("ssh",    "",                     "NO");
-    set_conf_ds("vmfs",   "BRIDGE_LIST",          "NO");
+    set_conf_ds("dev",            "DISK_TYPE",            "YES");
+    set_conf_ds("iscsi_libvirt",  "DISK_TYPE,ISCSI_HOST", "YES");
+    set_conf_ds("dummy",          "",                     "NO");
+    set_conf_ds("fs",             "",                     "NO");
+    set_conf_ds("lvm",            "DISK_TYPE",            "NO");
+    set_conf_ds("shared",         "",                     "NO");
+    set_conf_ds("ssh",            "",                     "NO");
+    set_conf_ds("vmfs",           "BRIDGE_LIST",          "NO");
     set_conf_ds("ceph",
                 "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
                 "NO");

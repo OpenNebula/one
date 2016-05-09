@@ -155,7 +155,7 @@ define(function(require) {
         case 'dev':
           _selectDevices(dialog);
           break;
-        case 'iscsi':
+        case 'iscsi_libvirt':
           _selectISCSI(dialog);
           break;
         case 'vcenter':
@@ -467,9 +467,9 @@ define(function(require) {
   }
 
   function _selectISCSI(dialog) {
-    $('select#ds_mad', dialog).val('iscsi').change();
+    $('select#ds_mad', dialog).val('iscsi_libvirt').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
-    $('select#tm_mad', dialog).val('iscsi');
+    $('select#tm_mad', dialog).val('iscsi_libvirt');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
     $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');

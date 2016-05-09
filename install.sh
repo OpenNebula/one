@@ -267,7 +267,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
           $VAR_LOCATION/remotes/tm/vcenter \
-          $VAR_LOCATION/remotes/tm/iscsi \
+          $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
@@ -280,7 +280,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
-          $VAR_LOCATION/remotes/datastore/iscsi \
+          $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -391,7 +391,7 @@ INSTALL_FILES=(
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
-    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
+    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi_libvirt
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     TM_VCENTER_FILES:$VAR_LOCATION/remotes/tm/vcenter
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
@@ -400,7 +400,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
-    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
+    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
@@ -840,7 +840,7 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
 #   - DEV TM, $VAR_LOCATION/tm/dev
-#   - ISCSI TM, $VAR_LOCATION/tm/iscsi
+#   - ISCSI TM, $VAR_LOCATION/tm/iscsi_libvirt
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -979,19 +979,19 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/failmigrate \
                  src/tm_mad/vcenter/delete"
 
-TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
-                 src/tm_mad/iscsi/ln \
-                 src/tm_mad/iscsi/mv \
-                 src/tm_mad/iscsi/mvds \
-                 src/tm_mad/iscsi/cpds \
-                 src/tm_mad/iscsi/premigrate \
-                 src/tm_mad/iscsi/postmigrate \
-                 src/tm_mad/iscsi/snap_create \
-                 src/tm_mad/iscsi/snap_create_live \
-                 src/tm_mad/iscsi/snap_delete \
-                 src/tm_mad/iscsi/snap_revert \
-                 src/tm_mad/iscsi/failmigrate \
-                 src/tm_mad/iscsi/delete"
+TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
+                 src/tm_mad/iscsi_libvirt/ln \
+                 src/tm_mad/iscsi_libvirt/mv \
+                 src/tm_mad/iscsi_libvirt/mvds \
+                 src/tm_mad/iscsi_libvirt/cpds \
+                 src/tm_mad/iscsi_libvirt/premigrate \
+                 src/tm_mad/iscsi_libvirt/postmigrate \
+                 src/tm_mad/iscsi_libvirt/snap_create \
+                 src/tm_mad/iscsi_libvirt/snap_create_live \
+                 src/tm_mad/iscsi_libvirt/snap_delete \
+                 src/tm_mad/iscsi_libvirt/snap_revert \
+                 src/tm_mad/iscsi_libvirt/failmigrate \
+                 src/tm_mad/iscsi_libvirt/delete"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
@@ -1062,15 +1062,15 @@ DATASTORE_DRIVER_VCENTER_SCRIPTS="src/datastore_mad/remotes/vcenter/cp \
                          src/datastore_mad/remotes/vcenter/clone \
                          src/datastore_mad/remotes/vcenter/export"
 
-DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
-                         src/datastore_mad/remotes/iscsi/mkfs \
-                         src/datastore_mad/remotes/iscsi/stat \
-                         src/datastore_mad/remotes/iscsi/rm \
-                         src/datastore_mad/remotes/iscsi/monitor \
-                         src/datastore_mad/remotes/iscsi/snap_delete \
-                         src/datastore_mad/remotes/iscsi/snap_revert \
-                         src/datastore_mad/remotes/iscsi/snap_flatten \
-                         src/datastore_mad/remotes/iscsi/clone"
+DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
+                         src/datastore_mad/remotes/iscsi_libvirt/mkfs \
+                         src/datastore_mad/remotes/iscsi_libvirt/stat \
+                         src/datastore_mad/remotes/iscsi_libvirt/rm \
+                         src/datastore_mad/remotes/iscsi_libvirt/monitor \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_delete \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_revert \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_flatten \
+                         src/datastore_mad/remotes/iscsi_libvirt/clone"
 
 #-------------------------------------------------------------------------------
 # Marketplace drivers, to be installed under $REMOTES_LOCATION/market
