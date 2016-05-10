@@ -82,6 +82,20 @@ AddressRange * AddressRange::new_ar_by_type(string ipam_mad, unsigned int next_a
     return new AddressRangeIPAM(ipam_mad, next_ar);
 }
 
+int AddressRange::get_unused_addr(unsigned int &_unused_addr) const
+{
+    unsigned int _used_addr = 0;
+
+    if (get_used_addr(_used_addr) != 0)
+    {
+        return -1;
+    }
+
+    _unused_addr = size - _used_addr;
+
+    return 0;
+}
+
 int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 {
     string value;
@@ -494,7 +508,14 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         }
     }
 
-    oss << "<USED_LEASES>" << used_addr << "</USED_LEASES>";
+    unsigned int _used_addr = 0;
+
+    if (get_used_addr(_used_addr) != 0)
+    {
+        _used_addr = -1;
+    }
+
+    oss << "<USED_LEASES>" << _used_addr << "</USED_LEASES>";
 
     if (allocated.empty())
     {
@@ -1050,8 +1071,9 @@ int AddressRange::allocate_addr(
     const vector<string>&     inherit)
 {
     unsigned int index = 0;
+    unsigned int _used_addr = 0;
 
-    if ( used_addr >= size )
+    if ( get_used_addr(_used_addr) != 0 || _used_addr >= size )
     {
         return -1;
     }
@@ -1444,8 +1466,9 @@ void AddressRange::reserve_addr_range(int vid, unsigned int rsize,
 int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 {
     unsigned int first_index;
+    unsigned int _used_addr = 0;
 
-    if (rsize > (size - used_addr))
+    if (get_used_addr(_used_addr) != 0 || (rsize > (size - _used_addr)))
     {
         return -1; //reservation dosen't fit
     }

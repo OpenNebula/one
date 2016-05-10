@@ -81,6 +81,10 @@ void IPAMManager::trigger(Actions action, IPAMRequest * request)
 
     switch (action)
     {
+    case GET_USED_ADDR:
+        aname = "GET_USED_ADDR";
+        break;
+
     case GET_FREE_ADDR_RANGE:
         aname = "GET_FREE_ADDR_RANGE";
         break;
@@ -112,8 +116,12 @@ void IPAMManager::do_action(const string &action, void * arg)
     IPAMRequest * request;
 
     request = static_cast<IPAMRequest *>(arg);
-
-    if (action == "GET_FREE_ADDR_RANGE" && request != 0)
+  
+    if (action == "GET_USED_ADDR" && request != 0)
+    {
+        get_used_addr_action(request);
+    }
+    else if (action == "GET_FREE_ADDR_RANGE" && request != 0)
     {
         get_free_addr_range_action(request);
     }
@@ -146,6 +154,28 @@ void IPAMManager::do_action(const string &action, void * arg)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+void IPAMManager::get_used_addr_action(IPAMRequest * ir)
+{
+    const IPAMManagerDriver * ipamm_md;
+
+    ipamm_md = get();
+
+    if (ipamm_md == 0)
+    {
+        goto error_driver;
+    }
+
+    add_request(ir);
+
+    ipamm_md->get_used_addr(ir->id, ir->params);
+
+    return;
+
+error_driver:
+    ir->result = false;
+    ir->message = "Could not find IPAM driver";
+    ir->notify();
+}
 
 void IPAMManager::get_free_addr_range_action(IPAMRequest * ir)
 {

@@ -293,15 +293,18 @@ public:
     /**
      *  Return the number of used addresses
      */
-    unsigned int get_used_addr() const
-    {
-        return used_addr;
-    }
+    unsigned int get_used_addr() const;
 
     /**
      *  Return the total number addresses
      */
     unsigned int get_size() const;
+
+    /**
+     *  Return true if the pool contains an address range handle by an external
+     *  ipam. False otherwise.
+     */
+    int external_ipam() const;
 
     /**
      *  Return the parent id of an address range
@@ -364,11 +367,6 @@ private:
      *  Map to access each range
      */
     map<unsigned int, AddressRange *> ar_pool;
-
-    /**
-     *  Used addresses
-     */
-    unsigned int used_addr;
 };
 
 #endif

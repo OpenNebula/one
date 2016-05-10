@@ -22,7 +22,7 @@
 using namespace std;
 
 AddressRangePool::AddressRangePool():ar_template(false,'=',"AR_POOL"),
-    next_ar(0), used_addr(0){};
+    next_ar(0){};
 
 AddressRangePool::~AddressRangePool()
 {
@@ -153,8 +153,6 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
         {
             next_ar = ar->ar_id() + 1;
         }
-
-        used_addr += ar->get_used_addr();
     }
 
     return 0;
@@ -175,7 +173,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
         return -1;
     }
 
-    if (it->second->get_used_addr() > 0)
+    if (it->second->get_one_used_addr() > 0)
     {
         error_msg = "Address Range has leases in use";
         return -1;
@@ -254,7 +252,6 @@ int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
     {
         if (it->second->allocate_addr(ot, obid, nic, inherit) == 0)
         {
-            used_addr++;
             return 0;
         }
     }
@@ -275,7 +272,6 @@ int AddressRangePool::allocate_by_mac(const string &mac,
     {
         if (it->second->allocate_by_mac(mac, ot, obid, nic, inherit) == 0)
         {
-            used_addr++;
             return 0;
         }
     }
@@ -296,7 +292,6 @@ int AddressRangePool::allocate_by_ip(const string &ip,
     {
         if (it->second->allocate_by_ip(ip, ot, obid, nic, inherit) == 0)
         {
-            used_addr++;
             return 0;
         }
     }
@@ -316,10 +311,7 @@ void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot
 
     if (it!=ar_pool.end())
     {
-        if ( it->second->free_addr(ot, obid, mac) == 0 )
-        {
-            used_addr--;
-        }
+        int rc = it->second->free_addr(ot, obid, mac); 
     }
 }
 
@@ -335,10 +327,7 @@ void AddressRangePool::free_addr_by_ip(unsigned int arid,
 
     if (it!=ar_pool.end())
     {
-        if ( it->second->free_addr_by_ip(ot, obid, ip) == 0 )
-        {
-            used_addr--;
-        }
+        int rc = it->second->free_addr_by_ip(ot, obid, ip);
     }
 }
 
@@ -352,10 +341,7 @@ void AddressRangePool::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if (it->second->free_addr(ot, obid, mac_s) == 0)
-        {
-            used_addr--;
-        }
+        int rc = it->second->free_addr(ot, obid, mac_s);
     }
 }
 
@@ -369,10 +355,7 @@ void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if (it->second->free_addr_by_ip(ot, obid, ip_s) == 0)
-        {
-            used_addr--;
-        }
+        int rc = it->second->free_addr_by_ip(ot, obid, ip_s); 
     }
 }
 
@@ -382,14 +365,14 @@ void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 {
     map<unsigned int, AddressRange *>::iterator it;
-    unsigned int used_addr_ini = used_addr;
+    unsigned int freed = 0;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        used_addr -= it->second->free_addr_by_owner(ot, oid);
+        freed += it->second->free_addr_by_owner(ot, oid);
     }
 
-    return used_addr_ini - used_addr;
+    return freed;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -407,8 +390,6 @@ int AddressRangePool::free_addr_by_range(unsigned int arid,
     if (it!=ar_pool.end())
     {
         freed = it->second->free_addr_by_range(ot, obid, mac, rsize);
-
-        used_addr -= freed;
     }
 
     return freed;
@@ -483,6 +464,24 @@ int AddressRangePool::get_ar_parent(int ar_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+unsigned int AddressRangePool::get_used_addr() const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+    unsigned int used_addr = 0;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        unsigned int _used_addr = 0;
+
+        if (it->second->get_used_addr(_used_addr) == 0)
+        {
+            used_addr += _used_addr;
+        }
+    }
+
+    return used_addr;
+}
+
 unsigned int AddressRangePool::get_size() const
 {
     map<unsigned int, AddressRange *>::const_iterator it;
@@ -496,6 +495,22 @@ unsigned int AddressRangePool::get_size() const
 
     return total;
 }
+
+int AddressRangePool::external_ipam() const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->get_ipam_mad() != "default")
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -510,14 +525,7 @@ int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
         return -1;
     }
 
-    int rc = it->second->hold_by_ip(ip_s);
-
-    if (rc == 0)
-    {
-        used_addr++;
-    }
-
-    return rc;
+    return it->second->hold_by_ip(ip_s);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -526,18 +534,16 @@ int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 int AddressRangePool::hold_by_ip(const string& ip_s)
 {
     map<unsigned int, AddressRange *>::iterator it;
-    int rc = -1;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->hold_by_ip(ip_s) == 0) //At least one AR hold the IP
         {
-            used_addr++;
-            rc = 0;
+            return 0;
         }
     }
 
-    return rc;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -554,14 +560,7 @@ int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
         return -1;
     }
 
-    int rc = it->second->hold_by_mac(mac_s);
-
-    if (rc == 0)
-    {
-        used_addr++;
-    }
-
-    return rc;
+    return it->second->hold_by_mac(mac_s);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -570,18 +569,16 @@ int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
 int AddressRangePool::hold_by_mac(const string& mac_s)
 {
     map<unsigned int, AddressRange *>::iterator it;
-    int rc = -1;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->hold_by_mac(mac_s) == 0) //At least one AR hold the IP
         {
-            used_addr++;
-            rc = 0;
+            return 0;
         }
     }
 
-    return rc;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -594,10 +591,16 @@ int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if ((it->second->get_free_addr() >= rsize) &&
+        unsigned int _unused_addr = 0;
+
+        if ( it->second->get_unused_addr(_unused_addr) != 0)
+        {
+            continue;
+        }
+
+        if ((_unused_addr >= rsize) &&
             (it->second->reserve_addr(vid, rsize, rar) == 0))
         {
-            used_addr += rsize;
             return 0;
         }
     }
@@ -620,10 +623,16 @@ int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
         return -1;
     }
 
-    if ((it->second->get_free_addr() >= rsize) &&
+    unsigned int _unused_addr = 0;
+
+    if (it->second->get_unused_addr(_unused_addr) != 0)
+    {
+        return -1;
+    }
+
+    if ((_unused_addr >= rsize) &&
         (it->second->reserve_addr(vid, rsize, rar) == 0))
     {
-        used_addr += rsize;
         return 0;
     }
 
@@ -647,7 +656,6 @@ int AddressRangePool::reserve_addr_by_ip(int vid, unsigned int rsize,
 
     if (it->second->reserve_addr_by_ip(vid, rsize, ip, rar) == 0)
     {
-        used_addr += rsize;
         return 0;
     }
 
@@ -671,7 +679,6 @@ int AddressRangePool::reserve_addr_by_mac(int vid, unsigned int rsize,
 
     if (it->second->reserve_addr_by_mac(vid, rsize, mac, rar) == 0)
     {
-        used_addr += rsize;
         return 0;
     }
 

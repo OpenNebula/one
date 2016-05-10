@@ -65,6 +65,9 @@ private:
      */
     IPAMManager * ipamm;
 
+    void get_used_addr(int oid,
+                       const string& params) const;
+
     void get_free_addr_range(int oid,
                              const string& params) const;
 

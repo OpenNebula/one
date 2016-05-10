@@ -40,6 +40,15 @@ public:
 
     virtual ~AddressRangeOne(){};
 
+    /**
+     *  Return the number of used addresses
+     */
+    int get_used_addr(unsigned int &_used_addr) const
+    {
+        _used_addr = used_addr;
+        return 0;
+    }
+
 private:
 
     int get_free_addr(unsigned int &index);

@@ -282,7 +282,12 @@ public:
     /**
      *  Return the number of used addresses
      */
-    unsigned int get_used_addr() const
+    virtual int get_used_addr(unsigned int &_used_addr) const = 0;
+
+    /**
+     * Return the number of used addresses in allocated map
+     */
+    unsigned int get_one_used_addr() const
     {
         return used_addr;
     }
@@ -290,10 +295,7 @@ public:
     /**
      *  Return the number of free addresses
      */
-    unsigned int get_free_addr() const
-    {
-        return size - used_addr;
-    }
+    int get_unused_addr(unsigned int &_unused_addr) const;
 
     /**
      *  Return the total number of addresses
@@ -301,6 +303,14 @@ public:
     unsigned int get_size() const
     {
         return size;
+    }
+
+    /**
+     *  Return the IPAM_MAD
+     */
+    string get_ipam_mad() const
+    {
+        return ipam_mad;
     }
 
     /**

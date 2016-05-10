@@ -473,7 +473,14 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<VLAN_ID_AUTOMATIC/>";
     }
 
-    os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
+    if (ar_pool.external_ipam() == 0)
+    {
+        os << "<USED_LEASES>-</USED_LEASES>";
+    } 
+    else 
+    {
+        os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
+    }
 
     os << vrouters.to_xml(vrouters_xml);
 

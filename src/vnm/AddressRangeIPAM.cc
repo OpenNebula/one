@@ -27,6 +27,38 @@
 
 using namespace std;
 
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+int AddressRangeIPAM::get_used_addr(unsigned int &_used_addr) const
+{
+    Nebula& nd = Nebula::instance();
+    IPAMManager * ipamm = nd.get_ipamm();
+    ostringstream cmd_params;
+
+    string start_addr = ip_to_s(ip);
+
+    cmd_params << ipam_mad << " "
+               << type_to_str(type) << " " 
+               << ip4_subnet_to_s(ip4_subnet) << " " 
+               << start_addr << " "
+               << size;
+
+    IPAMRequest ir(cmd_params.str());
+
+    ipamm->trigger(IPAMManager::GET_USED_ADDR, &ir);
+    ir.wait();
+    
+    if (ir.result != true) 
+    {
+        return -1;
+    }
+
+    istringstream iss(ir.message);
+    iss >> _used_addr;
+
+    return 0;
+}
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -82,6 +114,9 @@ int AddressRangeIPAM::get_free_addr_range(unsigned int &index, unsigned int rsiz
     return 0;
 }
 
+/* ************************************************************************** */
+/* ************************************************************************** */
+
 int AddressRangeIPAM::register_addr(unsigned int index)
 {
 	return register_addr_range(index, 1);
@@ -113,6 +148,9 @@ int AddressRangeIPAM::register_addr_range(unsigned int index, unsigned int rsize
 
     return 0;
 }
+
+/* ************************************************************************** */
+/* ************************************************************************** */
 
 int AddressRangeIPAM::free_addr(unsigned int index)
 {

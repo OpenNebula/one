@@ -50,6 +50,7 @@ public:
 
     enum Actions
     {
+        GET_USED_ADDR,
         GET_FREE_ADDR_RANGE,
         REGISTER_ADDR_RANGE,
         FREE_ADDR,
@@ -168,6 +169,7 @@ private:
     /**
      *  This function register an IP address
      */
+    void get_used_addr_action(IPAMRequest * ir);
     void get_free_addr_range_action(IPAMRequest * ir);
     void register_addr_range_action(IPAMRequest * ir);
     void free_addr_action(IPAMRequest * ir);

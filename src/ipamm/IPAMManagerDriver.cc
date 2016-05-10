@@ -25,6 +25,16 @@
 /* Driver ASCII Protocol Implementation                                       */
 /* ************************************************************************** */
 
+void IPAMManagerDriver::get_used_addr(int           oid,
+                                      const string& params) const
+{
+    ostringstream os;
+
+    os << "GET_USED_ADDR" << " " << oid << " " << params << endl;
+    
+    write(os);
+}
+
 void IPAMManagerDriver::get_free_addr_range(int           oid,
                                             const string& params) const
 {

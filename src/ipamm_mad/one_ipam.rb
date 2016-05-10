@@ -41,6 +41,7 @@ class IPAMDriver < OpenNebulaDriver
 
     # Auth Driver Protocol constants
     ACTION = {
+        :get_used_addr => "GET_USED_ADDR",
         :get_free_addr_range => "GET_FREE_ADDR_RANGE",
         :register_addr_range => "REGISTER_ADDR_RANGE",
         :free_addr => "FREE_ADDR"
@@ -59,6 +60,7 @@ class IPAMDriver < OpenNebulaDriver
             :threaded      => false,
             :retries       => 0,
             :local_actions => {
+                ACTION[:get_used_addr]       => nil,
                 ACTION[:get_free_addr_range] => nil,
                 ACTION[:register_addr_range] => nil,
                 ACTION[:free_addr]           => nil
@@ -77,9 +79,29 @@ class IPAMDriver < OpenNebulaDriver
             @types = ipam_type
         end
 
+        register_action(ACTION[:get_used_addr].to_sym, method("get_used_addr"))
         register_action(ACTION[:get_free_addr_range].to_sym, method("get_free_addr_range"))
         register_action(ACTION[:register_addr_range].to_sym, method("register_addr_range"))
         register_action(ACTION[:free_addr].to_sym, method("free_addr"))
+    end
+  
+    def get_used_addr(id, ipam, type, subnet, addr_start, size)
+        return if not is_available?(ipam, id, :get_used_addr)
+
+        path = File.join(@local_scripts_path, ipam)
+
+        cmd  = File.join(path, ACTION[:get_used_addr].downcase)
+        cmd << " " \
+            << type << " " \
+            << subnet << " " \
+            << addr_start << " " \
+            << size << " "
+
+        rc = LocalCommand.run(cmd, log_method(id))
+
+        result, info = get_info_from_execution(rc)
+
+        send_message(ACTION[:get_used_addr], result, id, info)
     end
 
     def get_free_addr_range(id, ipam, type, subnet, addr_start, size, rsize) 

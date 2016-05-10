@@ -39,7 +39,12 @@ public:
     AddressRangeIPAM(string _ipam_mad, unsigned int _id):AddressRange(_ipam_mad, _id){};
 
     virtual ~AddressRangeIPAM(){};
-    
+
+    /**
+     *  Return the number of used addresses
+     */
+    int get_used_addr(unsigned int &_used_addr) const;
+
 private:
 
     /**

@@ -795,11 +795,13 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 # IPAM Manager drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 
-IPAM_DUMMY_FILES="src/ipamm_mad/remotes/dummy/get_free_addr_range \
+IPAM_DUMMY_FILES="src/ipamm_mad/remotes/dummy/get_used_addr \
+                  src/ipamm_mad/remotes/dummy/get_free_addr_range \
                   src/ipamm_mad/remotes/dummy/register_addr_range \
                   src/ipamm_mad/remotes/dummy/free_addr"
 
-IPAM_NETMAGIS_FILES="src/ipamm_mad/remotes/netmagis/get_free_addr_range \
+IPAM_NETMAGIS_FILES="src/ipamm_mad/remotes/netmagis/get_used_addr \
+                     src/ipamm_mad/remotes/netmagis/get_free_addr_range \
                      src/ipamm_mad/remotes/netmagis/register_addr_range \
                      src/ipamm_mad/remotes/netmagis/free_addr"
 
