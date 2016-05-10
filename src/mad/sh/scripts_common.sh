@@ -30,7 +30,6 @@ GREP=${GREP:-grep}
 ISCSIADM=${ISCSIADM:-iscsiadm}
 LVCREATE=${LVCREATE:-lvcreate}
 LVREMOVE=${LVREMOVE:-lvremove}
-LVRENAME=${LVRENAME:-lvrename}
 LVCHANGE=${LVCHANGE:-lvchange}
 LVSCAN=${LVSCAN:-lvscan}
 LVS=${LVS:-lvs}
