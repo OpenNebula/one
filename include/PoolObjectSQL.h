@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -350,6 +350,12 @@ public:
      */
 	template<typename T>
     int get_template_attribute(const char * name, vector<const T*>& values) const
+    {
+        return obj_template->get(name,values);
+    };
+
+	template<typename T>
+    int get_template_attribute(const char * name, vector<T*>& values) const
     {
         return obj_template->get(name,values);
     };

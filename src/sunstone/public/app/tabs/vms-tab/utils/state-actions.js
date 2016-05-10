@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,47 +20,47 @@ define(function(require) {
   var STATE_ACTIONS = {};
 
   STATE_ACTIONS[OpenNebulaVM.STATES.INIT] =
-    ["VM.delete", "VM.delete_recreate", "VM.resize"];
+    ["VM.resize", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.PENDING] =
-    ["VM.delete", "VM.delete_recreate", "VM.hold", "VM.deploy", "VM.updateconf"];
+    ["VM.hold", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.HOLD] =
-    ["VM.delete", "VM.delete_recreate", "VM.release", "VM.deploy", "VM.updateconf"];
+    ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.ACTIVE] =
-    ["VM.delete", "VM.delete_recreate", "VM.recover"];
+    ["VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.STOPPED] =
-    ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"];
+    ["VM.resume", "VM.deploy", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.SUSPENDED] =
-    ["VM.delete", "VM.resume", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.stop", "VM.shutdown_hard"];
+    ["VM.resume", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.stop", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.DONE] =
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.FAILED] =
-    ["VM.delete", "VM.delete_recreate", "VM.resize"];
+    [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.shutdown_hard", "VM.saveas_template", "VM.updateconf"];
+    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
-    ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy", "VM.updateconf"];
+    ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.CLONING] =
-    ["VM.delete", "VM.delete_recreate", "VM.updateconf"];
+    ["VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.CLONING_FAILURE] =
-    ["VM.delete", "VM.delete_recreate", "VM.recover", "VM.updateconf"];
+    ["VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   var LCM_STATE_ACTIONS = {};
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.LCM_INIT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.RUNNING ] =
-    ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete"];
+    ["VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete", "VM.terminate", "VM.terminate_hard"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.MIGRATE ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_STOP ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_SUSPEND ] = [];
@@ -74,7 +74,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.FAILURE ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.CLEANUP_RESUBMIT ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.UNKNOWN ] =
-    ["VM.shutdown", "VM.shutdown_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.resume"];
+    ["VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.resume", "VM.terminate", "VM.terminate_hard"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SHUTDOWN_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_UNKNOWN ] = [];

@@ -2,11 +2,6 @@ small_logo: images/opennebula-sunstone-v4.14-small.png
 provision_logo: images/one_small_logo.png
 enabled_tabs:
     - dashboard-tab
-    - system-top-tab
-    - users-tab
-    - groups-tab
-    #- vdcs-tab
-    #- acls-tab
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
@@ -28,6 +23,11 @@ enabled_tabs:
     - vrouters-tab
     - vnets-topology-tab
     #- secgroups-tab
+    - system-top-tab
+    - users-tab
+    - groups-tab
+    #- vdcs-tab
+    #- acls-tab
     - settings-tab
     #- support-tab
 autorefresh: true
@@ -257,10 +257,8 @@ tabs:
             VM.poweroff_hard: true
             VM.undeploy: true
             VM.undeploy_hard: true
-            VM.shutdown: true
-            VM.shutdown_hard: true
-            VM.delete: true
-            VM.delete_recreate: false
+            VM.terminate: true
+            VM.terminate_hard: true
             VM.resize: false
             VM.attachdisk: false
             VM.detachdisk: false
@@ -275,7 +273,7 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.resched: false
             VM.unresched: false
-            VM.saveas_template: false
+            VM.save_as_template: false
             VM.updateconf: false
     oneflow-services-tab:
         panel_tabs:
@@ -296,10 +294,8 @@ tabs:
                 Role.poweroff_hard: true
                 Role.undeploy: true
                 Role.undeploy_hard: true
-                Role.shutdown: true
-                Role.shutdown_hard: true
-                Role.delete: true
-                Role.delete_recreate: false
+                Role.terminate: true
+                Role.terminate_hard: true
                 RoleVM.hold: true
                 RoleVM.release: true
                 RoleVM.suspend: false
@@ -311,10 +307,8 @@ tabs:
                 RoleVM.poweroff_hard: true
                 RoleVM.undeploy: true
                 RoleVM.undeploy_hard: true
-                RoleVM.shutdown: true
-                RoleVM.shutdown_hard: true
-                RoleVM.delete: true
-                RoleVM.delete_recreate: false
+                RoleVM.terminate: true
+                RoleVM.terminate_hard: true
                 RoleVM.resched: false
                 RoleVM.unresched: false
                 RoleVM.recover: false

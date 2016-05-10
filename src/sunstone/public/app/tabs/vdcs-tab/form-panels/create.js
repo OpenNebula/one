@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -319,13 +319,10 @@ define(function(require) {
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
-
-    $('[wizard_field="NAME"]',context).val(
-        TemplateUtils.escapeDoubleQuotes( TemplateUtils.htmlDecode(element.NAME) )).
-        prop("disabled", true).
-        prop('wizard_field_disabled', true);
+    WizardFields.fillInput($('[wizard_field="NAME"]',context), element.NAME);
+    $('[wizard_field="NAME"]',context).prop("disabled", true).prop('wizard_field_disabled', true);
 
     WizardFields.fill($("#vdcCreateGeneralTab", context), element.TEMPLATE);
 

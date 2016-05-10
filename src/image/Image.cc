@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -108,6 +108,7 @@ int Image::insert(SqlDB *db, string& error_str)
     string source_attr;
     string saved_id;
     string size_attr;
+    string driver;
 
     istringstream iss;
     ostringstream oss;
@@ -186,22 +187,11 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    if (!is_saving()) //Not a saving image
+    if (!is_saving())
     {
-        if ( source.empty() && path.empty() )
+        if ( source.empty() && path.empty() && type != DATABLOCK )
         {
-            if (type != DATABLOCK)
-            {
-                goto error_no_path;
-            }
-
-            erase_template_attribute("FSTYPE", fs_type);
-
-            // DATABLOCK image needs FSTYPE
-            if (fs_type.empty())
-            {
-                fs_type = "raw";
-            }
+            goto error_no_path;
         }
         else if ( !source.empty() && !path.empty() )
         {
@@ -224,7 +214,7 @@ int Image::insert(SqlDB *db, string& error_str)
     return rc;
 
 error_no_path:
-    error_str = "No PATH in template.";
+    error_str = "No PATH nor SOURCE in template.";
     goto error_common;
 
 error_path_and_source:

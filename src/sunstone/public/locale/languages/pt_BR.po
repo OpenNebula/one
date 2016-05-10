@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
@@ -10,7 +10,7 @@
 # Paulo A. L. Rego <pauloalr@gmail.com>, 2012
 # Paulo A. L. Rego <pauloalr@gmail.com>, 2012
 # pedrovitti, 2013
-# Pedro Vitti, 2013-2015
+# Pedro Vitti, 2013-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"

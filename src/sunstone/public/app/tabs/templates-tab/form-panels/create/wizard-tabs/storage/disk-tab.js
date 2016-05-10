@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -106,9 +106,31 @@ define(function(require) {
 
     $("[wizard_field]", imageContext).prop('wizard_field_disabled', false);
     $("[wizard_field]", volatileContext).prop('wizard_field_disabled', true);
+
+    // Volatile Type FS hides Format, Type SWAP displays Format
+    $("select#TYPE", volatileContext).change(function() {
+      var value = $(this).val();
+      switch (value){
+        case "fs":
+          $("select#FORMAT", volatileContext).parent().show();
+          break;
+        case "swap":
+          $("select#FORMAT", volatileContext).parent().hide();
+          break;
+      }
+    });
   }
 
   function _retrieve(context) {
+
+    var volatileContext = $("div.volatile",  context);
+    var volatileType   = $("select#TYPE", volatileContext).val();
+
+    if (volatileType == "swap")
+    {
+      $("select#FORMAT").val("");
+    }
+
     return WizardFields.retrieve(context);
   }
 

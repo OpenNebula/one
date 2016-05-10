@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -317,7 +317,7 @@ Request::ErrorCode ImageClone::request_execute(
 {
     long long       avail, size;
     int             rc, ds_id_orig;
-    string          ds_name, ds_data, ds_mad;
+    string          ds_name, ds_data, ds_mad, tm_mad;
     bool            ds_check;
 
     Image::DiskType disk_type;
@@ -414,6 +414,7 @@ Request::ErrorCode ImageClone::request_execute(
     ds_check = ds->get_avail_mb(avail);
     ds_name  = ds->get_name();
     ds_mad   = ds->get_ds_mad();
+    tm_mad   = ds->get_tm_mad();
 
     ds->unlock();
 
@@ -520,6 +521,8 @@ Request::ErrorCode ImageClone::request_execute(
                          disk_type,
                          ds_data,
                          Datastore::IMAGE_DS,
+                         ds_mad,
+                         tm_mad,
                          "",
                          clone_id,
                          &new_id,

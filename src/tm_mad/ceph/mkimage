@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -94,22 +94,20 @@ if [ "$RBD_FORMAT" = "2" ]; then
 fi
 
 RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
-MKFS_CMD=`mkfs_command /dev/rbd/${RBD_SOURCE} $FSTYPE $SIZE`
 
 MKIMAGE_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
-
     $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
 
-    if [ "$FSTYPE" != "raw" ]; then
+    if [ "$FSTYPE" = "swap" ]; then
         $SUDO $RBD map $RBD_SOURCE || exit \$?
-        $SUDO $MKFS_CMD
+        $SUDO $MKSWAP -L swap $DST
         $SUDO $RBD unmap /dev/rbd/$RBD_SOURCE
     fi
 EOF
 )
 
-log "Making volatile disk of ${SIZE}M and type $FSTYPE at $DST"
+log "Making volatile disk of ${SIZE}M at $DST"
 
 ssh_exec_and_log "$DST_HOST" "$MKIMAGE_CMD" \
     "Error creating volatile disk.$DISK_ID ($RBD_SOURCE) in $DST_HOST into pool $POOL_NAME."

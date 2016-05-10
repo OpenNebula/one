@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var VectorRowTemplateHTML = require('hbs!./custom-tags-table/vector-row');
   var VectorAttributeRowTemplateHTML = require('hbs!./custom-tags-table/vector-attribute-row');
   var TemplateUtils = require('utils/template-utils');
+  var WizardFields = require('utils/wizard-fields');
 
   function _html(){
     return TemplateHTML();
@@ -53,21 +54,23 @@ define(function(require) {
 
     $('tbody.custom_tags tr', context).each(function(){
       if ($('.custom_tag_key', $(this)).val()) {
-        template_json[$('.custom_tag_key', $(this)).val()] = $('.custom_tag_value', $(this)).val();
+        var key = WizardFields.retrieveInput($('.custom_tag_key', $(this)));
+        template_json[key] = WizardFields.retrieveInput($('.custom_tag_value', $(this)));
       }
 
       if ($('.custom_vector_key', $(this)).val()) {
         var vectorAttributes = {};
 
         $('tbody.custom_vector_attributes tr', $(this)).each(function(){
-          var key = $('.custom_vector_attribute_key', $(this)).val();
+          var key = WizardFields.retrieveInput($('.custom_vector_attribute_key', $(this)));
           if (key) {
-            vectorAttributes[key] = $('.custom_vector_attribute_value', $(this)).val();
+            vectorAttributes[key] = WizardFields.retrieveInput($('.custom_vector_attribute_value', $(this)));
           }
         });
 
         if (!$.isEmptyObject(vectorAttributes)){
-          template_json[$('.custom_vector_key', $(this)).val()] = vectorAttributes;
+          var key = WizardFields.retrieveInput($('.custom_vector_key', $(this)));
+          template_json[key] = vectorAttributes;
         }
       }
     });
@@ -85,10 +88,12 @@ define(function(require) {
         $("tbody.custom_tags", context).append(
                               VectorRowTemplateHTML({key: key, value: value}));
       } else {
+        var val = TemplateUtils.escapeDoubleQuotes(value);
+
         $("tbody.custom_tags", context).append(
                             RowTemplateHTML({
                                 key: key,
-                                value: TemplateUtils.escapeDoubleQuotes(value)
+                                value: val
                               })
                             );
       }

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -143,20 +143,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                     value=m[1].to_f*multiplier
 
                     [0, value.floor]
-                end
-            end
-        },
-        {
-            :name => "fstype",
-            :large => "--fstype fstype",
-            :description => "Type of file system to be built. This can be \n"<<
-                            " "*31<<"any value understood by mkfs unix command.",
-            :format => String,
-            :proc => lambda do |o, options|
-                if !options[:type] || !(options[:type].upcase=='DATABLOCK')
-                    [-1, "FSTYPE is only used for DATABLOCK type images"]
-                else
-                    [0, o]
                 end
             end
         },

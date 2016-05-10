@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -349,12 +349,10 @@ define(function(require) {
 
     $("#default_sg_warning").hide();
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
-    $('[wizard_field="NAME"]', context).val(
-        TemplateUtils.escapeDoubleQuotes( TemplateUtils.htmlDecode(element.NAME) )).
-        prop("disabled", true).
-        prop('wizard_field_disabled', true);
+    WizardFields.fillInput($('[wizard_field="NAME"]', context), element.NAME);
+    $('[wizard_field="NAME"]', context).prop("disabled", true).prop('wizard_field_disabled', true);
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
@@ -365,7 +363,7 @@ define(function(require) {
     $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
     $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
 
-    $('input#vn_mad', context).val(element.TEMPLATE["VN_MAD"]);
+    WizardFields.fillInput($('input#vn_mad', context), element.TEMPLATE["VN_MAD"]);
 
     WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
     WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);

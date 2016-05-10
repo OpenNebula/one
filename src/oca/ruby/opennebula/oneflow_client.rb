@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,8 +22,8 @@ include CloudCLI
 module Role
     # Actions that can be performed on the VMs of a given Role
     SCHEDULE_ACTIONS = [
-        'shutdown',
-        'shutdown-hard',
+        'terminate',
+        'terminate-hard',
         'undeploy',
         'undeploy-hard',
         'hold',
@@ -31,8 +31,6 @@ module Role
         'stop',
         'suspend',
         'resume',
-        'delete',
-        'delete-recreate',
         'reboot',
         'reboot-hard',
         'poweroff',
@@ -114,7 +112,7 @@ module Service
     end
 
     # Build a json specifying an action
-    # @param [String] perform action to be performed (i.e: shutdowm)
+    # @param [String] perform action to be performed (e.g.: shutdown)
     # @param [Hash, nil] params contains the params for the action
     # @return [String] json representing the action
     def self.build_json_action(perform, params=nil)

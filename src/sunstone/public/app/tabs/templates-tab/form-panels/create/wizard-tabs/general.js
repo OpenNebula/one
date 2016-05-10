@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -114,7 +114,7 @@ define(function(require) {
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["VCENTER_PUBLIC_CLOUD"] = {
         'TYPE': 'vcenter',
-        'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
+        'VM_TEMPLATE': WizardFields.retrieveInput($("#vcenter_template_uuid", context))
       };
 
       templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
@@ -135,9 +135,9 @@ define(function(require) {
     // Retrieve Datastore Attribute
     var dsInput = $(".vcenter_datastore_input", context);
     if (dsInput.length > 0) {
-      var dsModify = $('.modify_datastore', dsInput).val();
-      var dsInitial = $('.initial_datastore', dsInput).val();
-      var dsParams = $('.available_datastores', dsInput).val();
+      var dsModify = WizardFields.retrieveInput($('.modify_datastore', dsInput));
+      var dsInitial = WizardFields.retrieveInput($('.initial_datastore', dsInput));
+      var dsParams = WizardFields.retrieveInput($('.available_datastores', dsInput));
 
       if (dsModify === 'fixed' && dsInitial !== '') {
         templateJSON['VCENTER_DATASTORE'] = dsInitial;
@@ -156,9 +156,9 @@ define(function(require) {
     // Retrieve Resource Pool Attribute
     var rpInput = $(".vcenter_rp_input", context);
     if (rpInput.length > 0) {
-      var rpModify = $('.modify_rp', rpInput).val();
-      var rpInitial = $('.initial_rp', rpInput).val();
-      var rpParams = $('.available_rps', rpInput).val();
+      var rpModify = WizardFields.retrieveInput($('.modify_rp', rpInput));
+      var rpInitial = WizardFields.retrieveInput($('.initial_rp', rpInput));
+      var rpParams = WizardFields.retrieveInput($('.available_rps', rpInput));
 
       if (rpModify === 'fixed' && rpInitial !== '') {
         templateJSON['RESOURCE_POOL'] = rpInitial;
@@ -167,7 +167,7 @@ define(function(require) {
             type: 'list',
             description: Locale.tr("Which resource pool you want this VM to run in?"),
             initial: rpInitial,
-            params: $('.available_rps', rpInput).val()
+            params: WizardFields.retrieveInput($('.available_rps', rpInput))
           });
 
         userInputs['RESOURCE_POOL'] = rpUserInputs;
@@ -213,7 +213,7 @@ define(function(require) {
 
         $.each(publicClouds, function(){
           if(this["TYPE"] == "vcenter"){
-            $("#vcenter_template_uuid", context).val(this["VM_TEMPLATE"]);
+            WizardFields.fillInput($("#vcenter_template_uuid", context), this["VM_TEMPLATE"]);
             return false;
           }
         });
@@ -243,12 +243,12 @@ define(function(require) {
 
     if (templateJSON["VCENTER_DATASTORE"]) {
       $('.modify_datastore', context).val('fixed');
-      $('.initial_datastore', context).val(templateJSON["VCENTER_DATASTORE"]);
+      WizardFields.fillInput($('.initial_datastore', context), templateJSON["VCENTER_DATASTORE"]);
     }
 
     if (templateJSON["RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
-      $('.initial_rp', context).val(templateJSON["RESOURCE_POOL"]);
+      WizardFields.fillInput($('.initial_rp', context), templateJSON["RESOURCE_POOL"]);
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
+  var Sunstone = require('sunstone');
 
   /*
     CONSTANTS
@@ -33,15 +34,32 @@ define(function(require) {
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
 
+  var OVERCOMMIT_DIALOG_ID = require('utils/dialogs/overcommit/dialogId');
+
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
+    var that = this;
+
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
 
     this.element = info[XML_ROOT];
+
+    // Hide information in the template table. Unshow values are stored
+    // in the unshownTemplate object to be used when the element info is updated.
+    that.unshownTemplate = {};
+    that.strippedTemplate = {};
+    var unshownKeys = ['RESERVED_CPU', 'RESERVED_MEM'];
+    $.each(that.element.TEMPLATE, function(key, value) {
+      if ($.inArray(key, unshownKeys) > -1) {
+        that.unshownTemplate[key] = value;
+      } else {
+        that.strippedTemplate[key] = value;
+      }
+    });
 
     return this;
   }
@@ -58,8 +76,10 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE,
-                                              Locale.tr("Attributes"));
+    var templateTableHTML = TemplateTable.html(
+                                      this.strippedTemplate,
+                                      RESOURCE,
+                                      Locale.tr("Attributes"));
 
     return TemplateHTML({
       'element': this.element,
@@ -69,8 +89,23 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
 
-    TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
+    TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
+
+    $(".edit_reserved", context).on("click", function(){
+      var dialog = Sunstone.getDialog(OVERCOMMIT_DIALOG_ID);
+
+      dialog.setParams(
+        { element: that.element,
+          action : "Cluster.append_template",
+          resourceName : Locale.tr("Cluster")
+        });
+
+      dialog.show();
+      return false;
+    });
   }
 });

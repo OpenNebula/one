@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -129,7 +129,7 @@ public:
      * Calls one.vm.action
      *
      * @param vid The VM id
-     * @param action Action argument (shutdown, hold, release...)
+     * @param action Action argument (terminate, hold, release...)
      * @param error_msg Error reason, if any
      *
      * @return 0 on success, -1 otherwise

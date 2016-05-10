@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -182,16 +182,6 @@ define(function(require) {
   function _submitWizard(context) {
     var marketPlaceJSON = {};
     $.extend(marketPlaceJSON, WizardFields.retrieve(context));
-
-    var vmTemplate = $('#VMTEMPLATE', context).val();
-    if (vmTemplate) {
-      marketPlaceJSON['VMTEMPLATE64'] = btoa(vmTemplate);
-    }
-
-    var appTemplate = $('#APPTEMPLATE', context).val();
-    if (appTemplate) {
-      marketPlaceJSON['APPTEMPLATE64'] = btoa(appTemplate);
-    }
 
     var marketPlaceAppObj = {
       "marketplaceapp" : marketPlaceJSON,

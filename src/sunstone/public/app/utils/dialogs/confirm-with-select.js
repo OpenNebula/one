@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -119,7 +119,7 @@ define(function(require) {
       tip = this.button.tip
     }
 
-    $('#confirm_with_select_tip', dialog).text(tip);
+    $('#confirm_with_select_tip', dialog).html(tip);
 
     var action = Sunstone.getAction(this.actionId);
     var elements = action.elements();

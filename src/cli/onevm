@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -102,6 +102,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name  => "retry",
         :large => "--retry",
         :description => "Recover a VM by retrying the last failed action"
+    }
+
+    DELETE={
+        :name  => "delete",
+        :large => "--delete",
+        :description => "No recover action possible, delete the VM"
+    }
+
+    RECREATE={
+        :name  => "recreate",
+        :large => "--recreate",
+        :description => "No recover action possible, delete and recreate the VM"
     }
 
     INTERACTIVE={
@@ -262,31 +274,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    delete_desc = <<-EOT.unindent
-        Deletes the given VM. Using --recreate resubmits the VM.
-
-        Resubmits the VM to PENDING state. This is intended for VMs stuck in a
-        transient state. To re-deploy a fresh copy of the same VM, create a
-        Template and instantiate it, see 'onetemplate instantiate'
-
-        States: ANY
-    EOT
-
-    command :delete, delete_desc, [:range, :vmid_list],
-        :options => [OneVMHelper::SCHEDULE, OneVMHelper::RECREATE] do
-
-        command_name="delete"
-        command_name<<"-recreate" if options[:recreate]
-
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, command_name)
-        else
-            helper.perform_actions(args[0],options,"deleted") do |vm|
-                vm.delete(options[:recreate]==true)
-            end
-        end
-    end
-
     hold_desc = <<-EOT.unindent
         Sets the given VM on hold. A VM on hold is not scheduled until it is
         released. It can be, however, deployed manually; see 'onevm deploy'
@@ -361,25 +348,25 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    shutdown_desc = <<-EOT.unindent
-        Shuts down the given VM. The VM life cycle will end.
+    terminate_desc = <<-EOT.unindent
+        Terminates the given VM. The VM life cycle will end.
 
         With --hard it unplugs the VM.
 
-        States: RUNNING, UNKNOWN (with --hard)
+        States: valid if no operation is being performed on the VM
     EOT
 
-    command :shutdown, shutdown_desc, [:range,:vmid_list],
+    command :terminate, terminate_desc, [:range,:vmid_list],
         :options => [OneVMHelper::SCHEDULE, OneVMHelper::HARD] do
 
-        command_name='shutdown'
+        command_name='terminate'
         command_name<<'-hard' if options[:hard]
 
         if (!options[:schedule].nil?)
             helper.schedule_actions(args[0], options, command_name)
         else
-            helper.perform_actions(args[0],options,"shutting down") do |vm|
-                vm.shutdown(options[:hard]==true)
+            helper.perform_actions(args[0],options,"terminated") do |vm|
+                vm.terminate(options[:hard]==true)
             end
         end
     end
@@ -553,9 +540,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     recover_desc = <<-EOT.unindent
         Recovers a stuck VM that is waiting for a driver operation. The recovery
-        may be done by failing, succeeding or retrying the current operation. YOU NEED
-        TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation
-        was successful or not, or if it can be retried.
+        may be done by failing, succeeding or retrying the current operation.
+        YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the
+        operation was successful or not, or if it can be retried.
 
         Example: A VM is stuck in "migrate" because of a hardware failure. You
         need to check if the VM is running in the new host or not to recover
@@ -563,21 +550,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         States for success/failure recovers: Any ACTIVE state.
         States for a retry recover: Any *FAILURE state
+        States for delete: Any
+        States for delete-recreate: Any but STOP/UNDEPLOYED
     EOT
 
     command :recover, recover_desc, [:range,:vmid_list],
-        :options => [SUCCESS, FAILURE, RETRY, INTERACTIVE] do
+        :options => [SUCCESS, FAILURE, RETRY, INTERACTIVE, DELETE, RECREATE] do
         if !options[:success].nil?
             result = 1
         elsif !options[:failure].nil?
             result = 0
         elsif !options[:retry].nil?
             result = 2
+        elsif !options[:delete].nil?
+            result = 3
+        elsif !options[:recreate].nil?
+            result = 4
         else
             STDERR.puts "Need to specify the result of the pending action."
             STDERR.puts "\t--success recover the VM by succeeding the missing action."
             STDERR.puts "\t--failure recover the VM by failing the missing action."
             STDERR.puts "\t--retry recover the VM by retrying the last failed action."
+            STDERR.puts "\t--delete no recover possible, delete the VM."
+            STDERR.puts "\t--recreate no recover possible, delete and recreate the VM."
             exit -1
         end
 
@@ -933,74 +928,43 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Updates the configuration of a VM. The VM cannot be in a active (running)
         state, valid states are: pending, failure, poweroff, undeploy, hold or
         clonning.
-        Examples:
 
-          - Update boot order:
+        This command accepts a template file or opens an editor, the full list of
+        configuration attributes are:
 
-            onevm updateconf myvm --boot disk2,nic0
-
-          - Change arch and add vnc:
-
-            onevm updateconf myvm --arch x86_64 --vnc
-
-          - Change the DNS for ETH0 device and add PASSWORD:
-
-            onevm updateconf myvm --context 'ETH0_DNS="8.8.8.8", PASSWORD="$USER[PASSWORD]"'
-
-        This command also accepts a template, the full list of configuration
-        attributes are (not all supported via options):
         OS       = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "DEVICE_MODEL"]
+        FEATURES = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
         INPUT    = ["TYPE", "BUS"]
         GRAPHICS = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW      = ["DATA", "DATA_VMX", "TYPE"]
         CONTEXT (any value, **variable substitution will be made**)
-
-        *NOTE* Update will replace or add attributes, to remove an existing one
-        add an empty value.
-
     EOT
 
-    command :updateconf, updateconf_desc, :vmid, [:file, nil], :options =>
-            OpenNebulaHelper::UPDATECONF_OPTIONS_VM do
-
-        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts "You can not use both a file and update options."
-            exit -1
-        end
+    command :updateconf, updateconf_desc, :vmid, [:file, nil] do
+        template = ""
 
         begin
-            if args[1]
-                template=File.read(args[1])
-            else
-                res = OpenNebulaHelper.create_template(options)
-
-                if res.first != 0
-                    STDERR.puts res.last
-                    exit -1
-                end
-
-                template = res.last
-            end
+            template=File.read(args[1]) if args[1]
         rescue Exception => e
             STDERR.puts "Error reading template."
             exit -1
         end
 
         helper.perform_action(args[0], options, "Updating VM configuration") do |vm|
+            if template.empty?
+                vm.info
+
+                template = vm.template_like_str('TEMPLATE', true,
+                           'OS | FEATURES | INPUT | GRAPHICS | RAW | CONTEXT')
+                template = OpenNebulaHelper::editor_input(template)
+            end
+
             vm.updateconf(template)
         end
     end
 
     # Deprecated commands
 
-    deprecated_command(:attachdisk, 'disk-attach')
-    deprecated_command(:detachdisk, 'disk-detach')
-    deprecated_command(:'disk-snapshot', 'disk-saveas')
-    deprecated_command(:livemigrate, 'migrate --live')
-    deprecated_command(:cancel, 'shutdown --hard')
-    deprecated_command(:reset, 'reboot --hard')
-    deprecated_command(:restart, 'recover --retry')
-    deprecated_command(:boot, 'recover --retry')
-    deprecated_command(:resubmit, 'delete --recreate')
+    deprecated_command(:shutdown, 'terminate')
+    deprecated_command(:delete, 'recover')
 end

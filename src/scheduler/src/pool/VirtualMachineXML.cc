@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -374,8 +374,8 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 {
     one_util::tolower(action_st);
 
-    if (   action_st != "shutdown"
-        && action_st != "shutdown-hard"
+    if (   action_st != "terminate"
+        && action_st != "terminate-hard"
         && action_st != "undeploy"
         && action_st != "undeploy-hard"
         && action_st != "hold"
@@ -383,13 +383,16 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "stop"
         && action_st != "suspend"
         && action_st != "resume"
-        && action_st != "delete"
-        && action_st != "delete-recreate"
         && action_st != "reboot"
         && action_st != "reboot-hard"
         && action_st != "poweroff"
         && action_st != "poweroff-hard"
-        && action_st != "snapshot-create")
+        && action_st != "snapshot-create"
+
+        // Compatibility with 4.x
+        && action_st != "shutdown"
+        && action_st != "shutdown-hard"
+        && action_st != "delete")
     {
         return -1;
     }

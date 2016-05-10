@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -176,7 +176,6 @@ helpers do
         check_restricted_actions(action_hash['perform'])
         rc = case action_hash['perform']
              when "deploy"       then vm.deploy(action_hash['params'])
-             when "delete"       then vm.finalize
              when "hold"         then vm.hold
              when "livemigrate"  then vm.migrate(action_hash['params'], true)
              when "migrate"      then vm.migrate(action_hash['params'], false)
@@ -188,10 +187,9 @@ helpers do
              when "snapshot_create"       then vm.snapshot_create(action_hash['params'])
              when "snapshot_revert"       then vm.snapshot_revert(action_hash['params'])
              when "snapshot_delete"       then vm.snapshot_delete(action_hash['params'])
-             when "shutdown"     then vm.shutdown(action_hash['params'])
+             when "terminate"    then vm.terminate(action_hash['params'])
              when "reboot"       then vm.reboot(action_hash['params'])
              when "poweroff"     then vm.poweroff(action_hash['params'])
-             when "resubmit"     then vm.resubmit
              when "chown"        then vm.chown(action_hash['params'])
              when "chmod"        then vm.chmod_octet(action_hash['params'])
              when "resize"       then vm.resize(action_hash['params'])
@@ -204,6 +202,9 @@ helpers do
              when "resched"      then vm.resched
              when "unresched"    then vm.unresched
              when "recover"      then vm.recover(action_hash['params'])
+             # Compatibility with 4.x
+             when "delete"       then vm.terminate(true)
+             when "shutdown"     then vm.terminate(action_hash['params'])
              else
                  error_msg = "#{action_hash['perform']} action not " <<
                      " available for this resource"

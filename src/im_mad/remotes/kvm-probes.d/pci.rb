@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,7 +31,7 @@
 # FILTER = '10de:11bf:0300' # only GK104GL [GRID K2]
 # FILTER = '8086::0300,::0106' # all Intel VGA cards and any SATA controller
 
-FILTER = "::0300"
+FILTER = "0000:0000"
 
 require 'shellwords'
 

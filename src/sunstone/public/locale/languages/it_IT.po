@@ -1,11 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
 # Alessandro Corbelli <alessandro.corbelli@guest.it>, 2013
 # Bernardino Ciuffetti <>, 2012
-# Carlo Daffara <cdaffara@conecta.it>, 2013-2015
+# Carlo Daffara <cdaffara@conecta.it>, 2013-2016
 # Carlo Daffara <cdaffara@conecta.it>, 2013
 # Daniel Molina <dmolina@opennebula.org>, 2014
 # Lorenzo Faleschini, 2015

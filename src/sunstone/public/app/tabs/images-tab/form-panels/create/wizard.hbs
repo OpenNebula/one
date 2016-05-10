@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -116,54 +116,72 @@
         </label>
         <input type="text" name="img_size" id="img_size" />
       </div>
-      <div class="medium-6 columns">
-        <label for="img_fstype">
-          {{tr "FS type"}}
-          <span class="tip">
-            {{tr "Type of file system to be built."}}
-            {{tr  "Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed."}}
-            {{tr  "Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*."}}
-          </span>
-        </label>
-        <input type="text" name="img_fstype" id="img_fstype" />
-      </div>
-      <div class="medium-6 columns">
-        <label for="adapter_type">
-          {{tr "Adapter type"}}
-          <span class="tip">
-            {{tr "Adapter type for the image. Only for vCenter images"}}
-            {{tr "Types of adapters used by virtual disks to plug into VMs. Values (careful with the case): lsiLogic, ide, busLogic."}}
-          </span>
-        </label>
-        <input type="text" name="adapter_type" id="adapter_type" />
-      </div>
-      <div class="medium-6 columns">
+      <div class="medium-6 columns only_vcenter">
         <label for="disk_type">
-          {{tr "Disk type"}}
+          {{tr "Disk Provisioning"}}
           <span class="tip">
             {{tr "Parameter to instruct vCenter on the type of disk to be created"}}
-            {{tr "The type of disk has implications on performance and occupied space. Values (careful with the case): delta,eagerZeroedThick,flatMonolithic,preallocated,raw,rdm,rdmp,seSparse,sparse2Gb,sparseMonolithic,thick,thick2Gb,thin."}}
+            {{tr "The type of disk has implications on performance and occupied space. Values (careful with the case): delta,eagerZeroedThick,flatMonolithic,preallocated,raw,rdm,rdmp,seSparse,sparse2Gb,sparseMonolithic,thick,thick2Gb,thin. Default value is thin."}}
           </span>
         </label>
-        <input type="text" name="disk_type" id="disk_type" />
+        <select name="disk_type" id="disk_type">
+          <option value="" selected="selected"></option>
+          <option value="thin">Thin</option>
+          <option value="thick">Thick</option>
+          <option value="eagerZeroedThick">Eager Zeroed Thick</option>
+          <option value="custom">custom</option>
+        </select>
+        <div>
+          <input type="text" id="custom_disk_type" name="custom_disk_type" />
+        </div>
       </div>
     </div>
   </fieldset>
   {{#advancedSection (tr "Advanced Options") }}
     <div class="row">
       <div class="medium-6 columns">
-        <div class="row">
+        <div class="row only_vcenter">
           <div class="large-12 columns">
-            <label for="img_dev_prefix">
-              {{tr "Device prefix"}}
+            <label for="adapter_type">
+              {{tr "Controller"}}
               <span class="tip">
-                {{tr "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."}}
+                {{tr "Controller for the image."}}
+                {{tr "Types of adapters used by virtual disks to plug into VMs. Values (careful with the case): lsiLogic, ide, busLogic."}}
               </span>
             </label>
-            <input type="text" name="img_dev_prefix" id="img_dev_prefix" />
+            <select name="adapter_type" id="adapter_type">
+              <option value="" selected="selected"></option>
+              <option value="lsiLogic">lsiLogic</option>
+              <option value="ide">ide</option>
+              <option value="busLogic">busLogic</option>
+              <option value="custom">custom</option>
+            </select>
+            <div>
+              <input type="text" id="custom_adapter_type" name="custom_adapter_type" />
+            </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row not_vcenter">
+          <div class="large-12 columns">
+            <label for="img_dev_prefix">
+              {{tr "BUS"}}
+              <span class="tip">
+                {{tr "The BUS where the image will be connected to. If a custom is selected the actual Device Prefix should be typed. For example: “hd”, “sd”. If omitted, the default value is the DEFAULT_DEV_PREFIX defined in oned.conf (installation default is “hd”)."}}
+              </span>
+            </label>
+            <select name="img_dev_prefix" id="img_dev_prefix">
+              <option value="" selected="selected"></option>
+              <option value="vd">Virtio</option>
+              <option value="sd">SCSI</option>
+              <option value="hd">Parallel ATA (IDE)</option>
+              <option value="custom">custom</option>
+            </select>
+            <div>
+              <input type="text" id="custom_img_dev_prefix" name="custom_img_dev_prefix" />
+            </div>
+          </div>
+        </div>
+        <div class="row not_vcenter">
           <div class="large-12 columns">
             <label for="img_driver">
               {{tr "Driver"}}
@@ -171,12 +189,19 @@
                 {{tr "Specific image mapping driver. KVM: raw, qcow2."}}
               </span>
             </label>
-            <input type="text" name="img_driver" id="img_driver" />
+            <select name="img_driver" id="img_driver">
+              <option value="raw" selected="selected">raw</option>
+              <option value="qcow2">qcow2</option>
+              <option value="custom">custom</option>
+            </select>
+            <div>
+              <input type="text" id="custom_img_driver" name="custom_img_driver" />
+            </div>
           </div>
         </div>
       </div>
       <div class="medium-6 columns">
-        <div class="row">
+        <div class="row not_vcenter">
           <div class="large-12 columns">
             <label for="img_target">
               {{tr "Target"}}

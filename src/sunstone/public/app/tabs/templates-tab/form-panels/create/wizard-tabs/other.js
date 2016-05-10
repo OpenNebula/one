@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -147,7 +147,7 @@ define(function(require) {
     var templateJSON = CustomTagsTable.retrieve(context);
 
     var rawJSON = {}
-    var rawData = TemplateUtils.escapeDoubleQuotes($('.raw_data', context).val());
+    var rawData = WizardFields.retrieveInput($('.raw_data', context));
     if (rawData != "") {
       rawJSON['DATA'] = rawData;
 
@@ -179,7 +179,7 @@ define(function(require) {
     if (rawJSON) {
       $('.raw_type', context).val(rawJSON['TYPE']);
       $('.raw_type', context).change();
-      $('.raw_data', context).val(TemplateUtils.htmlDecode(rawJSON['DATA']));
+      WizardFields.fillInput($('.raw_data', context), rawJSON['DATA']);
 
       delete templateJSON.RAW
     }

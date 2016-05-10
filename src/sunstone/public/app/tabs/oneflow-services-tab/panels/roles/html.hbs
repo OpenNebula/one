@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -18,23 +18,23 @@
   <div class="row">
     {{#if servicePanel}}
     <div id="role_actions">
-      <div class="columns large-4 medium-6 right">
+      <div class="action_blocks columns medium-8">
+      </div>
+      <div class="columns medium-4 right">
         <div class="row">
-          <div class="small-6 columns">
+          <div class="small-6 medium-6 columns">
             <label for="batch_action_period">{{tr "Period"}}:
               <span class="tip">{{tr "Seconds between each group of actions"}}</span>
             </label>
-            <input type="text" id="batch_action_period" name="batch_action_period"/>
+            <input type="number" min="0" id="batch_action_period" name="batch_action_period"/>
           </div>
-          <div class="small-6 columns">
+          <div class="small-6 medium-6 columns">
             <label for="batch_action_number">{{tr "Number"}}:
               <span class="tip">{{tr "Number of VMs to apply the action to each period"}}</span>
             </label>
-            <input type="text" id="batch_action_number" name="batch_action_number"/>
+            <input type="number" min="1" id="batch_action_number" name="batch_action_number"/>
           </div>
         </div>
-      </div>
-      <div class="action_blocks columns large-12">
       </div>
     </div>
     {{/if}}

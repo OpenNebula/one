@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -103,11 +103,11 @@ define(function(require) {
     });
 
     context.on("change", "input[name='rank_select']", function() {
-      $("#SCHED_RANK", context).val(this.value);
+      WizardFields.fillInput($("#SCHED_RANK", context), this.value);
     });
 
     context.on("change", "input[name='ds_rank_select']", function() {
-      $("#SCHED_DS_RANK", context).val(this.value);
+      WizardFields.fillInput($("#SCHED_DS_RANK", context), this.value);
     });
 
     var selectOptions = {
@@ -132,6 +132,8 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
+    WizardFields.fill(context, templateJSON);
+
     var reqJSON = templateJSON['SCHED_REQUIREMENTS'];
     if (reqJSON) {
       var req = TemplateUtils.escapeDoubleQuotes(reqJSON);
@@ -162,14 +164,12 @@ define(function(require) {
 
       this.clustersTable.selectResourceTableSelect(selectedResources);
 
-      $('input#SCHED_REQUIREMENTS', context).val(TemplateUtils.htmlDecode(req));
       delete templateJSON['SCHED_REQUIREMENTS'];
     }
 
     var dsReqJSON = templateJSON['SCHED_DS_REQUIREMENTS'];
     if (dsReqJSON) {
       var dsReq = TemplateUtils.escapeDoubleQuotes(dsReqJSON);
-      $('input#SCHED_DS_REQUIREMENTS', context).val(TemplateUtils.htmlDecode(dsReq));
       delete templateJSON['SCHED_DS_REQUIREMENTS'];
     }
 
@@ -190,8 +190,6 @@ define(function(require) {
             $('input[name="rank_select"]#loadawareRadio', context).click()
         }
 
-        $('input#SCHED_RANK', context).val(TemplateUtils.htmlDecode(rankJSON));
-
         delete templateJSON["SCHED_RANK"];
     }
 
@@ -206,8 +204,6 @@ define(function(require) {
         else if (packing_regexp.test(dsRankJSON)) {
             $('input[name="ds_rank_select"]#packingDSRadio', context).click()
         }
-
-        $('input#SCHED_DS_RANK', context).val(TemplateUtils.htmlDecode(dsRankJSON));
 
         delete templateJSON["SCHED_DS_RANK"];
     }

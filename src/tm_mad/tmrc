@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,8 +14,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Default volume group
-VG_NAME=vg-one
+#-------------------------------------------------------------------------------
+# Global environment configuration file for TM MADS
+# --------------------------------------------------------
+#
+# This file is sourced before TM MAD is started. Also the variables
+# declared here are "exported".
+#
+# This file MUST preserve SH syntax
+#-------------------------------------------------------------------------------
 
-# Default LV snapshot SIZE
-DEFAULT_SIZE=512
+# Options sent to qemu-img for clone images
+#QCOW2_OPTIONS="-o compat=0.10"
+

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -143,9 +143,6 @@ define(function(require) {
         case 'fs':
           _selectFilesystem(dialog);
           break;
-        case 'block_lvm':
-          _selectBlockLvm(dialog);
-          break;
         case 'fs_lvm':
           _selectFsLvm(dialog);
           break;
@@ -158,7 +155,7 @@ define(function(require) {
         case 'dev':
           _selectDevices(dialog);
           break;
-        case 'iscsi':
+        case 'iscsi_libvirt':
           _selectISCSI(dialog);
           break;
         case 'vcenter':
@@ -409,25 +406,6 @@ define(function(require) {
     $('input#restricted_dirs', dialog).removeAttr('disabled');
   }
 
-  function _selectBlockLvm(dialog) {
-    $('select#ds_mad', dialog).val('lvm').change();
-    $('select#ds_mad', dialog).attr('disabled', 'disabled');
-    $('select#tm_mad', dialog).val('lvm');
-    $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('input#image_ds_type', dialog).click();
-    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
-    $('label[for="vg_name"],input#vg_name', dialog).fadeIn();
-    $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
-    $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
-    $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
-    $('select#disk_type', dialog).val('block');
-    $('select#disk_type', dialog).attr('disabled', 'disabled');
-    $('input#safe_dirs', dialog).removeAttr('disabled');
-    $('input#limit_mb', dialog).removeAttr('disabled');
-    $('input#restricted_dirs', dialog).removeAttr('disabled');
-  }
-
   function _selectFsLvm(dialog) {
     $('select#ds_mad', dialog).val('fs').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
@@ -489,9 +467,9 @@ define(function(require) {
   }
 
   function _selectISCSI(dialog) {
-    $('select#ds_mad', dialog).val('iscsi').change();
+    $('select#ds_mad', dialog).val('iscsi_libvirt').change();
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
-    $('select#tm_mad', dialog).val('iscsi');
+    $('select#tm_mad', dialog).val('iscsi_libvirt');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
     $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');

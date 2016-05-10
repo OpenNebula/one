@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
   var RangeSlider = require('utils/range-slider');
+  var TemplateUtils = require('utils/template-utils');
 
   var ProvisionVmsList = require('tabs/provision-tab/vms/list');
 
@@ -186,8 +187,8 @@ define(function(require) {
             roles_li +=
               '<li class="provision-bullet-item"">'+
                 '<i class="fa fa-fw fa-lg fa-cube"/> '+
-                role.name+
-                '<span class="right">'+rvms.str+" VMs</span>"+
+                TemplateUtils.htmlEncode(role.name)+
+                '<span class="right">'+TemplateUtils.htmlEncode(rvms.str)+" VMs</span>"+
               '</li>';
           });
         }
@@ -199,14 +200,14 @@ define(function(require) {
                   '<span class="'+ state.color +'-color right" title="'+ state.str +'">'+
                     '<i class="fa fa-square"/>'+
                   '</span>'+
-                  data.NAME +
+                  TemplateUtils.htmlEncode(data.NAME) +
                 '</a>'+
               '</li>'+
               roles_li +
               '<li class="provision-bullet-item-last">'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
-                  data.UNAME+
+                  TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span class="right">'+
                   (start_time ? Humanize.prettyTimeAgo(start_time) : '-') +
@@ -323,7 +324,7 @@ define(function(require) {
               '<li class="provision-bullet-item-last text-right">'+
                 '<span class="left">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
-                  data.UNAME+
+                  TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-clock-o"/> '+
@@ -350,19 +351,19 @@ define(function(require) {
                     '<li class="provision-title">'+
                       '<span class="without-link">' +
                         '<i class="fa fa-fw fa-cube"/> '+
-                        role.name+
+                        TemplateUtils.htmlEncode(role.name)+
                       '</span>' +
                     '</li>'+
                     '<li class="provision-bullet-item">'+
                       '<div class="progress small radius">'+
-                        '<meter id="' + role.name + '_meter" min="0" low="33" high="66" optimum="100" max="100" value="' + rvms.percentage + '"></meter>' +
+                        '<meter id="' + TemplateUtils.htmlEncode(role.name) + '_meter" min="0" low="33" high="66" optimum="100" max="100" value="' + TemplateUtils.htmlEncode(rvms.percentage) + '"></meter>' +
                       '</div>'+
                     '</li>'+
                     '<li class="provision-bullet-item text-right">'+
                       '<span class="'+ role_state.color +'-color left">'+
                         role_state.str+
                       '</span>'+
-                      '<span>'+rvms.str+" VMs</span>"+
+                      '<span>'+TemplateUtils.htmlEncode(rvms.str)+" VMs</span>"+
                     '</li>'+
                     '<li class="provision-bullet-item">' +
                       '<hr>' +

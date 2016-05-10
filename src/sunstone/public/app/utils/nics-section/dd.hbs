@@ -20,24 +20,20 @@
     <div class="row collapse">
       {{{vnetsTableHTML}}}
     </div>
-    {{#if options.forceIPv4}}
     <div class="row">
-      <div class="small-5 columns">
-        <label class="right inline">
-          {{tr "Force IPv4:"}}
-          <span class="tip">
-            {{tr "Optionally, you can force the IP assigned to the network interface."}}
-          </span>
-        </label>
-      </div>
-      <div class="small-7 columns">
-        <input type="text" class="manual_ip4" />
-      </div>
-    </div>
-    {{/if}}
-    {{#if options.floatingIP}}
-    <div class="row">
-      <div class="small-12 columns">
+      {{#if options.forceIPv4}}
+        <div class="medium-6 columns">
+          <label>
+            {{tr "Force IPv4:"}}
+            <span class="tip">
+              {{tr "Optionally, you can force the IP assigned to the network interface."}}
+            </span>
+            <input type="text" class="manual_ip4" />
+          </label>
+        </div>
+      {{/if}}
+      {{#if options.floatingIP}}
+      <div class="medium-6 columns">
         <label class="inline">
           <input type="checkbox" class="floating_ip" />
           {{tr "Floating IP"}}
@@ -46,11 +42,9 @@
           </span>
         </label>
       </div>
-    </div>
-    {{/if}}
-    {{#if options.management}}
-    <div class="row">
-      <div class="small-12 columns">
+      {{/if}}
+      {{#if options.management}}
+      <div class="medium-6 columns">
         <label>
           <input type="checkbox" class="management" />
           {{tr "Management Interface"}}
@@ -59,8 +53,8 @@
           </span>
         </label>
       </div>
+      {{/if}}
     </div>
-    {{/if}}
     {{#if options.securityGroups}}
     <div class="row collapse">
       <h6>

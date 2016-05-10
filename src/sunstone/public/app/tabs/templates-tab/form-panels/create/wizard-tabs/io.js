@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,7 +23,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
-  var TemplateUtils = require('utils/template-utils');
   var UniqueId = require('utils/unique-id');
 
   /*
@@ -74,7 +73,6 @@ define(function(require) {
 
   function _setup(context) {
     $("input[name='graphics_type']", context).change(function() {
-      $("#TYPE", context).val($(this).attr("value"));
       if ($(this).attr("value") !== '') {
         $('input[wizard_field="LISTEN"]', context).val("0.0.0.0");
       } else {
@@ -93,14 +91,14 @@ define(function(require) {
       var element1 = document.createElement("input");
       element1.id = "INPUT_TYPE"
       element1.type = "text";
-      element1.value = $('select#INPUT_TYPE', context).val()
+      element1.value = WizardFields.retrieveInput($('select#INPUT_TYPE', context));
       cell1.appendChild(element1);
 
       var cell2 = row.insertCell(1);
       var element2 = document.createElement("input");
       element2.id = "INPUT_BUS"
       element2.type = "text";
-      element2.value = $('select#INPUT_BUS', context).val()
+      element2.value = WizardFields.retrieveInput($('select#INPUT_BUS', context));
       cell2.appendChild(element2);
 
       var cell3 = row.insertCell(2);
@@ -127,8 +125,8 @@ define(function(require) {
     $('#input_table tr', context).each(function() {
       if ($('#INPUT_TYPE', $(this)).val()) {
         inputsJSON.push({
-          'TYPE': $('#INPUT_TYPE', $(this)).val(),
-          'BUS': $('#INPUT_BUS', $(this)).val()
+          'TYPE': WizardFields.retrieveInput($('#INPUT_TYPE', $(this))),
+          'BUS': WizardFields.retrieveInput($('#INPUT_BUS', $(this)))
         });
       }
     });
@@ -169,14 +167,14 @@ define(function(require) {
         var element1 = document.createElement("input");
         element1.id = "INPUT_TYPE";
         element1.type = "text";
-        element1.value = TemplateUtils.htmlDecode(this.TYPE);
+        element1.value = this.TYPE;
         cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
         var element2 = document.createElement("input");
         element2.id = "INPUT_BUS";
         element2.type = "text";
-        element2.value = TemplateUtils.htmlDecode(this.BUS);
+        element2.value = this.BUS;
         cell2.appendChild(element2);
 
         var cell3 = row.insertCell(2);

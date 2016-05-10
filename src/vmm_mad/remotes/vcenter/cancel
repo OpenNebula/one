@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -46,8 +46,13 @@ keep_disks    = !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS
                  drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
 disks         = drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]
 
+cloned_tmplt = nil
+if !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
+    cloned_tmplt  =  drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
+end
+
 begin
-    VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state, keep_disks, disks)
+    VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state, keep_disks, disks, cloned_tmplt)
 rescue Exception => e
     STDERR.puts "Cancel of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""

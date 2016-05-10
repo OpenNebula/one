@@ -1,0 +1,47 @@
+<div data-closable class="callout large secondary">
+  <div class="row">
+    <div class="large-11 columns">
+      <span>
+        {{tr "Be careful, this action will shutdown and destroy your Virtual Machine"}}
+        {{#if opts.both}}
+        <br/>
+        <br/>
+        {{tr "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."}}
+        {{/if}}
+      </span>
+    </div>
+  </div>
+  <br/>
+  <div class="row">
+    <div class="large-12 columns">
+      <button href"#" class="provision_terminate_button alert button right">
+        {{tr "Terminate"}}
+      </button>
+      {{#if opts.both}}
+      <ul class="menu simple">
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_terminate_radio" value="terminate_hard">
+            <i class="fa fa-fw fa-bolt"/> {{tr "Terminate the machine"}}
+          </label>
+        </li>
+        <li>
+          <label class="left">
+            <input type="radio" name="provision_terminate_radio" value="terminate" checked>
+            <i class="fa fa-fw fa-power-off"/> {{tr "Send the shutdown signal and terminate"}}
+          </label>
+        </li>
+      </ul>
+      {{else}}
+        {{#if opts.hard}}
+        <input checked hidden type="radio" name="provision_terminate_radio" value="terminate_hard">
+        {{else}}
+        <input checked hidden type="radio" name="provision_terminate_radio" value="terminate">
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+  <button class="close-button" aria-label="Close" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

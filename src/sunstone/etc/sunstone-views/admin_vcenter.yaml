@@ -2,21 +2,12 @@ small_logo: images/opennebula-sunstone-v4.14-small.png
 provision_logo: images/one_small_logo.png
 enabled_tabs:
     - dashboard-tab
-    - system-top-tab
-    - users-tab
-    - groups-tab
-    - vdcs-tab
-    - acls-tab
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
     - templates-top-tab
     - templates-tab
     - oneflow-templates-tab
-    - infrastructure-top-tab
-    - clusters-tab
-    - hosts-tab
-    - zones-tab
     - storage-top-tab
     - datastores-tab
     - images-tab
@@ -28,6 +19,15 @@ enabled_tabs:
     - vrouters-tab
     - vnets-topology-tab
     #- secgroups-tab
+    - infrastructure-top-tab
+    - clusters-tab
+    - hosts-tab
+    - zones-tab
+    - system-top-tab
+    - users-tab
+    - groups-tab
+    - vdcs-tab
+    - acls-tab
     - settings-tab
     - support-tab
 autorefresh: true
@@ -216,7 +216,7 @@ tabs:
             vm_snapshot_tab: true
             vm_placement_tab: true
             vm_actions_tab: true
-            vm_conf_tab: false
+            vm_conf_tab: true
             vm_template_tab: true
             vm_log_tab: true
         table_columns:
@@ -256,10 +256,8 @@ tabs:
             VM.poweroff_hard: true
             VM.undeploy: true
             VM.undeploy_hard: true
-            VM.shutdown: true
-            VM.shutdown_hard: true
-            VM.delete: true
-            VM.delete_recreate: true
+            VM.terminate: true
+            VM.terminate_hard: true
             VM.resize: true
             VM.attachdisk: true
             VM.detachdisk: true
@@ -274,8 +272,8 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.resched: true
             VM.unresched: true
-            VM.saveas_template: false
-            VM.updateconf: false
+            VM.save_as_template: false
+            VM.updateconf: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
@@ -295,10 +293,8 @@ tabs:
                 Role.poweroff_hard: true
                 Role.undeploy: true
                 Role.undeploy_hard: true
-                Role.shutdown: true
-                Role.shutdown_hard: true
-                Role.delete: true
-                Role.delete_recreate: true
+                Role.terminate: true
+                Role.terminate_hard: true
                 RoleVM.hold: true
                 RoleVM.release: true
                 RoleVM.suspend: true
@@ -310,10 +306,8 @@ tabs:
                 RoleVM.poweroff_hard: true
                 RoleVM.undeploy: true
                 RoleVM.undeploy_hard: true
-                RoleVM.shutdown: true
-                RoleVM.shutdown_hard: true
-                RoleVM.delete: true
-                RoleVM.delete_recreate: true
+                RoleVM.terminate: true
+                RoleVM.terminate_hard: true
                 RoleVM.resched: true
                 RoleVM.unresched: true
                 RoleVM.recover: true

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -70,6 +70,29 @@
         <tr>
           <td class="key_td">{{tr "Real CPU"}}</td>
           <td class="value_td" colspan="2" style="width:50%;">{{{cpuBars.real}}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Overcommitment"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "Reserved CPU"}}</td>
+          <td class="value_td" style="width:50%;">{{valOrDefault element.TEMPLATE.RESERVED_CPU "-"}}</td>
+          <td>
+            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+          </td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Reserved Memory"}}</td>
+          <td class="value_td" style="width:50%;">{{humanizeSize "KB" element.TEMPLATE.RESERVED_MEM}}</td>
+          <td>
+            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+          </td>
         </tr>
       </tbody>
     </table>

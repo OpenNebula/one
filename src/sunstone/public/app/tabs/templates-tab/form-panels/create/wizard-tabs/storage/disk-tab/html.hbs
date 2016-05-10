@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -194,7 +194,7 @@
         {{tr "Size"}}
         {{{tip (tr "Size of the new disk in MB")}}}
       </label>
-      <input wizard_field="SIZE" type="text" id="SIZE" name="SIZE"/>
+      <input wizard_field="SIZE" type="text" id="SIZE" name="SIZE" required />
     </div>
   </div>
   <div class="row">
@@ -213,7 +213,10 @@
         {{tr "Format"}}
         {{{tip (tr "Filesystem type for the fs images")}}}
       </label>
-      <input wizard_field="FORMAT" type="text" id="FORMAT" name="format" />
+      <select wizard_field="FORMAT" name="format" id="FORMAT">
+        <option value="raw" selected="selected">raw</option>
+        <option value="qcow2">qcow2</option>
+      </select>
     </div>
   </div>
   <br>

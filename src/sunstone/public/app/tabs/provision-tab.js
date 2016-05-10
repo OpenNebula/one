@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -768,14 +768,14 @@ define(function(require) {
 
           var li = $('<div class="column">' +
               '<ul class="provision-pricing-table only-one hoverable menu vertical text-center" opennebula_id="'+data.ID+'">'+
-                '<li class="provision-title" title="'+data.NAME+'">'+
-                  '<a href="">' + data.NAME + '</a>' +
+                '<li class="provision-title" title="'+TemplateUtils.htmlEncode(data.NAME)+'">'+
+                  '<a href="">' + TemplateUtils.htmlEncode(data.NAME) + '</a>' +
                 '</li>'+
                 '<li class="provision-bullet-item">'+
                   logo +
                 '</li>'+
                 '<li class="provision-bullet-item">'+
-                  (data.TEMPLATE.DESCRIPTION || '...')+
+                  (TemplateUtils.htmlEncode(data.TEMPLATE.DESCRIPTION) || '...')+
                 '</li>'+
                 '<li class="provision-bullet-item-last text-left">'+
                   '<span>'+
@@ -914,9 +914,9 @@ define(function(require) {
 
             $(".provision_accordion_template .selected_template").show();
             $(".provision_accordion_template .select_template").hide();
-            $(".provision_accordion_template .selected_template_name").html(template_json.VMTEMPLATE.NAME)
+            $(".provision_accordion_template .selected_template_name").html(TemplateUtils.htmlEncode(template_json.VMTEMPLATE.NAME))
             if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
-              $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
+              $(".provision_accordion_template .selected_template_logo").html('<img  src="'+TemplateUtils.htmlEncode(template_json.VMTEMPLATE.TEMPLATE.LOGO)+'">');
             } else {
               $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/> ');
             }
@@ -1107,14 +1107,14 @@ define(function(require) {
 
             var li = $('<div class="column">'+
                 '<ul class="provision-pricing-table hoverable only-one menu vertical" opennebula_id="'+data.ID+'">'+
-                  '<li class="provision-title" title="'+data.NAME+'">'+
+                  '<li class="provision-title" title="'+TemplateUtils.htmlEncode(data.NAME)+'">'+
                     '<a href="">' +
-                      data.NAME +
+                      TemplateUtils.htmlEncode(data.NAME) +
                     '</a>' +
                   '</li>'+
                   roles_li +
                   '<li class="provision-bullet-item">'+
-                    (data.TEMPLATE.DESCRIPTION || '')+
+                    (TemplateUtils.htmlEncode(data.TEMPLATE.DESCRIPTION) || '')+
                   '</li>'+
                 '</ul>'+
               '</div>').appendTo($("#provision_flow_templates_ul"));
@@ -1155,7 +1155,7 @@ define(function(require) {
 
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();
-            $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.NAME)
+            $(".provision_accordion_flow_template .selected_template_name").html(TemplateUtils.htmlEncode(data.DOCUMENT.NAME))
             $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/> ');
             $(".provision_accordion_flow_template a").first().trigger("click");
 
@@ -1175,7 +1175,7 @@ define(function(require) {
                 '<div id="provision_create_flow_role_'+index+'" class="large-6 medium-12 small-12 columns provision_create_flow_role">'+
                   '<h5>'+
                     '<i class="fa fa-cube fa-lg"></i> '+
-                    role.name+
+                    TemplateUtils.htmlEncode(role.name)+
                   '</h5>'+
                   '<div class="row">'+
                     '<div class="provision_cardinality_selector large-12 columns">'+
@@ -1254,12 +1254,6 @@ define(function(require) {
             var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));
 
             var role_template = $(this).data("opennebula");
-
-            if (role_template.elasticity_policies != undefined){
-              $.each(role_template.elasticity_policies, function(i, pol){
-                  pol.expression = TemplateUtils.htmlDecode(pol.expression);
-              });
-            }
 
             roles.push($.extend(role_template, {
               "cardinality": $(".cardinality_value", $(this)).text(),

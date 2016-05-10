@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -212,6 +212,17 @@
               {{tr "Localtime"}}
               {{{tip (tr "The guest clock will be synchronized to the hosts configured timezone when booted.")}}}
               <select wizard_field="LOCALTIME">
+                <option value=""></option>
+                <option value="yes">{{tr "Yes"}}</option>
+                <option value="no">{{tr "No"}}</option>
+              </select>
+            </label>
+          </div>
+          <div class="medium-6 columns">
+            <label>
+              {{tr "GUEST AGENT"}}
+              {{{tip (tr "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM.")}}}
+              <select wizard_field="GUEST_AGENT">
                 <option value=""></option>
                 <option value="yes">{{tr "Yes"}}</option>
                 <option value="no">{{tr "No"}}</option>

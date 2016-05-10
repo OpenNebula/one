@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -298,6 +298,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     string ds_name;
     string ds_data;
+    string ds_mad;
+    string tm_mad;
 
     bool   ds_persistent_only;
 
@@ -382,6 +384,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ds_disk_type       = ds->get_disk_type();
     ds_check           = ds->get_avail_mb(avail);
     ds_persistent_only = ds->is_persistent_only();
+    ds_mad             = ds->get_ds_mad();
+    tm_mad             = ds->get_tm_mad();
 
     ds->to_xml(ds_data);
 
@@ -543,6 +547,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
                          ds_disk_type,
                          ds_data,
                          ds_type,
+                         ds_mad,
+                         tm_mad,
                          extra_data,
                          -1,
                          &id,

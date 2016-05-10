@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1908,23 +1908,19 @@ private:
      *  Parse and generate the ETH_ network attributed of a NIC
      *    @param context attribute
      *    @param nic attribute
-     *    @param replace attributes if the exist
      *
      *    @return 0 on success
      */
-    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic,
-            bool replace);
+    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
 
     /**
      *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
      *  is invoked when ever the context is prepared for the VM to capture
      *  netowrking updates.
      *    @param context attribute of the VM
-     *    @param replace attributes if the exist
      *    @return true if the net context was generated.
      */
-    bool generate_network_context(VectorAttribute * context, bool replace);
-
+    bool generate_network_context(VectorAttribute * context);
 
     /**
      *  Generate the ONE_GATE token & url

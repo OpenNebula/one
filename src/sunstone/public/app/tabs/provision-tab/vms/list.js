@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,8 +25,15 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
   var Graphs = require('utils/graphs');
+  var TemplateUtils = require('utils/template-utils');
+  var StateActions = require('tabs/vms-tab/utils/state-actions');
 
   var TemplateVmsList = require('hbs!./list');
+  var TemplateConfirmSaveAsTemplate = require('hbs!./confirm_save_as_template');
+  var TemplateConfirmTerminate = require('hbs!./confirm_terminate');
+  var TemplateConfirmPoweroff = require('hbs!./confirm_poweroff');
+  var TemplateConfirmUndeploy = require('hbs!./confirm_undeploy');
+  var TemplateConfirmReboot = require('hbs!./confirm_reboot');
 
   var TAB_ID = require('../tabId');
   var _accordionId = 0;
@@ -173,7 +180,7 @@ define(function(require) {
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                  (data.TEMPLATE.MEMORY+'MB'))+
+                  (TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+'MB'))+
                 ' - '+
                 get_provision_disk_image(data) +
               '</li>'+
@@ -254,86 +261,63 @@ define(function(require) {
           var data = response.VM
           var state = get_provision_vm_state(data);
 
-          switch (state.color) {
-            case "deploying":
-              $(".provision_reboot_confirm_button", context).hide();
-              $(".provision_poweroff_confirm_button", context).hide();
-              $(".provision_undeploy_confirm_button", context).hide();
-              $(".provision_poweron_button", context).hide();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
-              $(".provision_snapshot_button", context).hide();
-              $(".provision_vnc_button", context).hide();
-              $(".provision_snapshot_button_disabled", context).hide();
-              $(".provision_vnc_button_disabled", context).hide();
-              break;
-            case "running":
-              $(".provision_reboot_confirm_button", context).show();
-              $(".provision_poweroff_confirm_button", context).show();
-              $(".provision_undeploy_confirm_button", context).show();
-              $(".provision_poweron_button", context).hide();
-              $(".provision_delete_confirm_button", context).hide();
-              $(".provision_shutdownhard_confirm_button", context).show();
-              $(".provision_snapshot_button", context).hide();
-              $(".provision_vnc_button", context).show();
-              $(".provision_snapshot_button_disabled", context).show();
-              $(".provision_vnc_button_disabled", context).hide();
-              break;
-            case "off":
-              $(".provision_reboot_confirm_button", context).hide();
-              $(".provision_poweroff_confirm_button", context).hide();
-              $(".provision_undeploy_confirm_button", context).hide();
-              $(".provision_poweron_button", context).show();
-              $(".provision_delete_confirm_button", context).hide();
-              $(".provision_shutdownhard_confirm_button", context).show();
-              $(".provision_snapshot_button", context).show();
-              $(".provision_vnc_button", context).hide();
-              $(".provision_snapshot_button_disabled", context).hide();
-              $(".provision_vnc_button_disabled", context).show();
-              break;
-            case "undeployed":
-              $(".provision_reboot_confirm_button", context).hide();
-              $(".provision_poweroff_confirm_button", context).hide();
-              $(".provision_undeploy_confirm_button", context).hide();
-              $(".provision_poweron_button", context).show();
-              $(".provision_delete_confirm_button", context).hide();
-              $(".provision_shutdownhard_confirm_button", context).show();
-              $(".provision_snapshot_button", context).hide();
-              $(".provision_vnc_button", context).hide();
-              $(".provision_snapshot_button_disabled", context).hide();
-              $(".provision_vnc_button_disabled", context).show();
-              break;
-            case "powering_off":
-            case "error":
-              $(".provision_reboot_confirm_button", context).hide();
-              $(".provision_poweroff_confirm_button", context).hide();
-              $(".provision_undeploy_confirm_button", context).hide();
-              $(".provision_poweron_button", context).hide();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
-              $(".provision_snapshot_button", context).hide();
-              $(".provision_vnc_button", context).hide();
-              $(".provision_snapshot_button_disabled", context).hide();
-              $(".provision_vnc_button_disabled", context).hide();
-              break;
-            default:
-              color = 'secondary';
-              $(".provision_reboot_confirm_button", context).hide();
-              $(".provision_poweroff_confirm_button", context).hide();
-              $(".provision_undeploy_confirm_button", context).hide();
-              $(".provision_poweron_button", context).hide();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
-              $(".provision_snapshot_button", context).hide();
-              $(".provision_vnc_button", context).hide();
-              $(".provision_snapshot_button_disabled", context).hide();
-              $(".provision_vnc_button_disabled", context).hide();
-              break;
+          // helper, cleaner code
+          function enabled(action){
+            return Config.isTabActionEnabled("provision-tab", action) &&
+                   StateActions.enabledStateAction(action, data.STATE, data.LCM_STATE);
           }
 
-          if (!OpenNebula.VM.isVNCSupported(data) && !OpenNebula.VM.isSPICESupported(data)) {
-              $(".provision_vnc_button", context).hide();
-              $(".provision_vnc_button_disabled", context).hide();
+          if (enabled("VM.reboot") || enabled("VM.reboot_hard")){
+            $(".provision_reboot_confirm_button", context).show();
+          } else {
+            $(".provision_reboot_confirm_button", context).hide();
+          }
+
+          if (enabled("VM.poweroff") || enabled("VM.poweroff_hard")){
+            $(".provision_poweroff_confirm_button", context).show();
+          } else {
+            $(".provision_poweroff_confirm_button", context).hide();
+          }
+
+          if (enabled("VM.undeploy") || enabled("VM.undeploy_hard")){
+            $(".provision_undeploy_confirm_button", context).show();
+          } else {
+            $(".provision_undeploy_confirm_button", context).hide();
+          }
+
+          if (enabled("VM.resume")){
+            $(".provision_resume_button", context).show();
+          } else {
+            $(".provision_resume_button", context).hide();
+          }
+
+          if (enabled("VM.terminate") || enabled("VM.terminate_hard")){
+            $(".provision_terminate_confirm_button", context).show();
+          } else {
+            $(".provision_terminate_confirm_button", context).hide();
+          }
+
+          if(Config.isTabActionEnabled("provision-tab", "VM.save_as_template")){
+            if (enabled("VM.save_as_template")){
+              $(".provision_save_as_template_confirm_button", context).show();
+              $(".provision_save_as_template_confirm_button_disabled", context).hide();
+            } else {
+              $(".provision_save_as_template_confirm_button", context).hide();
+              $(".provision_save_as_template_confirm_button_disabled", context).show();
+            }
+          }else{
+            $(".provision_save_as_template_confirm_button", context).hide();
+            $(".provision_save_as_template_confirm_button_disabled", context).hide();
+          }
+
+          if (OpenNebula.VM.isVNCSupported(data) ||
+             OpenNebula.VM.isSPICESupported(data)) {
+
+            $(".provision_vnc_button", context).show();
+            $(".provision_vnc_button_disabled", context).hide();
+          }else{
+            $(".provision_vnc_button", context).hide();
+            $(".provision_vnc_button_disabled", context).show();
           }
 
           $(".provision_info_vm", context).attr("vm_id", data.ID);
@@ -382,10 +366,10 @@ define(function(require) {
               '<li class="provision-bullet-item" >'+
                 '<span>'+
                   '<i class="fa fa-fw fa-lg fa-laptop"/> '+
-                  'x'+data.TEMPLATE.CPU+' - '+
+                  'x'+TemplateUtils.htmlEncode(data.TEMPLATE.CPU)+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    (data.TEMPLATE.MEMORY+'MB'))+
+                    (TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+'MB'))+
                 '</span>'+
                 ' - '+
                 '<span>'+
@@ -486,65 +470,13 @@ define(function(require) {
       })
     }
 
-    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
-      context.on("click", ".provision_snapshot_button", function(){
+    if (Config.isTabActionEnabled("provision-tab", "VM.save_as_template")) {
+      context.on("click", ".provision_save_as_template_confirm_button", function(){
         $(".provision_confirm_action:first", context).html(
-          '<div data-closable class="callout large secondary">'+
-            '<div class="row">'+
-              '<div class="large-12 columns">'+
-                '<span>'+
-                  Locale.tr("This Virtual Machine will be saved in a new Template.")+
-                '<br>'+
-                  Locale.tr("You can then create a new Virtual Machine using this Template.")+
-                '</span>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-11 large-centered columns">'+
-                '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'"/>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-12 columns">'+
-                '<span>'+
-                  Locale.tr("The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks.")+
-                '</span>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-12 columns">'+
-                '<ul class="menu simple">'+
-                  '<li>'+
-                    '<label class="left">'+
-                      '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
-                      ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
-                    '</label>'+
-                  '</li>'+
-                  '<li>'+
-                    '<label class="left">'+
-                      '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
-                      ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
-                    '</label>'+
-                  '</li>'+
-                '</ul>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-11 large-centered columns">'+
-                '<button href"#" class="provision_snapshot_create_button success button right">'+Locale.tr("Save Virtual Machine to Template")+'</button>'+
-              '</div>'+
-            '</div>'+
-            '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-          '</div>');
+          TemplateConfirmSaveAsTemplate());
       });
 
-      context.on("click", ".provision_snapshot_create_button", function(){
+      context.on("click", ".provision_save_as_template_button", function(){
         var button = $(this);
         button.attr("disabled", "disabled");
         var context = $(".provision_info_vm[vm_id]");
@@ -585,200 +517,98 @@ define(function(require) {
       });
     }
 
-    context.on("click", ".provision_delete_confirm_button", function(){
-      $(".provision_confirm_action:first", context).html(
-        '<div data-closable class="callout large secondary">'+
-          '<div class="row">'+
-          '<div class="large-9 columns">'+
-            '<span>'+
-              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
-              '<br>'+
-              Locale.tr("All the information will be lost!")+
-            '</span>'+
-          '</div>'+
-          '<div class="large-3 columns">'+
-            '<button href"#" class="provision_delete_button alert button right">'+Locale.tr("Delete")+'</button>'+
-          '</div>'+
-          '</div>'+
-          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-        '</div>');
-    });
+    context.on("click", ".provision_terminate_confirm_button", function(){
+      var data = $(".provision_info_vm", context).data("vm");
 
-    context.on("click", ".provision_shutdownhard_confirm_button", function(){
-      $(".provision_confirm_action:first", context).html(
-        '<div data-closable class="callout large secondary">'+
-          '<div class="row">'+
-          '<div class="large-9 columns">'+
-            '<span>'+
-              Locale.tr("Be careful, this action will immediately destroy your Virtual Machine")+
-              '<br>'+
-              Locale.tr("All the information will be lost!")+
-            '</span>'+
-          '</div>'+
-          '<div class="large-3 columns">'+
-            '<button href"#" class="provision_shutdownhard_button alert button right">'+Locale.tr("Delete")+'</button>'+
-          '</div>'+
-          '</div>'+
-          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-        '</div>');
+      var hard = Config.isTabActionEnabled("provision-tab", "VM.terminate_hard") &&
+             StateActions.enabledStateAction("VM.terminate_hard", data.STATE, data.LCM_STATE);
+
+      var soft = Config.isTabActionEnabled("provision-tab", "VM.terminate") &&
+             StateActions.enabledStateAction("VM.terminate", data.STATE, data.LCM_STATE);
+
+      var opts = {};
+
+      if(hard && soft){
+        opts.both = true;
+      } else if(hard){
+        opts.hard = true;
+      }
+
+      $(".provision_confirm_action:first", context).html(TemplateConfirmTerminate({opts: opts}));
     });
 
     context.on("click", ".provision_poweroff_confirm_button", function(){
-      $(".provision_confirm_action:first", context).html(
-        '<div data-closable class="callout large secondary">'+
-          '<div class="row">'+
-          '<div class="large-11 columns">'+
-            '<span>'+
-              Locale.tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
-              '<br>'+
-              '<br>'+
-              Locale.tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer).")+
-            '</span>'+
-          '</div>'+
-          '</div>'+
-          '<br>'+
-          '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<button href"#" class="provision_poweroff_button button right">'+Locale.tr("Power off")+'</button>'+
-            '<ul class="menu simple">'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
-                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off the machine")+
-                '</label>'+
-              '</li>'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
-                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal")+
-                '</label>'+
-              '</li>'+
-            '</ul>'+
-          '</div>'+
-          '</div>'+
-          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-        '</div>');
+      var data = $(".provision_info_vm", context).data("vm");
+
+      var hard = Config.isTabActionEnabled("provision-tab", "VM.poweroff_hard") &&
+             StateActions.enabledStateAction("VM.poweroff_hard", data.STATE, data.LCM_STATE);
+
+      var soft = Config.isTabActionEnabled("provision-tab", "VM.poweroff") &&
+             StateActions.enabledStateAction("VM.poweroff", data.STATE, data.LCM_STATE);
+
+      var opts = {};
+
+      if(hard && soft){
+        opts.both = true;
+      } else if(hard){
+        opts.hard = true;
+      }
+
+      $(".provision_confirm_action:first", context).html(TemplateConfirmPoweroff({opts: opts}));
     });
 
     context.on("click", ".provision_undeploy_confirm_button", function(){
-      $(".provision_confirm_action:first", context).html(
-        '<div data-closable class="callout large secondary">'+
-          '<div class="row">'+
-          '<div class="large-11 columns">'+
-            '<span>'+
-              Locale.tr("This action will power off this Virtual Machine and will be undeployed from the physical machine")+
-              '<br>'+
-              '<br>'+
-              Locale.tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer).")+
-            '</span>'+
-          '</div>'+
-          '</div>'+
-          '<br>'+
-          '<div class="row">'+
-          '<div class="large-12 columns">'+
-          '<button href"#" class="provision_undeploy_button button right">'+Locale.tr("Power off and undeploy")+'</button>'+
-            '<ul class="menu simple">'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
-                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
-                '</label>'+
-              '</li>'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
-                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
-                '</label>'+
-              '</li>'+
-            '</ul>'+
-          '</div>'+
-          '</div>'+
-          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-        '</div>');
+      var data = $(".provision_info_vm", context).data("vm");
+
+      var hard = Config.isTabActionEnabled("provision-tab", "VM.undeploy_hard") &&
+             StateActions.enabledStateAction("VM.undeploy_hard", data.STATE, data.LCM_STATE);
+
+      var soft = Config.isTabActionEnabled("provision-tab", "VM.undeploy") &&
+             StateActions.enabledStateAction("VM.undeploy", data.STATE, data.LCM_STATE);
+
+      var opts = {};
+
+      if(hard && soft){
+        opts.both = true;
+      } else if(hard){
+        opts.hard = true;
+      }
+
+      $(".provision_confirm_action:first", context).html(TemplateConfirmUndeploy({opts: opts}));
     });
 
     context.on("click", ".provision_reboot_confirm_button", function(){
-      $(".provision_confirm_action:first", context).html(
-        '<div data-closable class="callout large secondary">'+
-          '<div class="row">'+
-          '<div class="large-11 columns">'+
-            '<span>'+
-              Locale.tr("This action will reboot this Virtual Machine.")+
-              '<br>'+
-              '<br>'+
-              Locale.tr("You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer).")+
-            '</span>'+
-          '</div>'+
-          '</div>'+
-          '<br>'+
-          '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<button href"#" class="provision_reboot_button button right">'+Locale.tr("Reboot")+'</button>'+
-            '<ul class="menu simple">'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_reboot_radio" value="reset" class="provision_reboot_hard_radio">'+
-                  ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Reboot the machine")+
-                '</label>'+
-              '</li>'+
-              '<li>'+
-                '<label class="left">'+
-                  '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
-                  ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the reboot signal")+
-                '</label>'+
-              '</li>'+
-            '</ul>'+
-          '</div>'+
-          '</div>'+
-          '<button class="close-button" aria-label="' + Locale.tr("Dismiss Alert") + ' type="button" data-close>' +
-            '<span aria-hidden="true">&times;</span>' + 
-          '</button>'+
-        '</div>');
+      var data = $(".provision_info_vm", context).data("vm");
+
+      var hard = Config.isTabActionEnabled("provision-tab", "VM.reboot_hard") &&
+             StateActions.enabledStateAction("VM.reboot_hard", data.STATE, data.LCM_STATE);
+
+      var soft = Config.isTabActionEnabled("provision-tab", "VM.reboot") &&
+             StateActions.enabledStateAction("VM.reboot", data.STATE, data.LCM_STATE);
+
+      var opts = {};
+
+      if(hard && soft){
+        opts.both = true;
+      } else if(hard){
+        opts.hard = true;
+      }
+
+      $(".provision_confirm_action:first", context).html(TemplateConfirmReboot({opts: opts}));
     });
 
-    context.on("click", ".provision_delete_button", function(){
+    context.on("click", ".provision_terminate_button", function(){
       var button = $(this);
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
+      var terminate_action = $('input[name=provision_terminate_radio]:checked').val()
 
-      OpenNebula.VM.del({
+      OpenNebula.VM[terminate_action]({
         data : {
           id: vm_id
         },
         success: function(request, response){
-          $(".provision_back", context).click();
-          $(".provision_vms_list_refresh_button", context).click();
-          button.removeAttr("disabled");
-        },
-        error: function(request, response){
-          Notifier.onError(request, response);
-          button.removeAttr("disabled");
-        }
-      })
-
-      return false;
-    });
-
-    context.on("click", ".provision_shutdownhard_button", function(){
-      var button = $(this);
-      button.attr("disabled", "disabled");
-      var vm_id = $(".provision_info_vm", context).attr("vm_id");
-
-      OpenNebula.VM.shutdown_hard({
-        data : {
-          id: vm_id
-        },
-        success: function(request, response){
-          $(".provision_back", context).click();
-          $(".provision_vms_list_refresh_button", context).click();
+          update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },
         error: function(request, response){
@@ -860,7 +690,7 @@ define(function(require) {
       return false;
     });
 
-    context.on("click", ".provision_poweron_button", function(){
+    context.on("click", ".provision_resume_button", function(){
       var button = $(this);
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");

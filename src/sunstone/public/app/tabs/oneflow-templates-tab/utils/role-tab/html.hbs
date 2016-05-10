@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -198,12 +198,12 @@
     <div class="row">
       <div class="service_template_param service_role medium-6 columns">
         <label for="shutdown_action_role">{{tr "Shutdown action"}}
-          <span class="tip">{{tr "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"}}</span>
+          <span class="tip">{{tr "VM shutdown action: 'terminate' or 'terminate-hard'. If it is not set, the one set for the Service will be used"}}</span>
         </label>
         <select name="shutdown_action_role">
           <option value=""></option>
-          <option value="shutdown">{{tr "Shutdown"}}</option>
-          <option value="shutdown-hard">{{tr "Shutdown hard"}}</option>
+          <option value="terminate">{{tr "Terminate"}}</option>
+          <option value="terminate-hard">{{tr "Terminate hard"}}</option>
         </select>
       </div>
       <div class="medium-6 columns">

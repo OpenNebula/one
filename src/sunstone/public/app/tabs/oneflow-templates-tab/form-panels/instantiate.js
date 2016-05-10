@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,7 +28,6 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
   var Notifier = require('utils/notifier');
   var WizardFields = require('utils/wizard-fields');
-  var TemplateUtils = require('utils/template-utils');
   var UserInputs = require('utils/user-inputs');
 
   /*
@@ -195,12 +194,6 @@ define(function(require) {
       tmp_json = {};
 
       $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-
-      if (role.elasticity_policies != undefined){
-        $.each(role.elasticity_policies, function(i, pol){
-          pol.expression = TemplateUtils.htmlDecode(pol.expression);
-        });
-      }
 
       role.user_inputs_values = tmp_json;
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,17 +22,38 @@ define(function(require) {
   //Escape doublequote in a string and return it
   function _escapeDoubleQuotes(string) {
     if (string != undefined && typeof(string) == "string") {
-      return string.replace(/\\/g, '\\').replace(/"/g, '\\"');
+      // Recursive to deal with strings like: 'aa""b"'
+      // The second " would not match
+
+      var prev;
+      var result = string;
+
+      do {
+        prev = result;
+        result = prev.replace(/([^\\]|^)"/g, '$1\\"');
+      } while (prev != result)
+
+      return result;
     } else {
       return string;
     }
   }
 
+  // Transforms text:
+  //  input:      &lt;b&gt;bold&lt;/b&gt; "text"
+  //  output:     <b>bold</b> "text"
   function _htmlDecode(value) {
     return $('<div/>').html(value).text();
   }
 
-  // Convert from hash to string
+  // Transforms text:
+  //  input:      <b>bold</b> "text"
+  //  output:     &lt;b&gt;bold&lt;/b&gt; "text"
+  function _htmlEncode(value) {
+    return $('<div/>').text(value).html();
+  }
+
+  // Transforms an object to an opennebula template string
   function _convert_template_to_string(template_json, unshown_values) {
     if (unshown_values)
       template_json = $.extend({}, template_json, unshown_values);
@@ -57,23 +78,24 @@ define(function(require) {
             template_str += key + " = [\n";
 
             template_str += Object.keys(element).map(function(k){
-              return "  " + k + " = \"" + element[k].toString().replace(/"/g, "\\\"") + "\"";
+              return "  " + k + " = \"" + _escapeDoubleQuotes(element[k].toString()) + "\"";
             }).join(",\n")
 
             template_str += " ]\n";
           } else { // or a string
-            template_str += key + " = \"" + element.toString().replace(/"/g, "\\\"") + "\"\n";
+            template_str += key + " = \"" + _escapeDoubleQuotes(element.toString()) + "\"\n";
           }
         });
       }
     });
 
-    return _htmlDecode(template_str);
+    return template_str;
   }
 
   return {
     'templateToString': _convert_template_to_string,
     'htmlDecode': _htmlDecode,
+    'htmlEncode': _htmlEncode,
     'escapeDoubleQuotes': _escapeDoubleQuotes
   };
 });

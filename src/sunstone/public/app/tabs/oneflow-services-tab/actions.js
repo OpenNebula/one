@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -157,27 +157,18 @@ define(function(require) {
       notify: true
     },
 
-    "Role.reboot_hard" : {
-      type: "multiple",
-      call: OpenNebulaRole.reboot_hard,
-      callback: roleCallback,
-      elements: roleElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Role.delete_recreate" : {
-      type: "multiple",
-      call: OpenNebulaRole.delete_recreate,
-      callback: roleCallback,
-      elements: roleElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
     "Role.reboot" : {
       type: "multiple",
       call: OpenNebulaRole.reboot,
+      callback: roleCallback,
+      elements: roleElements,
+      error: Notifier.onError,
+      notify: true
+    },
+
+    "Role.reboot_hard" : {
+      type: "multiple",
+      call: OpenNebulaRole.reboot_hard,
       callback: roleCallback,
       elements: roleElements,
       error: Notifier.onError,
@@ -228,18 +219,18 @@ define(function(require) {
       notify: true
     },
 
-    "Role.shutdown" : {
+    "Role.terminate" : {
       type: "multiple",
-      call: OpenNebulaRole.shutdown,
+      call: OpenNebulaRole.terminate,
       callback: roleCallback,
       elements: roleElements,
       error: Notifier.onError,
       notify: true
     },
 
-    "Role.shutdown_hard" : {
+    "Role.terminate_hard" : {
       type: "multiple",
-      call: OpenNebulaRole.shutdown_hard,
+      call: OpenNebulaRole.terminate_hard,
       callback: roleCallback,
       elements: roleElements,
       error: Notifier.onError,
@@ -340,16 +331,7 @@ define(function(require) {
 
     "RoleVM.reboot_hard" : {
       type: "multiple",
-      call: OpenNebulaVM.reset,
-      callback: roleCallback,
-      elements: roleVMElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "RoleVM.delete_recreate" : {
-      type: "multiple",
-      call: OpenNebulaVM.resubmit,
+      call: OpenNebulaVM.reboot_hard,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,
@@ -401,27 +383,18 @@ define(function(require) {
       notify: true
     },
 
-    "RoleVM.shutdown" : {
+    "RoleVM.terminate" : {
       type: "multiple",
-      call: OpenNebulaVM.shutdown,
+      call: OpenNebulaVM.terminate,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,
       notify: true
     },
 
-    "RoleVM.shutdown_hard" : {
+    "RoleVM.terminate_hard" : {
       type: "multiple",
-      call: OpenNebulaVM.shutdown_hard,
-      callback: roleCallback,
-      elements: roleVMElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "RoleVM.delete" : {
-      type: "multiple",
-      call: OpenNebulaVM.del,
+      call: OpenNebulaVM.terminate_hard,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,

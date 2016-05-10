@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -195,11 +195,16 @@ define(function(require) {
 
     this.resourceId = element.ID;
 
+    // Populates the Avanced mode Tab
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
+
     WizardFields.fill(context, element.TEMPLATE);
-    $('#NAME', context).val(element.NAME).
-        prop("disabled", true).
-        prop('wizard_field_disabled', true);;
-    $('#MARKET_MAD', context).val(element.MARKET_MAD).change();
+
+    WizardFields.fillInput($('#NAME', context), element.NAME);
+    $('#NAME', context).prop("disabled", true).prop('wizard_field_disabled', true);
+
+    WizardFields.fillInput($('#MARKET_MAD', context), element.MARKET_MAD);
+    $('#MARKET_MAD', context).change();
   }
 
   // Set up the create datastore dialog
@@ -242,7 +247,7 @@ define(function(require) {
       };
       Sunstone.runAction("MarketPlace.create", marketObj);
     } else if (this.action == "update") {
-      Sunstone.runAction("Network.update", this.resourceId, template);
+      Sunstone.runAction("MarketPlace.update", this.resourceId, template);
       return false;
     }
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,16 +55,16 @@ public:
     {
         SAVE_SUCCESS,     /**< Sent by the VMM when a save action succeeds    */
         SAVE_FAILURE,     /**< Sent by the VMM when a save action fails       */
-        DEPLOY_SUCCESS,   /**< Sent by the VMM when a deploy/restore/migrate action succeeds  */
-        DEPLOY_FAILURE,   /**< Sent by the VMM when a deploy/restore/migrate action fails     */
+        DEPLOY_SUCCESS,   /**< Sent by the VMM deploy/restore/migrate succeeds*/
+        DEPLOY_FAILURE,   /**< Sent by the VMM deploy/restore/migrate fails   */
         SHUTDOWN_SUCCESS, /**< Sent by the VMM when a shutdown action succeeds*/
         SHUTDOWN_FAILURE, /**< Sent by the VMM when a shutdown action fails   */
         CANCEL_SUCCESS,   /**< Sent by the VMM when a cancel action succeeds  */
         CANCEL_FAILURE,   /**< Sent by the VMM when a cancel action fails     */
-        MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused while active */
+        MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused in active  */
         MONITOR_DONE,     /**< Sent by the VMM when a Host cannot be monitored*/
-        MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found */
-        MONITOR_POWERON,  /**< Sent by the VMM when a VM is found again */
+        MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found         */
+        MONITOR_POWERON,  /**< Sent by the VMM when a VM is found again       */
         PROLOG_SUCCESS,   /**< Sent by the TM when the prolog phase succeeds  */
         PROLOG_FAILURE,   /**< Sent by the TM when the prolog phase fails     */
         EPILOG_SUCCESS,   /**< Sent by the TM when the epilog phase succeeds  */
@@ -73,10 +73,10 @@ public:
         ATTACH_FAILURE,   /**< Sent by the VMM when an attach action fails    */
         DETACH_SUCCESS,   /**< Sent by the VMM when a detach action succeeds  */
         DETACH_FAILURE,   /**< Sent by the VMM when a detach action fails     */
-        ATTACH_NIC_SUCCESS,/**< Sent by the VMM when an attach nic action succeeds */
-        ATTACH_NIC_FAILURE,/**< Sent by the VMM when an attach nic action fails    */
-        DETACH_NIC_SUCCESS,/**< Sent by the VMM when a detach nic action succeeds  */
-        DETACH_NIC_FAILURE,/**< Sent by the VMM when a detach nic action fails     */
+        ATTACH_NIC_SUCCESS,/**< Sent by the VMM when attach nic action succeeds*/
+        ATTACH_NIC_FAILURE,/**< Sent by the VMM when attach nic action fails   */
+        DETACH_NIC_SUCCESS,/**< Sent by the VMM when detach nic action succeeds*/
+        DETACH_NIC_FAILURE,/**< Sent by the VMM when detach nic action fails   */
         CLEANUP_SUCCESS,  /**< Sent by the VMM when a cleanup action succeeds */
         CLEANUP_FAILURE,  /**< Sent by the VMM when a cleanup action fails    */
         SAVEAS_SUCCESS,        /**< Sent by the VMM when saveas succeeds      */
@@ -87,8 +87,8 @@ public:
         SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
         SNAPSHOT_DELETE_SUCCESS, /**< Sent by the VMM on snap. revert success */
         SNAPSHOT_DELETE_FAILURE, /**< Sent by the VMM on snap. revert failure */
-        DISK_SNAPSHOT_SUCCESS, /**<Sent by TM when a snap. succeeds */
-        DISK_SNAPSHOT_FAILURE, /**<Sent by TM when a snap. fails */
+        DISK_SNAPSHOT_SUCCESS,   /**< Sent by TM when a snap. succeeds        */
+        DISK_SNAPSHOT_FAILURE,   /**< Sent by TM when a snap. fails           */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */
@@ -103,11 +103,11 @@ public:
         POWEROFF_HARD,    /**< Sent by the DM to power off hard a running VM  */
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
-        CLEAN,            /**< Sent by the DM to cleanup a VM for resubmission*/
+        DELETE_RECREATE,  /**< Sent by the DM to cleanup a VM for resubmission*/
         FINALIZE,
         UPDATESG,         /**< Sent by RM/VMM to trigger the secgroup update  */
-        DISK_LOCK_SUCCESS, /**< Sent by IM when an image moves from locked to ready */
-        DISK_LOCK_FAILURE, /**< Sent by IM when an image moves from locked to error */
+        DISK_LOCK_SUCCESS,/**< Sent by IM, image moves from locked to ready   */
+        DISK_LOCK_FAILURE,/**< Sent by IM, image moves from locked to error   */
     };
 
     /**
@@ -339,17 +339,9 @@ private:
 
     void delete_action(int vid);
 
-    void clean_action(int vid);
+    void delete_recreate_action(int vid);
 
     void timer_action();
-
-    void recover_lcm_state(VirtualMachine * vm, bool success);
-
-    void recover_state(VirtualMachine * vm, bool success);
-
-    void retry_lcm_state(VirtualMachine * vm);
-
-    void retry_state(VirtualMachine * vm);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

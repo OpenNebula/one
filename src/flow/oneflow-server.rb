@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,7 +65,7 @@ end
 conf[:debug_level]  ||= 2
 conf[:lcm_interval] ||= 30
 conf[:default_cooldown] ||= 300
-conf[:shutdown_action] ||= 'shutdown'
+conf[:shutdown_action] ||= 'terminate'
 conf[:action_number] ||= 1
 conf[:action_period] ||= 60
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -298,42 +298,41 @@ define(function(require) {
   ];
 
   var MIGRATE_ACTION_STR = [
-    "none",
-    "migrate",
-    "live-migrate",
-    "shutdown",
-    "shutdown-hard",
-    "undeploy",
-    "undeploy-hard",
-    "hold",
-    "release",
-    "stop",
-    "suspend",
-    "resume",
-    "boot",
-    "delete",
-    "delete-recreate",
-    "reboot",
-    "reboot-hard",
-    "resched",
-    "unresched",
-    "poweroff",
-    "poweroff-hard",
-    "disk-attach",
-    "disk-detach",
-    "nic-attach",
-    "nic-detach",
-    "snap-create",
-    "snap-delete"
+    "none",                // NONE_ACTION            = 0
+    "migrate",             // MIGRATE_ACTION         = 1
+    "live-migrate",        // LIVE_MIGRATE_ACTION    = 2
+    "shutdown",            // //SHUTDOWN_ACTION        = 3
+    "shutdown-hard",       // //SHUTDOWN_HARD_ACTION   = 4
+    "undeploy",            // UNDEPLOY_ACTION        = 5
+    "undeploy-hard",       // UNDEPLOY_HARD_ACTION   = 6
+    "hold",                // HOLD_ACTION            = 7
+    "release",             // RELEASE_ACTION         = 8
+    "stop",                // STOP_ACTION            = 9
+    "suspend",             // SUSPEND_ACTION         = 10
+    "resume",              // RESUME_ACTION          = 11
+    "boot",                // //BOOT_ACTION            = 12
+    "delete",              // DELETE_ACTION          = 13
+    "delete-recreate",     // DELETE_RECREATE_ACTION = 14
+    "reboot",              // REBOOT_ACTION          = 15
+    "reboot-hard",         // REBOOT_HARD_ACTION     = 16
+    "resched",             // RESCHED_ACTION         = 17
+    "unresched",           // UNRESCHED_ACTION       = 18
+    "poweroff",            // POWEROFF_ACTION        = 19
+    "poweroff-hard",       // POWEROFF_HARD_ACTION   = 20
+    "disk-attach",         // DISK_ATTACH_ACTION     = 21
+    "disk-detach",         // DISK_DETACH_ACTION     = 22
+    "nic-attach",          // NIC_ATTACH_ACTION      = 23
+    "nic-detach",          // NIC_DETACH_ACTION      = 24
+    "snap-create",         // DISK_SNAPSHOT_CREATE_ACTION = 25
+    "snap-delete",         // DISK_SNAPSHOT_DELETE_ACTION = 26
+    "terminate",           // TERMINATE_ACTION       = 27
+    "terminate-hard"       // TERMINATE_HARD_ACTION  = 28
   ];
 
   var VM = {
     "resource": RESOURCE,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
-    },
-    "del": function(params) {
-      OpenNebulaAction.del(params, RESOURCE);
     },
     "list": function(params) {
       OpenNebulaAction.list(params, RESOURCE);
@@ -351,13 +350,13 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
     },
-    "shutdown": function(params) {
+    "terminate": function(params) {
       var action_obj = {"hard": false};
-      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
+      OpenNebulaAction.simple_action(params, RESOURCE, "terminate", action_obj);
     },
-    "shutdown_hard" : function(params) {
+    "terminate_hard" : function(params) {
       var action_obj = {"hard": true};
-      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
+      OpenNebulaAction.simple_action(params, RESOURCE, "terminate", action_obj);
     },
     "hold": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "hold");
@@ -377,9 +376,6 @@ define(function(require) {
     "resume": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resume");
     },
-    "resubmit": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "resubmit");
-    },
     "poweroff" : function(params) {
       var action_obj = {"hard": false};
       OpenNebulaAction.simple_action(params, RESOURCE, "poweroff", action_obj);
@@ -396,11 +392,13 @@ define(function(require) {
       var action_obj = {"hard": true};
       OpenNebulaAction.simple_action(params, RESOURCE, "undeploy", action_obj);
     },
-    "reboot" : function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "reboot");
+    "reboot": function(params) {
+      var action_obj = {"hard": false};
+      OpenNebulaAction.simple_action(params, RESOURCE, "reboot", action_obj);
     },
-    "reset" : function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "reset");
+    "reboot_hard" : function(params) {
+      var action_obj = {"hard": true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "reboot", action_obj);
     },
 
     "log": function(params) {

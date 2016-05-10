@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Notifier = require('utils/notifier');
   var OpenNebulaVM = require('opennebula/vm');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -130,8 +131,8 @@ define(function(require) {
 
         html += '\
               <tr snapshot_id="' + (snapshot.SNAPSHOT_ID) + '">\
-                <td>'            + snapshot.SNAPSHOT_ID + '</td>\
-                <td>'            + snapshot.NAME + '</td>\
+                <td>'            + TemplateUtils.htmlEncode(snapshot.SNAPSHOT_ID) + '</td>\
+                <td>'            + TemplateUtils.htmlEncode(snapshot.NAME) + '</td>\
                 <td>'            + Humanize.prettyTime(snapshot.TIME) + '</td>\
                 <td>'            + actions + '</td>\
             </tr>'        ;

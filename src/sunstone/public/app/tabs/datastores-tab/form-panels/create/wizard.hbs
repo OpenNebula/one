@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -26,12 +26,11 @@
       <label for="presets">{{tr "Presets"}}</label>
       <select id="presets" name="presets">
         <option value="fs">{{tr "Filesystem"}}</option>
-        <option value="block_lvm">{{tr "Block LVM"}}</option>
         <option value="fs_lvm">{{tr "FS LVM"}}</option>
         <option value="ceph">{{tr "Ceph"}}</option>
         <option value="gluster">{{tr "Gluster"}}</option>
         <option value="dev">{{tr "Devices"}}</option>
-        <option value="iscsi">{{tr "iSCSI"}}</option>
+        <option value="iscsi_libvirt">{{tr "iSCSI/Libvirt"}}</option>
         <option value="vcenter">{{tr "vCenter"}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
@@ -64,10 +63,9 @@
           <label for="ds_mad">{{tr "Datastore"}}</label>
           <select id="ds_mad" name="ds_mad">
             <option value="fs">{{tr "Filesystem"}}</option>
-            <option value="lvm">{{tr "LVM"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
-            <option value="iscsi">{{tr "iSCSI"}}</option>
+            <option value="iscsi_libvirt">{{tr "iSCSI/Libvirt"}}</option>
             <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
@@ -82,11 +80,10 @@
             <option value="shared">{{tr "Shared"}}</option>
             <option value="ssh">{{tr "SSH"}}</option>
             <option value="qcow2">{{tr "qcow2"}}</option>
-            <option value="lvm">{{tr "LVM"}}</option>
             <option value="fs_lvm">{{tr "FS LVM"}}</option>
             <option value="ceph">{{tr "Ceph"}}</option>
             <option value="dev">{{tr "Devices"}}</option>
-            <option value="iscsi">{{tr "iSCSI"}}</option>
+            <option value="iscsi_libvirt">{{tr "iSCSI/Libvirt"}}</option>
             <option value="vcenter">{{tr "vCenter"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
@@ -106,7 +103,7 @@
         <option value="block">{{tr "Block"}}</option>
         <option value="RBD">{{tr "RBD"}}</option>
         <option value="gluster">{{tr "Gluster"}}</option>
-        <option value="iscsi">{{tr "iSCSI"}}</option>
+        <option value="iscsi">{{tr "iSCSI/Libvirt"}}</option>
       </select>
     </div>
   </div>

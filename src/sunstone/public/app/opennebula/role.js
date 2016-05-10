@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -97,13 +97,6 @@ define(function(require) {
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "delete_recreate" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "delete-recreate",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
     "reboot" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
@@ -153,24 +146,17 @@ define(function(require) {
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "shutdown" : function(params) {
+    "terminate" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
-                                      "shutdown",
+                                      "terminate",
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "shutdown_hard" : function(params) {
+    "terminate_hard" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
-                                      "shutdown-hard",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
-    "del" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "delete",
+                                      "terminate-hard",
                                       generate_batch_action_params(),
                                       PATH);
     },

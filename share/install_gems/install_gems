@@ -17,7 +17,7 @@ if !defined?(RUBY_VERSION) || RUBY_VERSION < '1.9.0'
 else
     $nokogiri='nokogiri'
     DEFAULT = DEFAULT_PRE + %w{hybrid}
-    LDAP='net-ldap'
+    LDAP='net-ldap --version "< 0.13"'
     ZENDESK_API='zendesk_api'
 end
 
@@ -33,7 +33,7 @@ GROUPS={
     :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
     :oneflow    => ['sinatra', 'json', TREETOP, 'parse-cron'],
-    :ec2_hybrid => 'aws-sdk --version "= 1.33"',
+    :ec2_hybrid => 'aws-sdk --version "= 1.66"',
     :oca        => 'ox',
     :onedb      => "mysql"
 }

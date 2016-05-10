@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -264,17 +264,15 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/fs_lvm \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
-          $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
           $VAR_LOCATION/remotes/tm/vcenter \
-          $VAR_LOCATION/remotes/tm/iscsi \
+          $VAR_LOCATION/remotes/tm/iscsi_libvirt \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
-          $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/datastore/vcenter \
@@ -282,7 +280,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
-          $VAR_LOCATION/remotes/datastore/iscsi \
+          $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -396,20 +394,18 @@ INSTALL_FILES=(
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
-    TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
-    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi
+    TM_ISCSI_FILES:$VAR_LOCATION/remotes/tm/iscsi_libvirt
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     TM_VCENTER_FILES:$VAR_LOCATION/remotes/tm/vcenter
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
     DATASTORE_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/datastore/dummy
     DATASTORE_DRIVER_FS_SCRIPTS:$VAR_LOCATION/remotes/datastore/fs
-    DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
-    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi
+    DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
@@ -863,10 +859,9 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
 #   - QCOW2 TM, $VAR_LOCATION/tm/qcow2
 #   - SSH TM, $VAR_LOCATION/tm/ssh
 #   - DUMMY TM, $VAR_LOCATION/tm/dummy
-#   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
 #   - DEV TM, $VAR_LOCATION/tm/dev
-#   - ISCSI TM, $VAR_LOCATION/tm/iscsi
+#   - ISCSI TM, $VAR_LOCATION/tm/iscsi_libvirt
 #-------------------------------------------------------------------------------
 
 TM_FILES="src/tm_mad/tm_common.sh"
@@ -959,20 +954,6 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/cpds"
 
-TM_LVM_FILES="src/tm_mad/lvm/clone \
-                 src/tm_mad/lvm/ln \
-                 src/tm_mad/lvm/mv \
-                 src/tm_mad/lvm/mvds \
-                 src/tm_mad/lvm/cpds \
-                 src/tm_mad/lvm/premigrate \
-                 src/tm_mad/lvm/postmigrate \
-                 src/tm_mad/lvm/snap_create \
-                 src/tm_mad/lvm/snap_create_live \
-                 src/tm_mad/lvm/snap_delete \
-                 src/tm_mad/lvm/snap_revert \
-                 src/tm_mad/lvm/failmigrate \
-                 src/tm_mad/lvm/delete"
-
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/ln \
                  src/tm_mad/ceph/mv \
@@ -1019,25 +1000,24 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/failmigrate \
                  src/tm_mad/vcenter/delete"
 
-TM_ISCSI_FILES="src/tm_mad/iscsi/clone \
-                 src/tm_mad/iscsi/ln \
-                 src/tm_mad/iscsi/mv \
-                 src/tm_mad/iscsi/mvds \
-                 src/tm_mad/iscsi/cpds \
-                 src/tm_mad/iscsi/premigrate \
-                 src/tm_mad/iscsi/postmigrate \
-                 src/tm_mad/iscsi/snap_create \
-                 src/tm_mad/iscsi/snap_create_live \
-                 src/tm_mad/iscsi/snap_delete \
-                 src/tm_mad/iscsi/snap_revert \
-                 src/tm_mad/iscsi/failmigrate \
-                 src/tm_mad/iscsi/delete"
+TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
+                 src/tm_mad/iscsi_libvirt/ln \
+                 src/tm_mad/iscsi_libvirt/mv \
+                 src/tm_mad/iscsi_libvirt/mvds \
+                 src/tm_mad/iscsi_libvirt/cpds \
+                 src/tm_mad/iscsi_libvirt/premigrate \
+                 src/tm_mad/iscsi_libvirt/postmigrate \
+                 src/tm_mad/iscsi_libvirt/snap_create \
+                 src/tm_mad/iscsi_libvirt/snap_create_live \
+                 src/tm_mad/iscsi_libvirt/snap_delete \
+                 src/tm_mad/iscsi_libvirt/snap_revert \
+                 src/tm_mad/iscsi_libvirt/failmigrate \
+                 src/tm_mad/iscsi_libvirt/delete"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
 #   - Dummy Image Repository, $REMOTES_LOCATION/datastore/dummy
 #   - FS based Image Repository, $REMOTES_LOCATION/datastore/fs
-#   - LVM based Image Repository, $REMOTES_LOCATION/datastore/lvm
 #-------------------------------------------------------------------------------
 
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
@@ -1068,17 +1048,6 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/snap_flatten \
                          src/datastore_mad/remotes/fs/rm \
                          src/datastore_mad/remotes/fs/export"
-
-DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
-                         src/datastore_mad/remotes/lvm/mkfs \
-                         src/datastore_mad/remotes/lvm/stat \
-                         src/datastore_mad/remotes/lvm/rm \
-                         src/datastore_mad/remotes/lvm/monitor \
-                         src/datastore_mad/remotes/lvm/clone \
-                         src/datastore_mad/remotes/lvm/snap_delete \
-                         src/datastore_mad/remotes/lvm/snap_revert \
-                         src/datastore_mad/remotes/lvm/snap_flatten \
-                         src/datastore_mad/remotes/lvm/lvm.conf"
 
 DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/mkfs \
@@ -1114,15 +1083,15 @@ DATASTORE_DRIVER_VCENTER_SCRIPTS="src/datastore_mad/remotes/vcenter/cp \
                          src/datastore_mad/remotes/vcenter/clone \
                          src/datastore_mad/remotes/vcenter/export"
 
-DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi/cp \
-                         src/datastore_mad/remotes/iscsi/mkfs \
-                         src/datastore_mad/remotes/iscsi/stat \
-                         src/datastore_mad/remotes/iscsi/rm \
-                         src/datastore_mad/remotes/iscsi/monitor \
-                         src/datastore_mad/remotes/iscsi/snap_delete \
-                         src/datastore_mad/remotes/iscsi/snap_revert \
-                         src/datastore_mad/remotes/iscsi/snap_flatten \
-                         src/datastore_mad/remotes/iscsi/clone"
+DATASTORE_DRIVER_ISCSI_SCRIPTS="src/datastore_mad/remotes/iscsi_libvirt/cp \
+                         src/datastore_mad/remotes/iscsi_libvirt/mkfs \
+                         src/datastore_mad/remotes/iscsi_libvirt/stat \
+                         src/datastore_mad/remotes/iscsi_libvirt/rm \
+                         src/datastore_mad/remotes/iscsi_libvirt/monitor \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_delete \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_revert \
+                         src/datastore_mad/remotes/iscsi_libvirt/snap_flatten \
+                         src/datastore_mad/remotes/iscsi_libvirt/clone"
 
 #-------------------------------------------------------------------------------
 # Marketplace drivers, to be installed under $REMOTES_LOCATION/market
@@ -1208,6 +1177,7 @@ ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
+           src/tm_mad/tmrc \
            src/scheduler/etc/sched.conf"
 
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \

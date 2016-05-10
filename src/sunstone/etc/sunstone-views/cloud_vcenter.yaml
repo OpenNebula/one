@@ -40,8 +40,8 @@ tabs:
             VM.poweroff_hard: true
             VM.undeploy: false
             VM.undeploy_hard: false
-            VM.shutdown_hard: true
-            VM.delete: true
+            VM.terminate: true
+            VM.terminate_hard: true
             VM.resize: false
             VM.attachdisk: false
             VM.detachdisk: false
@@ -54,6 +54,7 @@ tabs:
             VM.disk_snapshot_create: false
             VM.disk_snapshot_revert: false
             VM.disk_snapshot_delete: false
+            VM.save_as_template: true
         dashboard:
             quotas: true
             vms: true

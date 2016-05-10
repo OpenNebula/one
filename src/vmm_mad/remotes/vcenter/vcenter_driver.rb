@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -1361,10 +1361,10 @@ class VCenterVm
     #  @param keep_disks keep or not VM disks in datastore
     #  @param disks VM attached disks
     ############################################################################
-    def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks)
+    def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks, to_template)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
-                shutdown(deploy_id, hostname, lcm_state, keep_disks, disks)
+                shutdown(deploy_id, hostname, lcm_state, keep_disks, disks, to_template)
             when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT", "SHUTDOWN", "CLEANUP_DELETE"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
@@ -1381,7 +1381,33 @@ class VCenterVm
                 else
                     detach_attached_disks(vm, disks, hostname) if disks
                 end
-                vm.Destroy_Task.wait_for_completion
+
+                # If the VM was instantiated to persistent, convert the VM to 
+                # vCenter VM Template and update the OpenNebula new 
+                # VM Template to point to the new vCenter VM Template
+                if !to_template.nil?
+                    vm.MarkAsTemplate
+
+                    new_template = OpenNebula::Template.new_with_id(to_template,
+                                                         OpenNebula::Client.new)
+                    new_template.info
+
+                    public_cloud_str = "PUBLIC_CLOUD=["
+
+                    new_template.to_hash["VMTEMPLATE"]["TEMPLATE"]["PUBLIC_CLOUD"].each{|k,v|
+                        if k == "VM_TEMPLATE"
+                            public_cloud_str += "VM_TEMPLATE=\"#{deploy_id}\",\n"
+                        else
+                            public_cloud_str += "#{k}=\"#{v}\",\n"
+                        end
+                    }
+
+                    public_cloud_str = public_cloud_str + "]"
+
+                    new_template.update(public_cloud_str, true)
+                else
+                    vm.Destroy_Task.wait_for_completion
+                end
             else
                 raise "LCM_STATE #{lcm_state} not supported for cancel"
         end
@@ -1454,8 +1480,9 @@ class VCenterVm
     #  @param lcm_state state of the VM
     #  @param keep_disks keep or not VM disks in datastore
     #  @param disks VM attached disks
+    #  @param to_template whether this VM has been instantiated as persistent
     ############################################################################
-    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks, disks)
+    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks, disks, to_template)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
@@ -1471,9 +1498,36 @@ class VCenterVm
                 if keep_disks
                     detach_all_disks(vm)
                 else
-                    detach_attached_disks(vm, disks, hostname)
+                    detach_attached_disks(vm, disks, hostname) if disks
                 end
-                vm.Destroy_Task.wait_for_completion
+
+                # If the VM was instantiated to persistent, convert the VM to 
+                # vCenter VM Template and update the OpenNebula new 
+                # VM Template to point to the new vCenter VM Template
+                if !to_template.nil?
+                    vm.MarkAsTemplate
+
+                    new_template = OpenNebula::Template.new_with_id(to_template,
+                                                        OpenNebula::Client.new)
+                    new_template.info
+
+                    public_cloud_str = "PUBLIC_CLOUD=["
+
+                    new_template.to_hash["VMTEMPLATE"]["TEMPLATE"]["PUBLIC_CLOUD"].each{|k,v|
+                        if k == "VM_TEMPLATE"
+                            public_cloud_str += "VM_TEMPLATE=\"#{deploy_id}\"\n"
+                        else
+                            public_cloud_str += "#{k}=\"#{v}\",\n"
+                        end
+                    }
+
+                    public_cloud_str = public_cloud_str + "]"
+
+                    new_template.update(public_cloud_str, true)
+                else
+                    vm.Destroy_Task.wait_for_completion
+                end
+
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
                     vm.ShutdownGuest.wait_for_completion
@@ -1667,7 +1721,7 @@ class VCenterVm
         end
 
         @used_memory = @summary.quickStats.hostMemoryUsage * 1024
-        cpuMhz = host.cpumhz
+        cpuMhz       = @vm.runtime.host.summary.hardware.cpuMhz.to_f
 
         @used_cpu   =
                 ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s

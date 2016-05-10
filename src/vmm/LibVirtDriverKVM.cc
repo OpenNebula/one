@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -191,17 +191,19 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * features;
 
-    bool pae        = false;
-    bool acpi       = false;
-    bool apic       = false;
-    bool hyperv     = false;
-    bool localtime  = false;
+    bool pae         = false;
+    bool acpi        = false;
+    bool apic        = false;
+    bool hyperv      = false;
+    bool localtime   = false;
+    bool guest_agent = false;
 
-    int pae_found       = -1;
-    int acpi_found      = -1;
-    int apic_found      = -1;
-    int hyperv_found    = -1;
-    int localtime_found = -1;
+    int pae_found         = -1;
+    int acpi_found        = -1;
+    int apic_found        = -1;
+    int hyperv_found      = -1;
+    int localtime_found   = -1;
+    int guest_agent_found = -1;
 
     string hyperv_options = "";
 
@@ -1043,11 +1045,12 @@ int LibVirtDriver::deployment_description_kvm(
 
     if ( features != 0 )
     {
-        pae_found       = features->vector_value("PAE", pae);
-        acpi_found      = features->vector_value("ACPI", acpi);
-        apic_found      = features->vector_value("APIC", apic);
-        hyperv_found    = features->vector_value("HYPERV", hyperv);
-        localtime_found = features->vector_value("LOCALTIME", localtime);
+        pae_found         = features->vector_value("PAE", pae);
+        acpi_found        = features->vector_value("ACPI", acpi);
+        apic_found        = features->vector_value("APIC", apic);
+        hyperv_found      = features->vector_value("HYPERV", hyperv);
+        localtime_found   = features->vector_value("LOCALTIME", localtime);
+        guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
     }
 
     if ( pae_found != 0 )
@@ -1073,6 +1076,11 @@ int LibVirtDriver::deployment_description_kvm(
     if ( localtime_found != 0 )
     {
         get_default("FEATURES", "LOCALTIME", localtime);
+    }
+
+    if ( guest_agent_found != 0 )
+    {
+        get_default("FEATURES", "GUEST_AGENT", guest_agent);
     }
 
     if ( acpi || pae || apic || hyperv )
@@ -1109,6 +1117,16 @@ int LibVirtDriver::deployment_description_kvm(
     if ( localtime )
     {
         file << "\t<clock offset='localtime'/>" << endl;
+    }
+
+    if ( guest_agent )
+    {
+        file << "\t<devices>" << endl
+             << "\t\t<channel type='unix'>" << endl
+             << "\t\t\t<source mode='bind'/>"
+             << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
+             << "\t\t</channel>" << endl
+             << "\t</devices>" << endl;
     }
 
     // ------------------------------------------------------------------------

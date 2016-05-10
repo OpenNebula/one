@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,7 +44,6 @@ module OpenNebulaJSON
 
             rc = case action_hash['perform']
                  when "deploy"       then self.deploy(action_hash['params'])
-                 when "finalize"     then self.finalize
                  when "hold"         then self.hold
                  when "livemigrate"  then self.migrate(action_hash['params'], true)
                  when "migrate"      then self.migrate(action_hash['params'], false)
@@ -52,7 +51,6 @@ module OpenNebulaJSON
                  when "release"      then self.release
                  when "stop"         then self.stop
                  when "suspend"      then self.suspend
-                 when "reset"        then self.reset
                  when "disk_saveas"  then self.disk_saveas(action_hash['params'])
                  when "snapshot_create"       then self.snapshot_create(action_hash['params'])
                  when "snapshot_revert"       then self.snapshot_revert(action_hash['params'])
@@ -60,10 +58,9 @@ module OpenNebulaJSON
                  when "disk_snapshot_create"  then self.disk_snapshot_create(action_hash['params'])
                  when "disk_snapshot_revert"  then self.disk_snapshot_revert(action_hash['params'])
                  when "disk_snapshot_delete"  then self.disk_snapshot_delete(action_hash['params'])
-                 when "shutdown"     then self.shutdown(action_hash['params'])
-                 when "reboot"       then self.reboot
+                 when "terminate"    then self.terminate(action_hash['params'])
+                 when "reboot"       then self.reboot(action_hash['params'])
                  when "poweroff"     then self.poweroff(action_hash['params'])
-                 when "resubmit"     then self.resubmit
                  when "chown"        then self.chown(action_hash['params'])
                  when "chmod"        then self.chmod_octet(action_hash['params'])
                  when "resize"       then self.resize(action_hash['params'])
@@ -86,10 +83,6 @@ module OpenNebulaJSON
                  end
         end
 
-        def delete
-            super()
-        end
-
         def deploy(params=Hash.new)
             super(params['host_id'], params['enforce'], params['ds_id'])
         end
@@ -98,7 +91,11 @@ module OpenNebulaJSON
             super(params['hard'])
         end
 
-        def shutdown(params=Hash.new)
+        def terminate(params=Hash.new)
+            super(params['hard'])
+        end
+
+        def reboot(params=Hash.new)
             super(params['hard'])
         end
 

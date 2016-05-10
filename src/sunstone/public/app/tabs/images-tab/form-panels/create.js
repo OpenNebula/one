@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,7 @@ define(function(require) {
   var CustomTagsTable = require('utils/custom-tags-table');
   var BrowserInfo = require('utils/browser-info');
   var Config = require('sunstone-config');
+  var WizardFields = require('utils/wizard-fields');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -128,7 +129,6 @@ define(function(require) {
       default:
         $('#datablock_img', context).attr('disabled', 'disabled');
         $('#path_image', context).click();
-
       }
     });
 
@@ -141,7 +141,9 @@ define(function(require) {
         },
         timeout: true,
         success: function(request, ds){
-          var mad = ds["DATASTORE"]["DS_MAD"];
+          var mad    = ds["DATASTORE"]["DS_MAD"];
+          var tm_mad = ds["DATASTORE"]["TM_MAD"];
+
           var pers_forced = false;
 
           // Set the persistency
@@ -164,6 +166,23 @@ define(function(require) {
             $('#img_persistent', context).prop('disabled', false);
           }
 
+          // Display adequate values in the dialog.
+          switch (mad) {
+          case "vcenter":
+            $(".only_vcenter").show();
+            $(".not_vcenter").hide();
+            break;
+          default:
+            $(".only_vcenter").hide();
+            $(".not_vcenter").show();
+          }
+
+          // Fill in the default driver
+          if (tm_mad == "qcow2"){
+            $('select#img_driver',context).val("qcow2");
+          } else {
+            $('select#img_driver',context).val("raw");
+          }
         },
         error: function(request, error_json, container){
           Notifier.onError(request, error_json, container);
@@ -171,13 +190,34 @@ define(function(require) {
       });
     });
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
+    // Custom Adapter Type
+    var custom_attrs = ["adapter_type",
+                        "disk_type",
+                        "img_dev_prefix",
+                        "img_driver"];
+
+    for (var i in custom_attrs){
+      var field = custom_attrs[i];
+      $('input[name="custom_'+field+'"]',context).parent().hide();
+      $('select#'+field,context).change(function(){
+        var field = $(this).attr('name');
+        if ($(this).val() == "custom"){
+          $('input[name="custom_'+field+'"]',context).parent().show();
+          $('input[name="custom_'+field+'"]',context).attr('required', '');
+        } else {
+          $('input[name="custom_'+field+'"]',context).parent().hide();
+          $('input[name="custom_'+field+'"]',context).removeAttr('required');
+        }
+      });
+    }
+
+    $('#img_path,#img_size,#file-uploader', context).closest('.row').hide();
 
     $("input[name='src_path']", context).change(function() {
       var value = $(this).val();
       switch (value){
       case "path":
-        $('#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
+        $('#img_size,#file-uploader', context).closest('.row').hide();
         $('#img_path', context).closest('.row').show();
 
         $('#img_path', context).attr('required', '');
@@ -185,13 +225,13 @@ define(function(require) {
         break;
       case "datablock":
         $('#img_path,#file-uploader', context).closest('.row').hide();
-        $('#img_fstype,#img_size', context).closest('.row').show();
+        $('#img_size', context).closest('.row').show();
 
         $('#img_path', context).removeAttr('required');
         $('#img_size', context).attr('required', '');
         break;
       case "upload":
-        $('#img_path,#img_fstype,#img_size', context).closest('.row').hide();
+        $('#img_path,#img_size', context).closest('.row').hide();
         $('#file-uploader', context).closest('.row').show();
 
         $('#img_path', context).removeAttr('required');
@@ -265,50 +305,64 @@ define(function(require) {
 
     var img_json = {};
 
-    var name = $('#img_name', context).val();
+    var name = WizardFields.retrieveInput($('#img_name', context));
     img_json["NAME"] = name;
 
-    var desc = $('#img_desc', context).val();
+    var desc = WizardFields.retrieveInput($('#img_desc', context));
     if (desc.length) {
       img_json["DESCRIPTION"] = desc;
     }
 
-    var type = $('#img_type', context).val();
+    var type = WizardFields.retrieveInput($('#img_type', context));
     img_json["TYPE"] = type;
 
     img_json["PERSISTENT"] = $('#img_persistent:checked', context).length ? "YES" : "NO";
 
-    var dev_prefix = $('#img_dev_prefix', context).val();
+    var dev_prefix = WizardFields.retrieveInput($('#img_dev_prefix', context));
     if (dev_prefix.length) {
+      if (dev_prefix == "custom") {
+        dev_prefix = WizardFields.retrieveInput($('#custom_img_dev_prefix', context));
+      }
       img_json["DEV_PREFIX"] = dev_prefix;
     }
 
-    var driver = $('#img_driver', context).val();
-    if (driver.length)
+    var driver = WizardFields.retrieveInput($('#img_driver', context));
+    if (driver.length) {
+        if (driver == "custom") {
+          driver = WizardFields.retrieveInput($('#custom_img_driver', context));
+        }
         img_json["DRIVER"] = driver;
+    }
 
-    var target = $('#img_target', context).val();
+    var target = WizardFields.retrieveInput($('#img_target', context));
     if (target)
         img_json["TARGET"] = target;
 
-    var adapter_type = $('#adapter_type', context).val();
-    if (adapter_type)
-        img_json["ADAPTER_TYPE"] = adapter_type;
-
-    var disk_type = $('#disk_type', context).val();
-    if (disk_type)
-        img_json["DISK_TYPE"] = disk_type;
+    var adapter_type = WizardFields.retrieveInput($('#adapter_type', context));
+    if (adapter_type) {
+      if (adapter_type == "custom") {
+        adapter_type = WizardFields.retrieveInput($('#custom_adapter_type', context));
+      }
+      img_json["ADAPTER_TYPE"] = adapter_type;
+    }
 
     switch ($('#src_path_select input:checked', context).val()){
     case "path":
-      path = $('#img_path', context).val();
+      path = WizardFields.retrieveInput($('#img_path', context));
       if (path) img_json["PATH"] = path;
       break;
     case "datablock":
-      size = $('#img_size', context).val();
-      fstype = $('#img_fstype', context).val();
+      size = WizardFields.retrieveInput($('#img_size', context));
       if (size) img_json["SIZE"] = size;
-      if (fstype) img_json["FSTYPE"] = fstype;
+
+      var disk_type = WizardFields.retrieveInput($('#disk_type', context));
+      if (disk_type) {
+        if (disk_type == "custom"){
+          disk_type = WizardFields.retrieveInput($('#custom_disk_type', context));
+        }
+        img_json["DISK_TYPE"] = disk_type;
+      }
+
       break;
     case "upload":
       upload = true;

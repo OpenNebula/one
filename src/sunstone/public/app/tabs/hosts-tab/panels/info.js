@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,6 +30,7 @@ define(function(require) {
   var MemoryBars = require('../utils/memory-bars');
   var DatastoresCapacityTable = require('../utils/datastores-capacity-table');
   var CanImportWilds = require('../utils/can-import-wilds');
+  var Sunstone = require('sunstone');
 
   /*
     TEMPLATES
@@ -45,6 +46,8 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Host"
   var XML_ROOT = "HOST"
+
+  var OVERCOMMIT_DIALOG_ID = require('utils/dialogs/overcommit/dialogId');
 
   /*
     CONSTRUCTOR
@@ -64,7 +67,7 @@ define(function(require) {
     //  object to be used when the host info is updated.
     that.unshownTemplate = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['HOST', 'VM', 'WILDS'];
+    var unshownKeys = ['HOST', 'VM', 'WILDS', 'RESERVED_CPU', 'RESERVED_MEM'];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
         that.unshownTemplate[key] = value;
@@ -113,10 +116,26 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+    $(".edit_reserved", context).on("click", function(){
+      var dialog = Sunstone.getDialog(OVERCOMMIT_DIALOG_ID);
+
+      dialog.setParams(
+        { element: that.element,
+          action : "Host.append_template",
+          resourceName : Locale.tr("Host")
+        });
+
+      dialog.show();
+      return false;
+    });
+
     return false;
   }
 });

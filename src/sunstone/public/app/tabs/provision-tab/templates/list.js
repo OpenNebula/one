@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var ResourceSelect = require('utils/resource-select');
   var LabelsUtils = require('utils/labels/utils');
+  var TemplateUtils = require('utils/template-utils');
 
   var TemplateTemplatesList = require('hbs!./list');
 
@@ -167,14 +168,14 @@ define(function(require) {
         var mem_txt = "";
 
         if(data.TEMPLATE.CPU){
-          cpu_txt = 'x'+data.TEMPLATE.CPU;
+          cpu_txt = 'x'+TemplateUtils.htmlEncode(data.TEMPLATE.CPU);
         }
 
         if(data.TEMPLATE.MEMORY){
           if (data.TEMPLATE.MEMORY > 1000){
             mem_txt = Math.floor(data.TEMPLATE.MEMORY/1024)+'GB';
           } else {
-            mem_txt = data.TEMPLATE.MEMORY+'MB';
+            mem_txt = TemplateUtils.htmlEncode(data.TEMPLATE.MEMORY)+'MB';
           }
         }
 
@@ -182,11 +183,11 @@ define(function(require) {
             '<ul class="provision-pricing-table menu vertical" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 '<span class="without-link">' +
-                  data.NAME +
+                  TemplateUtils.htmlEncode(data.NAME) +
                 '</span>' +
               '</li>'+
               '<li class="provision-bullet-item">'+
-                (data.TEMPLATE.DESCRIPTION || '')+
+                (TemplateUtils.htmlEncode(data.TEMPLATE.DESCRIPTION) || '')+
               '</li>'+
               '<li class="provision-bullet-item" >'+
                 '<i class="fa fa-fw fa-lg fa-laptop"/> '+
@@ -200,7 +201,7 @@ define(function(require) {
               '<li class="provision-bullet-item-last" >'+
                 '<span class="">'+
                   '<i class="fa fa-fw fa-lg fa-user"/> '+
-                  data.UNAME+
+                  TemplateUtils.htmlEncode(data.UNAME)+
                 '</span>'+
                 '<span class="right">'+
                   Humanize.prettyTimeAgo(data.REGTIME)+

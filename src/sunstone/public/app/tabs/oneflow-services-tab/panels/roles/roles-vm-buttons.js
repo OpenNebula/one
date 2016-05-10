@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,10 +30,8 @@ define(function(require) {
     "RoleVM.poweroff_hard" : VMButtons["VM.poweroff_hard"],
     "RoleVM.undeploy" : VMButtons["VM.undeploy"],
     "RoleVM.undeploy_hard" : VMButtons["VM.undeploy_hard"],
-    "RoleVM.shutdown" : VMButtons["VM.shutdown"],
-    "RoleVM.shutdown_hard" : VMButtons["VM.shutdown_hard"],
-    "RoleVM.delete" : VMButtons["VM.delete"],
-    "RoleVM.delete_recreate" : VMButtons["VM.delete_recreate"],
+    "RoleVM.terminate" : VMButtons["VM.terminate"],
+    "RoleVM.terminate_hard" : VMButtons["VM.terminate_hard"],
     "RoleVM.resched" : VMButtons["VM.resched"],
     "RoleVM.unresched" : VMButtons["VM.unresched"]
   };
