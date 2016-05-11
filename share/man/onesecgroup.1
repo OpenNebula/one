@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONESECGROUP" "1" "October 2015" "" "onesecgroup(1) -- manages OpenNebula security groups"
+.TH "ONESECGROUP" "1" "May 2016" "" "onesecgroup(1) -- manages OpenNebula security groups"
 .
 .SH "NAME"
 \fBonesecgroup\fR \- manages OpenNebula security groups
@@ -14,6 +14,10 @@
 .nf
 
  \-a, \-\-append              Append new attributes to the current template
+ \-r, \-\-recover             If set the commit operation will only operate on
+                           outdated and error VMs\. This is intended for
+                           retrying updates of VMs or reinitialize the
+                           updating process if oned stopped or fail\.
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -58,6 +62,9 @@ update \fIsecgroupid\fR [\fIfile\fR] Update the template contents\. If a path is
 rename \fIsecgroupid\fR \fIname\fR Renames the Security Group
 .
 .IP "\(bu" 4
+commit \fIsecgroupid\fR Commit SG changes to associated VMs\. This command is to propagate security group rules to VMs when they are updated\. This operation takes time to iterate over all VMs in the security group, progress can be checked through the outdated, updating and error VM sets\. valid options: recover
+.
+.IP "\(bu" 4
 list [\fIfilterflag\fR] Lists Security Group in the pool valid options: list, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
@@ -94,7 +101,7 @@ filterflag a, all all the known SECURITY_GROUPs m, mine the SECURITY_GROUP belon
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

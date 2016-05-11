@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEFLOW" "1" "October 2015" "" "oneflow(1) -- Manage oneFlow Services"
+.TH "ONEFLOW" "1" "May 2016" "" "oneflow(1) -- Manage oneFlow Services"
 .
 .SH "NAME"
 \fBoneflow\fR \- Manage oneFlow Services
@@ -61,7 +61,10 @@ chown \fIrange|service_id_list\fR \fIuserid\fR [\fIgroupid\fR] Changes the servi
 chmod \fIrange|service_id_list\fR \fIoctet\fR Changes the service permissions
 .
 .IP "\(bu" 4
-action \fIservice_id\fR \fIrole_name\fR \fIvm_action\fR Perform an action on all the Virtual Machines of a given role\. Actions supported: shutdown,shutdown\-hard,undeploy,undeploy\-hard,hold,release,stop,suspend,resume,delete,delete\-recreate,reboot,reboot\-hard,poweroff,poweroff\-hard,snapshot\-create valid options: period, number
+rename \fIservice_id\fR \fIname\fR Renames the Service
+.
+.IP "\(bu" 4
+action \fIservice_id\fR \fIrole_name\fR \fIvm_action\fR Perform an action on all the Virtual Machines of a given role\. Actions supported: terminate,terminate\-hard,undeploy,undeploy\-hard,hold,release,stop,suspend,resume,reboot,reboot\-hard,poweroff,poweroff\-hard,snapshot\-create valid options: period, number
 .
 .IP "" 0
 .
@@ -89,12 +92,12 @@ service_id OpenNebula SERVICE name or id
 service_id_list Comma\-separated list of OpenNebula SERVICE names or ids
 .
 .IP "\(bu" 4
-vm_action Actions supported: shutdown, shutdown\-hard, undeploy, undeploy\-hard, hold, release, stop, suspend, resume, delete, delete\-recreate, reboot, reboot\-hard, poweroff, poweroff\-hard, snapshot\-create
+vm_action Actions supported: terminate, terminate\-hard, undeploy, undeploy\-hard, hold, release, stop, suspend, resume, reboot, reboot\-hard, poweroff, poweroff\-hard, snapshot\-create
 .
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

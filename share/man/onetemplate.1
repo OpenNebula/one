@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONETEMPLATE" "1" "October 2015" "" "onetemplate(1) -- manages OpenNebula templates"
+.TH "ONETEMPLATE" "1" "May 2016" "" "onetemplate(1) -- manages OpenNebula templates"
 .
 .SH "NAME"
 \fBonetemplate\fR \- manages OpenNebula templates
@@ -51,15 +51,21 @@
                            will be used\.
  \-\-net_context             Add network contextualization parameters
  \-\-context line1,line2,line3 Lines to add to the context section
- \-\-boot device             Select boot device (hd|fd|cdrom|network)
+ \-\-boot device_list        Set boot device list e\.g\. disk0,disk2,nic0
  \-\-files_ds file1,file2    Add files to the contextualization CD from
                            thefiles datastore
  \-\-init script1,script2    Script or scripts to start in context
+ \-\-startscript [file]      Start script to be executed
  \-\-dry                     Just print the template
+ \-\-recursive               Applies the action to the template plus any image
+                           defined in DISK
  \-m, \-\-multiple x          Instance multiple VMs
  \-\-userdata userdata       Integrate userdata into the EC2 section
  \-\-hold                    Creates the new VM on hold state instead of
                            pending
+ \-\-persistent              Creates a private persistent copy of the template
+                           plus any image defined in DISK, and instantiates
+                           that copy
  \-a, \-\-append              Append new attributes to the current template
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
@@ -103,7 +109,7 @@ Examples:
 
     onetempate create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \e
                       \-\-disk arch,data
-valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, dry
+valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, dry
 .
 .fi
 .
@@ -111,10 +117,10 @@ valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password,
 
 .
 .IP "\(bu" 4
-clone \fItemplateid\fR \fIname\fR Creates a new Template from an existing one
+clone \fItemplateid\fR \fIname\fR Creates a new Template from an existing one valid options: recursive
 .
 .IP "\(bu" 4
-delete \fIrange|templateid_list\fR Deletes the given Image
+delete \fIrange|templateid_list\fR Deletes the given Template valid options: recursive
 .
 .IP "\(bu" 4
 instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the given Template\. This VM can be managed with the \'onevm\' command\.
@@ -125,7 +131,7 @@ instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the giv
 
 The source Template can be modified adding or replacing attributes with
 the optional file argument, or with the options\.
-valid options: name, multiple, userdata, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init
+valid options: name, multiple, userdata, hold, persistent, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript
 .
 .fi
 .
@@ -139,7 +145,7 @@ chgrp \fIrange|templateid_list\fR \fIgroupid\fR Changes the Template group
 chown \fIrange|templateid_list\fR \fIuserid\fR [\fIgroupid\fR] Changes the Template owner and group
 .
 .IP "\(bu" 4
-chmod \fIrange|templateid_list\fR \fIoctet\fR Changes the Template permissions
+chmod \fIrange|templateid_list\fR \fIoctet\fR Changes the Template permissions valid options: recursive
 .
 .IP "\(bu" 4
 update \fItemplateid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\. valid options: append
@@ -187,7 +193,7 @@ filterflag a, all all the known VMTEMPLATEs m, mine the VMTEMPLATE belonging to 
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
