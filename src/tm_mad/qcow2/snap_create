@@ -85,6 +85,7 @@ mkdir -p "${SNAP_DIR}"
 
 PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
 
+cd "${SNAP_DIR}"
 qemu-img create -f qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
 ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
 EOT
