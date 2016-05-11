@@ -1041,7 +1041,7 @@ class VCenterHost < ::OpenNebula::Host
         one_host = ::OpenNebula::Host.new(::OpenNebula::Host.build_xml,
             client.one)
 
-        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter', 'dummy',
+        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter',
                 ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
 
         return -1, rc.message if ::OpenNebula.is_error?(rc)
