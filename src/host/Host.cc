@@ -349,6 +349,8 @@ int Host::update_info(Template        &tmpl,
             {
                 map<int, string>::iterator it_vm;
 
+                it_vm = found.find(vmid);
+
                 if ( it_vm != found.end() )
                 {
                     it_vm->second += " " + vatt->vector_value("POLL");
