@@ -532,7 +532,7 @@ define(function(require) {
 
               $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
               $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+              $("#provision_dashboard_vdc_rvms_meter").val(vms["percentage"]);
 
               var memory = QuotaWidgets.quotaMBInfo(
                   group.VM_QUOTA.VM.MEMORY_USED,
@@ -542,7 +542,7 @@ define(function(require) {
 
               $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
               $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
-              $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+              $("#provision_dashboard_vdc_memory_meter").val(memory["percentage"]);
 
               var cpu = QuotaWidgets.quotaFloatInfo(
                   group.VM_QUOTA.VM.CPU_USED,
@@ -552,7 +552,7 @@ define(function(require) {
 
               $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
               $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+              $("#provision_dashboard_vdc_cpu_meter").val(cpu["percentage"]);
           }
         }
       })
