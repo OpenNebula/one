@@ -129,7 +129,7 @@ rbd_top_parent() {
     pool=$(echo $1 | cut -f1 -d'/')
     volume=$(echo $1 | cut -f2 -d'/')
 
-    snap0=$($RBD ls $pool | grep -E "$volume(-.+)?@0")
+    snap0=$($RBD info -p $pool $volume | grep "parent:" | awk '{print $2}' | sed "s|^$pool/||")
 
     if [ -n "$snap0" ]; then
         volume=$pool/${snap0%%@*}
