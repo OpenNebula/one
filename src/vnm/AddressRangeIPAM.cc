@@ -128,7 +128,7 @@ int AddressRangeIPAM::register_addr_range(unsigned int index, unsigned int rsize
     IPAMManager * ipamm = nd.get_ipamm();
     ostringstream cmd_params;
 
-    if ((index+rsize) >= size)
+    if ((index+rsize) > size)
     {
         return -1;
     }

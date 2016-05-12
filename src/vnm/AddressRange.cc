@@ -1434,7 +1434,7 @@ int AddressRange::hold_by_mac(const string& mac_s)
 void AddressRange::reserve_addr_range(int vid, unsigned int rsize,
     unsigned int sindex, AddressRange *rar)
 {
-    for (unsigned int i=sindex; i< (sindex+rsize); i++)
+    for (unsigned int i=sindex; i<(sindex+rsize); i++)
     {
         allocate_addr(PoolObjectSQL::NET, vid, i);
     }

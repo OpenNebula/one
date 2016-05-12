@@ -87,7 +87,7 @@ int AddressRangeOne::register_addr(unsigned int index)
 
 int AddressRangeOne::register_addr_range(unsigned int sindex, unsigned int rsize)
 {
-    if ((sindex+rsize) >= size)
+    if ((sindex+rsize) > size)
     {
         return -1;
     }
