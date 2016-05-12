@@ -345,20 +345,17 @@ int Host::update_info(Template        &tmpl,
 
         if (rc == 0 && vmid != -1)
         {
-            if (tmp_lost_vms.erase(vmid) == 1) //Good, known
+            map<int, string>::iterator it_vm;
+
+            it_vm = found.find(vmid);
+
+            if ( tmp_lost_vms.erase(vmid) == 1 ) //Good, known
             {
-                map<int, string>::iterator it_vm;
-
-                it_vm = found.find(vmid);
-
-                if ( it_vm != found.end() )
-                {
-                    it_vm->second += " " + vatt->vector_value("POLL");
-                }
-                else
-                {
-                    found.insert(make_pair(vmid, vatt->vector_value("POLL")));
-                }
+                found.insert(make_pair(vmid, vatt->vector_value("POLL")));
+            }
+            else if ( it_vm != found.end() )
+            {
+                it_vm->second += " " + vatt->vector_value("POLL");
             }
             else //Bad, known but should not be here
             {
