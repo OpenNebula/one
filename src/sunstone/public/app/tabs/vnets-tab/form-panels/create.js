@@ -125,7 +125,7 @@ define(function(require) {
       $('input,label[for!="network_mode"]', $(this).parent()).hide();
       $('input', $(this).parent()).val("");
       switch ($(this).val()) {
-      case "default":
+      case "dummy":
       case "fw":
         $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
         $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
