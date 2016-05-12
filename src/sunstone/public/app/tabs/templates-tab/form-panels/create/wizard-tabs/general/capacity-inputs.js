@@ -93,6 +93,10 @@ define(function(require) {
 
     input = UserInputs.attributeInput(attr);
 
+    if (attr.type != "range-float"){
+      $("div.cpu_input_wrapper", context).addClass("medium-6");
+    }
+
     $("div.cpu_input", context).html(input);
 
     if (userInputs != undefined && userInputs.VCPU != undefined){
@@ -107,6 +111,10 @@ define(function(require) {
 
     input = UserInputs.attributeInput(attr);
 
+    if (attr.type != "range"){
+      $("div.vcpu_input_wrapper", context).addClass("medium-6");
+    }
+
     $("div.vcpu_input", context).html(input);
 
     if (userInputs != undefined && userInputs.MEMORY != undefined){
@@ -117,6 +125,10 @@ define(function(require) {
 
     if (element.TEMPLATE.MEMORY != undefined){
       attr.initial = element.TEMPLATE.MEMORY;
+    }
+
+    if (attr.type != "range"){
+      $("div.memory_input_wrapper", context).addClass("large-6").addClass("medium-8");
     }
 
     UserInputs.insertAttributeInputMB(attr, $("div.memory_input", context));
