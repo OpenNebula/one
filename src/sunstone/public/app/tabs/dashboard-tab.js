@@ -136,8 +136,7 @@ define(function(require) {
                 var vms = QuotaWidgets.quotaInfo(
                     group.VM_QUOTA.VM.VMS_USED,
                     group.VM_QUOTA.VM.VMS,
-                    default_group_quotas.VM_QUOTA.VM.VMS,
-                    true);
+                    default_group_quotas.VM_QUOTA.VM.VMS);
 
                 $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_str").html(vms["str"]);
@@ -146,8 +145,7 @@ define(function(require) {
                 var memory = QuotaWidgets.quotaMBInfo(
                     group.VM_QUOTA.VM.MEMORY_USED,
                     group.VM_QUOTA.VM.MEMORY,
-                    default_group_quotas.VM_QUOTA.VM.MEMORY,
-                    true);
+                    default_group_quotas.VM_QUOTA.VM.MEMORY);
 
                 $("#"+TAB_ID+" #provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_vdc_memory_str").html(memory["str"]);
@@ -156,8 +154,7 @@ define(function(require) {
                 var cpu = QuotaWidgets.quotaFloatInfo(
                     group.VM_QUOTA.VM.CPU_USED,
                     group.VM_QUOTA.VM.CPU,
-                    default_group_quotas.VM_QUOTA.VM.CPU,
-                    true);
+                    default_group_quotas.VM_QUOTA.VM.CPU);
 
                 $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_str").html(cpu["str"]);
@@ -185,8 +182,7 @@ define(function(require) {
                 var vms = QuotaWidgets.quotaInfo(
                     user.VM_QUOTA.VM.VMS_USED,
                     user.VM_QUOTA.VM.VMS,
-                    default_user_quotas.VM_QUOTA.VM.VMS,
-                    true);
+                    default_user_quotas.VM_QUOTA.VM.VMS);
 
                 $("#"+TAB_ID+" #provision_dashboard_rvms_percentage").html(vms["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_rvms_str").html(vms["str"]);
@@ -195,8 +191,7 @@ define(function(require) {
                 var memory = QuotaWidgets.quotaMBInfo(
                     user.VM_QUOTA.VM.MEMORY_USED,
                     user.VM_QUOTA.VM.MEMORY,
-                    default_user_quotas.VM_QUOTA.VM.MEMORY,
-                    true);
+                    default_user_quotas.VM_QUOTA.VM.MEMORY);
 
                 $("#"+TAB_ID+" #provision_dashboard_memory_percentage").html(memory["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_memory_str").html(memory["str"]);
@@ -205,8 +200,7 @@ define(function(require) {
                 var cpu = QuotaWidgets.quotaFloatInfo(
                     user.VM_QUOTA.VM.CPU_USED,
                     user.VM_QUOTA.VM.CPU,
-                    default_user_quotas.VM_QUOTA.VM.CPU,
-                    true);
+                    default_user_quotas.VM_QUOTA.VM.CPU);
 
                 $("#"+TAB_ID+" #provision_dashboard_cpu_percentage").html(cpu["percentage"]);
                 $("#"+TAB_ID+" #provision_dashboard_cpu_str").html(cpu["str"]);

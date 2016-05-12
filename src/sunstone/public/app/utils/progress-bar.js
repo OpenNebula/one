@@ -15,7 +15,33 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var _quotaBarHtml = function(usage, limit, info_str, not_html) {
+  var _quotaBarHtml = function(usage, limit, info_str) {
+    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
+
+    var value = "0";
+    var max = "0";
+
+    if (limit > 0 || (limit == 0 && usage > 0)){
+      value = usage;
+      max = limit;
+    }
+
+    html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
+      '<br>' + 
+      '<progress value="' + value + '" max="' + limit + '"></progress>';
+
+    return html;
+  }
+
+  /**
+   * @param      {number}   usage     The usage
+   * @param      {number}   limit     The max limit
+   * @param      {string}   info_str  The info str, can be null
+   * @return     {Object}           { "percentage", "str" }
+   */
+  var _process = function(usage, limit, info_str) {
+    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
+
     percentage = 0;
 
     if (limit > 0) {
@@ -28,24 +54,14 @@ define(function(require) {
       percentage = 100;
     }
 
-    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
-
-    if (not_html) {
-      return {
-        "percentage": percentage,
-        "str": info_str
-      }
-    } else {
-      html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
-        '<br>' + 
-        '<progress value="' + usage + '" max="' + limit + '"></progress>';
-        //'<div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '          + percentage + '%"></div>';
-
-      return html;
+    return {
+      "percentage": percentage,
+      "str": info_str
     }
   }
 
   return {
-    'html': _quotaBarHtml
+    'html': _quotaBarHtml,
+    'process': _process
   }
 })
