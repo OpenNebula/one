@@ -27,6 +27,7 @@ end
 ######
 
 ENV['LANG'] = 'C'
+ENV['LC_ALL'] = 'C'
 
 nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 exit(-1) if $?.exitstatus != 0
