@@ -27,6 +27,7 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var VCenterClusters = require('utils/vcenter/clusters');
   var Config = require('sunstone-config');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
