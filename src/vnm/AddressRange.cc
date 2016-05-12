@@ -1526,11 +1526,6 @@ int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
 
     unsigned int sindex = ip_i - ip;
 
-    if (sindex >= size )
-    {
-        return -1;
-    }
-
     return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
@@ -1553,11 +1548,6 @@ int AddressRange::reserve_addr_by_mac(int vid, unsigned int rsize,
     }
 
     unsigned int sindex = mac_i[0] - mac[0];
-
-    if (sindex >= size)
-    {
-        return -1;
-    }
 
     return reserve_addr_by_index(vid, rsize, sindex, rar);
 }

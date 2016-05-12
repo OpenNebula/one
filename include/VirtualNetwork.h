@@ -428,6 +428,11 @@ public:
         return ar_pool.get_used_addr();
     };
 
+    unsigned int get_one_used()
+    {
+        return ar_pool.get_one_used_addr();
+    };
+
     /**
      *    Gets total number of addresses
      *    @return the number of addresses

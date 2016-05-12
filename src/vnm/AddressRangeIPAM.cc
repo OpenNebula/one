@@ -128,6 +128,19 @@ int AddressRangeIPAM::register_addr_range(unsigned int index, unsigned int rsize
     IPAMManager * ipamm = nd.get_ipamm();
     ostringstream cmd_params;
 
+    if ((index+rsize) >= size)
+    {
+        return -1;
+    }
+
+    for (unsigned int j=index; j<(index+rsize); j++)
+    {
+        if (allocated.count(j) != 0)
+        {
+            return -1;
+        }
+    }
+
     string start_addr = ip_to_s(ip + index);
 
     cmd_params << ipam_mad << " "

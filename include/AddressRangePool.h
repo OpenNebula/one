@@ -296,6 +296,11 @@ public:
     unsigned int get_used_addr() const;
 
     /**
+     *  Return the number of used addresses handle by one
+     */
+    unsigned int get_one_used_addr() const;
+
+    /**
      *  Return the total number addresses
      */
     unsigned int get_size() const;

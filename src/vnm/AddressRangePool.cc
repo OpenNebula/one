@@ -482,6 +482,19 @@ unsigned int AddressRangePool::get_used_addr() const
     return used_addr;
 }
 
+unsigned int AddressRangePool::get_one_used_addr() const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+    unsigned int used_addr = 0;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        used_addr += it->second->get_one_used_addr();
+    }
+
+    return used_addr;
+}
+
 unsigned int AddressRangePool::get_size() const
 {
     map<unsigned int, AddressRange *>::const_iterator it;
