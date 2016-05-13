@@ -1233,12 +1233,8 @@ class VCenterHost < ::OpenNebula::Host
     end
 
     def monitor_vms
-        str_info = ""
-        @resource_pools.each{|rp|
-            str_info += monitor_vms_in_rp(rp)
-        }
-
-        str_info
+        # Only monitor from top level (Resource) Resource Pool
+        monitor_vms_in_rp(@resource_pools[-1])
     end
 
 
