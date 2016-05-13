@@ -77,18 +77,21 @@ define(function(require) {
      */
     context.off('click', '.one-label');
     context.on('click', '.one-label', function() {
-      if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
-        Sunstone.showTab(opts.tabName);
-      }
+      if($(this).hasClass("active")){
+        if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
+          Sunstone.showTab(opts.tabName);
+        }
 
-      var regExp = [];
-      var label = $(this).attr('one-label-full-name');
-      regExp.push('^' + label + '$');
-      regExp.push(',' + label + '$');
-      regExp.push('^' + label + ',');
-      regExp.push(',' + label + ',');
-      _setLabelsFilter(dataTable, labelsColumn, regExp.join('|'));
-      return false;
+        var regExp = [];
+        var label = $(this).attr('one-label-full-name');
+        regExp.push('^' + label + '$');
+        regExp.push(',' + label + '$');
+        regExp.push('^' + label + ',');
+        regExp.push(',' + label + ',');
+        _setLabelsFilter(dataTable, labelsColumn, regExp.join('|'));
+      } else {
+        _clearLabelsFilter(dataTable, labelsColumn);
+      }
     });
   }
 

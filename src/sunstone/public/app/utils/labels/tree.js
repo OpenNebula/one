@@ -99,8 +99,13 @@ define(function(require) {
     });
 
     context.on('click', '.one-label', function() {
+      var active = $(this).hasClass('active');
+
       $('.one-label', context).removeClass('active');
-      $(this).addClass('active');
+
+      if (!active){
+        $(this).addClass('active');
+      }
     });
   }
 });
