@@ -1034,69 +1034,70 @@ define(function(require) {
           </div>\
         </div>\
         <div class="row collapse non_editable_quota">\
-          <div class="large-12 columns">\
-            <div class="progress-text right" style="font-size: 12px">\
-              '+info_str+'\
-            </div>\
-            <br>\
-            <div class="progress radius" style="height: 10px; margin-bottom:0px">\
-              <span class="meter" style="width: '
-                +percentage+'%" />\
-            </div>\
-          </div>\
+          <div class="large-12 columns">'+
+            ProgressBar.html(usage, limit, info_str)+
+          '</div>\
         </div>\
       </div>';
       return html;
   }
 
-  function _quotaInfo(usage, limit, default_limit, not_html){
-      var int_usage = parseInt(usage, 10);
-      var int_limit = _quotaIntLimit(limit, default_limit);
-      return _quotaBaseInfo(int_usage, int_limit, null, not_html);
+  /**
+   * @param      {number}   usage     The usage
+   * @param      {number}   limit     The max limit
+   * @param      {string}   info_str  The info str, can be null
+   * @return     {Object}           { "percentage", "str" }
+   */
+  function _process(usage, limit, info_str) {
+    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
+
+    percentage = 0;
+
+    if (limit > 0) {
+      percentage = Math.floor((usage / limit) * 100);
+
+      if (percentage > 100) {
+        percentage = 100;
+      }
+    } else if (limit == 0 && usage > 0) {
+      percentage = 100;
+    }
+
+    return {
+      "percentage": percentage,
+      "str": info_str
+    }
   }
 
-  function _quotaMBInfo(usage, limit, default_limit, not_html){
+  /**
+   *  Returns an object with {"percentage", "str"}
+   */
+  function _quotaInfo(usage, limit, default_limit){
+      var int_usage = parseInt(usage, 10);
+      var int_limit = _quotaIntLimit(limit, default_limit);
+      return _process(int_usage, int_limit, null);
+  }
+
+  /**
+   *  Returns an object with {"percentage", "str"}
+   */
+  function _quotaMBInfo(usage, limit, default_limit){
       var int_usage = parseInt(usage, 10);
       var int_limit = _quotaIntLimit(limit, default_limit);
 
       info_str = Humanize.size(int_usage * 1024)+' / '
               +((int_limit >= 0) ? Humanize.size(int_limit * 1024) : '-')
 
-      return _quotaBaseInfo(int_usage, int_limit, info_str, not_html);
+      return _process(int_usage, int_limit, info_str);
   }
 
-  function _quotaFloatInfo(usage, limit, default_limit, not_html){
+  /**
+   *  Returns an object with {"percentage", "str"}
+   */
+  function _quotaFloatInfo(usage, limit, default_limit){
       var float_usage = parseFloat(usage, 10);
       var float_limit = _quotaFloatLimit(limit, default_limit);
-      return _quotaBaseInfo(float_usage, float_limit, null, not_html);
-  }
-
-  function _quotaBaseInfo(usage, limit, info_str, not_html){
-      percentage = 0;
-
-      if (limit > 0){
-          percentage = Math.floor((usage / limit) * 100);
-
-          if (percentage > 100){
-              percentage = 100;
-          }
-      } else if (limit == 0 && usage > 0){
-          percentage = 100;
-      }
-
-      info_str = info_str || ( usage+' / '+((limit >= 0) ? limit : '-') );
-
-      if (not_html) {
-          return {
-              "percentage": percentage,
-              "str": info_str
-          }
-      } else {
-          html = '<span class="progress-text right" style="font-size: 12px">'+info_str+'</span><br><div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '
-              +percentage+'%"></div>';
-
-          return html;
-      }
+      return _process(float_usage, float_limit, null);
   }
 
   function _quotaBar(usage, limit, default_limit){

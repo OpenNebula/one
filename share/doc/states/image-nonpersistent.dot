@@ -27,7 +27,7 @@ digraph OpenNebula {
 #    subgraph { rank = max; end; color="white"}
 
 
-    subgraph { rank = min; user; locked}
+    subgraph { rank = min; user; "locked/locked_used"}
     subgraph { rank = same; ready; color="white"}
 #    subgraph { rank = same; used; color="white"}
     subgraph { rank = same; error; disabled; color="white"}
@@ -36,8 +36,9 @@ digraph OpenNebula {
 
 
 #   create
-    user        -> locked [label="create"];
-    locked      -> ready [style="dashed"];
+    user                  -> "locked/locked_used" [label="create"];
+    "locked/locked_used"  -> ready [style="dashed"];
+    "locked/locked_used"  -> used [style="dashed"];
 
 #   enable & disable
     ready       -> disabled [label="disable"];
@@ -47,7 +48,7 @@ digraph OpenNebula {
 
 #   template instantiate
     ready       -> used [label="onetemplate\ninstantiate"];
-    used        -> ready [label="onevm\nshutdown"];
+    used        -> ready [label="onevm\nterminate"];
 #### ^ persis, v non-persis
     used        -> used [label="onetemplate\ninstantiate"];
 
@@ -61,13 +62,13 @@ digraph OpenNebula {
 ####
 
 #   delete
-    ready       -> delete [label="delete"];
-    disabled    -> delete [label="delete"];
-    locked      -> delete [label="delete"];
-    error       -> delete [label="delete"];
-    delete      -> end [style="dashed"];
+    ready                 -> delete [label="delete"];
+    disabled              -> delete [label="delete"];
+    "locked/locked_used"  -> delete [label="delete"];
+    error                 -> delete [label="delete"];
+    delete                -> end [style="dashed"];
 
 #   failures and misc.
-    ready       -> error [style="dotted"];
-    locked      -> error [style="dotted"];
+    ready                 -> error [style="dotted"];
+    "locked/locked_used"  -> error [style="dotted"];
 }

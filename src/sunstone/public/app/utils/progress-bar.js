@@ -15,34 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var _quotaBarHtml = function(usage, limit, info_str, not_html) {
-    percentage = 0;
-
-    if (limit > 0) {
-      percentage = Math.floor((usage / limit) * 100);
-
-      if (percentage > 100) {
-        percentage = 100;
-      }
-    } else if (limit == 0 && usage > 0) {
-      percentage = 100;
-    }
-
+  var _quotaBarHtml = function(usage, limit, info_str) {
     info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
 
-    if (not_html) {
-      return {
-        "percentage": percentage,
-        "str": info_str
-      }
-    } else {
-      html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
-        '<br>' + 
-        '<progress value="' + usage + '" max="' + limit + '"></progress>';
-        //'<div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '          + percentage + '%"></div>';
+    var value = "0";
+    var max = "0";
 
-      return html;
+    if (limit > 0 || (limit == 0 && usage > 0)){
+      value = usage;
+      max = limit;
     }
+
+    html = '<span class="progress-text right" style="font-size: 12px">' + info_str + '</span>' + 
+      '<br>' + 
+      '<progress value="' + value + '" max="' + limit + '"></progress>';
+
+    return html;
   }
 
   return {

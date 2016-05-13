@@ -3290,7 +3290,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     map<string, string>::const_iterator it;
 
     files = "";
-    bool token;
 
     if ( history == 0 )
     {
@@ -3320,7 +3319,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         }
     }
 
-
     file.open(history->context_file.c_str(),ios::out);
 
     if (file.fail() == true)
@@ -3349,9 +3347,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         }
     }
 
-    context->vector_value("TOKEN", token);
-
-    if (token)
+    if (!context->vector_value("ONEGATE_ENDPOINT").empty())
     {
         ofstream      token_file;
         ostringstream oss;
@@ -3361,8 +3357,8 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 
         if (token_password.empty())
         {
-            tk_error = "CONTEXT/TOKEN set, but TOKEN_PASSWORD is not defined"
-                " in the user template.";
+            tk_error = "Cannot generate OneGate toke: TOKEN_PASSWORD not set in"
+                " the user template.";
 
             file.close();
 

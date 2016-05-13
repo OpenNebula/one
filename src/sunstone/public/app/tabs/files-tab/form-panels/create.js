@@ -30,6 +30,7 @@ define(function(require) {
   var BrowserInfo = require('utils/browser-info');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var WizardFields = require('utils/wizard-fields');
+  var ProgressBar = require('utils/progress-bar');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -166,21 +167,22 @@ define(function(require) {
       });
 
       that.uploader.on('uploadStart', function() {
-        $('#files_upload_progress_bars').append('<div id="files-' + fileName + 'progressBar" class="row" style="margin-bottom:10px">\
-            <div id="files-' + fileName + '-info" class="large-2 columns dataTables_info">\
+        $('#files_upload_progress_bars').append(
+          '<div id="files-' + fileName + 'progressBar" class="row" style="margin-bottom:10px">\
+            <div id="files-' + fileName + '-info" class="medium-2 columns">\
               ' + Locale.tr("Uploading...") + '\
             </div>\
-            <div class="large-10 columns">\
-              <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
-                <span class="meter" style="width:0%"></span>\
+            <div class="medium-10 columns">\
+              <div class="progressbar">'+
+                ProgressBar.html(0, 1, fileName) + '\
               </div>\
-              <div class="progress-text" style="margin-left:15px">' + fileName + '</div>\
             </div>\
           </div>');
       });
 
       that.uploader.on('progress', function() {
-        $('span.meter', $('div[id="files-' + fileName + 'progressBar"]')).css('width', this.progress() * 100.0 + '%')
+        $('div.progressbar', $('div[id="files-' + fileName + 'progressBar"]')).html(
+                              ProgressBar.html(this.progress(), 1, fileName) );
       });
     }
 

@@ -310,7 +310,21 @@ class VIClient
     # @param uuid [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm_template(uuid)
-        @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
+        version = @vim.serviceContent.about.version
+
+        if version.split(".").first.to_i >= 6
+            @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
+        else
+            vms = get_entities(@dc.vmFolder, 'VirtualMachine')
+
+            return vms.find do |v|
+                begin
+                    v.config && v.config.uuid == uuid
+                rescue RbVmomi::VIM::ManagedObjectNotFound
+                    false
+                end
+            end
+        end
     end
 
     ########################################################################
@@ -1041,7 +1055,7 @@ class VCenterHost < ::OpenNebula::Host
         one_host = ::OpenNebula::Host.new(::OpenNebula::Host.build_xml,
             client.one)
 
-        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter', 'dummy',
+        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter',
                 ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
 
         return -1, rc.message if ::OpenNebula.is_error?(rc)
@@ -1219,12 +1233,8 @@ class VCenterHost < ::OpenNebula::Host
     end
 
     def monitor_vms
-        str_info = ""
-        @resource_pools.each{|rp|
-            str_info += monitor_vms_in_rp(rp)
-        }
-
-        str_info
+        # Only monitor from top level (Resource) Resource Pool
+        monitor_vms_in_rp(@resource_pools[-1])
     end
 
 

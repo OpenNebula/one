@@ -71,25 +71,22 @@ public:
     }
 
     /**
-     *  Insert a new bitmap into the bitmap table. The bitmap marks the
-     *  associated reserved bits as initialized by the bitmap conf. This
-     *  function is called once to bootstrap the bitmap contents.
+     *  Insert a new zero'ed bitmap into the bitmap table. This function is
+     *  called once to bootstrap the bitmap contents.
      *    @param id of the set, this will update the id of the bitmap
      *    @return 0 on success
      */
     int insert(int _id, SqlDB * db)
     {
         id = _id;
-
-        init("");
+        bs = new std::bitset<N>;
 
         return insert_replace(db, false);
     }
 
     /**
-     *  Loads a bitmap and marks (again) the reserved bits. This function
-     *  is called once to load the bitmap from the DB. The reserved bits are
-     *  updated.
+     *  Loads a bitmap from its string representation. This function is called
+     *  once to load the bitmap from the DB.
      *    @param id of the set, this will update the id of the bitmap
      *    @return 0 on success
      */
@@ -104,7 +101,7 @@ public:
             return -1;
         }
 
-        init(*uzbs);
+        bs = new std::bitset<N>(*uzbs);
 
         delete uzbs;
 
@@ -132,7 +129,7 @@ public:
     /* BitMap interface                                                       */
     /* ---------------------------------------------------------------------- */
     /*+
-     *  Gets the first 0 bit in the map and set it.
+     *  Gets the first 0 bit in the map (and not reserved) and set it.
      *    @param hint try this bit first, 0 does not use any hint
      *    @param bit the bit number reserved
      *    @return -1 in case of error
@@ -141,7 +138,7 @@ public:
     {
         if ( hint != 0 )
         {
-            if ( bs->test(hint) == false )
+            if ( bs->test(hint) == false && reserved_bit.count(hint) == 0 )
             {
                 bs->set(hint);
 
@@ -154,7 +151,7 @@ public:
         {
             try
             {
-                if ( bs->test(bit) == false )
+                if ( bs->test(bit) == false && reserved_bit.count(bit) == 0)
                 {
                     bs->set(bit);
                     return 0;
@@ -221,30 +218,9 @@ private:
 
     unsigned int start_bit;
 
-    std::set<int> reserved_bit;
+    std::set<unsigned int> reserved_bit;
 
     std::bitset<N> * bs;
-
-    /**
-     *  Initialized a bitmap by creating a new object and setting the reserved
-     *  bits.
-     *    @param bm_s the bitmap in string form
-     */
-    void init(const std::string& bm_s)
-    {
-        std::set<int>::iterator it;
-
-        bs = new std::bitset<N>(bm_s);
-
-        for (it = reserved_bit.begin(); it != reserved_bit.end(); ++it)
-        {
-            try
-            {
-                bs->set(*it);
-            }
-            catch (const std::out_of_range& oor) {};
-        }
-    }
 
     /* ---------------------------------------------------------------------- */
     /* Database implementation                                                */

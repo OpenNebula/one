@@ -24,7 +24,6 @@
     "jquery": "^2.2.1",
     "datatables": "^1.10.11"
   },
-  "version": "4.14",
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>"
   ],

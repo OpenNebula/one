@@ -855,12 +855,14 @@ define(function(require) {
         Foundation.reflow(context, 'tabs');
 
         formPanelInstance = new formPanel();
-        formPanelInstance.setAction(formContext, action);
         tab["formPanelInstances"][formPanelId] = formPanelInstance;
         formPanelInstance.insert(formContext);
       }
 
-      formPanelInstance.setAction(formContext, action);
+      if (action != undefined){
+        formPanelInstance.setAction(formContext, action);
+      }
+
       tab["activeFormPanel"] = formPanelInstance;
 
       // Hide wizard/advanced selector if advanced not defined
@@ -928,11 +930,7 @@ define(function(require) {
         formPanelInstance.reset(context);
       }
 
-      _hideFormPanelLoading(tabId);
-
-      if (formPanelInstance) {
-        formPanelInstance.onShow(context);
-      }
+      _showFormPanel(tabId, formPanelId);
     }, 13)
   }
 

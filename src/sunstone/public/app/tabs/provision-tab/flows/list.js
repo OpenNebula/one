@@ -355,9 +355,7 @@ define(function(require) {
                       '</span>' +
                     '</li>'+
                     '<li class="provision-bullet-item">'+
-                      '<div class="progress small radius">'+
-                        '<meter id="' + TemplateUtils.htmlEncode(role.name) + '_meter" min="0" low="33" high="66" optimum="100" max="100" value="' + TemplateUtils.htmlEncode(rvms.percentage) + '"></meter>' +
-                      '</div>'+
+                      '<meter id="' + TemplateUtils.htmlEncode(role.name) + '_meter" min="0" low="33" high="66" optimum="100" max="100" value="' + TemplateUtils.htmlEncode(rvms.percentage) + '"></meter>' +
                     '</li>'+
                     '<li class="provision-bullet-item text-right">'+
                       '<span class="'+ role_state.color +'-color left">'+

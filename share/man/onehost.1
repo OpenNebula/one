@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEHOST" "1" "October 2015" "" "onehost(1) -- manages OpenNebula hosts"
+.TH "ONEHOST" "1" "May 2016" "" "onehost(1) -- manages OpenNebula hosts"
 .
 .SH "NAME"
 \fBonehost\fR \- manages OpenNebula hosts
@@ -15,7 +15,6 @@
 
  \-i, \-\-im im_mad           Set the information driver for the host
  \-v, \-\-vm vmm_mad          Set the virtualization driver for the host
- \-n, \-\-net vnet_mad        Set the network driver for the host
  \-c, \-\-cluster id|name     Selects the cluster
  \-a, \-\-append              Append new attributes to the current template
  \-\-force                   Force probe upgrade in onehost sync
@@ -43,16 +42,45 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIhostname\fR Creates a new Host valid options: im, vm, net, cluster
+create \fIhostname\fR Creates a new Host valid options: im, vm, cluster
 .
 .IP "\(bu" 4
 delete \fIrange|hostid_list\fR Deletes the given Host
 .
 .IP "\(bu" 4
-enable \fIrange|hostid_list\fR Enables the given Host
+enable \fIrange|hostid_list\fR Enables the given host, fully operational
 .
 .IP "\(bu" 4
-disable \fIrange|hostid_list\fR Disables the given Host
+disable \fIrange|hostid_list\fR Disables the given host:
+.
+.IP "" 4
+.
+.nf
+
+  \- monitor: enabled
+  \- scheduler deployment: disabled
+  \- manual deployment: enabled
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+offline \fIrange|hostid_list\fR Sets the host offline:
+.
+.IP "" 4
+.
+.nf
+
+  \- monitor: disabled
+  \- scheduler deployment: disabled
+  \- manual deployment: disabled
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 update \fIhostid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\. valid options: append
@@ -100,7 +128,7 @@ hostid_list Comma\-separated list of OpenNebula HOST names or ids
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

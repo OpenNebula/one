@@ -196,7 +196,7 @@
       <label for="ceph_host">
         {{tr "Ceph Host"}}
         <span class="tip">
-          {{tr "Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled)."}}
+          {{tr "Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen)."}}
         </span>
       </label>
       <input type="text" name="ceph_host" id="ceph_host" />
@@ -205,7 +205,7 @@
       <label for="ceph_user">
         {{tr "Ceph User"}}
         <span class="tip">
-          {{tr "The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers. Required for Libvirt 1.x when cephx is enabled ."}}
+          {{tr "The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers."}}
         </span>
       </label>
       <input type="text" name="ceph_user" id="ceph_user" />
@@ -214,7 +214,7 @@
       <label for="ceph_secret">
         {{tr "Ceph Secret"}}
         <span class="tip">
-          {{tr "A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled)."}}
+          {{tr "A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula."}}
         </span>
       </label>
       <input type="text" name="ceph_secret" id="ceph_secret" />
