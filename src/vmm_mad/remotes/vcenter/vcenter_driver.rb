@@ -311,7 +311,6 @@ class VIClient
     ########################################################################
     def find_vm_template(uuid)
         version = @vim.serviceContent.about.version
-        STDERR.puts version
 
         if version.split(".").first.to_i >= 6
             @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
