@@ -571,6 +571,9 @@ define(function(require) {
 
     $("#provision_create_vm li:not(.is-active) a[href='#provision_dd_template']").trigger("click")
 
+
+    $("#provision_create_vm .alert-box-error").hide();
+
     $(".section_content").hide();
     $("#provision_create_vm").fadeIn();
   }
