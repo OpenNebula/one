@@ -28,7 +28,7 @@ define(function(require) {
   var TemplateTemplatesList = require('hbs!./list');
 
   var _accordionId = 0;
-  var TEMPLATE_LABELS_COLUMN = 4;
+  var TEMPLATE_LABELS_COLUMN = 3;
 
   return {
     'generate': generate_provision_templates_list,
@@ -94,8 +94,10 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
+
+            // Labels are inserted only in the new VM wizard
             LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
-            var context = $('.labels-dropdown', datatable.closest('.content'));
+            var context = $('.labels-dropdown', datatable.closest('#provisionVMInstantiateTemplatesRow'));
             LabelsUtils.insertLabelsMenu({
               'context': context,
               'dataTable': datatable,

@@ -35,7 +35,6 @@ define(function(require) {
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var TemplateUtils = require('utils/template-utils');
-  var LabelsUtils = require('utils/labels/utils');
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
@@ -52,7 +51,6 @@ define(function(require) {
   var TemplateDashboardVdcVms = require('hbs!./provision-tab/dashboard/vdc-vms');
 
   var TAB_ID = require('./provision-tab/tabId');
-  var TEMPLATE_LABELS_COLUMN = 4;
 
   var povision_actions = {
     "Provision.Flow.instantiate" : {
@@ -1044,7 +1042,7 @@ define(function(require) {
           show_provision_create_vm();
         });
 
-        Foundation.reflow($('#provision_create_vm'), 'accordion');
+        Foundation.reflow($('#provision_create_vm'));
 
 
         //
