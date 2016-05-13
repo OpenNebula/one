@@ -26,6 +26,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var OpenNebulaError = require('opennebula/error');
   var BrowserInfo = require('utils/browser-info');
+  var ProgressBar = require('utils/progress-bar');
 
   /*
     CONSTANTS
@@ -109,20 +110,20 @@ define(function(require) {
         $(".upload_support_file_form_button", context).attr("disabled", "disabled");
         $('.support_upload_progress_bars', tabContext).append(
           '<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
-            <div id="'+fileName+'-info" class="large-2 columns dataTables_info">\
+            <div id="'+fileName+'-info" class="medium-2 columns">\
               Uploading...\
             </div>\
-            <div class="large-10 columns">\
-              <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
-                <span class="meter" style="width:0%"></span>\
+            <div class="medium-10 columns">\
+              <div class="progressbar">'+
+                ProgressBar.html(0, 1, fileName) + '\
               </div>\
-              <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
             </div>\
           </div>');
       });
 
       uploader.on('progress', function() {
-        $('span.meter', $('div[id="'+fileName+'progressBar"]', tabContext)).css('width', this.progress()*100.0+'%')
+        $('div.progressbar', $('div[id="' + fileName + 'progressBar"]', tabContext)).html(
+                              ProgressBar.html(this.progress(), 1, fileName) );
       });
 
       uploader.on('fileSuccess', function(file) {

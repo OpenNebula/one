@@ -33,35 +33,7 @@ define(function(require) {
     return html;
   }
 
-  /**
-   * @param      {number}   usage     The usage
-   * @param      {number}   limit     The max limit
-   * @param      {string}   info_str  The info str, can be null
-   * @return     {Object}           { "percentage", "str" }
-   */
-  var _process = function(usage, limit, info_str) {
-    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
-
-    percentage = 0;
-
-    if (limit > 0) {
-      percentage = Math.floor((usage / limit) * 100);
-
-      if (percentage > 100) {
-        percentage = 100;
-      }
-    } else if (limit == 0 && usage > 0) {
-      percentage = 100;
-    }
-
-    return {
-      "percentage": percentage,
-      "str": info_str
-    }
-  }
-
   return {
-    'html': _quotaBarHtml,
-    'process': _process
+    'html': _quotaBarHtml
   }
 })

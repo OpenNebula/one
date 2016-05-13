@@ -1043,12 +1043,39 @@ define(function(require) {
   }
 
   /**
+   * @param      {number}   usage     The usage
+   * @param      {number}   limit     The max limit
+   * @param      {string}   info_str  The info str, can be null
+   * @return     {Object}           { "percentage", "str" }
+   */
+  function _process(usage, limit, info_str) {
+    info_str = info_str || (usage + ' / ' + ((limit >= 0) ? limit : '-'));
+
+    percentage = 0;
+
+    if (limit > 0) {
+      percentage = Math.floor((usage / limit) * 100);
+
+      if (percentage > 100) {
+        percentage = 100;
+      }
+    } else if (limit == 0 && usage > 0) {
+      percentage = 100;
+    }
+
+    return {
+      "percentage": percentage,
+      "str": info_str
+    }
+  }
+
+  /**
    *  Returns an object with {"percentage", "str"}
    */
   function _quotaInfo(usage, limit, default_limit){
       var int_usage = parseInt(usage, 10);
       var int_limit = _quotaIntLimit(limit, default_limit);
-      return ProgressBar.process(int_usage, int_limit, null);
+      return _process(int_usage, int_limit, null);
   }
 
   /**
@@ -1061,7 +1088,7 @@ define(function(require) {
       info_str = Humanize.size(int_usage * 1024)+' / '
               +((int_limit >= 0) ? Humanize.size(int_limit * 1024) : '-')
 
-      return ProgressBar.process(int_usage, int_limit, info_str);
+      return _process(int_usage, int_limit, info_str);
   }
 
   /**
@@ -1070,7 +1097,7 @@ define(function(require) {
   function _quotaFloatInfo(usage, limit, default_limit){
       var float_usage = parseFloat(usage, 10);
       var float_limit = _quotaFloatLimit(limit, default_limit);
-      return ProgressBar.process(float_usage, float_limit, null);
+      return _process(float_usage, float_limit, null);
   }
 
   function _quotaBar(usage, limit, default_limit){
