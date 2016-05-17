@@ -471,7 +471,7 @@ private
         ec2 = nil
         ec2_deprecated = nil
 
-        all_ec2_elements = xml.root.get_elements("//USER_TEMPLATE/EC2")
+        all_ec2_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
         # First, let's see if we have an EC2 site that matches
         # our desired host name
@@ -495,8 +495,9 @@ private
             if all_ec2_elements.size == 1
                 ec2 = all_ec2_elements[0]
             else
-                STDERR.puts("Cannot find EC2 element in deployment file or no" \
-                    "EC2 site matching in the template.")
+                STDERR.puts("Cannot find PUBLIC_CLOUD element in deployment "\
+                    " file or no HOST site matching the requested in the "\
+                    "template.")
                 exit(-1)
             end
         end
