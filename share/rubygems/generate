@@ -82,18 +82,6 @@ GEM_DESCRIPTION={
         :dependencies => [
             ['opennebula', "= #{DEFAULTS[:version]}"]
         ]
-    },
-
-    :oca_deprecated => {
-        :name => 'opennebula-oca',
-        :files => [
-            ['share/rubygems/deprecated/README', '']
-        ],
-        :summary => 'OpenNebula Client API (deprecated)',
-        :description => 'Use opennebula gem instead',
-        :dependencies => [
-            ['opennebula', "= #{DEFAULTS[:version]}"]
-        ]
     }
 }
 
