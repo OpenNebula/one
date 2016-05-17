@@ -28,6 +28,31 @@ define(function(require){
     'retrieve': _retrieve
   };
 
+  function _calculateCost(context, disk_cost){
+    var cost = 0;
+
+    $(".diskContainer", context).each(function(){
+      var size = 0;
+
+      var fields = WizardFields.retrieve(this);
+
+      if (fields.SIZE != undefined){
+        size = fields.SIZE;
+      } else{
+        disk = $(this).data("template_disk");
+
+        if (disk != undefined && disk['SIZE'] != undefined){
+          size = disk['SIZE'];
+        }
+      }
+
+      cost += size * disk_cost;
+      cost += $(this).data('disk_snapshot_total_cost');
+    });
+
+    $(".cost_value", context).text(cost.toFixed(2));
+  }
+
   /**
    * @param {Object} opts - template_json: extended info template (with DISK/SIZE)
    *                      - disksContext: jquery selector, where to place the html
@@ -58,18 +83,11 @@ define(function(require){
       if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
         $(".provision_create_template_disk_cost_div", disksContext).show();
 
-        disksContext.on("input", '.uinput-slider', function(){
-          var cost = 0;
-          $('.uinput-slider-val', disksContext).each(function(){
-            if ($(this).val() > 0) {
-              cost += $(this).val() * 1024 * disk_cost;
-            }
-
-            var diskContext = $(this).closest(".diskContainer");
-            cost += diskContext.data('disk_snapshot_total_cost');
-          })
-          $(".cost_value", disksContext).html(cost.toFixed(2));
+        disksContext.on("input", "input", function(){
+          _calculateCost(disksContext, disk_cost);
         });
+
+        _calculateCost(disksContext, disk_cost);
       } else {
         $(".provision_create_template_disk_cost_div", disksContext).hide();
       }
