@@ -274,7 +274,6 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var publicCloudJSON = [];
-    var ec2JSON = [];
 
     $('.provider', context).each(function() {
       var hash  = WizardFields.retrieve(this);
@@ -282,7 +281,8 @@ define(function(require) {
         var hybrid = $("input.hybridRadio:checked", this).val();
         switch (hybrid) {
           case 'ec2':
-            ec2JSON.push(hash);
+            hash["TYPE"] = "ec2";
+            publicCloudJSON.push(hash);
             break;
           case 'azure':
             hash["TYPE"] = hybrid.toUpperCase();
@@ -293,7 +293,6 @@ define(function(require) {
     });
 
     if (!$.isEmptyObject(publicCloudJSON)) { templateJSON['PUBLIC_CLOUD'] = publicCloudJSON; };
-    if (!$.isEmptyObject(ec2JSON)) { templateJSON['EC2'] = ec2JSON; };
 
     return templateJSON;
   }
@@ -315,21 +314,6 @@ define(function(require) {
       }
 
       delete templateJSON.PUBLIC_CLOUD
-    }
-
-    if (templateJSON.EC2) {
-      var providers = templateJSON.EC2
-
-      if (providers instanceof Array) {
-        $.each(providers, function(index, provider) {
-          clickButton = clickButton || index > 0;
-          that.fillProviderTab(context, provider, "ec2", clickButton);
-        });
-      } else if (providers instanceof Object) {
-        that.fillProviderTab(context, providers, "ec2", clickButton);
-      }
-
-      delete templateJSON.EC2
     }
   }
 
