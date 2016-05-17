@@ -36,7 +36,7 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.runAction(RESOURCE+".refresh");
       },
       error: Notifier.onError,
       notify: true

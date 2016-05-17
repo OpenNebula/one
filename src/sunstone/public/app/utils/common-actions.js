@@ -148,7 +148,7 @@ define(function(require) {
       callback : function(request, response) {
         Sunstone.resetFormPanel(that.tabId, formPanelId);
         Sunstone.hideFormPanel(that.tabId);
-        Sunstone.getDataTable(that.tabId).addElement(request, response);
+        that.refresh();
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(that.tabId);

@@ -105,10 +105,9 @@ define(function(require) {
       type: "custom",
       call: function(id, name) {
         Sunstone.runAction("Template.instantiate", [id], name);
-        Sunstone.runAction("VM.refresh");
       },
       callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.runAction("VM.refresh");
       },
       error: Notifier.onError
     },
