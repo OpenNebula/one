@@ -165,7 +165,12 @@ module KVM
     end
 
     def self.get_cpu_jiffies
-        stat = File.read("/proc/stat")
+        begin
+            stat = File.read("/proc/stat")
+        rescue
+            return 0
+        end
+
         jiffies = 0
 
         # skip cpu string and guest jiffies
@@ -177,7 +182,12 @@ module KVM
     end
 
     def self.get_process_jiffies(pid)
-        stat = File.read("/proc/#{pid}/stat")
+        begin
+            stat = File.read("/proc/#{pid}/stat")
+        rescue
+            return 0
+        end
+
         jiffies = 0
 
         data = stat.lines.first.split(' ')
@@ -245,7 +255,7 @@ module KVM
     #   Security model: none
     #   Security DOI:   0
     def self.dom_info(vmid)
-        text = `#{virsh(:dominfo)} #{vmid}`
+        text = `#{virsh(:dominfo)} #{vmid} 2>/dev/null`
 
         return nil if $?.exitstatus != 0
 
@@ -265,7 +275,7 @@ module KVM
     #   @param the ID of the VM as defined in libvirt
     #   @return [String] xml output of virsh dumpxml
     def self.dump_xml(vmid)
-        `#{virsh(:dumpxml)} '#{vmid}'`
+        `#{virsh(:dumpxml)} '#{vmid}' 2>/dev/null`
     end
 
     # Aggregate statics of all VM NICs
@@ -293,7 +303,7 @@ module KVM
         values[:nettx] = 0
 
         interfaces.each do |interface|
-            text=`#{virsh(:domifstat)} #{vmid} #{interface}`
+            text=`#{virsh(:domifstat)} #{vmid} #{interface} 2>/dev/null`
 
             next if $?.exitstatus != 0
 
