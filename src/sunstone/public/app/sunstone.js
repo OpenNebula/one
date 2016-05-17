@@ -930,7 +930,9 @@ define(function(require) {
         formPanelInstance.reset(context);
       }
 
-      _showFormPanel(tabId, formPanelId);
+      if (_formPanelVisible($("#"+tabId))){
+        _showFormPanel(tabId, formPanelId);
+      }
     }, 13)
   }
 
@@ -1030,6 +1032,10 @@ define(function(require) {
 
   var _rightListVisible = function(context) {
     return $(".sunstone-list", context).is(':visible');
+  }
+
+  var _formPanelVisible = function(context) {
+    return $(".sunstone-form", context).is(':visible');
   }
 
   var _rightInfoResourceId = function(context) {
