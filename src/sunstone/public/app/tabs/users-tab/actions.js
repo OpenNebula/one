@@ -33,7 +33,8 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("User created"));
 
   var _actions = {
     "User.create" : _commonActions.create(CREATE_DIALOG_ID),

@@ -30,7 +30,8 @@ define(function(require) {
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Service created"));
 
   function roleElements() {
     var selected_nodes = [];

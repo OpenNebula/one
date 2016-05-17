@@ -27,7 +27,8 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Zone created"));
 
   var _actions = {
     "Zone.create" : {

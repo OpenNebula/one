@@ -49,7 +49,7 @@ define(function(require) {
   }
 
   var _notifyCustom = function(title, msg, sticky) {
-    msg = (title ? title : "") + msg;
+    msg = (title ? title + "</br>" : "") + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky});
   }
 

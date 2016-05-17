@@ -28,7 +28,8 @@ define(function(require) {
   var RESOURCE = "Vdc";
   var XML_ROOT = "VDC";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VDC created"));
 
   var _actions = {
     "Vdc.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),

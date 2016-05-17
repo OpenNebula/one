@@ -29,7 +29,8 @@ define(function(require) {
   var RESOURCE = "Group";
   var XML_ROOT = "GROUP";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Group created"));
 
   var _actions = {
     "Group.create" : _commonActions.create(CREATE_DIALOG_ID),

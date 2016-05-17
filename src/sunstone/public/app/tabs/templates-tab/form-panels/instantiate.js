@@ -129,17 +129,10 @@ define(function(require) {
       action = "instantiate_persistent";
       n_times_int = 1;
     }else{
-      action = "instantiate_quiet";
+      action = "instantiate";
     }
 
     $.each(this.selected_nodes, function(index, template_id) {
-      var extra_msg = "";
-      if (n_times_int > 1) {
-        extra_msg = n_times_int + " times";
-      }
-
-      Notifier.notifySubmit("Template.instantiate", template_id, extra_msg);
-
       var extra_info = {
         'hold': hold
       };
@@ -163,7 +156,7 @@ define(function(require) {
       for (var i = 0; i < n_times_int; i++) {
         extra_info['vm_name'] = vm_name.replace(/%i/gi, i); // replace wildcard
 
-        Sunstone.runAction("Template."+action, template_id, extra_info);
+        Sunstone.runAction("Template."+action, [template_id], extra_info);
       }
     });
 

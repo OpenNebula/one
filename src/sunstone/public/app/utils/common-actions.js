@@ -23,11 +23,12 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function CommonActions(openNebulaResource, resourceStr, tabId, xmlRoot) {
+  function CommonActions(openNebulaResource, resourceStr, tabId, xmlRoot, createdStr) {
     this.openNebulaResource = openNebulaResource;
     this.tabId = tabId;
     this.resourceStr = resourceStr;
     this.xmlRoot = xmlRoot;
+    this.createdStr = createdStr;
   }
 
   CommonActions.prototype.list = _list;
@@ -149,12 +150,14 @@ define(function(require) {
         Sunstone.resetFormPanel(that.tabId, formPanelId);
         Sunstone.hideFormPanel(that.tabId);
         that.refresh();
+
+        Notifier.notifyCustom(that.createdStr, " ID: " + response[that.xmlRoot].ID, false);
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(that.tabId);
         Notifier.onError(request, response);
       },
-      notify: true
+      notify: false
     }
   }
 

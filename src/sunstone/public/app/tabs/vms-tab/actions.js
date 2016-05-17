@@ -36,7 +36,8 @@ define(function(require) {
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
 
-  var _commonActions = new CommonActions(OpenNebulaVM, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaVM, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VM created"));
 
   var _actions = {
     "VM.list":    _commonActions.list(),

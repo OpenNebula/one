@@ -29,7 +29,8 @@ define(function(require) {
   var RESOURCE = "Host"
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Host created"));
 
   var _actions = {
     "Host.create" : _commonActions.create(CREATE_DIALOG_ID),
