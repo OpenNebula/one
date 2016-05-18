@@ -551,7 +551,7 @@ module OpenNebula
             if diff > 0
                 return deploy(true)
             elsif diff < 0
-                return terminate(true)
+                return shutdown(true)
             end
 
             return [true, nil]
@@ -914,7 +914,7 @@ module OpenNebula
         end
 
 
-        # Shuts down all the given roles
+        # Shuts down all the given nodes
         # @param scale_down [true,false] True to set the 'disposed' node flag
         def shutdown_nodes(nodes, scale_down)
 
