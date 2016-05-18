@@ -113,15 +113,11 @@ define(function(require) {
         '</legend>' +
           '<div class="row">'+
             '<div class="large-12 columns">'+
-              '<label>'+
-                '<span class="cardinality_value">'+role_template.cardinality+' </span>'+
-                '<span>'+Locale.tr("VMs")+'</span>'+                
-                '<div class="cardinality_slider_div">'+
-                '</div>'+
-                '<div class="cardinality_no_slider_div">'+
-                  '<span class="">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
-                '</div>'+
-              '</label>'+
+              '<div class="cardinality_slider_div">'+
+              '</div>'+
+              '<div class="cardinality_no_slider_div">'+
+                '<label>'+Locale.tr("The cardinality for this role cannot be changed")+'</label>'+
+              '</div>'+
             '</div>'+
           '</div>'+
       '</fieldset>');
@@ -191,14 +187,15 @@ define(function(require) {
         $( ".cardinality_slider_div", context).html(RangeSlider.html({
             min: min_vms,
             max: max_vms,
-            initial: role_template.cardinality
+            initial: role_template.cardinality,
+            label: Locale.tr("Number of VMs for Role")+" "+role_template.name,
+            name: "cardinality"
           }));
 
         $( ".cardinality_slider_div", context).show();
         $( ".cardinality_no_slider_div", context).hide();
 
-        $( ".cardinality_slider_div", context).on("input", '.uinput-slider', function() {
-          $(".cardinality_value", context).html($(this).val());
+        $( ".cardinality_slider_div", context).on("input", 'input', function() {
           var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
           $(".cost_value", context).html(cost_value.toFixed(2));
         });
@@ -1250,8 +1247,10 @@ define(function(require) {
 
             var role_template = $(this).data("opennebula");
 
+            var cardinality = WizardFields.retrieve( $(".provision_cardinality_selector", $(this)) )["cardinality"];
+
             roles.push($.extend(role_template, {
-              "cardinality": $(".cardinality_value", $(this)).text(),
+              "cardinality": cardinality,
               "user_inputs_values": user_inputs_values
             }));
           })
