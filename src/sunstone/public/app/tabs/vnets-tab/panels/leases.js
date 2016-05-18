@@ -80,22 +80,22 @@ define(function(require) {
         var col1HTML = "";
 
         if (lease.VM == "-1") { //hold
-          col0HTML = '<span type="text" class="alert radius label"></span>';
+          col0HTML = '<i class="alert-color fa fa-square"/>';
 
           if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
-            col1HTML = '<a class="release_lease" href="#"><i class="fa fa-play"/></a>';
+            col1HTML = '<a class="release_lease button small" href="#"><i class="fa fa-play"/></a>';
           }
         } else if (lease.VM != undefined) { //used by a VM
-          col0HTML = '<span type="text" class="radius label "></span>';
+          col0HTML = '<i class="primary-color fa fa-square"/>';
           col1HTML = Locale.tr("VM:") + lease.VM;
         } else if (lease.VNET != undefined) { //used by a VNET
-          col0HTML = '<span type="text" class="radius label "></span>';
+          col0HTML = '<i class="warning-color fa fa-square"/>';
           col1HTML = Locale.tr("NET:") + lease.VNET;
         } else if (lease.VROUTER != undefined) { //used by a VR
-          col0HTML = '<span type="text" class="radius label "></span>';
+          col0HTML = '<i class="success-color fa fa-square"/>';
           col1HTML = Locale.tr("VR:") + lease.VROUTER;
         } else {
-          col0HTML = '<span type="text" class="radius label "></span>';
+          col0HTML = '<i class="primary-color fa fa-square"/>';
           col1HTML = '--';
         }
 

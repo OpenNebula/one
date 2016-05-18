@@ -134,3 +134,19 @@ meter {
   color: #f2f2f2;
   padding: 20px;
 }
+
+.primary-color {
+  color: $primary-color;
+}
+.secondary-color {
+  color: $secondary-color;
+}
+.success-color {
+  color: $success-color;
+}
+.warning-color {
+  color: $warning-color;
+}
+.alert-color {
+  color: $alert-color;
+}
