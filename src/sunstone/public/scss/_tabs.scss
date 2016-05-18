@@ -17,6 +17,7 @@
       }
     }
     &:not(.is-active) {
+      border-bottom: rem-calc(2px) solid transparent;
       a {
         color: $dark-gray;
       }

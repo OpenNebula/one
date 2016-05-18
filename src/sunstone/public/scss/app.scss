@@ -37,6 +37,7 @@
 @import './tree';
 @import './helper-classes';
 @import './tooltips';
+@import './visjs';
 
 //@font-face {
 //  font-family: 'Open Sans';
@@ -128,3 +129,8 @@ meter {
   font-weight: $global-weight-normal;
 }
 
+.log-tab {
+  background: #6f6f6f;
+  color: #f2f2f2;
+  padding: 20px;
+}
