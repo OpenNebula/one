@@ -55,22 +55,41 @@ SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
 DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
 
-SIZE=`file_size $SRC_PATH`
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
 
-if [ "$SIZE" = "0" ]; then
-    log_error "Cannot determine size for $SRC_PATH"
-    exit -1
+DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/TM_MAD)
+
+SIZE="${XPATH_ELEMENTS[j++]}"
+ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+TM_MAD="${XPATH_ELEMENTS[j++]}"
+
+SIZE=$(( $SIZE * 1024 * 1024 ))
+FILE_SIZE=`file_size $SRC_PATH`
+
+if [ $FILE_SIZE -gt $SIZE ]; then
+    SIZE="$FILE_SIZE"
 fi
-
-DISK_ID=$(echo $DST_PATH | $AWK -F. '{print $NF}')
-
-LV_NAME="lv-one-$VM_ID-$DISK_ID"
-VG_NAME="vg-one-$DS_SYS_ID"
-DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 #-------------------------------------------------------------------------------
 # Create the snapshot and link it
 #-------------------------------------------------------------------------------
+
+LV_NAME="lv-one-$VM_ID-$DISK_ID"
+VG_NAME="vg-one-$DS_SYS_ID"
+DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 CLONE_CMD=$(cat <<EOF
     set -e
