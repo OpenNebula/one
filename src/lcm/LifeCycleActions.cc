@@ -275,7 +275,10 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_resched(false);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -871,7 +874,10 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     vm->set_resched(false);
 
-    vm->delete_snapshots();
+    if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+    {
+        vm->delete_snapshots();
+    }
 
     vm->reset_info();
 

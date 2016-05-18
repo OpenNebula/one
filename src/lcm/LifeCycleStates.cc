@@ -48,7 +48,10 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -84,7 +87,10 @@ void  LifeCycleManager::save_success_action(int vid)
         //                SUSPENDED STATE
         //----------------------------------------------------
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -114,7 +120,10 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG_STOP);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -287,7 +296,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->set_state(VirtualMachine::RUNNING);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vmpool->update(vm);
     }
@@ -483,7 +495,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -507,7 +522,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //                POWEROFF STATE
         //----------------------------------------------------
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -535,7 +553,10 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -693,7 +714,10 @@ void LifeCycleManager::prolog_success_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE: //recover success
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE: //recover success
-            vm->delete_snapshots();
+            if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+            {
+                vm->delete_snapshots();
+            }
 
             vm->reset_info();
 
@@ -1012,7 +1036,10 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_resched(false);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 
@@ -1097,7 +1124,10 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         time_t the_time = time(0);
 
-        vm->delete_snapshots();
+        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+        {
+            vm->delete_snapshots();
+        }
 
         vm->reset_info();
 

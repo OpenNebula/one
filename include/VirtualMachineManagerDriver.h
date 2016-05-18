@@ -95,6 +95,14 @@ public:
         return imported_actions.is_set(action);
     }
 
+    /**
+     *  @return true if system snapshots are preserved
+     */
+    bool is_keep_snapshots() const
+    {
+        return keep_snapshots;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -144,6 +152,12 @@ private:
      *  as defined in History.h, 1=supported and 0=not supported
      */
     ActionSet<History::VMAction> imported_actions;
+
+    /**
+     * Set to true if the hypervisor can keep system snapshots across
+     * create/delete cycles and live migrations.
+     */
+    bool keep_snapshots;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
