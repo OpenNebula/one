@@ -127,6 +127,7 @@ define(function(require) {
       type: "custom",
       call: function() {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
        dialog.setLive(false);
        dialog.show();
      }
@@ -135,6 +136,7 @@ define(function(require) {
       type: "custom",
       call: function() {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
        dialog.setLive(true);
        dialog.show();
      }
