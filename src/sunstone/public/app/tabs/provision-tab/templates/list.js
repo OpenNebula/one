@@ -80,6 +80,12 @@ define(function(require) {
         timeout: true,
         success: function (request, item_list){
           datatable.fnClearTable(true);
+
+          item_list = item_list.filter(function(tmpl){
+            return (tmpl.VMTEMPLATE.TEMPLATE.VROUTER == undefined ||
+                    tmpl.VMTEMPLATE.TEMPLATE.VROUTER.toUpperCase() != "YES");
+          });
+
           if (item_list.length == 0) {
             datatable.html('<div class="text-center">'+
               '<span class="fa-stack fa-5x">'+
