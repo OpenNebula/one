@@ -82,15 +82,16 @@ define(function(require) {
     var that = this;
     var strippedTemplate = {};
     var unshownValues = {};
-    $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (!key.match(/^SCHED_*/)) {
-        strippedTemplate[key] = value;
-      } else {
-        unshownValues[key] = value;
-      }
-    })
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), unshownValues);
+    $.each(that.element.USER_TEMPLATE, function(key, value) {
+      if (key.match(/^SCHED_*/) || key == "USER_INPUTS") {
+        unshownValues[key] = value;
+      } else {
+        strippedTemplate[key] = value;
+      }
+    });
+
+    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"));
 
     var monitoring = $.extend({}, this.element.MONITORING);
     delete monitoring.CPU;
