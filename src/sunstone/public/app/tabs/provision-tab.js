@@ -38,6 +38,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
+  var LabelsUtils = require('utils/labels/utils');
 
   var ProvisionVmsList = require('./provision-tab/vms/list');
   var ProvisionTemplatesList = require('./provision-tab/templates/list');
@@ -51,6 +52,7 @@ define(function(require) {
   var TemplateDashboardVdcVms = require('hbs!./provision-tab/dashboard/vdc-vms');
 
   var TAB_ID = require('./provision-tab/tabId');
+  var FLOW_TEMPLATE_LABELS_COLUMN = 2;
 
   var povision_actions = {
     "Provision.Flow.instantiate" : {
@@ -626,6 +628,16 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
+
+            LabelsUtils.clearLabelsFilter(datatable, FLOW_TEMPLATE_LABELS_COLUMN);
+            var context = $('.labels-dropdown', datatable.closest('#provisionFlowInstantiateTemplatesRow'));
+            LabelsUtils.insertLabelsMenu({
+              'context': context,
+              'dataTable': datatable,
+              'labelsColumn': FLOW_TEMPLATE_LABELS_COLUMN,
+              'labelsPath': 'DOCUMENT.TEMPLATE.LABELS',
+              'placeholder': Locale.tr("No labels defined")
+            });
           }
         },
         error: Notifier.onError
@@ -1057,7 +1069,8 @@ define(function(require) {
           ],
           "aoColumns": [
               { "mDataProp": "DOCUMENT.ID" },
-              { "mDataProp": "DOCUMENT.NAME" }
+              { "mDataProp": "DOCUMENT.NAME" },
+              { "mDataProp": "DOCUMENT.TEMPLATE.LABELS", "sDefaultContent" : "-"  }
           ],
           "fnPreDrawCallback": function (oSettings) {
             // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -1274,7 +1287,7 @@ define(function(require) {
           show_provision_create_flow();
         });
 
-        Foundation.reflow($('#provision_create_flow'), 'accordion');
+        Foundation.reflow($('#provision_create_flow'));
       }
     });
   }
