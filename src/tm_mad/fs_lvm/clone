@@ -76,8 +76,7 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
-SIZE=$(( $SIZE * 1024 * 1024 ))
-FILE_SIZE=`file_size $SRC_PATH`
+FILE_SIZE=`fs_size $SRC_PATH`
 
 if [ $FILE_SIZE -gt $SIZE ]; then
     SIZE="$FILE_SIZE"
@@ -95,8 +94,8 @@ CLONE_CMD=$(cat <<EOF
     set -e
     mkdir -p $DST_DIR
 
-    $SUDO $LVCREATE -L${SIZE}B -n $LV_NAME $VG_NAME
-    $DD if="$SRC_PATH" of="$DEV" bs=64k
+    $SUDO $LVCREATE -L${SIZE}M -n $LV_NAME $VG_NAME
+    $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
 EOF
