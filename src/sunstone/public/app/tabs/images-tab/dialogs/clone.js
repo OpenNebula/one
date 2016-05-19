@@ -78,11 +78,6 @@ define(function(require) {
     // TODO: Show DS with the same ds mad only
     that.datastoreTable.initialize();
 
-    $('#image_clone_advanced_toggle', dialog).click(function() {
-      $('#image_clone_advanced', dialog).toggle();
-      return false;
-    });
-
     $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
       var name = $('input[name="image_clone_name"]', this).val();
       var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
@@ -130,7 +125,6 @@ define(function(require) {
       $('input[name="image_clone_name"]', dialog).val('Copy of ' + OpenNebulaImage.getName(sel_elems[0]));
     };
 
-    $('#image_clone_advanced', dialog).hide();
     this.datastoreTable.resetResourceTableSelect();
 
     $("input[name='image_clone_name']", dialog).focus();
