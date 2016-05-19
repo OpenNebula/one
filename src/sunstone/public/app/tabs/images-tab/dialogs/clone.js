@@ -87,9 +87,6 @@ define(function(require) {
       var name = $('input[name="image_clone_name"]', this).val();
       var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
 
-      if (!name || !sel_elems.length)
-        Notifier.notifyError('A name or prefix is needed!');
-
       var extra_info = {};
 
       var targeDS = that.datastoreTable.retrieveResourceTableSelect();

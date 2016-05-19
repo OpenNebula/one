@@ -64,18 +64,24 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {  
+    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {
       e.preventDefault();
       return false;
     });
-    
-    $('#' + DIALOG_ID + 'Form', context).on("click", "button ", function() {
+
+    $('#' + DIALOG_ID + 'Form', context).on("click", "button", function() {
+      if(!$('#' + DIALOG_ID + 'Form', context)[0].checkValidity()){
+        if ($(this).val() == "Template.clone_recursive"){
+          $('#' + DIALOG_ID + 'Form button[type="submit"]', context).click();
+          return true;
+        } else {
+          return true;
+        }
+      }
+
       var extra_info;
       var name = $('#' + DIALOG_ID + 'Form input[name="name"]').val();
       var sel_elems = Sunstone.getDataTable(TEMPLATES_TAB_ID).elements();
-
-      if (!name || !sel_elems.length)
-        Notifier.notifyError('A name or prefix is needed!');
 
       if (sel_elems.length > 1) {
         for (var i = 0; i < sel_elems.length; i++) {
@@ -94,6 +100,7 @@ define(function(require) {
       setTimeout(function() {
         Sunstone.runAction('Template.refresh');
       }, 1500);
+
       return false;
     });
 
