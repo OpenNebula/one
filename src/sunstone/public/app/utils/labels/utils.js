@@ -148,7 +148,7 @@ define(function(require) {
 
       var labelsCheckbox;
       $.each(labelsIndexed, function(labelName, numberOfItems) {
-        labelsCheckbox = $('.labelsCheckbox', 
+        labelsCheckbox = $('.labelsCheckbox',
           $('[one-label-full-name="' + labelName + '"]', labelsDropdown).closest('li'));
         if (labelsCheckbox.length > 0) {
           if (numberOfItems == selectedItems.length) {
@@ -165,7 +165,7 @@ define(function(require) {
 
       $('.newLabelInput', labelsDropdown).focus();
     }
-    
+
     recountLabels();
     $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
     $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function(){
@@ -175,18 +175,20 @@ define(function(require) {
     /*
       Check/Uncheck label & Update Templates
      */
-    $('#' + tabName + 'LabelsDropdown').off('click', '.labelsCheckbox');
-    $('#' + tabName + 'LabelsDropdown').on('click', '.labelsCheckbox', function() {
+    $('#' + tabName + 'LabelsDropdown').off('click', 'li:has(.labelsCheckbox)');
+    $('#' + tabName + 'LabelsDropdown').on('click', 'li:has(.labelsCheckbox)', function() {
       var action;
-      if ($(this).hasClass('fa-square-o')) {
+      var that = $(".labelsCheckbox", this);
+
+      if ($(that).hasClass('fa-square-o')) {
         action = 'add';
-        $(this).removeClass('fa-square-o').addClass('fa-check-square-o');
+        $(that).removeClass('fa-square-o').addClass('fa-check-square-o');
       } else {
         action = 'remove';
-        $(this).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
+        $(that).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
       }
 
-      var labelName = $('.one-label', $(this).parent('li')).attr('one-label-full-name');
+      var labelName = $('.one-label', $(that).parent('li')).attr('one-label-full-name');
       var labelsArray, labelIndex;
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
@@ -215,9 +217,9 @@ define(function(require) {
     $('#' + tabName + 'LabelsDropdown').on('keypress', '.newLabelInput', function(e) {
       var ev = e || window.event;
       var key = ev.keyCode;
+      var labelName = $(this).val();
 
-      if (key == 13 && !ev.altKey) {
-        var labelName = $(this).val();
+      if (key == 13 && !ev.altKey && labelName != '') {
         var labelsArray, labelIndex;
         var selectedItems = tabTable.elements();
         $.each(selectedItems, function(index, resourceId) {
@@ -263,7 +265,7 @@ define(function(require) {
               Sunstone.insertPanels(tabName, response);
             }
 
-            
+
             _insertLabelsMenu({'tabName': tabName});
             _insertLabelsDropdown(tabName);
           },
@@ -312,7 +314,7 @@ define(function(require) {
 
   function _makeSubTree(parentName, folderName, childs) {
     var fullName = parentName + folderName;
-    var htmlStr = 
+    var htmlStr =
       '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
         folderName +
       '</span>';
@@ -367,8 +369,14 @@ define(function(require) {
   function _getLabel(tabName, dataTable, labelsColumn, resourceId) {
     if (Sunstone.rightInfoVisible($('#' + tabName))) {
       var element = Sunstone.getElementRightInfo(tabName);
-      if (element && element.TEMPLATE) {
-        return element.TEMPLATE[LABELS_ATTR]||'';
+      if (element) {
+        var template;
+        if (element.USER_TEMPLATE) {
+          template = element.USER_TEMPLATE;
+        } else {
+          template = element.TEMPLATE;
+        }
+        return template[LABELS_ATTR]||'';
       } else {
         return '';
       }
