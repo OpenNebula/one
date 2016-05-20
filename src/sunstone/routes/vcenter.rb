@@ -27,9 +27,15 @@ require 'vcenter_driver'
 
 helpers do
     def vcenter_client
-        vuser = request.env['HTTP_X_VCENTER_USER']
-        vpass = request.env['HTTP_X_VCENTER_PASSWORD']
-        vhost = request.env['HTTP_X_VCENTER_HOST']
+        hpref        = "HTTP_"
+        head_user    = "X_VCENTER_USER"
+        head_pwd     = "X_VCENTER_PASSWORD"
+        head_vhost   = "X_VCENTER_HOST"
+        reqenv       = request.env
+
+        vuser = reqenv[head_user] ? reqenv[head_user] : reqenv[hpref+head_user]
+        vpass = reqenv[head_pwd] ? reqenv[head_pwd] : reqenv[hpref+head_pwd]
+        vhost = reqenv[head_vhost] ? reqenv[head_vhost] : reqenv[hpref+head_vhost]
 
         if vuser.nil? || vpass.nil? || vhost.nil?
             msg = "You have to provide the vCenter username, password and hostname"
