@@ -37,13 +37,8 @@ define(function(require) {
         beforeSend : function(req) {
           var token = username + ':' + password;
           var authString = 'Basic ';
-          if (typeof(btoa) === 'function')
-              authString += btoa(unescape(encodeURIComponent(token)))
-          else {
-            token = CryptoJS.enc.Utf8.parse(token);
-            authString += CryptoJS.enc.Base64.stringify(token)
-          }
 
+          authString += btoa(unescape(encodeURIComponent(token)));
           req.setRequestHeader("Authorization", authString);
         },
         success: function(response) {
