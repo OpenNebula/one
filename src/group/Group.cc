@@ -89,9 +89,7 @@ int Group::drop(SqlDB * db)
 
 int Group::insert(SqlDB *db, string& error_str)
 {
-    int rc;
-
-    rc = insert_replace(db, false, error_str);
+    int rc = insert_replace(db, false, error_str);
 
     if (rc == 0)
     {
@@ -493,3 +491,50 @@ void Group::del_admin_rules(int user_id)
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Group::sunstone_views(const string& user_default, const string& user_views,
+            const string& admin_default, const string& admin_views)
+{
+
+	VectorAttribute * sunstone = obj_template->get("SUNSTONE");
+
+	if ( sunstone == 0 )
+	{
+		map<string,string>  vvalue;
+
+		vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
+		vvalue.insert(make_pair("VIEWS", user_views));
+		vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
+		vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
+
+		sunstone = new VectorAttribute("SUNSTONE", vvalue);
+
+		obj_template->set(sunstone);
+	}
+ 	else
+	{
+		if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
+		{
+			sunstone->replace("DEFAULT_VIEW", user_default);
+		}
+
+		if ( sunstone->vector_value("VIEWS").empty() )
+		{
+			sunstone->replace("VIEWS", user_views);
+		}
+
+		if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
+		{
+			sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
+		}
+
+		if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
+		{
+			sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
+		}
+	}
+}
+

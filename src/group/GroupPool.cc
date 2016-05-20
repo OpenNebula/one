@@ -68,6 +68,8 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         group = new Group(USERS_ID, USERS_NAME);
 
+        group->sunstone_views("cloud","cloud","group_admin","group_admin,cloud");
+
         rc = PoolSQL::allocate(group, error_str);
 
         if(rc < 0)
