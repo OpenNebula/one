@@ -38,10 +38,11 @@ helpers do
             error 404, error.to_json
         end
 
-        return VCenterDriver::VIClient.new_connection(
+        return VCenterDriver::VIClient.new_connection({
             :user     => vuser,
             :password => vpass,
-            :host     => vhost)
+            :host     => vhost},
+            ::OpenNebula::Client.new(nil,$conf[:one_xmlrpc]))
     end
 
 #    def af_format_response(resp)

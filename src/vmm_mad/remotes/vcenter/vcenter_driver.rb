@@ -212,13 +212,13 @@ class VIClient
 
     ########################################################################
     # Initialize a VIConnection based just on the VIM parameters. The
-    # OpenNebula client is also initilialized
+    # OpenNebula client is also initialized
     ########################################################################
-    def self.new_connection(user_opts)
+    def self.new_connection(user_opts, one_client=nil)
 
         conn = allocate
 
-        conn.initialize_one
+        conn.initialize_one(one_client)
 
         conn.initialize_vim(user_opts)
 
@@ -731,9 +731,14 @@ class VIClient
     ############################################################################
     # Initialize an OpenNebula connection with the default ONE_AUTH
     ############################################################################
-    def initialize_one
+    def initialize_one(one_client=nil)
         begin
-            @one   = ::OpenNebula::Client.new()
+            if one_client
+                @one = one_client
+            else
+                @one = ::OpenNebula::Client.new()
+            end
+
             system = ::OpenNebula::System.new(@one)
 
             config = system.get_configuration()
