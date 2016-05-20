@@ -27,6 +27,9 @@ class SunstoneServer < CloudServer
     # FLAG that will filter the elements retrieved from the Pools
     POOL_FILTER = Pool::INFO_ALL
 
+    # Secs to sleep between checks to see if image upload to repo is finished
+    IMAGE_POLL_SLEEP_TIME = 5
+
     def initialize(client, config, logger)
         super(config, logger)
         @client = client
@@ -164,12 +167,12 @@ class SunstoneServer < CloudServer
             return [500, rc.to_json]
         end
 
-        rc = image.info
-
-        if OpenNebula.is_error?(rc)
-            return [500, rc.to_json]
+        image.info
+        #wait until image is ready to return
+        while (image.state_str == 'LOCKED') && (image['RUNNING_VMS'] == '0') do
+            sleep IMAGE_POLL_SLEEP_TIME
+            image.info
         end
-
         return [201, image.to_json]
     end
 

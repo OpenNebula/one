@@ -401,8 +401,8 @@ define(function(require) {
             file: file.fileName,
             tempfile: file.uniqueIdentifier
           },
-          success: function(response) {
-            Notifier.notifyCustom(Locale.tr("Image uploaded correctly"), " ID: " + response.IMAGE.ID, false);
+          success: function() {
+            Notifier.notifyMessage("Image uploaded correctly");
             $('div[id="' + file.fileName + 'progressBar"]').remove();
             Sunstone.runAction("Image.refresh");
           },
