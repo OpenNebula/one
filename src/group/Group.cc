@@ -330,13 +330,12 @@ int Group::add_admin(int user_id, string& error_msg)
 
 void Group::add_admin_rules(int user_id)
 {
-    int     rc;
     string  error_msg;
 
     AclManager* aclm = Nebula::instance().get_aclm();
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
-    rc = aclm->add_rule(
+    if ( aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -351,15 +350,13 @@ void Group::add_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
-
-    if (rc < 0)
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
-    rc = aclm->add_rule(
+    if ( aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -378,9 +375,24 @@ void Group::add_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
+            error_msg) < 0 )
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 
-    if (rc < 0)
+    // #<uid> VROUTER/* CREATE *
+    if ( aclm->add_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            AclRule::ALL_ID |
+            PoolObjectSQL::VROUTER,
+
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
@@ -414,13 +426,12 @@ int Group::del_admin(int user_id, string& error_msg)
 
 void Group::del_admin_rules(int user_id)
 {
-    int     rc;
     string  error_msg;
 
-    AclManager* aclm = Nebula::instance().get_aclm();
+    AclManager *aclm = Nebula::instance().get_aclm();
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
-    rc = aclm->del_rule(
+    if ( aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -435,15 +446,13 @@ void Group::del_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
-
-    if (rc < 0)
+            error_msg) < 0)
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
-    rc = aclm->del_rule(
+    if ( aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -462,9 +471,24 @@ void Group::del_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
+            error_msg) < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 
-    if (rc < 0)
+    // #<uid> VROUTER/* CREATE *
+    if ( aclm->del_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            AclRule::ALL_ID |
+            PoolObjectSQL::VROUTER,
+
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
