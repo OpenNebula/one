@@ -854,7 +854,7 @@ module Migrator
       @db.fetch("SELECT * FROM vm_pool WHERE state != 6") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-        port = doc.root.at_xpath('TEMPLATE/GRAPHICS[TYPE="vnc"]/PORT').text.to_i rescue nil
+        port = doc.root.at_xpath('TEMPLATE/GRAPHICS[translate(TYPE,"vnc","VNC")="VNC"]/PORT').text.to_i rescue nil
         cluster_id = doc.root.at_xpath('HISTORY_RECORDS/HISTORY[last()]/CID').text.to_i rescue nil
 
         # skip if no port is defined or if it's not assigned to a cluster (not deployed yet!)
@@ -870,20 +870,28 @@ module Migrator
     # Create Table
     @db.run "CREATE TABLE cluster_vnc_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
 
-    size = 65536
+    vnc_pool_size = 65536
 
-    cluster_vnc.keys.sort.each do |cluster_id|
-      map = ""
-      size.times.each do |i|
-          map << (cluster_vnc[cluster_id].include?(size - 1 - i) ? "1" : "0")
+    @db.transaction do
+      @db.fetch("SELECT * FROM cluster_pool") do |row|
+        cluster_id = row[:oid]
+
+        if cluster_vnc[cluster_id]
+          map = ""
+          vnc_pool_size.times.each do |i|
+            map << (cluster_vnc[cluster_id].include?(vnc_pool_size - 1 - i) ? "1" : "0")
+          end
+
+          map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
+        else
+          map_encoded = "eJztwYEAAAAAgCCl/ekWqQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABqFo8C0Q=="
+        end
+
+        @db[:cluster_vnc_bitmap].insert(
+          :id      => cluster_id,
+          :map     => map_encoded
+        )
       end
-
-      map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
-
-      @db[:cluster_vnc_bitmap].insert(
-        :id      => cluster_id,
-        :map     => map_encoded
-      )
     end
 
     log_time()
