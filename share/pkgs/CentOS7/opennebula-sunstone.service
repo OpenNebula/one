@@ -12,7 +12,7 @@ Group=oneadmin
 User=oneadmin
 
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
-ExecStartPre=/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/opennebula
+ExecStartPre=/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/opennebula
 PIDFile=/var/run/one/sunstone.pid
 
 [Install]
