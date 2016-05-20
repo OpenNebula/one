@@ -167,12 +167,21 @@ class SunstoneServer < CloudServer
             return [500, rc.to_json]
         end
 
-        image.info
+        rc = image.info
         #wait until image is ready to return
-        while (image.state_str == 'LOCKED') && (image['RUNNING_VMS'] == '0') do
+        while ( !OpenNebula.is_error?(rc) &&
+                (image.state_str == 'LOCKED' ||
+                image.state_str == 'LOCKED_USED' ||
+                image.state_str == 'LOCKED_USED_PERS') ) do
+
             sleep IMAGE_POLL_SLEEP_TIME
-            image.info
+            rc = image.info
         end
+
+        if OpenNebula.is_error?(rc)
+            return [404, rc.to_json]
+        end
+
         return [201, image.to_json]
     end
 
