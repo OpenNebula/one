@@ -178,7 +178,7 @@ class AzureDriver
         az_info = get_deployment_info(host, xml_text)
 
         if !az_value(az_info, 'IMAGE')
-            STDERR.puts("Cannot find IMAGE in deployment file")
+            raise "Cannot find IMAGE in deployment file"
         end
 
         csn = az_value(az_info, 'CLOUD_SERVICE')
@@ -189,19 +189,16 @@ class AzureDriver
         create_options = create_options(id,csn,az_info)
         instance       = nil
 
-        begin
-          in_silence do
-            instance = @azure_vms.create_virtual_machine(create_params,
-                                                         create_options)
-          end
-        rescue => e
-            STDERR.puts(e.message)
+        in_silence do
+          instance = @azure_vms.create_virtual_machine(create_params,
+                                                       create_options)
         end
+
 
         if instance.class == Azure::VirtualMachineManagement::VirtualMachine
             puts(instance.vm_name)
         else
-            STDERR.puts(instance)
+            raise "Deployment failure " + instance
         end
       else
         restore(deploy_id)
@@ -270,38 +267,37 @@ class AzureDriver
         usedcpu    = 0
         usedmemory = 0
 
-        begin
-            @azure_vms.list_virtual_machines.each do |vm|
-                poll_data=parse_poll(vm)
 
-                vm_template_to_one = vm_to_one(vm)
-                vm_template_to_one = Base64.encode64(vm_template_to_one)
-                vm_template_to_one = vm_template_to_one.gsub("\n","")
+        @azure_vms.list_virtual_machines.each do |vm|
+          begin
+            poll_data=parse_poll(vm)
 
-                if vm.vm_name.start_with?('one-') and
-                   vm.vm_name.match(/([^_]+)-(.+)/) and
-                   vm.vm_name.match(/([^_]+)-(.+)/).size > 1
+            vm_template_to_one = vm_to_one(vm)
+            vm_template_to_one = Base64.encode64(vm_template_to_one)
+            vm_template_to_one = vm_template_to_one.gsub("\n","")
 
-                    one_id = vm.vm_name.match(/([^_]+)-(.+)/)[1].split("-")[1]
-                end
+            if vm.vm_name.start_with?('one-') and
+               vm.vm_name.match(/([^_]+)-(.+)/) and
+               vm.vm_name.match(/([^_]+)-(.+)/).size > 1
 
-                vms_info << "VM=[\n"
-                vms_info << "  ID=#{one_id || -1},\n"
-                vms_info << "  DEPLOY_ID=#{vm.vm_name}-#{vm.cloud_service_name},\n"
-                vms_info << "  VM_NAME=#{vm.vm_name},\n"
-                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
-                vms_info << "  POLL=\"#{poll_data}\" ]\n"
-
-                if one_id
-                    cpu, mem = instance_type_capacity(vm.role_size)
-                    usedcpu    += cpu
-                    usedmemory += mem
-                end
-
+                one_id = vm.vm_name.match(/([^_]+)-(.+)/)[1].split("-")[1]
             end
-        rescue => e
-            STDERR.puts(e.message)
-            exit(-1)
+
+            vms_info << "VM=[\n"
+            vms_info << "  ID=#{one_id || -1},\n"
+            vms_info << "  DEPLOY_ID=#{vm.vm_name}-#{vm.cloud_service_name},\n"
+            vms_info << "  VM_NAME=#{vm.vm_name},\n"
+            vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
+            vms_info << "  POLL=\"#{poll_data}\" ]\n"
+
+            if one_id
+                cpu, mem = instance_type_capacity(vm.role_size)
+                usedcpu    += cpu
+                usedmemory += mem
+            end
+          rescue 
+            next
+          end
         end
 
         host_info << "USEDMEMORY=#{usedmemory.round}\n"
@@ -423,7 +419,7 @@ private
 
         info
       rescue
-        # Unkown state if exception occurs retrieving information from
+        # Unknown state if exception occurs retrieving information from
         # an instance
         "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
       end
@@ -451,7 +447,6 @@ private
             :password => az_value(az_info, 'VM_PASSWORD'),
             :location => az_value(az_info, 'LOCATION')
         }.delete_if { |k, v| v.nil? }
-
     end
 
     def create_options(id,csn,az_info)
@@ -482,13 +477,8 @@ private
         # Imported VMs do not start with one-
         deploy_id = name if !name.start_with? "one-"
 
-        begin
-            in_silence do
-                @azure_vms.send(AZ[az_action][:cmd], deploy_id, csn)
-            end
-        rescue => e
-            STDERR.puts e.message
-            exit(-1)
+        in_silence do
+            @azure_vms.send(AZ[az_action][:cmd], deploy_id, csn)
         end
     end
 
@@ -561,19 +551,14 @@ private
     # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(deploy_id)
-        begin
-            vm_name = deploy_id.match(/([^_]+)-(.+)/)[1]
-            csn     = deploy_id.match(/([^_]+)-(.+)/)[-1]
+        vm_name = deploy_id.match(/([^_]+)-(.+)/)[1]
+        csn     = deploy_id.match(/([^_]+)-(.+)/)[-1]
 
-            instance = @azure_vms.get_virtual_machine(vm_name,csn)
-            if instance
-                return instance
-            else
-                raise "Instance #{deploy_id} does not exist"
-            end
-        rescue => e
-            STDERR.puts e.message
-            exit(-1)
+        instance = @azure_vms.get_virtual_machine(vm_name,csn)
+        if instance
+            return instance
+        else
+            raise "Instance #{deploy_id} does not exist"
         end
     end
 

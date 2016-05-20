@@ -41,5 +41,10 @@ vm.info
 
 lcm_state     = vm.lcm_state_str
 
-az_drv.shutdown(deploy_id, lcm_state)
+begin
+    az_drv.shutdown(deploy_id, lcm_state)
+rescue => e
+    STDERR.puts "Error shutting down Azure VM [#{deploy_id}]: " + e.message
+    exit -1
+end
 

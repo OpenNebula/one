@@ -34,5 +34,9 @@ host      = ARGV[1]
 
 az_drv = AzureDriver.new(host)
 
-az_drv.reboot(deploy_id)
-
+begin
+    az_drv.reboot(deploy_id)
+rescue => e
+    STDERR.puts "Error rebooting Azure VM [#{deploy_id}]: " + e.message
+    exit -1
+end
