@@ -1,3 +1,7 @@
+delaycompress
+dateext
+dateformat -%Y%m%d-%s
+
 compress
 weekly
 rotate 52
