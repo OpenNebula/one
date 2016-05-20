@@ -114,7 +114,16 @@ define(function(require){
         diskContext.data('disk_snapshot_total_size', disk_snapshot_total_size);
         diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
 
-        var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
+        var volatile = (disk.IMAGE == undefined && disk.IMAGE_ID == undefined);
+
+        var label;
+
+        if (volatile){
+          label = Locale.tr("Volatile Disk");
+        } else {
+          label = disk.IMAGE ? disk.IMAGE : Locale.tr("Image was not found");
+        }
+
         $("label", diskContext).text(Locale.tr("DISK") + ' ' + disk_id + ': ' + label);
 
         var persistent =
@@ -140,19 +149,23 @@ define(function(require){
 
           $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
               Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
-        } else {
+        } else if (disk.IMAGE || disk.IMAGE_ID) {
           var color_class = "error-color";
 
           $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
               Locale.tr("Image was not found") + '"></i>')
-        }
+        } // else is volatile, does not have state
 
         var attr;
 
-        if (disk.SIZE) {
-          if (disabled){
+        if (disabled){
+          if (disk.SIZE){
             attr = UserInputs.parse("SIZE","O|fixed|"+label+"||"+disk.SIZE);
           } else {
+            attr = UserInputs.parse("SIZE","O|fixed|"+label+"||-");
+          }
+        } else {
+          if (disk.SIZE != undefined){
             // Range from original size to size + 500GB
             var min = parseInt(disk.SIZE);
             var max = min + 512000;
@@ -160,9 +173,11 @@ define(function(require){
             attr = UserInputs.parse(
               "SIZE",
               "O|range|"+label+"|"+min+".."+max+"|"+min);
+          } else {
+            attr = UserInputs.parse(
+              "SIZE",
+              "M|number|"+label+"||");
           }
-        } else {
-          attr = UserInputs.parse("SIZE","O|fixed|"+label+"||-");
         }
 
         UserInputs.insertAttributeInputMB(attr, $(".diskSlider", diskContext));
