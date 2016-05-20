@@ -28,7 +28,8 @@ define(function(require) {
   var XML_ROOT = "ACL"
   var RESOURCE = "Acl"
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("ACL Rule created"));
 
   var _actions = {
     "Acl.list" : _commonActions.list(),

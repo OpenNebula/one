@@ -30,7 +30,7 @@
       <div data-alert class="label alert-box-error" hidden></div>
     </div>
   </div>
-  <fieldset>
+  <fieldset id="provisionFlowInstantiateTemplatesRow">
     <legend>{{tr "Template"}}</legend>
     <div class="row">
       <div class="large-12 columns">
@@ -50,8 +50,12 @@
                     <div class="medium-5 columns">
                       <input type="search" class="provision-search-input" placeholder="Search" id="provision_create_flow_template_search"/>
                     </div>
-                    <div class="medium-3 columns"></div>
-                    <div class="medium-4 columns"></div>
+                    <div class="medium-4 columns end">
+                      <button type="button" data-toggle="provisionServiceInstantiateLabelsDropdown" class="secondary button dropdown"> <i class="fa fa-tags"/>{{tr "Labels"}}
+                      </button>
+                      <ul id="provisionServiceInstantiateLabelsDropdown" class="dropdown-pane labels-dropdown" data-dropdown>
+                      </ul>
+                    </div>
                   </div>
                   <div class="medium-6 columns"></div>
                 </div>
@@ -61,8 +65,9 @@
                   <table id="provision_flow_templates_table">
                     <thead hidden>
                       <tr>
-                        <th>{{tr "ID"}}</th>
-                        <th>{{tr "Name"}}</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Labels</th>
                       </tr>
                     </thead>
                     <tbody hidden></tbody>

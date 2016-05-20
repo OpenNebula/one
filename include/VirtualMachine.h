@@ -2107,7 +2107,6 @@ private:
     int get_public_clouds(set<string> &clouds) const
     {
         get_public_clouds("PUBLIC_CLOUD", clouds);
-        get_public_clouds("EC2", clouds);
 
         return clouds.size();
     };

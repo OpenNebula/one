@@ -133,6 +133,21 @@ public:
      */
     int updatesg(VirtualMachine * vm, int sgid);
 
+    /**
+     * Get keep_snapshots capability from driver
+     */
+    bool is_keep_snapshots(const string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
+
+        if ( vmd == 0 )
+        {
+            return false;
+        }
+
+        return vmd->is_keep_snapshots();
+    }
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager

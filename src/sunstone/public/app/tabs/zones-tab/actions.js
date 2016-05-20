@@ -27,7 +27,8 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Zone created"));
 
   var _actions = {
     "Zone.create" : {
@@ -36,7 +37,7 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.runAction(RESOURCE+".refresh");
       },
       error: Notifier.onError,
       notify: true

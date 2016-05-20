@@ -29,7 +29,7 @@ define(function(require) {
         '<a href="#'+html_id+'" class="accordion_advanced_toggle">'+
             '<i class="fa fa-fw fa-chevron-down"/>'+
             '<i class="fa fa-fw fa-chevron-up"/>'+
-            title+
+            '&nbsp;'+title+
         '</a>'+
         '<div id="'+html_id+'" class="content" hidden>'+
           options.fn(this) +

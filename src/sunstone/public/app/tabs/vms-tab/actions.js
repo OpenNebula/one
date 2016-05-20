@@ -36,7 +36,8 @@ define(function(require) {
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
 
-  var _commonActions = new CommonActions(OpenNebulaVM, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaVM, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VM created"));
 
   var _actions = {
     "VM.list":    _commonActions.list(),
@@ -105,10 +106,9 @@ define(function(require) {
       type: "custom",
       call: function(id, name) {
         Sunstone.runAction("Template.instantiate", [id], name);
-        Sunstone.runAction("VM.refresh");
       },
       callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.runAction("VM.refresh");
       },
       error: Notifier.onError
     },
@@ -127,6 +127,7 @@ define(function(require) {
       type: "custom",
       call: function() {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
        dialog.setLive(false);
        dialog.show();
      }
@@ -135,6 +136,7 @@ define(function(require) {
       type: "custom",
       call: function() {
        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.reset();
        dialog.setLive(true);
        dialog.show();
      }

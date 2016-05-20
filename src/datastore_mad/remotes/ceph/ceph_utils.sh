@@ -124,16 +124,24 @@ rbd_check_2() {
 #   @return the top parent or volume in no snapshots found
 #--------------------------------------------------------------------------------
 rbd_top_parent() {
-    local pool snap0 volume
+    local pool volume vsnaps
 
     pool=$(echo $1 | cut -f1 -d'/')
     volume=$(echo $1 | cut -f2 -d'/')
 
-    snap0=$($RBD info -p $pool $volume | grep -E "parent: .*$volume(-.+)?@0" | awk '{print $2}')
+    vsnaps=$($RBD ls -p $pool | grep $volume)
+    volume=""
 
-    if [ -n "$snap0" ]; then
-        volume=${snap0%%@*}
-    else
+    for vol in $vsnaps; do
+       $RBD snap ls -p $pool --format json $vol | grep -Eq '"name":"0"'
+
+       if [ $? -eq 0 ]; then
+           volume=$pool/$vol
+           break
+       fi
+    done
+
+    if [ -z "$volume" ]; then
         volume=$1
     fi
 

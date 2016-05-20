@@ -55,23 +55,21 @@
       </div>
       <br>
       {{#advancedSection (tr "Advanced Options") }}
-        <div class="content" id="advanced_reserve">
-          <div class="row">
-            <div class="large-12 columns">
-              <p>{{tr "You can select the addresses from an specific Address Range"}}</p>
-            </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <p>{{tr "You can select the addresses from an specific Address Range"}}</p>
           </div>
-          <div class="row">
-            <div class="large-12 columns">
-              {{{arsTableHTML}}}
-            </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            {{{arsTableHTML}}}
           </div>
-          <br>
-          <div class="row">
-            <div class="large-6 columns">
-              <label for="reserve_addr">{{tr "First address"}}:</label>
-              <input wizard_field="addr" type="text" id="reserve_addr" placeholder="{{tr "IPv4 or MAC"}}"/>
-            </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="reserve_addr">{{tr "First address"}}:</label>
+            <input wizard_field="addr" type="text" id="reserve_addr" placeholder="{{tr "IPv4 or MAC"}}"/>
           </div>
         </div>
       {{/advancedSection}}

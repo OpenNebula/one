@@ -34,7 +34,8 @@ define(function(require) {
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
   var CLUSTERS_DIALOG_ID = require('utils/dialogs/clusters/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Virtual Network created"));
 
   var _actions = {
     "Network.create" : _commonActions.create(CREATE_DIALOG_ID),

@@ -193,6 +193,18 @@ module Migrator
             doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").content = 0
           end
 
+          # Bug #4467
+
+          elem = doc.at_xpath("/VM/USER_TEMPLATE/EC2")
+
+          if (!elem.nil?)
+            elem.name = "PUBLIC_CLOUD"
+
+            if elem.at_xpath("TYPE").nil?
+              elem.add_child(doc.create_element("TYPE")).content = "ec2"
+            end
+          end
+
           row[:body] = doc.root.to_s
         end
 
@@ -322,6 +334,18 @@ module Migrator
           user_inputs.add_child(doc.create_element("CPU")).content = "O|fixed|||#{cpu}"
           user_inputs.add_child(doc.create_element("MEMORY")).content = "O|fixed|||#{memory}"
           user_inputs.add_child(doc.create_element("VCPU")).content = "O|fixed|||#{vcpu}"
+        end
+
+        # Bug #4467
+
+        elem = doc.at_xpath("/VMTEMPLATE/TEMPLATE/EC2")
+
+        if (!elem.nil?)
+          elem.name = "PUBLIC_CLOUD"
+
+          if elem.at_xpath("TYPE").nil?
+            elem.add_child(doc.create_element("TYPE")).content = "ec2"
+          end
         end
 
         @db[:template_pool].insert(

@@ -2,26 +2,38 @@
   .accordion_advanced_toggle {
     //font-size: 1.2rem;
 
+    display: block;
+    padding: 0.5em;
+    color: $dark-gray;
+
     &.active {
-      color: $dark-gray;
       .fa-chevron-down {
         display: none;
       }
     }
 
     &:not(.active){
-      
       .fa-chevron-up {
         display: none;
       }
     }
 
     &:hover {
-      background: #dfdfdf;
+      background: $light-gray;
+      color: $black;
     }
   }
 
   .content {
     margin-top: 0.5rem;
+  }
+}
+
+a.accordion-title {
+  font-size: $global-font-size;
+  color: $body-font-color;
+
+  &:hover {
+    color: $body-font-color;
   }
 }

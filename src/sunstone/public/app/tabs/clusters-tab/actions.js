@@ -28,7 +28,8 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Cluster created"));
 
   var _actions = {
     "Cluster.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
@@ -46,10 +47,6 @@ define(function(require) {
       type: "create",
       call: OpenNebulaResource.create,
       callback: function(request, response){
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-
         for (var host in request.request.data[0].cluster.hosts)
           if (request.request.data[0].cluster.hosts[host])
             Sunstone.runAction("Cluster.addhost",response[XML_ROOT].ID,host);
@@ -59,6 +56,10 @@ define(function(require) {
         for (var datastore in request.request.data[0].cluster.datastores)
           if (request.request.data[0].cluster.datastores[datastore])
             Sunstone.runAction("Cluster.adddatastore",response[XML_ROOT].ID,datastore);
+
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.runAction("Cluster.refresh");
 
         Notifier.notifyCustom(Locale.tr("Cluster created"), " ID: " + response[XML_ROOT].ID, false);
       },

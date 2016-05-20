@@ -235,6 +235,10 @@ define(function(require) {
       }
 
       $.each(vrs, function(j,vr){
+        if(_indexedVRs[vr] == undefined){
+          return true; //continue
+        }
+
         var nodeId = "vr"+vr;
 
         if (!nodeIndex[nodeId]){
@@ -507,6 +511,10 @@ define(function(require) {
   function _tableVR(vrid){
     var vr = _indexedVRs[vrid];
     var vms = [];
+
+    if (vr == undefined){
+      return "";
+    }
 
     if (vr.VMS.ID != undefined){
       vms = vr.VMS.ID;

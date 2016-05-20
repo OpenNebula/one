@@ -69,9 +69,6 @@ define(function(require) {
       var name = $('input[name="name"]', this).val();
       var sel_elems = Sunstone.getDataTable(ONEFLOW_TEMPLATES_TAB_ID).elements();
 
-      if (!name || !sel_elems.length)
-        Notifier.notifyError('A name or prefix is needed!');
-
       if (sel_elems.length > 1) {
         for (var i = 0; i < sel_elems.length; i++) {
           //If we are cloning several images we

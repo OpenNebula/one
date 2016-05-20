@@ -29,7 +29,8 @@ define(function(require) {
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Security Group created"));
 
   var _actions = {
     "SecurityGroup.create" : _commonActions.create(CREATE_DIALOG_ID),

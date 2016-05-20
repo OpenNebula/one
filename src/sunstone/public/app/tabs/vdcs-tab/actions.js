@@ -28,7 +28,8 @@ define(function(require) {
   var RESOURCE = "Vdc";
   var XML_ROOT = "VDC";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VDC created"));
 
   var _actions = {
     "Vdc.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
@@ -47,9 +48,6 @@ define(function(require) {
       type: "create",
       call: OpenNebulaResource.create,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-
         var group_ids = request.request.data[0].group_ids;
         if(group_ids !=undefined){
           $.each(group_ids,function(){
@@ -95,12 +93,13 @@ define(function(require) {
           });
         }
 
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+
         // TODO: this vdc.show may get the information before the add/del
         // actions end, showing "outdated" information
 
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.runAction(RESOURCE+'.refresh');
         Notifier.notifyCustom(Locale.tr("VDC created"), " ID: " + response.VDC.ID, false);
       },
       error: function(request, response){

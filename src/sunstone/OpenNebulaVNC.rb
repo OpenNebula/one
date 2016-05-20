@@ -148,7 +148,10 @@ class OpenNebulaVNC
             proxy_options << " -6"
         end
 
-        cmd ="python #{@proxy_path} #{proxy_options} #{@proxy_port}"
+        system("which python2 >/dev/null 2>&1")
+        python = $?.success? ? "python2" : "python"
+
+        cmd ="#{python} #{@proxy_path} #{proxy_options} #{@proxy_port}"
 
         begin
             @logger.info { "Starting VNC proxy: #{cmd}" }

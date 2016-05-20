@@ -32,7 +32,8 @@ define(function(require) {
   var XML_ROOT = "VMTEMPLATE"
   var RESOURCE = "Template"
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VM Template created"));
 
   var _actions = {
     "Template.list" : _commonActions.list(),
@@ -146,9 +147,11 @@ define(function(require) {
     "Template.instantiate" : {
       type: "multiple",
       call: OpenNebulaResource.instantiate,
-      callback: function(req) {
+      callback: function(request, response) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
+
+        Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -158,12 +161,12 @@ define(function(require) {
         Sunstone.hideFormPanelLoading();
         Notifier.onError(request, response);
       },
-      notify: true
+      notify: false
     },
     "Template.instantiate_quiet" : {
       type: "single",
       call: OpenNebulaResource.instantiate,
-      callback: function(req) {
+      callback: function(request, response) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
       },
@@ -189,9 +192,11 @@ define(function(require) {
     {
       type: "single",
       call: OpenNebulaResource.instantiate_persistent,
-      callback: function(req) {
+      callback: function(request, response) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
+
+        Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
       },
       error: function(request, response){
         // without tab id param to work for both templates and vms tab

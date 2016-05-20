@@ -29,7 +29,8 @@ define(function(require) {
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("Service Template created"));
 
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
@@ -64,6 +65,8 @@ define(function(require) {
       callback: function(request, response){
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("SERVICE");
+
+        Notifier.notifyCustom(Locale.tr("Service created"), " ID: " + response.DOCUMENT.ID, false);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -72,7 +75,7 @@ define(function(require) {
         Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       },
-      notify: true
+      notify: false
     },
 
     "ServiceTemplate.instantiate_dialog" : {

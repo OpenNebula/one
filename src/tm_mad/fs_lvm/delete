@@ -44,7 +44,7 @@ DELETE_CMD=$(cat <<EOF
     set -x
     DEV=\$(readlink $DST_PATH)
 
-    if [ -z "$DEV" ]; then
+    if [ -z "\$DEV" ]; then
         exit 0
     fi
 
@@ -62,4 +62,3 @@ EOF
 
 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" "Error deleting $DST_PATH"
 
-exit 0

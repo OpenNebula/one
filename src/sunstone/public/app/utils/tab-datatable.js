@@ -155,7 +155,6 @@ define(function(require) {
     'tableCheckboxesListener': _tableCheckboxesListener,
     'onlyOneCheckboxListener': _onlyOneCheckboxListener,
     'infoListener': _infoListener,
-    'addElement': _addElement,
     'deleteElement': _deleteElement,
     'updateElement': _updateElement,
     'elements': _elements,
@@ -277,12 +276,6 @@ define(function(require) {
 
       return true;
     });
-  }
-
-  //call back for actions creating a zone element
-  function _addElement(request, element_json) {
-    var element = this.elementArray(element_json);
-    this.dataTable.fnAddData(element);
   }
 
   //deletes an element with id 'elementId' from a dataTable

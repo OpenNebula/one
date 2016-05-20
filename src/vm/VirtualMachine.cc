@@ -3290,6 +3290,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     map<string, string>::const_iterator it;
 
     files = "";
+    bool token;
 
     if ( history == 0 )
     {
@@ -3319,6 +3320,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         }
     }
 
+
     file.open(history->context_file.c_str(),ios::out);
 
     if (file.fail() == true)
@@ -3347,7 +3349,9 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         }
     }
 
-    if (!context->vector_value("ONEGATE_ENDPOINT").empty())
+    context->vector_value("TOKEN", token);
+
+    if (token)
     {
         ofstream      token_file;
         ostringstream oss;
@@ -3357,9 +3361,8 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 
         if (token_password.empty())
         {
-            tk_error = "Cannot generate OneGate toke: TOKEN_PASSWORD not set in"
-                " the user template.";
-
+            tk_error = "Cannot generate OneGate token: TOKEN_PASSWORD not set in"
+                       " the user template.";
             file.close();
 
             log("VM", Log::ERROR, tk_error.c_str());
@@ -4746,8 +4749,6 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context)
         return net_context;
     }
 
-    context->remove("NETWORK");
-
     vector<VectorAttribute *> vatts;
 
     int num_vatts = obj_template->get("NIC", vatts);
@@ -4773,8 +4774,6 @@ int VirtualMachine::generate_token_context(VectorAttribute * context, string& e)
     {
         return 0;
     }
-
-    context->remove("TOKEN");
 
     Nebula::instance().get_configuration_attribute("ONEGATE_ENDPOINT", ep);
 

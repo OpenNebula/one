@@ -38,7 +38,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     const map<string,string>&   attrs,
     bool                        sudo,
     VirtualMachinePool *        pool):
-        Mad(userid,attrs,sudo), driver_conf(true), vmpool(pool)
+        Mad(userid,attrs,sudo), driver_conf(true), keep_snapshots(false),
+        vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = 0;
@@ -85,6 +86,22 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Copy the configuration attributes to driver conf
+    // -------------------------------------------------------------------------
+    for (it=attrs.begin(); it != attrs.end(); ++it)
+    {
+        driver_conf.replace(it->first, it->second);
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse KEEP_SNAPSHOTS
+    // -------------------------------------------------------------------------
+    driver_conf.get("KEEP_SNAPSHOTS", keep_snapshots);
+
+    // -------------------------------------------------------------------------
+    // Parse IMPORTED_VMS_ACTIONS string and init the action set
+    // -------------------------------------------------------------------------
     it = attrs.find("IMPORTED_VMS_ACTIONS");
 
     if (it != attrs.end())
@@ -131,6 +148,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
         imported_actions.set(id);
     }
+
 }
 
 /* ************************************************************************** */

@@ -25,25 +25,19 @@
         <label class="clone_several">
           {{tr "Several images are selected, please choose a prefix to name the new copies"}}:
         </label>
-        <input type="text" name="image_clone_name"/>
+        <input required type="text" name="image_clone_name"/>
       </div>
     </div>
     <div class="row">
       <div class="large-12 columns">
-        <dl class="accordion" id="image_clone_advanced_toggle" data-accordion>
-          <dd class="accordion-navigation">
-            <a href="#image_clone_advanced">{{tr "Advanced options"}}</a>
-          </dd>
-        </dl>
-        <div id="image_clone_advanced" class="row collapse content">
-          <br>
-          <div class="large-12 columns">
-            <span>{{tr "You can select a different target datastore"}}</span>
-            <br/>
-            <br/>
-          </div>
-          {{{datastoreTableSelectHTML}}}
+        {{#advancedSection (tr "Advanced Options") }}
+        <div class="large-12 columns">
+          <span>{{tr "You can select a different target datastore"}}</span>
+          <br/>
+          <br/>
         </div>
+        {{{datastoreTableSelectHTML}}}
+        {{/advancedSection}}
       </div>
     </div>
     <div class="form_buttons row">

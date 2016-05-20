@@ -59,9 +59,9 @@ define(function(require) {
 
   function _html() {
     return '<div class="row">' +
-      '<div class="large-12 columns vm_log_container">' +
+      '<div class="large-12 columns vm_log_container monospace">' +
         '<div class="text-center" style="height: 100px;">' +
-          '<span id="provision_dashboard_total" style="font-size:80px">' +
+          '<span style="font-size:80px">' +
             '<i class="fa fa-spinner fa-spin"></i>' +
           '</span>' +
         '</div>' +

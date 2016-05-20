@@ -436,13 +436,7 @@ define(function(require) {
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<div class="row">'+
-                '<div class="large-4 columns text-center">'+
-                  '<h5 class="cardinality_value">'+role.cardinality+
-                  '<br>'+
-                  '<small>'+role.name + ' ' + Locale.tr("VMs")+'</small>'+
-                  '</h5>'+
-                '</div>'+
-                '<div class="large-8 columns">'+
+                '<div class="large-8 small-centered columns">'+
                 '<div class="cardinality_slider_div">'+
                 '</div>'+
                 '<br>'+
@@ -458,24 +452,17 @@ define(function(require) {
           '</button>'+
         '</div>');
 
-      //TODO context.foundation('slider', 'reflow');
       if (max_vms > min_vms) {
         $( ".cardinality_slider_div", context).html(RangeSlider.html({
             min: min_vms,
             max: max_vms,
-            initial: role.cardinality
+            initial: role.cardinality,
+            label: Locale.tr("Number of VMs for Role")+" "+role.name
           }));
 
         $( ".cardinality_slider_div", context).show();
         $(".provision_change_cardinality_button").show();
         $( ".cardinality_no_slider_div", context).hide();
-
-        $( ".cardinality_slider_div", context).on("input", '.uinput-slider', function() {
-          $(".cardinality_value",context).html($(this).val())
-        });
-
-        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
-        });
       } else {
         $( ".cardinality_slider_div", context).hide();
         $(".provision_change_cardinality_button").hide();
@@ -487,7 +474,7 @@ define(function(require) {
 
     context.on("click", ".provision_change_cardinality_button", function(){
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var cardinality = $('.uinput-slider-value', context).val();
+      var cardinality = $('.uinput-slider-val', context).val();
 
       OpenNebula.Role.update({
         data : {
