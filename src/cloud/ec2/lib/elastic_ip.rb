@@ -120,7 +120,7 @@ module ElasticIP
         user_id = retrieve_uid
         eip     = params["PublicIp"]
         vmid    = params['InstanceId']
-        vmid    = vmid.split('-')[1] if vmid[0]==?i
+        vmid    = vmid.split('-')[1].to_i if vmid[0]==?i
 
         unless vnet["TEMPLATE/EC2_ADDRESSES[IP=\"#{eip}\" and UID=\"#{retrieve_uid}\"]/IP"]
             rc = OpenNebula::Error.new("address:#{eip} does not exist")
