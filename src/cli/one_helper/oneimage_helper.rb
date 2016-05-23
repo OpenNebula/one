@@ -102,16 +102,19 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "disk_type",
             :large => "--disk_type disk_type",
-            :description => "Type of the image (BLOCK, CDROM, RBD or FILE)",
-            :format => String,
-            :proc => lambda do |o, options|
-                type=o.strip.upcase
-                if %w{BLOCK CDROM FILE RBD}.include? type
-                    [0, type]
-                else
-                    [-1, "Disk type must be BLOCK, CDROM, RBD or FILE"]
-                end
-            end
+            :description => "Type of the image \n"<<
+                            " "*31<<"for KVM: BLOCK, CDROM, RBD or FILE \n"<<
+                            " "*31<<"for vCenter: THIN, TICHK, ZEOREDTHICK " <<
+                                     "(for others, check the documentation) ",
+            :format => String
+        },
+        {
+            :name => "adapter_type",
+            :large => "--adapter_type adapter_type",
+            :description => "Controller that will handle this image in " <<
+                            "vCenter (lsiLogic, ide, busLogic). For other "<<
+                            "values check the documentation",
+            :format => String
         },
         {
             :name => "source",
