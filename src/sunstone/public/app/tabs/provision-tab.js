@@ -938,14 +938,6 @@ define(function(require) {
                   $(".provision_capacity_selector", create_vm_context),
                   template_json.VMTEMPLATE);
 
-                provisionInvalidCapacity = function(input){
-                  if(!$(input).closest(".accordion-item").hasClass("is-active")){
-                    $("a", $(input).closest(".accordion-item")).click();
-                  }
-                };
-
-                $(".provision_capacity_selector input[required]", create_vm_context).attr("oninvalid", "provisionInvalidCapacity(this)");
-
                 var disksContext = $(".provision_disk_selector", create_vm_context);
                 disksContext.data("template_json", template_json);
 

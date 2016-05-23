@@ -515,11 +515,11 @@ define(function(require) {
 
     _setupAttributeInputMB(div);
 
-    // Update memory_gb with the value set in memory
+    // Update attr_gb with the value set in attr
     $("input, select", $("div.mb_input", div)).trigger("input");
 
-    var mem_value = $("input, select", $("div.mb_input", div)).val();
-    if (mem_value == "" || (mem_value >= 1024 && (mem_value % 1024 == 0))){
+    var input_val = $("input, select", $("div.mb_input", div)).val();
+    if (input_val == "" || (input_val >= 1024 && (input_val % 1024 == 0))){
       $("#mb_input_unit", div).val("GB").change();
     } else {
       $("#mb_input_unit", div).val("MB").change();
@@ -608,7 +608,10 @@ define(function(require) {
         break;
       case "number":
       case "number-float":
-        input = '<input type="number" step="'+attr.step+'" value="'+value+'" '+wizard_field+' '+required+'/>';
+        var min = attr.min != undefined ? 'min="'+attr.min+'"' : "";
+        var max = attr.max != undefined ? 'max="'+attr.max+'"' : "";
+
+        input = '<input type="number" step="'+attr.step+'" '+min+' '+max+' value="'+value+'" '+wizard_field+' '+required+'/>';
         break;
       case "range":
       case "range-float":
