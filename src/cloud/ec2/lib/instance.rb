@@ -44,7 +44,12 @@ module Instance
         'shut' => :shutdown,
         'clea' => :shutdown,
         'fail' => :terminated,
-        'unkn' => :terminated
+        'unkn' => :terminated,
+        'poff' => :stopped,
+        'unde' => :stopped,
+        'clon' => :pending,
+        'hotp' => :running,
+        'snap' => :running
     }
 
     EC2_ACTIONS = {
