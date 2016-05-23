@@ -888,8 +888,8 @@ module Migrator
         end
 
         @db[:cluster_vnc_bitmap].insert(
-          :id      => cluster_id,
-          :map     => map_encoded
+          :id  => cluster_id,
+          :map => map_encoded
         )
       end
     end
