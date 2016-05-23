@@ -103,8 +103,6 @@ define(function(require) {
           force_persistent: persistent
         });
       });
-
-      that.reInit(context);
     });
   }
 
@@ -251,8 +249,6 @@ define(function(require) {
           if (idsLength == idsDone){
             Sunstone.enableFormPanelSubmit(that.tabId);
           }
-
-          that.reInit(context);
         },
         error: function(request, error_json, container) {
           Notifier.onError(request, error_json, container);

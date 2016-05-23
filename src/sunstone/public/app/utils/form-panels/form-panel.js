@@ -51,6 +51,15 @@ define(function(require) {
 
     that.reInit(context);
 
+    // Mutation observer to reInit abide when nodes are added/removed
+    $("form[data-abide]", context).each(function(i, form){
+      var observer = new MutationObserver(function(mutations) {
+        that.reInit(context);
+      });
+
+      observer.observe(form, { childList: true, subtree: true });
+    });
+
     that.setup(context);
   }
 
