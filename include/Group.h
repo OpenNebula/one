@@ -118,6 +118,18 @@ public:
         return new Template;
     }
 
+    /**
+     *  Sets suntone views in the group template if they are not set. Adds
+     *  an attribute of the form:
+     *   SUNSTONE=[
+     *     DEFAULT_VIEW             = "cloud",
+     *     GROUP_ADMIN_DEFAULT_VIEW = "groupadmin",
+     *     GROUP_ADMIN_VIEWS        = "cloud,groupadmin",
+     *     VIEWS                    = "cloud" ]
+     */
+    void sunstone_views(const string& user_default, const string& user_views,
+            const string& admin_default, const string& admin_views);
+
 private:
 
     // -------------------------------------------------------------------------

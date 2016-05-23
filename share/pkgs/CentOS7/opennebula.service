@@ -18,6 +18,7 @@ ExecStart=/usr/bin/oned -f
 # Log file location must exist
 ExecStartPre=/bin/mkdir -p /var/log/one
 ExecStartPre=/bin/chown oneadmin:oneadmin /var/log/one
+ExecStartPre=/usr/sbin/logrotate -s /tmp/logrotate.state -f /etc/logrotate.d/opennebula
 ExecStop=/bin/kill -TERM $MAINPID
 PIDFile=/var/run/one/oned.pid
 

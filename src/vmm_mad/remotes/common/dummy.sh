@@ -16,4 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+SCRIPT_NAME=$(basename $0)
+echo "Action $SCRIPT_NAME not supported" 1>&2

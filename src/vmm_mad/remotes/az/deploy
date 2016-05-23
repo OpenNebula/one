@@ -44,7 +44,9 @@ az_drv = AzureDriver.new(host)
 
 text=File.read(dfile)
 
-puts az_drv.deploy(id, host, text, lcm_state, deploy_id)
-
-exit 0
-
+begin
+    puts az_drv.deploy(id, host, text, lcm_state, deploy_id)
+rescue => e
+    STDERR.puts "Error deploying Azure VM: " + e.message
+    exit -1
+end

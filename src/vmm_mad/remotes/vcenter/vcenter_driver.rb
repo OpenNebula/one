@@ -212,13 +212,13 @@ class VIClient
 
     ########################################################################
     # Initialize a VIConnection based just on the VIM parameters. The
-    # OpenNebula client is also initilialized
+    # OpenNebula client is also initialized
     ########################################################################
-    def self.new_connection(user_opts)
+    def self.new_connection(user_opts, one_client=nil)
 
         conn = allocate
 
-        conn.initialize_one
+        conn.initialize_one(one_client)
 
         conn.initialize_vim(user_opts)
 
@@ -731,9 +731,14 @@ class VIClient
     ############################################################################
     # Initialize an OpenNebula connection with the default ONE_AUTH
     ############################################################################
-    def initialize_one
+    def initialize_one(one_client=nil)
         begin
-            @one   = ::OpenNebula::Client.new()
+            if one_client
+                @one = one_client
+            else
+                @one = ::OpenNebula::Client.new()
+            end
+
             system = ::OpenNebula::System.new(@one)
 
             config = system.get_configuration()
@@ -936,9 +941,9 @@ class VIClient
     end
 end
 
-###########
-#  Cached Classes to speed up import and monitorization
-############
+################################################################################
+#  Cached Classes to speed up import and monitoring
+################################################################################
 class VCenterCachedHost
 
     def initialize(rbVmomiHost)
@@ -1259,8 +1264,19 @@ class VCenterHost < ::OpenNebula::Host
 
               host = host_cache[v.runtime.host.to_s]
 
-              name   = v.name
-              number = -1
+              name            = v.name
+              number          = -1
+              vm_extra_config = v.config.extraConfig
+
+              # Check the running flag
+              running_flag = v.config.extraConfig.select{|val|
+                                         val[:key]=="opennebula.vm.running"}
+              if running_flag.size > 0 and running_flag[0]
+                  running_flag = running_flag[0][:value]
+              end                                
+
+              next if running_flag == "no"
+
               # Extract vmid if possible
               matches = name.match(/^one-(\d*)(-(.*))?$/)
               number  = matches[1] if matches
@@ -2068,7 +2084,7 @@ private
             !type.nil? && type.text.downcase == "vcenter"
         }
 
-        # If there are multiple vcenter templates, find the right one
+        # If there are multiple vCenter templates, find the right one
 
         if template.is_a? Array
             all_vcenter_templates = template.clone
@@ -2151,10 +2167,18 @@ private
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                                                          relocate_spec_params)
 
+        # This running flag will prevent spurious poweroff states in the VM
+
+        running_flag = [{:key=>"opennebula.vm.running",:value=>"no"}]
+
+        running_flag_spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+                                {:extraConfig =>running_flag})
+
         clone_parameters = {
             :location => relocate_spec,
             :powerOn  => false,
-            :template => false
+            :template => false,
+            :config   => running_flag_spec
         }
 
         customization = template.elements["CUSTOMIZATION_SPEC"]
@@ -2205,6 +2229,14 @@ private
 
         # Power on the VM
         vm.PowerOnVM_Task.wait_for_completion
+
+        # Set to yes the running flag
+
+        config_array = [{:key=>"opennebula.vm.running",:value=>"yes"}]
+        spec         = RbVmomi::VIM.VirtualMachineConfigSpec(
+                                                 {:extraConfig =>config_array})
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
         return vm.config.uuid
     end

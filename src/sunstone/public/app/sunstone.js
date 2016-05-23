@@ -903,9 +903,9 @@ define(function(require) {
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
-      if ($(".wizardForms.is-active", context).length > 0) {
+      if ($(".wizardForms", context).is(":visible")) {
         $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
-      } else if ($(".advancedForms.is-active", context).length > 0) {
+      } else if ($(".advancedForms", context).is(":visible")) {
         $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
       }
     }, 13)

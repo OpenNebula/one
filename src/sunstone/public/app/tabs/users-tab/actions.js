@@ -187,6 +187,28 @@ define(function(require) {
       }
     },
 
+    "User.append_sunstone_setting" : {
+      type: "single",
+      call: function(params){
+        OpenNebulaResource.show({
+          data : {
+            id: params.data.id
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+
+            $.extend(sunstone_template, params.data.extra_param)
+            var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+            Sunstone.runAction("User.append_template", params.data.id, template_str);
+          },
+          error: Notifier.onError
+        });
+      }
+    },
+
     "User.fetch_quotas" : {
       type: "single",
       call: OpenNebulaResource.show,

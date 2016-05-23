@@ -189,7 +189,7 @@ define(function(require) {
 
       this.initSelectResourceTableSelect();
     } else {
-      this.dataTableOptions.pageLength = parseInt(config['page_length']);
+      this.dataTableOptions.pageLength = parseInt(config['user_config']['page_length']);
     }
 
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
@@ -197,11 +197,9 @@ define(function(require) {
     // Remember page length only for non selectable datatables
     if (!this.conf.select) {
       this.dataTable.on( 'length.dt', function ( e, settings, len ) {
-        config['page_length'] = len;
-
-        var template_str = 'TABLE_DEFAULT_PAGE_LENGTH = "'+len+'"';
-
-        Sunstone.runAction("User.append_template", config['user_id'], template_str);
+        config['user_config']['page_length'] = len;
+        var sunstone_setting = {'TABLE_DEFAULT_PAGE_LENGTH': len};
+        Sunstone.runAction("User.append_sunstone_setting", config['user_id'], sunstone_setting);
        });
     }
 
@@ -403,6 +401,8 @@ define(function(require) {
       that.preUpdateView();
     }
 
+    that.dataTable.DataTable().page.len(parseInt(config['user_config']['page_length']));
+
     var row_id_index = this.dataTable.attr("row_id");
 
     if (row_id_index != undefined) {
@@ -530,7 +530,7 @@ define(function(require) {
   }
 
   function _getElementData(id, resource_tag) {
-    // TODO If the element is not included in the visible rows of 
+    // TODO If the element is not included in the visible rows of
     // the table, it will not be included in the fnGetNodes response
     var nodes = this.dataTable.fnGetNodes();
     var tr = $('#' + resource_tag + '_' + id, nodes).closest('tr');

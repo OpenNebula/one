@@ -89,9 +89,7 @@ int Group::drop(SqlDB * db)
 
 int Group::insert(SqlDB *db, string& error_str)
 {
-    int rc;
-
-    rc = insert_replace(db, false, error_str);
+    int rc = insert_replace(db, false, error_str);
 
     if (rc == 0)
     {
@@ -330,13 +328,12 @@ int Group::add_admin(int user_id, string& error_msg)
 
 void Group::add_admin_rules(int user_id)
 {
-    int     rc;
     string  error_msg;
 
     AclManager* aclm = Nebula::instance().get_aclm();
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
-    rc = aclm->add_rule(
+    if ( aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -351,15 +348,13 @@ void Group::add_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
-
-    if (rc < 0)
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
-    rc = aclm->add_rule(
+    if ( aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -378,9 +373,24 @@ void Group::add_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
+            error_msg) < 0 )
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 
-    if (rc < 0)
+    // #<uid> VROUTER/* CREATE *
+    if ( aclm->add_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            AclRule::ALL_ID |
+            PoolObjectSQL::VROUTER,
+
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
@@ -414,13 +424,12 @@ int Group::del_admin(int user_id, string& error_msg)
 
 void Group::del_admin_rules(int user_id)
 {
-    int     rc;
     string  error_msg;
 
-    AclManager* aclm = Nebula::instance().get_aclm();
+    AclManager *aclm = Nebula::instance().get_aclm();
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
-    rc = aclm->del_rule(
+    if ( aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -435,15 +444,13 @@ void Group::del_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
-
-    if (rc < 0)
+            error_msg) < 0)
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
-    rc = aclm->del_rule(
+    if ( aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
 
@@ -462,10 +469,72 @@ void Group::del_admin_rules(int user_id)
 
             AclRule::ALL_ID,
 
-            error_msg);
+            error_msg) < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 
-    if (rc < 0)
+    // #<uid> VROUTER/* CREATE *
+    if ( aclm->del_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            AclRule::ALL_ID |
+            PoolObjectSQL::VROUTER,
+
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg) < 0 )
     {
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Group::sunstone_views(const string& user_default, const string& user_views,
+            const string& admin_default, const string& admin_views)
+{
+
+	VectorAttribute * sunstone = obj_template->get("SUNSTONE");
+
+	if ( sunstone == 0 )
+	{
+		map<string,string>  vvalue;
+
+		vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
+		vvalue.insert(make_pair("VIEWS", user_views));
+		vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
+		vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
+
+		sunstone = new VectorAttribute("SUNSTONE", vvalue);
+
+		obj_template->set(sunstone);
+	}
+ 	else
+	{
+		if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
+		{
+			sunstone->replace("DEFAULT_VIEW", user_default);
+		}
+
+		if ( sunstone->vector_value("VIEWS").empty() )
+		{
+			sunstone->replace("VIEWS", user_views);
+		}
+
+		if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
+		{
+			sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
+		}
+
+		if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
+		{
+			sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
+		}
+	}
+}
+

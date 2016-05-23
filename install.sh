@@ -1543,13 +1543,6 @@ SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/fo
                 src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.ttf \
                 src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.svg"
 
-SUNSTONE_PUBLIC_VENDOR_CRYPTOJS="\
-src/sunstone/public/vendor/crypto-js/NOTICE \
-src/sunstone/public/vendor/crypto-js/sha1-min.js \
-src/sunstone/public/vendor/crypto-js/core-min.js \
-src/sunstone/public/vendor/crypto-js/enc-base64-min.js \
-src/sunstone/public/vendor/crypto-js/NEW-BSD-LICENSE.txt"
-
 SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/favicon.ico \
                         src/sunstone/public/images/login_over.png \

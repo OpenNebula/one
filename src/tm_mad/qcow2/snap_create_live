@@ -33,7 +33,8 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
-. $TMCOMMON
+source $TMCOMMON
+source ${DRIVER_PATH}/../../vmm/kvm/kvmrc
 
 SRC_PATH=$(arg_path $SRC)
 SRC_HOST=$(arg_host $SRC)
@@ -142,7 +143,7 @@ if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
     trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
 fi
 
-virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
+virsh -c $LIBVIRT_URI snapshot-create $DEPLOY_ID --disk-only --atomic \
     --xmlfile \$FILENAME
 
 rm \${FILENAME}

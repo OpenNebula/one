@@ -448,6 +448,9 @@ int Datastore::insert(SqlDB *db, string& error_str)
     string s_ds_type;
     string datastore_location;
 
+    string safe_dirs;
+    string restricted_dirs;
+
     ostringstream oss;
 
     // -------------------------------------------------------------------------
@@ -515,6 +518,18 @@ int Datastore::insert(SqlDB *db, string& error_str)
     if ( tm_mad.empty() == true )
     {
         goto error_empty_tm;
+    }
+
+    //--------------------------------------------------------------------------
+    // Set default SAFE_DIRS & RESTRICTED_DIRS if not set
+    //--------------------------------------------------------------------------
+    get_template_attribute("SAFE_DIRS", safe_dirs);
+    get_template_attribute("RESTRICTED_DIRS", restricted_dirs);
+
+    if ( safe_dirs.empty() && restricted_dirs.empty() )
+    {
+        replace_template_attribute("SAFE_DIRS", "/var/tmp");
+        replace_template_attribute("RESTRICTED_DIRS", "/");
     }
 
     //--------------------------------------------------------------------------

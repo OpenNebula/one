@@ -459,8 +459,8 @@ private
     #e.g. 800) and memory (in KB)
     def instance_type_capacity(name)
         return 0, 0 if @instance_types[name].nil?
-        return @instance_types[name]['cpu'].to_i * 100 ,
-               @instance_types[name]['memory'].to_i * 1024 * 1024
+        return (@instance_types[name]['cpu'].to_f * 100).to_i ,
+               (@instance_types[name]['memory'].to_f * 1024 * 1024).to_i
     end
 
     # Get the EC2 section of the template. If more than one EC2 section

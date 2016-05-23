@@ -31,5 +31,9 @@ require 'az_driver'
 host = ARGV[-1]
 az_drv = AzureDriver.new(host)
 
-az_drv.monitor_all_vms
-
+begin
+    az_drv.monitor_all_vms
+rescue => e
+    STDERR.puts "Error monitoring Azure host: #{e.message}"
+    exit -1
+end

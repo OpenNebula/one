@@ -27,7 +27,8 @@
             'lang' : '<%= session[:lang] %>',
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
-            'default_view' : '<%= session[:default_view] %>'
+            'default_view' : '<%= session[:default_view] %>',
+            'page_length' : '<%= session[:page_length] %>'
         },
         'system_config' : {
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
@@ -42,7 +43,6 @@
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
         'zone_id' : '<%= session[:zone_id] %>',
-        'page_length' : '<%= session[:page_length] %>',
         'vm_logos' : <%= logos_conf.to_json %>,
         'oned_conf' : <%= oned_conf.to_json %>
       };
@@ -68,7 +68,7 @@
         </div>
       <div id="footer" class="text-center large-12 columns">
         <a href="http://opennebula.org" target="_blank">OpenNebula 4.90.0</a>
-        <br> by 
+        <br> by
         <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
       </div>
       </div>
