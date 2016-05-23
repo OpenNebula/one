@@ -132,6 +132,8 @@ define(function(require) {
       that.addRoleTab(roles_index, context);
       roles_index++;
 
+      that.reInit(context);
+
       return false;
     });
 
@@ -451,6 +453,8 @@ define(function(require) {
       }
 
       delete that.roleTabObjects[role_id];
+
+      that.reInit(dialog);
 
       return false;
     });

@@ -53,6 +53,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    Tips.setup(context);
   }
 
   /**

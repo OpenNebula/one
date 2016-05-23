@@ -116,6 +116,8 @@ define(function(require) {
       that.addARTab(number_of_ar, context);
       number_of_ar++;
 
+      that.reInit(context);
+
       return false;
     });
 
@@ -271,6 +273,8 @@ define(function(require) {
       }
 
       delete that.arTabObjects[ar_id];
+
+      that.reInit(context);
 
       return false;
     });
