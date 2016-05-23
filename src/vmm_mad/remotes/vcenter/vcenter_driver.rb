@@ -684,12 +684,12 @@ class VIClient
 
                 if !ipool["IMAGE[NAME=\"#{image_name}\"]"]
                     img_templates << {
-                        :name        => "#{image_name}",
+                        :name        => "#{image_name} - #{ds_name}",
                         :path        => image_path,
                         :size        => (image.fileSize / 1024).to_s,
                         :type        => image.class.to_s,
                         :dsid        => ds_id,
-                        :one         => "NAME=\"#{image_name}\"\n"\
+                        :one         => "NAME=\"#{image_name} - #{ds_name}\"\n"\
                                         "PATH=\"vcenter://#{image_path}\"\n"\
                                         "PERSISTENT=\"YES\"\n"\
                     }
