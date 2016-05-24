@@ -22,15 +22,15 @@
  Use XML syntax to specify defaults, note elements are UPCASE
  Example:
  <TEMPLATE>
-   <EC2>
+   <PUBLIC_CLOUD>
      <KEYPAIR>gsg-keypair</KEYPAIR>
      <INSTANCETYPE>m1.small</INSTANCETYPE>
-   </EC2>
+   </PUBLIC_CLOUD>
  </TEMPLATE>
 -->
 
 <TEMPLATE>
-  <EC2>
+  <PUBLIC_CLOUD>
     <INSTANCETYPE>m1.small</INSTANCETYPE>
   </EC2>
-</TEMPLATE>
+</PUBLIC_CLOUD>
