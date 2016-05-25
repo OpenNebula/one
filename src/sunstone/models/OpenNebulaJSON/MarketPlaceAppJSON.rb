@@ -70,7 +70,7 @@ module OpenNebulaJSON
         end
 
         def export(params=Hash.new)
-            dsid = params['dsid'] ? params['dsid'].to_i : params['dsid'] 
+            dsid = params['dsid'] ? params['dsid'].to_i : params['dsid']
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
             rc = super({
