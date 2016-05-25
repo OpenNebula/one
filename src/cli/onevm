@@ -925,9 +925,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     updateconf_desc = <<-EOT.unindent
-        Updates the configuration of a VM. The VM cannot be in a active (running)
+        Updates the configuration of a VM. The VM cannot be in an active (running)
         state, valid states are: pending, failure, poweroff, undeploy, hold or
-        clonning.
+        cloning.
 
         This command accepts a template file or opens an editor, the full list of
         configuration attributes are:
