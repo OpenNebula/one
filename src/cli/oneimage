@@ -105,7 +105,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             oneimage create -d 1 --name ubuntu --path /tmp/ubuntu.qcow2 \\
                             --prefix sd --type OS --driver qcow2 \\
-                            --description "A OS plain installation"
+                            --description "A OS plain installation \\
+                            --persistent"
 
           - a datablock image of 400MB:
 

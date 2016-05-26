@@ -207,11 +207,6 @@ define(function(require) {
 
   function _submitWizard(context) {
     var name = WizardFields.retrieveInput($('#name', context));
-    if (!name) {
-      Sunstone.hideFormPanelLoading(this.tabId);
-      Notifier.notifyError(Locale.tr("Host name missing!"));
-      return false;
-    }
 
     var cluster_id = $('#host_cluster_id .resource_list_select', context).val();
     if (!cluster_id) cluster_id = "-1";

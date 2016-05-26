@@ -29,12 +29,12 @@
       </label>
     </div>
     <div class="user_input_type_right number-float">
-      <label{{tr "Default value"}}
+      <label>{{tr "Default value"}}
         <input type="number" step="any" class="user_input_initial" placeholder="42.5"/>
       </label>
     </div>
     <div class="user_input_type_right range">
-      <div class="row">
+      <div class="row collapse">
         <div class="small-6 columns">
           <label>{{tr "Min"}}
             <input type="number" class="user_input_params_min" placeholder="2"/>
@@ -51,7 +51,7 @@
       </label>
     </div>
     <div class="user_input_type_right range-float">
-      <div class="row">
+      <div class="row collapse">
         <div class="small-6 columns">
           <label>{{tr "Min"}}
             <input type="number" step="any" class="user_input_params_min" placeholder="2"/>
@@ -68,7 +68,7 @@
       </label>
     </div>
     <div class="user_input_type_right list">
-      <label>
+      <label style="display: initial;">
         {{tr "Options"}}
         {{{tip (tr "Comma-separated list of options for the drop-down select input")}}}
         <input type=text class="user_input_params" placeholder="optA,optB,optC"/>
@@ -79,7 +79,7 @@
     </div>
   </td>
   <td>
-    </br>
+    <br/>
     <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
   </td>
 </tr>

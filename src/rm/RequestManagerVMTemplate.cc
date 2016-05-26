@@ -163,6 +163,11 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         return ec;
     }
 
+    if ( extra_attrs != 0 )
+    {
+        tmpl->merge(extra_attrs);
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Store the template attributes in the VM                                */
     /* ---------------------------------------------------------------------- */

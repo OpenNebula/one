@@ -2,8 +2,8 @@
 
 digraph OpenNebula {
     graph [
-        nodesep=0.5,
-        ratio=0.5,
+        nodesep=0.3,
+        ratio=0.6,
         pad=0.5,
         //concentrate=true,
     ];
@@ -17,7 +17,7 @@ digraph OpenNebula {
         fontcolor="white", fontsize= "24.0"];
 
     ANY [ shape="box" ];
-    "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
+    "ANY \\ {stopped,undeployed,done}" [ shape="box" ];
 
     running [ width = 2.5, height = 1 ]
 
@@ -64,6 +64,7 @@ digraph OpenNebula {
         prolog;
         prolog_failure;
         prolog_resume;
+        prolog_resume_failure;
         prolog_migrate;
         prolog_migrate_failure;
         prolog_migrate_poweroff;
@@ -71,8 +72,19 @@ digraph OpenNebula {
         prolog_migrate_suspend;
         prolog_migrate_suspend_failure;
         prolog_undeploy;
+        prolog_undeploy_failure;
         prolog_migrate_unknown;
         prolog_migrate_unknown_failure;
+        color="white"
+    }
+    subgraph {
+        rank = same;
+        epilog_stop;
+        epilog_stop_failure;
+        epilog;
+        epilog_failure;
+        epilog_undeploy;        
+        epilog_undeploy_failure;
         color="white"
     }
     subgraph {
@@ -83,12 +95,6 @@ digraph OpenNebula {
         disk_snapshot_suspended;
         disk_snapshot_revert_suspended;
         disk_snapshot_delete_suspended;
-        epilog_stop;
-        epilog;
-        epilog_undeploy;
-        epilog_stop_failure;
-        epilog_failure;
-        epilog_undeploy_failure;
         hotplug_epilog_poweroff;
         disk_snapshot_poweroff;
         disk_snapshot_revert_poweroff;
@@ -98,16 +104,9 @@ digraph OpenNebula {
     subgraph {
         rank = sink;
         done;
-        failure;
         ANY;
         color="white"
     }
-
-
-    ### TODO: missing lcm states
-    # PROLOG_RESUME_FAILURE
-    # PROLOG_UNDEPLOY_FAILURE
-
 
 #   create
     user -> pending [label="create"];
@@ -129,15 +128,17 @@ digraph OpenNebula {
 
     //hold    -> prolog [label="deploy"];
 
-#   shutdown
-    running     -> shutdown [label="shutdown [--hard]"];
+#   terminate
+    running     -> shutdown [label="terminate [--hard]"];
     shutdown    -> epilog [style="dashed", color="blue"];
     epilog      -> done [style="dashed", color="blue"];
 
     shutdown    -> running [style="dotted", color="red"];
 
-    suspended   -> epilog [label="shutdown [--hard]"];
-    poweroff    -> epilog [label="shutdown [--hard]"];
+    suspended   -> epilog [label="terminate [--hard]"];
+    poweroff    -> epilog [label="terminate [--hard]"];
+    stopped     -> epilog [label="terminate [--hard]"];
+    undeployed  -> epilog [label="terminate [--hard]"];
 
 #   poweroff
     running             -> shutdown_poweroff [label="poweroff [--hard]"];
@@ -209,11 +210,11 @@ digraph OpenNebula {
     boot_unknown    -> running [style="dashed", color="blue"];
 
 
-#   delete
-    ANY         -> done [label="delete"];
+#   recover delete
+    ANY         -> done [label="recover --delete"];
 
-#   resubmit
-    "ANY \\ {suspended,poweroff,done}" -> pending [label="delete --recreate"];
+#   recover --recreate
+    "ANY \\ {stopped,undeployed,done}" -> pending [label="recover --recreate"];
 
 #   reboot
     running     -> running [label="reboot"];
@@ -278,10 +279,10 @@ digraph OpenNebula {
     hotplug_saveas_suspended -> suspended [style="dashed", color="blue"];
 
 #   failures and misc.
-    boot_failure         -> boot [label="recover"];
-    boot_migrate_failure -> boot_migrate [label="recover"];
+    boot_failure          -> boot [label="recover"];
+    boot_migrate_failure  -> boot_migrate [label="recover"];
     boot_undeploy_failure -> boot_undeploy [label="recover"];
-    boot_stopped_failure-> boot_stopped [label="recover"];
+    boot_stopped_failure  -> boot_stopped [label="recover"];
 
     epilog_stop         -> epilog_stop_failure [label=" ", style="dotted", color="red"];
     epilog_stop_failure -> epilog_stop [label="recover"];
@@ -304,8 +305,11 @@ digraph OpenNebula {
     prolog_migrate_suspend          -> prolog_migrate_suspend_failure [label=" ", style="dotted", color="red"];
     prolog_migrate_suspend_failure  -> prolog_migrate_suspend [label="migrate"];
 
-    prolog_resume   -> stopped [style="dotted", color="red"];
-    prolog_undeploy -> undeployed [style="dotted", color="red"];
+    prolog_resume           -> prolog_resume_failure [style="dotted", color="red"];
+    prolog_resume_failure   -> prolog_resume [label="recover"];
+
+    prolog_undeploy           -> prolog_undeploy_failure [style="dotted", color="red"];
+    prolog_undeploy_failure   -> prolog_undeploy [label="recover"];
 
     prolog_migrate_unknown          -> prolog_migrate_unknown_failure [label=" ", style="dotted", color="red"];
     prolog_migrate_unknown_failure  -> prolog_migrate_unknown [label="migrate"];
@@ -317,9 +321,6 @@ digraph OpenNebula {
     boot_suspended  -> suspended [style="dotted", color="red"];
     boot_stopped    -> boot_stopped_failure [style="dotted", color="red"];
     boot_undeploy   -> boot_undeploy_failure [style="dotted", color="red"];
-
-    running -> failure [style="dotted", color="red"];
-    unknown -> failure [style="dotted", color="red"];
 
     running -> save_suspend [style="dotted", color="red"];
     unknown -> save_suspend [style="dotted", color="red"];

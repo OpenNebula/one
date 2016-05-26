@@ -25,6 +25,7 @@ define(function(require) {
   var OpenNebulaVM = require('opennebula/vm');
   var Notifier = require('utils/notifier');
   var Graphs = require('utils/graphs');
+  var StateActions = require('tabs/vms-tab/utils/state-actions');
 
   /*
     TEMPLATES
@@ -41,13 +42,6 @@ define(function(require) {
   var RESIZE_DIALOG_ID = require('../dialogs/resize/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
-  var RESIZE_STATES = [
-    OpenNebulaVM.STATES.INIT,
-    OpenNebulaVM.STATES.PENDING,
-    OpenNebulaVM.STATES.HOLD,
-    OpenNebulaVM.STATES.POWEROFF,
-    OpenNebulaVM.STATES.UNDEPLOYED
-  ];
 
   /*
     CONSTRUCTOR
@@ -75,8 +69,8 @@ define(function(require) {
    */
 
   function _html() {
-    var resizeStateEnabled =
-      (RESIZE_STATES.indexOf(parseInt(this.element.STATE)) > -1);
+    var resizeStateEnabled = StateActions.enabledStateAction("VM.resize",
+                                    this.element.STATE, this.element.LCM_STATE);
 
     var cpuCost    = this.element.TEMPLATE.CPU_COST;
     var memoryCost = this.element.TEMPLATE.MEMORY_COST;

@@ -24,7 +24,12 @@
  \-\-target target           Device the disk will be attached to
  \-\-path path               Path of the image file
  \-\-driver driver           Driver to use image (raw, qcow2, tap:aio:\.\.\.)
- \-\-disk_type disk_type     Type of the image (BLOCK, CDROM, RBD or FILE)
+ \-\-disk_type disk_type     Type of the image for KVM: BLOCK, CDROM, RBD or
+                           FILE for vCenter: THIN, TICHK, ZEOREDTHICK (for
+                           others, check the documentation)
+ \-\-adapter_type adapter_type Controller that will handle this image in
+                           vCenter (lsiLogic, ide, busLogic)\. For other
+                           values check the documentation
  \-\-source source           Source to be used\. Useful for not file\-based
                            images
  \-\-size size               Size in MB\. Used for DATABLOCK type or SOURCE
@@ -69,12 +74,13 @@ create [\fIfile\fR] Creates a new Image Examples:
 
     oneimage create \-d 1 \-\-name ubuntu \-\-path /tmp/ubuntu\.qcow2 \e
                     \-\-prefix sd \-\-type OS \-\-driver qcow2 \e
-                    \-\-description "A OS plain installation"
+                    \-\-description "A OS plain installation \e
+                    \-\-persistent"
 
   \- a datablock image of 400MB:
 
     oneimage create \-d 1 \-\-name data \-\-type DATABLOCK \-\-size 400
-valid options: datastore, name, description, type, persistent, prefix, target, path, driver, disk_type, source, size, dry
+valid options: datastore, name, description, type, persistent, prefix, target, path, driver, disk_type, adapter_type, source, size, dry
 .
 .fi
 .
@@ -169,7 +175,7 @@ type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.90\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

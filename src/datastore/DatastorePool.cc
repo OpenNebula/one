@@ -68,7 +68,7 @@ DatastorePool::DatastorePool(
 
         oss << "NAME   = " << SYSTEM_DS_NAME << endl
             << "TYPE   = SYSTEM_DS" << endl
-            << "TM_MAD = shared";
+            << "TM_MAD = ssh";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -101,7 +101,7 @@ DatastorePool::DatastorePool(
         oss << "NAME   = "   << DEFAULT_DS_NAME << endl
             << "TYPE   = IMAGE_DS" << endl
             << "DS_MAD = fs" << endl
-            << "TM_MAD = shared";
+            << "TM_MAD = ssh";
 
         ds_tmpl = new DatastoreTemplate;
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);

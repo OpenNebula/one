@@ -73,15 +73,13 @@ public:
         }
     };
 
-    static VirtualNetworkDriver str_to_driver(string& ob)
+    static VirtualNetworkDriver str_to_driver(const string& ob)
     {
-        one_util::tolower(ob);
-
         if ( ob == "dummy" )
         {
             return DUMMY;
         }
-        else if ( ob == "802.1q" )
+        else if ( ob == "802.1Q" )
         {
             return VLAN;
         }

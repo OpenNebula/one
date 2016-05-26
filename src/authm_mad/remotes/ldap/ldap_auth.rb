@@ -122,10 +122,13 @@ class OpenNebula::LdapAuth
 
     def find_user(name)
         begin
-            result=@ldap.search(
-                :base => @options[:base],
+            filter = "#{@options[:user_field]}=#{escape(name)}"
+
+            result = @ldap.search(
+                :base       => @options[:base],
                 :attributes => @options[:attributes],
-                :filter => "#{@options[:user_field]}=#{name}")
+                :filter     => filter
+            )
 
             if result && result.first
                 @user = result.first
@@ -186,6 +189,25 @@ class OpenNebula::LdapAuth
 
         groups.delete(false)
         groups.compact.uniq
+    end
+
+private
+
+    # The escapes code has been copied from <net-ldap>/lib/net/ldap/filter.rb
+    FILTER_ESCAPES = {
+      "\0" => '00',
+      '*'  => '2A',
+      '('  => '28',
+      ')'  => '29',
+      '\\' => '5C',
+      '?'  => '3F',
+      '='  => '3D'
+    }
+
+    FILTER_ESCAPE_RE = Regexp.new("[" + FILTER_ESCAPES.keys.map { |e| Regexp.escape(e) }.join + "]")
+
+    def escape(string)
+      string.gsub(FILTER_ESCAPE_RE) { |char| "\\" + FILTER_ESCAPES[char] }
     end
 end
 

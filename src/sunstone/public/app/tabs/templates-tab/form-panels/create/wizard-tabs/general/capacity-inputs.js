@@ -53,6 +53,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    Tips.setup(context);
   }
 
   /**
@@ -82,14 +83,20 @@ define(function(require) {
     if (userInputs != undefined && userInputs.CPU != undefined){
       attr = UserInputs.parse("CPU", userInputs.CPU);
     } else {
-      attr = UserInputs.parse("CPU", "M|number-float|||");
+      attr = UserInputs.parse("CPU", "O|number-float|||");
     }
 
     if (element.TEMPLATE.CPU != undefined){
       attr.initial = element.TEMPLATE.CPU;
+    } else {
+      attr.mandatory = true;
     }
 
     attr.step = 0.01;
+
+    if(attr.min == undefined){
+      attr.min = 0.01;
+    }
 
     input = UserInputs.attributeInput(attr);
 
@@ -109,6 +116,10 @@ define(function(require) {
       attr.initial = element.TEMPLATE.VCPU;
     }
 
+    if(attr.min == undefined){
+      attr.min = 1;
+    }
+
     input = UserInputs.attributeInput(attr);
 
     if (attr.type != "range"){
@@ -125,6 +136,12 @@ define(function(require) {
 
     if (element.TEMPLATE.MEMORY != undefined){
       attr.initial = element.TEMPLATE.MEMORY;
+    } else {
+      attr.mandatory = true;
+    }
+
+    if(attr.min == undefined){
+      attr.min = 1;
     }
 
     if (attr.type != "range"){

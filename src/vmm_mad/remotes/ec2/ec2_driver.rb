@@ -636,7 +636,7 @@ private
 
             return if !xml || !xml.root
 
-            ec2 = xml.root.elements["EC2"]
+            ec2 = xml.root.elements["PUBLIC_CLOUD"]
 
             return if !ec2
 

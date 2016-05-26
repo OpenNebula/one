@@ -23,10 +23,10 @@ define(function(require) {
     ["VM.resize", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.PENDING] =
-    ["VM.hold", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
+    ["VM.hold", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.HOLD] =
-    ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
+    ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.ACTIVE] =
     ["VM.recover"];
@@ -50,10 +50,10 @@ define(function(require) {
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.CLONING] =
-    ["VM.updateconf", "VM.terminate_hard", "VM.recover"];
+    ["VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.CLONING_FAILURE] =
-    ["VM.updateconf", "VM.terminate_hard", "VM.recover"];
+    ["VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   var LCM_STATE_ACTIONS = {};
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.LCM_INIT ] = [];

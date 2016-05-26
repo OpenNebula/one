@@ -70,9 +70,9 @@ define(function(require) {
 
         if (response['VMTEMPLATE'] !== undefined) {
           $.each(response['VMTEMPLATE'], function(i, vmTemplate) {
-            if (vmTemplate.error != undefined){
+            if (vmTemplate.error != undefined) {
               Notifier.notifyError(vmTemplate.error.message);
-            } else {
+            } else if (vmTemplate.ID != -1) {
               Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + vmTemplate.ID, false);
             }
           });

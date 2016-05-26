@@ -810,8 +810,8 @@ EOT
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i
 
             # VNC ports per cluster
-            cid = doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
-            port = doc.root.at_xpath("TEMPLATE/GRAPHICS[TYPE='vnc']/PORT").text.to_i rescue nil
+            cid = vm_doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
+            port = vm_doc.root.at_xpath('TEMPLATE/GRAPHICS[translate(TYPE,"vnc","VNC")="VNC"]/PORT').text.to_i rescue nil
 
             if cid && port
                 cluster_vnc[cid] ||= Set.new
@@ -958,24 +958,41 @@ EOT
 
         # VNC Bitmap
 
-        @db.run "DROP TABLE cluster_vnc_bitmap;"
-        @db.run "CREATE TABLE cluster_vnc_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));"
+        # Re-create cluster_vnc_bitmap table
+        @db.run("ALTER TABLE cluster_vnc_bitmap RENAME TO old_cluster_vnc_bitmap")
+        @db.run("CREATE TABLE cluster_vnc_bitmap (id INTEGER, map LONGTEXT, PRIMARY KEY(id));")
 
-        size = 65536
+        vnc_pool_size = 65536
 
-        cluster_vnc.keys.sort.each do |cluster_id|
-          map = ""
-          size.times.each do |i|
-              map << (cluster_vnc[cluster_id].include?(size - 1 - i) ? "1" : "0")
+        @db.transaction do
+          @db.fetch("SELECT * FROM cluster_pool") do |row|
+            cluster_id = row[:oid]
+
+            if cluster_vnc[cluster_id]
+              map = ""
+              vnc_pool_size.times.each do |i|
+                map << (cluster_vnc[cluster_id].include?(vnc_pool_size - 1 - i) ? "1" : "0")
+              end
+
+              map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
+            else
+              map_encoded = "eJztwYEAAAAAgCCl/ekWqQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABqFo8C0Q=="
+            end
+
+            old_map_encoded = @db[:old_cluster_vnc_bitmap].first(:id => cluster_id)[:map] rescue nil
+
+            if old_map_encoded != map_encoded
+                log_error("Cluster #{cluster_id} has not the proper reserved VNC ports")
+            end
+
+            @db[:cluster_vnc_bitmap].insert(
+              :id  => cluster_id,
+              :map => map_encoded
+            )
           end
-
-          map_encoded = Base64::strict_encode64(Zlib::Deflate.deflate(map))
-
-          @db[:cluster_vnc_bitmap].insert(
-            :id      => cluster_id,
-            :map     => map_encoded
-          )
         end
+
+        @db.run("DROP TABLE old_cluster_vnc_bitmap")
 
         log_time()
 

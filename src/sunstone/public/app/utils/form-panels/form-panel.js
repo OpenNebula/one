@@ -29,6 +29,7 @@ define(function(require) {
 
   BaseFormPanel.prototype = {
     'insert': _insert,
+    'reInit': _reInit,
     'reset': _reset,
     'setAction': _setAction,
     'title': _title,
@@ -46,8 +47,32 @@ define(function(require) {
       this.advancedElement = $(that.htmlAdvanced()).appendTo( $(".advancedForms", context) );
     }
 
-    //context.foundation('abide');
     Foundation.reflow(context, 'abide');
+
+    that.reInit(context);
+
+    // Mutation observer to reInit abide when nodes are added/removed
+    $("form[data-abide]", context).each(function(i, form){
+      var observer = new MutationObserver(function(mutations) {
+        that.reInit(context);
+      });
+
+      observer.observe(form, { childList: true, subtree: true });
+    });
+
+    that.setup(context);
+  }
+
+  function _reInit(context) {
+    var that = this;
+
+    $('#' + that.formPanelId + 'Wizard', context)
+      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
+
+    $('#' + that.formPanelId + 'Advanced', context)
+      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
+
+    Foundation.reInit($("form", context));
 
     $('#' + that.formPanelId + 'Wizard', context)
       .on('forminvalid.zf.abide', function(ev, frm) {
@@ -74,8 +99,6 @@ define(function(require) {
       .on("submit", function(ev) {
         ev.preventDefault();
       });
-
-    that.setup(context);
   }
 
   function _reset(context) {
