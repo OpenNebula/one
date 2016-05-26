@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVROUTER" "1" "January 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
+.TH "ONEVROUTER" "1" "May 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
 .
 .SH "NAME"
 \fBonevrouter\fR \- manages OpenNebula Virtual Routers
@@ -13,7 +13,56 @@
 .
 .nf
 
+ \-\-name name               Name of the new VM or TEMPLATE\. When
+                           instantiating multiple VMs you can use the "%i"
+                           wildcard to produce different names such as
+                           vm\-0, vm\-1\.\.\.
+ \-m, \-\-multiple x          Instance multiple VMs
+ \-\-hold                    Creates the new VM on hold state instead of
+                           pending
+ \-\-cpu cpu                 CPU percentage reserved for the VM (1=100% one
+                           CPU)
+ \-\-vcpu vcpu               Number of virtualized CPUs
+ \-\-arch arch               Architecture of the VM, e\.g\.: i386 or x86_64
+ \-\-memory memory           Memory amount given to the VM\. By default the
+                           unit is megabytes\. To use gigabytes add a \'g\',
+                           floats can be used: 8g=8192, 0\.5g=512
+ \-\-disk image0,image1      Disks to attach\. To use an image owned by other
+                           user use user[disk]\. Add any additional
+                           attributes separated by \':\' and in the shape of
+                           KEY=VALUE\. For example, if the disk must be
+                           resized, use image0:size=1000 \. Or
+                           image0:size=1000:target=vda,image1:target=vdb
+ \-\-nic network0,network1   Networks to attach\. To use a network owned by
+                           other user use user[network]\. Additional
+                           attributes are supported like with the \-\-disk
+                           option\.
+ \-\-raw string              Raw string to add to the template\. Not to be
+                           confused with the RAW attribute
+ \-\-vnc                     Add VNC server to the VM
+ \-\-vnc\-password password   VNC password
+ \-\-vnc\-listen ip           VNC IP where to listen for connections\. By
+                           default is 0\.0\.0\.0 (all interfaces)\.
+ \-\-vnc\-keymap keymap       VNC keyboard layout
+ \-\-spice                   Add spice server to the VM
+ \-\-spice\-password password spice password
+ \-\-spice\-listen ip         spice IP where to listen for connections\. By
+                           default is 0\.0\.0\.0 (all interfaces)\.
+ \-\-spice\-keymap keymap     spice keyboard layout
+ \-\-ssh [file]              Add an ssh public key to the context\. If the file
+                           is omited then the user variable SSH_PUBLIC_KEY
+                           will be used\.
+ \-\-net_context             Add network contextualization parameters
+ \-\-context line1,line2,line3 Lines to add to the context section
+ \-\-boot device_list        Set boot device list e\.g\. disk0,disk2,nic0
+ \-\-files_ds file1,file2    Add files to the contextualization CD from
+                           thefiles datastore
+ \-\-init script1,script2    Script or scripts to start in context
+ \-\-startscript [file]      Start script to be executed
  \-a, \-\-append              Append new attributes to the current template
+ \-f, \-\-file file           Selects the template file
+ \-n, \-\-network id|name     Selects the virtual network
+ \-i, \-\-ip ip               IP address for the new NIC
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -22,6 +71,7 @@
  \-x, \-\-xml                 Show the resource in xml format
  \-n, \-\-numeric             Do not translate user and group IDs
  \-\-describe                Describe list columns
+ \-\-all                     Show all template data
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -35,6 +85,23 @@
 .
 .IP "\(bu" 4
 create \fIfile\fR Creates a new Virtual Router from the given description
+.
+.IP "\(bu" 4
+instantiate \fIvrouterid\fR \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the given Template\. This VM can be managed with the \'onevm\' command\.
+.
+.IP "" 4
+.
+.nf
+
+The NIC elements defined in the Virtual Router will be used\. The
+source Template can be modified adding or replacing attributes with
+the optional file argument, or with the options\.
+valid options: name, multiple, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 delete \fIrange|vrouterid_list\fR Deletes the given Virtual Router
@@ -55,10 +122,16 @@ update \fIvrouterid\fR [\fIfile\fR] Update the Virtual Router contents\. If a pa
 rename \fIvrouterid\fR \fIname\fR Renames the Virtual Router
 .
 .IP "\(bu" 4
+nic\-attach \fIvrouterid\fR Attaches a NIC to a VirtualRouter, and each one of its VMs\. When using \-\-file add only one NIC instance\. valid options: file, network, ip
+.
+.IP "\(bu" 4
+nic\-detach \fIvrouterid\fR \fInicid\fR Detaches a NIC from a VirtualRouter, and each one of its VMs
+.
+.IP "\(bu" 4
 list [\fIfilterflag\fR] Lists the Virtual Routers in the pool valid options: list, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
-show \fIsecgroupid\fR Shows information for the given Virtual Router valid options: xml
+show \fIvrouterid\fR Shows information for the given Virtual Router valid options: xml, all
 .
 .IP "\(bu" 4
 top [\fIfilterflag\fR] Lists Virtual Routers continuously valid options: list, delay, filter, csv, xml, numeric, describe
@@ -91,10 +164,13 @@ vrouterid_list Comma\-separated list of OpenNebula VROUTER names or ids
 .IP "\(bu" 4
 filterflag a, all all the known VROUTERs m, mine the VROUTER belonging to the user in ONE_AUTH g, group \'mine\' plus the VROUTER belonging to the groups the user is member of uid VROUTER of the user identified by this uid user VROUTER of the user identified by the username
 .
+.IP "\(bu" 4
+templateid OpenNebula VMTEMPLATE name or id
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
