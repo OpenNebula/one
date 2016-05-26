@@ -4,6 +4,7 @@ enabled_tabs:
     - users-tab
     - settings-tab
 features:
+    # True to show showback monthly reports, and VM cost
     showback: true
 
     # Allows to change the security groups for each network interface
@@ -56,13 +57,20 @@ tabs:
             VM.disk_snapshot_delete: false
             VM.save_as_template: true
         dashboard:
+            # Connected user's quotas
             quotas: true
+            # Overview of connected user's VMs
             vms: true
+            # Group's quotas
             vdcquotas: false
+            # Overview of group's VMs
             vdcvms: false
         create_vm:
+            # True to allow capacity (CPU, MEMORY, VCPU) customization
             capacity_select: true
+            # True to allow NIC customization
             network_select: true
+            # True to allow DISK size customization
             disk_resize: true
     settings-tab:
         panel_tabs:

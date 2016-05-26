@@ -32,6 +32,7 @@ enabled_tabs:
     #- support-tab
 autorefresh: true
 features:
+    # True to show showback monthly reports, and VM cost
     showback: true
 
     # Allows to change the security groups for each network interface
@@ -39,17 +40,29 @@ features:
     secgroups: false
 tabs:
     dashboard-tab:
+        # The following widgets can be used inside any of the '_per_row' settings
+        # bellow. As the name suggest, the widgets will be scaled to fit one,
+        # two, or three per row. The footer uses the widgets at full size, i.e.
+        # one per row.
+        # 
+        # - storage
+        # - users
+        # - network
+        # - hosts
+        # - vms
+        # - groupquotas
+        # - quotas
         panel_tabs:
         actions:
             Dashboard.refresh: false
             Sunstone.toggle_top: false
+        widgets_one_per_row:
+            - vms
+            - users
         widgets_three_per_row:
         widgets_two_per_row:
             - groupquotas
             - quotas
-        widgets_one_per_row:
-            - vms
-            - users
         widgets_one_footer:
     system-top-tab:
         panel_tabs:
