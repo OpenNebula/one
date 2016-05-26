@@ -77,17 +77,17 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="network_mode">
-            {{tr "Network model"}}:
+            {{tr "Network mode"}}:
             <span class="tip">
               {{tr "The network driver to implement the virtual network"}}
             </span>
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
-            <option value="dummy">{{tr "Default"}}</option>
-            <option value="fw">{{tr "Firewall"}}</option>
+            <option value="dummy">{{tr "Bridged"}}</option>
+            <option value="fw">{{tr "Bridged & security groups"}}</option>
+            <option value="ebtables">{{tr "Bridged & ebtables isolation"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
-            <option value="ebtables">{{tr "ebtables"}}</option>
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
