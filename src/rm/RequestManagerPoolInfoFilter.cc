@@ -96,7 +96,7 @@ void VirtualMachinePoolInfo::request_execute(
     ostringstream state_filter;
 
     if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
-        ( state > VirtualMachine::UNDEPLOYED ))
+        ( state > VirtualMachine::CLONING_FAILURE ))
     {
         att.resp_msg = "Incorrect filter_flag, state";
         failure_response(XML_RPC_API, att);
