@@ -29,14 +29,27 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="CLUSTER_ID" type="xs:integer"/>
-              <xs:element name="CLUSTER" type="xs:string"/>
+              <xs:element name="CLUSTERS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="BRIDGE" type="xs:string"/>
-              <xs:element name="VN_MAD" type="xs:integer"/>
               <xs:element name="PARENT_NETWORK_ID" type="xs:string"/>
+              <xs:element name="VN_MAD" type="xs:string"/>
               <xs:element name="PHYDEV" type="xs:string"/>
               <xs:element name="VLAN_ID" type="xs:string"/>
+              <xs:element name="VLAN_ID_AUTOMATIC" type="xs:string"/>
               <xs:element name="USED_LEASES" type="xs:integer"/>
+              <xs:element name="VROUTERS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="TEMPLATE" type="xs:anyType"/>
               <xs:element name="AR_POOL">
                 <xs:complexType>

@@ -5,25 +5,30 @@ EXTRA = ABC
 EXTRA2 = 123
 
 NIC = [
-    NETWORK = "Blue LAN"
+    NETWORK = "Blue LAN",
+    NETWORK_UID = "0"
 ]
 
 NIC = [
     NETWORK = "R",
+    NETWORK_UID = "0",
     AR_ID = 0
 ]
 
 NIC = [
     NETWORK = "R",
+    NETWORK_UID = "0",
     AR_ID = 1
 ]
 
 NIC = [
     NETWORK = "R",
+    NETWORK_UID = "0",
     AR_ID = 2
 ]
 
 NIC = [
     NETWORK = "R",
+    NETWORK_UID = "0",
     AR_ID = 3
 ]

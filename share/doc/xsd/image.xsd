@@ -43,6 +43,8 @@
           CLONE     = 6, Image is being cloned
           DELETE    = 7, DS is deleting the image
           USED_PERS = 8, Image is in use and persistent
+          LOCKED_USED = 9,      FS operation in progress, VMs waiting
+          LOCKED_USED_PERS = 10 FS operation in progress, VMs waiting. Persistent
         -->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="RUNNING_VMS" type="xs:integer"/>
@@ -52,25 +54,25 @@
         <xs:element name="DATASTORE_ID" type="xs:integer"/>
         <xs:element name="DATASTORE" type="xs:string"/>
         <xs:element name="VMS">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
         </xs:element>
         <xs:element name="CLONES">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
         </xs:element>
         <xs:element name="APP_CLONES">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
         </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="SNAPSHOTS">
