@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'vm_hotplugging_tab';
+  return 'vm_storage_tab';
 });

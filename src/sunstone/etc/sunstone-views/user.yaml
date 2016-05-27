@@ -224,7 +224,7 @@ tabs:
         panel_tabs:
             vm_info_tab: true
             vm_capacity_tab: true
-            vm_hotplugging_tab: true
+            vm_storage_tab: true
             vm_network_tab: true
             vm_snapshot_tab: true
             vm_placement_tab: false
