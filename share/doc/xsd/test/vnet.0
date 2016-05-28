@@ -1,6 +1,7 @@
 NAME    = "Blue LAN"
 
 BRIDGE  = vbr1
+VN_MAD  = dummy
 
 AR = [
     IP = 130.10.0.1,

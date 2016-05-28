@@ -1,10 +1,10 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEMARKETAPP" "1" "December 2015" "" "onemarketapp(1) -- manages OpenNebula marketplace apps"
+.TH "ONEMARKETAPP" "1" "May 2016" "" "onemarketapp(1) -- manages appliances from Marketplaces"
 .
 .SH "NAME"
-\fBonemarketapp\fR \- manages OpenNebula marketplace apps
+\fBonemarketapp\fR \- manages appliances from Marketplaces
 .
 .SH "SYNOPSIS"
 \fBonemarket\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
@@ -14,6 +14,14 @@
 .nf
 
  \-m, \-\-marketplace id|name Selects the marketplace
+ \-\-name name               Name of the new MarketPlaceApp
+ \-\-description description Description for the new MarketPlaceApp
+ \-\-image id|name           Selects the image
+ \-\-dry                     Just print the template
+ \-d, \-\-datastore id|name   Selects the datastore
+ \-\-vmname name             Selects the name for the new VM Template, if the
+                           App contains one
+ \-\-force                   Overwrite the file
  \-a, \-\-append              Append new attributes to the current template
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
@@ -35,7 +43,13 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIfile\fR Creates a new marketplace app in the given marketplace valid options: marketplace
+create [\fIfile\fR] Creates a new marketplace app in the given marketplace valid options: marketplace, name, description, image, dry
+.
+.IP "\(bu" 4
+export \fIappid\fR \fIname\fR Exports the marketplace app to the OpenNebula cloud valid options: datastore, vmname
+.
+.IP "\(bu" 4
+download \fIappid\fR \fIpath\fR Downloads a MarketApp to a file valid options: force
 .
 .IP "\(bu" 4
 delete \fIrange|appid_list\fR Deletes the given marketplace app
@@ -60,6 +74,12 @@ list [\fIfilterflag\fR] Lists marketplace apps valid options: list, delay, filte
 .
 .IP "\(bu" 4
 show \fIappid\fR Shows information for the given marketplace app valid options: xml
+.
+.IP "\(bu" 4
+enable \fIrange|appid_list\fR Enables the marketplace app
+.
+.IP "\(bu" 4
+disable \fIrange|appid_list\fR Disables the marketplace app\. A disabled marketplace app cannot be exported to a cloud
 .
 .IP "" 0
 .
@@ -92,7 +112,7 @@ filterflag a, all all the known MARKETPLACEAPPs m, mine the MARKETPLACEAPP belon
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

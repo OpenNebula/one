@@ -35,10 +35,11 @@ onegroup create newgroup
 
 
 # Host
-onehost create host01 --im dummy --vm dummy --net dummy
-onehost create host02 --im dummy --vm dummy --net dummy
+onehost create host01 --im dummy --vm dummy
+onehost create host02 --im dummy --vm dummy
+onehost create host03 --im dummy --vm dummy
 
-onecluster addhost newcluster host02
+onecluster addhost newcluster host03
 
 for i in `onehost list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onehost show $i -x > samples/host/$i.xml
@@ -67,47 +68,6 @@ for i in `onevnet list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
 done
 
 onevnet list -x > samples/vnet_pool/3.xml
-
-
-# Template
-onetemplate list -x > samples/vmtemplate_pool/1.xml
-
-onetemplate create test/template.0
-onetemplate create test/template.1
-
-for i in `onetemplate list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
-    onetemplate show $i -x > samples/vmtemplate/$i.xml
-done
-
-onetemplate list -x > samples/vmtemplate_pool/2.xml
-
-
-# VM
-onetemplate instantiate 0 -m 2
-onetemplate instantiate 1 -m 2
-
-for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
-    onevm deploy $i host01
-done
-
-sleep 5
-
-onevm migrate --live 0 0
-onevm delete 1
-onevm poweroff 2
-
-sleep 5
-
-onevm suspend 0
-onevm resume 2
-
-sleep 5
-
-for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
-    onevm show $i -x > samples/vm/$i.xml
-done
-
-onevm list -x > samples/vm_pool/0.xml
 
 # Cluster
 onecluster create emptycluster
@@ -170,7 +130,7 @@ onegroup list -x > samples/group_pool/0.xml
 onevdc create emptyvdc
 
 onevdc create newvdc
-onevdc addgroup newvdc 0 newgroup
+onevdc addgroup newvdc newgroup
 onevdc addhost newvdc 0 host01
 onevdc addcluster newvdc 0 newcluster
 
@@ -179,6 +139,47 @@ for i in `onevdc list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
 done
 
 onevdc list -x > samples/vdc_pool/0.xml
+
+
+# Template
+onetemplate list -x > samples/vmtemplate_pool/1.xml
+
+onetemplate create test/template.0 --user newuser --password abc
+onetemplate create test/template.1 --user newuser --password abc
+
+for i in `onetemplate list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onetemplate show $i -x > samples/vmtemplate/$i.xml
+done
+
+onetemplate list -x > samples/vmtemplate_pool/2.xml
+
+
+# VM
+onetemplate instantiate 0 -m 2 --user newuser --password abc
+onetemplate instantiate 1 -m 2 --user newuser --password abc
+
+for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevm deploy $i host01
+done
+
+sleep 5
+
+onevm migrate --live 0 host02
+onevm terminate --hard 1
+onevm poweroff 2
+
+sleep 5
+
+onevm suspend 0
+onevm resume 2
+
+sleep 5
+
+for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevm show $i -x > samples/vm/$i.xml
+done
+
+onevm list -x > samples/vm_pool/0.xml
 
 
 for i in  cluster datastore group vdc host image vmtemplate user vm vnet

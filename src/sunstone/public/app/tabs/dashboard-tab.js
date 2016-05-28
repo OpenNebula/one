@@ -66,12 +66,12 @@ define(function(require) {
         }
 
         var no_table = true;
-        $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_vdc_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
+        $("#acct_cpu_graph, #acct_mem_graph, #acct_disk_graph", "#dashboard_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
           '<i class="fa fa-spinner fa-spin"></i>'+
         '</span>')
         OpenNebulaVM.accounting({
           success: function(req, response) {
-            Accounting.fillAccounting($("#dashboard_vdc_user_accounting"), req, response, no_table);
+            Accounting.fillAccounting($("#dashboard_user_accounting"), req, response, no_table);
           },
           error: Notifier.onError,
           data: options
@@ -119,7 +119,7 @@ define(function(require) {
       }
     },
     'groupquotas': {
-      'html': require('hbs!./provision-tab/dashboard/vdc-quotas'),
+      'html': require('hbs!./provision-tab/dashboard/group-quotas'),
       'onShow': function() {
         OpenNebula.Group.show({
           data : {
@@ -138,27 +138,27 @@ define(function(require) {
                     group.VM_QUOTA.VM.VMS,
                     default_group_quotas.VM_QUOTA.VM.VMS);
 
-                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_str").html(vms["str"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+                $("#"+TAB_ID+" #provision_dashboard_group_rvms_percentage").html(vms["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_rvms_str").html(vms["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_rvms_meter").css("width", vms["percentage"]+"%");
 
                 var memory = QuotaWidgets.quotaMBInfo(
                     group.VM_QUOTA.VM.MEMORY_USED,
                     group.VM_QUOTA.VM.MEMORY,
                     default_group_quotas.VM_QUOTA.VM.MEMORY);
 
-                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_str").html(memory["str"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+                $("#"+TAB_ID+" #provision_dashboard_group_memory_percentage").html(memory["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_memory_str").html(memory["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_memory_meter").css("width", memory["percentage"]+"%");
 
                 var cpu = QuotaWidgets.quotaFloatInfo(
                     group.VM_QUOTA.VM.CPU_USED,
                     group.VM_QUOTA.VM.CPU,
                     default_group_quotas.VM_QUOTA.VM.CPU);
 
-                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_str").html(cpu["str"]);
-                $("#"+TAB_ID+" #provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+                $("#"+TAB_ID+" #provision_dashboard_group_cpu_percentage").html(cpu["percentage"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_cpu_str").html(cpu["str"]);
+                $("#"+TAB_ID+" #provision_dashboard_group_cpu_meter").css("width", cpu["percentage"]+"%");
             }
           }
         });

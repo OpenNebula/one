@@ -23,15 +23,16 @@
   </div>
   <div class="row">
     <div class="medium-6 columns">
-      <label for="presets">{{tr "Presets"}}</label>
+      <label for="presets">{{tr "Datastore"}}</label>
       <select id="presets" name="presets">
-        <option value="fs">{{tr "Filesystem"}}</option>
-        <option value="fs_lvm">{{tr "FS LVM"}}</option>
-        <option value="ceph">{{tr "Ceph"}}</option>
-        <option value="gluster">{{tr "Gluster"}}</option>
-        <option value="dev">{{tr "Devices"}}</option>
-        <option value="iscsi_libvirt">{{tr "iSCSI/Libvirt"}}</option>
-        <option value="vcenter">{{tr "vCenter"}}</option>
+        <option ds="fs" tm="shared" value="fs_shared">{{tr "Filesystem - shared mode"}}</option>
+        <option ds="fs" tm="ssh"    value="fs_ssh">{{tr "Filesystem - ssh mode"}}</option>
+        <option ds="fs" tm="qcow2"  value="fs_qcow2">{{tr "Filesystem - qcow2 mode"}}</option>
+        <option ds="ceph" tm="ceph" value="ceph">{{tr "Ceph"}}</option>
+        <option ds="vcenter" tm="vcenter" value="vcenter">{{tr "vCenter"}}</option>
+        <option ds="fs" tm="lvm" value="lvm">{{tr "LVM"}}</option>
+        <option ds="dev" tm="dev" value="raw">{{tr "Raw Device Mapping"}}</option>
+        <option ds="iscsi" tm="iscsi" value="iscsi_libvirt">{{tr "iSCSI - Libvirt initiator "}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -40,25 +41,10 @@
       <div id="cluster_id" name="cluster_id"></div>
     </div>
   </div>
-  <div class="row">
+  <div class="row drivers">
     <div class="large-12 columns">
       <fieldset>
-        <legend>{{tr "Type"}}</legend>
-        <div class="large-12 columns text-center">
-          <input id="image_ds_type" type="radio" name="ds_type" value="IMAGE_DS" checked/>
-          <label for="image_ds_type">{{tr "Images"}}</label>
-          <input id="system_ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />
-          <label for="system_ds_type">{{tr "System"}}</label>
-          <input id="file_ds_type" type="radio" name="ds_type" value="FILE_DS" />
-          <label for="file_ds_type">{{tr "Files"}}</label>
-        </div>
-      </fieldset>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-12 columns">
-      <fieldset>
-        <legend>{{tr "Managers"}}</legend>
+        <legend>{{tr "Drivers"}}</legend>
         <div class="medium-6 columns">
           <label for="ds_mad">{{tr "Datastore"}}</label>
           <select id="ds_mad" name="ds_mad">
@@ -96,6 +82,21 @@
     </div>
   </div>
   <div class="row">
+    <div class="large-12 columns">
+      <fieldset>
+        <legend>{{tr "Type"}}</legend>
+        <div class="large-12 columns text-center">
+          <input id="image_ds_type" type="radio" name="ds_type" value="IMAGE_DS" checked/>
+          <label for="image_ds_type">{{tr "Images"}}</label>
+          <input id="system_ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />
+          <label for="system_ds_type">{{tr "System"}}</label>
+          <input id="file_ds_type" type="radio" name="ds_type" value="FILE_DS" />
+          <label for="file_ds_type">{{tr "Files"}}</label>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <div class="row disk_type_wrapper">
     <div class="medium-6 columns">
       <label for="disk_type">{{tr "Disk type"}}:</label>
       <select id="disk_type" name="disk_type">

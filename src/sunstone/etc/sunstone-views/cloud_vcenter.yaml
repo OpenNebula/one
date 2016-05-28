@@ -15,7 +15,7 @@ tabs:
         panel_tabs:
             vm_info_tab: false
             vm_capacity_tab: false
-            vm_hotplugging_tab: false
+            vm_storage_tab: false
             vm_network_tab: false
             vm_snapshot_tab: false
             vm_placement_tab: false
@@ -62,9 +62,9 @@ tabs:
             # Overview of connected user's VMs
             vms: true
             # Group's quotas
-            vdcquotas: false
+            groupquotas: false
             # Overview of group's VMs
-            vdcvms: false
+            groupvms: false
         create_vm:
             # True to allow capacity (CPU, MEMORY, VCPU) customization
             capacity_select: true
