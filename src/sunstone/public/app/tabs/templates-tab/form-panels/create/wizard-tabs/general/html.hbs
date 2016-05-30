@@ -17,8 +17,7 @@
   <div id="template_name_form"  class="medium-6 columns">
     <label  for="NAME">
       {{tr "Name"}}
-      {{{tip (tr "Name that the VM will get for description purposes.")}}}
-      <input type="text" wizard_field="NAME" id="NAME" name="name" required/>
+      <input type="text" wizard_field="NAME" id="NAME" required/>
     </label>
   </div>
   <div  id="template_hypervisor_form" class="medium-6 columns">
@@ -33,7 +32,6 @@
   <div class="medium-6 columns">
     <label  for="DESCRIPTION">
       {{tr "Description"}}
-      {{{tip (tr "Description of the template")}}}
     </label>
     <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>
   </div>
@@ -42,7 +40,6 @@
       <div class="medium-6 columns">
         <label  for="LOGO">
           {{tr "Logo"}}
-          {{{tip (tr "Logo for the template.")}}}
         </label>
         <select wizard_field="LOGO" id="LOGO" name="LOGO">
           <option value=""></option>
@@ -63,7 +60,7 @@
         {{tr "vCenter Template UUID"}}
         <span class="tip"></span>
       </label>
-      <input type="text" id="vcenter_template_uuid" name="name"/>
+      <input type="text" id="vcenter_template_uuid"/>
     </div>
     <div class="medium-6 columns">
       <div class="row">
@@ -138,21 +135,21 @@
           {{tr "Memory"}}
             {{{tip (tr "Cost of each MB per hour")}}}
         </label>
-        <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
+        <input type="number" step="any" min="0" wizard_field="MEMORY_COST" id="MEMORY_COST"/>
       </div>
       <div class="medium-6 columns">
         <label  for="CPU_COST">
           {{tr "CPU"}}
             {{{tip (tr "Cost of each CPU per hour")}}}
         </label>
-        <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
+        <input type="number" step="any" min="0" wizard_field="CPU_COST" id="CPU_COST"/>
       </div>
       <div class="medium-6 columns left">
         <label  for="DISK_COST">
           {{tr "Disk"}}
             {{{tip (tr "Cost of each MB per hour")}}}
         </label>
-        <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
+        <input type="number" step="any" min="0" wizard_field="DISK_COST" id="DISK_COST"/>
       </div>
     </fieldset>
   </div>
@@ -160,7 +157,7 @@
 {{/isFeatureEnabled}}
 <div class="row">
   <div class="large-6 columns">
-    <input type="checkbox" id="sunstone_network_select" name="name"/>
+    <input type="checkbox" id="sunstone_network_select"/>
     <label  for="sunstone_network_select">
       {{tr "Do not allow to modify network configuration"}}
       {{{tip (tr "Users will not be able to remove or add new NICs")}}}

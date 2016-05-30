@@ -31,6 +31,8 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./hybrid/html');
+  var EC2HTML = require('hbs!./hybrid/ec2');
+  var AzureHTML = require('hbs!./hybrid/azure');
 
   /*
     CONSTANTS
@@ -52,28 +54,27 @@ define(function(require) {
       },
       {
         name: "AVAILABILITYZONE",
-        label: Locale.tr("Availability Zone"),
-        tooltip: Locale.tr("The Availability Zone in which to run the instance.")
+        label: Locale.tr("Availability zone")
       },
       {
         name: "BLOCKDEVICEMAPPING",
-        label: Locale.tr("Block Device Mapping"),
+        label: Locale.tr("Block device mapping"),
         tooltip: Locale.tr("The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax")
       },
       {
         name: "CLIENTTOKEN",
-        label: Locale.tr("Client Token"),
+        label: Locale.tr("Client token"),
         tooltip: Locale.tr("Unique, case-sensitive identifier you provide to ensure idempotency of the request.")
       },
       {
         name: "EBS_OPTIMIZED",
-        label: Locale.tr("EBS Optimized"),
+        label: Locale.tr("EBS optimized"),
         tooltip: Locale.tr("Obtain a better I/O throughput for VMs with EBS provisioned volumes")
       },
       {
         name: "ELASTICIP",
-        label: Locale.tr("Elastic IP"),
-        tooltip: Locale.tr("EC2 Elastic IP address to assign to the instance. This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip.")
+        label: Locale.tr("Elastic IP address"),
+        tooltip: Locale.tr("This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip.")
       },
       {
         name: "HOST",
@@ -82,24 +83,21 @@ define(function(require) {
       },
       {
         name: "INSTANCETYPE",
-        label: Locale.tr("Instance Type"),
-        tooltip: Locale.tr("Specifies the instance type."),
+        label: Locale.tr("Instance type"),
         required: true
       },
       {
         name: "KEYPAIR",
-        label: Locale.tr("Keypair"),
+        label: Locale.tr("Keypair name"),
         tooltip: Locale.tr("The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair")
       },
       {
         name: "LICENSEPOOL",
-        label: Locale.tr("License Pool"),
-        tooltip: Locale.tr("Name of the license pool.")
+        label: Locale.tr("License pool name")
       },
       {
         name: "PLACEMENTGROUP",
-        label: Locale.tr("Placement Group"),
-        tooltip: Locale.tr("Name of the placement group.")
+        label: Locale.tr("Placement group name")
       },
       {
         name: "PRIVATEIP",
@@ -113,13 +111,13 @@ define(function(require) {
       },
       {
         name: "SECURITYGROUPS",
-        label: Locale.tr("Security Groups"),
-        tooltip: Locale.tr("Name of the security group. You can specify more than one security group (comma separated).")
+        label: Locale.tr("Security group names"),
+        tooltip: Locale.tr("You can specify more than one security group (comma separated).")
       },
       {
         name: "SECURITYGROUPIDS",
-        label: Locale.tr("Security Group Ids"),
-        tooltip: Locale.tr("Id of the security group. You can specify more than one security group (comma separated).")
+        label: Locale.tr("Security group IDs"),
+        tooltip: Locale.tr("You can specify more than one security group (comma separated).")
       },
       {
         name: "SUBNETID",
@@ -133,12 +131,11 @@ define(function(require) {
       },
       {
         name: "TENANCY",
-        label: Locale.tr("Tenancy"),
-        tooltip: Locale.tr("The tenancy of the instance you want to launch.")
+        label: Locale.tr("Tenancy")
       },
       {
         name: "USERDATA",
-        label: Locale.tr("User Data"),
+        label: Locale.tr("User data"),
         tooltip: Locale.tr("Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation.")
       }
     ],
@@ -324,7 +321,6 @@ define(function(require) {
     var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab tabs-panel">' +
       '<div class="row">' +
         '<div class="large-12 columns">' +
-          '<label>' + Locale.tr("Hybrid Cloud") + '</label>' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="ec2" id="amazonRadio' + htmlId + '"><label for="amazonRadio' + htmlId + '">Amazon EC2</label>' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="azure" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
         '</div>' +
@@ -370,33 +366,13 @@ define(function(require) {
     providerSection.on("change", "input.hybridRadio", function() {
       $(".hybrid_inputs", providerSection).html("");
 
-      var required_str = "";
-      var not_required_str = "";
+      if (this.value == "ec2"){
+        $(".hybrid_inputs", providerSection).append(EC2HTML());
+      } else {
+        $(".hybrid_inputs", providerSection).append(AzureHTML());
+      }
 
-      $.each(HYBRID_INPUTS[this.value], function(index, obj) {
-        if (obj.required) {
-          required_str += '<div class="large-6 columns">' +
-            '<label>' +
-              obj.label + ' ' +
-              Tips.html(obj.tooltip) +
-            '</label>' +
-            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-          '</div>'
-        } else {
-          not_required_str += '<div class="large-6 columns">' +
-            '<label>' +
-              obj.label + ' ' +
-              Tips.html(obj.tooltip) +
-            '</label>' +
-            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-          '</div>'
-        }
-      });
-
-      $(".hybrid_inputs", providerSection).append(
-        required_str +
-        '<br><hr><br>' +
-        not_required_str);
+      Tips.setup(providerSection);
     })
   }
 

@@ -1,0 +1,156 @@
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "AMI"}}
+      {{{tip (tr "Unique ID of a machine image, returned by a call to ec2-describe-images.")}}}
+      <input required wizard_field="AMI" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Instance type"}}
+      <input required wizard_field="INSTANCETYPE" type="text">
+    </label>
+  </div>
+</div>
+<br/>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "AKI"}}
+      {{{tip (tr "The ID of the kernel with which to launch the instance.")}}}
+      <input wizard_field="AKI" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Availability zone"}}
+      <input wizard_field="AVAILABILITYZONE" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Block device mapping"}}
+      {{{tip (tr "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax")}}}
+      <input wizard_field="BLOCKDEVICEMAPPING" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Client token"}}
+      {{{tip (tr "Unique, case-sensitive identifier you provide to ensure idempotency of the request.")}}}
+      <input wizard_field="CLIENTTOKEN" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "EBS optimized"}}
+      {{{tip (tr "Obtain a better I/O throughput for VMs with EBS provisioned volumes")}}}
+      <input wizard_field="EBS_OPTIMIZED" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Elastic IP address"}}
+      {{{tip (tr "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip.")}}}
+      <input wizard_field="ELASTICIP" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "OpenNebula Host"}}
+      {{{tip (tr "Defines which OpenNebula host will use this template")}}}
+      <input wizard_field="HOST" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Keypair name"}}
+      {{{tip (tr "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair")}}}
+      <input wizard_field="KEYPAIR" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "License pool name"}}
+      <input wizard_field="LICENSEPOOL" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Placement group name"}}
+      <input wizard_field="PLACEMENTGROUP" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Private IP"}}
+      {{{tip (tr "If you’re using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet.")}}}
+      <input wizard_field="PRIVATEIP" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Ramdisk"}}
+      {{{tip (tr "The ID of the RAM disk to select.")}}}
+      <input wizard_field="RAMDISK" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Security group names"}}
+      {{{tip (tr "You can specify more than one security group (comma separated).")}}}
+      <input wizard_field="SECURITYGROUPS" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Security group IDs"}}
+      {{{tip (tr "You can specify more than one security group (comma separated).")}}}
+      <input wizard_field="SECURITYGROUPIDS" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Subnet ID"}}
+      {{{tip (tr "If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")}}}
+      <input wizard_field="SUBNETID" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Tags"}}
+      {{{tip (tr "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated).")}}}
+      <input wizard_field="TAGS" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Tenancy"}}
+      <input wizard_field="TENANCY" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "User data"}}
+      {{{tip (tr "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation.")}}}
+      <input wizard_field="USERDATA" type="text">
+    </label>
+  </div>
+</div>

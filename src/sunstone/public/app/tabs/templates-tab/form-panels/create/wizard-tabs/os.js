@@ -404,6 +404,13 @@ define(function(require) {
       });
     }
 
+    if (templateJSON.DISK == undefined && templateJSON.NIC == undefined){
+      $("table.boot-order tbody", context).append(
+        '<tr>\
+          <td>'+Locale.tr("Disks and NICs will appear here")+'</td>\
+        </tr>');
+    }
+
     if (prev_value.length > 0){
       var pos = 0;
 
