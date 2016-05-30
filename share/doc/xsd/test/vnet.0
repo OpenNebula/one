@@ -6,7 +6,7 @@ VN_MAD  = dummy
 AR = [
     IP = 130.10.0.1,
     TYPE = IP4,
-    SIZE = 4
+    SIZE = 40
 ]
 
 # Custom Attributes to be used in Context
