@@ -44,10 +44,7 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="name" >
-            {{tr "Name"}}:
-            <span class="tip">
-              {{tr "Name that the Virtual Network will get for description purposes."}}
-            </span>
+            {{tr "Name"}}
           </label>
           <input type="text" wizard_field="NAME" required name="name" id="name"/>
         </div>
@@ -55,8 +52,7 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="DESCRIPTION" >
-            {{tr "Description"}}:
-            <span class="tip">{{tr "Description of the Virtual Network"}}</span>
+            {{tr "Description"}}
           </label>
           <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
         </div>
@@ -66,7 +62,7 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="bridge">
-            {{tr "Bridge"}}:
+            {{tr "Bridge"}}
             <span class="tip">
               {{tr "Name of the physical bridge in the physical host where the VM should connect its network interface"}}
             </span>
@@ -77,98 +73,85 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="network_mode">
-            {{tr "Network mode"}}:
-            <span class="tip">
-              {{tr "The network driver to implement the virtual network"}}
-            </span>
+            {{tr "Network mode"}}
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
             <option value="dummy">{{tr "Bridged"}}</option>
-            <option value="fw">{{tr "Bridged & security groups"}}</option>
-            <option value="ebtables">{{tr "Bridged & ebtables isolation"}}</option>
+            <option value="fw">{{tr "Bridged & Security Groups"}}</option>
+            <option value="ebtables">{{tr "Bridged & ebtables VLAN"}}</option>
             <option value="802.1Q">{{tr "802.1Q"}}</option>
             <option value="vxlan">{{tr "VXLAN"}}</option>
             <option value="ovswitch">{{tr "Open vSwitch"}}</option>
             <option value="custom">{{tr "Custom"}}</option>
           </select>
         </div>
-        <div class="large-3 medium-6 columns">
+        <div class="large-3 medium-6 columns mode_param custom">
           <label for="vn_mad">
-            {{tr "VN MAD"}}:
-            <span class="tip">{{tr "Name of the custom network driver."}}</span>
+            {{tr "Network Driver (VN_MAD)"}}
           </label>
           <input type="text" wizard_field="VN_MAD" name="vn_mad" id="vn_mad" />
         </div>
         <div class="large-12 columns">
           <div class="network_mode_description" value="dummy">
-            {{tr "Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored."}}
+            {{tr "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."}}
           </div>
           <div class="network_mode_description" value="fw">
-            {{tr "Firewall: Same as the Default driver but applies Security Group rules."}}
-          </div>
-          <div class="network_mode_description" value="802.1Q">
-            {{tr "802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches. Security Group rules are applied."}}
-          </div>
-          <div class="network_mode_description" value="vxlan">
-            {{tr "VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."}}
+            {{tr "Bridged & Security Groups, bridged network with Security Group rules."}}
           </div>
           <div class="network_mode_description" value="ebtables">
-            {{tr "ebtables: restrict network access through Ebtables rules. No special hardware configuration required. Security Group rules are applied."}}
+            {{tr "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."}}
           </div>
-          <div class="network_mode_description" value="openvswitch">
-            {{tr "Open vSwitch: restrict network access with Open vSwitch Virtual Switch. Security Groups are not fully supported in this mode."}}
+          <div class="network_mode_description" value="802.1Q">
+            {{tr "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."}}
+          </div>
+          <div class="network_mode_description" value="vxlan">
+            {{tr "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."}}
+          </div>
+          <div class="network_mode_description" value="ovswitch">
+            {{tr "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."}}
           </div>
           <div class="network_mode_description" value="custom">
-            {{tr "Custom: uses a custom network driver."}}
+            {{tr "Custom, use a custom virtual network driver."}}
           </div>
         </div>
       </div>
       <br>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
           <label for="mac_spoofing">
             <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />
-            {{tr "Filter MAC spoofing"}}
-            <span class="tip">
-              {{tr "Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers."}}
-            </span>
+            {{tr "MAC spoofing filter"}}
           </label>
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
           <label for="ip_spoofing">
             <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />
-            {{tr "Filter IP spoofing"}}
-            <span class="tip">
-              {{tr "Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers."}}
+            {{tr "IP spoofing filter"}}
             </span>
           </label>
         </div>
       </div>
       <div class="row">
-        <div class="medium-3 columns left">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch custom">
           <label for="vlan_id">
-            {{tr "VLAN ID"}}:
-            <span class="tip">{{tr "Optional: Set a specific VLAN id"}}</span>
+            {{tr "VLAN ID"}}
           </label>
           <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />
         </div>
-        <div class="medium-3 columns left">
+        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
           <label for="phydev">
-            {{tr "Physical device"}}:
+            {{tr "Physical device"}}
             <span class="tip">
-              {{tr "Name of the physical network device that will be attached to the bridge"}}
+              {{tr "Physical network device to send/receive virtual network traffic"}}
             </span>
           </label>
           <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
         </div>
-        <div class="medium-3 columns left">
+        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
           <label for="mtu">
-            {{tr "MTU"}}:
-            <span class="tip">
-              {{tr "Set the MTU for the tagged interface. This MTU will be then inherited by the bridge and by the tagged interface."}}
-            </span>
+            {{tr "MTU of the interface"}}
           </label>
           <input type="text" wizard_field="MTU" name="mtu" id="mtu" />
         </div>

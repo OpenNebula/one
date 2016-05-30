@@ -121,84 +121,65 @@ define(function(require) {
 
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
+    $("div.mode_param", context).hide();
+    $("div.mode_param input", context).prop('wizard_field_disabled', true);
+
     $('#network_mode', context).change(function() {
       $('input,label[for!="network_mode"]', $(this).parent()).hide();
       $('input', $(this).parent()).val("");
       switch ($(this).val()) {
       case "dummy":
+
+        $("div.mode_param.dummy", context).show();
+        $("div.mode_param.dummy input", context).prop('wizard_field_disabled', false);
+
+        $('input#phydev', context).removeAttr('required');
+        $('input#bridge', context).attr('required', '');
+        $('input#vn_mad', context).removeAttr('required');
+        break;
       case "fw":
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#vlan_id,label[for="vlan_id"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).hide().prop('wizard_field_disabled', false);
+        $("div.mode_param.fw", context).show();
+        $("div.mode_param.fw input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "802.1Q":
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).show().prop('wizard_field_disabled', false);
+        $("div.mode_param.8021Q", context).show();
+        $("div.mode_param.8021Q input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "vxlan":
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).show().prop('wizard_field_disabled', false);
+        $("div.mode_param.vxlan", context).show();
+        $("div.mode_param.vxlan input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "ebtables":
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#vlan_id,label[for="vlan_id"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).hide().prop('wizard_field_disabled', false);
+        $("div.mode_param.ebtables", context).show();
+        $("div.mode_param.ebtables input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "openvswitch":
-        $('input#vn_mad,label[for="vn_mad"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).hide().prop('wizard_field_disabled', true);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).hide().prop('wizard_field_disabled', false);
+        $("div.mode_param.ovswitch", context).show();
+        $("div.mode_param.ovswitch input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
         $('input#vn_mad', context).removeAttr('required');
         break;
       case "custom":
-        $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false);
-        $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false);
-        $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false);
-        $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false);
-        $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
-        $('input#mtu,label[for="mtu"]', context).show().prop('wizard_field_disabled', false);
+        $("div.mode_param.custom", context).show();
+        $("div.mode_param.custom input", context).prop('wizard_field_disabled', false);
 
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
