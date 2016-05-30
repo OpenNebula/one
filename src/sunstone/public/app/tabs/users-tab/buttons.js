@@ -49,10 +49,10 @@ define(function(require) {
     },
     "User.chgrp" : {
       type: "confirm_with_select",
-      text: Locale.tr("Change group"),
+      text: Locale.tr("Change primary group"),
       layout: "user_select",
       select: "Group",
-      tip: Locale.tr("This will change the main group of the selected users. Select the new group")+":"
+      tip: Locale.tr("This will change the primary group of the selected users. Select the new group")+":"
     },
     "User.delete" : {
       type: "confirm",
