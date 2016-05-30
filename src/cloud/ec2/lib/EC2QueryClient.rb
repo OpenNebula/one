@@ -71,7 +71,7 @@ module EC2QueryClient
         #
         ######################################################################
         def initialize(access=nil, secret=nil, endpoint=nil, timeout=nil)
-            # Autentication
+            # Authentication
             ec2auth  = nil
             @timeout = nil
 
