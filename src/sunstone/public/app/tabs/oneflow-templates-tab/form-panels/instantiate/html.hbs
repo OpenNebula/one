@@ -17,14 +17,13 @@
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
     <div class="medium-6 columns">
-      <label for="service_name">{{tr "Service Name"}}
-        <span class="tip">{{tr "Defaults to template name when emtpy. You can use the wildcard %i. When creating several Services, %i will be replaced with a different number starting from 0 in each of them"}}.</span>
+      <label for="service_name">{{tr "Service name"}}
+        <span class="tip">{{tr "When creating several Services, the wildcard %i will be replaced with a number starting from 0"}}.</span>
       </label>
       <input type="text" name="service_name" id="service_name" />
     </div>
     <div class="medium-6 columns">
       <label for="service_n_times">{{tr "Number of instances"}}
-        <span class="tip">{{tr "Number of Services that will be created using this template"}}.</span>
       </label>
       <input type="number" min="1" name="service_n_times" id="service_n_times" value="1">
     </div>

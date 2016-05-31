@@ -45,7 +45,7 @@ define(function(require) {
        '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
            <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
-           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + Locale.tr("Add") + '</button>\</td>\
+           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + "+" + '</button>\</td>\
          </tr>\
       </table>'
 
@@ -301,7 +301,7 @@ define(function(require) {
         $(this).parent().parent().after('<tr>\
            <td class="key_td"><input type="text" style="text-align:center" name="new_key_vectorial" id="new_key_vectorial" /></td>\
            <td class="value_td"><input type="text" name="new_value" id="new_value_vectorial" /></td>\
-           <td class=""><button class="' + vectorial_key + " " + ocurrence + '" id="button_add_value_vectorial">' + Locale.tr("Add") + '</button>\</td>\
+           <td class=""><button class="' + vectorial_key + " " + ocurrence + '" id="button_add_value_vectorial">' + "+" + '</button>\</td>\
           </tr>');
       }
     });

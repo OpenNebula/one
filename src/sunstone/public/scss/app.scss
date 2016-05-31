@@ -82,12 +82,6 @@ a {
   font-weight: normal;
 }
 
-label {
-  i {
-    color: $medium-gray;
-  }
-}
-
 label.secondary.is-invalid-label {
   background-color: $form-label-color-invalid;
 }
@@ -125,8 +119,8 @@ meter {
 }
 
 .disk-resize-icon {
-  color: $bold-black;
   font-weight: $global-weight-normal;
+  margin: 0.3em;
 }
 
 .log-tab {

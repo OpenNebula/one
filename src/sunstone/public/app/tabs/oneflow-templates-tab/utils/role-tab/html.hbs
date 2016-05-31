@@ -16,27 +16,26 @@
 
 <div class="row">
   <div class="service_template_param service_role st_man medium-6 columns">
-    <label for="name">{{tr "Role Name"}}
-      <span class="tip">{{tr "Name of the role"}}</span>
+    <label>
+      {{tr "Role name"}}
+      <input type="text" id="role_name" name="name" aria-describedby="helpText" required pattern="^\w+$"/>
+      <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
     </label>
-    <input type="text" id="role_name" name="name" required pattern="^\w+$"/>
-    <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
   </div>
   <div class="service_template_param service_role medium-2 columns end">
-    <label for="cardinality">{{tr "VMs"}}
-      <span class="tip">{{tr "Number of VMs to instantiate with this role"}}</span>
+    <label>
+      {{tr "Number of VMs"}}
+      <input type="number" min="0" id="cardinality" name="cardinality" value="1"/>
     </label>
-    <input type="text" id="cardinality" name="cardinality" value="1"/>
   </div>
 </div>
 <div class="row">
   <div class="service_template_param service_role small-12 columns">
-    <label for="vm_template">{{tr "VM template"}}
-      <span class="tip">{{tr "Template associated to this role"}}</span>
+    <label>
+      {{tr "VM template to create this role's VMs"}}
     </label>
+    <br/>
     {{{templatesTableHTML}}}
-    <div id="vm_template">
-    </div>
   </div>
 </div>
 <div class="row">
@@ -70,25 +69,25 @@
 <br>
 <div class="row">
   <div class="large-12 columns elasticity_accordion">
-    {{#advancedSection (tr "Role Elasticity") }}
+    {{#advancedSection (tr "Role elasticity") }}
     <div class="row">
       <div class="medium-4 columns">
-        <label for="min_vms">{{tr "Min VMs"}}
-          <span class="tip">{{tr "Minimum number of VMs for elasticity adjustments"}}</span>
+        <label>
+          {{tr "Min VMs"}}
+          <input type="number" min="0" id="min_vms" name="min_vms" value="" />
         </label>
-        <input type="text" id="min_vms" name="min_vms" value="" />
       </div>
       <div class="medium-4 columns">
-        <label for="max_vms">{{tr "Max VMs"}}
-          <span class="tip">{{tr "Maximum number of VMs for elasticity adjustments"}}</span>
+        <label>{{tr "Max VMs"}}
+          <input type="number" min="0" id="max_vms" name="max_vms" value="" />
         </label>
-        <input type="text" id="max_vms" name="max_vms" value="" />
       </div>
       <div class="service_template_param service_role medium-4 columns">
-        <label for="cooldown">{{tr "Cooldown"}}
-          <span class="tip">{{tr "Cooldown time after an elasticity operation (secs)"}}</span>
+        <label>
+          {{tr "Cooldown"}}
+          <span class="tip">{{tr "Cooldown time after an elasticity operation (seconds)"}}</span>
+          <input type="number" min="0" id="cooldown" name="cooldown" value="" />
         </label>
-        <input type="text" id="cooldown" name="cooldown" value="" />
       </div>
     </div>
     <div class="row">
@@ -134,7 +133,7 @@
           <tfoot>
             <tr>
               <td colspan="8">
-                <a type="button" class="button small radius secondary small-12" id="tf_btn_elas_policies"><i class="fa fa-plus"></i> {{tr "Add another policy"}}</a>
+                <a type="button" class="button small radius secondary small-12" id="tf_btn_elas_policies"><i class="fa fa-lg fa-plus-circle"></i></a>
               </td>
             </tr>
           </tfoot>
@@ -181,7 +180,7 @@
           <tfoot>
             <tr>
               <td colspan="6">
-                <a type="button" class="button small radius secondary small-12" id="tf_btn_sche_policies"><i class="fa fa-plus"></i> {{tr "Add another policy"}}</a>
+                <a type="button" class="button small radius secondary small-12" id="tf_btn_sche_policies"><i class="fa fa-lg fa-plus-circle"></i></a>
               </td>
             </tr>
           </tfoot>
@@ -194,11 +193,11 @@
 <br>
 <div class="row">
   <div class="large-12 columns advanced_role_accordion">
-    {{#advancedSection (tr "Advanced Role Parameters") }}
+    {{#advancedSection (tr "Advanced role parameters") }}
     <div class="row">
       <div class="service_template_param service_role medium-6 columns">
-        <label for="shutdown_action_role">{{tr "Shutdown action"}}
-          <span class="tip">{{tr "VM shutdown action: 'terminate' or 'terminate-hard'. If it is not set, the one set for the Service will be used"}}</span>
+        <label for="shutdown_action_role">{{tr "VM shutdown action"}}
+          <span class="tip">{{tr "If it is not set, the one set for the Service will be used"}}</span>
         </label>
         <select name="shutdown_action_role">
           <option value=""></option>
@@ -211,10 +210,10 @@
     </div>
     <div class="row">
       <div class="service_template_param st_man large-12 columns">
-        <label  for="vm_template_contents">{{tr "VM Template Content"}}
+        <label  for="vm_template_contents">{{tr "VM template content"}}
           <span class="tip">{{tr "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"}}</span>
         </label>
-        <textarea type="text" class="vm_template_contents" name="vm_template_contents"/>
+        <textarea type="text" rows="4" class="vm_template_contents monospace" name="vm_template_contents" placeholder='ATTRIBUTE = "VALUE"'/>
       </div>
     </div>
     {{/advancedSection}}

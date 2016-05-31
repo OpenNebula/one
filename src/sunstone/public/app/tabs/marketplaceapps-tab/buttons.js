@@ -40,14 +40,14 @@ define(function(require) {
       text: Locale.tr("Change owner"),
       select: "User",
       layout: "user_select",
-      tip: Locale.tr("Select the new owner") + ":"
+      tip: Locale.tr("Select the new owner")
     },
     "MarketPlaceApp.chgrp" : {
       type: "confirm_with_select",
       text: Locale.tr("Change group"),
       select: "Group",
       layout: "user_select",
-      tip: Locale.tr("Select the new group") + ":"
+      tip: Locale.tr("Select the new group")
     },
     "MarketPlaceApp.enable" : {
       type: "action",

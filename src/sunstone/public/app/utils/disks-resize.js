@@ -135,11 +135,11 @@ define(function(require){
             (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
         if (persistent){
-          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-floppy-o" title="' +
+          $("label", diskContext).append('<i class="disk-resize-icon has-tip left fa fa-lg fa-floppy-o" title="' +
               Locale.tr("Persistent image. The changes will be saved back to the datastore after the VM is shut down") + '"></i>')
 
         }else{
-          $("label", diskContext).append('<i class="disk-resize-icon fa-border has-tip left fa fa-lg fa-recycle" title="' +
+          $("label", diskContext).append('<i class="disk-resize-icon has-tip left fa fa-lg fa-recycle" title="' +
               Locale.tr("Non-persistent disk. The changes will be lost once the VM is shut down") + '"></i>')
 
         }
@@ -147,12 +147,12 @@ define(function(require){
         if (disk.IMAGE_STATE){
           var color_class = OpenNebulaImage.stateColor(disk.IMAGE_STATE) + "-color";
 
-          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+          $("label", diskContext).append('<i class="'+color_class+' disk-resize-icon has-tip left fa fa-square" title="' +
               Locale.tr("Image state: ") + OpenNebulaImage.stateStr(disk.IMAGE_STATE) + '"></i>')
         } else if (disk.IMAGE || disk.IMAGE_ID) {
           var color_class = "error-color";
 
-          $("label", diskContext).append('<i class="'+color_class+' fa-border has-tip left fa fa-square" title="' +
+          $("label", diskContext).append('<i class="'+color_class+' disk-resize-icon has-tip left fa fa-square" title="' +
               Locale.tr("Image was not found") + '"></i>')
         } // else is volatile, does not have state
 

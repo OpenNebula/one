@@ -31,7 +31,7 @@ define(function(require) {
       type: "confirm_with_select",
       text: Locale.tr("Select cluster"),
       select: "Cluster",
-      tip: Locale.tr("Select the destination cluster:"),
+      tip: Locale.tr("Select the destination cluster"),
       layout: "main"
     },
     "Host.enable" : {

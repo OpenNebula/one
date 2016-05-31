@@ -55,7 +55,7 @@ define(function(require) {
       text: Locale.tr("Change owner"),
       layout: "user_select",
       select: "User",
-      tip: Locale.tr("Select the new owner")+":"
+      tip: Locale.tr("Select the new owner")
     },
 
     "Network.chgrp" : {
@@ -63,7 +63,7 @@ define(function(require) {
       text: Locale.tr("Change group"),
       layout: "user_select",
       select: "Group",
-      tip: Locale.tr("Select the new group")+":"
+      tip: Locale.tr("Select the new group")
     },
 
     "Network.delete" : {

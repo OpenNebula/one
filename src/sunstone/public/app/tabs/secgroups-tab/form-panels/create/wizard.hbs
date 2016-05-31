@@ -18,24 +18,21 @@
   <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
     <div class="row">
       <div class="medium-4 columns">
-        <label for="security_group_name">{{tr "Security Group Name"}}:</label>
+        <label for="security_group_name">{{tr "Name"}}</label>
         <input required type="text" name="security_group_name" id="security_group_name"/>
       </div>
       <div class="medium-8 columns">
         <label for="security_group_description">{{tr "Description"}}
-          <span class="tip">{{tr "Description for the Security Group"}}</span>
         </label>
         <textarea type="text" id="security_group_description" name="security_group_description" style="height: 70px;"/>
       </div>
     </div>
-    <hr/>
   </form>
   <form data-abide="ajax" id="rules_form_wizard" action="">
     <div class="row collapse" id="new_rule_wizard">
       <div class="row">
         <div class="medium-4 columns">
-          <label>{{tr "Type"}}
-            <span class="tip">{{tr "Defines the direction of the rule."}}</span>
+          <label>{{tr "Traffic direction"}}
           </label>
           <select class="security_group_rule_type">
             <option value="inbound" selected="selected">{{tr "Inbound"}}</option>
@@ -44,7 +41,6 @@
         </div>
         <div class="medium-4 columns">
           <label>{{tr "Protocol"}}
-            <span class="tip">{{tr "Defines the protocol of the rule."}}</span>
           </label>
           <select class="security_group_rule_protocol">
             <option value="TCP" selected="selected">{{tr "TCP"}}</option>
@@ -56,7 +52,6 @@
         </div>
         <div class="medium-4 columns icmp_type_wrapper">
           <label>{{tr "ICMP Type"}}
-            <span class="tip">{{tr "Specific ICMP type of the rule. If a type has multiple codes, it includes all the codes within."}}</span>
           </label>
           <select class="security_group_rule_icmp_type">
             <option value="" selected="selected">{{tr "All"}}</option>
@@ -79,7 +74,6 @@
       <div class="row range_row">
         <div class="medium-4 columns">
           <label>{{tr "Port range"}}
-            <span class="tip">{{tr "Selects whether to apply this TCP or UDP rule to all the ports or just a specific set."}}</span>
           </label>
           <select class="security_group_rule_range_sel">
             <option value="ALL" selected="selected">{{tr "All"}}</option>
@@ -87,32 +81,27 @@
           </select>
         </div>
         <div class="medium-4 columns end security_group_rule_range">
-          <label>{{tr "Iptables range"}}
-            <span class="tip">{{tr "A Port Range to filter specific ports. Uses the iptables port syntax: port[,port|,port:port]..."}}</span>
-          </label>
+          <label>&nbsp</label>
           <input type="text" placeholder="22,53,80:90,110,1024:65535"/>
         </div>
       </div>
       <div class="row">
         <div class="medium-4 columns">
-          <label>{{tr "Network"}}
-            <span class="tip">{{tr "Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custom defined network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already defined VNETs."}}</span>
+          <label>{{tr "Target Network"}}
           </label>
           <select class="security_group_rule_network_sel">
-            <option value="ANY" selected="selected">{{tr "Any"}}</option>
-            <option value="NETWORK">{{tr "Network"}}</option>
-            <option value="VNET">{{tr "Virtual Network"}}</option>
+            <option value="ANY" selected="selected">{{tr "Any network"}}</option>
+            <option value="NETWORK">{{tr "Manual network"}}</option>
+            <option value="VNET">{{tr "OpenNebula Virtual Network"}}</option>
           </select>
         </div>
         <div class="medium-4 columns security_group_rule_network">
-          <label for="security_group_rule_first_ip">{{tr "IP Start"}}:
-            <span class="tip">{{tr "First IP address"}}</span>
+          <label for="security_group_rule_first_ip">{{tr "First IP address"}}
           </label>
           <input id="security_group_rule_first_ip" type="text" placeholder="192.168.10.1"/>
         </div>
         <div class="medium-4 columns security_group_rule_network">
-          <label for="security_group_rule_size">{{tr "Size"}}:
-            <span class="tip">{{tr "Number of addresses in the range"}}</span>
+          <label for="security_group_rule_size">{{tr "Size"}}
           </label>
           <input id="security_group_rule_size" type="text" placeholder="254"/>
         </div>
@@ -127,7 +116,7 @@
     <div class="row">
       <div class="medium-8 small-centered columns">
         <button type="submit" class="add_security_group_rule button small small-12 radius">
-          <i class="fa fa-angle-double-down"></i> {{tr "Add Rule"}}
+          {{tr "+ Security Group rule"}}
         </button>
       </div>
     </div>
