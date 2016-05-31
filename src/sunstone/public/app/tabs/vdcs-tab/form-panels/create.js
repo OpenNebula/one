@@ -126,16 +126,12 @@ define(function(require) {
     // It's better to duplicate this code in _fill and make sure the
     // resourcesTab.fill is executed in the callback
     if (this.action != "update") {
-      var zone_ids = [];
-
       OpenNebulaZone.list({
         timeout: true,
         success: function (request, obj_list){
           var zoneSection = $("#vdcCreateResourcesTab",context);
 
           $.each(obj_list,function(){
-            zone_ids.push(this.ZONE.ID);
-
             that.resourcesTab.addResourcesZone(
               this.ZONE.ID,
               this.ZONE.NAME,
@@ -143,8 +139,6 @@ define(function(require) {
           });
 
           that.resourcesTab.setup(zoneSection);
-
-          that.zone_ids = zone_ids;
         },
         error: Notifier.onError
       });
@@ -357,16 +351,12 @@ define(function(require) {
 
     this.originalSelectedResources = Utils.indexedVdcResources(element);
 
-    var zone_ids = [];
-
     OpenNebulaZone.list({
       timeout: true,
       success: function (request, obj_list){
         var zoneSection = $("#vdcCreateResourcesTab",context);
 
         $.each(obj_list,function(){
-          zone_ids.push(this.ZONE.ID);
-
           that.resourcesTab.addResourcesZone(
             this.ZONE.ID,
             this.ZONE.NAME,
@@ -375,8 +365,6 @@ define(function(require) {
 
         that.resourcesTab.setup(zoneSection);
         that.resourcesTab.fill(zoneSection, that.originalSelectedResources);
-
-        that.zone_ids = zone_ids;
       },
       error: Notifier.onError
     });
