@@ -29,7 +29,6 @@
         <div class="medium-6 columns">
           <label for="DESCRIPTION" >
             {{tr "Description"}}
-            <span class="tip">{{tr "Description of the Virtual Router"}}</span>
           </label>
           <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
         </div>
@@ -37,15 +36,13 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="keepalived_id" >
-            {{tr "Keepalived ID"}}
-            <span class="tip">{{tr "Optional. Sets keepalived configuration parameter 'virtual_router_id'"}}</span>
+            {{tr "Keepalive service ID"}}
           </label>
           <input type="text" wizard_field="KEEPALIVED_ID" name="keepalived_id" id="keepalived_id"/>
         </div>
         <div class="medium-6 columns">
           <label for="keepalived_password" >
-            {{tr "Keepalived password"}}
-            <span class="tip">{{tr "Optional. Sets keepalived configuration parameter 'authentication/auth_pass'"}}</span>
+            {{tr "Keepalive password"}}
           </label>
           <input type="text" wizard_field="KEEPALIVED_PASSWORD" name="keepalived_password" id="keepalived_password"/>
         </div>
@@ -69,29 +66,23 @@
     <div class="row nameContainer">
       <div class="medium-4 columns">
         <label for="vm_name">
-          {{tr "VM Name"}}
+          {{tr "Virtual machine name"}}
           <span class="tip">
-            {{tr "Defaults to template name when emtpy. You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them"}}.
+            {{tr "When creating multiple VMs, %i is replaces by the VM number in the set"}}.
           </span>
         </label>
         <input type="text" name="vm_name" id="vm_name" />
       </div> 
       <div class="medium-4 columns">
         <label for="vm_n_times">
-          {{tr "Number of instances"}}
-          <span class="tip">
-            {{tr "Number of Virtual Machines that will be created using this template"}}.
-          </span>
+          {{tr "Number of VM instances"}}
         </label>
         <input type="text" name="vm_n_times" id="vm_n_times" value="1">
       </div>
       <div class="medium-4 columns">
         <input type="checkbox" name="hold" id="hold"/>
         <label for="hold">
-          {{tr "Hold"}}
-          <span class="tip">
-            {{tr "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."}}
-          </span>
+          {{tr "Start on hold"}}
         </label>
       </div>
     </div>

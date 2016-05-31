@@ -64,7 +64,7 @@
           <label for="bridge">
             {{tr "Bridge"}}
             <span class="tip">
-              {{tr "Name of the physical bridge in the physical host where the VM should connect its network interface"}}
+              {{tr "Name of the physical bridge in the nodes to attach VM NICs"}}
             </span>
           </label>
           <input type="text" wizard_field="BRIDGE" name="bridge" id="bridge" />
@@ -144,7 +144,7 @@
           <label for="phydev">
             {{tr "Physical device"}}
             <span class="tip">
-              {{tr "Physical network device to send/receive virtual network traffic"}}
+              {{tr "Node NIC to send/receive virtual network traffic"}}
             </span>
           </label>
           <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
@@ -159,14 +159,14 @@
     </div>
     <div class="tabs-panel" id="vnetCreateARTab">
       <div class="row collapse" id="vnetCreateARTabCreate">
-        <div class="large-3 columns">
+        <div class="large-2 columns">
           <ul class="tabs vertical" id="vnet_wizard_ar_tabs" data-tabs></ul>
           <button type="button" class="button small" id="vnet_wizard_ar_btn">
             <span class="fa fa-plus"></span>
-            {{tr "Add another Address Range"}}
+            {{tr "Address Range"}}
           </button>
         </div>
-        <div class="large-9 columns">
+        <div class="large-10 columns">
           <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content" data-tabs-content="vnet_wizard_ar_tabs"></div>
         </div>
       </div>
@@ -192,15 +192,13 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="net_address">
-            {{tr "Network address"}}:
-            <span class="tip">{{tr "Base network address. For example, 192.168.1.0"}}</span>
+            {{tr "Network address"}}
           </label>
           <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />
         </div>
         <div class="medium-6 columns">
           <label for="net_mask">
-            {{tr "Network mask"}}:
-            <span class="tip">{{tr "Network mask. For example, 255.255.255.0"}}</span>
+            {{tr "Network mask"}}
           </label>
           <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />
         </div>
@@ -208,17 +206,13 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="net_gateway">
-            {{tr "Gateway"}}:
-            <span class="tip">
-              {{tr "Router for this network. Leave empty if the network is not routable"}}
-            </span>
+            {{tr "Gateway"}}
           </label>
           <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />
         </div>
         <div class="medium-6 columns">
           <label for="net_gateway6">
-            {{tr "IPv6 Gateway"}}:
-            <span class="tip">{{tr "IPv6 Router for this network"}}</span>
+            {{tr "IPv6 Gateway"}}
           </label>
           <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />
         </div>
@@ -226,8 +220,7 @@
       <div class="row">
         <div class="medium-6 columns">
           <label for="net_dns">
-            {{tr "DNS"}}:
-            <span class="tip">{{tr "Specific DNS for this network"}}</span>
+            {{tr "DNS"}}
           </label>
           <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />
         </div>
