@@ -14,6 +14,13 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row collapse" id="default_vdc_warning">
+    <div class="large-12 columns text-right">
+      <span class="radius warning label">
+        <i class="fa fa-warning"/> {{tr "New Groups are automatically added to the default VDC"}}
+      </span>
+    </div>
+  </div>
   <div class="row">
     <div class="columns medium-5">
       <label>
@@ -197,15 +204,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="reveal-footer">
-    <div class="row collapse" id="default_vdc_warning">
-      <div class="large-12 columns text-right">
-        <span class="radius warning label">
-          <i class="fa fa-warning"/> {{tr "New Groups are automatically added to the default VDC"}}
-        </span>
       </div>
     </div>
   </div>

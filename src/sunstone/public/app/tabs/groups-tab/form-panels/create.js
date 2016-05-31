@@ -300,6 +300,7 @@ define(function(require) {
 
     // Disable parts of the wizard
     $("input#name", context).attr("disabled", "disabled");
+    $("#default_vdc_warning", context).hide();
 
     $("a[href='#administrators']", context).parents("dd").hide();
     $("a[href='#resource_creation']", context).parents("dd").hide();

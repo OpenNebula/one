@@ -57,21 +57,16 @@
   <div class="row">
     <div class="medium-6 columns">
       <label for="VMTEMPLATE">
-        {{tr "VM Template"}}
-        <span class="tip">
-          {{tr "VM Template"}}
-        </span>
+        {{tr "VM template"}}
+        {{{tip (tr "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported")}}}
       </label>
-      <textarea id="VMTEMPLATE" rows="2" wizard_field="VMTEMPLATE64" wizard_field_64="true"></textarea>
+      <textarea class="monospace" id="VMTEMPLATE" rows="4" wizard_field="VMTEMPLATE64" wizard_field_64="true" placeholder='ATTRIBUTE = "VALUE"'></textarea>
     </div>
     <div class="medium-6 columns">
       <label for="APPTEMPLATE">
-        {{tr "App Template"}}
-        <span class="tip">
-          {{tr "App Template"}}
-        </span>
+        {{tr "App template"}}
       </label>
-      <textarea id="APPTEMPLATE" rows="2" wizard_field="APPTEMPLATE64" wizard_field_64="true"></textarea>
+      <textarea class="monospace" id="APPTEMPLATE" rows="4" wizard_field="APPTEMPLATE64" wizard_field_64="true" placeholder='ATTRIBUTE = "VALUE"'></textarea>
     </div>
   </div>
   </fieldset>
