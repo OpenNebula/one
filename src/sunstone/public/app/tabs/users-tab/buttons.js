@@ -52,7 +52,7 @@ define(function(require) {
       text: Locale.tr("Change primary group"),
       layout: "user_select",
       select: "Group",
-      tip: Locale.tr("This will change the primary group of the selected users. Select the new group")+":"
+      tip: Locale.tr("This will change the primary group of the selected users. Select the new group")
     },
     "User.delete" : {
       type: "confirm",
