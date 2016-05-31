@@ -26,8 +26,10 @@ mkdir -p samples/vmtemplate samples/vmtemplate_pool
 mkdir -p samples/user       samples/user_pool
 mkdir -p samples/vm         samples/vm_pool
 mkdir -p samples/vnet       samples/vnet_pool
-mkdir -p samples/vnet       samples/acct
-
+mkdir -p samples/acct
+mkdir -p samples/vrouter            samples/vrouter_pool
+mkdir -p samples/marketplace        samples/marketplace_pool
+mkdir -p samples/marketplaceapp     samples/marketplaceapp_pool
 
 
 onecluster create newcluster
@@ -146,6 +148,7 @@ onetemplate list -x > samples/vmtemplate_pool/1.xml
 
 onetemplate create test/template.0 --user newuser --password abc
 onetemplate create test/template.1 --user newuser --password abc
+onetemplate create test/vr-template.0
 
 for i in `onetemplate list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onetemplate show $i -x > samples/vmtemplate/$i.xml
@@ -153,10 +156,14 @@ done
 
 onetemplate list -x > samples/vmtemplate_pool/2.xml
 
-
 # VM
 onetemplate instantiate 0 -m 2 --user newuser --password abc
 onetemplate instantiate 1 -m 2 --user newuser --password abc
+
+# Virtual Routers
+
+onevrouter create test/vr.0
+onevrouter instantiate 0 vr-tmpl -m 2
 
 for i in `onevm list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevm deploy $i host01
@@ -181,8 +188,29 @@ done
 
 onevm list -x > samples/vm_pool/0.xml
 
+for i in `onevrouter list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevrouter show $i -x > samples/vrouter/$i.xml
+done
 
-for i in  cluster datastore group vdc host image vmtemplate user vm vnet
+onevrouter list -x > samples/vrouter_pool/0.xml
+
+# Marketplace
+
+for i in `onemarket list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onemarket show $i -x > samples/marketplace/$i.xml
+done
+
+onemarket list -x > samples/marketplace_pool/0.xml
+
+# Marketplace Apps
+
+for i in `onemarketapp list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onemarketapp show $i -x > samples/marketplaceapp/$i.xml
+done
+
+onemarketapp list -x > samples/marketplaceapp_pool/0.xml
+
+for i in  cluster datastore group vdc host image vmtemplate user vm vnet vrouter marketplace marketplaceapp
 do
     POOL_NAME="$i""_pool"
 

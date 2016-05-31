@@ -66,7 +66,7 @@
             <div class="row">
               <div class="large-12 columns">
                 <label>
-                  {{tr "Public Key"}}:
+                  {{tr "SSH public key"}}
                   <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
                 </label>
               </div>
@@ -96,12 +96,12 @@
         <div class="row">
           <div class="large-12 columns">
             <label>
-              {{tr "Start Script"}}
-              {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script. For example 'yum upgrade'")}}}
-              <textarea rows="4" type="text" class="START_SCRIPT"/>
+              {{tr "Start script"}}
+              {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script")}}}
+              <textarea rows="4" type="text" class="START_SCRIPT monospace" placeholder="yum upgrade"/>
             </label>
             <input type="checkbox" class="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT{{uniqueId}}">
-            <label for="ENCODE_START_SCRIPT{{uniqueId}}">{{tr "  Encode Script in Base64"}}</label>
+            <label for="ENCODE_START_SCRIPT{{uniqueId}}">{{tr "Encode script in Base64"}}</label>
           </div>
         </div>
         <br/>
@@ -109,7 +109,7 @@
           <fieldset class="row">
             <legend> 
             <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
-            {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
+            {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated. They will be included in the VM context")}}}
             </legend>
             <div class="row">
               <div class="large-12 columns">{{{userInputsHTML}}}</div>
@@ -125,7 +125,6 @@
           <div class="large-12 columns">
             <label>
               {{tr "FILES_DS"}}
-              {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
               <input type="text" wizard_field="FILES_DS" class="FILES_DS" />
             </label>
           </div>
@@ -134,8 +133,8 @@
           <div class="large-12 columns">
             <label>
               {{tr "Init scripts"}}
-              {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
-              <input type="text" wizard_field="INIT_SCRIPTS" class="INIT_SCRIPTS"/>
+              {{{tip (tr "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order")}}}
+              <input type="text" wizard_field="INIT_SCRIPTS" class="INIT_SCRIPTS" placeholder="init.sh users.sh mysql.sh"/>
             </label>
           </div>
         </div>

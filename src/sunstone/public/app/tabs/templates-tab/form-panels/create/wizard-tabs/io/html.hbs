@@ -34,16 +34,15 @@
       <div class="">
         <div class="large-12 columns">
           <label>
-            {{tr "Listen IP"}}
-            {{{tip (tr "IP to listen on")}}}
-            <input type="text" wizard_field="LISTEN"/>
+            {{tr "Listen on IP"}}
+            <input type="text" wizard_field="LISTEN" placeholder="0.0.0.0"/>
           </label>
         </div>
       </div>
       <div class="">
         <div class="medium-6 columns vm_updateconf_hide">
           <label>
-            {{tr "Port"}}
+            {{tr "Server port"}}
             {{{tip (tr "Port for the VNC/SPICE server")}}}
             <input type="text" wizard_field="PORT"/>
           </label>
@@ -51,8 +50,7 @@
         <div class="medium-6 columns">
           <label>
             {{tr "Keymap"}}
-            {{{tip (tr "Keyboard configuration locale to use in the VNC/SPICE display")}}}
-            <input type="text" wizard_field="KEYMAP"/>
+            <input type="text" wizard_field="KEYMAP" placeholder="en-us"/>
           </label>
         </div>
       </div>
@@ -60,7 +58,6 @@
         <div class="large-12 columns">
           <label>
             {{tr "Password"}}
-            {{{tip (tr "Password for the VNC/SPICE server")}}}
             <input type="text" wizard_field="PASSWD"/>
           </label>
         </div>
@@ -69,8 +66,7 @@
         <div class="columns large-12">
           <input type="checkbox" class="RANDOM_PASSWD" id="RANDOM_PASSWD{{uniqueId}}">
           <label for="RANDOM_PASSWD{{uniqueId}}">
-            {{tr "Generate Random Password"}}
-            {{{tip (tr "A random password will be generated for each VM, and will be included in the VM information")}}}
+            {{tr "Generate random password"}}
           </label>
         </div>
       </div>
@@ -81,18 +77,24 @@
       <legend>{{tr "Inputs"}}</legend>
       <div class="">
         <div class="medium-5 columns">
-          <select id="INPUT_TYPE" name="input_type">
-            <option value=""></option>
-            <option value="mouse">{{tr "Mouse"}}</option>
-            <option value="tablet">{{tr "Tablet"}}</option>
-          </select>
+          <label>
+            {{tr "Type"}}
+            <select id="INPUT_TYPE" name="input_type">
+              <option value=""></option>
+              <option value="mouse">{{tr "Mouse"}}</option>
+              <option value="tablet">{{tr "Tablet"}}</option>
+            </select>
+          </label>
         </div>
         <div class="medium-4 columns">
-          <select id="INPUT_BUS" name="input_bus">
-            <option value=""></option>
-            <option value="usb">{{tr "USB"}}</option>
-            <option value="ps2">{{tr "PS2"}}</option>
-          </select>
+          <label>
+            {{tr "Bus"}}
+            <select id="INPUT_BUS" name="input_bus">
+              <option value=""></option>
+              <option value="usb">{{tr "USB"}}</option>
+              <option value="ps2">{{tr "PS2"}}</option>
+            </select>
+          </label>
         </div>
         <div class="medium-3 columns">
           <a href="#" class="button small radius secondary" id="add_input">{{tr "Add"}}</a>
@@ -101,16 +103,7 @@
       <div class="">
         <div class="large-12 columns">
           <table id="input_table" class="dataTable policies_table">
-            <thead>
-              <tr>
-                <th>{{tr "TYPE"}}</th>
-                <th>{{tr "BUS"}}</th>
-                <th></th>
-              </tr>
-            </thead>
             <tbody id="tbodyinput">
-              <tr></tr>
-              <tr></tr>
             </tbody>
           </table>
         </div>

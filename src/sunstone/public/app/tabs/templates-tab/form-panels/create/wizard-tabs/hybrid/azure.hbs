@@ -1,0 +1,112 @@
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Image"}}
+      {{{tip (tr "Specifies the base OS of the VM.")}}}
+      <input required wizard_field="IMAGE" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Instance type"}}
+      {{{tip (tr "Specifies the capacity of the VM in terms of CPU and memory")}}}
+      <input required wizard_field="INSTANCE_TYPE" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Location"}}
+      {{{tip (tr "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)")}}}
+      <input required wizard_field="LOCATION" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VM user name"}}
+      {{{tip (tr "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted")}}}
+      <input required wizard_field="VM_USER" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "VM user password"}}
+      {{{tip (tr "Password for VM User")}}}
+      <input required wizard_field="VM_PASSWORD" type="text">
+    </label>
+  </div>
+</div>
+<br/>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Affinity group"}}
+      {{{tip (tr "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region")}}}
+      <input wizard_field="AFFINITY_GROUP" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Availability set"}}
+      <input wizard_field="AVAILABILITY_SET" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Cloud service"}}
+      {{{tip (tr "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'")}}}
+      <input wizard_field="CLOUD_SERVICE" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "SSH port"}}
+      {{{tip (tr "Port where the VMs ssh server will listen on")}}}
+      <input wizard_field="SSHPORT" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Storage account"}}
+      <input wizard_field="STORAGE_ACCOUNT" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Subnet name"}}
+      {{{tip (tr "Name of the particular Subnet where this VM will be connected to")}}}
+      <input wizard_field="SUBNET" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "TCP endpoints"}}
+      {{{tip (tr "Comma-separated list of TCP ports to be accesible from the public internet to this VM")}}}
+      <input wizard_field="TCP_ENDPOINTS" type="text">
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Virtual Network name"}}
+      <input wizard_field="VIRTUAL_NETWORK_NAME" type="text">
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Win RM"}}
+      {{{tip (tr "Comma-separated list of possible protocols to access this Windows VM")}}}
+      <input wizard_field="WIN_RM" type="text">
+    </label>
+  </div>
+</div>

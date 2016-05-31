@@ -122,8 +122,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                     end
                 end
 
-                cols=AcctHelper::ACCT_TABLE.default_columns
-                AcctHelper::ACCT_TABLE.default(:UID, *cols)
+                cols = [ :UID ] + AcctHelper::ACCT_TABLE.default_columns
+                options[:list] ||= cols
 
                 AcctHelper::ACCT_TABLE.show(a, options)
                 exit(0)

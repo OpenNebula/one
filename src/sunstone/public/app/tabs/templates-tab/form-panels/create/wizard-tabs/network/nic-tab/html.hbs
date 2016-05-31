@@ -22,15 +22,13 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="NETWORK_ID">
-          {{tr "ID"}}
-          {{{tip (tr "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
+          {{tr "Virtual Network ID"}}
         </label>
         <input type="text" wizard_field="NETWORK_ID" id="NETWORK_ID" name="NETWORK_ID"/>
       </div>
       <div class="medium-6 columns">
         <label for="NETWORK">
-          {{tr "Name"}}
-          {{{tip (tr "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
+          {{tr "Virtual Network name"}}
         </label>
         <input type="text" wizard_field="NETWORK" id="NETWORK" name="NETWORK" />
       </div>
@@ -38,15 +36,13 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="NETWORK_UID">
-          {{tr "User ID"}}
-          {{{tip (tr "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
+          {{tr "Virtual Network owner's user ID"}}
         </label>
         <input type="text" wizard_field="NETWORK_UID" id="NETWORK_UID" name="NETWORK_UID"/>
       </div>
       <div class="medium-6 columns">
         <label for="NETWORK_UNAME">
-          {{tr "User Name"}}
-          {{{tip (tr "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
+          {{tr "Virtual Network owner's user Name"}}
         </label>
         <input type="text" wizard_field="NETWORK_UNAME" id="NETWORK_UNAME" name="NETWORK_UNAME"/>
       </div>
@@ -58,14 +54,12 @@
       <div class="medium-6 columns">
         <label for="IP">
           {{tr "IP"}}
-          {{{tip (tr "Request an specific IP from the Network")}}}
         </label>
         <input type="text" wizard_field="IP" id="IP" name="IP" size="3" />
       </div>
       <div class="medium-6 columns">
         <label for="MAC">
           {{tr "MAC"}}
-          {{{tip (tr "Set a specific MAC to the NIC")}}}
         </label>
         <input type="text" wizard_field="MAC" id="MAC" name="MAC"/>
       </div>
@@ -73,31 +67,27 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="NETWORK_MASK">
-          {{tr "Network Mask"}}
-          {{{tip (tr "Override the network mask of the network. For example, 255.255.255.0")}}}
+          {{tr "Network mask"}}
         </label>
-        <input type="text" wizard_field="NETWORK_MASK" id="NETWORK_MASK" name="NETWORK_MASK"/>
+        <input type="text" wizard_field="NETWORK_MASK" id="NETWORK_MASK" name="NETWORK_MASK" placeholder="255.255.255.0"/>
       </div>
       <div class="medium-6 columns">
         <label for="NETWORK_ADDRESS">
-          {{tr "Network Address"}}
-          {{{tip (tr "Override the base network address. For example, 192.168.1.0")}}}
+          {{tr "Network address"}}
         </label>
-        <input type="text" wizard_field="NETWORK_ADDRESS" id="NETWORK_ADDRESS" name="NETWORK_ADDRESS"/>
+        <input type="text" wizard_field="NETWORK_ADDRESS" id="NETWORK_ADDRESS" name="NETWORK_ADDRESS" placeholder="192.168.1.0"/>
       </div>
     </div>
     <div class="row">
       <div class="medium-6 columns">
         <label for="GATEWAY">
           {{tr "Gateway"}}
-          {{{tip (tr "Override the Router of the network.")}}}
         </label>
         <input type="text" wizard_field="GATEWAY" id="GATEWAY" name="GATEWAY"/>
       </div>
       <div class="medium-6 columns">
         <label for="DNS">
           {{tr "DNS"}}
-          {{{tip (tr "Override the specific DNS for this network")}}}
         </label>
         <input type="text" wizard_field="DNS" id="DNS" name="DNS"/>
       </div>
@@ -105,8 +95,7 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="SEARCH_DOMAIN">
-          {{tr "Search Domain"}}
-          {{{tip (tr "Override the Search Domain for this network.")}}}
+          {{tr "Search domain for DNS resolution"}}
         </label>
         <input type="text" wizard_field="SEARCH_DOMAIN" id="SEARCH_DOMAIN" name="SEARCH_DOMAIN"/>
       </div>
@@ -117,15 +106,13 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="IP6_GLOBAL">
-          {{tr "IP6 Global"}}
-          {{{tip (tr "Request an specific IP from the IPv6 Network")}}}
+          {{tr "Global address"}}
         </label>
         <input type="text" wizard_field="IP6_GLOBAL" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />
       </div>
       <div class="medium-6 columns">
         <label for="GATEWAY6">
-          {{tr "GATEWAY6"}}
-          {{{tip (tr "Override the Router of the IPv6 network.")}}}
+          {{tr "Gateway"}}
         </label>
         <input type="text" wizard_field="GATEWAY6" id="GATEWAY6" name="GATEWAY6"/>
       </div>
@@ -133,7 +120,7 @@
     <div class="row">
       <div class="medium-6 columns">
         <label for="CONTEXT_FORCE_IPV4">
-          {{tr "Network Mask"}}
+          {{tr "Force IPv4 context"}}
           {{{tip (tr "Override force IPv4 for this IPv6 network. Values: Yes or No.")}}}
         </label>
         <input type="text" wizard_field="CONTEXT_FORCE_IPV4" id="CONTEXT_FORCE_IPV4" name="CONTEXT_FORCE_IPV4"/>
@@ -141,12 +128,11 @@
     </div>
   </fieldset>
   <fieldset>
-    <legend>{{tr "Harware"}}</legend>
+    <legend>{{tr "Hardware"}}</legend>
     <div class="row">
       <div class="medium-6 columns">
         <label for="MODEL">
-          {{tr "Model"}}
-          {{{tip (tr "Hardware that will emulate this network interface.")}}}
+          {{tr "Hardware model to emulate"}}
         </label>
         <input type="text" wizard_field="MODEL" id="MODEL" name="MODEL" />
       </div>
@@ -164,51 +150,49 @@
           previous templates in the update wizard. }}
   <div style="display: none;">
     <fieldset>
-      <legend>{{tr "TCP Firewall"}}</legend>
+      <legend>TCP Firewall</legend>
       <div class="row">
         <div class="large-12 columns text-center">
           <input type="radio" class="tcp_type" name="tcp_type" id="{{nicTabId}}white_tcp_type" value="WHITE_PORTS_TCP">
-          <label for="{{nicTabId}}white_tcp_type">{{tr "Whitelist"}}</label>
+          <label for="{{nicTabId}}white_tcp_type">Whitelist</label>
           <input type="radio" class="tcp_type" name="tcp_type" id="{{nicTabId}}black_tcp_type" value="BLACK_PORTS_TCP">
-          <label for="{{nicTabId}}black_tcp_type">{{tr "Blacklist"}}</label>
+          <label for="{{nicTabId}}black_tcp_type">Blacklist</label>
         </div>
       </div>
       <div class="row">
         <div class="large-12 columns">
           <label for="TCP_PORTS">
-            {{tr "PORTS"}}
-            {{{tip (tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")}}}
+            PORTS
           </label>
           <input type="text" id="TCP_PORTS" name="ports" />
         </div>
       </div>
     </fieldset>
     <fieldset>
-      <legend>{{tr "UDP Firewall"}}</legend>
+      <legend>UDP Firewall</legend>
       <div class="row">
         <div class="large-12 columns text-center">
           <input type="radio" class="udp_type" name="udp_type" id="{{nicTabId}}white_udp_type" value="WHITE_PORTS_UDP">
-          <label for="{{nicTabId}}white_udp_type">{{tr "Whitelist"}}</label>
+          <label for="{{nicTabId}}white_udp_type">Whitelist</label>
           <input type="radio" class="udp_type" name="udp_type" id="{{nicTabId}}black_udp_type" value="BLACK_PORTS_UDP">
-          <label for="{{nicTabId}}black_udp_type">{{tr "Blacklist"}}</label>
+          <label for="{{nicTabId}}black_udp_type">Blacklist</label>
         </div>
       </div>
       <div class="row">
         <div class="large-12 columns">
           <label for="UDP_PORTS">
-            {{tr "PORTS"}}
-            {{{tip (tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")}}}
+            PORTS
           </label>
           <input type="text" id="UDP_PORTS" name="ports" />
         </div>
       </div>
     </fieldset>
     <fieldset>
-      <legend>{{tr "ICMP"}}</legend>
+      <legend>ICMP</legend>
       <div class="row">
         <div class="large-12 columns">
           <label>
-            <input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type">{{tr "Drop"}}</label>
+            <input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type">Drop</label>
         </div>
       </div>
     </fieldset>

@@ -20,17 +20,17 @@ define(function(require) {
   var _view_types = {
     advanced : {
       name: 'Advanced Layout',
-      description : Locale.tr("This layout exposes a complete view of the cloud, allowing administrators and advanced users to have full control of any physical or virtual resource of the cloud."),
+      description : Locale.tr("Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."),
       preview: "advanced_layout.png"
     },
     cloud : {
       name: 'Cloud Layout',
-      description : Locale.tr("This layout exposes a simplified version of the cloud where group administrators and cloud end-users will be able to manage any virtual resource of the cloud, without taking care of the physical resources management."),
+      description : Locale.tr("Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."),
       preview: "cloud_layout.png"
     },
     vcenter : {
       name: 'vCenter Layout',
-      description : Locale.tr("Set of views to present the valid operation against a vCenter infrastructure"),
+      description : Locale.tr("Set of views to present valid operations over a vCenter infrastructure"),
       preview: "vcenter_layout.png"
     },
     other : {
@@ -44,43 +44,43 @@ define(function(require) {
     admin : {
       id: 'admin',
       name: "Admin",
-      description: Locale.tr("This view provides full control of the cloud"),
+      description: Locale.tr("Full control of the cloud, including virtual and physical resources."),
       type: "advanced"
     },
     user : {
       id: 'user',
       name: "User",
-      description: Locale.tr("In this view users will not be able to manage nor retrieve the hosts and clusters of the cloud. They will be able to see Datastores and Virtual Networks in order to use them when creating a new Image or Virtual Machine, but they will not be able to create new ones."),
+      description: Locale.tr("Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."),
       type: "advanced"
     },
     groupadmin : {
       id: 'groupadmin',
       name: "Group Admin",
-      description: Locale.tr("This view provides control of all the resources belonging to a group, but with no access to resources outside that group, that is, restricted to the physical and virtual resources of the group. This view features the ability to create new users within the group as well as set and keep track of user quotas."),
+      description: Locale.tr("Control of all the resources belonging to a group, with the ability to create new users within the group."),
       type: "cloud"
     },
     cloud : {
       id: 'cloud',
       name: "Cloud",
-      description: Locale.tr("This is a simplified view mainly intended for user that just require a portal where they can provision new virtual machines easily from pre-defined Templates."),
+      description: Locale.tr("Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."),
       type: "cloud"
     },
     admin_vcenter : {
       id: 'admin_vcenter',
       name: "Admin vCenter",
-      description: Locale.tr("View designed to present the valid operations against a vCenter infrastructure to a cloud administrator"),
+      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a cloud administrator"),
       type: "vcenter"
     },
     groupadmin_vcenter : {
       id: 'groupadmin_vcenter',
       name: "Group Admin vCenter",
-      description: Locale.tr("View designed to present the valid operations agaist a vCenter infrastructure to a group administrator"),
+      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a group administrator"),
       type: "vcenter"
     },
     cloud_vcenter : {
       id: 'cloud_vcenter',
       name: "Cloud vCenter",
-      description: Locale.tr("View designed to present the valid operations against a vCenter infrastructure to a cloud consumer"),
+      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a cloud consumer"),
       type: "vcenter"
     }
   };

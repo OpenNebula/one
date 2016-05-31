@@ -61,7 +61,7 @@ define(function(require) {
   function _html() {
     return '<div class="row">\
               <div class="large-6 columns">\
-                <label>' + Locale.tr("Select group") + ':\
+                <label>' + Locale.tr("Select group") + '\
                   <select id="quota_group_sel">\
                   </select>\
                 </label>\

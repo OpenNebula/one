@@ -36,8 +36,7 @@
         <div class="row">
           <div class="medium-4 columns">
             <label>
-              {{tr "Arch"}}
-              {{{tip (tr "CPU architecture to virtualization")}}}
+              {{tr "CPU Architecture"}}
               <select wizard_field="ARCH">
                 <option value=""></option>
                 <option value="i686">i686</option>
@@ -47,8 +46,7 @@
           </div>
           <div class="medium-8 columns hypervisor only_kvm">
             <label>
-              {{tr "Machine type"}}
-              {{{tip (tr "libvirt machine type, only for KVM")}}}
+              {{tr "libvirt machine type"}}
               <input type="text" wizard_field="MACHINE"/>
             </label>
           </div>
@@ -56,9 +54,8 @@
         <div class="row">
           <div class="medium-4 columns">
             <label>
-              {{tr "Root"}}
-              {{{tip (tr "Device to be mounted as root")}}}
-              <input type="text" wizard_field="ROOT"/>
+              {{tr "Root device"}}
+              <input type="text" wizard_field="ROOT" placeholder="sda1"/>
             </label>
           </div>
         </div>
@@ -74,20 +71,19 @@
             </table>
           </div>
         </div>
+        <br/>
         <div class="row">
           <div class="large-12 columns">
             <label>
-              {{tr "Kernel cmd"}}
-              {{{tip (tr "Arguments for the booting kernel")}}}
-              <input type="text" wizard_field="KERNEL_CMD"/>
+              {{tr "Kernel boot parameters"}}
+              <input type="text" wizard_field="KERNEL_CMD" placeholder="ro console=tty1"/>
             </label>
           </div>
         </div>
         <div class="row">
           <div class="large-12 columns">
             <label>
-              {{tr "Bootloader"}}
-              {{{tip (tr "Path to the bootloader executable")}}}
+              {{tr "Path to the bootloader executable"}}
               <input type="text" wizard_field="BOOTLOADER"/>
             </label>
           </div>
@@ -117,8 +113,7 @@
         <div id="kernel_path_inputs" class="kernel_path row" hidden>
           <div class="large-12 columns">
             <label>
-              {{tr "Path"}}
-              {{{tip (tr "Path to the OS kernel to boot the image")}}}
+              {{tr "Path to the OS kernel to boot the image"}}
               <input type="text" wizard_field="KERNEL"/>
             </label>
           </div>
@@ -149,8 +144,7 @@
           <div class="row">
             <div class="large-12 columns">
               <label>
-                {{tr "Path"}}
-                {{{tip (tr "Path to the initrd image")}}}
+                {{tr "Path to the initrd image"}}
                 <input type="text" wizard_field="INITRD"/>
               </label>
             </div>
@@ -220,7 +214,7 @@
           </div>
           <div class="medium-6 columns">
             <label>
-              {{tr "GUEST AGENT"}}
+              {{tr "QEMU Guest Agent"}}
               {{{tip (tr "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM.")}}}
               <select wizard_field="GUEST_AGENT">
                 <option value=""></option>

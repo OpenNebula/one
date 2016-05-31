@@ -1,0 +1,121 @@
+<div class="row">
+  <div class="medium-6 columns">
+    <label for="TARGET">
+      {{tr "Device target"}}
+      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
+    </label>
+    <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
+  </div>
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="DRIVER">
+      {{tr "Image mapping driver"}}
+    </label>
+    <select wizard_field="DRIVER" id="DRIVER" name="DRIVER">
+      <option value=""></option>
+      <option value="raw">raw</option>
+      <option value="bochs">bochs</option>
+      <option value="qcow2">qcow2</option>
+      <option value="qed">qed</option>
+    </select>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label for="DEV_PREFIX">
+      {{tr "Device prefix"}}
+      {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used.")}}}
+    </label>
+    <input type="text" wizard_field="DEV_PREFIX" id="DEV_PREFIX" name="DEV_PREFIX" placeholder="qcow2"/>
+  </div>
+  <div class="medium-6 columns">
+    <label for="READONLY">
+      {{tr "Read-only"}}
+    </label>
+    <select wizard_field="READONLY" id="READONLY" name="READONLY">
+      <option value=""></option>
+      <option value="yes">{{tr "yes"}}</option>
+      <option value="no">{{tr "no"}}</option>
+    </select>
+  </div>
+</div>
+<div class="row vm_param">
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="CACHE">
+      {{tr "Cache"}}
+    </label>
+    <select wizard_field="CACHE" id="CACHE" name="CACHE">
+      <option value=""></option>
+      <option value="default">default</option>
+      <option value="none">none</option>
+      <option value="writethrough">writethrough</option>
+      <option value="writeback">writeback</option>
+      <option value="directsync">directsync</option>
+      <option value="unsafe">unsafe</option>
+    </select>
+  </div>
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="IO">
+      {{tr "IO policy"}}
+    </label>
+    <select wizard_field="IO" id="IO" name="IO">
+      <option value=""></option>
+      <option value="threads">threads</option>
+      <option value="native">native</option>
+    </select>
+  </div>
+  {{#unless volatile}}
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="DISCARD">
+      {{tr "Discard"}}
+    </label>
+    <select wizard_field="DISCARD" id="DISCARD" name="DISCARD">
+      <option value=""></option>
+      <option value="ignore">{{tr "ignore"}}</option>
+      <option value="unmap">{{tr "unmap"}}</option>
+    </select>
+  </div>
+  {{/unless}}
+  {{#unless volatile}}
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="SIZE">
+      {{tr "Size on instantiate (MB)"}}
+      {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
+    </label>
+    <input wizard_field="SIZE" type="number" min="0" id="SIZE" name="SIZE" />
+  </div>
+  {{/unless}}
+  <div class="medium-6 columns hypervisor only_kvm">
+    <fieldset>
+      <legend>{{tr "IO throttling (bytes/s)"}}</legend>
+      <label for="TOTAL_BYTES_SEC">
+        {{tr "Total (read+write) bytes/s"}}
+      </label>
+      <input wizard_field="TOTAL_BYTES_SEC" type="number" min="0" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
+      <label for="READ_BYTES_SEC">
+        {{tr "Read bytes/s"}}
+      </label>
+      <input wizard_field="READ_BYTES_SEC" type="number" min="0" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
+      <label for="WRITE_BYTES_SEC">
+        {{tr "Write bytes/s"}}
+      </label>
+      <input wizard_field="WRITE_BYTES_SEC" type="number" min="0" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
+    </fieldset>
+  </div>
+  <div class="medium-6 columns hypervisor only_kvm">
+    <fieldset>
+      <legend>{{tr "IO throttling (IOPS)"}}</legend>
+      <label for="TOTAL_IOPS_SEC">
+        {{tr "Total (read+write) IOPS"}}
+      </label>
+      <input wizard_field="TOTAL_IOPS_SEC" type="number" min="0" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
+      <label for="READ_IOPS_SEC">
+        {{tr "Read IOPS"}}
+      </label>
+      <input wizard_field="READ_IOPS_SEC" type="number" min="0" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
+      <label for="WRITE_IOPS_SEC">
+        {{tr "Write IOPS Sec"}}
+      </label>
+      <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
+    </fieldset>
+  </div>
+</div>

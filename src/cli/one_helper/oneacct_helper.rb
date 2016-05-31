@@ -157,12 +157,12 @@ class AcctHelper < OpenNebulaHelper::OneHelper
 
         column :NETRX, "Data received from the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETRX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETRX"].to_i / 1024.0, {})
         end
 
         column :NETTX, "Data sent to the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETTX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETTX"].to_i / 1024.0, {})
         end
 
         column :DISK, "Total disk size used", :size=>6 do |d|
