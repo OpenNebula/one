@@ -17,46 +17,44 @@
   <div class="row">
     <div class="medium-4 columns">
       <label for="NAME">
-        {{tr "Name"}}:
-        <span class="tip">
-          {{tr "Name that the Marketplace will get for description purposes."}}
-        </span>
+        {{tr "Name"}}
       </label>
       <input id="NAME" type="text" wizard_field="NAME" required/>
     </div>
-    <div class="medium-2 columns">
-      <label for="MARKET_MAD">{{tr "Driver"}}</label>
+    <div class="medium-8 columns">
+      <label for="DESCRIPTION">
+        {{tr "Description"}}
+      </label>
+      <textarea id="DESCRIPTION" wizard_field="DESCRIPTION" rows="2"></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="medium-4 columns">
+      <label for="MARKET_MAD">{{tr "Storage backend"}}</label>
       <select id="MARKET_MAD" wizard_field="MARKET_MAD" required>
         {{#each marketMadNameList}}
-        <option value="{{this}}">{{this}}</option>
+        <option value="{{this.mad}}">{{this.name}}</option>
         {{/each}}
       </select>
     </div>
-    <div class="medium-6 columns">
+    <div class="medium-8 columns">
     </div>
   </div>
-  <div class="row">
-    <div class="medium-6 columns">
-      <label for="DESCRIPTION">
-        {{tr "Description"}}
-        <span class="tip">
-          {{tr "Human readable description of the MarketPlace for other users."}}
-        </span>
-      </label>
-      <textarea id="DESCRIPTION" wizard_field="DESCRIPTION" rows="1"></textarea>
-    </div>
-    <div class="medium-6 columns">
-    </div>
-  </div>
-  <div class="row">
-    {{#each marketMadAttrs}}
-    <div class="medium-6 columns market-mad-attr-container {{this.driver}}">
-      <label for="{{this.name}}">
-        {{this.label}}:
-        <span class="tip">{{this.tooltip}}</span>
-      </label>
-      <input id="{{this.name}}" type="text" wizard_field="{{this.name}}"/>
-    </div>
-    {{/each}}
-  </div>
+  <br>
+  <fieldset>
+  <legend>{{tr "Configuration attributes"}}</legend>
+      <div class="row">
+        {{#each marketMadAttrs}}
+        <div class="medium-6 columns market-mad-attr-container {{this.driver}}">
+          <label for="{{this.name}}">
+            {{this.label}}
+            {{#if this.tooltip}} 
+            <span class="tip">{{this.tooltip}}</span>
+            {{/if}} 
+          </label>
+          <input id="{{this.name}}" type="text" wizard_field="{{this.name}}"/>
+        </div>
+        {{/each}}
+      </div>
+  </fieldset>
 </form>

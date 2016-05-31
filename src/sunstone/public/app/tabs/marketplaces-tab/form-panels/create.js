@@ -43,56 +43,50 @@ define(function(require) {
   var MARKET_MAD_ATTRS = [
     {
       name: 'ENDPOINT',
-      label: Locale.tr("Endpoint"),
-      tooltip: Locale.tr("URL of AppMarket."),
+      label: Locale.tr("Endpoint URL for marketplace"),
       driver: 'one'
     },
     {
       name: 'BASE_URL',
-      label: Locale.tr("Base URL"),
-      tooltip: Locale.tr("URL base to generate app end points, where the PUBLIC_DIR is accessible."),
+      label: Locale.tr("Base URL for marketapp"),
       driver: 'http'
     },
     {
       name: 'PUBLIC_DIR',
-      label: Locale.tr("Public Directory"),
-      tooltip: Locale.tr("Absolute directory path to place images, the document root for http server, in the frontend or in the hosts pointed at by the BRIDGE_LIST directive."),
+      label: Locale.tr("Marketapp directory path"),
+      tooltip: Locale.tr("This is the document root for http server"),
       driver: 'http'
     },
     {
       name: 'BRIDGE_LIST',
-      label: Locale.tr("Bridge List"),
-      tooltip: Locale.tr("Comma separated list of servers to access the public directory. If not defined, public directory will be local"),
+      label: Locale.tr("Storage bridge list"),
+      tooltip: Locale.tr("Comma separated list of servers to access the image directory if not local"),
       driver: 'http'
     },
     {
       name: 'ACCESS_KEY_ID',
       label: Locale.tr("Access Key Id"),
-      tooltip: Locale.tr("The access key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'SECRET_ACCESS_KEY',
       label: Locale.tr("Secret Access Key"),
-      tooltip: Locale.tr("The secret key of the S3 user."),
       driver: 's3'
     },
     {
       name: 'BUCKET',
-      label: Locale.tr("Bucket"),
-      tooltip: Locale.tr("The bucket where the files will be stored."),
+      label: Locale.tr("S3 bucket to store marketapps"),
       driver: 's3'
     },
     {
       name: 'REGION',
-      label: Locale.tr("Region"),
-      tooltip: Locale.tr("The region to connect to. If you are using Ceph-S3 any value here will work."),
+      label: Locale.tr("Amazon Region"),
+      tooltip: Locale.tr("Only if using public Amazon S3 service."),
       driver: 's3'
     },
     {
       name: 'TOTAL_MB',
-      label: Locale.tr("Total MB"),
-      tooltip: Locale.tr("This parameter defines the Total size of the MarketPlace in MB. It defaults to 1024 GB."),
+      label: Locale.tr("Total Marketplace size in MB"),
       driver: 's3'
     },
     {
@@ -103,8 +97,7 @@ define(function(require) {
     },
     {
       name: 'ENDPOINT',
-      label: Locale.tr("Endpoint"),
-      tooltip: Locale.tr("The URL of AppMarket."),
+      label: Locale.tr("Endpoint URL for marketplace"),
       driver: 's3'
     },
     {
@@ -115,8 +108,8 @@ define(function(require) {
     },
     {
       name: 'READ_LENGTH',
-      label: Locale.tr("Read Length"),
-      tooltip: Locale.tr("Split the file into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."),
+      label: Locale.tr("Read block length in MB"),
+      tooltip: Locale.tr("Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."),
       driver: 's3'
     }
   ]
@@ -145,7 +138,10 @@ define(function(require) {
     that.marketMadNameList = [];
     if (Config.onedConf.MARKET_MAD_CONF !== undefined) {
       $.each(Config.onedConf.MARKET_MAD_CONF, function(index, marketMad) {
-        that.marketMadNameList.push(marketMad["NAME"]);
+        that.marketMadNameList.push({
+            "mad" : marketMad["NAME"],
+            "name": marketMad["SUNSTONE_NAME"]
+        });
       });
     }
 
