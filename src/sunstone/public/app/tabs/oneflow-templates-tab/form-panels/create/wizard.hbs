@@ -51,7 +51,7 @@
           <tfoot>
             <tr>
               <td colspan="3">
-                <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fa fa-plus"></i> {{tr "Network"}}</a>
+                <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fa fa-lg fa-plus-circle"></i> {{tr "Network"}}</a>
               </td>
             </tr>
           </tfoot>
@@ -96,16 +96,18 @@
   <br>
   <div class="row">
     <div class="large-12 columns">
-      <h4>{{tr "Roles"}}</h4>
+      <h5>
+        {{tr "Roles"}}
+        <a class="button small radius" id="tf_btn_roles" style="vertical-align: text-top; margin-left: 1em;">
+          <i class="fa fa-lg fa-plus-circle"></i>
+        </a>
+      </h5>
     </div>
   </div>
   <br>
   <div class="row">
     <div id="new_role" class="large-12 columns">
       <ul class="tabs" id="roles_tabs" data-tabs>
-        <a class="button small right radius" id="tf_btn_roles">
-          <span class="fa fa-plus"></span> {{tr "Role"}}
-        </a>
       </ul>
       <div class="tabs-content" id="roles_tabs_content" data-tabs-content="roles_tabs">
       </div>
