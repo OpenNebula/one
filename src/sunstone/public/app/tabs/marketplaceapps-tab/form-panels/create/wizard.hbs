@@ -17,10 +17,7 @@
   <div class="row">
     <div class="medium-6 columns">
       <label for="NAME">
-        {{tr "Name"}}:
-        <span class="tip">
-          {{tr "Name that the Marketplace App will get for description purposes."}}
-        </span>
+        {{tr "Name"}}
       </label>
       <input id="NAME" type="text" wizard_field="NAME" required/>
     </div>
@@ -35,18 +32,12 @@
     <div class="medium-6 columns">
       <label for="DESCRIPTION">
         {{tr "Description"}}
-        <span class="tip">
-          {{tr "Human readable description of the MarketPlace App for other users."}}
-        </span>
       </label>
       <textarea id="DESCRIPTION" wizard_field="DESCRIPTION" rows="1"></textarea>
     </div>
     <div class="medium-3 columns">
       <label for="VERSION">
-        {{tr "Version"}}:
-        <span class="tip">
-          {{tr "Version of the App"}}
-        </span>
+        {{tr "Version"}}
       </label>
       <input id="VERSION" type="text" wizard_field="VERSION"/>
     </div>
@@ -54,13 +45,15 @@
     </div>
   </div>
   <fieldset>
-    <legend>{{tr "Select the Image to be exported"}}</legend>
+    <legend>{{tr "Select the Image to create the App"}}</legend>
     {{{imagesTableHTML}}}
   </fieldset>
   <fieldset>
     <legend>{{tr "Select the Marketplace where the App will be created"}}</legend>
     {{{marketPlacesTableHTML}}}
   </fieldset>
+  <fieldset>
+  <legend>{{tr "Templates for the App"}}</legend>
   <div class="row">
     <div class="medium-6 columns">
       <label for="VMTEMPLATE">
@@ -81,4 +74,5 @@
       <textarea id="APPTEMPLATE" rows="2" wizard_field="APPTEMPLATE64" wizard_field_64="true"></textarea>
     </div>
   </div>
+  </fieldset>
 </form>
