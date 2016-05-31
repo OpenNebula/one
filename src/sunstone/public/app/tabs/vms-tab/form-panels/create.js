@@ -72,15 +72,13 @@ define(function(require) {
     InstantiateTemplateFormPanel.prototype.setup.call(this, context);
 
     $(".selectTemplateTable", context).html(
-      '<fieldset>' +
-        '<legend>' + Locale.tr("Select a template") + '</legend>' +
-        this.templatesTable.dataTableHTML +
-      '</fieldset>');
+          '<br/>' + this.templatesTable.dataTableHTML + '<br/>');
 
     this.templatesTable.initialize();
 
     $("#selected_resource_id_vm_create", context).on("change", function(){
         $(".nameContainer", context).show();
+        $(".persistentContainer", context).show();
 
          var templatesContext = $(".list_of_templates", context);
         templatesContext.html("");
@@ -98,5 +96,6 @@ define(function(require) {
     InstantiateTemplateFormPanel.prototype.onShow.call(this, context);
 
     $(".nameContainer", context).hide();
+    $(".persistentContainer", context).hide();
   }
 });

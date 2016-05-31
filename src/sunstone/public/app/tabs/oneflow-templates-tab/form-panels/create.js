@@ -420,6 +420,8 @@ define(function(require) {
 
     _redo_service_networks_selector_role(dialog, role_section);
 
+    Tips.setup(role_section);
+
     var a = $("<li class='tabs-title'>\
       <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
         <span>\

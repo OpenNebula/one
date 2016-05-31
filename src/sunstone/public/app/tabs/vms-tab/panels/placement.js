@@ -68,7 +68,7 @@ define(function(require) {
                           <th>' + Locale.tr("Datastore") + '</th>\
                           <th>' + Locale.tr("Action") + '</th>\
                           <th>' + Locale.tr("Reason") + '</th>\
-                          <th>' + Locale.tr("Chg time") + '</th>\
+                          <th>' + Locale.tr("Change time") + '</th>\
                           <th>' + Locale.tr("Total time") + '</th>\
                           <th colspan="2">' + Locale.tr("Prolog time") + '</th>\
                       </tr>\

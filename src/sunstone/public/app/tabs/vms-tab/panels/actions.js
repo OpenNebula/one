@@ -65,10 +65,10 @@ define(function(require) {
          <thead>\
            <tr>\
               <th>' + Locale.tr("ID") + '</th>\
-              <th>' + Locale.tr("ACTION") + '</th>\
-              <th>' + Locale.tr("TIME") + '</th>\
-              <th>' + Locale.tr("DONE") + '</th>\
-              <th>' + Locale.tr("MESSAGE") + '</th>\
+              <th>' + Locale.tr("Action") + '</th>\
+              <th>' + Locale.tr("Time") + '</th>\
+              <th>' + Locale.tr("Done") + '</th>\
+              <th>' + Locale.tr("Message") + '</th>\
               <th colspan="">' + Locale.tr("Actions") + '</th>\
               <th><button id="add_scheduling_action" class="button small success right radius" >' + Locale.tr("Add action") + '</button></th>\
            </tr>\

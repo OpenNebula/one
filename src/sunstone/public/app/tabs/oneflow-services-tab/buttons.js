@@ -27,14 +27,14 @@ define(function(require) {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),
       select: "User",
-      tip: Locale.tr("Select the new owner")+":",
+      tip: Locale.tr("Select the new owner"),
       layout: "user_select"
     },
     "Service.chgrp" : {
       type: "confirm_with_select",
       text: Locale.tr("Change group"),
       select: "Group",
-      tip: Locale.tr("Select the new group")+":",
+      tip: Locale.tr("Select the new group"),
       layout: "user_select"
     },
     "Service.shutdown" : {

@@ -49,14 +49,14 @@ define(function(require) {
       text: Locale.tr("Change owner"),
       layout: "user_select",
       select: "User",
-      tip: Locale.tr("Select the new owner") + ":",
+      tip: Locale.tr("Select the new owner"),
     },
     "Template.chgrp" : {
       type: "confirm_with_select",
       text: Locale.tr("Change group"),
       layout: "user_select",
       select: "Group",
-      tip: Locale.tr("Select the new group") + ":",
+      tip: Locale.tr("Select the new group"),
     },
     "Template.clone_dialog" : {
       type: "action",

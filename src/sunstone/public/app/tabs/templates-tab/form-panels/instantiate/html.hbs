@@ -19,7 +19,7 @@
     <div class="large-12 large-centered columns selectTemplateTable">
     </div>
   </div>
-  <div class="row">
+  <div class="row persistentContainer">
     <div class="large-12 large-centered columns">
       <div class="switch left">
         <input class="switch-input instantiate_pers" id="{{formPanelId}}instantiate_pers" type="checkbox">
@@ -36,9 +36,9 @@
   <div class="row nameContainer">
     <div class="medium-4 columns">
       <label for="vm_name">
-        {{tr "VM Name"}}
+        {{tr "VM name"}}
         <span class="tip">
-          {{tr "Defaults to template name when emtpy. You can use the wildcard %i. When creating several VMs, %i will be replaced with a different number starting from 0 in each of them"}}.
+          {{tr "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"}}.
         </span>
       </label>
       <input type="text" name="vm_name" id="vm_name" />
@@ -46,9 +46,6 @@
     <div class="medium-4 columns">
       <label for="vm_n_times">
         {{tr "Number of instances"}}
-        <span class="tip">
-          {{tr "Number of Virtual Machines that will be created using this template"}}.
-        </span>
       </label>
       <input type="number" name="vm_n_times" id="vm_n_times" value="1" min="1">
       <input type="number" name="vm_n_times_disabled" id="vm_n_times_disabled" value="1" disabled>
