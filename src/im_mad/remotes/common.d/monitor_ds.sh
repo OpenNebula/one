@@ -66,5 +66,5 @@ for ds in $dirs; do
     [ -z "$DRIVER" ] && DRIVER="ssh" # default is ssh
 
     SCRIPT_PATH="${REMOTES_DIR}/tm/$DRIVER/monitor_ds"
-    [ -e "$SCRIPTS_PATH" ] && "$SCRIPTS_PATH" "$dir"
+    [ -e "$SCRIPT_PATH" ] && "$SCRIPT_PATH" "$dir"
 done
