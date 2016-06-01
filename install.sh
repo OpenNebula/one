@@ -1536,28 +1536,12 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \
-                        src/sunstone/public/images/opennebula-sunstone-big.png \
-                        src/sunstone/public/images/opennebula-sunstone-small.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.14-small.png \
                         src/sunstone/public/images/one_small_logo.png \
                         src/sunstone/public/images/panel.png \
                         src/sunstone/public/images/panel_short.png \
                         src/sunstone/public/images/pbar.gif \
-                        src/sunstone/public/images/Refresh-icon.png \
-                        src/sunstone/public/images/red_bullet.png \
-                        src/sunstone/public/images/yellow_bullet.png \
-                        src/sunstone/public/images/green_bullet.png \
-                        src/sunstone/public/images/vnc_off.png \
-                        src/sunstone/public/images/vnc_on.png \
-                        src/sunstone/public/images/network_icon.png \
-                        src/sunstone/public/images/system_icon.png \
-                        src/sunstone/public/images/server_icon.png  \
-                        src/sunstone/public/images/sort_asc.png \
-                        src/sunstone/public/images/sort_asc_disabled.png \
-                        src/sunstone/public/images/sort_both.png \
-                        src/sunstone/public/images/sort_desc.png \
-                        src/sunstone/public/images/sort_desc_disabled.png\
 "
 
 SUNSTONE_PUBLIC_LOGOS_FILES="src/sunstone/public/images/logos/arch.png \
