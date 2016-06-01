@@ -11,3 +11,6 @@ groups:
         - cloud_vcenter
 default:
     - cloud
+default_groupadmin:
+    - groupadmin
+    - cloud

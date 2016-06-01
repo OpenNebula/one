@@ -110,6 +110,16 @@ class SunstoneViews
         end
         available << @views_config['default']
 
+        group = OpenNebula::Group.new_with_id(user.gid, onec)
+
+        rc = group.info
+        if !OpenNebula.is_error?(rc)
+            gadmins = group.admin_ids
+            if gadmins && gadmins.include?(user.id)
+                available << @views_config['default_groupadmin']
+            end
+        end
+
         available.flatten!
 
         available.reject!{|v| !@views.has_key?(v)} #sanitize array views
