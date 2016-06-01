@@ -182,6 +182,8 @@ define(function(require) {
    */
 
   function _initialize(opts) {
+    var that = this;
+
     if (this.conf.select) {
       if (opts && opts.selectOptions) {
         $.extend(this.selectOptions, opts.selectOptions);
@@ -197,13 +199,14 @@ define(function(require) {
     // Remember page length only for non selectable datatables
     if (!this.conf.select) {
       this.dataTable.on( 'length.dt', function ( e, settings, len ) {
-        config['user_config']['page_length'] = len;
-        var sunstone_setting = {'TABLE_DEFAULT_PAGE_LENGTH': len};
-        Sunstone.runAction("User.append_sunstone_setting", config['user_id'], sunstone_setting);
-       });
+        if (config['user_config']['page_length'] != len){
+          config['user_config']['page_length'] = len;
+          var sunstone_setting = {'TABLE_DEFAULT_PAGE_LENGTH': len};
+          Sunstone.runAction("User.append_sunstone_setting", config['user_id'], sunstone_setting);
+        }
+      });
     }
 
-    var that = this;
     $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
       return false;
