@@ -94,8 +94,9 @@ main_env.Append(CPPFLAGS=[
     "-Wall"
 ])
 
-# Linking flags
+# Linking flags & common libraries
 main_env.Append(LINKFLAGS=['-g', '-pthread'])
+main_env.Append(LIBS=['z'])
 
 #######################
 # EXTRA CONFIGURATION #
