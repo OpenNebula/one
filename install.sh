@@ -915,6 +915,7 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_delete \
               src/tm_mad/ssh/snap_revert \
               src/tm_mad/ssh/monitor \
+              src/tm_mad/ssh/monitor_ds \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
