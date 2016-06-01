@@ -33,6 +33,3 @@ mv messages.po messages.pot
 msguniq messages.pot -o messages.pot --no-wrap
 
 rm file_list.txt
-
-# TODO hbs tr helper as a parameter to other helpers:
-# {{#advancedSection (tr "Advanced Options") }}
