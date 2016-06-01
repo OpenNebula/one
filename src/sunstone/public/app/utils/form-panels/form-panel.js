@@ -52,7 +52,7 @@ define(function(require) {
     that.reInit(context);
 
     // Mutation observer to reInit abide when nodes are added/removed
-    $("form[data-abide]", context).each(function(i, form){
+    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context).each(function(i, form){
       var observer = new MutationObserver(function(mutations) {
         that.reInit(context);
       });
@@ -66,38 +66,30 @@ define(function(require) {
   function _reInit(context) {
     var that = this;
 
-    $('#' + that.formPanelId + 'Wizard', context)
-      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
-
-    $('#' + that.formPanelId + 'Advanced', context)
+    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
       .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
 
     Foundation.reInit($("form", context));
 
-    $('#' + that.formPanelId + 'Wizard', context)
+    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
       .on('forminvalid.zf.abide', function(ev, frm) {
         Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
         Sunstone.hideFormPanelLoading(that.tabId);
-      })
-      .on('formvalid.zf.abide', function(ev, frm) {
-        that.submitWizard(frm);
-        return false;
       })
       .on("submit", function(ev) {
         ev.preventDefault();
       });
 
+    $('#' + that.formPanelId + 'Wizard', context)
+      .on('formvalid.zf.abide', function(ev, frm) {
+        that.submitWizard(frm);
+        return false;
+      });
+
     $('#' + that.formPanelId + 'Advanced', context)
-      .on('forminvalid.zf.abide', function(ev, frm) {
-        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-        Sunstone.hideFormPanelLoading(that.tabId);
-      })
       .on('formvalid.zf.abide', function(ev, frm) {
         that.submitAdvanced(frm);
         return false;
-      })
-      .on("submit", function(ev) {
-        ev.preventDefault();
       });
   }
 

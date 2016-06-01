@@ -33,7 +33,7 @@
   <div class="medium-6 columns">
     <label>
       {{tr "Block device mapping"}}
-      {{{tip (tr "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax")}}}
+      {{{tip (tr "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax")}}}
       <input wizard_field="BLOCKDEVICEMAPPING" type="text">
     </label>
   </div>
@@ -95,7 +95,7 @@
   <div class="medium-6 columns">
     <label>
       {{tr "Private IP"}}
-      {{{tip (tr "If you’re using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet.")}}}
+      {{{tip (tr "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet.")}}}
       <input wizard_field="PRIVATEIP" type="text">
     </label>
   </div>
@@ -127,7 +127,7 @@
   <div class="medium-6 columns">
     <label>
       {{tr "Subnet ID"}}
-      {{{tip (tr "If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")}}}
+      {{{tip (tr "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")}}}
       <input wizard_field="SUBNETID" type="text">
     </label>
   </div>

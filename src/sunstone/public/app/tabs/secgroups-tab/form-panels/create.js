@@ -166,12 +166,15 @@ define(function(require) {
       }
     });
 
-    //Foundation.reflow($('#rules_form_wizard',context), 'abide');
+    $('#rules_form_wizard',context)
+      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
+
+    Foundation.reInit($('#rules_form_wizard',context));
+
     $('#rules_form_wizard',context)
       .on('forminvalid.zf.abide', function(ev, frm) {
-        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
       })
-      .on('formvalid.zf.abide', function(ev, frm) {      
+      .on('formvalid.zf.abide', function(ev, frm) {
         var rule = {};
         rule["PROTOCOL"] = WizardFields.retrieveInput($(".security_group_rule_protocol", context));
         rule["RULE_TYPE"] = WizardFields.retrieveInput($(".security_group_rule_type", context));
@@ -235,7 +238,6 @@ define(function(require) {
       .on("submit", function(ev) {
         ev.preventDefault();
       });
-
 
     context.off("click", ".security_group_rules i.remove-tab");
     context.on("click", ".security_group_rules i.remove-tab", function(){

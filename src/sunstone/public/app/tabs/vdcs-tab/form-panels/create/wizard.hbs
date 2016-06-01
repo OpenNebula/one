@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <div>
     <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
       <dd class="tabs-title is-active"><a href="#vdcCreateGeneralTab"><i class="fa fa-th"></i><br>{{tr "General"}}</a></dd>
@@ -25,18 +25,18 @@
       <div class="tabs-panel is-active" id="vdcCreateGeneralTab">
         <div class="row">
           <div class="large-6 medium-8 columns">
-            <label for="name" >{{tr "Name"}}:
-              <span class="tip">{{tr "Name that the VDC will get for description purposes."}}</span>
+            <label>
+              {{tr "Name"}}
+              <input type="text" wizard_field="NAME" required name="name" id="name"/>
             </label>
-            <input type="text" wizard_field="NAME" required name="name" id="name"/>
           </div>
         </div>
         <div class="row">
           <div class="large-6 medium-8 columns">
-            <label for="DESCRIPTION" >{{tr "Description"}}:
-              <span class="tip">{{tr "Description of the VDC"}}</span>
+            <label for="DESCRIPTION" >
+              {{tr "Description"}}
+              <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
             </label>
-            <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
           </div>
         </div>
         <br>

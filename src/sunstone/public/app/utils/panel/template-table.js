@@ -45,7 +45,7 @@ define(function(require) {
        '<tr>\
            <td class="key_td"><input type="text" name="new_key" id="new_key" /></td>\
            <td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td>\
-           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary">' + "+" + '</button>\</td>\
+           <td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fa fa-lg fa-plus-circle"></i></button>\</td>\
          </tr>\
       </table>'
 

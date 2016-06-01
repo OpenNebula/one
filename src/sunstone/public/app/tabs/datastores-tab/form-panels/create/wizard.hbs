@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
     <div class="medium-6 columns">
       <label for="name" >{{tr "Name"}}</label>
@@ -56,12 +56,12 @@
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
-            <label>{{tr "Custom DS_MAD"}}:</label>
+            <label>{{tr "Custom DS_MAD"}}</label>
             <input type="text" name="ds_tab_custom_ds_mad" />
           </div>
         </div>
         <div class="medium-6 columns">
-          <label for="tm_mad">{{tr "Transfer"}}:</label>
+          <label for="tm_mad">{{tr "Transfer"}}</label>
           <select id="tm_mad" name="tm_mad">
             <option value="shared">{{tr "Shared"}}</option>
             <option value="ssh">{{tr "SSH"}}</option>
@@ -74,7 +74,7 @@
             <option value="custom">{{tr "Custom"}}</option>
           </select>
           <div>
-            <label>{{tr "Custom TM_MAD"}}:</label>
+            <label>{{tr "Custom TM_MAD"}}</label>
             <input type="text" name="ds_tab_custom_tm_mad" />
           </div>
         </div>
@@ -98,7 +98,7 @@
   </div>
   <div class="row disk_type_wrapper">
     <div class="medium-6 columns">
-      <label for="disk_type">{{tr "Disk type"}}:</label>
+      <label for="disk_type">{{tr "Disk type"}}</label>
       <select id="disk_type" name="disk_type">
         <option value="file">{{tr "File"}}</option>
         <option value="block">{{tr "Block"}}</option>
@@ -110,31 +110,31 @@
   </div>
   <div class="row">
     <div class="large-12 columns">
-      <label for="restricted_dirs">
+      <label>
         {{tr "Restricted directories for registering Images"}}
+        <input type="text" name="restricted_dirs" id="restricted_dirs" placeholder="/path/to/dir /path/to/other/dir"/>
       </label>
-      <input type="text" name="restricted_dirs" id="restricted_dirs" />
     </div>
     <div class="large-12 columns">
-      <label for="safe_dirs">
-        {{tr "Safe directories for registering images"}}
+      <label>
+        {{tr "Safe directories for registering Images"}}
+        <input type="text" name="safe_dirs" id="safe_dirs" placeholder="/path/to/dir /path/to/other/dir"/>
       </label>
-      <input type="text" name="safe_dirs" id="safe_dirs" />
     </div>
     <div class="medium-6 columns">
-      <label for="limit_mb">
+      <label>
         {{tr "Storage usage limit (MB)"}}
+        <input type="number" min="0" name="limit_mb" id="limit_mb" />
       </label>
-      <input type="text" name="limit_mb" id="limit_mb" />
     </div>
     <div class="medium-6 columns">
       <label for="limit_transfer_bw">
-        {{tr "Transfer bandwidth limit (b/s)"}}
+        {{tr "Transfer bandwidth limit (B/s)"}}
         <span class="tip">
           {{tr "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."}}
         </span>
+        <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />
       </label>
-      <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />
     </div>
     <div class="large-12 columns">
       <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" />
@@ -143,14 +143,14 @@
     <div class="large-12 columns">
       <input id="datastore_capacity_check" type="checkbox" name="datastore_capacity_check" value="YES" />
       <label for="datastore_capacity_check">
-        {{tr "Check available capacity of the datastore before creating a new image"}}
+        {{tr "Check available capacity of the Datastore before creating a new Image"}}
       </label>
     </div>
     <div class="large-12 columns">
       <label for="bridge_list">
         {{tr "Host bridge list"}}
         <span class="tip">
-          {{tr "Space separated list of servers to add new images to the Datastore storage"}}
+          {{tr "Space separated list of servers to add new Images to the Datastore storage"}}
         </span>
       </label>
       <input type="text" name="bridge_list" id="bridge_list" />
@@ -177,7 +177,7 @@
     </div>
     <div class="medium-6 columns">
       <label for="pool_name">
-        {{tr "Ceph pool to store images"}}
+        {{tr "Ceph pool to store Images"}}
       </label>
       <input type="text" name="pool_name" id="pool_name" />
     </div>
@@ -185,10 +185,10 @@
       <label for="ceph_host">
         {{tr "Ceph host"}}
         <span class="tip">
-          {{tr "Space-separated list of Ceph monitors. Example: host1 host2:port2"}}
+          {{tr "Space-separated list of Ceph monitors"}}
         </span>
       </label>
-      <input type="text" name="ceph_host" id="ceph_host" />
+      <input type="text" name="ceph_host" id="ceph_host" placeholder="host1 host2:port2"/>
     </div>
     <div class="medium-6 columns">
       <label for="ceph_user">
@@ -210,7 +210,7 @@
     </div>
     <div class="medium-6 columns">
       <label class="fs" for="staging_dir">
-        {{tr "Staging directory for image registration"}}
+        {{tr "Staging directory for Image registration"}}
       </label>
       <input type="text" name="staging_dir" id="staging_dir" />
     </div>

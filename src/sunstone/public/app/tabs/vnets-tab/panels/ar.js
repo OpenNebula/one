@@ -230,7 +230,7 @@ define(function(require) {
               Sunstone.getDialog(UPDATE_AR_DIALOG_ID).show();
 
             } else {
-              Notifier.notifyError(Locale.tr("The Adress Range was not found"));
+              Notifier.notifyError(Locale.tr("The Address Range was not found"));
               Sunstone.runAction("Network.show", id);
             }
           },

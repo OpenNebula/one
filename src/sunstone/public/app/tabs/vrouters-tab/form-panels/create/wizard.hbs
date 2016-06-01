@@ -15,7 +15,7 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div id="create_virtual_router_form_wrapper">
-  <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
     <div class="vr_attributes">
       <div class="row">
         <div class="medium-6 columns">
@@ -77,7 +77,7 @@
         <label for="vm_n_times">
           {{tr "Number of VM instances"}}
         </label>
-        <input type="text" name="vm_n_times" id="vm_n_times" value="1">
+        <input type="number" name="vm_n_times" id="vm_n_times" value="1" min="1">
       </div>
       <div class="medium-4 columns">
         <input type="checkbox" name="hold" id="hold"/>

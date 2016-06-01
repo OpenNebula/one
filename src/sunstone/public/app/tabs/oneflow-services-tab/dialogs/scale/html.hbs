@@ -18,13 +18,13 @@
   <div class="row">
     <h3 class="subheader">{{tr "Scale"}}</h3>
   </div>
-  <form data-abide="ajax" id="{{dialogId}}Form">
+  <form data-abide novalidate id="{{dialogId}}Form">
     <div class="row">
       <div class="large-12 columns">
-        <label for="cardinality">{{tr "Cardinality"}}
-          <span class="tip">{{tr "Number of VMs to instantiate with this role"}}</span>
+        <label>
+          {{tr "Number of VMs"}}
+          <input type="number" min="0" name="cardinality" id="cardinality" required/>
         </label>
-        <input type="text" name="cardinality" id="cardinality"/>
       </div>
     </div>
     <div class="row">
