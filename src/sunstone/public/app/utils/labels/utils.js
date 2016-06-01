@@ -65,10 +65,10 @@ define(function(require) {
     $('.labels-tree', context).remove();
     if ($.isEmptyObject(labels)) {
       if (opts.placeholder) {
-        context.append('<div class="text-center">' + opts.placeholder + '</div>');
+        context.html('<div class="text-center">' + opts.placeholder + '</div>');
       }
     } else {
-      context.append(Tree.html(_makeTree(labels), true));
+      context.html(Tree.html(_makeTree(labels), true));
       Tree.setup($('.labels-tree', context));
     }
 
