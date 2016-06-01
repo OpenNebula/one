@@ -1,5 +1,5 @@
 ---
-logo: images/opennebula-sunstone-v4.0.png
+logo: images/opennebula-5.0.png
 groups:
     oneadmin:
         - admin
@@ -10,4 +10,7 @@ groups:
         - cloud
         - cloud_vcenter
 default:
+    - cloud
+default_groupadmin:
+    - groupadmin
     - cloud

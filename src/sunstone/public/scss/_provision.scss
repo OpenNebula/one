@@ -9,7 +9,8 @@
   background: $white;
   
   img {
-    height: 1.5rem;
+    max-height: 2.5rem;
+    max-width: 120px;
   }
 
   & > li > a {

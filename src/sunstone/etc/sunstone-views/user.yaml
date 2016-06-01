@@ -1,5 +1,5 @@
-small_logo: images/opennebula-sunstone-v4.14-small.png
-provision_logo: images/one_small_logo.png
+small_logo: images/opennebula-5.0.png
+provision_logo: images/opennebula-5.0.png
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab

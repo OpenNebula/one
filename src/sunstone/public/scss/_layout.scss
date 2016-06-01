@@ -43,7 +43,8 @@
   }
   
   .opennebula-img {
-    height: 1.2rem;
+    max-height: 2.5rem;
+    max-width: 120px;
     @include breakpoint(medium only) {
       display: none;
     }

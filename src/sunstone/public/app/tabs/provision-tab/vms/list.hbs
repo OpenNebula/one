@@ -38,10 +38,11 @@
       {{/isTabActionEnabled}}
       <span class="right only-active provision_list_vms_filter"></span>
       <input type="search" class="right only-active provision_list_vms_search provision-search-input " placeholder="Search VMs"/>
-      <span href"#" class="right only-active button success provision_create_vm_button" 
-                {{#unless opts.create}}hidden{{/unless}}>
+      {{#if opts.create}}
+      <span href"#" class="right only-active button success provision_create_vm_button">
         <i class="fa fa-fw fa-lg fa-plus-square"/>
       </span>
+      {{/if}}
     </h4>
     <div id="provision_list_vm_accordion{{accordionId}}" class="accordion-content" data-tab-content>
       <div class="row">
