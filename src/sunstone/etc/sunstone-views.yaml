@@ -1,5 +1,5 @@
 ---
-logo: images/opennebula-sunstone-v4.0.png
+logo: images/opennebula-5.0.png
 groups:
     oneadmin:
         - admin

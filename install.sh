@@ -1536,6 +1536,7 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/advanced_layout.png \
                         src/sunstone/public/images/cloud_layout.png \
                         src/sunstone/public/images/vcenter_layout.png \
+                        src/sunstone/public/images/opennebula-5.0.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.0.png \
                         src/sunstone/public/images/opennebula-sunstone-v4.14-small.png \
                         src/sunstone/public/images/one_small_logo.png \

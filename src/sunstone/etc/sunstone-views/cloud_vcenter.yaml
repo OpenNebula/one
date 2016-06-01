@@ -1,4 +1,4 @@
-provision_logo: images/one_small_logo.png
+provision_logo: images/opennebula-5.0.png
 enabled_tabs:
     - provision-tab
     - users-tab
