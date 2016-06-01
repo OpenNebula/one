@@ -28,95 +28,98 @@
       </div>
     </div>
   </form>
-  <form data-abide="ajax" id="rules_form_wizard" action="">
-    <div class="row collapse" id="new_rule_wizard">
-      <div class="row">
-        <div class="medium-4 columns">
-          <label>{{tr "Traffic direction"}}
-          </label>
-          <select class="security_group_rule_type">
-            <option value="inbound" selected="selected">{{tr "Inbound"}}</option>
-            <option value="outbound">{{tr "Outbound"}}</option>
-          </select>
+  <form data-abide novalidate id="rules_form_wizard" action="">
+    <fieldset>
+      <legend>{{tr "Rules"}}</legend>
+      <div class="row collapse" id="new_rule_wizard">
+        <div class="row">
+          <div class="medium-4 columns">
+            <label>{{tr "Traffic direction"}}
+            </label>
+            <select class="security_group_rule_type">
+              <option value="inbound" selected="selected">{{tr "Inbound"}}</option>
+              <option value="outbound">{{tr "Outbound"}}</option>
+            </select>
+          </div>
+          <div class="medium-4 columns">
+            <label>{{tr "Protocol"}}
+            </label>
+            <select class="security_group_rule_protocol">
+              <option value="TCP" selected="selected">{{tr "TCP"}}</option>
+              <option value="UDP">{{tr "UDP"}}</option>
+              <option value="ICMP">{{tr "ICMP"}}</option>
+              <option value="IPSEC">{{tr "IPsec"}}</option>
+              <option value="ALL">{{tr "All"}}</option>
+            </select>
+          </div>
+          <div class="medium-4 columns icmp_type_wrapper">
+            <label>{{tr "ICMP Type"}}
+            </label>
+            <select class="security_group_rule_icmp_type">
+              <option value="" selected="selected">{{tr "All"}}</option>
+              <option value = "0">0/0: Echo Reply (pong)</option>
+              <option value = "3">3: Destination Unreachable</option>
+              <option value = "4">4/0: Source Quench</option>
+              <option value = "5">5: Redirect</option>
+              <option value = "8">8/0: Echo Request (ping)</option>
+              <option value = "9">9/0: Router Advertisement</option>
+              <option value = "10">10/0: Router Solicitation</option>
+              <option value = "11">11: Time Exceeded</option>
+              <option value = "12">12: Parameter Problem</option>
+              <option value = "13">13/0: Timestamp Request</option>
+              <option value = "14">14/0: Timestamp Reply</option>
+              <option value = "17">17/0: Address Mask Request</option>
+              <option value = "18">18/0: Address Mask Reply</option>
+            </select>
+          </div>
         </div>
-        <div class="medium-4 columns">
-          <label>{{tr "Protocol"}}
-          </label>
-          <select class="security_group_rule_protocol">
-            <option value="TCP" selected="selected">{{tr "TCP"}}</option>
-            <option value="UDP">{{tr "UDP"}}</option>
-            <option value="ICMP">{{tr "ICMP"}}</option>
-            <option value="IPSEC">{{tr "IPsec"}}</option>
-            <option value="ALL">{{tr "All"}}</option>
-          </select>
+        <div class="row range_row">
+          <div class="medium-4 columns">
+            <label>{{tr "Port range"}}
+            </label>
+            <select class="security_group_rule_range_sel">
+              <option value="ALL" selected="selected">{{tr "All"}}</option>
+              <option value="RANGE">{{tr "Port range"}}</option>
+            </select>
+          </div>
+          <div class="medium-4 columns end security_group_rule_range">
+            <label>&nbsp</label>
+            <input type="text" placeholder="22,53,80:90,110,1024:65535"/>
+          </div>
         </div>
-        <div class="medium-4 columns icmp_type_wrapper">
-          <label>{{tr "ICMP Type"}}
-          </label>
-          <select class="security_group_rule_icmp_type">
-            <option value="" selected="selected">{{tr "All"}}</option>
-            <option value = "0">0/0: Echo Reply (pong)</option>
-            <option value = "3">3: Destination Unreachable</option>
-            <option value = "4">4/0: Source Quench</option>
-            <option value = "5">5: Redirect</option>
-            <option value = "8">8/0: Echo Request (ping)</option>
-            <option value = "9">9/0: Router Advertisement</option>
-            <option value = "10">10/0: Router Solicitation</option>
-            <option value = "11">11: Time Exceeded</option>
-            <option value = "12">12: Parameter Problem</option>
-            <option value = "13">13/0: Timestamp Request</option>
-            <option value = "14">14/0: Timestamp Reply</option>
-            <option value = "17">17/0: Address Mask Request</option>
-            <option value = "18">18/0: Address Mask Reply</option>
-          </select>
+        <div class="row">
+          <div class="medium-4 columns">
+            <label>{{tr "Target Network"}}
+            </label>
+            <select class="security_group_rule_network_sel">
+              <option value="ANY" selected="selected">{{tr "Any network"}}</option>
+              <option value="NETWORK">{{tr "Manual network"}}</option>
+              <option value="VNET">{{tr "OpenNebula Virtual Network"}}</option>
+            </select>
+          </div>
+          <div class="medium-4 columns security_group_rule_network">
+            <label for="security_group_rule_first_ip">{{tr "First IP address"}}
+            </label>
+            <input id="security_group_rule_first_ip" type="text" placeholder="192.168.10.1"/>
+          </div>
+          <div class="medium-4 columns security_group_rule_network">
+            <label for="security_group_rule_size">{{tr "Size"}}
+            </label>
+            <input id="security_group_rule_size" type="number" min="0" placeholder="254"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="small-12 columns vnet_select">
+            {{{vnetsTableHTML}}}
+            <br/>
+          </div>
         </div>
       </div>
-      <div class="row range_row">
-        <div class="medium-4 columns">
-          <label>{{tr "Port range"}}
-          </label>
-          <select class="security_group_rule_range_sel">
-            <option value="ALL" selected="selected">{{tr "All"}}</option>
-            <option value="RANGE">{{tr "Port range"}}</option>
-          </select>
-        </div>
-        <div class="medium-4 columns end security_group_rule_range">
-          <label>&nbsp</label>
-          <input type="text" placeholder="22,53,80:90,110,1024:65535"/>
-        </div>
-      </div>
-      <div class="row">
-        <div class="medium-4 columns">
-          <label>{{tr "Target Network"}}
-          </label>
-          <select class="security_group_rule_network_sel">
-            <option value="ANY" selected="selected">{{tr "Any network"}}</option>
-            <option value="NETWORK">{{tr "Manual network"}}</option>
-            <option value="VNET">{{tr "OpenNebula Virtual Network"}}</option>
-          </select>
-        </div>
-        <div class="medium-4 columns security_group_rule_network">
-          <label for="security_group_rule_first_ip">{{tr "First IP address"}}
-          </label>
-          <input id="security_group_rule_first_ip" type="text" placeholder="192.168.10.1"/>
-        </div>
-        <div class="medium-4 columns security_group_rule_network">
-          <label for="security_group_rule_size">{{tr "Size"}}
-          </label>
-          <input id="security_group_rule_size" type="number" min="0" placeholder="254"/>
-        </div>
-      </div>
-      <div class="row">
-        <div class="small-12 columns vnet_select">
-          {{{vnetsTableHTML}}}
-          <br/>
-        </div>
-      </div>
-    </div>
+      </fieldset>
     <div class="row">
       <div class="medium-8 small-centered columns">
         <button type="submit" class="add_security_group_rule button small small-12 radius">
-          {{tr "+ Security Group rule"}}
+          <i class="fa fa-angle-double-down"></i> {{tr "Add rule"}}
         </button>
       </div>
     </div>
