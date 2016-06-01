@@ -884,6 +884,7 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
                  src/tm_mad/qcow2/ln \
+                 src/tm_mad/qcow2/monitor \
                  src/tm_mad/qcow2/mkswap \
                  src/tm_mad/qcow2/mkimage \
                  src/tm_mad/qcow2/mv \
