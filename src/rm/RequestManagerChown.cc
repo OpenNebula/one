@@ -51,7 +51,18 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     if (auth_object == PoolObjectSQL::VM)
     {
-        tmpl  = (static_cast<VirtualMachine*>(object))->clone_template();
+        VirtualMachine * vm = static_cast<VirtualMachine*>(object);
+
+        if ( vm->get_state() == VirtualMachine::DONE )
+        {
+            vm->unlock();
+
+            att.resp_msg = "Could not change VM ownership, wrong state";
+            failure_response(ACTION, att);
+            return 0;
+        }
+
+        tmpl  = vm->clone_template();
         qtype = Quotas::VIRTUALMACHINE;
     }
     else if (auth_object == PoolObjectSQL::IMAGE)
