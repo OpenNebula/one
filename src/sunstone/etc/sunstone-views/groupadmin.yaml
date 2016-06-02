@@ -198,6 +198,7 @@ tabs:
         panel_tabs:
             service_template_info_tab: true
             service_template_roles_tab: true
+            service_template_template_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

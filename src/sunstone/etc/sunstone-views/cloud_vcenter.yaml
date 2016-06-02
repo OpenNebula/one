@@ -1,7 +1,6 @@
 provision_logo: images/opennebula-5.0.png
 enabled_tabs:
     - provision-tab
-    - users-tab
     - settings-tab
 features:
     # True to show showback monthly reports, and VM cost

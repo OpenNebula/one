@@ -34,8 +34,8 @@ define(function(require) {
 
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./template/panelId');
-  var RESOURCE = "Template"
-  var XML_ROOT = "VMTEMPLATE"
+  var XML_ROOT = "DOCUMENT";
+  var RESOURCE = "ServiceTemplate";
 
   /*
     CONSTRUCTOR
@@ -63,7 +63,7 @@ define(function(require) {
   function _html() {
     return TemplateInfo({
       'element': this.element,
-      'templateString': TemplateUtils.templateToString(this.element.TEMPLATE)
+      'templateString': JSON.stringify(this.element.TEMPLATE.BODY, null, "  ")
     });
   }
 

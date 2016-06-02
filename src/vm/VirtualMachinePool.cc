@@ -1110,12 +1110,18 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
     int gid;
     int oid;
 
+    set<int> pre, post;
+
+    Template tmpl;
+
     vm = get(vid,true);
 
     if ( vm == 0 )
     {
         return;
     }
+
+    vm->get_security_groups(pre);
 
     if (attach)
     {
@@ -1130,20 +1136,34 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
     gid  = vm->get_gid();
     oid  = vm->get_oid();
 
+    if ( nic == 0 )
+    {
+        update(vm);
+
+        vm->unlock();
+
+        return;
+    }
+
+    vm->get_security_groups(post);
+
+    for (set<int>::iterator it = pre.begin(); it != pre.end(); ++it)
+    {
+        if ( post.find(*it) == post.end() )
+        {
+            vm->remove_security_group(*it);
+        }
+    }
+
     update(vm);
 
     vm->unlock();
 
-    if ( nic != 0 )
-    {
-        Template tmpl;
+    tmpl.set(nic);
 
-        tmpl.set(nic);
+    Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
 
-        Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
-
-        VirtualMachine::release_network_leases(nic, oid);
-    }
+    VirtualMachine::release_network_leases(nic, oid);
 }
 
 /* -------------------------------------------------------------------------- */
