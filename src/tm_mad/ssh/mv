@@ -64,7 +64,7 @@ if [ "$SRC" == "$DST" ]; then
     exit 0
 fi
 
-ssh_make_path "$DST_HOST" "$DST_DIR" "monitor"
+ssh_make_path "$DST_HOST" "$DST_DIR" "ssh"
 
 log "Moving $SRC to $DST"
 

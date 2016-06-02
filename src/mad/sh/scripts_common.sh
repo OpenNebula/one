@@ -410,8 +410,8 @@ EOF
     echo "$SSH_EXEC_OUT"
 }
 
-# Creates path ($2) at $1. If third parameter is "monitor" creates the
-# file ".monitor" in the directory. Used for ssh disk monitoring
+# Creates path ($2) at $1. If there is a third parameter it is writen as
+# file ".monitor" in the directory. Used for local disk monitoring
 function ssh_make_path
 {
     SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
@@ -419,8 +419,8 @@ set -e
 if [ ! -d $2 ]; then
    mkdir -p $2
 
-   if [ "monitor" = "$3" ]; then
-       touch "\$(dirname $2)/.monitor"
+   if [ -n "$3" ]; then
+       echo "$3" > "\$(dirname $2)/.monitor"
    fi
 fi
 EOF`

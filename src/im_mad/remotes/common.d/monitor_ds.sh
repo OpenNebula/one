@@ -1,8 +1,27 @@
 #!/bin/bash
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 #Arguments: hypervisor ds_location collectd_port monitor_push_period host_id hostname
 HYPERVISOR=$1
 DATASTORE_LOCATION=${2:-"/var/lib/one/datastores"}
+
+DRIVER_PATH=$(dirname $0)
+REMOTES_DIR="${DRIVER_PATH}/../.."
 
 mkdir -p "$DATASTORE_LOCATION"
 
@@ -40,36 +59,12 @@ for ds in $dirs; do
     echo "  FREE_MB = $FREE_MB"
     echo "]"
 
-    # Skip if datastore is not marked for monitoring (ssh)
+    # Skip if datastore is not marked for local monitoring
     [ -e "${dir}/.monitor" ] || continue
 
-    vms=$(ls "$dir" | grep '^[0-9]\+$')
+    DRIVER=$(cat ${dir}/.monitor)
+    [ -z "$DRIVER" ] && DRIVER="ssh" # default is ssh
 
-    for vm in $vms; do
-        vmdir="${dir}/${vm}"
-        disks=$(ls "$vmdir" | grep '^disk\.[0-9]\+$')
-
-        [ -z "$disks" ] && continue
-
-        echo -n "VM=[ID=$vm,POLL=\""
-
-        for disk in $disks; do
-            disk_id="$(echo "$disk" | cut -d. -f2)"
-            disk_size="$(du -mL "${vmdir}/${disk}" | awk '{print $1}')"
-            snap_dir="${vmdir}/${disk}.snap"
-
-            echo -n "DISK_SIZE=[ID=${disk_id},SIZE=${disk_size}] "
-
-            if [ -e "$snap_dir" ]; then
-                snaps="$(ls "$snap_dir" | grep '^[0-9]$')"
-
-                for snap in $snaps; do
-                    snap_size="$(du -mL "${snap_dir}/${snap}" | awk '{print $1}')"
-                    echo -n "SNAPSHOT_SIZE=[ID=${snap},DISK_ID=${disk_id},SIZE=${snap_size}] "
-                done
-            fi
-        done
-
-        echo "\"]"
-    done
+    SCRIPT_PATH="${REMOTES_DIR}/tm/$DRIVER/monitor_ds"
+    [ -e "$SCRIPT_PATH" ] && "$SCRIPT_PATH" "$dir"
 done
