@@ -30,7 +30,8 @@ define(function(require) {
 
   var _panels = [
     require('./oneflow-templates-tab/panels/info'),
-    require('./oneflow-templates-tab/panels/roles')
+    require('./oneflow-templates-tab/panels/roles'),
+    require('./oneflow-templates-tab/panels/template')
   ];
 
   var _panelsHooks = [

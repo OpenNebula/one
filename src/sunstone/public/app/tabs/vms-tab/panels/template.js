@@ -21,6 +21,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -56,17 +57,20 @@ define(function(require) {
 
   function _html() {
     return '<div class="row">'+
-      '<div class="large-12 columns">'+
-        '<table class="dataTable">'+
-          '<thead>'+
-            '<tr>'+
-              '<th colspan="2">' + Locale.tr("Template") + '</th>'+
-            '</tr>'+
-          '</thead>'+
-          '<tbody>'+
-            Humanize.prettyPrintJSON(this.element.TEMPLATE) +
-          '</tbody>'+
-        '</table>'+
+        '<div class="large-12 columns">'+
+          '<h5>' + Locale.tr("User template") + '</h5>'+
+          '<pre class="template-pre monospace">'+
+            TemplateUtils.templateToString(this.element.USER_TEMPLATE)+
+          '</pre>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div class="large-12 columns">'+
+          '<h5>' + Locale.tr("Template") + '</h5>'+
+          '<pre class="template-pre monospace">'+
+            TemplateUtils.templateToString(this.element.TEMPLATE)+
+          '</pre>'+
+        '</div>'+
       '</div>'+
     '</div>'
   }
