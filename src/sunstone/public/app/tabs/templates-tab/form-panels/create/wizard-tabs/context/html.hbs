@@ -91,6 +91,15 @@
                 </label>
               </div>
             </div>
+            <div class="row">
+              <div class="columns large-12">
+                <input type="checkbox" class="report_ready_context" id="report_ready_context{{uniqueId}}">
+                <label for="report_ready_context{{uniqueId}}">
+                  {{tr "  Report Ready to OneGate"}}
+                {{{tip (tr "Sends READY=YES to OneGate, useful for OneFlow")}}}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
         <div class="row">
@@ -107,7 +116,7 @@
         <br/>
         <div class="large-12 columns vm_updateconf_hide">
           <fieldset class="row">
-            <legend> 
+            <legend>
             <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
             {{{tip (tr "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context")}}}
             </legend>

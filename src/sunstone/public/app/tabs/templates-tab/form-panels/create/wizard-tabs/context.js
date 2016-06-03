@@ -215,6 +215,10 @@ define(function(require) {
         contextJSON["TOKEN"] = "YES";
       }
 
+      if ($(".report_ready_context", context).is(":checked")) {
+        contextJSON["REPORT_READY"] = "YES";
+      }
+
       var userInputsJSON = UserInputs.retrieve(context);
 
       $.each(userInputsJSON, function(key,value){
