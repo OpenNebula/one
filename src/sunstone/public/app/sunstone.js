@@ -448,9 +448,7 @@ define(function(require) {
         value = $(this).attr('href');
       }
 
-      /*if (!$(this).hasClass("refresh")) {
-        $(document).foundation('dropdown', 'closeall');
-      }*/
+      $('.dropdown-pane').foundation('close');
 
       var action = SunstoneCfg["actions"][value];
       if (!action) {
