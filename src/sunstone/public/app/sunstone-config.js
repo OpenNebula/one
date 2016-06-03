@@ -86,9 +86,9 @@ define(function(require) {
       }
     },
 
-    "isTemplateCreationTabEnabled": function(templateTabName) {
+    "isTemplateCreationTabEnabled": function(tabName, wizardTabName) {
       if (_config['view']['tabs']['templates-tab']) {
-        var enabled = _config['view']['tabs']['templates-tab']['template_creation_tabs'][templateTabName];
+        var enabled = _config['view']['tabs'][tabName]['template_creation_tabs'][wizardTabName];
         return enabled;
       } else {
         return false;

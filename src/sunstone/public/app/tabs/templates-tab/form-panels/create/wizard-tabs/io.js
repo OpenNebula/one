@@ -41,8 +41,8 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
-    if (!Config.isTemplateCreationTabEnabled('input_output')) {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'input_output')) {
       throw "Wizard Tab not enabled";
     }
 

@@ -43,7 +43,11 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'general')) {
+      throw "Wizard Tab not enabled";
+    }
+
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");

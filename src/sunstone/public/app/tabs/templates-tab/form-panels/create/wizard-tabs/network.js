@@ -46,7 +46,7 @@ define(function(require) {
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled('network')) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'network')) {
       throw "Wizard Tab not enabled";
     }
 

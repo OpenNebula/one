@@ -243,6 +243,17 @@ tabs:
             VirtualRouterTemplate.delete_dialog: true
             VirtualRouterTemplate.share: true
             VirtualRouterTemplate.unshare: true
+        template_creation_tabs:
+            general: true
+            storage: true
+            network: true
+            os_booting: true
+            features: true
+            input_output: true
+            context: true
+            scheduling: true
+            hybrid: true
+            other: true
     instances-top-tab:
         panel_tabs:
         actions:

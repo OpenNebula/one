@@ -48,30 +48,53 @@ define(function(require) {
     require('./create/wizard-tabs/other')
   ]
 
+  var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId');
+  var VROUTER_TEMPLATES_TAB_ID = require('tabs/vrouter-templates-tab/tabId');
+
   /*
     CONSTRUCTOR
    */
 
   function FormPanel() {
+    var create_title;
+    var update_title;
+
+    if (this.resource == "Template"){
+      create_title = Locale.tr("Create VM Template");
+      update_title = Locale.tr("Update VM Template");
+    } else {
+      create_title = Locale.tr("Create Virtual Router VM Template");
+      update_title = Locale.tr("Update Virtual Router VM Template");
+    }
+
     this.actions = {
       'create': {
-        'title': Locale.tr("Create VM Template"),
+        'title': create_title,
         'buttonText': Locale.tr("Create"),
         'resetButton': true
       },
       'update': {
-        'title': Locale.tr("Update VM Template"),
+        'title': update_title,
         'buttonText': Locale.tr("Update"),
         'resetButton': false
       }
     };
 
     var that = this;
+
+    var tabId;
+
+    if (this.resource == "Template"){
+      tabId = TEMPLATES_TAB_ID;
+    } else {
+      tabId = VROUTER_TEMPLATES_TAB_ID;
+    }
+
     that.wizardTabs = [];
     var wizardTabInstance;
     $.each(WIZARD_TABS, function(index, wizardTab) {
       try {
-        wizardTabInstance = new wizardTab({listener: that});
+        wizardTabInstance = new wizardTab({listener: that, tabId: tabId});
         wizardTabInstance.contentHTML = wizardTabInstance.html();
         that.wizardTabs.push(wizardTabInstance);
       } catch (err) {
