@@ -255,8 +255,15 @@ define(function(require) {
                   '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
                 '</span>');
 
+            error_message_str = error_json.error.message
+
+            if(error_message_str=="[ImageAllocate] Not enough space in datastore")
+            {
+                error_message_str =  error_message_str + ". Please disable DATASTORE_CAPACITY_CHECK in /etc/one/oned.conf and restart OpenNebula "
+            }
+            
             $(".vcenter_image_result", image_context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
+                  (error_message_str || Locale.tr("Cannot contact server: is it running and reachable?")) +
                 '</p>');
           }
         });

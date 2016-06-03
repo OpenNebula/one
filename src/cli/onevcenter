@@ -642,7 +642,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     rc = one_i.allocate(i[:one], i[:dsid].to_i)
 
                     if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating image: #{rc.message}\n"
+                        STDOUT.puts "Error creating image: #{rc.message}\n"
+                        if rc.message == "[ImageAllocate] Not enough space "\
+                                         "in datastore"
+                            STDOUT.puts "Please disable DATASTORE_CAPACITY_"\
+                                        "CHECK in /etc/one/oned.conf and "\
+                                        "restart OpenNebula."
+                        end
                     else
                         STDOUT.puts "    OpenNebula image #{one_i.id} created!\n"
                     end
