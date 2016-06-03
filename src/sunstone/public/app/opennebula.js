@@ -78,6 +78,7 @@ define(function(require) {
     'ServiceTemplate': ServiceTemplate,
     'Support': Support,
     'Template': Template,
+    'VirtualRouterTemplate': Template,
     'User': User,
     'Vdc': Vdc,
     'VM': Vm,
