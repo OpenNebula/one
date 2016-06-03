@@ -57,8 +57,8 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         {
             vm->unlock();
 
-            att.resp_msg = "Could not change VM ownership, wrong state";
-            failure_response(ACTION, att);
+            failure_response(NO_EXISTS,
+                "Could not change VM ownership, wrong state", att);
             return 0;
         }
 
