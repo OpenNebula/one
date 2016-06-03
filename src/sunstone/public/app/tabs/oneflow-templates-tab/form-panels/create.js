@@ -263,6 +263,7 @@ define(function(require) {
     var that = this;
 
     if (this.action != "update") {return;}
+    this.setHeader(element);
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab

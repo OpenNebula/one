@@ -194,6 +194,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    this.setHeader(element);
 
     var name    = element.NAME;
     var hostIds = element.HOSTS.ID;

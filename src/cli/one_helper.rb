@@ -347,6 +347,11 @@ EOT
             :large  => '--startscript [file]',
             :format => String,
             :description => 'Start script to be executed'
+        },
+        {
+            :name   => 'report_ready',
+            :large  => '--report_ready',
+            :description => 'Sends READY=YES to OneGate, useful for OneFlow'
         }
     ]
 
@@ -953,7 +958,7 @@ EOT
     end
 
     def self.create_context(options)
-        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript]
+        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript, :report_ready]
         if !(options.keys & context_options).empty?
             lines=[]
 
@@ -1001,6 +1006,10 @@ EOT
                 end
                 script = Base64::strict_encode64(script)
                 lines<<"START_SCRIPT_BASE64=\"#{script}\""
+            end
+
+            if options[:report_ready]
+                lines << "REPORT_READY = \"YES\""
             end
 
             if !lines.empty?

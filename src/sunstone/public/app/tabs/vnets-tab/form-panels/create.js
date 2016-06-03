@@ -326,6 +326,7 @@ define(function(require) {
 
   function _fill(context, element) {
     if (this.action != "update") {return;}
+    this.setHeader(element);
     this.resourceId = element.ID;
 
     $("#default_sg_warning").hide();

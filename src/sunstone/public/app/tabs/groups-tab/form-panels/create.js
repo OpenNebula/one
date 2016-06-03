@@ -295,6 +295,9 @@ define(function(require) {
     var that = this;
 
     if (this.action != "update") {return;}
+
+    this.setHeader(element);
+
     this.resourceId = element.ID;
     this.element = element;
 
