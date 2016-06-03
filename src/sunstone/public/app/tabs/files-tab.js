@@ -47,9 +47,6 @@ define(function(require) {
     infoHeader: Locale.tr("File"),
     subheader: '',
     resource: 'File',
-    content: '<div class="large-12 columns">\
-                <div id="files_upload_progress_bars"></div>\
-              </div>',
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),

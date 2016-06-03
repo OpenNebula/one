@@ -35,9 +35,15 @@
           {{tr "Type"}}
       </label>
       <select name="img_type" id="img_type">
+        {{#if images}}
         <option value="OS">{{tr "Operating System image"}}</option>
         <option value="CDROM">{{tr "Readonly CD-ROM"}}</option>
         <option value="DATABLOCK">{{tr "Generic storage datablock"}}</option>
+        {{else}}
+        <option value="CONTEXT">{{tr "Context"}}</option>
+        <option value="KERNEL">{{tr "Kernel"}}</option>
+        <option value="RAMDISK">{{tr "Ramdisk"}}</option>
+        {{/if}}
       </select>
     </div>
     <div class="medium-8 columns">
@@ -47,6 +53,7 @@
       <div id="img_datastore" name="img_datastore"></div>
     </div>
   </div>
+  {{#if images}}
   {{#isTabActionEnabled "images-tab" "Image.persistent"}}
     <div class="row">
       <div class="large-4 columns">
@@ -57,6 +64,7 @@
       </div>
     </div>
   {{/isTabActionEnabled}}
+  {{/if}}
   <br>
   <fieldset>
     <legend>{{tr "Image location"}}</legend>
@@ -66,8 +74,10 @@
         <label for="path_image">{{tr "Path in OpenNebula server"}}</label>
         <input type="radio" name="src_path" id="upload_image" value="upload">
         <label for="upload_image">{{tr "Upload"}}</label>
+        {{#if images}}
         <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled>
         <label for="datablock_img">{{tr "Empty disk image"}}</label>
+        {{/if}}
       </div>
     </div>
     <br>
@@ -109,6 +119,7 @@
       </div>
     </div>
   </fieldset>
+  {{#if images}}
   {{#advancedSection (tr "Advanced Options") }}
     <div class="row">
       <div class="medium-6 columns">
@@ -183,4 +194,5 @@
     </div>
     {{{customTagsHTML}}}
   {{/advancedSection}}
+  {{/if}}
 </form>
