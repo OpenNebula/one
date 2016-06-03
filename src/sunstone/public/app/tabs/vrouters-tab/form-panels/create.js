@@ -27,7 +27,7 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var NicsSection = require('utils/nics-section');
-  var TemplatesTable = require('tabs/templates-tab/datatable');
+  var VRouterTemplatesTable = require('tabs/vrouter-templates-tab/datatable');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaAction = require('opennebula/action');
@@ -63,15 +63,9 @@ define(function(require) {
       }
     };
 
-    this.templatesTable = new TemplatesTable(
+    this.templatesTable = new VRouterTemplatesTable(
         'vr_create',
-        { 'select': true,
-          'selectOptions': {
-            'filter_fn': function(tmpl){
-              return (tmpl.TEMPLATE.VROUTER != undefined && tmpl.TEMPLATE.VROUTER.toUpperCase() == "YES");
-            }
-          }
-        });
+        { 'select': true });
 
     BaseFormPanel.call(this);
   }

@@ -52,7 +52,6 @@ define(function(require) {
     infoHeader: Locale.tr("Image"),
     subheader: '',
     resource: 'Image',
-    content: '<div id="upload_progress_bars" class="large-12 columns"></div>',
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),

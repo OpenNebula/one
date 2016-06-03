@@ -68,7 +68,7 @@ define(function(require) {
         context.html('<div class="text-center">' + opts.placeholder + '</div>');
       }
     } else {
-      context.html(Tree.html(_makeTree(labels), true));
+      context.append(Tree.html(_makeTree(labels), true));
       Tree.setup($('.labels-tree', context));
     }
 

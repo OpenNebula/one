@@ -45,7 +45,7 @@ define(function(require) {
     title: Locale.tr("Virtual Routers"),
     icon: 'fa-random',
     tabClass: "subTab",
-    parentTab: "network-top-tab",
+    parentTab: "instances-top-tab",
     listHeader: Locale.tr("Virtual Routers"),
     infoHeader: Locale.tr("Virtual Router"),
     subheader: '',

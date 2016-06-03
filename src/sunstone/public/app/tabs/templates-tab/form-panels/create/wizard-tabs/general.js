@@ -43,7 +43,11 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'general')) {
+      throw "Wizard Tab not enabled";
+    }
+
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");
@@ -80,6 +84,10 @@ define(function(require) {
       $('#template_hypervisor_form', context).addClass("left");
       $('#NAME', context).attr("disabled", "disabled");
       $('#NAME', context).removeAttr("required");
+    }
+
+    if (panelForm.resource == "VirtualRouterTemplate"){
+      $("input[wizard_field=VROUTER]", context).attr("checked", "checked");
     }
 
     //context.foundation('slider', 'reflow');

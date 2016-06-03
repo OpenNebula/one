@@ -47,6 +47,7 @@
             </div>
           </td>
         </tr>
+        {{#if images}}
         <tr>
           <td class="key_td">{{tr "Persistent"}}</td>
           <td class="value_td_persistency">{{persistentStr}}</td>
@@ -58,6 +59,7 @@
             </div>
           </td>
         </tr>
+        {{/if}}
         <tr>
           <td class="key_td">{{tr "Filesystem type"}}</td>
           <td class="value_td">{{fsTypeStr}}</td>

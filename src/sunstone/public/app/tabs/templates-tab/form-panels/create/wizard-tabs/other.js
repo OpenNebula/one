@@ -45,8 +45,8 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
-    if (!Config.isTemplateCreationTabEnabled('other')) {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'other')) {
       throw "Wizard Tab not enabled";
     }
 

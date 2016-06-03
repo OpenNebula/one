@@ -44,8 +44,8 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
-    if (!Config.isTemplateCreationTabEnabled('hybrid')) {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'hybrid')) {
       throw "Wizard Tab not enabled";
     }
 
@@ -137,7 +137,7 @@ define(function(require) {
   }
 
   function _addProviderTab(provider_id, context) {
-    var htmlId  = 'provider' + provider_id;
+    var htmlId  = 'provider' + provider_id + UniqueId.id();
 
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab tabs-panel">' +

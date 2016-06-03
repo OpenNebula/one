@@ -137,8 +137,8 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function WizardTab() {
-    if (!Config.isTemplateCreationTabEnabled('os_booting')) {
+  function WizardTab(opts) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'os_booting')) {
       throw "Wizard Tab not enabled";
     }
 

@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
+  var Tips = require('utils/tips');
 
   var TOP_INTERVAL = 10000; //ms
   var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
@@ -384,6 +385,8 @@ define(function(require) {
       actionBlock.append(buttonsRow);
       //actionBlock.foundation();
       Foundation.reflow(actionBlock, 'dropdown');
+
+      Tips.setup(actionBlock);
 
       if ($("#" + customId + "more_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "more_buttons]", actionBlock).remove()

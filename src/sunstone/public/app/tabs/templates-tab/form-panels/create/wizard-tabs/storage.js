@@ -46,7 +46,7 @@ define(function(require) {
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled('storage')) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'storage')) {
       throw "Wizard Tab not enabled";
     }
 

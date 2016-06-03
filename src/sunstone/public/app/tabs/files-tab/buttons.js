@@ -15,47 +15,16 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
+  var ImageButtons = require('tabs/images-tab/buttons');
 
   var Buttons = {
-    "File.refresh" : {
-      type: "action",
-      layout: "refresh",
-      alwaysActive: true
-    },
-    "File.create_dialog" : {
-      type: "create_dialog",
-      layout: "create"
-    },
-    "File.chown" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change owner"),
-      layout: "user_select",
-      select: "User",
-      tip: Locale.tr("Select the new owner")
-    },
-    "File.chgrp" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change group"),
-      layout: "user_select",
-      select: "Group",
-      tip: Locale.tr("Select the new group")
-    },
-    "File.enable" : {
-      type: "action",
-      layout: "more_select",
-      text: Locale.tr("Enable")
-    },
-    "File.disable" : {
-      type: "action",
-      layout: "more_select",
-      text: Locale.tr("Disable")
-    },
-    "File.delete" : {
-      type: "confirm",
-      layout: "del",
-      text: Locale.tr("Delete")
-    },
+    "File.refresh" : ImageButtons["Image.refresh"],
+    "File.create_dialog" : ImageButtons["Image.create_dialog"],
+    "File.chown" : ImageButtons["Image.chown"],
+    "File.chgrp" : ImageButtons["Image.chgrp"],
+    "File.enable" : ImageButtons["Image.enable"],
+    "File.disable" : ImageButtons["Image.disable"],
+    "File.delete" : ImageButtons["Image.delete"]
   };
 
   return Buttons;
