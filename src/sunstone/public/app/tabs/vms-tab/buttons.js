@@ -87,7 +87,7 @@ define(function(require) {
     "VM.stop" : {
       type: "action",
       text: Locale.tr("Stop"),
-      layout: "vmsstop_buttons",
+      layout: "vmspause_buttons",
       custom_classes : "state-dependent"
     },
     "VM.reboot" : {
@@ -105,13 +105,13 @@ define(function(require) {
     "VM.poweroff" : {
       type: "action",
       text: Locale.tr("Power Off"),
-      layout: "vmspause_buttons",
+      layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.poweroff_hard" : {
       type: "action",
       text: Locale.tr("Power Off") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
-      layout: "vmspause_buttons",
+      layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.undeploy" : {
