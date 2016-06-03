@@ -15,49 +15,46 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  /*
+    DEPENDENCIES
+   */
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
+  var CommonDataTable = require('tabs/templates-tab/datatable-common');
 
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/attach-nic')
-  ];
+  /*
+    CONSTANTS
+   */
 
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
+  var RESOURCE = "VirtualRouterTemplate";
+  var TAB_NAME = require('./tabId');
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  /*
+    CONSTRUCTOR
+   */
 
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    icon: 'fa-random',
-    tabClass: "subTab",
-    parentTab: "instances-top-tab",
-    listHeader: Locale.tr("Virtual Routers"),
-    infoHeader: Locale.tr("Virtual Router"),
-    subheader: '',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+  function Table(dataTableId, conf) {
+    CommonDataTable.call(this, RESOURCE, TAB_NAME, dataTableId, conf);
   };
 
-  return Tab;
+  Table.prototype = Object.create(CommonDataTable.prototype);
+  Table.prototype.constructor = Table;
+  Table.prototype.elementArray = _elementArray;
+
+  return Table;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _elementArray(element_json) {
+    var element = element_json[this.xmlRoot];
+
+    if (element.TEMPLATE.VROUTER == undefined ||
+        element.TEMPLATE.VROUTER.toUpperCase() != "YES"){
+
+      return false;
+    }
+
+    return this.elementArrayCommon(element_json);
+  }
 });

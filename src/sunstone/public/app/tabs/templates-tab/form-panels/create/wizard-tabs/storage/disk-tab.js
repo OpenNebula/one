@@ -24,6 +24,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var ImageTable = require('tabs/images-tab/datatable')
   var WizardFields = require('utils/wizard-fields');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -40,7 +41,7 @@ define(function(require) {
    */
 
   function DiskTab(diskTabId) {
-    this.diskTabId = 'diskTab' + diskTabId;
+    this.diskTabId = 'diskTab' + diskTabId + UniqueId.id();
 
     this.imageTable = new ImageTable(this.diskTabId + 'Table', {'select': true});
   }

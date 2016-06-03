@@ -30,7 +30,6 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./clone/dialogId');
-  var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId')
 
   /*
     CONSTRUCTOR
@@ -48,6 +47,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
+  Dialog.prototype.setParams = _setParams;
 
   return Dialog;
 
@@ -61,6 +61,12 @@ define(function(require) {
     });
   }
 
+  function _setParams(params) {
+    this.params = params;
+    this.tabId = params.tabId;
+    this.resource = params.resource;
+  }
+
   function _setup(context) {
     var that = this;
 
@@ -71,7 +77,7 @@ define(function(require) {
 
     $('#' + DIALOG_ID + 'Form', context).on("click", "button", function() {
       if(!$('#' + DIALOG_ID + 'Form', context)[0].checkValidity()){
-        if ($(this).val() == "Template.clone_recursive"){
+        if ($(this).val() == that.resource+".clone_recursive"){
           $('#' + DIALOG_ID + 'Form button[type="submit"]', context).click();
           return true;
         } else {
@@ -81,7 +87,7 @@ define(function(require) {
 
       var extra_info;
       var name = $('#' + DIALOG_ID + 'Form input[name="name"]').val();
-      var sel_elems = Sunstone.getDataTable(TEMPLATES_TAB_ID).elements();
+      var sel_elems = Sunstone.getDataTable(that.tabId).elements();
 
       if (sel_elems.length > 1) {
         for (var i = 0; i < sel_elems.length; i++) {
@@ -98,7 +104,7 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       setTimeout(function() {
-        Sunstone.runAction('Template.refresh');
+        Sunstone.runAction(that.resource+'.refresh');
       }, 1500);
 
       return false;
@@ -108,7 +114,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    var sel_elems = Sunstone.getDataTable(TEMPLATES_TAB_ID).elements();
+    var sel_elems = Sunstone.getDataTable(this.tabId).elements();
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
       $('.clone_one', context).hide();

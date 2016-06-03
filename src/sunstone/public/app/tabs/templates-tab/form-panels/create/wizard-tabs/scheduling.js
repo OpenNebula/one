@@ -60,8 +60,8 @@ define(function(require) {
         'multiple_choice': true
       }
     }
-    this.hostsTable = new HostsTable(this.wizardTabId + 'HostsTable', options);
-    this.clustersTable = new ClustersTable(this.wizardTabId + 'ClustersTable', options);
+    this.hostsTable = new HostsTable('HostsTable' + UniqueId.id(), options);
+    this.clustersTable = new ClustersTable('ClustersTable' + UniqueId.id(), options);
   }
 
   WizardTab.prototype.constructor = WizardTab;

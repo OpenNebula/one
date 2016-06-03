@@ -15,49 +15,34 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  var Sunstone = require('sunstone');
+  var OpenNebulaResource = require('opennebula/template');
+  var Actions = require('tabs/templates-tab/actions-common');
+  var Notifier = require('utils/notifier');
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
+  var TAB_ID = require('tabs/vrouter-templates-tab/tabId');
+  
+  var CREATE_DIALOG_ID = require('tabs/vrouter-templates-tab/form-panels/create/formPanelId');
+  var CLONE_DIALOG_ID = require('tabs/templates-tab/dialogs/clone/dialogId');
+  var INSTANTIATE_DIALOG_ID = undefined;
+  var IMPORT_DIALOG_ID = undefined;
 
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/attach-nic')
-  ];
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
+  var RESOURCE = "VirtualRouterTemplate"
+  var XML_ROOT = "VMTEMPLATE"
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId');
 
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
+  var actions = Actions(TAB_ID, RESOURCE,
+    {
+      'TAB_ID'  : TAB_ID,
+      'CREATE_DIALOG_ID'  : CREATE_DIALOG_ID,
+      'CLONE_DIALOG_ID' : CLONE_DIALOG_ID,
+      'INSTANTIATE_DIALOG_ID' : INSTANTIATE_DIALOG_ID,
+      'IMPORT_DIALOG_ID'  : IMPORT_DIALOG_ID,
+      'CONFIRM_DIALOG_ID' : CONFIRM_DIALOG_ID,
+    });
 
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    icon: 'fa-random',
-    tabClass: "subTab",
-    parentTab: "instances-top-tab",
-    listHeader: Locale.tr("Virtual Routers"),
-    infoHeader: Locale.tr("Virtual Router"),
-    subheader: '',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
-  };
-
-  return Tab;
+  return actions;
 });

@@ -15,49 +15,21 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  var TemplateButtons = require('tabs/templates-tab/buttons');
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
-
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/attach-nic')
-  ];
-
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
-
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
-
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
-
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    icon: 'fa-random',
-    tabClass: "subTab",
-    parentTab: "instances-top-tab",
-    listHeader: Locale.tr("Virtual Routers"),
-    infoHeader: Locale.tr("Virtual Router"),
-    subheader: '',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+  var Buttons = {
+    "VirtualRouterTemplate.refresh" : TemplateButtons["Template.refresh"],
+    "VirtualRouterTemplate.create_dialog" : TemplateButtons["Template.create_dialog"],
+//    "VirtualRouterTemplate.import_dialog" : TemplateButtons["Template.import_dialog"],
+    "VirtualRouterTemplate.update_dialog" : TemplateButtons["Template.update_dialog"],
+//    "VirtualRouterTemplate.instantiate_vms" : TemplateButtons["Template.instantiate_vms"],
+    "VirtualRouterTemplate.chown" : TemplateButtons["Template.chown"],
+    "VirtualRouterTemplate.chgrp" : TemplateButtons["Template.chgrp"],
+    "VirtualRouterTemplate.clone_dialog" : TemplateButtons["Template.clone_dialog"],
+    "VirtualRouterTemplate.share" : TemplateButtons["Template.share"],
+    "VirtualRouterTemplate.unshare" : TemplateButtons["Template.unshare"],
+    "VirtualRouterTemplate.delete_dialog" : TemplateButtons["Template.delete_dialog"]
   };
 
-  return Tab;
+  return Buttons;
 });

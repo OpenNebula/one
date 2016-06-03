@@ -5,9 +5,11 @@ enabled_tabs:
     - instances-top-tab
     - vms-tab
     - oneflow-services-tab
+    - vrouters-tab
     - templates-top-tab
     - templates-tab
     - oneflow-templates-tab
+    - vrouter-templates-tab
     - storage-top-tab
     - datastores-tab
     - images-tab
@@ -16,7 +18,6 @@ enabled_tabs:
     - marketplaceapps-tab
     - network-top-tab
     - vnets-tab
-    - vrouters-tab
     - vnets-topology-tab
     #- secgroups-tab
     - infrastructure-top-tab
@@ -216,6 +217,30 @@ tabs:
             ServiceTemplate.rename: true
             ServiceTemplate.clone_dialog: true
             ServiceTemplate.delete: true
+    vrouter-templates-tab:
+        panel_tabs:
+            vrouter_template_info_tab: true
+            vrouter_template_template_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Registration time
+            #- 6         # Labels
+        actions:
+            VirtualRouterTemplate.refresh: true
+            VirtualRouterTemplate.create_dialog: true
+            VirtualRouterTemplate.update_dialog: true
+            VirtualRouterTemplate.rename: true
+            VirtualRouterTemplate.chown: true
+            VirtualRouterTemplate.chgrp: true
+            VirtualRouterTemplate.chmod: true
+            VirtualRouterTemplate.clone_dialog: true
+            VirtualRouterTemplate.delete_dialog: true
+            VirtualRouterTemplate.share: false
+            VirtualRouterTemplate.unshare: false
     instances-top-tab:
         panel_tabs:
         actions:

@@ -15,49 +15,35 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  /*
+    DEPENDENCIES
+   */
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
+  var BaseFormPanel = require('tabs/templates-tab/form-panels/create-common');
 
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/attach-nic')
-  ];
+  /*
+    CONSTANTS
+   */
 
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
+  var RESOURCE = "VirtualRouterTemplate";
+  var FORM_PANEL_ID = require('./create/formPanelId');
+  var TAB_ID = require('../tabId');
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  /*
+    CONSTRUCTOR
+   */
 
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
+  function FormPanel() {
+    this.formPanelId = FORM_PANEL_ID;
+    this.tabId = TAB_ID;
+    this.resource = RESOURCE;
 
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    icon: 'fa-random',
-    tabClass: "subTab",
-    parentTab: "instances-top-tab",
-    listHeader: Locale.tr("Virtual Routers"),
-    infoHeader: Locale.tr("Virtual Router"),
-    subheader: '',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
-  };
+    BaseFormPanel.call(this);
+  }
 
-  return Tab;
+  FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
+  FormPanel.prototype = Object.create(BaseFormPanel.prototype);
+  FormPanel.prototype.constructor = FormPanel;
+
+  return FormPanel;
 });

@@ -82,6 +82,10 @@ define(function(require) {
       $('#NAME', context).removeAttr("required");
     }
 
+    if (panelForm.resource == "VirtualRouterTemplate"){
+      $("input[wizard_field=VROUTER]", context).attr("checked", "checked");
+    }
+
     //context.foundation('slider', 'reflow');
   }
 

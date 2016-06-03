@@ -25,6 +25,7 @@ define(function(require) {
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var WizardFields = require('utils/wizard-fields');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -41,7 +42,7 @@ define(function(require) {
    */
 
   function DiskTab(nicTabId) {
-    this.nicTabId = 'nicTab' + nicTabId;
+    this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
 
     this.vnetsTable = new VNetsTable(this.nicTabId + 'Table', {'select': true});
 

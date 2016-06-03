@@ -19,16 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
-  var PermissionsTable = require('utils/panel/permissions-table');
-
-  /*
-    TEMPLATES
-   */
-
-  var TemplateInfo = require('hbs!./info/html');
+  var BasePanel = require('tabs/templates-tab/panels/info-common');
 
   /*
     CONSTANTS
@@ -37,46 +28,21 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Template"
-  var XML_ROOT = "VMTEMPLATE"
 
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
-    this.title = Locale.tr("Info");
-    this.icon = "fa-info-circle";
+    this.tabId = TAB_ID;
+    this.resource = RESOURCE;
 
-    this.element = info[XML_ROOT];
-
-    return this;
+    return BasePanel.call(this, info);
   };
 
   Panel.PANEL_ID = PANEL_ID;
-  Panel.prototype.html = _html;
-  Panel.prototype.setup = _setup;
+  Panel.prototype = Object.create(BasePanel.prototype);
+  Panel.prototype.constructor = Panel;
 
   return Panel;
-
-  /*
-    FUNCTION DEFINITIONS
-   */
-
-  function _html() {
-    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
-
-    return TemplateInfo({
-      'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'permissionsTableHTML': permissionsTableHTML,
-      'prettyRegTime': prettyRegTime
-    });
-  }
-
-  function _setup(context) {
-    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-  }
 });

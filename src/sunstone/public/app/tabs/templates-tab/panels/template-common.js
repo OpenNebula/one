@@ -15,49 +15,55 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+
   var Locale = require('utils/locale');
-  var Buttons = require('./vrouters-tab/buttons');
-  var Actions = require('./vrouters-tab/actions');
-  var Table = require('./vrouters-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
 
-  var TAB_ID = require('./vrouters-tab/tabId');
-  var DATATABLE_ID = "dataTableVirtualRouters";
+  /*
+    TEMPLATES
+   */
 
-  var _dialogs = [
-    require('./vrouters-tab/dialogs/attach-nic')
-  ];
+  var TemplateInfo = require('hbs!./template/html');
 
-  var _panels = [
-    require('./vrouters-tab/panels/info'),
-    require('./vrouters-tab/panels/vms')
-  ];
+  /*
+    CONSTANTS
+   */
 
-  var _panelsHooks = [
-    require('../utils/hooks/header')
-  ];
+  var PANEL_ID = require('./template/panelId');
+  var XML_ROOT = "VMTEMPLATE"
 
-  var _formPanels = [
-    require('./vrouters-tab/form-panels/create')
-  ];
+  /*
+    CONSTRUCTOR
+   */
 
-  var Tab = {
-    tabId: TAB_ID,
-    title: Locale.tr("Virtual Routers"),
-    icon: 'fa-random',
-    tabClass: "subTab",
-    parentTab: "instances-top-tab",
-    listHeader: Locale.tr("Virtual Routers"),
-    infoHeader: Locale.tr("Virtual Router"),
-    subheader: '',
-    resource: 'VirtualRouter',
-    buttons: Buttons,
-    actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    panels: _panels,
-    panelsHooks: _panelsHooks,
-    formPanels: _formPanels,
-    dialogs: _dialogs
+  function Panel(info) {
+    this.title = Locale.tr("Template");
+    this.icon = "fa-file-o";
+
+    this.element = info[XML_ROOT];
+
+    return this;
   };
 
-  return Tab;
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
+
+  return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    return TemplateInfo({
+      'element': this.element,
+      'templateString': TemplateUtils.templateToString(this.element.TEMPLATE)
+    });
+  }
+
+  function _setup(context) {
+  }
 });
