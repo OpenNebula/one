@@ -186,6 +186,8 @@ void VirtualNetworkReserve::request_execute(
     int rc;
     set<int> cluster_ids;
 
+    VirtualNetworkTemplate * vtmpl;
+
     PoolObjectAuth reserv_perms;
 
     // -------------------------------------------------------------------------
@@ -330,7 +332,6 @@ void VirtualNetworkReserve::request_execute(
         failure_response(ACTION, att);
 
         vn->unlock();
-
         return;
     }
 
@@ -345,13 +346,18 @@ void VirtualNetworkReserve::request_execute(
     {
         ar.add_auth(AuthRequest::MANAGE, reserv_perms);
     }
+    else
+    {
+        vtmpl       = vn->clone_template();
+        cluster_ids = vn->get_cluster_ids();
+    }
+
+    vn->unlock();
 
     if (UserPool::authorize(ar) == -1)
     {
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
-
-        vn->unlock();
 
         return;
     }
@@ -361,11 +367,7 @@ void VirtualNetworkReserve::request_execute(
     // -------------------------------------------------------------------------
     if (!on_exisiting)
     {
-        VirtualNetworkTemplate * vtmpl = vn->clone_template();
-
         vtmpl->replace("NAME", name);
-
-        cluster_ids = vn->get_cluster_ids();
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
                 id, vtmpl, &rid, cluster_ids, att.resp_msg);
@@ -373,9 +375,6 @@ void VirtualNetworkReserve::request_execute(
         if (rc < 0)
         {
             failure_response(INTERNAL, att);
-
-            vn->unlock();
-
             return;
         }
     }
@@ -386,10 +385,14 @@ void VirtualNetworkReserve::request_execute(
     {
         att.resp_id = rid;
         failure_response(NO_EXISTS, att);
-        vn->unlock();
 
         return;
     }
+
+    int ruid = rvn->get_uid();
+    int rgid = rvn->get_gid();
+
+    rvn->unlock();
 
     // -------------------------------------------------------------------------
     // Check & update quotas on the target VNET & *reservation owner*
@@ -397,7 +400,7 @@ void VirtualNetworkReserve::request_execute(
     ostringstream qtmpl_s;
     Template      qtmpl;
 
-    RequestAttributes reservation_att(rvn->get_uid(), rvn->get_gid(), att);
+    RequestAttributes reservation_att(ruid, rgid, att);
 
     for (int i=0; i< size ; i++)
     {
@@ -408,10 +411,6 @@ void VirtualNetworkReserve::request_execute(
 
     if (quota_authorization(&qtmpl, Quotas::NETWORK, reservation_att) == false)
     {
-        rvn->unlock();
-
-        vn->unlock();
-
         return;
     }
 
@@ -422,20 +421,20 @@ void VirtualNetworkReserve::request_execute(
     {
         if (!ip.empty())
         {
-            rc = vn->reserve_addr_by_ip(rvn, size, ar_id, ip, att.resp_msg);
+            rc = vnpool->reserve_addr_by_ip(id, rid, size, ar_id, ip, att.resp_msg);
         }
         else if (!mac.empty())
         {
-            rc = vn->reserve_addr_by_mac(rvn, size, ar_id, mac, att.resp_msg);
+            rc = vnpool->reserve_addr_by_mac(id, rid, size, ar_id, mac, att.resp_msg);
         }
         else
         {
-            rc = vn->reserve_addr(rvn, size, ar_id, att.resp_msg);
+            rc = vnpool->reserve_addr(id, rid, size, ar_id, att.resp_msg);
         }
     }
     else
     {
-        rc = vn->reserve_addr(rvn, size, att.resp_msg);
+        rc = vnpool->reserve_addr(id, rid, size, att.resp_msg);
     }
 
     if (rc != 0 )
@@ -446,23 +445,16 @@ void VirtualNetworkReserve::request_execute(
 
         if (!on_exisiting)
         {
-            pool->drop(rvn, att.resp_msg);
+            rvn = vnpool->get(rid, true);
+
+            if (rvn != 0)
+            {
+                vnpool->drop(rvn, att.resp_msg);
+            }
         }
-
-        rvn->unlock();
-
-        vn->unlock();
 
         return;
     }
-
-    pool->update(rvn);
-
-    pool->update(vn);
-
-    rvn->unlock();
-
-    vn->unlock();
 
     // -------------------------------------------------------------------------
     // Add the reservation to the same clusters as the parent VNET
