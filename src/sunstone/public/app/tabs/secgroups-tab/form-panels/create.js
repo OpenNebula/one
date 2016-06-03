@@ -310,6 +310,7 @@ define(function(require) {
   function _fill(context, element) {
     var that = this;
 
+    this.setHeader(element);
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab

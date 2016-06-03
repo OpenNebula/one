@@ -144,6 +144,7 @@ define(function(require) {
   }
 
   function _fill(context, elementId, templateJSON) {
+    this.setHeader(element);
     this.resourceId = elementId;
 
     // Populates the Avanced mode Tab

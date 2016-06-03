@@ -189,6 +189,8 @@ define(function(require) {
       return false;
     }
 
+    this.setHeader(element);
+
     this.resourceId = element.ID;
 
     // Populates the Avanced mode Tab

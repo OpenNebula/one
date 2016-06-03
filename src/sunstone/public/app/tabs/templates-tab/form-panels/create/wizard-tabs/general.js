@@ -75,13 +75,9 @@ define(function(require) {
 
   function _onShow(context, panelForm) {
     if (panelForm.action == 'create') {
-      $('#template_name_form', context).show();
-      $('#template_hypervisor_form', context).removeClass("left");
       $('#NAME', context).removeAttr('disabled');
       $('#NAME', context).attr("required", "");
     } else if (panelForm.action == 'update') {
-      $('#template_name_form', context).hide();
-      $('#template_hypervisor_form', context).addClass("left");
       $('#NAME', context).attr("disabled", "disabled");
       $('#NAME', context).removeAttr("required");
     }

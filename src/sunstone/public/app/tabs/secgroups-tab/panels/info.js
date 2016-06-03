@@ -76,9 +76,6 @@ define(function(require) {
       ruleTextList.push(Utils.sgRuleToSt(this));
     });
 
-    // TODO
-    //$(".resource-info-header", $("#secgroups-tab")).html(this.element.NAME);
-
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
     delete strippedTemplate["RULE"];

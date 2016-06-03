@@ -993,6 +993,10 @@ define(function(require) {
     $(".submit_button", context).text(Locale.tr("Loading..."));
     _disableFormPanelSubmit(tabId);
 
+    $(".sunstone-form-id", context).text("");
+    $(".sunstone-form-info-header", context).text("");
+    $(".sunstone-form-info-header-small", context).text("");
+
     $(".tabs-contentForm", context).hide();
     $(".loadingForm", context).show();
   }

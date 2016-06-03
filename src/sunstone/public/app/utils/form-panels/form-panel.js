@@ -33,6 +33,7 @@ define(function(require) {
     'reset': _reset,
     'setAction': _setAction,
     'title': _title,
+    'setHeader': _setHeader,
     'buttonText': _buttonText,
     'resetButton': _resetButton,
     'actionOptions': _actionOptions
@@ -134,6 +135,11 @@ define(function(require) {
     } else {
       return "";
     }
+  }
+
+  function _setHeader(element) {
+    $(".sunstone-form-id", '#' + this.tabId).text(element.ID);
+    $('.sunstone-form-info-header', '#' + this.tabId).text(element.NAME);
   }
 
   // @return [String] The buttonText of the form based on the defined action
