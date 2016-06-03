@@ -905,6 +905,7 @@ module Migrator
     @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
     @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
+    has_lvm = false
     @db.transaction do
       @db.fetch("SELECT * FROM old_datastore_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
@@ -936,11 +937,31 @@ module Migrator
           row[:body] = doc.root.to_s
         end
 
+        ds_mad = doc.root.at_xpath("DS_MAD").text rescue nil
+        has_lvm = true if ds_mad.upcase == "LVM"
+
         @db[:datastore_pool].insert(row)
       end
     end
 
     @db.run "DROP TABLE old_datastore_pool;"
+
+    if has_lvm
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "The LVM driver is no longer included in the core distribution. It is"
+      puts "however available as an addon which must be manually installed:"
+      puts "https://github.com/OpenNebula/addon-lvm"
+      puts
+      puts "You have LVM datastores which will not work until you install the"
+      puts "add-on."
+      puts
+      puts "Note that OpenNebula officially recommends using the fs_lvm drivers:"
+      puts "http://docs.opennebula.org/5.0/deployment/open_cloud_storage_setup/lvm_drivers.html"
+      puts
+    end
 
     log_time()
 
