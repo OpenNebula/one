@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var Buttons = {
     "VM.refresh" : {
@@ -74,7 +75,7 @@ define(function(require) {
     },
     "VM.suspend" : {
       type: "action",
-      text: Locale.tr("Suspend"),
+      text: Locale.tr("Suspend") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Keeps allocated Host resources. The resume operation happens quickly")) + "</span>",
       layout: "vmspause_buttons",
       custom_classes : "state-dependent"
     },
@@ -86,7 +87,7 @@ define(function(require) {
     },
     "VM.stop" : {
       type: "action",
-      text: Locale.tr("Stop"),
+      text: Locale.tr("Stop")  + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Frees Host resources. The resume operation may take long")) + "</span>",
       layout: "vmspause_buttons",
       custom_classes : "state-dependent"
     },
@@ -104,25 +105,25 @@ define(function(require) {
     },
     "VM.poweroff" : {
       type: "action",
-      text: Locale.tr("Power Off"),
+      text: Locale.tr("Power Off") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Keeps allocated Host resources. The resume operation happens quickly")) + "</span>",
       layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.poweroff_hard" : {
       type: "action",
-      text: Locale.tr("Power Off") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
+      text: Locale.tr("Power Off") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>'  + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Keeps allocated Host resources. The resume operation happens quickly")) + "</span>",
       layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.undeploy" : {
       type: "action",
-      text: Locale.tr("Undeploy"),
+      text: Locale.tr("Undeploy")  + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Frees Host resources. The resume operation may take long")) + "</span>",
       layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.undeploy_hard" : {
       type: "action",
-      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>',
+      text: Locale.tr("Undeploy") + ' <span class="label secondary radius">' + Locale.tr("hard") + '</span>'  + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Frees Host resources. The resume operation may take long")) + "</span>",
       layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
