@@ -364,49 +364,52 @@ public:
     // *************************************************************************
 
     /**
-     *  Reserve an address range for this network and add it to the given vnet
-     *    @param rvnet the VNET to store the reserved AR
+     *  Reserve an address range for this network and add it to the given AR
+     *    @param rid the reservation VNET ID to store the reserved AR
      *    @param rsize number of addresses to reserve
-     *    @param error_str error message
+     *    @param rar the address range to place the reservation
+     *    @param err error message
      *    @return 0 on success
      */
-    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize,
-        string& error_str);
+    int reserve_addr(int rid, unsigned int rsize, AddressRange *rar, string& err);
+
+    /**
+     *  Reserve an address range for this network and add it to the given AR
+     *    @param rid the reservation VNET ID to store the reserved AR
+     *    @param rsize number of addresses to reserve
+     *    @param ar_id of the ar to make the reservation from
+     *    @param rar the address range to place the reservation
+     *    @param err error message
+     *    @return 0 on success
+     */
+    int reserve_addr(int rid, unsigned int rsize, unsigned int ar_id,
+        AddressRange *rar, string& error_str);
 
     /**
      *  Reserve an address range for this network and add it to the given vnet
-     *    @param rvnet the VNET to store the reserved AR
+     *    @param rid the reservation VNET ID to store the reserved AR
      *    @param rsize number of addresses to reserve
      *    @param ar_id id of the address range to obtain the addresses
-     *    @param error_str error message
-     *    @return 0 on success
-     */
-    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize,
-        unsigned int ar_id, string& error_str);
-
-    /**
-     *  Reserve an address range for this network and add it to the given vnet
-     *    @param rvnet the VNET to store the reserved AR
-     *    @param rsize number of addresses to reserve
-     *    @param ar_id id of the address range to obtain the addresses
-     *    @param error_str error message
      *    @param ip the first ip in the reservations
+     *    @param rar the address range to place the reservation
+     *    @param err error message
      *    @return 0 on success
      */
-    int reserve_addr_by_ip(VirtualNetwork *rvnet, unsigned int rsize,
-        unsigned int ar_id, const string& ip, string& error_str);
+    int reserve_addr_by_ip(int rid, unsigned int rsize, unsigned int ar_id,
+            const string& ip, AddressRange *rar, string& error_str);
 
     /**
      *  Reserve an address range for this network and add it to the given vnet
-     *    @param rvnet the VNET to store the reserved AR
+     *    @param rid the reservation VNET ID to store the reserved AR
      *    @param rsize number of addresses to reserve
      *    @param ar_id id of the address range to obtain the addresses
      *    @param mac the first mac in the reservations
-     *    @param error_str error message
+     *    @param rar the address range to place the reservation
+     *    @param err error message
      *    @return 0 on success
      */
-    int reserve_addr_by_mac(VirtualNetwork *rvnet, unsigned int rsize,
-        unsigned int ar_id, const string& mac, string& error_str);
+    int reserve_addr_by_mac(int rid, unsigned int rsize, unsigned int ar_id,
+            const string& mac, AddressRange *rar, string& error_str);
 
     /**
      * Returns true if this VNET is a reservation

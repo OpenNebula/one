@@ -962,25 +962,33 @@ int VirtualNetwork::get_template_attribute(const char * name, int& value,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
-    unsigned int rsize, string& error_str)
+int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, AddressRange *rar,
+    string& error_str)
 {
-    AddressRange *rar = rvnet->allocate_ar();
-
-    if (ar_pool.reserve_addr(rvnet->get_oid(), rsize, rar) != 0)
+    if (ar_pool.reserve_addr(rid, rsize, rar) != 0)
     {
         error_str = "Not enough free addresses in an address range";
 
-        delete rar;
-
         return -1;
     }
 
-    if (rvnet->add_ar(rar) != 0)
-    {
-        error_str = "Could not add the address range to the netwok";
+    return 0;
+}
 
-        delete rar;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, unsigned int ar_id,
+        AddressRange *rar, string& error_str)
+{
+    if (ar_pool.reserve_addr(rid, rsize, ar_id, rar) != 0)
+    {
+        ostringstream oss;
+
+        oss << "Not enough free addresses in address range " << ar_id
+            << ", or it does not exist";
+
+        error_str = oss.str();
 
         return -1;
     }
@@ -991,12 +999,10 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
-    unsigned int rsize, unsigned int ar_id, string& error_str)
+int VirtualNetwork::reserve_addr_by_ip(int rid, unsigned int rsize,
+        unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
 {
-    AddressRange *rar = rvnet->allocate_ar();
-
-    if (ar_pool.reserve_addr(rvnet->get_oid(), rsize, ar_id, rar) != 0)
+    if (ar_pool.reserve_addr_by_ip(rid, rsize, ar_id, ip, rar)!=0)
     {
         ostringstream oss;
 
@@ -1004,17 +1010,6 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
             << ", or it does not exist";
 
         error_str = oss.str();
-
-        delete rar;
-
-        return -1;
-    }
-
-    if (rvnet->add_ar(rar) != 0)
-    {
-        error_str = "Could not add the address range to the netwok";
-
-        delete rar;
 
         return -1;
     }
@@ -1025,12 +1020,10 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::reserve_addr_by_ip(VirtualNetwork *rvnet,
-    unsigned int rsize, unsigned int ar_id, const string& ip, string& error_str)
+int VirtualNetwork::reserve_addr_by_mac(int rid, unsigned int rsize,
+        unsigned int ar_id, const string& mac, AddressRange *rar, string& error_str)
 {
-    AddressRange *rar = rvnet->allocate_ar();
-
-    if (ar_pool.reserve_addr_by_ip(rvnet->get_oid(),rsize,ar_id,ip,rar)!=0)
+    if (ar_pool.reserve_addr_by_mac(rid, rsize, ar_id, mac, rar)!=0)
     {
         ostringstream oss;
 
@@ -1038,51 +1031,6 @@ int VirtualNetwork::reserve_addr_by_ip(VirtualNetwork *rvnet,
             << ", or it does not exist";
 
         error_str = oss.str();
-
-        delete rar;
-
-        return -1;
-    }
-
-    if (rvnet->add_ar(rar) != 0)
-    {
-        error_str = "Could not add the address range to the netwok";
-
-        delete rar;
-
-        return -1;
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualNetwork::reserve_addr_by_mac(VirtualNetwork *rvnet,
-    unsigned int rsize, unsigned int ar_id, const string& mac, string& error_str)
-{
-    AddressRange *rar = rvnet->allocate_ar();
-
-    if (ar_pool.reserve_addr_by_mac(rvnet->get_oid(),rsize,ar_id,mac,rar)!=0)
-    {
-        ostringstream oss;
-
-        oss << "Not enough free addresses in address range " << ar_id
-            << ", or it does not exist";
-
-        error_str = oss.str();
-
-        delete rar;
-
-        return -1;
-    }
-
-    if (rvnet->add_ar(rar) != 0)
-    {
-        error_str = "Could not add the address range to the netwok";
-
-        delete rar;
 
         return -1;
     }

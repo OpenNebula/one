@@ -480,3 +480,221 @@ void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
             break;
     }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+AddressRange * VirtualNetworkPool::allocate_ar(int rid, string &err)
+{
+    VirtualNetwork * rvn = get(rid, true);
+
+    if ( rvn == 0 )
+    {
+        ostringstream oss;
+        oss << "Virtual network " << rid << " does not exist";
+
+        err = oss.str();
+        return 0;
+    }
+
+    AddressRange *ar = rvn->allocate_ar();
+
+    update(rvn);
+
+    rvn->unlock();
+
+    return ar;
+}
+
+int VirtualNetworkPool::add_ar(int rid, AddressRange *rar, string &err)
+{
+    VirtualNetwork * rvn = get(rid, true);
+
+    if ( rvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << rid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = rvn->add_ar(rar);
+
+    update(rvn);
+
+    rvn->unlock();
+
+    if ( rc != 0 )
+    {
+        delete rar;
+
+        err = "Could not add the address range to the netwok";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr(rid, rsize, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsigned int ar_id,
+        string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr(rid, rsize, ar_id, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize, unsigned int ar_id,
+        const string& ip, string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr_by_ip(rid, rsize, ar_id, ip, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetworkPool::reserve_addr_by_mac(int pid, int rid, unsigned int rsize, unsigned int ar_id,
+        const string& mac, string& err)
+{
+    AddressRange * rar = allocate_ar(rid, err);
+
+    if ( rar == 0 )
+    {
+        return -1;
+    }
+
+    VirtualNetwork * pvn = get(pid, true);
+
+    if ( pvn == 0 )
+    {
+        delete rar;
+
+        ostringstream oss;
+        oss << "Virtual network " << pid << " does not exist";
+
+        err = oss.str();
+        return -1;
+    }
+
+    int rc = pvn->reserve_addr_by_mac(rid, rsize, ar_id, mac, rar, err);
+
+    update(pvn);
+
+    pvn->unlock();
+
+    if ( rc != 0)
+    {
+        delete rar;
+        return -1;
+    }
+
+    return add_ar(rid, rar, err);
+}
+

@@ -124,7 +124,7 @@ exit -1 if OpenNebula.is_error?(rc)
 
 
 state = "STATE=3"
-state += " or STATE=5" if force == "y"
+state += " or STATE=5 or STATE=8" if force == "y"
 
 vm_ids_array = vms.retrieve_elements("/VM_POOL/VM[#{state}]/HISTORY_RECORDS/HISTORY[HOSTNAME=\"#{host_name}\" and last()]/../../ID")
 
