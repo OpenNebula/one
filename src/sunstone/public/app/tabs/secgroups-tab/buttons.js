@@ -60,6 +60,9 @@ define(function(require) {
       type: "confirm",
       layout: "del",
       text: Locale.tr("Delete")
+    },
+    "SecurityGroup.edit_labels" : {
+      layout: "labels",
     }
   };
 

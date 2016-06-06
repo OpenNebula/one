@@ -63,6 +63,9 @@ define(function(require) {
       type: "confirm",
       text: Locale.tr("Delete"),
       layout: "del"
+    },
+    "MarketPlaceApp.edit_labels" : {
+      layout: "labels",
     }
   };
 

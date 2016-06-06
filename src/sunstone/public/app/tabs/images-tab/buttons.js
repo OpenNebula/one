@@ -81,6 +81,9 @@ define(function(require) {
       layout: "del",
       text: Locale.tr("Delete")
     },
+    "Image.edit_labels" : {
+      layout: "labels",
+    }
   }
 
   return Buttons;

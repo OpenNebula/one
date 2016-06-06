@@ -497,12 +497,14 @@ define(function(require) {
       });
     }
 
-    if (that.labelsColumn && !SunstoneConfig.isTabEnabled("provision-tab")) {
-      if (SunstoneConfig.isTabEnabled(that.tabId)) {
-        if ($("#" + that.tabId).is(':visible')) {
-          LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
-          LabelsUtils.insertLabelsDropdown(that.tabId);
-        }
+    if (that.labelsColumn &&
+        SunstoneConfig.isTabEnabled(that.tabId) &&
+        $("#" + that.tabId).is(':visible')) {
+
+      LabelsUtils.insertLabelsDropdown(that.tabId);
+
+      if (SunstoneConfig.isTabActionEnabled(that.tabId, that.resource+".menu_labels")){
+        LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       }
     }
 

@@ -66,6 +66,9 @@ define(function(require) {
       type: "action",
       layout: "more_select",
       text: Locale.tr("Disable")
+    },
+    "Datastore.edit_labels" : {
+      layout: "labels",
     }
   };
 

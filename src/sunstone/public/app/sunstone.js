@@ -153,13 +153,6 @@ define(function(require) {
     var dataTable = SunstoneCfg['tabs'][tabName].dataTable;
     if (dataTable) {
       dataTable.initialize();
-      if (dataTable.labelsColumn) {
-        $('#' + tabName + 'labels_buttons').html(
-          '<button type="button" data-toggle="' + tabName + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list top_button secondary button dropdown">' +
-            '<i class="fa fa-tags"/></button>' +
-          '<div id="' + tabName + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
-
-      }
     }
   }
 
@@ -370,6 +363,13 @@ define(function(require) {
           strClass.push("alert", "button");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
+        case "labels":
+          buttonContext = $("#" + customId + "labels_buttons", buttonsRow);
+          text = '<i class="fa fa-tags"/>';
+          strClass.push("only-sunstone-info", "only-sunstone-list", "top_button", "secondary", "button", "dropdown");
+          buttonCode = '<button type="button" data-toggle="' + customId + 'LabelsDropdown" class="' + strClass.join(' ') + '">' +
+            text+'</button>';
+          break;
         default:
           buttonContext = $("#" + customId + "main_buttons", buttonsRow);
           text = button.text;
@@ -419,6 +419,12 @@ define(function(require) {
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
         $("button[data-toggle=" + customId + "user_buttons]", actionBlock).remove()
       }
+
+      if ($("#" + customId + "labels_buttons button", buttonsRow).length != 0) {
+        $('#' + customId + 'labels_buttons').append(
+          '<div id="' + customId + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
+      }
+
       //actionBlock.foundationButtons();
       $('.top_button, .list_button', actionBlock).prop('disabled', false);
       $('.top_button, .list_button', actionBlock).prop('disabled', true);

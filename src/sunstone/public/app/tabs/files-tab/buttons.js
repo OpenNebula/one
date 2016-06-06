@@ -24,7 +24,8 @@ define(function(require) {
     "File.chgrp" : ImageButtons["Image.chgrp"],
     "File.enable" : ImageButtons["Image.enable"],
     "File.disable" : ImageButtons["Image.disable"],
-    "File.delete" : ImageButtons["Image.delete"]
+    "File.delete" : ImageButtons["Image.delete"],
+    "File.edit_labels" : ImageButtons["Image.edit_labels"]
   };
 
   return Buttons;

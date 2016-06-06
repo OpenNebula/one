@@ -28,7 +28,8 @@ define(function(require) {
     "VirtualRouterTemplate.clone_dialog" : TemplateButtons["Template.clone_dialog"],
     "VirtualRouterTemplate.share" : TemplateButtons["Template.share"],
     "VirtualRouterTemplate.unshare" : TemplateButtons["Template.unshare"],
-    "VirtualRouterTemplate.delete_dialog" : TemplateButtons["Template.delete_dialog"]
+    "VirtualRouterTemplate.delete_dialog" : TemplateButtons["Template.delete_dialog"],
+    "VirtualRouterTemplate.edit_labels" : TemplateButtons["Template.edit_labels"]
   };
 
   return Buttons;

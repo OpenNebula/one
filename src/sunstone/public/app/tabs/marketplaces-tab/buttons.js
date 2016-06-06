@@ -50,6 +50,9 @@ define(function(require) {
       type: "confirm",
       text: Locale.tr("Delete"),
       layout: "del"
+    },
+    "MarketPlace.edit_labels" : {
+      layout: "labels",
     }
   };
 

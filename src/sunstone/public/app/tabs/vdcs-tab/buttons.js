@@ -36,6 +36,9 @@ define(function(require) {
         type: "confirm",
         layout: "del",
         text: Locale.tr("Delete")
+    },
+    "Vdc.edit_labels" : {
+      layout: "labels",
     }
   };
 

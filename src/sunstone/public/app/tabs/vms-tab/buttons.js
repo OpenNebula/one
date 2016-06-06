@@ -186,6 +186,9 @@ define(function(require) {
       text: '<i class="fa fa-save"/>',
       custom_classes : "state-dependent"
     },
+    "VM.edit_labels" : {
+      layout: "labels",
+    }
   }
 
   return Buttons;
