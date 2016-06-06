@@ -42,9 +42,7 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
-require 'openssl'
 require 'VirtualMachineDriver'
-
 
 ################################################################################
 # Monkey patch rbvmomi library with some extra functions
@@ -682,7 +680,7 @@ class VIClient
 
                 image_name = File.basename(image.path).reverse.sub("kdmv.","").reverse
 
-                if !ipool["IMAGE[NAME=\"#{image_name}\"]"]
+                if !ipool["IMAGE[NAME=\"#{image_name} - #{ds_name}\"]"]
                     img_templates << {
                         :name        => "#{image_name} - #{ds_name}",
                         :path        => image_path,
@@ -1325,7 +1323,7 @@ class VCenterHost < ::OpenNebula::Host
 
     def get_available_ds
         str_info = ""
-        @cluster.parent.parent.datastoreFolder.childEntity.each { |ds|
+        client.dc.datastoreFolder.childEntity.each { |ds|
             str_info += "VCENTER_DATASTORE=\"#{ds.name}\"\n"
         }
         str_info.chomp
@@ -2496,14 +2494,25 @@ private
         available_controller  = nil
         scsi_schema           = Hash.new
 
+        used_numbers      =  Array.new
+        available_numbers =  Array.new
+
         vm.config.hardware.device.each{ |dev|
           if dev.is_a? RbVmomi::VIM::VirtualSCSIController
             if scsi_schema[dev.controllerKey].nil?
               scsi_schema[dev.key] = Hash.new
               scsi_schema[dev.key][:lower] = Array.new
             end
+            used_numbers << dev.scsiCtlrUnitNumber
             scsi_schema[dev.key][:device] = dev
           end
+
+          next if dev.class != RbVmomi::VIM::VirtualDisk
+          used_numbers << dev.unitNumber
+        }
+
+        15.times{ |scsi_id|
+          available_numbers << scsi_id if used_numbers.grep(scsi_id).length <= 0
         }
 
         scsi_schema.keys.each{|controller|
@@ -2519,36 +2528,15 @@ private
             return find_free_controller(vm)
         end
 
-       # Get the controller resource from the label
         controller = nil
-
+       
         vm.config.hardware.device.each { |device|
           (controller = device ; break) if device.deviceInfo.label == available_controller_label
         }
-
-        new_unit_number = find_new_unit_number(scsi_schema, controller)
-
+      
+        new_unit_number =  available_numbers.sort[0]
+      
         return controller, new_unit_number
-    end
-
-
-    def self.find_new_unit_number(scsi_schema, controller)
-        used_numbers      =  Array.new
-        available_numbers =  Array.new
-
-        scsi_schema.keys.each { |c|
-          next if controller.key != scsi_schema[c][:device].key
-          used_numbers << scsi_schema[c][:device].scsiCtlrUnitNumber
-          scsi_schema[c][:lower].each { |disk|
-            used_numbers << disk.unitNumber
-          }
-        }
-
-        15.times{ |scsi_id|
-          available_numbers << scsi_id if used_numbers.grep(scsi_id).length <= 0
-        }
-
-        return available_numbers.sort[0]
     end
 
     def self.add_new_scsi(vm, scsi_schema)
