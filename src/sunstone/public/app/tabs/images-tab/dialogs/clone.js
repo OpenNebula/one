@@ -113,7 +113,10 @@ define(function(require) {
   }
 
   function _onShow(dialog) {
-    var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
+    var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements({names: true});
+
+    this.setNames(sel_elems);
+
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
       $('.clone_one', dialog).hide();
@@ -122,7 +125,7 @@ define(function(require) {
     } else {
       $('.clone_one', dialog).show();
       $('.clone_several', dialog).hide();
-      $('input[name="image_clone_name"]', dialog).val('Copy of ' + OpenNebulaImage.getName(sel_elems[0]));
+      $('input[name="image_clone_name"]', dialog).val('Copy of ' + sel_elems[0].name);
     };
 
     this.datastoreTable.resetResourceTableSelect();

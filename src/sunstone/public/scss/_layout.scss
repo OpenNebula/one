@@ -99,3 +99,10 @@
   cursor: default !important;
   opacity: 0.25;
 }
+
+// Dialogs
+
+.confirm-resources-header {
+  overflow-y: auto;
+  max-height: 6em;
+}

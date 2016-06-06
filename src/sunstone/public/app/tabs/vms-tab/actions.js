@@ -217,8 +217,8 @@ define(function(require) {
 
         Sunstone.runAction("VM.refresh");
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(TAB_ID);

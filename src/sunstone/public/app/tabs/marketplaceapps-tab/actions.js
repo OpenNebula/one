@@ -82,8 +82,8 @@ define(function(require) {
         OpenNebulaAction.clear_cache("IMAGE");
         OpenNebulaAction.clear_cache("VMTEMPLATE");
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       error: function(request, response){
         // without tab id param to work for both templates and vms tab
@@ -101,8 +101,8 @@ define(function(require) {
           window.open("http://localhost:9869/marketplaceapp/"+this+"/download?csrftoken="+csrftoken, "_blank");
         });
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       error: Notifier.onError
     },

@@ -33,6 +33,7 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./reserve/dialogId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -132,6 +133,8 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     this.vnetsTable.refreshResourceTableSelect();
     this.arsTable.refreshResourceTableSelect();
   }
@@ -143,7 +146,5 @@ define(function(require) {
    */
   function _setParams(params) {
     this.vnetId = params.vnetId;
-
-    $('#vnet_id', this.dialogElement).text(params.vnetId);
   }
 });

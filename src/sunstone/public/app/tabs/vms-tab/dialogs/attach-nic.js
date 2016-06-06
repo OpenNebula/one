@@ -90,8 +90,10 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     this.nicTab.onShow(context);
-    $("#vm_id", context).val(this.element.ID);
+
     return false;
   }
 

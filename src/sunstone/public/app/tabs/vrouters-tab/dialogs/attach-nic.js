@@ -94,7 +94,8 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    $("#vr_id", context).val(this.element.ID);
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     return false;
   }
 

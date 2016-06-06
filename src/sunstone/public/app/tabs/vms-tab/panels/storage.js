@@ -350,6 +350,7 @@ define(function(require) {
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
+          headerTabId: TAB_ID,
           body : Locale.tr("This will detach the disk immediately"),
           //question :
           submit : function(){
@@ -453,6 +454,7 @@ define(function(require) {
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
+          headerTabId: TAB_ID,
           body : Locale.tr("This will delete the disk snapshot "+snapshot_id),
           //question :
           submit : function(){

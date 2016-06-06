@@ -23,6 +23,7 @@ define(function(require) {
   var TemplateHTML = require('hbs!./confirm/html');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -74,12 +75,12 @@ define(function(require) {
     $('#confirm_proceed', dialog).val(actionId);
     $('#confirm_tip', dialog).text(tip);
 
-    var action = Sunstone.getAction(actionId);
-    var elements = action.elements();
-    if (elements) {
-      var str = actionId.split('.');
-      $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + elements.join(', '))
+    if(button.text) {
+      $('.subheader', dialog).html(button.text);
     }
+
+    var action = Sunstone.getAction(actionId);
+    this.setNames( action.elements({names: true}) );
 
     return false;
   }

@@ -83,7 +83,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    $("#vm_id", context).val(this.element.ID);
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
     $("#snapshot_name", context).focus();
     return false;
   }

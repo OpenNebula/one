@@ -60,6 +60,7 @@ define(function(require) {
   /**
    * @param {object} params.
    *        - params.header : Optional, html string
+   *        - params.headerTabId : Optional, tabId for the subheader resource ids
    *        - params.body : Optional, html string
    *        - params.question : Optional, html string
    *        - params.buttons : Optional, html string for the button.
@@ -134,6 +135,10 @@ define(function(require) {
       });
 
       $(".form_buttons", context).html(html);
+    }
+
+    if (this.params.headerTabId != undefined){
+      this.setNames( Sunstone.getDataTable(this.params.headerTabId).elements({names: true}) );
     }
 
     return false;

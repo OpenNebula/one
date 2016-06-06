@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-//  require('foundation.reveal');
+  var TemplateUtils = require('utils/template-utils');
 
   function BaseDialog() {
     return this;
@@ -26,6 +26,7 @@ define(function(require) {
     'show': _show,
     'hide': _hide,
     'reset': _reset,
+    'setNames': _setNames,
   };
 
   return BaseDialog;
@@ -69,5 +70,22 @@ define(function(require) {
     this.dialogElement.remove();
     this.dialogElement = this.insert();
     return false;
+  }
+
+  function _setNames(elements){
+    var html = "";
+
+    if (elements) {
+      html = '<h6 class="subheader">';
+
+      html += elements.map(function(element){
+        return (TemplateUtils.htmlEncode(element.id)+'&nbsp;'+
+                TemplateUtils.htmlEncode(element.name));
+        }).join(',&emsp;')
+
+      html += '</h6>';
+    }
+
+    $('.confirm-resources-header', this.dialogElement).html(html);
   }
 })

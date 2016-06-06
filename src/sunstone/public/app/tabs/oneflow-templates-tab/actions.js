@@ -68,8 +68,8 @@ define(function(require) {
 
         Notifier.notifyCustom(Locale.tr("Service created"), " ID: " + response.DOCUMENT.ID, false);
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       error: function(request, response){
         Sunstone.hideFormPanelLoading(TAB_ID);

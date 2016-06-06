@@ -88,10 +88,13 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    this.setNames( Sunstone.getDataTable(this.tabId).elements({names: true}) );
+
+/*
     $("#element_id", context).text(this.element.ID);
     $("#element_name", context).text(this.element.NAME);
     $("#resource_name", context).text(this.resourceName);
-
+*/
     WizardFields.fill(context, this.element.TEMPLATE);
 
     return false;
@@ -102,11 +105,13 @@ define(function(require) {
    *        - params.element : host or cluster element
    *        - params.action : sunstone action e.g. "Host.append_template"
    *        - params.resourceName : For the header. e.g. "Host"
+   *        - params.tabId: e.g. 'hosts-tab'
    */
   function _setParams(params) {
     this.element = params.element;
 
     this.action = params.action;
     this.resourceName = params.resourceName;
+    this.tabId = params.tabId;
   }
 });

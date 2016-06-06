@@ -133,11 +133,11 @@ define(function(require) {
           var element = vm_json.VM;
           var hostname = OpenNebulaVM.hostnameStr(element);
 
-          $("#current_hosts_of_vms").append(
+          $('.confirm-resources-header', context).append(
               '<span class="radius secondary label">' +
-              Locale.tr("VM") + ' [' + element.ID + '] ' +
+              Locale.tr("VM") + ' ' + element.ID + ' '+ element.NAME +' ' +
               Locale.tr("is currently running on Host") +
-              ' [' + hostname + ']</span><br>'
+              ' ' + hostname + '</span><br>'
           );
         }
       });

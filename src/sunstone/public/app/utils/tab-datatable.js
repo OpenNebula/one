@@ -545,11 +545,13 @@ define(function(require) {
   }
 
   //returns an array of ids of selected elements in a dataTable
-  function _elements(forceDataTable) {
+  function _elements(opts) {
+    var that = this;
+
     var selected_nodes = [];
     if (this.dataTable) {
       var tab = this.dataTable.parents(".tab")
-      if (Sunstone.rightInfoVisible(tab) && !forceDataTable) {
+      if (Sunstone.rightInfoVisible(tab)) {
         selected_nodes.push(Sunstone.rightInfoResourceId(tab));
       } else {
         //Which rows of the datatable are checked?
@@ -559,6 +561,17 @@ define(function(require) {
         });
       }
     };
+
+    if (opts && opts.names){
+      var pairs = [];
+
+      $.each(selected_nodes, function(){
+        pairs.push({id: this, name: OpenNebula[that.resource].getName(this)});
+      });
+
+      return pairs;
+    }
+
     return selected_nodes;
   }
 

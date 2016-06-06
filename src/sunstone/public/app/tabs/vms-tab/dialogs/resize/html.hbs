@@ -20,16 +20,13 @@
     <h3 class="subheader" id="">{{tr "Resize VM capacity"}}</h3>
   </div>
 </div>
+<div class="confirm-resources-header"></div>
 <div class="reveal-body">
   <form id="{{dialogId}}Form" action="">
     <div class="row centered">
       <div class="large-6 columns">
-        <label for="vm_id">{{tr "Virtual Machine ID"}}</label>
-        <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>
-      </div>
-      <div class="large-6 columns">
         <input type="checkbox" name="enforce" id="enforce"/>
-        <label class="inline" for="vm_id">
+        <label class="inline" for="enforce">
           {{tr "Enforce"}}
           <span class="tip">
             {{tr "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"}}
