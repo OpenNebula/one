@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
+gem 'aws-sdk', '>=2'
 require 'aws-sdk'
 
 # This class is a generic wrapper to the s3 gem.
