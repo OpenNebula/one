@@ -34,6 +34,10 @@ table {
     border-right: 0;
   }
 
+  tfoot {
+    border: 0;
+  }
+
   .markrow,
   .markrowchecked { 
     background-color: darken($table-background, $table-hover-scale);
