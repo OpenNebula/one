@@ -107,11 +107,13 @@ define(function(require) {
 
     OpenNebula.VirtualRouter.list({
       error: Notifier.onError,
+      force: true,
       success: function(request, item_list) {
         _vrList = item_list;
 
         OpenNebula.Network.list({
           timeout: true,
+          force: true,
           success: function (request, item_list) {
 
             // TODO: naive way to request all the individual networks info. It might
