@@ -27,6 +27,8 @@ define(function(require) {
   var Graphs = require('utils/graphs');
   var TemplateUtils = require('utils/template-utils');
   var StateActions = require('tabs/vms-tab/utils/state-actions');
+  var Vnc = require('utils/vnc');
+  var Spice = require('utils/spice');
 
   var TemplateVmsList = require('hbs!./list');
   var TemplateConfirmSaveAsTemplate = require('hbs!./confirm_save_as_template');
@@ -37,6 +39,9 @@ define(function(require) {
 
   var TAB_ID = require('../tabId');
   var _accordionId = 0;
+
+  var VNC_DIALOG_ID   = require('tabs/vms-tab/dialogs/vnc/dialogId');
+  var SPICE_DIALOG_ID = require('tabs/vms-tab/dialogs/spice/dialogId');
 
   return {
     'generate': generate_provision_vms_list,
@@ -724,51 +729,17 @@ define(function(require) {
         },
         success: function(request, response){
           if (OpenNebula.VM.isVNCSupported(vm_data)) {
-            var proxy_host = window.location.hostname;
-            var proxy_port = config['system_config']['vnc_proxy_port'];
-            var pw = response["password"];
-            var token = response["token"];
-            var vm_name = response["vm_name"];
-            var path = '?token='+token;
 
-            var url = "vnc?";
-            url += "host=" + proxy_host;
-            url += "&port=" + proxy_port;
-            url += "&token=" + token;
+            var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
+            dialog.setElement(response);
+            dialog.show();
 
-            if (!Config.requestVNCPassword) {
-              url += "&password=" + pw;
-            }
-
-            url += "&encrypt=" + config['user_config']['vnc_wss'];
-            url += "&title=" + vm_name;
-
-            window.open(url, '', '_blank');
             button.removeAttr("disabled");
           } else if (OpenNebula.VM.isSPICESupported(vm_data)) {
-            var host, port, password, scheme = "ws://", uri, token, vm_name;
+            var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
+            dialog.setElement(response);
+            dialog.show();
 
-            if (config['user_config']['vnc_wss'] == "yes") {
-                scheme = "wss://";
-            }
-
-            host = window.location.hostname;
-            port = config['system_config']['vnc_proxy_port'];
-            password = response["password"];
-            token = response["token"];
-            vm_name = response["vm_name"];
-
-            uri = scheme + host + ":" + port + "?token=" + token;
-
-            var url = "spice?";
-            url += "host=" + host;
-            url += "&port=" + port;
-            url += "&token=" + token;
-            url += "&password=" + password;
-            url += "&encrypt=" + config['user_config']['vnc_wss'];
-            url += "&title=" + vm_name;
-
-            window.open(url, '', '_blank');
             button.removeAttr("disabled");
           } else {
             Notifier.notifyError("The remote console is not enabled for this VM")
