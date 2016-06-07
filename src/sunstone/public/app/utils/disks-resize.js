@@ -28,7 +28,7 @@ define(function(require){
     'retrieve': _retrieve
   };
 
-  function _calculateCost(context, disk_cost){
+  function _calculateCost(context, disk_cost, callback){
     var cost = 0;
 
     $(".diskContainer", context).each(function(){
@@ -51,6 +51,10 @@ define(function(require){
     });
 
     $(".cost_value", context).text(cost.toFixed(2));
+
+    if(callback != undefined){
+      callback();
+    }
   }
 
   /**
@@ -58,6 +62,7 @@ define(function(require){
    *                      - disksContext: jquery selector, where to place the html
    *                      - force_persistent {bool}: mark all disks as if they
    *                          were persistent, disabling resize inputs
+   *                      - cost_callback: function to call when the cost changes
    */
   function _insert(opts) {
 
@@ -80,14 +85,16 @@ define(function(require){
         disk_cost = Config.onedConf.DEFAULT_COST.DISK_COST;
       }
 
+      disksContext.off("input", "input");
+
       if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
         $(".provision_create_template_disk_cost_div", disksContext).show();
 
         disksContext.on("input", "input", function(){
-          _calculateCost(disksContext, disk_cost);
+          _calculateCost(disksContext, disk_cost, opts.cost_callback);
         });
 
-        _calculateCost(disksContext, disk_cost);
+        _calculateCost(disksContext, disk_cost, opts.cost_callback);
       } else {
         $(".provision_create_template_disk_cost_div", disksContext).hide();
       }

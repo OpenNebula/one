@@ -63,7 +63,7 @@ define(function(require) {
         ProvisionFlowsList.show(0);
         var context = $("#provision_create_flow");
         $("#flow_name", context).val('');
-        //$(".provision_selected_networks").html("");
+        $(".total_cost_div", context).hide();
         $(".provision-pricing-table", context).removeClass("selected");
       },
       error: Notifier.onError
@@ -92,6 +92,7 @@ define(function(require) {
     $(".provision_selected_networks").html("");
     $(".provision-pricing-table", context).removeClass("selected");
     $(".alert-box-error", context).hide();
+    $(".total_cost_div", context).hide();
 
     $('#provision_vm_instantiate_templates_owner_filter').val('all').change();
     $('#provision_vm_instantiate_template_search').val('').trigger('input');
@@ -124,63 +125,15 @@ define(function(require) {
           '</div>'+
       '</fieldset>');
 
-      var capacity = template_json.VMTEMPLATE.TEMPLATE;
-      var cost = 0;
+      var cost = OpenNebula.Template.cost(template_json);
 
-      var cpuCost    = capacity.CPU_COST;
-      var memoryCost = capacity.MEMORY_COST;
-      var diskCost   = capacity.DISK_COST;
-
-      if (cpuCost == undefined){
-        cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
-      }
-
-      if (memoryCost == undefined){
-        memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
-      }
-
-      if (diskCost == undefined){
-        diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
-      }
-
-      if ((cpuCost != 0 || memoryCost != 0 || diskCost != 0) && Config.isFeatureEnabled("showback")) {
+      if ((cost != 0) && Config.isFeatureEnabled("showback")) {
         $(".provision_create_service_cost_div", context).show();
+        $(".provision_create_service_cost_div", context).data("cost", cost);
 
-        if (capacity.CPU) {
-          cost += capacity.CPU * cpuCost;
-          $(".cost_value", context).data("CPU_COST", cpuCost);
-        }
-
-        if (capacity.MEMORY) {
-          cost += capacity.MEMORY * memoryCost;
-          $(".cost_value", context).data("MEMORY_COST", memoryCost);
-        }
-
-        if (diskCost != 0) {
-          var template_disk = capacity.DISK;
-          var disks = [];
-          if ($.isArray(template_disk)) {
-            disks = template_disk;
-          } else if (!$.isEmptyObject(template_disk)) {
-            disks = [template_disk];
-          }
-
-          $(".cost_value", context).data("DISK_COST", diskCost);
-
-          $.each(disks, function(i,disk){
-            if (disk.SIZE) {
-              cost += diskCost * disk.SIZE;
-            }
-
-            if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {
-              cost += diskCost * disk.DISK_SNAPSHOT_TOTAL_SIZE;
-            }
-          });
-        }
-
-        $(".provision_create_service_cost_div", context).data("cost", cost)
         var cost_value = cost*parseInt(role_template.cardinality);
         $(".cost_value", context).html(cost_value.toFixed(2));
+        _calculateFlowCost();
       } else {
         $(".provision_create_service_cost_div", context).hide();
       }
@@ -200,6 +153,7 @@ define(function(require) {
         $( ".cardinality_slider_div", context).on("input", 'input', function() {
           var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
           $(".cost_value", context).html(cost_value.toFixed(2));
+          _calculateFlowCost();
         });
       } else {
         $( ".cardinality_slider_div", context).hide();
@@ -235,7 +189,6 @@ define(function(require) {
         '</legend>' +
         CapacityInputs.html() +
       '</fieldset>');
-
 
     CapacityInputs.setup(context);
     CapacityInputs.fill(context, element);
@@ -283,6 +236,8 @@ define(function(require) {
       }
 
       $(".cost_value", context).html(cost.toFixed(2));
+
+      _calculateCost();
     };
 
     if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
@@ -297,6 +252,38 @@ define(function(require) {
       $(".provision_create_template_cost_div").hide();
     }
   }
+
+  function _calculateCost(){
+    var context = $("#provision_create_vm");
+
+    var capacity_val = parseFloat( $(".provision_create_template_cost_div .cost_value", context).text() );
+    var disk_val = parseFloat( $(".provision_create_template_disk_cost_div .cost_value", context).text() );
+
+    var total = capacity_val + disk_val;
+
+    if (total != 0 && Config.isFeatureEnabled("showback")) {
+      $(".total_cost_div", context).show();
+
+      $(".total_cost_div .cost_value", context).text( (total).toFixed(2) );
+    }
+  }
+
+  function _calculateFlowCost(){
+    var context = $("#provision_create_flow");
+
+    var total = 0;
+
+    $.each($(".provision_create_service_cost_div .cost_value", context), function(){
+      total += parseFloat($(this).text());
+    });
+
+    if (total != 0 && Config.isFeatureEnabled("showback")) {
+      $(".total_cost_div", context).show();
+
+      $(".total_cost_div .cost_value", context).text( (total).toFixed(2) );
+    }
+  }
+
 
   function show_provision_dashboard() {
     $(".section_content").hide();
@@ -568,7 +555,7 @@ define(function(require) {
 
     $("#provision_create_vm li:not(.is-active) a[href='#provision_dd_template']").trigger("click")
 
-
+    $("#provision_create_vm .total_cost_div").hide();
     $("#provision_create_vm .alert-box-error").hide();
 
     $(".section_content").hide();
@@ -591,6 +578,7 @@ define(function(require) {
 
     $("li:not(.is-active) a[href='#provision_dd_flow_template']", context).trigger("click")
 
+    $(".total_cost_div", context).hide();
     $(".alert-box-error", context).hide();
 
     $(".section_content").hide();
@@ -897,7 +885,8 @@ define(function(require) {
             DisksResize.insert({
               template_json: template_json,
               disksContext: disksContext,
-              force_persistent: $(this).prop('checked')
+              force_persistent: $(this).prop('checked'),
+              cost_callback: _calculateCost
             });
           }
         });
@@ -925,6 +914,8 @@ define(function(require) {
               $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/> ');
             }
 
+            $("#provision_create_vm .total_cost_div").hide();
+
             $(".provision_accordion_template a").first().trigger("click");
 
             OpenNebula.Template.show({
@@ -945,7 +936,8 @@ define(function(require) {
                   DisksResize.insert({
                     template_json: template_json,
                     disksContext: disksContext,
-                    force_persistent: $("input.instantiate_pers", create_vm_context).prop("checked")
+                    force_persistent: $("input.instantiate_pers", create_vm_context).prop("checked"),
+                    cost_callback: _calculateCost
                   });
                 } else {
                   disksContext.html("");
@@ -1149,6 +1141,8 @@ define(function(require) {
 
             var data = $(this).data("opennebula");
             var body = data.DOCUMENT.TEMPLATE.BODY;
+
+            $("#provision_create_flow .total_cost_div").hide();
 
             $(".provision_accordion_flow_template .selected_template").show();
             $(".provision_accordion_flow_template .select_template").hide();

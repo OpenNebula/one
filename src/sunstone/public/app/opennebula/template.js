@@ -16,6 +16,7 @@
 
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var Config = require('sunstone-config');
 
   var RESOURCE = "VMTEMPLATE";
 
@@ -95,7 +96,56 @@ define(function(require) {
       } else {
         return true;
       }
+    },
+    "cost": function(template) {
+      var cost = 0;
+      var capacity = template.VMTEMPLATE.TEMPLATE;
 
+      var cpuCost    = capacity.CPU_COST;
+      var memoryCost = capacity.MEMORY_COST;
+      var diskCost   = capacity.DISK_COST;
+
+      if (cpuCost == undefined){
+        cpuCost = Config.onedConf.DEFAULT_COST.CPU_COST;
+      }
+
+      if (memoryCost == undefined){
+        memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
+      }
+
+      if (diskCost == undefined){
+        diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
+      }
+
+      if (capacity.CPU) {
+        cost += capacity.CPU * cpuCost;
+      }
+
+      if (capacity.MEMORY) {
+        cost += capacity.MEMORY * memoryCost;
+      }
+
+      if (diskCost != 0) {
+        var template_disk = capacity.DISK;
+        var disks = [];
+        if ($.isArray(template_disk)) {
+          disks = template_disk;
+        } else if (!$.isEmptyObject(template_disk)) {
+          disks = [template_disk];
+        }
+
+        $.each(disks, function(i,disk){
+          if (disk.SIZE) {
+            cost += diskCost * disk.SIZE;
+          }
+
+          if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {
+            cost += diskCost * disk.DISK_SNAPSHOT_TOTAL_SIZE;
+          }
+        });
+      }
+
+      return cost;
     }
   }
 
