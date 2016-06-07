@@ -33,6 +33,7 @@ define(function(require){
     CONSTANTS
    */
 
+  var TAB_ID = require('../tabId');
   var PANEL_ID = require('./snapshots/panelId');
   var RESOURCE = "Image";
   var XML_ROOT = "IMAGE";
@@ -126,6 +127,7 @@ define(function(require){
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
+          headerTabId: TAB_ID,
           body : Locale.tr("This will delete all the other image snapshots"),
           //question :
           submit : function(){
@@ -158,6 +160,7 @@ define(function(require){
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
+          headerTabId: TAB_ID,
           body : Locale.tr("This will delete the image snapshot "+snapshot_id),
           //question :
           submit : function(){

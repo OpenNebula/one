@@ -44,12 +44,16 @@ fi
 
 CMD=$(cat <<EOF
     set -ex
-    if [ -L "$DST_PATH" ]; then
-        DEVICE=\$(readlink "$DST_PATH")
-        $SUDO $SYNC
-        $SUDO $LVSCAN
-        $SUDO $LVCHANGE -ny \$DEVICE
-    fi
+    $SUDO $SYNC
+    $SUDO $LVSCAN
+
+    for disk in \$(ls ${DST_PATH}/disk.*); do
+        if [ -L "\$disk" ]; then
+            DEVICE=\$(readlink "\$disk")
+
+            $SUDO $LVCHANGE -an \$DEVICE
+        fi
+    done
 EOF
 )
 

@@ -45,6 +45,9 @@ define(function(require) {
       type: "confirm",
       layout: "del",
       text: Locale.tr("Delete")
+    },
+    "VirtualRouter.edit_labels" : {
+      layout: "labels",
     }
   };
 

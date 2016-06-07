@@ -75,6 +75,7 @@ define(function(require) {
         call: function() {
           Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
             //header :
+            headerTabId: TAB_ID,
             body : Locale.tr(
               "Please note: each time the rules are edited, the commit operation is done automatically. "+
               "<br/><br/>"+

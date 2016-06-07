@@ -100,6 +100,7 @@ echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
 lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
+[ -z "\$lvdata" ] && exit 0
 
 vm_previous='n'
 

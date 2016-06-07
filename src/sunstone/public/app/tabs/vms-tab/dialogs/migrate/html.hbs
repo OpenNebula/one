@@ -20,11 +20,10 @@
       <h3 id="migrate_vm_header" class="subheader">{{tr "Migrate Virtual Machine"}}</h3>
     </div>
   </div>
+  <div class="confirm-resources-header"></div>
+  <br>
   <div class="reveal-body">
     <form id="{{dialogId}}Form" action="">
-      <div id="current_hosts_of_vms" class="row"></div>
-      <br>
-      <br>
       <div class="row">
         <fieldset>
           <legend>{{tr "Select a Host"}}</legend>
@@ -34,7 +33,7 @@
         <div class="row">
           <div class="large-6 columns">
             <input type="checkbox" name="enforce" id="enforce"/>
-            <label for="vm_id">
+            <label for="enforce">
               {{tr "Enforce"}}
               <span class="tip">
                 {{tr "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"}}

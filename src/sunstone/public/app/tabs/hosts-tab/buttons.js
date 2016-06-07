@@ -53,6 +53,9 @@ define(function(require) {
       type: "confirm",
       text: Locale.tr("Delete host"),
       layout: "del"
+    },
+    "Host.edit_labels" : {
+      layout: "labels",
     }
   };
 

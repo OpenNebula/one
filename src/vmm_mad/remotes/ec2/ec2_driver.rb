@@ -28,6 +28,8 @@ end
 EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 
+gem 'aws-sdk', '=1.66'
+
 # Load EC2 credentials and environment
 require 'yaml'
 require 'rubygems'

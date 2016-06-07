@@ -82,8 +82,8 @@ define(function(require) {
             var elementId = request.request.data[0][0].toString();
             Sunstone.getDataTable(TAB_ID).deleteElement(elementId);
           },
-          elements: function() {
-            return Sunstone.getDataTable(TAB_ID).elements();
+          elements: function(opts) {
+            return Sunstone.getDataTable(TAB_ID).elements(opts);
           },
           error: Notifier.onError,
           notify: true
@@ -106,8 +106,8 @@ define(function(require) {
           callback : function(request, response) {
             Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
           },
-          elements: function() {
-            return Sunstone.getDataTable(TAB_ID).elements();
+          elements: function(opts) {
+            return Sunstone.getDataTable(TAB_ID).elements(opts);
           },
           error: Notifier.onError,
           notify: false
@@ -127,8 +127,8 @@ define(function(require) {
           callback : function(request, response) {
             Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
           },
-          elements: function() {
-            return Sunstone.getDataTable(TAB_ID).elements();
+          elements: function(opts) {
+            return Sunstone.getDataTable(TAB_ID).elements(opts);
           },
           error: Notifier.onError,
           notify: false
@@ -157,8 +157,8 @@ define(function(require) {
 
           Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
         },
-        elements: function() {
-          return Sunstone.getDataTable(TAB_ID).elements();
+        elements: function(opts) {
+          return Sunstone.getDataTable(TAB_ID).elements(opts);
         },
         error: function(request, response){
           // without tab id param to work for both templates and vms tab

@@ -93,7 +93,9 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
+    var sel_elems = Sunstone.getDataTable(TAB_ID).elements({names: true});
+
+    this.setNames(sel_elems);
 
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
@@ -104,7 +106,7 @@ define(function(require) {
       $('.clone_one', context).show();
       $('.clone_several', context).hide();
 
-      $('input',context).val('Copy of ' + OpenNebulaSecurityGroup.getName(sel_elems[0]));
+      $('input',context).val('Copy of ' + sel_elems[0].name);
     }
 
     $("input[name='name']",context).focus();

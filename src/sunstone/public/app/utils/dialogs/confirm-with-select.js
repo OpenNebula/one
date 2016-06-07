@@ -24,6 +24,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -121,12 +122,12 @@ define(function(require) {
 
     $('#confirm_with_select_tip', dialog).html(tip);
 
-    var action = Sunstone.getAction(this.actionId);
-    var elements = action.elements();
-    if (elements) {
-      var str = this.actionId.split('.');
-      $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + elements.join(', '))
+    if(this.button.text) {
+      $('.subheader', dialog).html(this.button.text);
     }
+
+    var action = Sunstone.getAction(this.actionId);
+    this.setNames( action.elements({names: true}) );
 
     if (this.button.custom_select) {
       $('div#confirm_select', dialog).html(this.button.custom_select);

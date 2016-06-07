@@ -41,6 +41,9 @@ define(function(require) {
       type: "confirm",
       text: Locale.tr("Delete"),
       layout: "del"
+    },
+    "Group.edit_labels" : {
+      layout: "labels",
     }
   };
 

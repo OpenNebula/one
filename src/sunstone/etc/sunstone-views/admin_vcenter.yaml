@@ -95,6 +95,8 @@ tabs:
             User.chgrp: true
             User.change_authentication: true
             User.delete: true
+            User.edit_labels: true
+            User.menu_labels: true
     groups-tab:
         panel_tabs:
             group_info_tab: true
@@ -118,6 +120,8 @@ tabs:
             Group.quotas_dialog: true
             Group.delete: true
             Group.edit_admins: true
+            Group.edit_labels: true
+            Group.menu_labels: true
     vdcs-tab:
         panel_tabs:
             vdc_info_tab: true
@@ -139,6 +143,8 @@ tabs:
             Vdc.update_dialog: true
             Vdc.rename: true
             Vdc.delete: true
+            Vdc.edit_labels: true
+            Vdc.menu_labels: true
     acls-tab:
         panel_tabs:
         table_columns:
@@ -183,6 +189,8 @@ tabs:
             Template.delete_dialog: true
             Template.share: false
             Template.unshare: false
+            Template.edit_labels: true
+            Template.menu_labels: true
         template_creation_tabs:
             general: true
             storage: true
@@ -217,6 +225,8 @@ tabs:
             ServiceTemplate.rename: true
             ServiceTemplate.clone_dialog: true
             ServiceTemplate.delete: true
+            ServiceTemplate.edit_labels: true
+            ServiceTemplate.menu_labels: true
     vrouter-templates-tab:
         panel_tabs:
             vrouter_template_info_tab: true
@@ -241,6 +251,8 @@ tabs:
             VirtualRouterTemplate.delete_dialog: true
             VirtualRouterTemplate.share: false
             VirtualRouterTemplate.unshare: false
+            VirtualRouterTemplate.edit_labels: true
+            VirtualRouterTemplate.menu_labels: true
         template_creation_tabs:
             general: true
             storage: true
@@ -322,6 +334,8 @@ tabs:
             VM.unresched: true
             VM.save_as_template: false
             VM.updateconf: true
+            VM.edit_labels: true
+            VM.menu_labels: true
     oneflow-services-tab:
         panel_tabs:
             service_info_tab: true
@@ -376,6 +390,8 @@ tabs:
             Service.shutdown: true
             Service.recover: true
             Service.delete: true
+            Service.edit_labels: true
+            Service.menu_labels: true
     infrastructure-top-tab:
         panel_tabs:
         actions:
@@ -399,6 +415,8 @@ tabs:
             Cluster.update_dialog: true
             Cluster.delete: true
             Cluster.rename: true
+            Cluster.edit_labels: true
+            Cluster.menu_labels: true
     hosts-tab:
         panel_tabs:
             host_info_tab: true
@@ -431,6 +449,8 @@ tabs:
             Host.disable: true
             Host.offline: true
             Host.delete: true
+            Host.edit_labels: true
+            Host.menu_labels: true
     zones-tab:
         panel_tabs:
             zone_info_tab: true
@@ -445,6 +465,8 @@ tabs:
             Zone.create_dialog: true
             Zone.rename: true
             Zone.delete: true
+            Zone.edit_labels: true
+            Zone.menu_labels: true
     storage-top-tab:
         panel_tabs:
         actions:
@@ -479,6 +501,8 @@ tabs:
             Datastore.delete: true
             Datastore.enable: true
             Datastore.disable: true
+            Datastore.edit_labels: true
+            Datastore.menu_labels: true
     images-tab:
         panel_tabs:
             image_info_tab: true
@@ -516,6 +540,8 @@ tabs:
             Image.snapshot_flatten: false
             Image.snapshot_revert: false
             Image.snapshot_delete: false
+            Image.edit_labels: true
+            Image.menu_labels: true
     files-tab:
         panel_tabs:
             file_info_tab: true
@@ -544,6 +570,8 @@ tabs:
             File.enable: true
             File.disable: true
             File.delete: true
+            File.edit_labels: true
+            File.menu_labels: true
     marketplaces-tab:
         panel_tabs:
             marketplace_info_tab: true
@@ -568,6 +596,8 @@ tabs:
             MarketPlace.chgrp: true
             MarketPlace.chmod: true
             MarketPlace.delete: true
+            MarketPlace.edit_labels: true
+            MarketPlace.menu_labels: true
     marketplaceapps-tab:
         panel_tabs:
             marketplaceapp_info_tab: true
@@ -598,6 +628,8 @@ tabs:
             MarketPlaceApp.enable: true
             MarketPlaceApp.disable: true
             MarketPlaceApp.delete: true
+            MarketPlaceApp.edit_labels: true
+            MarketPlaceApp.menu_labels: true
     network-top-tab:
         panel_tabs:
         actions:
@@ -638,6 +670,8 @@ tabs:
             Network.add_ar: true
             Network.remove_ar: true
             Network.update_ar: true
+            Network.edit_labels: true
+            Network.menu_labels: true
     vrouters-tab:
         panel_tabs:
             virtual_router_info_tab: true
@@ -658,6 +692,8 @@ tabs:
             VirtualRouter.delete: true
             VirtualRouter.attachnic: true
             VirtualRouter.detachnic: true
+            VirtualRouter.edit_labels: true
+            VirtualRouter.menu_labels: true
     vnets-topology-tab:
         panel_tabs:
         actions:
@@ -687,6 +723,8 @@ tabs:
             SecurityGroup.clone_dialog: true
             SecurityGroup.commit_dialog: true
             SecurityGroup.delete: true
+            SecurityGroup.edit_labels: true
+            SecurityGroup.menu_labels: true
     support-tab:
         panel_tabs:
             support_info_tab: true

@@ -31,6 +31,7 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./update-ar/dialogId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -91,6 +92,8 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     this.arTab.onShow();
   }
 
@@ -98,7 +101,6 @@ define(function(require) {
     this.vnetId = params.vnetId;
     this.arId = params.arId;
 
-    $('#vnet_id', this.dialogElement).text(params.vnetId);
     $('#ar_id', this.dialogElement).text(params.arId);
     this.arTab.fill(params.arData);
   }

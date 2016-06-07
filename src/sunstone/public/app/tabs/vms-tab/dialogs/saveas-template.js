@@ -71,7 +71,7 @@ define(function(require) {
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var template_name = $('#template_name', this).val();
       var persistent = $('#saveas_persistency', this).is(":checked") ? true : false;
-      var vm_id = $("#vm_id", context).val();
+      var vm_id = Sunstone.getDataTable(TAB_ID).elements();
 
       OpenNebula.VM.save_as_template({
         data : {
@@ -99,7 +99,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    $("#vm_id", context).val(Sunstone.getDataTable(TAB_ID).elements());
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
     $("#template_name", context).focus();
     return false;
   }

@@ -101,7 +101,8 @@ define(function(require) {
       dialog.setParams(
         { element: that.element,
           action : "Cluster.append_template",
-          resourceName : Locale.tr("Cluster")
+          resourceName : Locale.tr("Cluster"),
+          tabId : TAB_ID
         });
 
       dialog.show();

@@ -70,6 +70,9 @@ define(function(require) {
       type: "confirm",
       layout: "del",
       text: Locale.tr("Delete")
+    },
+    "Network.edit_labels" : {
+      layout: "labels",
     }
   };
 

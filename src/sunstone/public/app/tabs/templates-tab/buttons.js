@@ -79,6 +79,9 @@ define(function(require) {
       type: "action",
       layout: "del",
       text: Locale.tr("Delete")
+    },
+    "Template.edit_labels" : {
+      layout: "labels",
     }
   };
 

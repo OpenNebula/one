@@ -114,7 +114,10 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    var sel_elems = Sunstone.getDataTable(this.tabId).elements();
+    var sel_elems = Sunstone.getDataTable(this.tabId).elements({names: true});
+
+    this.setNames(sel_elems);
+
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
       $('.clone_one', context).hide();
@@ -123,7 +126,7 @@ define(function(require) {
     } else {
       $('.clone_one', context).show();
       $('.clone_several', context).hide();
-      $('input[name="name"]', context).val('Copy of ' + OpenNebulaTemplate.getName(sel_elems[0]));
+      $('input[name="name"]', context).val('Copy of ' + sel_elems[0].name);
     };
 
     $("input[name='name']", context).focus();

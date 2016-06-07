@@ -34,6 +34,7 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./groups/dialogId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -121,6 +122,8 @@ define(function(require) {
   }
 
   function _onShow(dialog) {
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     this.groupsTable.refreshResourceTableSelect();
 
     if (this.originalGroupIds !== undefined && this.originalGroupIds.length > 0) {

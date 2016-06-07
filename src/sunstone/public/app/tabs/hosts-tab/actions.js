@@ -95,8 +95,8 @@ define(function(require) {
           });
         }
       },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       }
     }
   };

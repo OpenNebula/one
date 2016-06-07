@@ -81,8 +81,8 @@ define(function(require) {
     "Group.set_quota" : {
       type: "multiple",
       call: OpenNebulaResource.set_quota,
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       callback: function(request) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();

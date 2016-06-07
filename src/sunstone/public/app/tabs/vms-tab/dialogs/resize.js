@@ -93,7 +93,9 @@ define(function(require) {
 
   function _onShow(context) {
     var that = this;
-    $('#vm_id', context).text(that.element.ID);
+
+    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+
     CapacityInputs.fill(context, that.element);
 
     // TODO context.foundation('slider', 'reflow');

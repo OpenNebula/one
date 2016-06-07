@@ -52,6 +52,9 @@ define(function(require) {
       text: Locale.tr("Delete"),
       layout: "del",
       tip: Locale.tr("This will delete the selected services")
+    },
+    "Service.edit_labels" : {
+      layout: "labels",
     }
   };
 

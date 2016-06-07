@@ -34,6 +34,8 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./clusters/dialogId');
+  var DATASTORES_TAB_ID = require('tabs/datastores-tab/tabId');
+  var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
 
   /*
     CONSTRUCTOR
@@ -137,6 +139,12 @@ define(function(require) {
   }
 
   function _onShow(dialog) {
+    if(this.resource == "datastore"){
+      this.setNames( Sunstone.getDataTable(DATASTORES_TAB_ID).elements({names: true}) );
+    }else{
+      this.setNames( Sunstone.getDataTable(VNETS_TAB_ID).elements({names: true}) );
+    }
+
     this.clustersTable.refreshResourceTableSelect();
 
     if (this.originalClusterIds !== undefined && this.originalClusterIds.length > 0) {

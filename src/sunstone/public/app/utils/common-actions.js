@@ -101,8 +101,8 @@ define(function(require) {
         var elementId = request.request.data.toString();
         Sunstone.getDataTable(that.tabId).deleteElement(elementId);
       },
-      elements: function() {
-        return Sunstone.getDataTable(that.tabId).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(that.tabId).elements(opts);
       },
       error: Notifier.onError,
       notify: true
@@ -117,8 +117,8 @@ define(function(require) {
       callback: function (req) {
         Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
       },
-      elements: function() {
-        return Sunstone.getDataTable(that.tabId).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(that.tabId).elements(opts);
       },
       error: Notifier.onError,
       notify: true
@@ -133,8 +133,8 @@ define(function(require) {
       callback: function (req) {
         Sunstone.runAction(that.resourceStr + ".show", req.request.data[0][0]);
       },
-      elements: function() {
-        return Sunstone.getDataTable(that.tabId).elements();
+      elements: function(opts) {
+        return Sunstone.getDataTable(that.tabId).elements(opts);
       },
       error: Notifier.onError,
       notify: true

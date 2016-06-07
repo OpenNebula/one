@@ -129,7 +129,8 @@ define(function(require) {
       dialog.setParams(
         { element: that.element,
           action : "Host.append_template",
-          resourceName : Locale.tr("Host")
+          resourceName : Locale.tr("Host"),
+          tabId : TAB_ID
         });
 
       dialog.show();

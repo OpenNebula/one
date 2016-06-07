@@ -55,7 +55,7 @@ define(function(require) {
     resource: 'MarketPlace',
     buttons: Buttons,
     actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
+    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
     panelsHooks: _panelsHooks,
     initHooks: _initHooks,

@@ -23,7 +23,7 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var QuotaLimits = require('./quota-limits');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
-
+  var TemplateUtils = require('utils/template-utils');
 
   // Constants
   var QUOTA_LIMIT_DEFAULT   = QuotaLimits.QUOTA_LIMIT_DEFAULT;
@@ -1200,6 +1200,22 @@ define(function(require) {
   }
 
   function _populateQuotasDialog(resource_info, default_quotas, context){
+    var action = $('div.form_buttons button',context).val();
+    var elements = Sunstone.getAction(action).elements({names: true});
+
+    if (elements) {
+      var html = '<h6 class="subheader">';
+
+      html += elements.map(function(element){
+        return (TemplateUtils.htmlEncode(element.id)+'&nbsp;'+
+                TemplateUtils.htmlEncode(element.name));
+        }).join(',&emsp;')
+
+      html += '</h6>';
+
+      $('.confirm-resources-header', context).html(html);
+    }
+
     var vms_quota = _vmsWidget(resource_info, default_quotas);
     var cpu_quota = _cpuWidget(resource_info, default_quotas);
     var memory_quota = _memoryWidget(resource_info, default_quotas);
