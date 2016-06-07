@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "May 2016" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "June 2016" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR \- manages OpenNebula virtual machines
@@ -56,6 +56,7 @@
                            thefiles datastore
  \-\-init script1,script2    Script or scripts to start in context
  \-\-startscript [file]      Start script to be executed
+ \-\-report_ready            Sends READY=YES to OneGate, useful for OneFlow
  \-\-dry                     Just print the template
  \-a, \-\-append              Append new attributes to the current template
  \-\-schedule TIME           Schedules this action to be executed afterthe
@@ -128,7 +129,7 @@ Examples:
   \- a vm with two disks
 
     onevm create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \-\-disk arch,data
-valid options: multiple, hold, name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, dry
+valid options: multiple, hold, name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready, dry
 .
 .fi
 .
@@ -584,7 +585,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.10 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

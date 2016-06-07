@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVROUTER" "1" "May 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
+.TH "ONEVROUTER" "1" "June 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
 .
 .SH "NAME"
 \fBonevrouter\fR \- manages OpenNebula Virtual Routers
@@ -59,6 +59,7 @@
                            thefiles datastore
  \-\-init script1,script2    Script or scripts to start in context
  \-\-startscript [file]      Start script to be executed
+ \-\-report_ready            Sends READY=YES to OneGate, useful for OneFlow
  \-a, \-\-append              Append new attributes to the current template
  \-f, \-\-file file           Selects the template file
  \-n, \-\-network id|name     Selects the virtual network
@@ -96,7 +97,7 @@ instantiate \fIvrouterid\fR \fItemplateid\fR [\fIfile\fR] Creates a new VM insta
 The NIC elements defined in the Virtual Router will be used\. The
 source Template can be modified adding or replacing attributes with
 the optional file argument, or with the options\.
-valid options: name, multiple, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript
+valid options: name, multiple, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready
 .
 .fi
 .
@@ -170,7 +171,7 @@ templateid OpenNebula VMTEMPLATE name or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.10 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
