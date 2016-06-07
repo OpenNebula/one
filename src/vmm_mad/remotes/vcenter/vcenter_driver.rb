@@ -117,7 +117,7 @@ module VCenterDriver
 class VIClient
     attr_reader :vim, :one, :root, :cluster, :user, :pass, :host, :dc
 
-    def get_entities(folder, type, entities=[])
+    def self.get_entities(folder, type, entities=[])
         return nil if folder == []
 
         folder.childEntity.each do |child|
@@ -125,7 +125,7 @@ class VIClient
 
             case name
             when "Folder"
-                get_entities(child, type, entities)
+                VIClient.get_entities(child, type, entities)
             when type
                 entities.push(child)
             end
@@ -191,10 +191,10 @@ class VIClient
 
         initialize_vim(connection)
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         datacenters.each {|dc|
-            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
+            ccrs = VIClient.get_entities(dc.hostFolder, 'ClusterComputeResource')
 
             next if ccrs.nil?
 
@@ -313,7 +313,7 @@ class VIClient
         if version.split(".").first.to_i >= 6
             @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
         else
-            vms = get_entities(@dc.vmFolder, 'VirtualMachine')
+            vms = VIClient.get_entities(@dc.vmFolder, 'VirtualMachine')
 
             return vms.find do |v|
                 begin
@@ -331,7 +331,7 @@ class VIClient
     # @param vm_name [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm(vm_name)
-        vms = get_entities(@dc.vmFolder, 'VirtualMachine')
+        vms = VIClient.get_entities(@dc.vmFolder, 'VirtualMachine')
 
         return vms.find do |v|
             begin
@@ -348,7 +348,8 @@ class VIClient
     # @returns a RbVmomi::VIM::VirtualMachine or nil if not found
     ########################################################################
     def get_datastore(ds_name)
-        ds = @dc.datastoreFolder.childEntity.select{|ds| ds.name == ds_name}[0]
+        datastores = VIClient.get_entities(@dc.datastoreFolder, 'Datastore')
+        ds         = datastores.select{|ds| ds.name == ds_name}[0]
     end
 
     ########################################################################
@@ -360,13 +361,13 @@ class VIClient
     def hierarchy(one_client=nil)
         vc_hosts = {}
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         hpool = OpenNebula::HostPool.new((one_client||@one))
         rc    = hpool.info
 
         datacenters.each { |dc|
-            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
+            ccrs = VIClient.get_entities(dc.hostFolder, 'ClusterComputeResource')
             vc_hosts[dc.name] = []
             ccrs.each { |c|
                 if !hpool["HOST[NAME=\"#{c.name}\"]"]
@@ -394,7 +395,7 @@ class VIClient
             raise "Error contacting OpenNebula #{rc.message}"
         end
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
             vms = get_entities_to_import(dc.vmFolder, 'VirtualMachine')
@@ -460,10 +461,10 @@ class VIClient
             raise "Error contacting OpenNebula #{rc.message}"
         end
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
-            networks = get_entities(dc.networkFolder, 'Network' )
+            networks = VIClient.get_entities(dc.networkFolder, 'Network' )
             one_nets = []
 
             networks.each { |n|
@@ -490,8 +491,8 @@ class VIClient
                 }
             }
 
-            networks = get_entities(dc.networkFolder,
-                                    'DistributedVirtualPortgroup' )
+            networks = VIClient.get_entities(dc.networkFolder,
+                                             'DistributedVirtualPortgroup' )
 
             networks.each { |n|
                 # Skip those not in cluster
@@ -582,11 +583,13 @@ class VIClient
             raise "Error contacting OpenNebula #{rc.message}"
         end
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
             one_tmp = []
-            dc.datastoreFolder.childEntity.each { |ds|
+            datastores = VIClient.get_entities(dc.datastoreFolder, 'Datastore')
+            datastores.each { |ds|
+                next if !ds.is_a? RbVmomi::VIM::Datastore
                 # Find the Cluster from which to access this ds
                 cluster_name = ds.host[0].key.parent.name
 
@@ -641,13 +644,14 @@ class VIClient
                   " it first and try again"
         end
 
-        datacenters = get_entities(@root, 'Datacenter')
+        datacenters = VIClient.get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
 
             # Find datastore within datacenter
-            ds=dc.datastoreFolder.childEntity.select{|ds|
-                                                     ds.name == ds_name}[0]
+            datastores = VIClient.get_entities(dc.datastoreFolder, 'Datastore')
+            ds         = datastores.select{|ds| ds.name == ds_name}[0]
+            next if !ds
 
             # Create Search Spec
             spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
@@ -966,7 +970,16 @@ class VCenterCachedHost
     def ds_list
         if !@attributes['ds_list']
             @attributes['ds_list']=""
-            @host.parent.parent.parent.datastoreFolder.childEntity.each { |ds|
+
+            datacenter = @host.parent
+            while !datacenter.is_a? RbVmomi::VIM::Datacenter
+                datacenter = datacenter.parent
+            end
+            
+            datastores=VIClient.get_entities(
+                          datacenter.datastoreFolder,
+                           'Datastore')
+            datastores.each { |ds|
                 @attributes['ds_list'] += ds.name + ","
             }
             @attributes['ds_list']=@attributes['ds_list'][0..-2]
@@ -1323,7 +1336,10 @@ class VCenterHost < ::OpenNebula::Host
 
     def get_available_ds
         str_info = ""
-        client.dc.datastoreFolder.childEntity.each { |ds|
+
+        datastores = VIClient.get_entities(client.dc.datastoreFolder,
+                                           'Datastore')
+        datastores.each { |ds|
             str_info += "VCENTER_DATASTORE=\"#{ds.name}\"\n"
         }
         str_info.chomp
@@ -1359,7 +1375,7 @@ class VCenterVm
 
     ############################################################################
     # Deploys a VM
-    #  @xml_text XML repsentation of the VM
+    #  @xml_text XML representation of the VM
     ############################################################################
     def self.deploy(xml_text, lcm_state, deploy_id, hostname, datastore = nil)
         if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
@@ -2150,8 +2166,9 @@ private
         end
 
         if datastore
-            ds=connection.dc.datastoreFolder.childEntity.select{|ds|
-                                                        ds.name == datastore}[0]
+            datastores = VIClient.get_entities(connection.dc.datastoreFolder,
+                                             'Datastore')
+            ds         = datastores.select{|ds| ds.name == datastore}[0]
             raise "Cannot find datastore #{datastore}" if !ds
         end
 
@@ -2456,8 +2473,9 @@ private
         end
 
         # Find datastore within datacenter
-        ds=connection.dc.datastoreFolder.childEntity.select{|ds|
-                                                         ds.name == ds_name}[0]
+        datastores = VIClient.get_entities(connection.dc.datastoreFolder,
+                                           'Datastore')
+        ds         = datastores.select{|ds| ds.name == ds_name}[0]
 
         controller, new_number = find_free_controller(vm)
 
