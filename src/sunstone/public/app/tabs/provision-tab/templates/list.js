@@ -316,20 +316,22 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="label secondary radius">'+
+          '<div data-closable class="callout large secondary">'+
             '<div class="row">'+
-            '<div class="large-8 columns">'+
-              '<span>'+
-                Locale.tr("The template")+
-                ' "' + template_name + '" ' +
-                Locale.tr("and the image associated will be shared and all the users will be able to instantiate new VMs using this template.") +
-              '</span>'+
+              '<div class="large-12 columns">'+
+                '<p>'+
+                  Locale.tr("The template")+
+                  ' "' + template_name + '" ' +
+                  Locale.tr("and the image associated will be shared and all the users will be able to instantiate new VMs using this template.") +
+                '</p>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<button href"#" class="provision_chmod_template_button success button right" template_id="'+template_id+'">'+Locale.tr("Share template")+'</button>'+
+              '</div>'+
             '</div>'+
-            '<div class="large-4 columns">'+
-              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
-            '</div>'+
-            '</div>'+
-            '<a href="#" class="close">&times;</a>'+
+            '<button class="close-button" aria-label="Dismiss alert" type="button" data-close>' +
+              '<span aria-hidden="true">&times;</span>' +
+            '</button>' +
           '</div>');
       });
 
@@ -362,20 +364,22 @@ define(function(require) {
         var template_name = $(".provision-title", ul_context).first().text();
 
         $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="label secondary radius">'+
+          '<div data-closable class="callout large secondary">'+
             '<div class="row">'+
-            '<div class="large-8 columns">'+
-              '<span>'+
-                Locale.tr("The template")+
-                ' "' + template_name + '" ' +
-                Locale.tr("and the image associated will be unshared and the users will not be able to instantiate new VMs using this template.") +
-              '</span>'+
+              '<div class="large-12 columns">'+
+                '<p>'+
+                  Locale.tr("The template")+
+                  ' "' + template_name + '" ' +
+                  Locale.tr("and the image associated will be unshared and the users will not be able to instantiate new VMs using this template.") +
+                '</p>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<button href"#" class="provision_unshare_template_button success button right" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</button>'+
+              '</div>'+
             '</div>'+
-            '<div class="large-4 columns">'+
-              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
-            '</div>'+
-            '</div>'+
-            '<a href="#" class="close">&times;</a>'+
+            '<button class="close-button" aria-label="Dismiss alert" type="button" data-close>' +
+              '<span aria-hidden="true">&times;</span>' +
+            '</button>' +
           '</div>');
       });
 
