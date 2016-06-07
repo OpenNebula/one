@@ -74,11 +74,17 @@ define(function(require) {
   function _setup(context) {
     $("input[name='graphics_type']", context).change(function() {
       if ($(this).attr("value") !== '') {
-        $('input[wizard_field="LISTEN"]', context).val("0.0.0.0");
+        if($('input[wizard_field="LISTEN"]', context).val() == ""){
+          $('input[wizard_field="LISTEN"]', context).val("0.0.0.0");
+        }
+
+        $('.graphics-setting', context).removeAttr('disabled').prop('wizard_field_disabled', false);
       } else {
-        $('input[wizard_field="LISTEN"]', context).val('');
+        $('.graphics-setting', context).attr('disabled', 'disabled').prop('wizard_field_disabled', true);
       }
     });
+
+    $("input[name='graphics_type']", context).change();
 
     context.off("click", '#add_input');
     context.on("click", '#add_input', function() {
@@ -141,7 +147,9 @@ define(function(require) {
     if (graphicsJSON) {
       var type = graphicsJSON.TYPE;
       if (type) {
-        $("input[value='" + type.toUpperCase() + "']").click();
+        $(".graphics input[wizard_field='TYPE'][value='" + type.toUpperCase() + "']", context).click();
+      } else {
+        $(".graphics input[wizard_field='TYPE'][value='']", context).click();
       }
 
       if (graphicsJSON["RANDOM_PASSWD"] == "YES") {
@@ -150,6 +158,8 @@ define(function(require) {
 
       WizardFields.fill(context, graphicsJSON);
       delete templateJSON['GRAPHICS']
+    } else {
+      $(".graphics input[wizard_field='TYPE'][value='']", context).click();
     }
 
     var inputsJSON = templateJSON['INPUT'];

@@ -20,9 +20,9 @@
       <legend>{{tr "Graphics"}}</legend>
       <div class="">
         <div class="large-12 columns text-center">
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioNoneType{{uniqueId}}" value="" checked>
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioNoneType{{uniqueId}}" value="">
           <label for="radioNoneType{{uniqueId}}">{{tr "None"}}</label>
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC">
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC" checked>
           <label for="radioVncType{{uniqueId}}">VNC</label>
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm" >
           <label class="hypervisor only_kvm"  for="radioSdlType{{uniqueId}}">SDL</label>
@@ -35,7 +35,7 @@
         <div class="large-12 columns">
           <label>
             {{tr "Listen on IP"}}
-            <input type="text" wizard_field="LISTEN" placeholder="0.0.0.0"/>
+            <input class="graphics-setting" type="text" wizard_field="LISTEN" placeholder="0.0.0.0"/>
           </label>
         </div>
       </div>
@@ -44,13 +44,13 @@
           <label>
             {{tr "Server port"}}
             {{{tip (tr "Port for the VNC/SPICE server")}}}
-            <input type="text" wizard_field="PORT"/>
+            <input class="graphics-setting" type="text" wizard_field="PORT"/>
           </label>
         </div>
         <div class="medium-6 columns">
           <label>
             {{tr "Keymap"}}
-            <input type="text" wizard_field="KEYMAP" placeholder="en-us"/>
+            <input class="graphics-setting" type="text" wizard_field="KEYMAP" placeholder="en-us"/>
           </label>
         </div>
       </div>
@@ -58,13 +58,13 @@
         <div class="large-12 columns">
           <label>
             {{tr "Password"}}
-            <input type="text" wizard_field="PASSWD"/>
+            <input class="graphics-setting" type="text" wizard_field="PASSWD"/>
           </label>
         </div>
       </div>
       <div class=" hypervisor only_kvm vm_updateconf_hide">
         <div class="columns large-12">
-          <input type="checkbox" class="RANDOM_PASSWD" id="RANDOM_PASSWD{{uniqueId}}">
+          <input type="checkbox" class="RANDOM_PASSWD graphics-setting" id="RANDOM_PASSWD{{uniqueId}}">
           <label for="RANDOM_PASSWD{{uniqueId}}">
             {{tr "Generate random password"}}
           </label>
