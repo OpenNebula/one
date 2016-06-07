@@ -635,7 +635,13 @@ static void monitor_action(istringstream& is,
 
     if (result != "SUCCESS")
     {
-        oss << "Error monitoring datastore " << id << ": " << *dsinfo;
+        oss << "Error monitoring datastore " << id << ": " << dsinfo64;
+
+        if (!(*dsinfo).empty())
+        {
+            oss << ". Decoded info: " << *dsinfo;
+        }
+
         NebulaLog::log("ImM", Log::ERROR, oss);
 
         delete dsinfo;

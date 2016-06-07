@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
-    <link href="images/favicon.ico" rel="shortcut icon"></link>
+
+    <!--[if IE]><link rel="shortcut icon" href="images/favicon.ico"><![endif]-->
+    <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon-precomposed.png">
+    <link rel="icon" href="images/favicon.png">
 
     <% if session[:lang] %>
       <script src="locale/languages/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
@@ -67,7 +70,7 @@
           </ul>
         </div>
       <div id="footer" class="text-center large-12 columns">
-        <a href="http://opennebula.org" target="_blank">OpenNebula 4.90.5</a>
+        <a href="http://opennebula.org" target="_blank">OpenNebula 4.90.10</a>
         <br> by
         <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
       </div>

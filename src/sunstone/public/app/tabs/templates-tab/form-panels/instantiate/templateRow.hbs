@@ -14,32 +14,38 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<h6>
-  {{element.NAME}}
-</h6>
-<div class="row">
-  <div class="medium-6 small-12 columns capacityContext{{element.ID}}">
-    <fieldset>
-      <legend>
-        <i class="fa fa-laptop"></i> {{tr "Capacity"}}
-        <span class="capacity_cost_div" hidden>
-          <span class="cost_value">0.00</span>
-          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-        </span>
-      </legend>
-      <div>
-        {{{capacityInputsHTML}}}
-      </div>
-    </fieldset>
+<div class="template-row" element-id="{{element.ID}}">
+  <h5>
+    {{element.NAME}}
+    <span class="total_cost_div" hidden>
+      <small class="cost_value">0.00</small>
+      <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+    </span>
+  </h5>
+  <div class="row">
+    <div class="medium-6 small-12 columns capacityContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fa fa-laptop"></i> {{tr "Capacity"}}
+          <span class="capacity_cost_div" hidden>
+            <span class="cost_value">0.00</span>
+            <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+          </span>
+        </legend>
+        <div>
+          {{{capacityInputsHTML}}}
+        </div>
+      </fieldset>
+    </div>
+    <div class="medium-6 small-12 columns disksContext{{element.ID}}"></div>
   </div>
-  <div class="medium-6 small-12 columns disksContext{{element.ID}}"></div>
-</div>
-<div class="row">
-  <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
-</div>
-<div class="row">
-  <div class="small-12 columns nicsContext{{element.ID}}">
-    <div class="provision_network_selector">
+  <div class="row">
+    <div class="medium-6 small-12 columns template_user_inputs{{element.ID}}"></div>
+  </div>
+  <div class="row">
+    <div class="small-12 columns nicsContext{{element.ID}}">
+      <div class="provision_network_selector">
+      </div>
     </div>
   </div>
 </div>

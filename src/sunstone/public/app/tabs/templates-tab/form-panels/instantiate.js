@@ -69,6 +69,7 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
+  FormPanel.prototype.calculateCost = _calculateCost;
 
   return FormPanel;
 
@@ -100,9 +101,25 @@ define(function(require) {
         DisksResize.insert({
           template_json:    template_json,
           disksContext:     $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-          force_persistent: persistent
+          force_persistent: persistent,
+          cost_callback: that.calculateCost.bind(that)
         });
       });
+    });
+  }
+
+  function _calculateCost(){
+    $.each($(".template-row", this.formContext), function(){
+      var capacity_val = parseFloat( $(".capacity_cost_div .cost_value", $(this)).text() );
+      var disk_val = parseFloat( $(".provision_create_template_disk_cost_div .cost_value", $(this)).text() );
+
+      var total = capacity_val + disk_val;
+
+      if (total != 0 && Config.isFeatureEnabled("showback")) {
+        $(".total_cost_div", $(this)).show();
+
+        $(".total_cost_div .cost_value", $(this)).text( (capacity_val + disk_val).toFixed(2) );
+      }
     });
   }
 
@@ -194,7 +211,8 @@ define(function(require) {
           DisksResize.insert({
             template_json: template_json,
             disksContext: $(".disksContext"  + template_json.VMTEMPLATE.ID, context),
-            force_persistent: $("input.instantiate_pers", context).prop("checked")
+            force_persistent: $("input.instantiate_pers", context).prop("checked"),
+            cost_callback: that.calculateCost.bind(that)
           });
 
           NicsSection.insert(template_json,
@@ -242,6 +260,8 @@ define(function(require) {
               }
 
               $(".cost_value", capacityContext).html(cost.toFixed(2));
+
+              _calculateCost(context);
             });
           }
 

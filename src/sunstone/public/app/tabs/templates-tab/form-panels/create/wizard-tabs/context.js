@@ -289,6 +289,7 @@ define(function(require) {
       var net_regexp = /^NETWORK$/;;
       var ssh_regexp = /^SSH_PUBLIC_KEY$/;
       var token_regexp = /^TOKEN$/;
+      var report_ready_regexp = /^REPORT_READY$/;
       var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
 
       var net_flag = false;
@@ -304,6 +305,8 @@ define(function(require) {
           }
         } else if (token_regexp.test(key)) {
           $(".token_context", context).prop('checked', 'checked');
+        } else if (report_ready_regexp.test(key)) {
+          $(".report_ready_context", context).prop('checked', 'checked');
         } else if (net_regexp.test(key)) {
           $(".network_context", context).prop('checked', 'checked');
         } else if ("INIT_SCRIPTS" == key) {

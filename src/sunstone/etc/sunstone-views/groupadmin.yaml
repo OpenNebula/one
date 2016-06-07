@@ -45,7 +45,7 @@ tabs:
         # bellow. As the name suggest, the widgets will be scaled to fit one,
         # two, or three per row. The footer uses the widgets at full size, i.e.
         # one per row.
-        # 
+        #
         # - storage
         # - users
         # - network
@@ -424,6 +424,7 @@ tabs:
             host_monitoring_tab: true
             host_vms_tab: true
             host_wilds_tab: true
+            host_zombies_tab: true
             host_esx_tab: true
             host_pci_tab: true
         table_columns:

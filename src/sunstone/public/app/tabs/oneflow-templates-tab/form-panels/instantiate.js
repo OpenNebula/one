@@ -29,6 +29,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -108,6 +109,8 @@ define(function(require) {
 
         that.service_template_json = template_json;
 
+        $(".name", context).text(template_json.DOCUMENT.NAME);
+
         $("#instantiate_service_user_inputs", context).empty();
 
         UserInputs.serviceTemplateInsert(
@@ -116,6 +119,8 @@ define(function(require) {
 
         n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
         n_roles_done = 0;
+
+        var total_cost = 0;
 
         $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var div_id = "user_input_role_"+index;
@@ -127,12 +132,22 @@ define(function(require) {
 
           OpenNebulaTemplate.show({
             data : {
-              id: role.vm_template
+              id: role.vm_template,
+              extended: true
             },
             timeout: true,
             success: function (request, vm_template_json){
 
               $("#"+div_id, context).empty();
+
+              var cost = OpenNebulaTemplate.cost(vm_template_json);
+
+              if (cost != 0 && Config.isFeatureEnabled("showback")) {
+                total_cost += (cost * role.cardinality);
+
+                $(".total_cost_div", context).show();
+                $(".total_cost_div .cost_value", context).text( (total_cost).toFixed(2) );
+              }
 
               UserInputs.vmTemplateInsert(
                 $("#"+div_id, context),

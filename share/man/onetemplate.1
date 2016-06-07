@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONETEMPLATE" "1" "May 2016" "" "onetemplate(1) -- manages OpenNebula templates"
+.TH "ONETEMPLATE" "1" "June 2016" "" "onetemplate(1) -- manages OpenNebula templates"
 .
 .SH "NAME"
 \fBonetemplate\fR \- manages OpenNebula templates
@@ -56,6 +56,7 @@
                            thefiles datastore
  \-\-init script1,script2    Script or scripts to start in context
  \-\-startscript [file]      Start script to be executed
+ \-\-report_ready            Sends READY=YES to OneGate, useful for OneFlow
  \-\-dry                     Just print the template
  \-\-recursive               Applies the action to the template plus any image
                            defined in DISK
@@ -109,7 +110,7 @@ Examples:
 
     onetempate create \-\-name "test vm" \-\-memory 128 \-\-cpu 1 \e
                       \-\-disk arch,data
-valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, dry
+valid options: name, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready, dry
 .
 .fi
 .
@@ -131,7 +132,7 @@ instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the giv
 
 The source Template can be modified adding or replacing attributes with
 the optional file argument, or with the options\.
-valid options: name, multiple, userdata, hold, persistent, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript
+valid options: name, multiple, userdata, hold, persistent, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, vnc_keymap, spice, spice_password, spice_listen, spice_keymap, ssh, net_context, context, boot, files_ds, init, startscript, report_ready
 .
 .fi
 .
@@ -193,7 +194,7 @@ filterflag a, all all the known VMTEMPLATEs m, mine the VMTEMPLATE belonging to 
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.90\.5 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.90\.10 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
