@@ -67,7 +67,7 @@ define(function(require) {
     //  object to be used when the host info is updated.
     that.unshownTemplate = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['HOST', 'VM', 'WILDS', 'RESERVED_CPU', 'RESERVED_MEM'];
+    var unshownKeys = ['HOST', 'VM', 'WILDS', 'ZOMBIES', 'RESERVED_CPU', 'RESERVED_MEM'];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
         that.unshownTemplate[key] = value;
