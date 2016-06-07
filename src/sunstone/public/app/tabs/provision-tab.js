@@ -1169,7 +1169,7 @@ define(function(require) {
 
             $.each(body.roles, function(index, role){
               var context = $(
-                '<div id="provision_create_flow_role_'+index+'" class="large-6 medium-12 small-12 columns provision_create_flow_role">'+
+                '<div id="provision_create_flow_role_'+index+'" class="left medium-6 columns provision_create_flow_role">'+
                   '<h5>'+
                     '<i class="fa fa-cube fa-lg"></i> '+
                     TemplateUtils.htmlEncode(role.name)+
