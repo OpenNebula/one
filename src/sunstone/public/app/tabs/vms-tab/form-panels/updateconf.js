@@ -38,6 +38,7 @@ define(function(require) {
 
   var FORM_PANEL_ID = require('./updateconf/formPanelId');
   var TAB_ID = require('../tabId');
+  var TEMPLATE_TAB_ID = require('tabs/templates-tab/tabId');
   var WIZARD_TABS = [
     require('tabs/templates-tab/form-panels/create/wizard-tabs/os'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/io'),
@@ -65,7 +66,8 @@ define(function(require) {
     var wizardTabInstance;
     $.each(WIZARD_TABS, function(index, wizardTab) {
       try {
-        wizardTabInstance = new wizardTab();
+        // Search enabled tabs for template creation in yaml view files
+        wizardTabInstance = new wizardTab({tabId: TEMPLATE_TAB_ID});
         wizardTabInstance.contentHTML = wizardTabInstance.html();
         that.wizardTabs.push(wizardTabInstance);
       } catch (err) {
@@ -143,9 +145,11 @@ define(function(require) {
     return false;
   }
 
-  function _fill(context, elementId, templateJSON) {
+  function _fill(context, element) {
     this.setHeader(element);
-    this.resourceId = elementId;
+    this.resourceId = element.ID;
+
+    var templateJSON = element.TEMPLATE;
 
     // Populates the Avanced mode Tab
     $('#template', context).val(
