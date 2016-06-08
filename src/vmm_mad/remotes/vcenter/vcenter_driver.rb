@@ -1835,7 +1835,10 @@ class VCenterVm
               "  TYPE     =\"vnc\",\n"\
               "  LISTEN   =\"0.0.0.0\"\n"\
               "]\n"\
-         "SCHED_REQUIREMENTS=\"NAME=\\\"#{cluster_name}\\\"\"\n"
+         "SCHED_REQUIREMENTS=\"NAME=\\\"#{cluster_name}\\\"\"\n"\
+              "CONTEXT = ["\
+              "  NETWORK = \"YES\","\
+              "  SSH_PUBLIC_KEY = \"$USER[SSH_PUBLIC_KEY]\" ]"
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula"\

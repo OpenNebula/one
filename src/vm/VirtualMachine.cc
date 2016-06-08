@@ -282,22 +282,6 @@ error_previous_history:
 
 static void set_boot_order(Template * tmpl)
 {
-	VectorAttribute * os = tmpl->get("OS");
-
-    if ( os == 0 )
-    {
-        return;
-    }
-
-    string order = os->vector_value("BOOT");
-
-    if ( order.empty() )
-    {
-        return;
-    }
-
-	vector<string> bdevs = one_util::split(order, ',');
-
     vector<VectorAttribute *> disk;
     vector<VectorAttribute *> nic;
 
@@ -313,6 +297,22 @@ static void set_boot_order(Template * tmpl)
     {
         nic[i]->remove("ORDER");
     }
+    
+    VectorAttribute * os = tmpl->get("OS");
+
+    if ( os == 0 )
+    {
+        return;
+    }
+
+    string order = os->vector_value("BOOT");
+
+    if ( order.empty() )
+    {
+        return;
+    }
+
+    vector<string> bdevs = one_util::split(order, ',');
 
     int index = 1;
 
