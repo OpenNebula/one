@@ -722,8 +722,8 @@ define(function(require) {
 
     Foundation.reflow(context, 'tabs');
 
-    //context.foundation();
     $('[href="' + activaTabHref + '"]', context).trigger("click");
+    $('#' + containerId + 'Tabs', context).trigger('change.zf.tabs');
 
     if (hooks) {
       $.each(hooks, function(i, hook){
