@@ -71,8 +71,7 @@ define(function(require) {
             TemplateUtils.templateToString(this.element.TEMPLATE)+
           '</pre>'+
         '</div>'+
-      '</div>'+
-    '</div>'
+      '</div>';
   }
 
   function _setup(context) {
