@@ -26,14 +26,14 @@ else
 end
 
 helpers do
+    ZENDESK_URL = "https://opennebula.zendesk.com/api/v2"
     CUSTOM_FIELD_OPENNEBULA_VERSION = 391130
     CUSTOM_FIELD_SEVERITY = 391197
 
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
           # Mandatory:
-
-          config.url = "https://opennebula.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+          config.url = ZENDESK_URL
 
           # Basic / Token Authentication
           config.username = session["zendesk_email"]
@@ -58,11 +58,6 @@ helpers do
 
           # Changes Faraday adapter
           # config.adapter = :patron
-
-          # Merged with the default client options hash
-          if ENV['http_proxy']
-            config.client_options = { :proxy => ENV['http_proxy'] }
-          end
 
           # When getting the error 'hostname does not match the server certificate'
           # use the API at https://yoursubdomain.zendesk.com/api/v2

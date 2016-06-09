@@ -124,6 +124,11 @@ set :config, $conf
 set :bind, $conf[:host]
 set :port, $conf[:port]
 
+if (proxy = $conf[:proxy])
+    ENV['http_proxy'] = proxy
+    ENV['HTTP_PROXY'] = proxy
+end
+
 case $conf[:sessions]
 when 'memory', nil
     use Rack::Session::Pool, :key => 'sunstone'
@@ -170,7 +175,6 @@ rescue => e
 end
 
 set :cloud_auth, $cloud_auth
-
 
 $views_config = SunstoneViews.new
 
