@@ -144,10 +144,11 @@ require.config({
         'tabs/vnets-topology-tab',
         'tabs/secgroups-tab',
         'tabs/settings-tab',
-        'tabs/support-tab'
+        'tabs/support-tab',
+        'tabs/upgrade-top-tab'
       ]
     },
-    
+
     /* jQuery */
     'jquery': {
       exports: '$'

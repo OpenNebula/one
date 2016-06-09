@@ -31,6 +31,7 @@ enabled_tabs:
     - acls-tab
     - settings-tab
     - support-tab
+    - upgrade-top-tab
 autorefresh: true
 features:
     # True to show showback monthly reports, and VM cost
@@ -750,3 +751,6 @@ tabs:
             user_showback_tab: true
         actions:
             User.quotas_dialog: false
+    upgrade-top-tab:
+        panel_tabs:
+        actions:

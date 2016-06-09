@@ -94,6 +94,7 @@ require 'tmpdir'
 require 'fileutils'
 require 'base64'
 require 'rexml/document'
+require 'uri'
 
 require 'CloudAuth'
 require 'SunstoneServer'
@@ -326,7 +327,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice).include?(request.path)
+    unless %w(/ /login /vnc /spice /version).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -470,6 +471,20 @@ get '/spice' do
     else
         erb :spice
     end
+end
+
+get '/version' do
+    version = {:version => OpenNebula::VERSION, :remote_version => nil}
+
+    if (remote_version_url = $conf[:remote_version])
+        remote_version = Net::HTTP.get(URI(remote_version_url)).strip rescue nil
+
+        if !remote_version.nil? && !remote_version.empty?
+            version[:remote_version] = remote_version
+        end
+    end
+
+    [200, version.to_json]
 end
 
 ##############################################################################
