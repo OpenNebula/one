@@ -44,6 +44,8 @@ for ds in $dirs; do
 
     dir=$DATASTORE_LOCATION/$ds
 
+    test -d "$dir" || continue
+
     USED_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $3}')
     TOTAL_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $2}')
     FREE_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $4}')
