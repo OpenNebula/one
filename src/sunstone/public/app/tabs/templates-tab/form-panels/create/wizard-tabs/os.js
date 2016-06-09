@@ -370,6 +370,7 @@ define(function(require) {
 
       $.each(disks, function(i,disk){
         var label = '<i class="fa fa-fw fa-lg fa-tasks"></i> ';
+		var disk_name = 'disk';
 
         if (disk.IMAGE != undefined){
           label += disk.IMAGE;
@@ -379,7 +380,13 @@ define(function(require) {
           label += Locale.tr("Volatile");
         }
 
-        _addBootRow(context, 'disk'+i, label);
+		if (disk.DISK_ID == undefined){
+			disk_name += i;
+		} else {
+			disk_name += disk.DISK_ID;
+		}
+
+        _addBootRow(context, disk_name, label);
       });
     }
 
