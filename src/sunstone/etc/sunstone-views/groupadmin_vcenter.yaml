@@ -529,7 +529,8 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
-            Image.upload_marketplace_dialog: true
+            Image.upload_marketplace_dialog: false
+            Image.import_dialog: true
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
