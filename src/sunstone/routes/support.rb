@@ -26,6 +26,9 @@ else
 end
 
 helpers do
+    CUSTOM_FIELD_OPENNEBULA_VERSION = 391130
+    CUSTOM_FIELD_SEVERITY = 391197
+
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
           # Mandatory:
@@ -84,11 +87,12 @@ helpers do
             "comments" => []
         }
 
+
         zrequest.custom_fields.each { |field|
             case field.id
-            when 391130
+            when CUSTOM_FIELD_OPENNEBULA_VERSION
                 one_zrequest["opennebula_version"] = field.value
-            when 391197
+            when CUSTOM_FIELD_SEVERITY
                 one_zrequest["severity"] = field.value
             end
         }
@@ -174,8 +178,8 @@ post '/support/request' do
             :subject => body_hash['subject'],
             :comment => { :value => body_hash['description'] },
             :custom_fields => [
-              {:id => 391197, :value => body_hash['severity']},
-              {:id => 391130, :value => body_hash['opennebula_version']}
+              {:id => CUSTOM_FIELD_SEVERITY, :value => body_hash['severity']},
+              {:id => CUSTOM_FIELD_OPENNEBULA_VERSION, :value => body_hash['opennebula_version']}
             ]
           })
 

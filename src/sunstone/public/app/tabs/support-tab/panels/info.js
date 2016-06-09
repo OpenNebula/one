@@ -28,10 +28,13 @@ define(function(require) {
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
-  var RESOURCE = "Support";
-  var XML_ROOT = "REQUEST";
+  var TAB_ID      = require('../tabId');
+  var PANEL_ID    = require('./info/panelId');
+  var RESOURCE    = "Support";
+  var XML_ROOT    = "REQUEST";
+
+  var AUTHOR_ID   = 21231023;
+  var AUTHOR_NAME = "OpenNebula Support Team";
 
   /*
     CONSTRUCTOR

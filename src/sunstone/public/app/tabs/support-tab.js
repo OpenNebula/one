@@ -46,7 +46,12 @@ define(function(require) {
     title: TemplateTitle(),
     listHeader: 'Commercial Support Requests',
     infoHeader: 'Commercial Support Request',
-    subheader: TemplateSubheader(),
+    subheader: TemplateSubheader({
+      'support_subscription': 'http://opennebula.systems/support/',
+      'account': 'http://opennebula.systems/buy/',
+      'docs': 'http://docs.opennebula.org/5.0/',
+      'community': 'http://opennebula.org/support/community/',
+    }),
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
