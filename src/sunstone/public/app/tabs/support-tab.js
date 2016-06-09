@@ -47,10 +47,10 @@ define(function(require) {
     listHeader: 'Commercial Support Requests',
     infoHeader: 'Commercial Support Request',
     subheader: TemplateSubheader({
-      'support_subscription': 'http://opennebula.systems/support/',
-      'account': 'http://opennebula.systems/buy/',
-      'docs': 'http://docs.opennebula.org/5.0/',
-      'community': 'http://opennebula.org/support/community/',
+      'support_subscription': config['support']['support_subscription'],
+      'account': config['support']['account'],
+      'docs': config['support']['docs'],
+      'community': config['support']['community']
     }),
     buttons: Buttons,
     actions: Actions,

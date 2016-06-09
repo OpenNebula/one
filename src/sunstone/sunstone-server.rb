@@ -191,6 +191,19 @@ end
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
 
+SUPPORT = {
+    :zendesk_url => "https://opennebula.zendesk.com/api/v2",
+    :custom_field_version => 391130,
+    :custom_field_severity => 391197,
+    :author_id => 21231023,
+    :author_name => "OpenNebula Support Team",
+    :support_subscription => "http://opennebula.systems/support/",
+    :account => "http://opennebula.systems/buy/",
+    :docs => "http://docs.opennebula.org/5.0/",
+    :community => "http://opennebula.org/support/community/",
+    :project => "OpenNebula"
+}
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -449,7 +462,11 @@ get '/' do
 
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index, :locals => {:logos_conf => logos_conf, :oned_conf => oned_conf}
+    erb :index, :locals => {
+        :logos_conf => logos_conf,
+        :oned_conf  => oned_conf,
+        :support    => SUPPORT
+    }
 end
 
 get '/login' do

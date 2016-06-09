@@ -71,7 +71,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'project': "OpenNebula",
+      'project': config['support']['project'],
     });
   }
 

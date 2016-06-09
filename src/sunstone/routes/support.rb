@@ -26,14 +26,10 @@ else
 end
 
 helpers do
-    ZENDESK_URL = "https://opennebula.zendesk.com/api/v2"
-    CUSTOM_FIELD_OPENNEBULA_VERSION = 391130
-    CUSTOM_FIELD_SEVERITY = 391197
-
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
           # Mandatory:
-          config.url = ZENDESK_URL
+          config.url = SUPPORT[:zendesk_url]
 
           # Basic / Token Authentication
           config.username = session["zendesk_email"]
@@ -85,9 +81,9 @@ helpers do
 
         zrequest.custom_fields.each { |field|
             case field.id
-            when CUSTOM_FIELD_OPENNEBULA_VERSION
+            when SUPPORT[:custom_field_version]
                 one_zrequest["opennebula_version"] = field.value
-            when CUSTOM_FIELD_SEVERITY
+            when SUPPORT[:custom_field_severity]
                 one_zrequest["severity"] = field.value
             end
         }
@@ -173,8 +169,8 @@ post '/support/request' do
             :subject => body_hash['subject'],
             :comment => { :value => body_hash['description'] },
             :custom_fields => [
-              {:id => CUSTOM_FIELD_SEVERITY, :value => body_hash['severity']},
-              {:id => CUSTOM_FIELD_OPENNEBULA_VERSION, :value => body_hash['opennebula_version']}
+              {:id => SUPPORT[:custom_field_severity], :value => body_hash['severity']},
+              {:id => SUPPORT[:custom_field_version], :value => body_hash['opennebula_version']}
             ]
           })
 
