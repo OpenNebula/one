@@ -43,10 +43,10 @@ public class VMachineSample{
             // exist.
             String vmTemplate =
                   "NAME     = vm_from_java    CPU = 0.1    MEMORY = 64\n"
-                + "DISK     = [\n"
-                + "\tsource   = \"/home/user/vmachines/ttylinux/ttylinux.img\",\n"
-                + "\ttarget   = \"hda\",\n"
-                + "\treadonly = \"no\" ]\n"
+                + "#DISK     = [\n"
+                + "#\tsource   = \"/home/user/vmachines/ttylinux/ttylinux.img\",\n"
+                + "#\ttarget   = \"hda\",\n"
+                + "#\treadonly = \"no\" ]\n"
                 + "# NIC     = [ NETWORK = \"Non existing network\" ]\n"
                 + "FEATURES = [ acpi=\"no\" ]";
 
@@ -123,8 +123,8 @@ public class VMachineSample{
                     "\nThese are all the Virtual Machines in the pool:");
             for ( VirtualMachine vmachine : vmPool )
             {
-                System.out.println("\tID :" + vmachine.getId() +
-                                   ", Name :" + vmachine.getName() );
+                System.out.println("\tID : " + vmachine.getId() +
+                                   ", Name : " + vmachine.getName() );
 
                 // Check if we have found the VM we are looking for
                 if ( vmachine.getId().equals( ""+newVMID ) )
@@ -134,9 +134,9 @@ public class VMachineSample{
             }
 
             // We have also some useful helpers for the actions you can perform
-            // on a virtual machine, like cancel:
-            rc = vm.cancel();
-            System.out.println("\nTrying to cancel the VM " + vm.getId() +
+            // on a virtual machine, like suspend:
+            rc = vm.suspend();
+            System.out.println("\nTrying to suspend the VM " + vm.getId() +
                                 " (should fail)...");
 
             // This is all the information you can get from the OneResponse:
@@ -145,8 +145,8 @@ public class VMachineSample{
             System.out.println("\t  Msg:    " + rc.getMessage());
             System.out.println("\t  ErrMsg: " + rc.getErrorMessage());
 
-            rc = vm.finalizeVM();
-            System.out.println("\nTrying to finalize (delete) the VM " +
+            rc = vm.terminate();
+            System.out.println("\nTrying to terminate the VM " +
                                 vm.getId() + "...");
 
             System.out.println("\tOpenNebula response");

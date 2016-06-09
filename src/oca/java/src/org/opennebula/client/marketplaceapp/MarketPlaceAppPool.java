@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.template;
+package org.opennebula.client.marketplaceapp;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -25,46 +25,46 @@ import org.opennebula.client.PoolElement;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula Template pool.
+ * This class represents an OpenNebula MarketPlaceApp pool.
  * It also offers static XML-RPC call wrappers.
  */
-public class TemplatePool extends Pool implements Iterable<Template>
+public class MarketPlaceAppPool extends Pool implements Iterable<MarketPlaceApp>
 {
-    private static final String ELEMENT_NAME = "VMTEMPLATE";
-    private static final String INFO_METHOD  = "templatepool.info";
+    private static final String ELEMENT_NAME = "MARKETPLACEAPP";
+    private static final String INFO_METHOD  = "marketapppool.info";
 
     private int filter;
 
     /**
-     * Creates a new Template pool with the default filter flag value
-     * set to {@link Pool#MINE_GROUP} (Template belonging to the connected user,
+     * Creates a new MarketPlaceApp pool with the default filter flag value
+     * set to {@link Pool#MINE_GROUP} (MarketPlaceApps belonging to the connected user,
      * and the ones in his group)
      *
      * @param client XML-RPC Client.
      *
-     * @see TemplatePool#TemplatePool(Client, int)
+     * @see MarketPlaceAppPool#MarketPlaceAppPool(Client, int)
      */
-    public TemplatePool(Client client)
+    public MarketPlaceAppPool(Client client)
     {
         super(ELEMENT_NAME, client, INFO_METHOD);
         this.filter = MINE_GROUP;
     }
 
     /**
-     * Creates a new Template pool.
+     * Creates a new MarketPlaceApp pool.
      *
      * @param client XML-RPC Client.
      * @param filter Filter flag to use by default in the method
-     * {@link TemplatePool#info()}. Possible values:
+     * {@link MarketPlaceAppPool#info()}. Possible values:
      * <ul>
-     * <li>{@link Pool#ALL}: All Templates</li>
-     * <li>{@link Pool#MINE}: Connected user's Templates</li>
-     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * <li>{@link Pool#ALL}: All MarketPlaceApps</li>
+     * <li>{@link Pool#MINE}: Connected user's MarketPlaceApps</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's MarketPlaceApps, and the ones in
      * his group</li>
-     * <li>&gt;= 0: UID User's Templates</li>
+     * <li>&gt;= 0 UID User's MarketPlaceApps</li>
      * </ul>
      */
-    public TemplatePool(Client client, int filter)
+    public MarketPlaceAppPool(Client client, int filter)
     {
         super(ELEMENT_NAME, client, INFO_METHOD);
         this.filter = filter;
@@ -76,20 +76,20 @@ public class TemplatePool extends Pool implements Iterable<Template>
     @Override
     public PoolElement factory(Node node)
     {
-        return new Template(node, client);
+        return new MarketPlaceApp(node, client);
     }
 
     /**
-     * Retrieves all or part of the Templates in the pool.
+     * Retrieves all or part of the MarketPlaceApps in the pool.
      *
      * @param client XML-RPC Client.
      * @param filter Filter flag to use. Possible values:
      * <ul>
-     * <li>{@link Pool#ALL}: All Templates</li>
-     * <li>{@link Pool#MINE}: Connected user's Templates</li>
-     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * <li>{@link Pool#ALL}: All MarketPlaceApps</li>
+     * <li>{@link Pool#MINE}: Connected user's MarketPlaceApps</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's MarketPlaceApps, and the ones in
      * his group</li>
-     * <li>&gt;= 0: UID User's Templates</li>
+     * <li>&gt;= 0 UID User's MarketPlaceApps</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -100,7 +100,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all the Templates in the pool.
+     * Retrieves all the MarketPlaceApps in the pool.
      *
      * @param client XML-RPC Client.
      * @return If successful the message contains the string
@@ -112,7 +112,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all the connected user's Templates.
+     * Retrieves all the connected user's MarketPlaceApps.
      *
      * @param client XML-RPC Client.
      * @return If successful the message contains the string
@@ -124,7 +124,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all the connected user's Templates and the ones in
+     * Retrieves all the connected user's MarketPlaceApps and the ones in
      * his group.
      *
      * @param client XML-RPC Client.
@@ -137,17 +137,17 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all or part of the Templates in the pool. The Templates to retrieve
+     * Retrieves all or part of the MarketPlaceApps in the pool. The MarketPlaceApps to retrieve
      * can be also filtered by Id, specifying the first and last Id to include.
      *
      * @param client XML-RPC Client.
      * @param filter Filter flag to use. Possible values:
      * <ul>
-     * <li>{@link Pool#ALL}: All Templates</li>
-     * <li>{@link Pool#MINE}: Connected user's Templates</li>
-     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * <li>{@link Pool#ALL}: All MarketPlaceApps</li>
+     * <li>{@link Pool#MINE}: Connected user's MarketPlaceApps</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's MarketPlaceApps, and the ones in
      * his group</li>
-     * <li>&gt;= 0: UID User's Templates</li>
+     * <li>&gt;= 0 UID User's MarketPlaceApps</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve
@@ -162,10 +162,10 @@ public class TemplatePool extends Pool implements Iterable<Template>
 
     /**
      * Loads the xml representation of all or part of the
-     * Templates in the pool. The filter used is the one set in
+     * MarketPlaceApps in the pool. The filter used is the one set in
      * the constructor.
      *
-     * @see TemplatePool#info(Client, int)
+     * @see MarketPlaceAppPool#info(Client, int)
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -176,7 +176,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Loads the xml representation of all the Templates in the pool.
+     * Loads the xml representation of all the MarketPlaceApps in the pool.
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -187,7 +187,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Loads the xml representation of all the connected user's Templates.
+     * Loads the xml representation of all the connected user's MarketPlaceApps.
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -198,7 +198,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Loads the xml representation of all the connected user's Templates and
+     * Loads the xml representation of all the connected user's MarketPlaceApps and
      * the ones in his group.
      *
      * @return If successful the message contains the string
@@ -210,16 +210,16 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Retrieves all or part of the Templates in the pool. The Templates to retrieve
+     * Retrieves all or part of the MarketPlaceApps in the pool. The MarketPlaceApps to retrieve
      * can be also filtered by Id, specifying the first and last Id to include.
      *
      * @param filter Filter flag to use. Possible values:
      * <ul>
-     * <li>{@link Pool#ALL}: All Templates</li>
-     * <li>{@link Pool#MINE}: Connected user's Templates</li>
-     * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
+     * <li>{@link Pool#ALL}: All MarketPlaceApps</li>
+     * <li>{@link Pool#MINE}: Connected user's MarketPlaceApps</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's MarketPlaceApps, and the ones in
      * his group</li>
-     * <li>&gt;= 0: UID User's Templates</li>
+     * <li>&gt;= 0 UID User's MarketPlaceApps</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve
@@ -231,18 +231,18 @@ public class TemplatePool extends Pool implements Iterable<Template>
         return super.info(filter, startId, endId);
     }
 
-    public Iterator<Template> iterator()
+    public Iterator<MarketPlaceApp> iterator()
     {
-        AbstractList<Template> ab = new AbstractList<Template>()
+        AbstractList<MarketPlaceApp> ab = new AbstractList<MarketPlaceApp>()
         {
             public int size()
             {
                 return getLength();
             }
 
-            public Template get(int index)
+            public MarketPlaceApp get(int index)
             {
-                return (Template) item(index);
+                return (MarketPlaceApp) item(index);
             }
         };
 
@@ -250,14 +250,14 @@ public class TemplatePool extends Pool implements Iterable<Template>
     }
 
     /**
-     * Returns the Template with the given Id from the pool. If it is not found,
+     * Returns the MarketPlaceApp with the given Id from the pool. If it is not found,
      * then returns null. The method {@link #info()} must be called before.
      *
-     * @param id of the ACl rule to retrieve
-     * @return The Template with the given Id, or null if it was not found.
+     * @param id of the MarketPlaceApp to retrieve
+     * @return The MarketPlaceApp with the given Id, or null if it was not found.
      */
-    public Template getById(int id)
+    public MarketPlaceApp getById(int id)
     {
-        return (Template) super.getById(id);
+        return (MarketPlaceApp) super.getById(id);
     }
 }

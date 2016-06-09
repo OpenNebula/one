@@ -161,8 +161,7 @@ public class Host extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The host id (hid) of the target machine.
-     * @param enable If set true OpenNebula will enable the
-     * target host, if set false it will disable it.
+     * @param status Host status
      * @return A encapsulated response.
      */
     public static OneResponse status(Client client, int id, Status status)
@@ -319,7 +318,7 @@ public class Host extends PoolElement{
 
     /**
      * Returns the state of the Host.
-     * <br/>
+     * <br>
      * The method {@link Host#info()} must be called before.
      *
      * @return The state of the Host.
@@ -332,7 +331,7 @@ public class Host extends PoolElement{
 
     /**
      * Returns the short length string state of the Host.
-     * <br/>
+     * <br>
      * The method {@link Host#info()} must be called before.
      *
      * @return The short length string state of the Host.

@@ -40,12 +40,14 @@ public class VirtualNetworkTest
     private static String template =
                         "NAME = " + name + "\n"+
                         "BRIDGE = vbr0\n" +
+                        "VN_MAD = dummy\n" +
                         "NETWORK_ADDRESS = 192.168.0.0\n"+
                         "AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = 254 ]\n";
 
     private static String second_template =
                         "NAME   = \"Net number one\"\n" +
                         "BRIDGE = br1\n" +
+                        "VN_MAD = dummy\n" +
                         "AR = [ TYPE = IP4, IP=130.10.0.1, SIZE = 1]";
 
     /**
@@ -73,6 +75,8 @@ public class VirtualNetworkTest
     public void setUp() throws Exception
     {
         res = VirtualNetwork.allocate(client, template);
+
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         int vnid = !res.isError() ? Integer.parseInt(res.getMessage()) : -1;
         vnet     = new VirtualNetwork(vnid, client);

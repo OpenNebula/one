@@ -228,7 +228,7 @@ public class User extends PoolElement{
      * @param username of the user
      * @param token the login token, if empty OpenNebula will
      *   generate one
-     * @param expire valid period of the token in secs. If <= 0
+     * @param expire valid period of the token in secs. If &lt;= 0
      *   the token will be reset
      * @return token in case of success, Error otherwise
      */
@@ -376,7 +376,7 @@ public class User extends PoolElement{
      *
      * @param token the login token, if empty OpenNebula will
      *   generate one
-     * @param expire valid period of the token in secs. If <= 0
+     * @param expire valid period of the token in secs. If &lt;= 0
      *   the token will be reset
      * @return token in case of success, Error otherwise
      */

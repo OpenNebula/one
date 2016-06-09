@@ -44,6 +44,7 @@ public class VirtualRouterTest
 
     private static String template_str =
         "NAME = \"" + name + "\"\n" +
+		"VROUTER = YES\n" +
         "ATT1 = \"VAL1\"\n" +
         "ATT2 = \"VAL2\"";
 
@@ -98,7 +99,8 @@ public class VirtualRouterTest
         vrouter = new VirtualRouter(oid, client);
 
 
-        vrouterPool.info();
+        res = vrouterPool.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         boolean found = false;
         for(VirtualRouter temp : vrouterPool)
@@ -273,6 +275,7 @@ public class VirtualRouterTest
         String tmpl_str =
             "NAME = vrtemplate\n"+
             "CPU = 0.1\n"+
+            "VROUTER = YES\n"+
             "MEMORY = 64\n";
 
         res = Template.allocate(client, tmpl_str);

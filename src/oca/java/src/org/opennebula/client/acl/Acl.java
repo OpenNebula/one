@@ -28,10 +28,10 @@ import org.w3c.dom.Node;
 /**
  * This class represents an OpenNebula ACL rule.
  * It also offers static XML-RPC call wrappers.
- * <br/>
+ * <br>
  * There is not a public constructor, because the information for an individual
  * ACL rule cannot be retrieved from OpenNebula.
- * <br/>
+ * <br>
  * Instead, Acl objects should be obtained using AclPool.getById, after the
  * info method has been called.
  *

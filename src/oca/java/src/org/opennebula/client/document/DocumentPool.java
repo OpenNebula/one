@@ -25,9 +25,9 @@ import org.opennebula.client.Pool;
  * </p>
  * Documents are generic objects. You can dynamically create new Pools in
  * OpenNebula, creating subclasses with different TYPE values.
- * <br/>
+ * <br>
  * TYPE must be the same for the corresponding pool element, see {@link Document}
- * <br/>
+ * <br>
  * For example:
  * <pre>
  * <code>
@@ -111,7 +111,7 @@ public abstract class DocumentPool extends Pool
      * <li>{@link Pool#MINE}: Connected user's Documents</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Documents, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Documents</li>
+     * <li>&gt;= 0 UID User's Documents</li>
      * </ul>
      */
     public DocumentPool(Client client, int filter)
@@ -191,7 +191,7 @@ public abstract class DocumentPool extends Pool
      * <li>{@link Pool#MINE}: Connected user's Documents</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Documents, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Documents</li>
+     * <li>&gt;= 0 UID User's Documents</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve

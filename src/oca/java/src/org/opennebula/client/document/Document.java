@@ -24,9 +24,9 @@ import org.w3c.dom.Node;
  * This class represents an OpenNebula document.
  * Documents are generic objects. You can dynamically create new Pools in
  * OpenNebula, creating subclasses with different TYPE values.
- * <br/>
+ * <br>
  * TYPE must be the same for the corresponding pool, see {@link DocumentPool}
- * <br/>
+ * <br>
  * For example:
  * <pre>
  * <code>

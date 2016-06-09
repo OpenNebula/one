@@ -36,6 +36,7 @@ public class SecurityGroup extends PoolElement{
     private static final String CHMOD           = METHOD_PREFIX + "chmod";
     private static final String CLONE           = METHOD_PREFIX + "clone";
     private static final String RENAME          = METHOD_PREFIX + "rename";
+    private static final String COMMIT          = METHOD_PREFIX + "commit";
 
     /**
      * Creates a new security group representation.
@@ -211,6 +212,21 @@ public class SecurityGroup extends PoolElement{
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * Commit security group changes to associated VMs
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target security group.
+     * @param recover If true will only operate on outdated and error VMs.
+     * This is intended for retrying updates of VMs or reinitialize the
+     * updating process if oned stopped or fail.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse commit(Client client, int id, boolean recover)
+    {
+        return client.call(COMMIT, id, recover);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -361,6 +377,19 @@ public class SecurityGroup extends PoolElement{
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Commit security group changes to associated VMs
+     *
+     * @param recover If true will only operate on outdated and error VMs.
+     * This is intended for retrying updates of VMs or reinitialize the
+     * updating process if oned stopped or fail.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse commit(boolean recover)
+    {
+        return commit(client, id, recover);
     }
 
     // =================================

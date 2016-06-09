@@ -68,7 +68,7 @@ public class AclTest
     {
         for(Acl rule : aclPool)
         {
-            if( rule.id() > 3 )
+            if( rule.id() > 4 )
             {
                 rule.delete();
             }
@@ -81,7 +81,7 @@ public class AclTest
         res = aclPool.info();
         assertTrue( res.getErrorMessage(), !res.isError() );
 
-        assertEquals(4, aclPool.getLength());
+        assertEquals(5, aclPool.getLength());
     }
 /*
     @Test
@@ -240,13 +240,13 @@ public class AclTest
             assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
-            assertEquals( 5, aclPool.getLength() );
+            assertEquals( 6, aclPool.getLength() );
 
             res = Acl.delete(client, res.getIntMessage());
             assertTrue( res.getErrorMessage(), !res.isError() );
 
             aclPool.info();
-            assertEquals( 4, aclPool.getLength() );
+            assertEquals( 5, aclPool.getLength() );
         }
         catch (RuleParseException e)
         {
