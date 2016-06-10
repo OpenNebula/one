@@ -204,6 +204,12 @@ SUPPORT = {
     :project => "OpenNebula"
 }
 
+UPGRADE = {
+    :upgrade => "<span style='color: #0098c3'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fa fa-exclamation-circle'></i></span>",
+    :no_upgrade => "",
+    :url => "http://opennebula.org/software/"
+}
+
 ##############################################################################
 # Helpers
 ##############################################################################
@@ -465,7 +471,8 @@ get '/' do
     erb :index, :locals => {
         :logos_conf => logos_conf,
         :oned_conf  => oned_conf,
-        :support    => SUPPORT
+        :support    => SUPPORT,
+        :upgrade    => UPGRADE
     }
 end
 

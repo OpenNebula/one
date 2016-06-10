@@ -18,10 +18,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var TAB_ID = 'upgrade-top-tab';
 
-  var UPGRADE     = "<span style='color: #0098c3'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fa fa-exclamation-circle'></i></span>";
-  var NO_UPGRADE  = "";
-  var UPGRADE_URL = "http://opennebula.org/software/";
-
   var Tab = {
     tabId: TAB_ID,
     title: "",
@@ -33,7 +29,7 @@ define(function(require) {
 
   function _setup() {
     $('#li_upgrade-top-tab > a').on("click", function(e){
-      window.location = UPGRADE_URL;
+      window.location = config['upgrade']['url'];
       return false;
     });
 
@@ -50,9 +46,9 @@ define(function(require) {
         var tab_title;
 
         if (remote_version && (version < remote_version)) {
-          tab_title = UPGRADE;
+          tab_title = config['upgrade']['upgrade'];
         } else {
-          tab_title = NO_UPGRADE;
+          tab_title = config['upgrade']['no_upgrade'];
         }
 
         $("li[id$='upgrade-top-tab'] > a").html(tab_title);
