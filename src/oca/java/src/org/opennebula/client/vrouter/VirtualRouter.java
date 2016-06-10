@@ -231,6 +231,34 @@ public class VirtualRouter extends PoolElement
         return client.call(RENAME, id, name);
     }
 
+    /**
+     * Attaches a NIC to this VirtualRouter, and each one of its VMs
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target VirtualRouter.
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse nicAttach(Client client, int id,
+            String nicTemplate)
+    {
+        return client.call(ATTACHNIC, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from this VirtualRouter, and each one of its VMs
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target VirtualRouter.
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse nicDetach(Client client, int id,
+            int nicId)
+    {
+        return client.call(DETACHNIC, id, nicId);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -433,6 +461,28 @@ public class VirtualRouter extends PoolElement
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Attaches a NIC to this VirtualRouter, and each one of its VMs
+     *
+     * @param nicTemplate Template containing the new NIC definition
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse nicAttach(String nicTemplate)
+    {
+        return nicAttach(client, id, nicTemplate);
+    }
+
+    /**
+     * Detaches a NIC from this VirtualRouter, and each one of its VMs
+     *
+     * @param nicId The NIC_ID of the NIC to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse nicDetach(int nicId)
+    {
+        return nicDetach(client, id, nicId);
     }
 
     // =================================

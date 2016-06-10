@@ -51,6 +51,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DISKSNAPSHOTCREATE  = METHOD_PREFIX + "disksnapshotcreate";
     private static final String DISKSNAPSHOTREVERT  = METHOD_PREFIX + "disksnapshotrevert";
     private static final String DISKSNAPSHOTDELETE  = METHOD_PREFIX + "disksnapshotdelete";
+    private static final String UPDATECONF          = METHOD_PREFIX + "updateconf";
 
     private static final String[] VM_STATES =
     {
@@ -64,7 +65,9 @@ public class VirtualMachine extends PoolElement{
         "FAILED",
         "POWEROFF",
         "UNDEPLOYED",
-        "CLONING" };
+        "CLONING",
+        "CLONING_FAILURE"
+    };
 
     private static final String[] SHORT_VM_STATES =
     {
@@ -78,7 +81,9 @@ public class VirtualMachine extends PoolElement{
         "fail",
         "poff",
         "unde",
-        "clon" };
+        "clon",
+        "fail"
+    };
 
     private static final String[] LCM_STATE =
     {
@@ -625,27 +630,28 @@ public class VirtualMachine extends PoolElement{
 
     /**
      * Submits an action to be performed on the virtual machine.
-     * <br/>
+     * <br>
      * It is recommended to use the helper methods instead:
      * <ul>
-     * <li>{@link VirtualMachine#shutdown(boolean)}</li>
+     * <li>{@link VirtualMachine#terminate(boolean)}</li>
      * <li>{@link VirtualMachine#reboot(boolean)}</li>
      * <li>{@link VirtualMachine#hold()}</li>
      * <li>{@link VirtualMachine#release()}</li>
      * <li>{@link VirtualMachine#stop()}</li>
      * <li>{@link VirtualMachine#suspend()}</li>
      * <li>{@link VirtualMachine#resume()}</li>
-     * <li>{@link VirtualMachine#delete(boolean)}</li>
-     * <li>{@link VirtualMachine#poweroff()}</li>
+     * <li>{@link VirtualMachine#poweroff(boolean)}</li>
      * <li>{@link VirtualMachine#resched()}</li>
      * <li>{@link VirtualMachine#unresched()}</li>
      * <li>{@link VirtualMachine#undeploy(boolean)}</li>
      * </ul>
      *
-     * @param action The action name to be performed, can be:<br/>
-     * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
-     * "resume", "delete", "delete-recreate", "reboot", "resched",
-     * "unresched", "reboot-hard", "poweroff", "undeploy", "undeploy-hard"
+     * @param action The action name to be performed, can be:<br>
+     * 
+     * "terminate-hard", "terminate", "undeploy-hard", "undeploy",
+     * "poweroff-hard", "poweroff", "reboot-hard", "reboot", "hold",
+     * "release", "stop", "suspend", "resume", "resched", "unresched"
+     * 
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
@@ -997,8 +1003,15 @@ public class VirtualMachine extends PoolElement{
     /**
      * Recovers a stuck VM.
      *
-     * @param operation to recover the VM: (0) failure, (1) success or (2)
-     * retry
+     * @param operation to recover the VM:
+     * <ul>
+     * <li>0 failure</li>
+     * <li>1 success</li>
+     * <li>2 retry</li>
+     * <li>3 delete</li>
+     * <li>4 delete-recreate</li>
+     * </ul>
+     * 
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse recover(int operation)
@@ -1014,9 +1027,9 @@ public class VirtualMachine extends PoolElement{
      * Gracefully shuts down the already deployed VM.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse shutdown()
+    public OneResponse terminate()
     {
-        return shutdown(false);
+        return terminate(false);
     }
 
     /**
@@ -1025,9 +1038,9 @@ public class VirtualMachine extends PoolElement{
      * graceful shutdown
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse shutdown(boolean hard)
+    public OneResponse terminate(boolean hard)
     {
-        String actionSt = hard ? "shutdown-hard" : "shutdown";
+        String actionSt = hard ? "terminate-hard" : "terminate";
 
         return action(actionSt);
     }
@@ -1135,27 +1148,6 @@ public class VirtualMachine extends PoolElement{
     public OneResponse resume()
     {
         return action("resume");
-    }
-
-    /**
-     * Deletes the VM from the pool and database.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse delete()
-    {
-        return delete(false);
-    }
-
-    /**
-     * Deletes the VM from the pool and database.
-     * @param recreate True to recreate the VM in the pending state.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse delete(boolean recreate)
-    {
-        String actionSt = recreate ? "delete-recreate" : "delete";
-
-        return action(actionSt);
     }
 
     /**
@@ -1280,53 +1272,9 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Cancels the running VM.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by hard shutdown {@link #shutdown(boolean)}
-     */
-    @Deprecated public OneResponse cancel()
-    {
-        return action("cancel");
-    }
-
-    /**
-     * Resets a running VM.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by hard reboot {@link #reboot(boolean)}
-     */
-    @Deprecated public OneResponse reset()
-    {
-        return action("reset");
-    }
-
-    /**
-     * Deletes the VM from the pool and database.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by {@link #delete}
-     */
-    @Deprecated public OneResponse finalizeVM()
-    {
-        return action("finalize");
-    }
-
-    /**
-     * Resubmits a VM to PENDING state.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by delete and recreate {@link #delete(boolean)}
-     */
-    @Deprecated public OneResponse resubmit()
-    {
-        return action("resubmit");
-    }
-
-    /**
      * Performs a live migration of the virtual machine to the
      * target host (hid).
-     * <br/>
+     * <br>
      * It does the same as {@link VirtualMachine#migrate(int, boolean)}
      * with live set to true.
      *

@@ -148,7 +148,13 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
         add_template_attribute("VLAN_ID", vlan_id);
 
+        remove_template_attribute("AUTOMATIC_VLAN_ID");
+
         vlan_id_automatic = false;
+    }
+    else
+    {
+        erase_template_attribute("AUTOMATIC_VLAN_ID", vlan_id_automatic);
     }
 
     // ------------ BRIDGE --------------------
@@ -278,6 +284,8 @@ int VirtualNetwork::post_update_template(string& error)
     erase_template_attribute("PHYDEV", phydev);
 
     add_template_attribute("PHYDEV", phydev);
+
+    remove_template_attribute("AUTOMATIC_VLAN_ID");
 
     if (!vlan_id_automatic)
     {
@@ -464,14 +472,13 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     if (!vlan_id.empty())
     {
         os << "<VLAN_ID>" << one_util::escape_xml(vlan_id) << "</VLAN_ID>";
-        os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic
-           <<"</VLAN_ID_AUTOMATIC>";
     }
     else
     {
         os << "<VLAN_ID/>";
-        os << "<VLAN_ID_AUTOMATIC/>";
     }
+
+    os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic <<"</VLAN_ID_AUTOMATIC>";
 
     if (ar_pool.external_ipam() == 0)
     {

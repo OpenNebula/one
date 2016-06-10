@@ -46,7 +46,12 @@ define(function(require) {
     title: TemplateTitle(),
     listHeader: 'Commercial Support Requests',
     infoHeader: 'Commercial Support Request',
-    subheader: TemplateSubheader(),
+    subheader: TemplateSubheader({
+      'support_subscription': config['support']['support_subscription'],
+      'account': config['support']['account'],
+      'docs': config['support']['docs'],
+      'community': config['support']['community']
+    }),
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),

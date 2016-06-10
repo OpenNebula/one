@@ -94,6 +94,7 @@ require 'tmpdir'
 require 'fileutils'
 require 'base64'
 require 'rexml/document'
+require 'uri'
 
 require 'CloudAuth'
 require 'SunstoneServer'
@@ -122,6 +123,11 @@ CloudServer.print_configuration($conf)
 set :config, $conf
 set :bind, $conf[:host]
 set :port, $conf[:port]
+
+if (proxy = $conf[:proxy])
+    ENV['http_proxy'] = proxy
+    ENV['HTTP_PROXY'] = proxy
+end
 
 case $conf[:sessions]
 when 'memory', nil
@@ -170,7 +176,6 @@ end
 
 set :cloud_auth, $cloud_auth
 
-
 $views_config = SunstoneViews.new
 
 #start VNC proxy
@@ -185,6 +190,25 @@ end
 
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
+
+SUPPORT = {
+    :zendesk_url => "https://opennebula.zendesk.com/api/v2",
+    :custom_field_version => 391130,
+    :custom_field_severity => 391197,
+    :author_id => 21231023,
+    :author_name => "OpenNebula Support Team",
+    :support_subscription => "http://opennebula.systems/support/",
+    :account => "http://opennebula.systems/buy/",
+    :docs => "http://docs.opennebula.org/5.0/",
+    :community => "http://opennebula.org/support/community/",
+    :project => "OpenNebula"
+}
+
+UPGRADE = {
+    :upgrade => "<span style='color: #0098c3'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fa fa-exclamation-circle'></i></span>",
+    :no_upgrade => "",
+    :url => "http://opennebula.org/software/"
+}
 
 ##############################################################################
 # Helpers
@@ -326,7 +350,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice).include?(request.path)
+    unless %w(/ /login /vnc /spice /version).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -444,7 +468,12 @@ get '/' do
 
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index, :locals => {:logos_conf => logos_conf, :oned_conf => oned_conf}
+    erb :index, :locals => {
+        :logos_conf => logos_conf,
+        :oned_conf  => oned_conf,
+        :support    => SUPPORT,
+        :upgrade    => UPGRADE
+    }
 end
 
 get '/login' do
@@ -470,6 +499,23 @@ get '/spice' do
     else
         erb :spice
     end
+end
+
+get '/version' do
+    version = {}
+
+    if (remote_version_url = $conf[:remote_version])
+        begin
+            version = JSON.parse(Net::HTTP.get(URI(remote_version_url)))
+        rescue Exception
+        end
+    end
+
+    if !version[:version] || version[:version].empty?
+        version[:version] = OpenNebula::VERSION
+    end
+
+    [200, version.to_json]
 end
 
 ##############################################################################

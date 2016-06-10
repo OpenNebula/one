@@ -47,7 +47,9 @@
         'zone_name' : '<%= session[:zone_name] %>',
         'zone_id' : '<%= session[:zone_id] %>',
         'vm_logos' : <%= logos_conf.to_json %>,
-        'oned_conf' : <%= oned_conf.to_json %>
+        'oned_conf' : <%= oned_conf.to_json %>,
+        'support' : <%= support.to_json %>,
+        'upgrade' : <%= upgrade.to_json %>
       };
     </script>
 

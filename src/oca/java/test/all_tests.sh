@@ -33,47 +33,54 @@ else
     cp oned.conf $ONEDCONF_LOCATION
 fi
 
-export ONE_XMLRPC=http://localhost:2666/RPC2
+export ONE_XMLRPC=http://localhost:2633/RPC2
 
 RC=0
 
-./test.sh HostTest
+LOG_FILE="/tmp/one-java-test.txt"
+
+rm $LOG_FILE
+
+./test.sh HostTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh ImageTest
+./test.sh ImageTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh SessionTest
+./test.sh SessionTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh UserTest
+./test.sh UserTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh VirtualMachineTest
+./test.sh VirtualMachineTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh VirtualNetworkTest
+./test.sh VirtualNetworkTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh TemplateTest
+./test.sh TemplateTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh GroupTest
+./test.sh GroupTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh AclTest
+./test.sh AclTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh DocumentTest
+./test.sh DocumentTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh VdcTest
+./test.sh VdcTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh SecurityGroupTest
+./test.sh SecurityGroupTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
 
-./test.sh VirtualRouterTest
+./test.sh VirtualRouterTest 2>&1 | tee -a $LOG_FILE
 let RC=RC+$?
+
+echo ""
+echo "Output saved in $LOG_FILE"
 
 exit $RC

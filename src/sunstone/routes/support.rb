@@ -29,8 +29,7 @@ helpers do
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
           # Mandatory:
-
-          config.url = "https://opennebula.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+          config.url = SUPPORT[:zendesk_url]
 
           # Basic / Token Authentication
           config.username = session["zendesk_email"]
@@ -56,11 +55,6 @@ helpers do
           # Changes Faraday adapter
           # config.adapter = :patron
 
-          # Merged with the default client options hash
-          if ENV['http_proxy']
-            config.client_options = { :proxy => ENV['http_proxy'] }
-          end
-
           # When getting the error 'hostname does not match the server certificate'
           # use the API at https://yoursubdomain.zendesk.com/api/v2
         end
@@ -84,11 +78,12 @@ helpers do
             "comments" => []
         }
 
+
         zrequest.custom_fields.each { |field|
             case field.id
-            when 391130
+            when SUPPORT[:custom_field_version]
                 one_zrequest["opennebula_version"] = field.value
-            when 391197
+            when SUPPORT[:custom_field_severity]
                 one_zrequest["severity"] = field.value
             end
         }
@@ -174,8 +169,8 @@ post '/support/request' do
             :subject => body_hash['subject'],
             :comment => { :value => body_hash['description'] },
             :custom_fields => [
-              {:id => 391197, :value => body_hash['severity']},
-              {:id => 391130, :value => body_hash['opennebula_version']}
+              {:id => SUPPORT[:custom_field_severity], :value => body_hash['severity']},
+              {:id => SUPPORT[:custom_field_version], :value => body_hash['opennebula_version']}
             ]
           })
 

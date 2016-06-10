@@ -21,6 +21,10 @@ import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -39,6 +43,8 @@ public abstract class Pool{
     protected String   elementName;
     protected String   infoMethod;
     protected NodeList poolElements;
+
+    protected static XPath xpath;
 
     /**
      * All resources in the pool
@@ -67,6 +73,12 @@ public abstract class Pool{
         this.elementName = elementName;
         this.infoMethod  = infoMethod;
         this.client      = client;
+        
+        if(xpath == null)
+        {
+            XPathFactory factory = XPathFactory.newInstance();
+            xpath = factory.newXPath();
+        }
     }
 
     /**
@@ -171,11 +183,12 @@ public abstract class Pool{
                 new ByteArrayInputStream(info.getMessage().getBytes()));
             xml = doc.getDocumentElement();
 
-            poolElements = xml.getElementsByTagName(elementName);
+            poolElements = (NodeList) xpath.evaluate(elementName, xml, XPathConstants.NODESET);
         }
         catch (ParserConfigurationException e) {}
         catch (SAXException e) {}
         catch (IOException e) {}
+        catch (XPathExpressionException e) {}
     }
 
     /**

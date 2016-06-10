@@ -82,11 +82,11 @@ public class VirtualMachineTest
 
 
         res = Host.allocate(client, "host_A",
-                            "dummy", "dummy", "dummy");
+                            "dummy", "dummy");
         hid_A = Integer.parseInt( res.getMessage() );
 
         res = Host.allocate(client, "host_B",
-                            "dummy", "dummy", "dummy");
+                            "dummy", "dummy");
         hid_B = Integer.parseInt( res.getMessage() );
 
         Datastore systemDs = new Datastore(0, client);
@@ -124,7 +124,7 @@ public class VirtualMachineTest
     @After
     public void tearDown() throws Exception
     {
-        vm.finalizeVM();
+        vm.recover(3);
         waitAssert(vm, "DONE", "-");
 
         vm = null;
@@ -197,29 +197,29 @@ public class VirtualMachineTest
         vm.deploy(hid_A);
         waitAssert(vm, "ACTIVE", "RUNNING");
 
-        res = vm.liveMigrate(hid_B);
+        res = vm.migrate(hid_B, true);
         assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "ACTIVE", "RUNNING");
     }
 
     @Test
-    public void shutdown()
+    public void terminate()
     {
         vm.deploy(hid_A);
         waitAssert(vm, "ACTIVE", "RUNNING");
 
-        res = vm.shutdown();
+        res = vm.terminate();
         assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
     }
 
     @Test
-    public void cancel()
+    public void terminatehard()
     {
         vm.deploy(hid_A);
         waitAssert(vm, "ACTIVE", "RUNNING");
 
-        res = vm.cancel();
+        res = vm.terminate(true);
         assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
     }
@@ -261,11 +261,11 @@ public class VirtualMachineTest
     }
 
     @Test
-    public void finalizeVM()
+    public void delete()
     {
         vm.deploy(hid_A);
         waitAssert(vm, "ACTIVE", "RUNNING");
-        res = vm.finalizeVM();
+        res = vm.recover(3);
 
         assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "DONE", "-");
@@ -278,11 +278,11 @@ public class VirtualMachineTest
     }
 
     @Test
-    public void resubmit()
+    public void deleteRecreate()
     {
         vm.deploy(hid_A);
         waitAssert(vm, "ACTIVE", "RUNNING");
-        res = vm.resubmit();
+        res = vm.recover(4);
 
         assertTrue( res.getErrorMessage(), !res.isError() );
         waitAssert(vm, "PENDING", "-");

@@ -237,10 +237,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     nic_attach_desc = <<-EOT.unindent
         Attaches a NIC to a VirtualRouter, and each one of its VMs. When using
         --file add only one NIC instance.
+
+        Note if you are using a HA configuration for this router, --float can be
+        added. When an IP is requested in HA clusters use --float.
     EOT
 
     command :"nic-attach", nic_attach_desc, :vrouterid,
-            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, OneVMHelper::IP] do
+            :options => [OneVMHelper::FILE, OneVMHelper::NETWORK, OneVMHelper::IP,
+                         OneVirtualRouterHelper::FLOAT] do
 
         if options[:file].nil? and options[:network].nil?
             STDERR.puts "Provide a template file or a network:"
@@ -253,12 +257,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             template = File.read(options[:file])
         else
             network_id = options[:network]
-            ip = options[:ip]
+            ip         = options[:ip]
+            float      = options[:float]
+
+            template = "NIC = [ NETWORK_ID = #{network_id}"
+
             if ip
-                template = "NIC = [ NETWORK_ID = #{network_id}, IP = #{ip} ]"
-            else
-                template = "NIC = [ NETWORK_ID = #{network_id} ]"
+                template += ", IP = #{ip}"
             end
+
+            if float
+                template += ", FLOATING_IP =\"yes\""
+            end
+
+            template += " ]"
         end
 
         helper.perform_action(args[0],options,"Attach NIC") do |vr|

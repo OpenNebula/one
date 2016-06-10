@@ -75,7 +75,7 @@ define(function(require) {
         "X_VCENTER_HOST": opts.vcenter_host
       },
       success: function(response){
-        $(".content", context).html("");
+        $(".vcenter_datacenter_list", context).html("");
 
         $.each(response, function(datacenter_name, templates){
           var content;
@@ -96,7 +96,7 @@ define(function(require) {
                 '</legend>' +
               '</fieldset>';
 
-            $(".content", context).append(content);
+            $(".vcenter_datacenter_list", context).append(content);
           } else {
             var tableId = "vcenter_template_table_" + datacenter_name;
             content = 
@@ -142,7 +142,7 @@ define(function(require) {
                 '</div>';
               '</fieldset>';
 
-            $(".content", context).append(content);
+            $(".vcenter_datacenter_list", context).append(content);
 
             var preDrawCallback = function (settings) {
                 $('#' + tableId).html(EmptyTableTemplate());

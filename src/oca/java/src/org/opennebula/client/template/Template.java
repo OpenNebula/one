@@ -107,11 +107,12 @@ public class Template extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param id The template id of the target template we want to delete.
+     * @param recursive deletes the template plus any image defined in DISK.
      * @return A encapsulated response.
      */
-    public static OneResponse delete(Client client, int id)
+    public static OneResponse delete(Client client, int id, boolean recursive)
     {
-        return client.call(DELETE, id);
+        return client.call(DELETE, id, recursive);
     }
 
     /**
@@ -179,10 +180,42 @@ public class Template extends PoolElement
                                     int group_u, int group_m, int group_a,
                                     int other_u, int other_m, int other_a)
     {
-        return chmod(client, CHMOD, id,
+        return client.call(CHMOD, id,
                             owner_u, owner_m, owner_a,
                             group_u, group_m, group_a,
-                            other_u, other_m, other_a);
+                            other_u, other_m, other_a,
+                            false);
+    }
+
+    /**
+     * Changes the template permissions
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id of the target template.
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id,
+                                    int owner_u, int owner_m, int owner_a,
+                                    int group_u, int group_m, int group_a,
+                                    int other_u, int other_m, int other_a,
+                                    boolean recursive)
+    {
+        return client.call(CHMOD, id,
+                            owner_u, owner_m, owner_a,
+                            group_u, group_m, group_a,
+                            other_u, other_m, other_a,
+                            recursive);
     }
 
     /**
@@ -195,7 +228,38 @@ public class Template extends PoolElement
      */
     public static OneResponse chmod(Client client, int id, String octet)
     {
-        return chmod(client, CHMOD, id, octet);
+        return chmod(client, id, octet, false);
+    }
+
+
+    /**
+     * Changes the permissions
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, String octet,
+        boolean recursive)
+    {
+        int owner_u = (Integer.parseInt(octet.substring(0, 1)) & 4) != 0 ? 1 : 0;
+        int owner_m = (Integer.parseInt(octet.substring(0, 1)) & 2) != 0 ? 1 : 0;
+        int owner_a = (Integer.parseInt(octet.substring(0, 1)) & 1) != 0 ? 1 : 0;
+        int group_u = (Integer.parseInt(octet.substring(1, 2)) & 4) != 0 ? 1 : 0;
+        int group_m = (Integer.parseInt(octet.substring(1, 2)) & 2) != 0 ? 1 : 0;
+        int group_a = (Integer.parseInt(octet.substring(1, 2)) & 1) != 0 ? 1 : 0;
+        int other_u = (Integer.parseInt(octet.substring(2, 3)) & 4) != 0 ? 1 : 0;
+        int other_m = (Integer.parseInt(octet.substring(2, 3)) & 2) != 0 ? 1 : 0;
+        int other_a = (Integer.parseInt(octet.substring(2, 3)) & 1) != 0 ? 1 : 0;
+
+        return chmod(client, id,
+                owner_u, owner_m, owner_a,
+                group_u, group_m, group_a,
+                other_u, other_m, other_a,
+                recursive);
     }
 
     /**
@@ -208,7 +272,23 @@ public class Template extends PoolElement
      */
     public static OneResponse chmod(Client client, int id, int octet)
     {
-        return chmod(client, CHMOD, id, octet);
+        return chmod(client, id, octet, false);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse chmod(Client client, int id, int octet,
+        boolean recursive)
+    {
+        return chmod(client, id, Integer.toString(octet), recursive);
     }
 
     /**
@@ -220,12 +300,14 @@ public class Template extends PoolElement
      * @param onHold False to create this VM in pending state, true on hold
      * @param template User provided Template to merge with the one
      * being instantiated
+     * @param persistent true to create a private persistent copy of the
+     * template plus any image defined in DISK, and instantiate that copy
      * @return If successful the message contains the VM Instance ID.
      */
     public static OneResponse instantiate(Client client, int id, String name,
-        boolean onHold, String template)
+        boolean onHold, String template, boolean persistent)
     {
-        return client.call(INSTANTIATE, id, name, onHold, template);
+        return client.call(INSTANTIATE, id, name, onHold, template, persistent);
     }
 
     /**
@@ -238,7 +320,23 @@ public class Template extends PoolElement
      */
     public static OneResponse clone(Client client, int id, String name)
     {
-        return client.call(CLONE, id, name);
+        return clone(client, id, name);
+    }
+
+    /**
+     * Clones this template into a new one
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id of the target template.
+     * @param name Name for the new template.
+     * @param recursive clones the template plus any image defined in DISK.
+     * The new IMAGE_ID is set into each DISK.
+     * @return If successful the message contains the new template ID.
+     */
+    public static OneResponse clone(Client client, int id, String name,
+        boolean recursive)
+    {
+        return client.call(CLONE, id, name, recursive);
     }
 
     /**
@@ -291,7 +389,18 @@ public class Template extends PoolElement
      */
     public OneResponse delete()
     {
-        return delete(client, id);
+        return delete(client, id, false);
+    }
+
+    /**
+     * Deletes the template from OpenNebula.
+     * @param recursive deletes the template plus any image defined in DISK.
+     *
+     * @return A encapsulated response.
+     */
+    public OneResponse delete(boolean recursive)
+    {
+        return delete(client, id, recursive);
     }
 
     /**
@@ -403,7 +512,36 @@ public class Template extends PoolElement
         return chmod(client, id,
                     owner_u, owner_m, owner_a,
                     group_u, group_m, group_a,
-                    other_u, other_m, other_a);
+                    other_u, other_m, other_a,
+                    false);
+    }
+
+    /**
+     * Changes the template permissions
+     *
+     * @param owner_u 1 to allow, 0 deny, -1 do not change
+     * @param owner_m 1 to allow, 0 deny, -1 do not change
+     * @param owner_a 1 to allow, 0 deny, -1 do not change
+     * @param group_u 1 to allow, 0 deny, -1 do not change
+     * @param group_m 1 to allow, 0 deny, -1 do not change
+     * @param group_a 1 to allow, 0 deny, -1 do not change
+     * @param other_u 1 to allow, 0 deny, -1 do not change
+     * @param other_m 1 to allow, 0 deny, -1 do not change
+     * @param other_a 1 to allow, 0 deny, -1 do not change
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int owner_u, int owner_m, int owner_a,
+                             int group_u, int group_m, int group_a,
+                             int other_u, int other_m, int other_a,
+                             boolean recursive)
+    {
+        return chmod(client, id,
+                    owner_u, owner_m, owner_a,
+                    group_u, group_m, group_a,
+                    other_u, other_m, other_a,
+                    recursive);
     }
 
     /**
@@ -414,7 +552,20 @@ public class Template extends PoolElement
      */
     public OneResponse chmod(String octet)
     {
-        return chmod(client, id, octet);
+        return chmod(client, id, octet, false);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(String octet, boolean recursive)
+    {
+        return chmod(client, id, octet, recursive);
     }
 
     /**
@@ -425,7 +576,20 @@ public class Template extends PoolElement
      */
     public OneResponse chmod(int octet)
     {
-        return chmod(client, id, octet);
+        return chmod(client, id, octet, false);
+    }
+
+    /**
+     * Changes the permissions
+     *
+     * @param octet Permissions octed , e.g. 640
+     * @param recursive chmods the template plus any image defined in DISK.
+     * 
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse chmod(int octet, boolean recursive)
+    {
+        return chmod(client, id, octet, recursive);
     }
 
     /**
@@ -435,11 +599,15 @@ public class Template extends PoolElement
      * @param onHold False to create this VM in pending state, true on hold
      * @param template User provided Template to merge with the one
      * being instantiated
+     * @param persistent true to create a private persistent copy of the
+     * template plus any image defined in DISK, and instantiate that copy
+     * 
      * @return If successful the message contains the VM Instance ID.
      */
-    public OneResponse instantiate(String name, boolean onHold, String template)
+    public OneResponse instantiate(String name, boolean onHold,
+        String template, boolean persistent)
     {
-        return instantiate(client, id, name, onHold, template);
+        return instantiate(client, id, name, onHold, template, persistent);
     }
 
     /**
@@ -450,7 +618,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate(String name)
     {
-        return instantiate(client, id, name, false, "");
+        return instantiate(client, id, name, false, "", false);
     }
 
     /**
@@ -460,7 +628,7 @@ public class Template extends PoolElement
      */
     public OneResponse instantiate()
     {
-        return instantiate(client, id, "", false, "");
+        return instantiate(client, id, "", false, "", false);
     }
 
     /**
@@ -472,6 +640,19 @@ public class Template extends PoolElement
     public OneResponse clone(String name)
     {
         return clone(client, id, name);
+    }
+
+    /**
+     * Clones this template into a new one
+     *
+     * @param name Name for the new template.
+     * @param recursive clones the template plus any image defined in DISK.
+     * The new IMAGE_ID is set into each DISK.
+     * @return If successful the message contains the new template ID.
+     */
+    public OneResponse clone(String name, boolean recursive)
+    {
+        return clone(client, id, name, recursive);
     }
 
     /**

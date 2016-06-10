@@ -61,7 +61,7 @@ public class ImagePool extends Pool implements Iterable<Image>
      * <li>{@link Pool#MINE}: Connected user's Images</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Images, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li>&gt;= 0 UID User's Images</li>
      * </ul>
      */
     public ImagePool(Client client, int filter)
@@ -89,7 +89,7 @@ public class ImagePool extends Pool implements Iterable<Image>
      * <li>{@link Pool#MINE}: Connected user's Images</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Images, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li>&gt;= 0 UID User's Images</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -147,7 +147,7 @@ public class ImagePool extends Pool implements Iterable<Image>
      * <li>{@link Pool#MINE}: Connected user's Images</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Images, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li>&gt;= 0 UID User's Images</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve
@@ -219,7 +219,7 @@ public class ImagePool extends Pool implements Iterable<Image>
      * <li>{@link Pool#MINE}: Connected user's Images</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Images, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's Images</li>
+     * <li>&gt;= 0 UID User's Images</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve

@@ -1,9 +1,9 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR 2002-2016, OpenNebula Project, OpenNebula Systems
+# This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# Hsi En Yu <yun@narlabs.org.tw>, 2013-2016
+# Hsi En Yu <yun@narlabs.org.tw>, 2013-2015
 # Hsi En Yu <yun@narlabs.org.tw>, 2012-2013
 # Jonathan Chen <jonathanchen.nchc@gmail.com>, 2013
 # Pellaeon Lin <nfsmwlin@gmail.com>, 2012
@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-01 10:50+0200\n"
-"PO-Revision-Date: 2015-09-13 04:25+0000\n"
-"Last-Translator: Hsi En Yu <yun@narlabs.org.tw>\n"
+"POT-Creation-Date: 2016-06-10 18:30+0200\n"
+"PO-Revision-Date: 2016-06-01 09:00+0000\n"
+"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/opennebula/one/language/zh_TW/)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -32,27 +32,22 @@ msgstr ""
 msgid "Datastores"
 msgstr "資料存放區"
 
-#: ../app/tabs/datastores-tab.js:51 ../app/tabs/files-tab/datatable.js:69
-#: ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable.js:69
+#: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
+#: ../app/tabs/images-tab/datatable-common.js:66
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:84
 #: ../app/utils/vcenter/images.js:103
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/files-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
 msgid "Datastore"
 msgstr "資料存放區"
 
 #: ../app/tabs/groups-tab/actions.js:33
-#, fuzzy
 msgid "Group created"
-msgstr "主機叢集已建立"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create.js:53
 msgid "Create Group"
@@ -60,13 +55,12 @@ msgstr "建立群組"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:73
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
-#: ../app/tabs/files-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
@@ -75,10 +69,10 @@ msgstr "建立群組"
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
 #: ../app/tabs/vms-tab/form-panels/create.js:51
-#: ../app/tabs/images-tab/form-panels/create.js:57
+#: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
-#: ../app/tabs/provision-tab/vms/create.hbs:39
-#: ../app/tabs/provision-tab/flows/create.hbs:29
+#: ../app/tabs/provision-tab/vms/create.hbs:45
+#: ../app/tabs/provision-tab/flows/create.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:189
 #: ../app/sunstone/buttons.hbs:30
 msgid "Create"
@@ -92,7 +86,7 @@ msgstr "修改群組"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create.js:69
+#: ../app/tabs/templates-tab/form-panels/create-common.js:78
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -104,9 +98,9 @@ msgstr "修改群組"
 #: ../app/tabs/vnets-tab/buttons.js:40
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/clusters-tab/buttons.js:33
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:28
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:30
 #: ../app/utils/dialogs/overcommit/html.hbs:65
 msgid "Update"
 msgstr "修改"
@@ -120,7 +114,7 @@ msgid "Quotas"
 msgstr "配額"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions.js:54
+#: ../app/tabs/templates-tab/actions-common.js:58
 #: ../app/tabs/templates-tab/buttons.js:81
 #: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
 #: ../app/tabs/provision-tab/templates/list.js:172
@@ -128,7 +122,7 @@ msgstr "配額"
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
-#: ../app/tabs/datastores-tab/buttons.js:57 ../app/tabs/files-tab/buttons.js:57
+#: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
 #: ../app/tabs/oneflow-services-tab/buttons.js:52
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
@@ -143,13 +137,12 @@ msgid "Delete"
 msgstr "刪除"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable.js:66
+#: ../app/tabs/templates-tab/datatable-common.js:64
 #: ../app/tabs/vrouters-tab/datatable.js:58
 #: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
 #: ../app/tabs/oneflow-templates-tab/datatable.js:62
 #: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/files-tab/datatable.js:65
 #: ../app/tabs/marketplaces-tab/datatable.js:80
 #: ../app/tabs/oneflow-services-tab/datatable.js:63
 #: ../app/tabs/secgroups-tab/datatable.js:62
@@ -161,7 +154,7 @@ msgstr "刪除"
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable.js:65
+#: ../app/tabs/images-tab/datatable-common.js:62
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -172,12 +165,11 @@ msgstr "刪除"
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:43
 #: ../app/tabs/zones-tab/panels/info/html.hbs:27
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:27
-#: ../app/tabs/provision-tab/vms/list.hbs:52
+#: ../app/tabs/provision-tab/vms/list.hbs:53
 #: ../app/tabs/provision-tab/flows/list.hbs:46
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:142
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:27
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:27
-#: ../app/tabs/files-tab/panels/info/html.hbs:27
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:27
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:27
@@ -193,12 +185,11 @@ msgid "ID"
 msgstr "ID"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:67
 #: ../app/tabs/vrouters-tab/datatable.js:61
 #: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
 #: ../app/tabs/oneflow-templates-tab/datatable.js:65
 #: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/files-tab/datatable.js:68
 #: ../app/tabs/marketplaces-tab/datatable.js:83
 #: ../app/tabs/oneflow-services-tab/datatable.js:66
 #: ../app/tabs/secgroups-tab/datatable.js:65
@@ -208,35 +199,34 @@ msgstr "ID"
 #: ../app/tabs/users-tab/datatable.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable.js:68 ../app/utils/vcenter/images.js:130
-#: ../app/utils/vcenter/templates.js:137 ../app/utils/vcenter/datastores.js:128
-#: ../app/utils/vcenter/networks.js:136
+#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/utils/vcenter/images.js:124 ../app/utils/vcenter/templates.js:137
+#: ../app/utils/vcenter/datastores.js:128 ../app/utils/vcenter/networks.js:136
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/groups-tab/panels/info/html.hbs:32
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
-#: ../app/tabs/provision-tab/vms/list.hbs:53
+#: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:24
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -289,11 +279,10 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable.js:71
+#: ../app/tabs/templates-tab/datatable-common.js:69
 #: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/oneflow-templates-tab/datatable.js:66
 #: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/files-tab/datatable.js:77
 #: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/oneflow-services-tab/datatable.js:68
 #: ../app/tabs/secgroups-tab/datatable.js:66
@@ -302,9 +291,9 @@ msgstr "CPU"
 #: ../app/tabs/clusters-tab/datatable.js:67
 #: ../app/tabs/users-tab/datatable.js:75
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable.js:77
-#: ../app/tabs/provision-tab/vms/create.hbs:72
-#: ../app/tabs/provision-tab/flows/create.hbs:54
+#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/provision-tab/vms/create.hbs:78
+#: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
 msgstr ""
 
@@ -326,13 +315,12 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/panels/info.js:47
 #: ../app/tabs/vdcs-tab/panels/info.js:41
-#: ../app/tabs/templates-tab/panels/info.js:47
+#: ../app/tabs/templates-tab/panels/info-common.js:44
 #: ../app/tabs/vrouters-tab/panels/info.js:53
 #: ../app/tabs/zones-tab/panels/info.js:45
 #: ../app/tabs/hosts-tab/panels/info.js:58
 #: ../app/tabs/oneflow-templates-tab/panels/info.js:46
 #: ../app/tabs/datastores-tab/panels/info.js:49
-#: ../app/tabs/files-tab/panels/info.js:51
 #: ../app/tabs/marketplaces-tab/panels/info.js:48
 #: ../app/tabs/oneflow-services-tab/panels/info.js:47
 #: ../app/tabs/secgroups-tab/panels/info.js:49
@@ -341,7 +329,7 @@ msgstr ""
 #: ../app/tabs/clusters-tab/panels/info.js:46
 #: ../app/tabs/users-tab/panels/info.js:51
 #: ../app/tabs/vms-tab/panels/info.js:51
-#: ../app/tabs/images-tab/panels/info.js:50
+#: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
 msgstr "訊息"
 
@@ -351,15 +339,14 @@ msgstr "訊息"
 #: ../app/tabs/zones-tab/panels/info.js:66
 #: ../app/tabs/hosts-tab/panels/info.js:96
 #: ../app/tabs/datastores-tab/panels/info.js:72
-#: ../app/tabs/files-tab/panels/info.js:71
 #: ../app/tabs/marketplaces-tab/panels/info.js:71
-#: ../app/tabs/secgroups-tab/panels/info.js:87
+#: ../app/tabs/secgroups-tab/panels/info.js:84
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
 #: ../app/tabs/users-tab/panels/info.js:78
 #: ../app/tabs/vms-tab/panels/info.js:94
-#: ../app/tabs/images-tab/panels/info.js:70
+#: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
 msgstr "屬性"
 
@@ -451,7 +438,7 @@ msgid "Clusters"
 msgstr "主機叢集"
 
 #: ../app/tabs/vdcs-tab/datatable.js:69 ../app/tabs/acls-tab/datatable.js:136
-#: ../app/tabs/hosts-tab.js:50 ../app/tabs/hosts-tab.js:54
+#: ../app/tabs/hosts-tab.js:51 ../app/tabs/hosts-tab.js:55
 #: ../app/tabs/clusters-tab/datatable.js:64
 #: ../app/tabs/clusters-tab/panels/hosts.js:39
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:21
@@ -499,9 +486,9 @@ msgstr ""
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:73
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:138
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:57
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:79
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:52
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:59
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:81
 #: ../app/utils/accounting/html.hbs:39
 msgid "All"
 msgstr "全部"
@@ -511,27 +498,23 @@ msgstr "全部"
 msgid "Resources"
 msgstr "資源"
 
-#: ../app/tabs/templates-tab/actions.js:36
-#: ../app/tabs/templates-tab/actions.js:218
-#: ../app/tabs/templates-tab/actions.js:229
-#: ../app/tabs/marketplaceapps-tab/actions.js:76
-#, fuzzy
-msgid "VM Template created"
-msgstr "VM範本"
-
-#: ../app/tabs/templates-tab/actions.js:50
-msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
+#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+msgid "Create VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions.js:53
-msgid "Delete all images"
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+msgid "Update VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions.js:154
-#: ../app/tabs/templates-tab/actions.js:199 ../app/tabs/vms-tab/actions.js:40
+#: ../app/tabs/templates-tab/form-panels/create-common.js:66
 #, fuzzy
-msgid "VM created"
-msgstr "磁碟影像檔名稱"
+msgid "Create Virtual Router VM Template"
+msgstr "將虛擬機器另存成範本"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:67
+#, fuzzy
+msgid "Update Virtual Router VM Template"
+msgstr "將虛擬機器另存成範本"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -539,29 +522,21 @@ msgstr "VM範本實例化"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
 #: ../app/tabs/oneflow-templates-tab/buttons.js:33
 msgid "Instantiate"
 msgstr "實例化"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:111
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
 msgid "No template selected"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:211
-#: ../app/tabs/vrouters-tab/form-panels/create.js:135
-#: ../app/tabs/provision-tab.js:965 ../app/tabs/provision-tab.js:1209
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
+#: ../app/tabs/vrouters-tab/form-panels/create.js:129
+#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
 #: ../app/utils/user-inputs.js:226
 msgid "Custom Attributes"
 msgstr "自訂屬性"
-
-#: ../app/tabs/templates-tab/form-panels/create.js:63
-msgid "Create VM Template"
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create.js:68
-msgid "Update VM Template"
-msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import.js:50
 msgid "Import vCenter VM Templates"
@@ -581,8 +556,8 @@ msgstr "匯入"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:56
 #: ../app/tabs/vms-tab/panels/storage.js:159
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:43
 msgid "Context"
 msgstr "虛擬化環境變數"
 
@@ -608,28 +583,24 @@ msgstr ""
 msgid "OS Booting"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:377
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:378
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:34
-#, fuzzy
 msgid "Image ID"
-msgstr "磁碟影像檔"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:379
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:380
 msgid "Volatile"
-msgstr "揮發性磁碟"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:398
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:405
 msgid "Network ID"
-msgstr "網路"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:400
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:407
 msgid "Manual settings"
-msgstr "設定值"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:410
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:417
 msgid "Disks and NICs will appear here"
 msgstr ""
 
@@ -639,7 +610,7 @@ msgid "Storage"
 msgstr "儲存"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:161
-#: ../app/utils/disks-resize.js:127
+#: ../app/utils/disks-resize.js:134
 msgid "DISK"
 msgstr "磁碟"
 
@@ -655,7 +626,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:53
 #: ../app/utils/nics-section/html.hbs:3
 msgid "Network"
@@ -689,77 +660,98 @@ msgstr ""
 msgid "Provider"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:49
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:53
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:20
 msgid "General"
 msgstr "一般"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:147
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
 #: ../app/utils/vcenter/templates.js:233
 msgid "Which datastore you want this VM to run on?"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:168
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
 #: ../app/utils/vcenter/templates.js:254
 msgid "Which resource pool you want this VM to run in?"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:39
+#: ../app/tabs/templates-tab/actions-common.js:227
+#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/marketplaceapps-tab/actions.js:76
+msgid "VM Template created"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:54
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:57
+msgid "Delete all images"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:158
+#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/vms-tab/actions.js:40
+msgid "VM created"
 msgstr ""
 
 #: ../app/tabs/templates-tab/buttons.js:49
 #: ../app/tabs/vrouters-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
-#: ../app/tabs/datastores-tab/buttons.js:43 ../app/tabs/files-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
 #: ../app/tabs/oneflow-services-tab/buttons.js:28
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
-#: ../app/tabs/vms-tab/buttons.js:33 ../app/tabs/images-tab/buttons.js:42
+#: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
 msgid "Change owner"
 msgstr "變更擁有者"
 
 #: ../app/tabs/templates-tab/buttons.js:52
 #: ../app/tabs/vrouters-tab/buttons.js:35
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
-#: ../app/tabs/datastores-tab/buttons.js:46 ../app/tabs/files-tab/buttons.js:35
+#: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
 #: ../app/tabs/oneflow-services-tab/buttons.js:30
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
-#: ../app/tabs/vms-tab/buttons.js:36 ../app/tabs/images-tab/buttons.js:45
+#: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
 msgid "Select the new owner"
 msgstr "選擇新的擁有者"
 
 #: ../app/tabs/templates-tab/buttons.js:56
 #: ../app/tabs/vrouters-tab/buttons.js:39
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
-#: ../app/tabs/datastores-tab/buttons.js:50 ../app/tabs/files-tab/buttons.js:39
+#: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
 #: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
-#: ../app/tabs/vms-tab/buttons.js:40 ../app/tabs/images-tab/buttons.js:49
+#: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
 msgid "Change group"
 msgstr "變更群組"
 
 #: ../app/tabs/templates-tab/buttons.js:59
 #: ../app/tabs/vrouters-tab/buttons.js:42
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
-#: ../app/tabs/datastores-tab/buttons.js:53 ../app/tabs/files-tab/buttons.js:42
+#: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
 #: ../app/tabs/oneflow-services-tab/buttons.js:37
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
-#: ../app/tabs/vms-tab/buttons.js:43 ../app/tabs/images-tab/buttons.js:52
+#: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
 msgid "Select the new group"
 msgstr "選擇新的群組"
 
 #: ../app/tabs/templates-tab/buttons.js:64
 #: ../app/tabs/oneflow-templates-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:52 ../app/tabs/images-tab/buttons.js:77
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:38
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:40
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:45
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:41
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:45
 msgid "Clone"
 msgstr "製作複本"
 
@@ -781,30 +773,28 @@ msgstr ""
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:65
 #: ../app/tabs/vrouters-tab/datatable.js:59
 #: ../app/tabs/oneflow-templates-tab/datatable.js:63
 #: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/files-tab/datatable.js:66
 #: ../app/tabs/marketplaces-tab/datatable.js:81
 #: ../app/tabs/oneflow-services-tab/datatable.js:64
 #: ../app/tabs/secgroups-tab/datatable.js:63
 #: ../app/tabs/vnets-tab/datatable.js:65
 #: ../app/tabs/marketplaceapps-tab/datatable.js:82
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable.js:66
+#: ../app/tabs/images-tab/datatable-common.js:63
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "擁有者"
 
-#: ../app/tabs/templates-tab/datatable.js:68
+#: ../app/tabs/templates-tab/datatable-common.js:66
 #: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
 #: ../app/tabs/oneflow-templates-tab/datatable.js:64
 #: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/files-tab/datatable.js:67
 #: ../app/tabs/marketplaces-tab/datatable.js:82
 #: ../app/tabs/oneflow-services-tab/datatable.js:65
 #: ../app/tabs/secgroups-tab/datatable.js:64
@@ -812,7 +802,7 @@ msgstr "擁有者"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
@@ -824,37 +814,38 @@ msgstr "擁有者"
 msgid "Group"
 msgstr "群組"
 
-#: ../app/tabs/templates-tab/datatable.js:70
-#: ../app/tabs/files-tab/datatable.js:72 ../app/tabs/images-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/images-tab/datatable-common.js:69
 msgid "Registration time"
 msgstr "建立時間"
 
-#: ../app/tabs/templates-tab/datatable.js:77
+#: ../app/tabs/templates-tab/datatable-common.js:75
 #: ../app/tabs/oneflow-templates-tab/datatable.js:72
 msgid "Please select a Template from the list"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:78
+#: ../app/tabs/templates-tab/datatable-common.js:76
 #: ../app/tabs/oneflow-templates-tab/datatable.js:73
 msgid "You selected the following Template:"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:79
+#: ../app/tabs/templates-tab/datatable-common.js:77
 #: ../app/tabs/oneflow-templates-tab/datatable.js:74
 msgid "Please select one or more Templates from the list"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:80
+#: ../app/tabs/templates-tab/datatable-common.js:78
 #: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "You selected the following Templates:"
 msgstr ""
 
-#: ../app/tabs/templates-tab/panels/template.js:45
-#: ../app/tabs/vms-tab/panels/template.js:39
-#: ../app/tabs/vms-tab/panels/template.js:63
+#: ../app/tabs/templates-tab/panels/template-common.js:43
+#: ../app/tabs/oneflow-templates-tab/panels/template.js:45
+#: ../app/tabs/vms-tab/panels/template.js:40
+#: ../app/tabs/vms-tab/panels/template.js:69
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
-#: ../app/tabs/provision-tab/vms/create.hbs:44
-#: ../app/tabs/provision-tab/flows/create.hbs:34
+#: ../app/tabs/provision-tab/vms/create.hbs:50
+#: ../app/tabs/provision-tab/flows/create.hbs:38
 msgid "Template"
 msgstr "範本"
 
@@ -864,49 +855,41 @@ msgid "System"
 msgstr "系統"
 
 #: ../app/tabs/vrouters-tab/actions.js:31
-#, fuzzy
 msgid "Virtual Router created"
-msgstr "虛擬化資源"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create.js:60
-#, fuzzy
 msgid "Create Virtual Router"
-msgstr "建立虛擬網路"
+msgstr ""
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:205
+#: ../app/tabs/vrouters-tab/form-panels/create.js:199
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:67
-#, fuzzy
 msgid "Please select a virtual router from the list"
-msgstr "請選擇一個磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:68
-#, fuzzy
 msgid "You selected the following virtual router:"
-msgstr "你已選擇下列主機叢集:"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:69
-#, fuzzy
 msgid "Please select one or more virtual routers from the list"
-msgstr "請選擇一或多個主機叢集"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:70
-#, fuzzy
 msgid "You selected the following virtual routers:"
-msgstr "你已選擇下列主機叢集:"
+msgstr ""
 
-#: ../app/tabs/vrouters-tab/panels/info.js:153
-#: ../app/tabs/vms-tab/panels/network.js:395
-#, fuzzy
+#: ../app/tabs/vrouters-tab/panels/info.js:154
+#: ../app/tabs/vms-tab/panels/network.js:396
 msgid "This will detach the nic immediately"
-msgstr "選取的服務範本將會立刻刪除"
+msgstr ""
 
 #: ../app/tabs/zones-tab/actions.js:31
-#, fuzzy
 msgid "Zone created"
-msgstr "磁碟影像檔名稱"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:64
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -934,9 +917,8 @@ msgid "Infrastructure"
 msgstr "基礎設施"
 
 #: ../app/tabs/hosts-tab/actions.js:33
-#, fuzzy
 msgid "Host created"
-msgstr "主機叢集已建立"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
@@ -948,19 +930,16 @@ msgid "Select cluster"
 msgstr "選擇主機叢集"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
-#, fuzzy
 msgid "Select the destination cluster"
-msgstr "選擇目標主機叢集"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/datastores-tab/buttons.js:63
-#: ../app/tabs/files-tab/buttons.js:47
 #: ../app/tabs/marketplaceapps-tab/buttons.js:55
 #: ../app/tabs/images-tab/buttons.js:57
 msgid "Enable"
 msgstr "啟用"
 
 #: ../app/tabs/hosts-tab/buttons.js:44 ../app/tabs/datastores-tab/buttons.js:68
-#: ../app/tabs/files-tab/buttons.js:52
 #: ../app/tabs/marketplaceapps-tab/buttons.js:60
 #: ../app/tabs/images-tab/buttons.js:62
 msgid "Disable"
@@ -1015,9 +994,8 @@ msgstr "已配置記憶體"
 
 #: ../app/tabs/hosts-tab/datatable.js:75
 #: ../app/tabs/datastores-tab/datatable.js:89
-#: ../app/tabs/files-tab/datatable.js:74
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable.js:74
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
 msgid "Status"
 msgstr "狀態"
@@ -1067,7 +1045,7 @@ msgstr "實際記憶體"
 msgid "ESX"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:55
+#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:56
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
@@ -1098,6 +1076,10 @@ msgstr "總計"
 msgid "PCI"
 msgstr ""
 
+#: ../app/tabs/hosts-tab/panels/zombies.js:48
+msgid "Zombies"
+msgstr ""
+
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
 msgstr ""
@@ -1113,19 +1095,37 @@ msgid "Import Wilds"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
-#: ../app/utils/vcenter/images.js:259 ../app/utils/vcenter/templates.js:301
+#: ../app/utils/vcenter/images.js:260 ../app/utils/vcenter/templates.js:301
 #: ../app/utils/vcenter/datastores.js:264 ../app/utils/vcenter/networks.js:335
 #: ../app/utils/vcenter/clusters.js:208
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線狀況?"
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
-#: ../app/tabs/hosts-tab.js:56 ../app/tabs/vms-tab.js:71
+#: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
 #: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:32
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "總計"
+
+#: ../app/tabs/vrouter-templates-tab.js:44
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
+#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
+#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
+msgid "Virtual Routers"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab.js:48
+#, fuzzy
+msgid "Virtual Router VM Templates"
+msgstr "將虛擬機器另存成範本"
+
+#: ../app/tabs/vrouter-templates-tab.js:49
+#, fuzzy
+msgid "Virtual Router VM Template"
+msgstr "將虛擬機器另存成範本"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1138,16 +1138,15 @@ msgstr "範本"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
 #: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:626 ../app/tabs/provision-tab.js:807
-#: ../app/tabs/provision-tab.js:1078
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
+#: ../app/tabs/provision-tab.js:1070
 msgid "There are no templates available"
 msgstr "沒有範本可以使用"
 
 #: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:639
-#, fuzzy
+#: ../app/tabs/provision-tab.js:627
 msgid "No labels defined"
-msgstr "沒有磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:148
 msgid "Create a template by saving a running Virtual Machine"
@@ -1158,23 +1157,22 @@ msgid "SHARED"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:252
-#: ../app/tabs/provision-tab/vms/list.js:230
+#: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
-#: ../app/tabs/provision-tab/vms/create.hbs:65
+#: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:273
-#, fuzzy
 msgid "Handle with care! This action will immediately destroy the template"
-msgstr "請謹慎處理，這個操作將會直接刪除範本"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:275
 msgid "and the image associated."
 msgstr "以及相關的磁碟影像檔"
 
 #: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:369
+#: ../app/tabs/provision-tab/templates/list.js:371
 msgid "The template"
 msgstr ""
 
@@ -1186,15 +1184,15 @@ msgstr ""
 msgid "Share template"
 msgstr ""
 
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:373
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr ""
 
-#: ../app/tabs/provision-tab/templates/list.js:375
+#: ../app/tabs/provision-tab/templates/list.js:377
 msgid "Unshare template"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:71
+#: ../app/tabs/provision-tab/vms/list.js:76
 #: ../app/tabs/acls-tab/datatable.js:139
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:18
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:75
@@ -1202,100 +1200,99 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr "虛擬機器"
 
-#: ../app/tabs/provision-tab/vms/list.js:92
-#: ../app/tabs/provision-tab/vms/list.js:156
+#: ../app/tabs/provision-tab/vms/list.js:97
+#: ../app/tabs/provision-tab/vms/list.js:161
 msgid "There are no Virtual Machines"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:500 ../app/tabs/templates-tab.js:52
+#: ../app/tabs/provision-tab/vms/list.js:505 ../app/tabs/templates-tab.js:52
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:53
 msgid "VM Template"
 msgstr "VM範本"
 
-#: ../app/tabs/provision-tab/vms/list.js:500
+#: ../app/tabs/provision-tab/vms/list.js:505
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
 msgstr "儲存成功"
 
-#: ../app/tabs/provision-tab/vms/list.js:508
+#: ../app/tabs/provision-tab/vms/list.js:513
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:825
-#: ../app/tabs/provision-tab/vms/list.js:833
-#: ../app/tabs/provision-tab/vms/list.js:839
-#: ../app/tabs/provision-tab/vms/list.js:848
-#: ../app/tabs/provision-tab/vms/list.js:939
-#: ../app/tabs/provision-tab/vms/list.js:1005
+#: ../app/tabs/provision-tab/vms/list.js:796
+#: ../app/tabs/provision-tab/vms/list.js:804
+#: ../app/tabs/provision-tab/vms/list.js:810
+#: ../app/tabs/provision-tab/vms/list.js:819
+#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:976
 #: ../app/tabs/provision-tab/flows/list.js:633 ../app/opennebula/role.js:45
 #: ../app/opennebula/service.js:27
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:54
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:66
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:54
 msgid "DEPLOYING"
 msgstr "部署中"
 
-#: ../app/tabs/provision-tab/vms/list.js:867
+#: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:188
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:56
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
 msgstr "運行中"
 
-#: ../app/tabs/provision-tab/vms/list.js:877
+#: ../app/tabs/provision-tab/vms/list.js:848
 msgid "SAVING IMAGE"
 msgstr "磁碟影像檔儲存中"
 
-#: ../app/tabs/provision-tab/vms/list.js:895
-#: ../app/tabs/provision-tab/vms/list.js:944
-#: ../app/tabs/provision-tab/vms/list.js:1009 ../app/tabs/hosts-tab.js:59
+#: ../app/tabs/provision-tab/vms/list.js:866
+#: ../app/tabs/provision-tab/vms/list.js:915
+#: ../app/tabs/provision-tab/vms/list.js:980 ../app/tabs/hosts-tab.js:60
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/host.js:42
 #: ../app/opennebula/host.js:54 ../app/opennebula/image.js:28
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:70
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:86
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:70
 #: ../app/tabs/dashboard-tab/hosts.hbs:27
 msgid "ERROR"
 msgstr "異常"
 
-#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:881
 msgid "POWERING OFF"
 msgstr "關機中"
 
-#: ../app/tabs/provision-tab/vms/list.js:914
-#: ../app/tabs/provision-tab/vms/list.js:918
-#: ../app/tabs/provision-tab/vms/list.js:949
-#: ../app/tabs/provision-tab/vms/list.js:1017
+#: ../app/tabs/provision-tab/vms/list.js:885
+#: ../app/tabs/provision-tab/vms/list.js:889
+#: ../app/tabs/provision-tab/vms/list.js:920
+#: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:201
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
 msgid "UNKNOWN"
 msgstr "異常"
 
-#: ../app/tabs/provision-tab/vms/list.js:928
-#: ../app/tabs/provision-tab/vms/list.js:999 ../app/tabs/hosts-tab.js:58
+#: ../app/tabs/provision-tab/vms/list.js:899
+#: ../app/tabs/provision-tab/vms/list.js:970 ../app/tabs/hosts-tab.js:59
 #: ../app/tabs/vms-tab.js:73 ../app/opennebula/datastore.js:26
 #: ../app/opennebula/host.js:59 ../app/tabs/provision-tab/dashboard/vms.hbs:62
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:76
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:62
 #: ../app/tabs/dashboard-tab/hosts.hbs:26
 msgid "OFF"
 msgstr "關機"
 
-#: ../app/tabs/provision-tab/vms/list.js:933
-#, fuzzy
+#: ../app/tabs/provision-tab/vms/list.js:904
 msgid "UNDEPLOYED"
-msgstr "關機封存"
+msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:994
+#: ../app/tabs/provision-tab/vms/list.js:965
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 msgid "READY"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:1013
+#: ../app/tabs/provision-tab/vms/list.js:984
 msgid "DELETING"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:57
-#: ../app/tabs/oneflow-templates-tab.js:47
+#: ../app/tabs/oneflow-templates-tab.js:48
 #: ../app/tabs/oneflow-services-tab.js:46
 #: ../app/tabs/oneflow-services-tab.js:50
 #: ../app/utils/menu/provision-top-row.hbs:42
@@ -1307,7 +1304,7 @@ msgid "There are no Services"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:110
-#: ../app/tabs/oneflow-templates-tab.js:56
+#: ../app/tabs/oneflow-templates-tab.js:57
 #: ../app/tabs/oneflow-services-tab.js:55
 msgid "Cannot connect to OneFlow server"
 msgstr "無法連線至OneFlow伺服器"
@@ -1324,7 +1321,7 @@ msgstr ""
 msgid "Change Cardinality"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:122
 msgid "The cardinality for this role cannot be changed"
 msgstr ""
 
@@ -1334,15 +1331,13 @@ msgstr ""
 msgid "Dismiss Alert"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:193
-#, fuzzy
+#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:146
 msgid "Number of VMs for Role"
-msgstr "此角色的名稱"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:500
-#, fuzzy
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr "請小心，這個操作將會直接銷毀虛擬機器"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:502
 #: ../app/tabs/provision-tab/flows/list.js:523
@@ -1350,9 +1345,8 @@ msgid "All the information will be lost!"
 msgstr "所有的資訊將會被清除!"
 
 #: ../app/tabs/provision-tab/flows/list.js:521
-#, fuzzy
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr "請小心，這個操作將會直接銷毀虛擬機器"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:527
 #: ../app/tabs/oneflow-services-tab/buttons.js:43
@@ -1411,8 +1405,6 @@ msgid "Virtual Networks"
 msgstr "虛擬網路"
 
 #: ../app/tabs/vnets-tab.js:57 ../app/tabs/secgroups-tab/utils/common.js:94
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:25
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:25
 msgid "Virtual Network"
 msgstr "虛擬網路"
 
@@ -1429,9 +1421,8 @@ msgid "Access Control Lists"
 msgstr "存取控制清單"
 
 #: ../app/tabs/acls-tab/actions.js:32
-#, fuzzy
 msgid "ACL Rule created"
-msgstr "主機叢集已建立"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
@@ -1540,23 +1531,13 @@ msgstr ""
 msgid "VDCs"
 msgstr ""
 
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
-#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
-#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
-#, fuzzy
-msgid "Virtual Routers"
-msgstr "虛擬化資源"
-
 #: ../app/tabs/acls-tab/datatable.js:178
-#, fuzzy
 msgid "Marketplaces"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:181
-#, fuzzy
 msgid "Marketplace Apps"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:56
 #: ../app/utils/accounting.js:349
@@ -1580,21 +1561,19 @@ msgid "Cluster ID"
 msgstr "主機叢集ID"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:33
-#, fuzzy
 msgid "Service Template created"
-msgstr "建立服務範本"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
 #: ../app/tabs/oneflow-services-tab/actions.js:34
-#, fuzzy
 msgid "Service created"
-msgstr "建立服務範本"
+msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:55
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
 msgid "Instantiate Service Template"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:141
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:156
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:18
 msgid "Role"
 msgstr "角色"
@@ -1613,7 +1592,7 @@ msgstr "修改服務範本"
 msgid "Can only contain alphanumeric and underscore characters"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:431
 msgid "Role "
 msgstr "角色 "
 
@@ -1626,9 +1605,8 @@ msgid "Upload a file"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/actions.js:34
-#, fuzzy
 msgid "Datastore created"
-msgstr "磁碟影像檔建立成功"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
@@ -1639,14 +1617,13 @@ msgid "Please select a cluster for this datastore"
 msgstr "請選擇一個主機叢集用來配置資料存放區"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Datastores"
-msgstr "建立資料存放區"
+msgstr ""
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:230
+#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
 #: ../app/tabs/marketplaces-tab/datatable.js:84
 #: ../app/tabs/vms-tab/panels/capacity.js:52
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:24
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:21
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:47
@@ -1667,11 +1644,11 @@ msgid "DS MAD"
 msgstr "資料存放區中介組件"
 
 #: ../app/tabs/datastores-tab/datatable.js:88
-#: ../app/tabs/files-tab/datatable.js:71 ../app/tabs/vnets-tab/panels/ar.js:304
+#: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
 #: ../app/tabs/marketplaceapps-tab/datatable.js:88
 #: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable.js:71
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1681,10 +1658,9 @@ msgstr "資料存放區中介組件"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:109
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:37
-#: ../app/tabs/files-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:91
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:129
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:51
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:45
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:25
@@ -1713,156 +1689,87 @@ msgstr "請選擇一或多個資料存放區"
 msgid "You selected the following datastores:"
 msgstr "你已選擇下列資料存放區:"
 
-#: ../app/tabs/provision-tab.js:110
+#: ../app/tabs/provision-tab.js:111
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:22
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:52
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:24
 msgid "Cardinality"
 msgstr "基數"
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:766 ../app/tabs/provision-tab.js:844
-#: ../app/tabs/provision-tab/vms/create.hbs:66
+#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:768 ../app/tabs/provision-tab.js:846
-#: ../app/tabs/provision-tab/vms/create.hbs:67
-#, fuzzy
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
-msgstr "群組"
+msgstr ""
 
-#: ../app/tabs/provision-tab.js:770 ../app/tabs/provision-tab.js:848
-#: ../app/tabs/provision-tab/vms/create.hbs:68
-#, fuzzy
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
-msgstr "系統"
+msgstr ""
 
-#: ../app/tabs/provision-tab.js:997 ../app/tabs/provision-tab.js:1242
+#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
 msgid "You must select at least a template configuration"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab.js:51
-#, fuzzy
-msgid "Service Templates"
-msgstr "自存範本"
-
 #: ../app/tabs/oneflow-templates-tab.js:52
-#, fuzzy
+msgid "Service Templates"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab.js:53
 msgid "Service Template"
-msgstr "建立服務範本"
+msgstr ""
 
 #: ../app/tabs/files-tab/actions.js:30
-#, fuzzy
 msgid "File created"
-msgstr "主機叢集已建立"
-
-#: ../app/tabs/files-tab/form-panels/create.js:54
-msgid "Create File"
-msgstr "建立檔案"
-
-#: ../app/tabs/files-tab/form-panels/create.js:173
-#: ../app/tabs/images-tab/form-panels/create.js:278
-msgid "Uploading..."
-msgstr "上傳中"
-
-#: ../app/tabs/files-tab/form-panels/create.js:199
-#: ../app/tabs/files-tab/form-panels/create.js:279
-msgid "Please select a datastore for this file"
-msgstr "請選擇一個資料存放區用來存放檔案"
-
-#: ../app/tabs/files-tab/form-panels/create.js:236
-#: ../app/tabs/images-tab/form-panels/create.js:386
-msgid "Please select a file to upload"
 msgstr ""
 
-#: ../app/tabs/files-tab/form-panels/create.js:244
-#: ../app/tabs/images-tab/form-panels/create.js:394
-msgid "Registering in OpenNebula"
-msgstr ""
-
-#: ../app/tabs/files-tab/datatable.js:70
-#: ../app/tabs/secgroups-tab/utils/common.js:108
-#: ../app/tabs/vnets-tab/panels/ar.js:309
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable.js:70
-#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:131
-#: ../app/tabs/files-tab/panels/info/html.hbs:56
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:104
-#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
-#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
-#: ../app/tabs/images-tab/panels/info/html.hbs:67
-#: ../app/utils/vcenter/networks/row.hbs:39
-msgid "Size"
-msgstr "大小"
-
-#: ../app/tabs/files-tab/datatable.js:73 ../app/tabs/images-tab/datatable.js:73
-#: ../app/tabs/provision-tab/vms/create.hbs:34
-#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
-#: ../app/tabs/images-tab/panels/info/html.hbs:51
-msgid "Persistent"
-msgstr "存續性"
-
-#: ../app/tabs/files-tab/datatable.js:75 ../app/tabs/images-tab/datatable.js:75
-msgid "#VMS"
-msgstr "VM數量"
-
-#: ../app/tabs/files-tab/datatable.js:76 ../app/tabs/images-tab/datatable.js:76
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
-msgid "Target"
-msgstr "目的裝置名稱"
-
-#: ../app/tabs/files-tab/datatable.js:84
-#, fuzzy
+#: ../app/tabs/files-tab/datatable.js:44
 msgid "Please select a file from the list"
-msgstr "請選擇一個磁碟影像檔"
+msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:85
+#: ../app/tabs/files-tab/datatable.js:45
 msgid "You selected the following file:"
 msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:86
+#: ../app/tabs/files-tab/datatable.js:46
 msgid "Please select one or more files from the list"
 msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:87
+#: ../app/tabs/files-tab/datatable.js:47
 msgid "You selected the following files:"
 msgstr "你已選擇下列檔案:"
-
-#: ../app/tabs/files-tab/panels/info.js:102 ../app/opennebula/image.js:40
-msgid "KERNEL"
-msgstr ""
-
-#: ../app/tabs/files-tab/panels/info.js:103 ../app/opennebula/image.js:41
-msgid "RAMDISK"
-msgstr ""
-
-#: ../app/tabs/files-tab/panels/info.js:104 ../app/opennebula/image.js:42
-msgid "CONTEXT"
-msgstr ""
 
 #: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
 msgid "Security Group"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
-#, fuzzy
 msgid "MarketPlace created"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
@@ -1882,9 +1789,8 @@ msgid "This is the document root for http server"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:62
-#, fuzzy
 msgid "Storage bridge list"
-msgstr "ESX橋接主機清單"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:63
 msgid "Comma separated list of servers to access the image directory if not local"
@@ -1911,9 +1817,8 @@ msgid "Only if using public Amazon S3 service."
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:89
-#, fuzzy
 msgid "Total Marketplace size in MB"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:94
 msgid "Signature Version"
@@ -1940,14 +1845,12 @@ msgid "Split marketapps into chunks of this size (in MB). You should **never** u
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:127
-#, fuzzy
 msgid "Create MarketPlace"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:132
-#, fuzzy
 msgid "Update MarketPlace"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:85
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
@@ -1961,27 +1864,23 @@ msgid "Driver"
 msgstr "影像檔驅動模式"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:95
-#, fuzzy
 msgid "Please select a marketplace from the list"
-msgstr "請選擇一個磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:96
-#, fuzzy
 msgid "You selected the following marketplace:"
-msgstr "你已選擇下列資料存放區:"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:97
-#, fuzzy
 msgid "Please select one or more marketplaces from the list"
-msgstr "請選擇一或多個資料存放區"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:98
-#, fuzzy
 msgid "You selected the following marketplaces:"
-msgstr "你已選擇下列檔案:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:155
+#: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "復原"
 
@@ -1993,12 +1892,11 @@ msgstr "選取的服務將會立刻刪除"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:61
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
-#: ../app/tabs/images-tab/panels/info/html.hbs:72
+#: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "狀態"
 
@@ -2050,33 +1948,33 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:40
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:41
 msgid "Scale"
 msgstr "規模"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:28
-#: ../app/tabs/vms-tab/buttons.js:65
+#: ../app/tabs/vms-tab/buttons.js:66
 msgid "Hold"
 msgstr "保留"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:33
-#: ../app/tabs/vms-tab/buttons.js:71
+#: ../app/tabs/vms-tab/buttons.js:72
 msgid "Release"
 msgstr "釋放"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
-#: ../app/tabs/vms-tab/buttons.js:77
+#: ../app/tabs/vms-tab/buttons.js:78
 msgid "Suspend"
 msgstr "暫停"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:89
+#: ../app/tabs/vms-tab/buttons.js:90
 msgid "Stop"
 msgstr "停止"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:53
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:58
-#: ../app/tabs/vms-tab/buttons.js:95 ../app/tabs/vms-tab/buttons.js:101
+#: ../app/tabs/vms-tab/buttons.js:96 ../app/tabs/vms-tab/buttons.js:102
 #: ../app/tabs/provision-tab/vms/info.hbs:82
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:18
 msgid "Reboot"
@@ -2084,19 +1982,19 @@ msgstr "重開機"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
-#: ../app/tabs/vms-tab/buttons.js:107 ../app/tabs/vms-tab/buttons.js:113
+#: ../app/tabs/vms-tab/buttons.js:108 ../app/tabs/vms-tab/buttons.js:114
 msgid "Power Off"
 msgstr "關機"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
-#: ../app/tabs/vms-tab/buttons.js:119 ../app/tabs/vms-tab/buttons.js:125
+#: ../app/tabs/vms-tab/buttons.js:120 ../app/tabs/vms-tab/buttons.js:126
 msgid "Undeploy"
 msgstr "關機封存"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:88
-#: ../app/tabs/vms-tab/buttons.js:131 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:132 ../app/tabs/vms-tab/buttons.js:138
 #: ../app/tabs/provision-tab/vms/info.hbs:60
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:18
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
@@ -2104,13 +2002,11 @@ msgstr "關機封存"
 msgid "Terminate"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:76
-#: ../app/tabs/secgroups-tab/form-panels/create.js:172
+#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
 #: ../app/tabs/users-tab/dialogs/password.js:87
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:77
-#: ../app/utils/form-panels/form-panel.js:79
-#: ../app/utils/form-panels/form-panel.js:92
+#: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
 msgstr ""
 
@@ -2141,15 +2037,14 @@ msgid "You have to provide an SSH key"
 msgstr "你必須提供一個SSH金鑰"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
-#, fuzzy
 msgid "Security Group created"
-msgstr "次要群組"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/actions.js:79
+#: ../app/tabs/secgroups-tab/actions.js:80
 msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/actions.js:86
+#: ../app/tabs/secgroups-tab/actions.js:87
 #: ../app/tabs/secgroups-tab/buttons.js:57
 msgid "Commit"
 msgstr ""
@@ -2179,32 +2074,32 @@ msgid "You selected the following security groups:"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:46
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:46
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:49
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
 msgid "ICMP"
 msgstr "ICMP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:52
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "IPsec"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:67
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:70
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
 msgstr ""
 
@@ -2215,14 +2110,27 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
+#: ../app/tabs/secgroups-tab/utils/common.js:108
+#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:125
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
+#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
+#: ../app/tabs/images-tab/panels/info/html.hbs:69
+#: ../app/utils/vcenter/networks/row.hbs:39
+msgid "Size"
+msgstr "大小"
+
 #: ../app/tabs/secgroups-tab/utils/common.js:112
 msgid "Any"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/actions.js:38
-#, fuzzy
 msgid "Virtual Network created"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:56
 msgid "Create Virtual Network"
@@ -2246,7 +2154,7 @@ msgid "Import vCenter Networks"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/buttons.js:45
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:79
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:78
 msgid "Reserve"
 msgstr ""
 
@@ -2330,9 +2238,8 @@ msgid "NET:"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases.js:96
-#, fuzzy
 msgid "VR:"
-msgstr "VM:"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
@@ -2343,43 +2250,42 @@ msgstr ""
 msgid "Addresses"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:176
+#: ../app/tabs/vnets-tab/panels/ar.js:177
 msgid "This will delete all the addresses in this range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:233
-#, fuzzy
+#: ../app/tabs/vnets-tab/panels/ar.js:234
 msgid "The Address Range was not found"
-msgstr "磁碟影像檔位置"
+msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:305
+#: ../app/tabs/vnets-tab/panels/ar.js:306
 msgid "MAC Start"
 msgstr "MAC起始位址"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:306 ../app/utils/vcenter/networks.js:200
+#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:200
 msgid "IP Start"
 msgstr "IP起始位址"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:307
+#: ../app/tabs/vnets-tab/panels/ar.js:308
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
 msgid "Global prefix"
 msgstr "全域路由首碼(Global prefix)"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:308
+#: ../app/tabs/vnets-tab/panels/ar.js:309
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
 msgid "ULA prefix"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:311
+#: ../app/tabs/vnets-tab/panels/ar.js:312
 msgid "Reservation parent AR"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar.js:76
-#: ../app/tabs/vnets-tab/dialogs/add-ar.js:80
+#: ../app/tabs/vnets-tab/dialogs/update-ar.js:77
+#: ../app/tabs/vnets-tab/dialogs/add-ar.js:81
 msgid "One or more required fields are missing."
 msgstr ""
 
@@ -2396,7 +2302,7 @@ msgstr ""
 msgid "You selected the following Address Range:"
 msgstr ""
 
-#: ../app/tabs/hosts-tab.js:57 ../app/opennebula/datastore.js:25
+#: ../app/tabs/hosts-tab.js:58 ../app/opennebula/datastore.js:25
 #: ../app/opennebula/host.js:53 ../app/tabs/dashboard-tab/hosts.hbs:25
 msgid "ON"
 msgstr "上線"
@@ -2406,15 +2312,13 @@ msgid "App"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:34
-#, fuzzy
 msgid "MarketPlace App created"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
 #: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
-#, fuzzy
 msgid "Image created"
-msgstr "磁碟影像檔名稱"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:125
 #: ../app/tabs/images-tab/actions.js:93
@@ -2435,9 +2339,8 @@ msgid "Ok"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
-#, fuzzy
 msgid "Create MarketPlace App"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:61
 msgid "Create MarketPlace App from Image"
@@ -2448,65 +2351,55 @@ msgid "Download App To OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
-#, fuzzy
 msgid "Download"
-msgstr "下載"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
-#, fuzzy
 msgid "OpenNebula"
-msgstr "OpenNebula範本"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:85
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
-#, fuzzy
 msgid "Version"
-msgstr "權限"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:89
-#, fuzzy
 msgid "Registration Time"
-msgstr "建立時間"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 msgid "Marketplace"
 msgstr "Marketplace"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:99
-#, fuzzy
 msgid "Please select an appliance from the list"
-msgstr "請選擇一個磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:100
-#, fuzzy
 msgid "You selected the following appliance:"
-msgstr "你已選擇下列檔案:"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#, fuzzy
 msgid "Please select one or more appliances from the list"
-msgstr "請選擇一或多個資料存放區"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:102
-#, fuzzy
 msgid "You selected the following appliances:"
-msgstr "你已選擇下列檔案:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab.js:51
 msgid "Service"
 msgstr ""
 
 #: ../app/tabs/instances-top-tab.js:23
-#, fuzzy
 msgid "Instances"
-msgstr "實例化"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab.js:50
-#, fuzzy
 msgid "Virtual Router"
-msgstr "虛擬化資源"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -2544,20 +2437,17 @@ msgstr "你已選擇下列主機叢集:"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
-#, fuzzy
 msgid "MarketPlaces"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab.js:53 ../app/tabs/images-tab/buttons.js:32
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
-#, fuzzy
 msgid "MarketPlace"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
-#, fuzzy
 msgid "User created"
-msgstr "主機叢集已建立"
+msgstr ""
 
 #: ../app/tabs/users-tab/form-panels/create.js:50
 msgid "Create User"
@@ -2580,14 +2470,12 @@ msgid "Auth"
 msgstr "認證"
 
 #: ../app/tabs/users-tab/buttons.js:52
-#, fuzzy
 msgid "Change primary group"
-msgstr "變更群組"
+msgstr ""
 
 #: ../app/tabs/users-tab/buttons.js:55
-#, fuzzy
 msgid "This will change the primary group of the selected users. Select the new group"
-msgstr "選取的用戶將會變更群組。請選擇新的群組"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:69
 msgid "Auth driver"
@@ -2651,7 +2539,7 @@ msgid "Settings"
 msgstr "設定值"
 
 #: ../app/tabs/vms-tab.js:70 ../app/tabs/vms-tab/dialogs/migrate.js:138
-#: ../app/tabs/vnets-topology-tab.js:540
+#: ../app/tabs/vnets-topology-tab.js:542
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
@@ -2667,72 +2555,82 @@ msgid "FAILED"
 msgstr "失敗"
 
 #: ../app/tabs/vms-tab/form-panels/create.js:50
-#: ../app/tabs/provision-tab/vms/create.hbs:19
+#: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "建立虛擬機器"
 
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:57
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 msgid "Update VM Configuration"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:51
+#: ../app/tabs/vms-tab/buttons.js:48
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:52
 msgid "Deploy"
 msgstr "指定部署"
 
-#: ../app/tabs/vms-tab/buttons.js:53 ../app/tabs/vms-tab/buttons.js:59
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:53
+#: ../app/tabs/vms-tab/buttons.js:54 ../app/tabs/vms-tab/buttons.js:60
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:52
 msgid "Migrate"
 msgstr "遷移"
 
-#: ../app/tabs/vms-tab/buttons.js:59
+#: ../app/tabs/vms-tab/buttons.js:60
 msgid "live"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:101 ../app/tabs/vms-tab/buttons.js:113
-#: ../app/tabs/vms-tab/buttons.js:125 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
+#: ../app/tabs/vms-tab/buttons.js:114
+msgid "Keeps allocated Host resources. The resume operation happens quickly"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
+#: ../app/tabs/vms-tab/buttons.js:126
+msgid "Frees Host resources. The resume operation may take long"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
+#: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
 msgid "hard"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:143
+#: ../app/tabs/vms-tab/buttons.js:144
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 msgid "Reschedule"
 msgstr "重新排程"
 
-#: ../app/tabs/vms-tab/buttons.js:149
+#: ../app/tabs/vms-tab/buttons.js:150
 msgid "Un-Reschedule"
 msgstr "取消排程"
 
-#: ../app/tabs/vms-tab/buttons.js:158
+#: ../app/tabs/vms-tab/buttons.js:159
 msgid "retry"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:159
+#: ../app/tabs/vms-tab/buttons.js:160
 msgid "success"
 msgstr "成功"
 
-#: ../app/tabs/vms-tab/buttons.js:160
+#: ../app/tabs/vms-tab/buttons.js:161
 msgid "failure"
 msgstr "失敗"
 
-#: ../app/tabs/vms-tab/buttons.js:161
+#: ../app/tabs/vms-tab/buttons.js:162
 msgid "delete"
 msgstr "刪除(delete)"
 
-#: ../app/tabs/vms-tab/buttons.js:162
+#: ../app/tabs/vms-tab/buttons.js:163
 msgid "delete-recreate"
 msgstr "刪除重建(delete-recreate)"
 
-#: ../app/tabs/vms-tab/buttons.js:164
+#: ../app/tabs/vms-tab/buttons.js:165
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:175
+#: ../app/tabs/vms-tab/buttons.js:176
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:21
 msgid "VNC"
 msgstr "VNC"
 
-#: ../app/tabs/vms-tab/buttons.js:180
+#: ../app/tabs/vms-tab/buttons.js:181
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
 msgid "SPICE"
 msgstr ""
@@ -2768,9 +2666,8 @@ msgid "Action"
 msgstr "操作"
 
 #: ../app/tabs/vms-tab/panels/actions.js:69
-#, fuzzy
 msgid "Time"
-msgstr "快照建立時間"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:70
 msgid "Done"
@@ -2842,7 +2739,7 @@ msgstr "拍攝快照(snapshot-create)"
 
 #: ../app/tabs/vms-tab/panels/actions.js:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 msgid "Add"
 msgstr "新增"
 
@@ -2851,8 +2748,8 @@ msgid "No actions to show"
 msgstr "目前沒有任何操作"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:135
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:145
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:36
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:49
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:49
@@ -2860,8 +2757,8 @@ msgid "yes"
 msgstr "是"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:136
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:146
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:37
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:51
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:51
@@ -2869,7 +2766,7 @@ msgid "no"
 msgstr "否"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:46
-#: ../app/tabs/images-tab/panels/snapshots.js:45
+#: ../app/tabs/images-tab/panels/snapshots.js:46
 msgid "Snapshots"
 msgstr "快照"
 
@@ -2879,8 +2776,8 @@ msgstr "快照建立時間"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:82
 #: ../app/tabs/vms-tab/panels/snapshots.js:85
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:42
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
 msgid "Take snapshot"
 msgstr "拍攝快照"
 
@@ -2912,9 +2809,8 @@ msgid "Reason"
 msgstr "指派原因"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
-#, fuzzy
 msgid "Change time"
-msgstr "異動時間"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:72
 msgid "Total time"
@@ -2956,6 +2852,11 @@ msgstr "資料存放區配置條件"
 msgid "DS Rank"
 msgstr "資料存放區優先序"
 
+#: ../app/tabs/vms-tab/panels/template.js:61
+#, fuzzy
+msgid "User template"
+msgstr "VM範本"
+
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
 msgstr ""
@@ -2967,7 +2868,7 @@ msgstr "附加中/卸載中"
 
 #: ../app/tabs/vms-tab/panels/storage.js:214
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:48
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 msgid "Save as"
 msgstr "另存磁碟"
 
@@ -2990,17 +2891,16 @@ msgstr "是"
 msgid "NO"
 msgstr "否"
 
-#: ../app/tabs/vms-tab/panels/storage.js:353
-#, fuzzy
+#: ../app/tabs/vms-tab/panels/storage.js:354
 msgid "This will detach the disk immediately"
-msgstr "選取的服務範本將會立刻刪除"
+msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:456
+#: ../app/tabs/vms-tab/panels/storage.js:458
 msgid "This will delete the disk snapshot "
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:532
-#: ../app/tabs/images-tab/panels/snapshots.js:199
+#: ../app/tabs/vms-tab/panels/storage.js:534
+#: ../app/tabs/images-tab/panels/snapshots.js:202
 msgid "Active"
 msgstr ""
 
@@ -3061,8 +2961,8 @@ msgid " (VRouter)"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:347
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:128
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr ""
@@ -3073,25 +2973,25 @@ msgid "Range"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:351
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:424
+#: ../app/tabs/vms-tab/panels/network.js:425
 msgid "Network reception"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:431
+#: ../app/tabs/vms-tab/panels/network.js:432
 msgid "Network transmission"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:438
+#: ../app/tabs/vms-tab/panels/network.js:439
 msgid "Network reception speed"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:447
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission speed"
 msgstr ""
 
@@ -3138,9 +3038,8 @@ msgid "Virtual Data Center"
 msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:72
-#, fuzzy
 msgid "Please select one (and just one) Image to export."
-msgstr "請至少選擇一個資源"
+msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:94
 msgid "This Image resides in Datastore "
@@ -3150,19 +3049,34 @@ msgstr ""
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create.js:56
+#: ../app/tabs/images-tab/form-panels/create-common.js:52
 msgid "Create Image"
 msgstr "建立磁碟影像檔"
 
-#: ../app/tabs/images-tab/form-panels/create.js:304
-#: ../app/tabs/images-tab/form-panels/create.js:429
+#: ../app/tabs/images-tab/form-panels/create-common.js:54
+msgid "Create File"
+msgstr "建立檔案"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:289
+msgid "Uploading..."
+msgstr "上傳中"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:315
+#: ../app/tabs/images-tab/form-panels/create-common.js:440
 msgid "Please select a datastore for this image"
 msgstr "請選擇一個資料存放區用來存放磁碟影像檔"
 
+#: ../app/tabs/images-tab/form-panels/create-common.js:397
+msgid "Please select a file to upload"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:405
+msgid "Registering in OpenNebula"
+msgstr ""
+
 #: ../app/tabs/images-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Images"
-msgstr "建立磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
@@ -3172,39 +3086,74 @@ msgstr "可存續"
 msgid "Make non persistent"
 msgstr "非存續"
 
-#: ../app/tabs/images-tab/datatable.js:84
+#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/provision-tab/vms/create.hbs:40
+#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
+#: ../app/tabs/images-tab/panels/info/html.hbs:52
+msgid "Persistent"
+msgstr "存續性"
+
+#: ../app/tabs/images-tab/datatable-common.js:72
+msgid "#VMS"
+msgstr "VM數量"
+
+#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
+msgid "Target"
+msgstr "目的裝置名稱"
+
+#: ../app/tabs/images-tab/datatable.js:44
 msgid "Please select an image from the list"
 msgstr "請選擇一個磁碟影像檔"
 
-#: ../app/tabs/images-tab/datatable.js:85
+#: ../app/tabs/images-tab/datatable.js:45
 msgid "You selected the following image:"
 msgstr ""
 
-#: ../app/tabs/images-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable.js:46
 msgid "Please select one or more images from the list"
 msgstr ""
 
-#: ../app/tabs/images-tab/datatable.js:87
+#: ../app/tabs/images-tab/datatable.js:47
 msgid "You selected the following images:"
 msgstr ""
 
-#: ../app/tabs/images-tab/panels/info.js:103 ../app/opennebula/image.js:37
+#: ../app/tabs/images-tab/panels/info-common.js:96
+#: ../app/opennebula/image.js:37
 msgid "OS"
 msgstr "OS"
 
-#: ../app/tabs/images-tab/panels/info.js:104 ../app/opennebula/image.js:38
+#: ../app/tabs/images-tab/panels/info-common.js:97
+#: ../app/opennebula/image.js:38
 msgid "CDROM"
 msgstr "CDROM"
 
-#: ../app/tabs/images-tab/panels/info.js:105 ../app/opennebula/image.js:39
+#: ../app/tabs/images-tab/panels/info-common.js:98
+#: ../app/opennebula/image.js:39
 msgid "DATABLOCK"
 msgstr "DATABLOCK"
 
-#: ../app/tabs/images-tab/panels/snapshots.js:129
+#: ../app/tabs/images-tab/panels/info-common.js:103
+#: ../app/opennebula/image.js:40
+msgid "KERNEL"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/info-common.js:104
+#: ../app/opennebula/image.js:41
+msgid "RAMDISK"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/info-common.js:105
+#: ../app/opennebula/image.js:42
+msgid "CONTEXT"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
 msgstr ""
 
-#: ../app/tabs/images-tab/panels/snapshots.js:161
+#: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
 msgstr ""
 
@@ -3213,25 +3162,23 @@ msgid "Collapse VMs"
 msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:58
-#, fuzzy
 msgid "Open VMs"
-msgstr "最小VM數量"
+msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:89 ../app/tabs/vnets-topology-tab.js:91
-#, fuzzy
 msgid "Network Topology"
-msgstr "虛擬網路驅動模式"
+msgstr ""
 
-#: ../app/tabs/vnets-topology-tab.js:543
+#: ../app/tabs/vnets-topology-tab.js:545
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
 msgstr ""
 
-#: ../app/sunstone.js:903 ../app/sunstone.js:904
+#: ../app/sunstone.js:910 ../app/sunstone.js:911
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:991 ../app/sunstone.js:992
+#: ../app/sunstone.js:998 ../app/sunstone.js:999
 msgid "Loading..."
 msgstr ""
 
@@ -3283,70 +3230,70 @@ msgstr "部署失敗"
 msgid "FAILED_SCALING"
 msgstr "動態調整失敗"
 
-#: ../app/opennebula/vm.js:185
+#: ../app/opennebula/vm.js:186
 msgid "LCM_INIT"
 msgstr "初始化"
 
-#: ../app/opennebula/vm.js:186 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
+#: ../app/opennebula/vm.js:217
 msgid "PROLOG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:204
-#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
-#: ../app/opennebula/vm.js:207 ../app/opennebula/vm.js:217
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
+#: ../app/opennebula/vm.js:221
 msgid "BOOT"
 msgstr ""
 
-#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:193
-#: ../app/opennebula/vm.js:228 ../app/opennebula/vm.js:230
-#: ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
+#: ../app/opennebula/vm.js:246
 msgid "MIGRATE"
 msgstr "遷移"
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:191
-#: ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:193
 msgid "SAVE"
 msgstr ""
 
-#: ../app/opennebula/vm.js:195 ../app/opennebula/vm.js:196
-#: ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:216
 msgid "EPILOG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:197 ../app/opennebula/vm.js:198
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:214
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
 msgid "SHUTDOWN"
 msgstr ""
 
-#: ../app/opennebula/vm.js:199 ../app/opennebula/vm.js:221
-#: ../app/opennebula/vm.js:222 ../app/opennebula/vm.js:223
-#: ../app/opennebula/vm.js:224 ../app/opennebula/vm.js:225
-#: ../app/opennebula/vm.js:226 ../app/opennebula/vm.js:227
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:233
-#: ../app/opennebula/vm.js:234 ../app/opennebula/vm.js:235
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
+#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
+#: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
+#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
+#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
+#: ../app/opennebula/vm.js:247
 msgid "FAILURE"
 msgstr ""
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:208
+#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
 msgid "CLEANUP"
 msgstr ""
 
-#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:210
-#: ../app/opennebula/vm.js:211 ../app/opennebula/vm.js:212
-#: ../app/opennebula/vm.js:213 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:220
 msgid "HOTPLUG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:209 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
-#: ../app/opennebula/vm.js:239 ../app/opennebula/vm.js:240
-#: ../app/opennebula/vm.js:241 ../app/opennebula/vm.js:242
-#: ../app/opennebula/vm.js:243 ../app/opennebula/vm.js:244
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
+#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
+#: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
+#: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
 msgid "SNAPSHOT"
 msgstr ""
 
@@ -3543,30 +3490,28 @@ msgstr ""
 msgid "Add Label"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:122
+#: ../app/utils/disks-resize.js:129
 msgid "Volatile Disk"
 msgstr "揮發性磁碟"
 
-#: ../app/utils/disks-resize.js:124 ../app/utils/disks-resize.js:156
-#, fuzzy
+#: ../app/utils/disks-resize.js:131 ../app/utils/disks-resize.js:163
 msgid "Image was not found"
-msgstr "磁碟影像檔位置"
+msgstr ""
 
-#: ../app/utils/disks-resize.js:139
+#: ../app/utils/disks-resize.js:146
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:143
+#: ../app/utils/disks-resize.js:150
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:151
-#, fuzzy
+#: ../app/utils/disks-resize.js:158
 msgid "Image state: "
-msgstr "磁碟影像檔名稱"
+msgstr ""
 
-#: ../app/utils/dialogs/confirm.js:69
-#: ../app/utils/dialogs/confirm-with-select.js:117
+#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "請確認這個操作"
 
@@ -3574,22 +3519,15 @@ msgstr "請確認這個操作"
 msgid "No new images found in this datastore"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:108 ../app/utils/vcenter/templates.js:112
-#: ../app/utils/vcenter/networks.js:111
-#, fuzzy
-msgid "Select All"
-msgstr "選擇主機叢集"
-
-#: ../app/utils/vcenter/images.js:113
+#: ../app/utils/vcenter/images.js:107
 msgid "Import Selected Images"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:118
-#, fuzzy
+#: ../app/utils/vcenter/images.js:112
 msgid "Clear Imported Images"
-msgstr "建立磁碟影像檔"
+msgstr ""
 
-#: ../app/utils/vcenter/images.js:249
+#: ../app/utils/vcenter/images.js:243
 msgid "Image created successfully"
 msgstr "磁碟影像檔建立成功"
 
@@ -3604,20 +3542,21 @@ msgstr ""
 msgid "No new templates found in this DataCenter"
 msgstr ""
 
+#: ../app/utils/vcenter/templates.js:112 ../app/utils/vcenter/networks.js:111
+msgid "Select All"
+msgstr ""
+
 #: ../app/utils/vcenter/templates.js:118 ../app/utils/vcenter/networks.js:117
-#, fuzzy
 msgid "Expand Advanced Sections"
-msgstr "進階選項"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:123
-#, fuzzy
 msgid "Import Selected Templates"
-msgstr "建立服務範本"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:128
-#, fuzzy
 msgid "Clear Imported Templates"
-msgstr "複製範本"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:291
 msgid "Template created successfully"
@@ -3628,37 +3567,32 @@ msgid "No new datastores found in this DataCenter"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:111
-#, fuzzy
 msgid "Import Selected Datastores"
-msgstr "選擇一個資料存放區"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:116 ../app/utils/vcenter/clusters.js:106
-#, fuzzy
 msgid "Clear Imported Datastores"
-msgstr "建立資料存放區"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:129
 msgid "Datacenter"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:254
-#, fuzzy
 msgid "Datastore created successfully"
-msgstr "磁碟影像檔建立成功"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:91
 msgid "No new networks found in this DataCenter"
 msgstr ""
 
 #: ../app/utils/vcenter/networks.js:122
-#, fuzzy
 msgid "Import Selected Networks"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:127
-#, fuzzy
 msgid "Clear Imported Networks"
-msgstr "建立虛擬網路"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
 #: ../app/utils/vcenter/networks.js:214 ../app/utils/vcenter/networks.js:224
@@ -3667,14 +3601,12 @@ msgid "Optional"
 msgstr ""
 
 #: ../app/utils/vcenter/networks.js:213
-#, fuzzy
 msgid "Global Prefix"
-msgstr "全域路由首碼(Global prefix)"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:223
-#, fuzzy
 msgid "ULA Prefix"
-msgstr "字首"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:325
 msgid "Virtual Network created successfully"
@@ -3791,7 +3723,6 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:22
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
-#: ../app/tabs/files-tab/panels/info/html.hbs:22
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
@@ -3818,45 +3749,45 @@ msgstr ""
 msgid "Update Quota"
 msgstr "修改配額"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:29
-#: ../app/utils/dialogs/clusters/html.hbs:29
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
+#: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
 msgstr "套用所有變更"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:43
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:40
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
 #: ../app/tabs/support-tab/dialogs/upload/html.hbs:33
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:43
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:43
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:37
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:83
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:40
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:44
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:46
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:44
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:34
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:82
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:37
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:28
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:54
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:50
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:46
-#: ../app/utils/dialogs/generic-confirm/html.hbs:32
-#: ../app/utils/dialogs/confirm/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:45
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:47
+#: ../app/utils/dialogs/generic-confirm/html.hbs:33
+#: ../app/utils/dialogs/confirm/html.hbs:32
 #: ../app/utils/dialogs/overcommit/html.hbs:68
-#: ../app/utils/dialogs/clusters/html.hbs:32
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:39
+#: ../app/utils/dialogs/clusters/html.hbs:33
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:38
 msgid "Close modal"
 msgstr ""
 
@@ -3870,7 +3801,6 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
@@ -3883,7 +3813,7 @@ msgstr "描述"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:236
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:179
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:190
 msgid "Custom attributes"
 msgstr "自訂屬性"
 
@@ -3928,9 +3858,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:11
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
-#, fuzzy
 msgid "Instance type"
-msgstr "實例化"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:12
 msgid "Specifies the capacity of the VM in terms of CPU and memory"
@@ -3945,42 +3874,36 @@ msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:29
-#, fuzzy
 msgid "VM user name"
-msgstr "用戶名稱"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:30
 msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
-#, fuzzy
 msgid "VM user password"
-msgstr "修改密碼"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
-#, fuzzy
 msgid "Password for VM User"
-msgstr "VNC/SPICE 伺服器的密碼"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:46
-#, fuzzy
 msgid "Affinity group"
-msgstr "加入群組"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:47
 msgid "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-#, fuzzy
 msgid "Availability set"
-msgstr "建立資料存放區"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
-#, fuzzy
 msgid "Cloud service"
-msgstr "OneFlow - 服務"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
@@ -3995,23 +3918,20 @@ msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
-#, fuzzy
 msgid "Storage account"
-msgstr "儲存"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
-#, fuzzy
 msgid "Subnet name"
-msgstr "快照名稱"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:92
-#, fuzzy
 msgid "TCP endpoints"
-msgstr "端點"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:93
 msgid "Comma-separated list of TCP ports to be accessible from the public internet to this VM"
@@ -4019,9 +3939,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:31
-#, fuzzy
 msgid "Virtual Network name"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
@@ -4092,9 +4011,8 @@ msgid "Defines which OpenNebula host will use this template"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:74
-#, fuzzy
 msgid "Keypair name"
-msgstr "裝置名稱字首"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:75
 msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
@@ -4105,9 +4023,8 @@ msgid "License pool name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:89
-#, fuzzy
 msgid "Placement group name"
-msgstr "Volume Group 名稱"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:97
 msgid "Private IP"
@@ -4119,7 +4036,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:104
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 msgid "Ramdisk"
 msgstr "Ramdisk"
 
@@ -4128,9 +4045,8 @@ msgid "The ID of the RAM disk to select."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:113
-#, fuzzy
 msgid "Security group names"
-msgstr "次要群組"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:121
@@ -4138,9 +4054,8 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:120
-#, fuzzy
 msgid "Security group IDs"
-msgstr "次要群組"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:129
 msgid "Subnet ID"
@@ -4163,23 +4078,20 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:151
-#, fuzzy
 msgid "User data"
-msgstr "用戶名稱"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:152
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
-#, fuzzy
 msgid "Volatile disk"
-msgstr "揮發性磁碟"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:40
-#, fuzzy
 msgid "Image name"
-msgstr "磁碟影像檔名稱"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:48
 msgid "Image owner's user ID"
@@ -4196,7 +4108,7 @@ msgid "Advanced options"
 msgstr "進階選項"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:67
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:91
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:101
 msgid "Size in MB"
 msgstr ""
 
@@ -4214,48 +4126,41 @@ msgid "Swap"
 msgstr "Swap"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:84
-#, fuzzy
 msgid "Filesystem format"
-msgstr "檔案系統種類"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
-#, fuzzy
 msgid "Device target"
-msgstr "裝置名稱字首"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:152
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:163
 msgid "Image mapping driver"
-msgstr "指定磁碟影像檔的驅動模式。KVM: raw, qcow2. Xen:tap:aio:, file:"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:25
-#, fuzzy
 msgid "Device prefix"
 msgstr "裝置名稱字首"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:26
-#, fuzzy
 msgid "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used."
-msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如“hd”或“sd”。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:32
-#, fuzzy
 msgid "Read-only"
-msgstr "唯讀"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:44
 msgid "Cache"
 msgstr "快取"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:58
-#, fuzzy
 msgid "IO policy"
-msgstr "設定IO原則"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:69
 msgid "Discard"
@@ -4302,9 +4207,8 @@ msgid "Total (read+write) IOPS"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
-#, fuzzy
 msgid "Read IOPS"
-msgstr "唯讀"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
 msgid "Write IOPS Sec"
@@ -4315,7 +4219,7 @@ msgid "Boot"
 msgstr "開機"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 msgid "Kernel"
 msgstr "Kernel"
 
@@ -4324,32 +4228,28 @@ msgid "Features"
 msgstr "特別功能"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:39
-#, fuzzy
 msgid "CPU Architecture"
-msgstr "虛擬化CPU架構"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
-#, fuzzy
 msgid "libvirt machine type"
-msgstr "libvirt機器種類，僅適用於KVM"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:65
-#, fuzzy
 msgid "Boot order"
-msgstr "Bootloader"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:66
 msgid "Select the devices to boot from, and their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:78
-#, fuzzy
 msgid "Kernel boot parameters"
-msgstr "進階選項"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:86
 msgid "Path to the bootloader executable"
@@ -4361,9 +4261,8 @@ msgstr "已註冊檔案"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
-#, fuzzy
 msgid "Remote path"
-msgstr "遠端路徑來源"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:107
 msgid "KERNEL_DS"
@@ -4442,19 +4341,16 @@ msgid "Choose Network"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:25
-#, fuzzy
 msgid "Virtual Network ID"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
-#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:45
-#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
 msgid "Override Network Values IPv4"
@@ -4490,23 +4386,20 @@ msgid "Override Network Values IPv6"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:109
-#, fuzzy
 msgid "Global address"
-msgstr "全域路由首碼(Global prefix)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:123
-#, fuzzy
 msgid "Force IPv4 context"
-msgstr "忽略承載檢驗"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:124
 msgid "Override force IPv4 for this IPv6 network. Values: Yes or No."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:131
-#, fuzzy
 msgid "Hardware"
-msgstr "最低負載原則"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:135
 msgid "Hardware model to emulate"
@@ -4517,9 +4410,8 @@ msgid "Graphics"
 msgstr "圖形顯示介面"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
-#, fuzzy
 msgid "Listen on IP"
-msgstr "接聽IP"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:45
 msgid "Server port"
@@ -4534,9 +4426,8 @@ msgid "Keymap"
 msgstr "鍵盤對應"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
-#, fuzzy
 msgid "Generate random password"
-msgstr "修改密碼"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
@@ -4609,9 +4500,8 @@ msgid "Packing"
 msgstr "集中式原則"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
-#, fuzzy
 msgid "Pack the VMs in the Hosts to reduce VM fragmentation"
-msgstr "將VM集中配置，以減少VM分佈破碎情況。並可減少啟用主機數目，達到節能目的。"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:79
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:111
@@ -4619,18 +4509,16 @@ msgid "Stripping"
 msgstr "分散式原則"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:80
-#, fuzzy
 msgid "Spread the VMs in the Hosts"
-msgstr "將VM分散部署在各主機中，讓VM能使用更多主機資源。"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:84
 msgid "Load-aware"
 msgstr "最低負載原則"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:85
-#, fuzzy
 msgid "Maximize the resources available to VMs in a Host"
-msgstr "選擇最低負載主機，讓VM能使用更多主機資源。"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:94
 msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
@@ -4692,9 +4580,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:81
 #: ../app/utils/vcenter/templates/row.hbs:38
-#, fuzzy
 msgid "Default Datastore"
-msgstr "建立資料存放區"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:89
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:112
@@ -4712,21 +4599,18 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:96
 #: ../app/utils/vcenter/templates/row.hbs:53
-#, fuzzy
 msgid "Available Datastores"
-msgstr "建立資料存放區"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:104
 #: ../app/utils/vcenter/templates/row.hbs:63
-#, fuzzy
 msgid "Default Resource Pool"
-msgstr "虛擬化資源"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
 #: ../app/utils/vcenter/templates/row.hbs:78
-#, fuzzy
 msgid "Available Resource Pools"
-msgstr "虛擬化資源"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:132
 #: ../app/utils/showback/html.hbs:63 ../app/utils/showback/html.hbs:90
@@ -4803,17 +4687,15 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:161
 #: ../app/utils/user-inputs/row.hbs:16
-#, fuzzy
 msgid "range"
-msgstr "變更"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:118
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:162
 #: ../app/utils/user-inputs/row.hbs:18
-#, fuzzy
 msgid "list"
-msgstr "允許清單"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:64
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:72
@@ -4832,9 +4714,8 @@ msgstr "下限"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:127
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:171
 #: ../app/utils/user-inputs/row.hbs:44 ../app/utils/user-inputs/row.hbs:61
-#, fuzzy
 msgid "Max"
-msgstr "最大VM數量"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:109
 msgid "CPU modification"
@@ -4853,9 +4734,8 @@ msgid "Allow users to modify this template's default VCPU on instantiate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
-#, fuzzy
 msgid "Contextualization type"
-msgstr "  建立SSH自動化環境配置"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
 msgid "vCenter customizations"
@@ -4878,9 +4758,8 @@ msgid "Add an ssh public key to the context. If the Public Key textarea is empty
 msgstr "在範本的CONTEXT區段內建立一個SSH公鑰。若公鑰欄位未填寫任何文字，系統將使用SSH_PUBLIC_KEY變數作為公鑰"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
-#, fuzzy
 msgid "SSH public key"
-msgstr "公鑰 (Public Key)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:80
 msgid "  Add Network contextualization"
@@ -4895,43 +4774,48 @@ msgid "  Add OneGate token"
 msgstr "新增OneGate金鑰"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:90
-#, fuzzy
 msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
-msgstr "透過OneGate伺服器，建立一個包含金鑰的檔案(token.txt)至虛擬機器之中"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
+msgid "  Report Ready to OneGate"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
-#, fuzzy
-msgid "Start script"
-msgstr "簡介"
+msgid "Sends READY=YES to OneGate, useful for OneFlow"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:100
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+msgid "Start script"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:104
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
 msgid "Encode script in Base64"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:111
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
 msgid "User Inputs"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:112
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:127
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
 msgid "FILES_DS"
 msgstr "資料存放區檔案"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
 msgstr "初始化scripts"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
 msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
-msgstr "若VM使用OpenNebula自動化環境部署套件，則開機時會預設執行init.sh。當初始化script的名稱並非init.sh，或是有多個初始化scripts需要執行時，可在此輸入scripts清單，這些scripts將會依序被執行。例：“init.sh users.sh mysql.sh”"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:20
 msgid "RAW data"
@@ -4942,9 +4826,8 @@ msgid "kvm"
 msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:32
-#, fuzzy
 msgid "Data"
-msgstr "資料存放區"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Raw data to be passed directly to the hypervisor"
@@ -4955,9 +4838,8 @@ msgid "PCI Devices"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-#, fuzzy
 msgid "Device name"
-msgstr "裝置名稱字首"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
 msgid "Vendor"
@@ -4976,24 +4858,23 @@ msgid "Custom Tags"
 msgstr "自訂標記"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:31
-#, fuzzy
 msgid "Instantiate as persistent"
-msgstr "VM範本實例化"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
-#: ../app/tabs/provision-tab/vms/create.hbs:35
+#: ../app/tabs/provision-tab/vms/create.hbs:41
 msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:39
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:24
+#: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 msgid "VM name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:41
-#, fuzzy
 msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
-msgstr "若未填寫此欄位，預設值為範本名稱。你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:48
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
@@ -5010,7 +4891,6 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:37
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 msgid "Register time"
@@ -5020,54 +4900,48 @@ msgstr "建立時間"
 msgid "Clone Template"
 msgstr "複製範本"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:26
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "已選擇多個範本，請選擇新複本名稱的字首"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 msgid "Prefix"
 msgstr "字首"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:43
-#, fuzzy
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
 msgid "Clone with Images"
-msgstr "複製磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
-#, fuzzy
 msgid "Write the Virtual Router template here"
-msgstr "在此輸入虛擬網路的樣版指令集"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-#, fuzzy
 msgid "Keepalive service ID"
-msgstr "修改密碼"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Keepalive password"
-msgstr "修改密碼"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-#, fuzzy
 msgid "Virtual machine name"
-msgstr "虛擬機器名稱"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:71
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-#, fuzzy
 msgid "Number of VM instances"
-msgstr "機器數量"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:39
@@ -5079,9 +4953,8 @@ msgid "Floating IPv6 ULA"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:47
-#, fuzzy
 msgid "Floating IPv6 Global"
-msgstr "IPv6 Global"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:50
@@ -5089,24 +4962,17 @@ msgid "Management Interface"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
-#, fuzzy
 msgid "Attach NIC"
-msgstr "附加"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 msgid "Attach new nic"
 msgstr "附加新的網路介面"
 
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/panels/info/html.hbs:62
-#, fuzzy
-msgid "Virtual Router ID"
-msgstr "虛擬化資源"
-
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:34
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:34
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:29
 msgid "Attach"
 msgstr "附加"
 
@@ -5149,7 +5015,7 @@ msgstr "自訂資源監控中介組件"
 msgid "Get vCenter Clusters"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:25
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:29
 msgid "Remote ID"
 msgstr ""
 
@@ -5167,15 +5033,13 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:84
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:42
 #: ../app/utils/dialogs/overcommit/html.hbs:45
-#, fuzzy
 msgid "Reserved CPU"
-msgstr "CPU使用量"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:91
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:49
-#, fuzzy
 msgid "Reserved Memory"
-msgstr "記憶體使用量"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
 msgid "PCI Address"
@@ -5202,9 +5066,8 @@ msgid "You have to boot the Virtual Machine first"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
-#, fuzzy
 msgid "The disks of the Virtual Machine will be saved in a new Image"
-msgstr "將套用此範本所建立的虛擬機器數量"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
@@ -5237,29 +5100,25 @@ msgid "Net Upload Speed"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-#, fuzzy
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
-msgstr "這個操作將會關閉虛擬機器。虛擬機器將會保持在關機狀態，並可隨時開機。"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
-#, fuzzy
 msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
-msgstr "你可以傳送重開機訊號給虛擬機器(這相當於在console執行重開機指令)。若虛擬機器無法正常重開機，可以嘗試強迫重新開機(這相當於在實體機器上按下RESET鍵)"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
-#, fuzzy
 msgid "Power off and undeploy"
-msgstr "強迫中斷電源關機"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:25
 msgid "Power off and undeploy the VM"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:31
-#, fuzzy
 msgid "Send the power off signal and undeploy the VM"
-msgstr "傳送正常關機訊號"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -5273,14 +5132,13 @@ msgstr "強迫中斷電源關機"
 msgid "Send the power off signal"
 msgstr "傳送正常關機訊號"
 
-#: ../app/tabs/provision-tab/vms/create.hbs:24
+#: ../app/tabs/provision-tab/vms/create.hbs:30
 msgid "Virtual Machine Name"
 msgstr "虛擬機器名稱"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:5
-#, fuzzy
 msgid "This Virtual Machine will be saved in a new Template."
-msgstr "將套用此範本所建立的虛擬機器數量"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
@@ -5295,15 +5153,14 @@ msgid "The new Virtual Machine's disks can be made persistent. In a persistent V
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:38
-#, fuzzy
 msgid "Non-persistent"
-msgstr "存續性"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:48
 msgid "Save Virtual Machine to Template"
 msgstr "將虛擬機器另存成範本"
 
-#: ../app/tabs/provision-tab/vms/list.hbs:54
+#: ../app/tabs/provision-tab/vms/list.hbs:55
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 msgid "User ID"
 msgstr "用戶ID"
@@ -5313,9 +5170,8 @@ msgid "This action will reboot this Virtual Machine."
 msgstr "這個操作會將虛擬機器重新開機"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-#, fuzzy
 msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
-msgstr "你可以傳送重開機訊號給虛擬機器(這相當於在console執行重開機指令)。若虛擬機器無法正常重開機，可以嘗試強迫重新開機(這相當於在實體機器上按下RESET鍵)"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
 msgid "Reboot the machine"
@@ -5326,19 +5182,16 @@ msgid "Send the reboot signal"
 msgstr "傳送正常重開機訊號"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
-#, fuzzy
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
-msgstr "請小心，這個操作將會直接銷毀虛擬機器"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-#, fuzzy
 msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
-msgstr "你可以傳送重開機訊號給虛擬機器(這相當於在console執行重開機指令)。若虛擬機器無法正常重開機，可以嘗試強迫重新開機(這相當於在實體機器上按下RESET鍵)"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
-#, fuzzy
 msgid "Terminate the machine"
-msgstr "強迫重新開機"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
@@ -5348,11 +5201,11 @@ msgstr ""
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/create.hbs:19
+#: ../app/tabs/provision-tab/flows/create.hbs:20
 msgid "Create Service"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/create.hbs:24
+#: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr ""
 
@@ -5362,27 +5215,27 @@ msgid "RUNNING VMS"
 msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:81
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:95
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/tabs/dashboard-tab/users.hbs:35 ../app/tabs/dashboard-tab/vms.hbs:39
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
 msgid "CPU hours"
 msgstr "CPU 使用時數"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:93
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:41 ../app/tabs/dashboard-tab/vms.hbs:45
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
 msgid "Memory GB hours"
 msgstr "記憶體使用量 (GBx時數)"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:105
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:115
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
 #: ../app/tabs/dashboard-tab/users.hbs:47 ../app/tabs/dashboard-tab/vms.hbs:51
 #: ../app/utils/accounting/html.hbs:96 ../app/utils/accounting/html.hbs:139
 msgid "Disk MB hours"
 msgstr "磁碟使用量 (MBx時數)"
 
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:19
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
 msgid "Group Virtual Machines"
 msgstr ""
 
@@ -5401,9 +5254,8 @@ msgid "Zones where the rule applies"
 msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
-#, fuzzy
 msgid "MarketPlace Apps"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:134
 msgid "Resource subset"
@@ -5436,9 +5288,8 @@ msgid "Write the Service template here"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
-#, fuzzy
 msgid "Network configuration"
-msgstr "修改語系"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
@@ -5456,9 +5307,8 @@ msgstr "依序性"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
-#, fuzzy
 msgid "VM shutdown action"
-msgstr "VM結束操作程序"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
@@ -5470,19 +5320,16 @@ msgid "Wait for VMs to report that they are READY via OneGate to consider them r
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
-#, fuzzy
 msgid "Advanced service parameters"
-msgstr "修改服務範本"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
-#, fuzzy
 msgid "Service name"
-msgstr "裝置名稱字首"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:21
-#, fuzzy
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
-msgstr "若未填寫此欄位，預設值為範本名稱。你可以使用萬用字元 &#37;i 。當一次建立多個VM時，&#37;i 會被替換成由0開始的依序數字"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:40
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:36
@@ -5500,24 +5347,21 @@ msgid "Network Configuration"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
-#, fuzzy
 msgid "Clone Service Template"
-msgstr "建立服務範本"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
-#, fuzzy
 msgid "Role name"
-msgstr "角色名稱"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
-#, fuzzy
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
 msgid "Number of VMs"
-msgstr "機器數量"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:35
-#, fuzzy
 msgid "VM template to create this role's VMs"
-msgstr "此角色所使用的VM範本"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
 msgid "Network Interfaces"
@@ -5545,9 +5389,8 @@ msgid "Cooldown"
 msgstr "冷卻"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:88
-#, fuzzy
 msgid "Cooldown time after an elasticity operation (seconds)"
-msgstr "動態性調整後的冷卻週期時間秒數"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:99
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:82
@@ -5565,9 +5408,8 @@ msgstr "變化量的種類"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:157
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:88
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:149
-#, fuzzy
 msgid "CHANGE: Add/subtract the given number of VMs."
-msgstr "修改：變化量代表欲增加/減少的VM數量"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:107
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:158
@@ -5580,9 +5422,8 @@ msgstr "基數：變化量代表欲指定的基數"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:90
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
-#, fuzzy
 msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
-msgstr "比率：變化量代表欲增加/減少的基數比率"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:111
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:161
@@ -5595,17 +5436,15 @@ msgstr "填入正或負的變化量值。變化量的種類決定了變化量所
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:162
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:94
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:154
-#, fuzzy
 msgid "CHANGE: -2, will subtract 2 VMs from the role"
-msgstr "修改： -2, 代表於此角色減少2個VM"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:113
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:163
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:95
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:155
-#, fuzzy
 msgid "CARDINALITY: 8, will set cardinality to 8"
-msgstr "基數：8, 指定基數為8"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:114
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:164
@@ -5676,17 +5515,15 @@ msgstr "當變化量種類為「比率」時，可選擇性填寫此參數。若
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:172
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:160
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:164
-#, fuzzy
 msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
-msgstr "循環時間:循環週期執行的時間。使用Unix cron語法來指定此循環時間"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:169
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:173
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
-#, fuzzy
 msgid "Start time: Exact time for the adjustment"
-msgstr "起始時間:排程異動的起始時間"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:169
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
@@ -5695,9 +5532,8 @@ msgstr "時間格式"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:171
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:163
-#, fuzzy
 msgid "Time expression depends on the the time format selected"
-msgstr "根據所選擇的時間格式來填寫適當的時間表示式"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:173
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
@@ -5709,28 +5545,25 @@ msgid "Role elasticity"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:200
-#, fuzzy
 msgid "If it is not set, the one set for the Service will be used"
-msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'。若未設定此值，則將以服務範本設定值為預設值"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:213
-#, fuzzy
 msgid "VM template content"
-msgstr "VM範本"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:214
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:196
-#, fuzzy
 msgid "Advanced role parameters"
-msgstr "進階選項"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:29
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 msgid "Change"
 msgstr "變更"
 
@@ -5752,35 +5585,29 @@ msgid "Recurrence"
 msgstr "循環時間"
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:34
-#, fuzzy
 msgid "Get Datastores"
-msgstr "資料存放區"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
-#, fuzzy
 msgid "Write the Datastore template here"
-msgstr "在此輸入虛擬網路的樣版指令集"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
-#, fuzzy
 msgid "Storage backend"
-msgstr "儲存"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
-#, fuzzy
 msgid "Filesystem - shared mode"
-msgstr "檔案系統種類"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:29
-#, fuzzy
 msgid "Filesystem - ssh mode"
-msgstr "檔案系統種類"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:30
-#, fuzzy
 msgid "Filesystem - qcow2 mode"
-msgstr "檔案系統種類"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
@@ -5844,9 +5671,8 @@ msgid "Custom TM_MAD"
 msgstr "自訂傳送中介組件"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
-#, fuzzy
 msgid "Datastore Type"
-msgstr "資料存放區"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
 msgid "Block"
@@ -5861,9 +5687,8 @@ msgid "Gluster"
 msgstr "Gluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
-#, fuzzy
 msgid "Restricted directories for registering Images"
-msgstr "受限來源目錄"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:120
 msgid "Safe directories for registering Images"
@@ -5890,9 +5715,8 @@ msgid "Check available capacity of the Datastore before creating a new Image"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:151
-#, fuzzy
 msgid "Host bridge list"
-msgstr "ESX橋接主機清單"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
 msgid "Space separated list of servers to add new Images to the Datastore storage"
@@ -5919,32 +5743,28 @@ msgid "Gluster volume to use for the datastore"
 msgstr "此資料存放區所使用的Gluster卷冊"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
-#, fuzzy
 msgid "Ceph pool to store Images"
-msgstr "建立磁碟影像檔"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
-#, fuzzy
 msgid "Ceph host"
-msgstr "Ceph主機"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:195
-#, fuzzy
 msgid "Ceph user"
-msgstr "Ceph秘鑰"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:197
 msgid "The username to interact with the Ceph cluster"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:204
-#, fuzzy
 msgid "Ceph secret"
-msgstr "Ceph秘鑰"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:206
 msgid "A generated UUID for a LibVirt secret"
@@ -5955,9 +5775,8 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:219
-#, fuzzy
 msgid "RBD format"
-msgstr "時間格式"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:225
 msgid "Ceph configuration file path"
@@ -5968,32 +5787,28 @@ msgid "Needed if using a non-default path for the ceph configuration file."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:234
-#, fuzzy
 msgid "iSCSI host"
-msgstr "Ceph主機"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:236
 msgid "Example: 'host' or 'host:port'"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:243
-#, fuzzy
 msgid "iSCSI user for CHAP authentication"
-msgstr "修改認證方式"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:249
-#, fuzzy
 msgid "iSCSI usage for CHAP authentication"
-msgstr "修改認證方式"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:251
 msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:258
-#, fuzzy
 msgid "vCenter cluster"
-msgstr "建立主機叢集"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:260
 msgid "The vCenter Cluster that has access to this datastore."
@@ -6007,55 +5822,13 @@ msgstr "基底路徑"
 msgid "Limit"
 msgstr "限制"
 
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:26
-#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
-msgid "Write the Image template here"
-msgstr ""
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:34
-#, fuzzy
-msgid "File type"
-msgstr "檔案系統種類"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:51
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
-msgid "Image location"
-msgstr "磁碟影像檔位置"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:55
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:66
-msgid "Path in OpenNebula server"
-msgstr ""
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:68
-msgid "Upload"
-msgstr "上傳"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:66
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:77
-msgid "Path"
-msgstr "路徑"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:51
-#: ../app/tabs/images-tab/panels/info/html.hbs:62
-msgid "Filesystem type"
-msgstr "檔案系統種類"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:66
-#: ../app/tabs/images-tab/panels/info/html.hbs:77
-msgid "Running VMS"
-msgstr "運行VM數量"
-
 #: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
-#, fuzzy
 msgid "Write the MarketPlace template here"
-msgstr "在此輸入虛擬機器的樣版指令集"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Configuration attributes"
-msgstr "自訂屬性"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
@@ -6077,15 +5850,11 @@ msgstr "父VM"
 msgid "Select a role in the table for more information"
 msgstr "選擇一個角色以取得更多資訊"
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:25
-msgid "Number of VMs to instantiate with this role"
-msgstr "以此角色所執行的VM數量"
-
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:33
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
 msgstr "忽略承載檢驗"
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:35
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr "直接套用新基數並忽略承載數量限制"
 
@@ -6150,46 +5919,46 @@ msgstr "修改你的SSH公鑰!"
 msgid "Write the Security Group template here"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:35
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
+#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
+msgid "Rules"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:76
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:80
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:78
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:82
 msgid "Port range"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:90
-#, fuzzy
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
 msgid "Target Network"
-msgstr "虛擬網路"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:93
-#, fuzzy
-msgid "Any network"
-msgstr "網路"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:94
-#, fuzzy
-msgid "Manual network"
-msgstr "虛擬網路"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:95
-#, fuzzy
-msgid "OpenNebula Virtual Network"
-msgstr "建立虛擬網路"
+msgid "Any network"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:99
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
+msgid "Manual network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:97
+msgid "OpenNebula Virtual Network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:28
 msgid "First IP address"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:119
-#, fuzzy
-msgid "+ Security Group rule"
-msgstr "次要群組"
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
+msgid "Add rule"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:130
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
 msgid "Port Range"
 msgstr ""
@@ -6202,15 +5971,11 @@ msgstr ""
 msgid "VMs in error. The update to the latest rules failed:"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
-msgid "Rules"
-msgstr ""
-
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr ""
 
@@ -6227,19 +5992,16 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:76
-#, fuzzy
 msgid "Network mode"
-msgstr "虛擬網路驅動模式"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:79
-#, fuzzy
 msgid "Bridged"
-msgstr "橋接器"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:80
-#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr "次要群組"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:81
 msgid "Bridged & ebtables VLAN"
@@ -6270,23 +6032,20 @@ msgid "Bridged & Security Groups, bridged network with Security Group rules."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:102
-#, fuzzy
 msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-msgstr "802.1Q: 使用VLAN tagging技術來限制網路存取，此功能需要硬體交換器支援"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:105
-#, fuzzy
 msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
-msgstr "802.1Q: 使用VLAN tagging技術來限制網路存取，此功能需要硬體交換器支援"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:108
 msgid "VXLAN, creates a L2 network overlay, each VLAN has associated a multicast address in the 239.0.0.0/8 range. Security Group rules are applied."
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:111
-#, fuzzy
 msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."
-msgstr "802.1Q: 使用VLAN tagging技術來限制網路存取，此功能需要硬體交換器支援"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:114
 msgid "Custom, use a custom virtual network driver."
@@ -6309,9 +6068,8 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
-#, fuzzy
 msgid "MTU of the interface"
-msgstr "磁碟影像檔的種類"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
@@ -6361,57 +6119,56 @@ msgstr "保留IP"
 msgid "IPv6 Link"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
 msgid "Edit Address Range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
 msgid "Reservation from Virtual Network"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:29
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:37
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
 msgid "Add to a new Virtual Network"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:41
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:48
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
 msgid "Virtual Network Name"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:60
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
 msgid "You can select the addresses from an specific Address Range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
 msgid "First address"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:72
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IPv4 or MAC"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:57
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:31
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:112
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:33
-#, fuzzy
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:123
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:34
 msgid "Advanced Options"
-msgstr "進階選項"
+msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:36
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
 msgid "Reset"
 msgstr "重設"
@@ -6437,24 +6194,20 @@ msgid "First MAC address"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:22
-#, fuzzy
 msgid "Name that the resource will get for description purposes."
-msgstr "用來描述此VM功能的名稱"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
-#, fuzzy
 msgid "VM Template Name"
-msgstr "範本名稱"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-#, fuzzy
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
-msgstr "下列範本將會被建立，此範本將以上列磁碟影像檔作為預設磁碟"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:40
-#, fuzzy
 msgid "Select the Datastore to store the resource"
-msgstr "選擇此磁碟影像檔所屬的資料存放區"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:19
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:52
@@ -6462,19 +6215,16 @@ msgid "Select the Marketplace where the App will be created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:24
-#, fuzzy
 msgid "Write the MarketPlace Appliance template here"
-msgstr "在此輸入虛擬機器的樣版指令集"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:48
-#, fuzzy
 msgid "Select the Image to create the App"
-msgstr "選擇新的擁有者"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
-#, fuzzy
 msgid "Templates for the App"
-msgstr "此範本的描述"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
@@ -6487,9 +6237,8 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
-#, fuzzy
 msgid "App template"
-msgstr "範本"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -6528,9 +6277,8 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
-#, fuzzy
 msgid "Select Secondary Groups"
-msgstr "選擇新的群組"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -6549,19 +6297,16 @@ msgid "core"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:39
-#, fuzzy
 msgid "public"
-msgstr "Public"
+msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
-#, fuzzy
 msgid "custom"
-msgstr "自訂"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
-#, fuzzy
 msgid "Image / Size-Format"
-msgstr "影像檔名稱 / 格式及大小"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:33
 msgid "Attach disk"
@@ -6578,14 +6323,13 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:40
 msgid "Resize"
 msgstr "調整"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:75
-#, fuzzy
 msgid "Real memory"
-msgstr "實際記憶體"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:37
 msgid "LCM State"
@@ -6595,31 +6339,24 @@ msgstr "LCM階段"
 msgid "Deploy ID"
 msgstr "部署ID"
 
+#: ../app/tabs/vms-tab/panels/info/html.hbs:62
+msgid "Virtual Router ID"
+msgstr ""
+
 #: ../app/tabs/vms-tab/panels/info/html.hbs:87
 msgid "Monitoring"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
-#, fuzzy
 msgid "Update Configuration"
-msgstr "修改語系"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:27
-msgid "Virtual Machine ID"
-msgstr "虛擬機器ID"
-
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:31
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:31
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
 msgid "Disk ID"
 msgstr "磁碟ID"
 
@@ -6627,15 +6364,15 @@ msgstr "磁碟ID"
 msgid "Resize VM capacity"
 msgstr "調整VM效能"
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:38
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:36
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:37
 msgid "Enforce"
 msgstr "安全承載檢驗"
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:35
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "若勾選此項目，將會檢查實體主機能否承載此計算資源調整。此選項僅提供給管理者，一般用戶則必定檢查主機承載量。"
 
@@ -6660,16 +6397,15 @@ msgstr "不支援Canvas"
 msgid "Save as Template"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 msgid "Template name"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:40
-#, fuzzy
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
-msgstr "非存續"
+msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:44
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
 msgid "Save As Template"
 msgstr ""
 
@@ -6681,17 +6417,17 @@ msgstr "附加新的磁碟"
 msgid "Migrate Virtual Machine"
 msgstr "遷移虛擬機器"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:30
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:27
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
 msgid "Select a Host"
 msgstr "選擇一個主機"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:45
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
 msgid "Select a datastore"
 msgstr "選擇一個資料存放區"
 
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
 msgid "Snapshot name"
 msgstr "快照名稱"
 
@@ -6703,70 +6439,95 @@ msgstr "指定部署虛擬機器"
 msgid "Disk Saveas"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 msgid "Snapshot ID"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
-#, fuzzy
 msgid "Get Images"
-msgstr "磁碟影像檔"
+msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:38
-msgid "Operating System image"
+#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
+msgid "Write the Image template here"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
-msgid "Readonly CD-ROM"
+msgid "Operating System image"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
+msgid "Readonly CD-ROM"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:55
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
 msgid "This image is persistent"
-msgstr "非存續"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:70
+msgid "Image location"
+msgstr "磁碟影像檔位置"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:74
+msgid "Path in OpenNebula server"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:76
+msgid "Upload"
+msgstr "上傳"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:79
 msgid "Empty disk image"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
+msgid "Path"
+msgstr "路徑"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
 msgid "Disk provisioning type"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:118
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
 msgid "Bus adapter controller"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:135
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:146
 msgid "BUS"
 msgstr "介接規格(BUS)"
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:169
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:180
 msgid "Target device"
-msgstr "目的裝置名稱"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
 msgstr ""
 
+#: ../app/tabs/images-tab/panels/info/html.hbs:64
+msgid "Filesystem type"
+msgstr "檔案系統種類"
+
+#: ../app/tabs/images-tab/panels/info/html.hbs:79
+msgid "Running VMS"
+msgstr "運行VM數量"
+
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
 msgid "Clone Image"
 msgstr "複製磁碟影像檔"
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:35
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
 msgid "You can select a different target datastore"
 msgstr ""
 
@@ -6795,9 +6556,8 @@ msgid "Filter"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:52
-#, fuzzy
 msgid "Get accounting"
-msgstr "擷取使用量"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:68
 msgid "There are no accounting records"
@@ -6809,9 +6569,8 @@ msgid "Date"
 msgstr ""
 
 #: ../app/utils/accounting/html.hbs:104
-#, fuzzy
 msgid "Accounting Tables"
-msgstr "使用量"
+msgstr ""
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
@@ -6830,9 +6589,8 @@ msgid "password"
 msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:14
-#, fuzzy
 msgid "number"
-msgstr "數量"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:15
 msgid "number (float)"
@@ -6845,14 +6603,12 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:27 ../app/utils/user-inputs/row.hbs:32
 #: ../app/utils/user-inputs/row.hbs:49 ../app/utils/user-inputs/row.hbs:66
 #: ../app/utils/user-inputs/row.hbs:76
-#, fuzzy
 msgid "Default value"
-msgstr "預設值"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:72
-#, fuzzy
 msgid "Options"
-msgstr "操作"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:73
 msgid "Comma-separated list of options for the drop-down select input"
@@ -6873,26 +6629,25 @@ msgstr ""
 msgid "Confirm"
 msgstr "確認"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:25
-#: ../app/utils/dialogs/confirm/html.hbs:26
+#: ../app/utils/dialogs/generic-confirm/html.hbs:26
+#: ../app/utils/dialogs/confirm/html.hbs:25
 msgid "You have to confirm this action."
 msgstr "請確認這個操作"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:27
-#: ../app/utils/dialogs/confirm/html.hbs:28
+#: ../app/utils/dialogs/generic-confirm/html.hbs:28
+#: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
 msgstr "您是否確定要繼續執行?"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:30
-#: ../app/utils/dialogs/confirm/html.hbs:31
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:37
+#: ../app/utils/dialogs/generic-confirm/html.hbs:31
+#: ../app/utils/dialogs/confirm/html.hbs:30
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 msgid "OK"
 msgstr "確定"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
-#, fuzzy
 msgid "Host Overcommitment"
-msgstr "主機需求"
+msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
 msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
@@ -6911,15 +6666,14 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
-#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr "記憶體使用量"
+msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
 
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:28
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
 msgstr "未選取任何項目"
 
@@ -6928,9 +6682,8 @@ msgid "Ownership"
 msgstr "所有權"
 
 #: ../app/utils/nics-section/html.hbs:9
-#, fuzzy
 msgid "Network Interface"
-msgstr "網路"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:5
 msgid "Interface"
@@ -6941,9 +6694,8 @@ msgid "Select a Network"
 msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:27
-#, fuzzy
 msgid "Force IPv4:"
-msgstr "忽略承載檢驗"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:29
 msgid "Optionally, you can force the IP assigned to the network interface."
@@ -6962,9 +6714,8 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:22
-#, fuzzy
 msgid "Key"
-msgstr "鍵盤對應"
+msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:23
 msgid "Value"
@@ -6979,9 +6730,8 @@ msgid "Filter by group"
 msgstr ""
 
 #: ../app/utils/showback/html.hbs:28
-#, fuzzy
 msgid "Get showback"
-msgstr "擷取帳務資料"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:43
 msgid "There are no showback records"
@@ -7003,517 +6753,11 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-#~ msgid "Host name missing!"
-#~ msgstr "未填寫主機名稱!"
+#~ msgid "Please select a datastore for this file"
+#~ msgstr "請選擇一個資料存放區用來存放檔案"
 
-#, fuzzy
-#~ msgid "Public Directory"
-#~ msgstr "公鑰 (Public Key)"
+#~ msgid "Number of VMs to instantiate with this role"
+#~ msgstr "以此角色所執行的VM數量"
 
-#, fuzzy
-#~ msgid "Bridge List"
-#~ msgstr "ESX橋接主機清單"
-
-#, fuzzy
-#~ msgid "Total MB"
-#~ msgstr "總計"
-
-#, fuzzy
-#~ msgid "Read Length"
-#~ msgstr "唯讀"
-
-#~ msgid "This will hold selected pending VMs from being deployed"
-#~ msgstr "選取的擱置VM將會被停止排程，不會被部署至主機上運行"
-
-#~ msgid "This will release held machines"
-#~ msgstr "選取的保留VM將會被釋放回排程系統"
-
-#~ msgid "This will suspend selected machines"
-#~ msgstr "選取的VM將會暫停"
-
-#~ msgid "This will resume selected VMs"
-#~ msgstr "選取的VM將會繼續運行"
-
-#~ msgid "This will stop selected VMs"
-#~ msgstr "選取的VM將會停機，並將影像檔封存於系統資料存放區"
-
-#~ msgid "This will send a reboot action to running VMs"
-#~ msgstr "選取的運行中VM將會收到ACPI重新開機指令"
-
-#~ msgid "This will perform a hard reboot on selected VMs"
-#~ msgstr "選取的VM將會強迫重開機(類似按下reset鍵之效果)"
-
-#~ msgid "This will send a power off signal to running VMs. They can be resumed later."
-#~ msgstr "此操作將會送出ACPI關機訊號至運行中的VM。之後可以重新開啟此VM"
-
-#~ msgid "This will send a forced power off signal to running VMs. They can be resumed later."
-#~ msgstr "此操作將會強迫關閉運行中的VM(類似直接切斷主機電源之效果)，當VM不支援ACPI時才使用此操作。之後可以重新開啟此VM"
-
-#~ msgid "Shuts down the given VM. The VM is saved in the system Datastore."
-#~ msgstr "此VM將會被關機。關機後，VM的磁碟影像檔將會被封存回系統資料存放區"
-
-#, fuzzy
-#~ msgid "This will initiate the terminate process in the selected VMs"
-#~ msgstr "選取的VM將會在收到ACPI關機訊號後正常結束，並進行資料保存流程"
-
-#, fuzzy
-#~ msgid "This will initiate the terminate-hard (forced) process in the selected VMs"
-#~ msgstr "選取的VM將會立刻被強迫結束，再進行資料保存流程"
-
-#~ msgid "This will deploy the selected VMs on the chosen host"
-#~ msgstr "選取的VM將會部署到指定的主機"
-
-#~ msgid "This will migrate the selected VMs to the chosen host"
-#~ msgstr "選取的VM將會遷移到指定的主機"
-
-#~ msgid "This will live-migrate the selected VMs to the chosen host"
-#~ msgstr "選取的VM將會即時遷移到指定的主機"
-
-#~ msgid "This will reschedule selected VMs"
-#~ msgstr "選取的VM將會重新進入排程系統"
-
-#~ msgid "This will cancel the rescheduling for the selected VMs"
-#~ msgstr "選取的VM若處於重新排程狀態，將會取消排程"
-
-#~ msgid "ACTION"
-#~ msgstr "操作"
-
-#~ msgid "TIME"
-#~ msgstr "啟動時間"
-
-#~ msgid "MESSAGE"
-#~ msgstr "訊息"
-
-#~ msgid "Add another disk"
-#~ msgstr "新增磁碟"
-
-#~ msgid "Selects the cache mechanism for the disk."
-#~ msgstr "選擇磁碟快取機制"
-
-#~ msgid "none"
-#~ msgstr "none"
-
-#~ msgid "writethrough"
-#~ msgstr "writethrough"
-
-#~ msgid "writeback"
-#~ msgstr "writeback"
-
-#~ msgid "directsync"
-#~ msgstr "directsync"
-
-#~ msgid "unsafe"
-#~ msgstr "unsafe"
-
-#~ msgid "IO"
-#~ msgstr "IO"
-
-#~ msgid "threads"
-#~ msgstr "threads"
-
-#~ msgid "native"
-#~ msgstr "native"
-
-#~ msgid "Filesystem type for the fs images"
-#~ msgstr "此fs磁碟影像檔的檔案系統種類"
-
-#~ msgid "Arch"
-#~ msgstr "處理器架構"
-
-#~ msgid "Machine type"
-#~ msgstr "機器種類"
-
-#~ msgid "Root"
-#~ msgstr "根目錄"
-
-#~ msgid "Device to be mounted as root"
-#~ msgstr "掛載為根目錄的裝置名稱"
-
-#~ msgid "Kernel cmd"
-#~ msgstr "Kernel參數"
-
-#~ msgid "Arguments for the booting kernel"
-#~ msgstr "啟動Kernel時的額外參數"
-
-#~ msgid "Bootloader"
-#~ msgstr "Bootloader"
-
-#~ msgid "Request an specific IP from the Network"
-#~ msgstr "由虛擬網路中要求使用特定IP"
-
-#, fuzzy
-#~ msgid "Hardware that will emulate this network interface."
-#~ msgstr "網路介面模擬方式。使用Xen時，此欄位為vif類別屬性"
-
-#~ msgid "TCP Firewall"
-#~ msgstr "TCP防火牆"
-
-#~ msgid "Whitelist"
-#~ msgstr "允許清單"
-
-#~ msgid "Blacklist"
-#~ msgstr "封鎖清單"
-
-#~ msgid "PORTS"
-#~ msgstr "通訊埠"
-
-#~ msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
-#~ msgstr "使用逗點分隔列出通訊埠清單，或使用冒號來表示指定區段。例：22,80,5900:6000"
-
-#~ msgid "UDP Firewall"
-#~ msgstr "UDP防火牆"
-
-#~ msgid "Drop"
-#~ msgstr "丟棄ICMP封包"
-
-#~ msgid "IP to listen on"
-#~ msgstr "接聽VNC/SPICE連線需求的IP"
-
-#~ msgid "Port"
-#~ msgstr "通訊埠"
-
-#~ msgid "Keyboard configuration locale to use in the VNC/SPICE display"
-#~ msgstr "VNC/SPICE 操作介面所使用的鍵盤語系對應設定"
-
-#~ msgid "TYPE"
-#~ msgstr "種類"
-
-#~ msgid "Name that the VM will get for description purposes."
-#~ msgstr "用來描述此VM功能的名稱"
-
-#~ msgid "Description of the template"
-#~ msgstr "此範本的描述"
-
-#~ msgid "VM Name"
-#~ msgstr "VM名稱"
-
-#~ msgid "Number of Virtual Machines that will be created using this template"
-#~ msgstr "將套用此範本所建立的虛擬機器數量"
-
-#, fuzzy
-#~ msgid "Description of the Virtual Router"
-#~ msgstr "此範本的描述"
-
-#~ msgid "Name for this template"
-#~ msgstr "此服務範本的名稱"
-
-#, fuzzy
-#~ msgid "VM shutdown action: 'terminate' or 'terminate-hard'."
-#~ msgstr "VM結束操作: '結束(shutdown)' 或 '強迫結束(shutdown-hard)'"
-
-#~ msgid "Add another role"
-#~ msgstr "新增角色"
-
-#~ msgid "Minimum number of VMs for elasticity adjustments"
-#~ msgstr "動態性調整過程中的VM數量下限"
-
-#~ msgid "Maximum number of VMs for elasticity adjustments"
-#~ msgstr "動態性調整過程中的VM數量上限"
-
-#~ msgid "Presets"
-#~ msgstr "預設配置"
-
-#~ msgid "Managers"
-#~ msgstr "組件管理"
-
-#~ msgid "Safe Directories"
-#~ msgstr "安全來源目錄"
-
-#~ msgid "If you need to un-block a directory under one of the RESTRICTED_DIRS"
-#~ msgstr "若你需要由受限來源目錄中開放特定目錄作為磁碟影像檔註冊來源，請填寫於此欄位"
-
-#~ msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
-#~ msgstr "禁止特定目錄作為磁碟影像檔註冊來源。請使用空白作為多個路徑的分隔。這是為了防止使用者將重要的檔案註冊為磁碟影像檔，並透過虛擬機器來存取這些檔案。OpenNebula將會自動禁止下列目錄: /var/lib/one, /etc/one及oneadmin的家目錄($HOME)"
-
-#~ msgid "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."
-#~ msgstr "選擇性的容量限制，單位為MB。若設定此值，OpenNebula將以此值作為使用容量上限，而不會用完所有的磁碟空間。"
-
-#~ msgid "Pool Name"
-#~ msgstr "Pool名稱"
-
-#~ msgid "Name that the File will get. Every file must have a unique name."
-#~ msgstr "檔案的名稱。所有的檔案都擁有一個獨一無二的名稱"
-
-#~ msgid "Human readable description of the file for other users."
-#~ msgstr "供其他使用者參閱的檔案描述"
-
-#~ msgid "Type of the file."
-#~ msgstr "檔案種類"
-
-#~ msgid " KERNEL & RAMDISK files can be used in the OS Booting section of the Template wizard."
-#~ msgstr "KERNEL及RAMDISK可用在範本精靈的OS Booting頁面"
-
-#~ msgid " CONTEXT files can be included in the context CD-ROM, from the Context/Files section of the Template wizard."
-#~ msgstr "CONTEXT檔案會列在範本精靈的Context/檔案 頁面，可供選擇加入context光碟中。"
-
-#~ msgid "Select the datastore for this file"
-#~ msgstr "選擇此檔案所屬的資料存放區"
-
-#~ msgid "Provide a path"
-#~ msgstr "提供一個路徑"
-
-#, fuzzy
-#~ msgid "Name that the Marketplace will get for description purposes."
-#~ msgstr "用來描述此VM功能的名稱"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace for other users."
-#~ msgstr "供其他使用者參閱的檔案描述"
-
-#~ msgid "Firewall"
-#~ msgstr "防火牆"
-
-#~ msgid "ebtables"
-#~ msgstr "ebtables"
-
-#~ msgid "VN MAD"
-#~ msgstr "虛擬網路中介組件"
-
-#, fuzzy
-#~ msgid "Name that the Marketplace App will get for description purposes."
-#~ msgstr "用來描述此VM功能的名稱"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace App for other users."
-#~ msgstr "供其他使用者參閱的檔案描述"
-
-#, fuzzy
-#~ msgid "User Groups"
-#~ msgstr "群組"
-
-#~ msgid "REAL CPU"
-#~ msgstr "實際CPU"
-
-#~ msgid "REAL MEMORY"
-#~ msgstr "實際記憶體"
-
-#~ msgid "Name that the Image will get. Every image must have a unique name."
-#~ msgstr "磁碟影像檔的名稱。所有的磁碟影像檔都擁有一個獨一無二的名稱"
-
-#~ msgid "Human readable description of the image for other users."
-#~ msgstr "供其他使用者參閱的磁碟影像檔描述"
-
-#~ msgid "Select the datastore for this image"
-#~ msgstr "選擇此磁碟影像檔所屬的資料存放區"
-
-#~ msgid "Persistence of the image"
-#~ msgstr "磁碟影像檔的存續性"
-
-#~ msgid "Empty datablock"
-#~ msgstr "空白資料區塊"
-
-#~ msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
-#~ msgstr "將被複製到磁碟影像庫的原始檔案路徑。若DATABLOCK影像檔未填寫此欄位，將建立一個空白磁碟影像檔。"
-
-#~ msgid "Size of the datablock in MB."
-#~ msgstr "資料區塊大小 (MB)"
-
-#, fuzzy
-#~ msgid "Controller for the image."
-#~ msgstr "磁碟影像檔的種類"
-
-#, fuzzy
-#~ msgid "The BUS where the image will be connected to. If a custom is selected the actual Device Prefix should be typed. For example: “hd”, “sd”. If omitted, the default value is the DEFAULT_DEV_PREFIX defined in oned.conf (installation default is “hd”)."
-#~ msgstr "此磁碟影像檔將被掛載的裝置名稱字首。例如“hd”或“sd”。若未填寫，將使用oned.conf內的設定作為預設值(預設為hd)"
-
-#, fuzzy
-#~ msgid "Specific image mapping driver. KVM: raw, qcow2."
-#~ msgstr "指定磁碟影像檔的驅動模式。KVM: raw, qcow2. Xen:tap:aio:, file:"
-
-#~ msgid "Target on which the image will be mounted at. For example: hda, sdb..."
-#~ msgstr "磁碟影像檔將被掛載的目標裝置名稱。例: hda, sdb"
-
-#~ msgid "Files & Kernels"
-#~ msgstr "檔案 & Kernels"
-
-#~ msgid "The appliance is not ready"
-#~ msgstr "此應用設備目前無法使用"
-
-#~ msgid "Publisher"
-#~ msgstr "出版者"
-
-#~ msgid "OpenNebula Marketplace"
-#~ msgstr "OpenNebula Marketplace"
-
-#~ msgid "Appliance"
-#~ msgstr "應用設備"
-
-#~ msgid "This will delete the selected VMs from the database"
-#~ msgstr "選取的VM將會立刻刪除，且不保留任何資料。非必要請勿使用此指令"
-
-#~ msgid "This will delete and recreate VMs to PENDING state"
-#~ msgstr "選取的VM將會刪除並立刻重新開啟新的VM實體。使用此指令前，建議先嘗試關機封存指令"
-
-#~ msgid "OneFlow - Services"
-#~ msgstr "OneFlow - 服務"
-
-#~ msgid "OneFlow - Templates"
-#~ msgstr "OneFlow - 服務範本"
-
-#~ msgid "OneFlow - Template"
-#~ msgstr "OneFlow - 服務範本"
-
-#~ msgid "There are no saved templates available"
-#~ msgstr "沒有自存範本可以使用"
-
-#~ msgid "User Accounting"
-#~ msgstr "用戶使用量"
-
-#~ msgid "Change Capacity"
-#~ msgstr "變更計算資源"
-
-#~ msgid "There are no instance_types available. Please contact your cloud administrator"
-#~ msgstr "沒有機器類型可以使用。請聯絡管理員"
-
-#~ msgid "There are no instance types available"
-#~ msgstr "沒有機器類型可以使用"
-
-#~ msgid "This will add the user to a secondary group. Select the new group"
-#~ msgstr "所有被選取的使用者將會加入一個次要群組。請選擇新的次要群組"
-
-#~ msgid "Remove from group"
-#~ msgstr "退出群組"
-
-#~ msgid "This will remove the user from a secondary group. Select the group"
-#~ msgstr "所有被選取的用戶將會退出次要群組，請選擇要退出的群組"
-
-#~ msgid "shutdown"
-#~ msgstr "結束(shutdown)"
-
-#~ msgid "shutdown-hard"
-#~ msgstr "強迫結束(shutdown-hard)"
-
-#~ msgid "There are no networks available. Please contact your cloud administrator"
-#~ msgstr "沒有虛擬網路可以使用。請聯絡管理員"
-
-#~ msgid "VLAN"
-#~ msgstr "VLAN"
-
-#~ msgid "SIZE"
-#~ msgstr "大小"
-
-#~ msgid "IMAGES"
-#~ msgstr "影像檔"
-
-#~ msgid "USERS"
-#~ msgstr "用戶"
-
-#~ msgid "VMware VMFS"
-#~ msgstr "VMware VMFS"
-
-#~ msgid "Block LVM"
-#~ msgstr "Block LVM"
-
-#~ msgid "VMware"
-#~ msgstr "VMware"
-
-#~ msgid "VMFS"
-#~ msgstr "VMFS"
-
-#~ msgid "Base Path"
-#~ msgstr "基底路徑"
-
-#~ msgid "When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores)."
-#~ msgstr "如有需要，控制節點將會透過此基底路徑來存取資料存放區(預設路徑為/var/lib/one/datastores)"
-
-#~ msgid "XEN"
-#~ msgstr "XEN"
-
-#~ msgid "Dummy"
-#~ msgstr "Dummy"
-
-#~ msgid "Networking"
-#~ msgstr "網路"
-
-#~ msgid "Default (dummy)"
-#~ msgstr "預設值(dummy)"
-
-#~ msgid "Custom VNM_MAD"
-#~ msgstr "自訂虛擬網路中介組件"
-
-#~ msgid "FS type"
-#~ msgstr "檔案系統種類"
-
-#~ msgid "The following images will be created in OpenNebula."
-#~ msgstr "下列磁碟影像檔將會被建立"
-
-#~ msgid "If you want to edit parameters of the image you can do it later in the images tab"
-#~ msgstr "若你想修改磁碟影像檔的各種參數，在匯入完成後，你可以在磁碟影像檔的頁面中作修改"
-
-#~ msgid "If you want to edit parameters of the template you can do it later in the templates tab"
-#~ msgstr "若你想修改範本的設定，在匯入完成後，你可以在範本的頁面中作修改"
-
-#~ msgid "Import Appliance"
-#~ msgstr "匯入應用設備"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "link"
-#~ msgstr "連結"
-
-#~ msgid "Catalog"
-#~ msgstr "分類"
-
-#~ msgid "Shutdown hard"
-#~ msgstr "強迫結束(Shutdown hard)"
-
-#~ msgid "Group Accounting"
-#~ msgstr "群組使用量"
-
-#~ msgid "Saved"
-#~ msgstr "自存"
-
-#~ msgid "Guest OS"
-#~ msgstr "Guest OS"
-
-#~ msgid "Set the OS of the VM, only for VMware"
-#~ msgstr "設定VM的OS種類，僅適用於VMWare"
-
-#~ msgid "HD"
-#~ msgstr "硬碟"
-
-#~ msgid "FD"
-#~ msgstr "軟碟"
-
-#~ msgid "NETWORK"
-#~ msgstr "網路卡"
-
-#~ msgid "PATH"
-#~ msgstr "路徑"
-
-#~ msgid "PCI BRIDGE"
-#~ msgstr "PCI橋接器"
-
-#~ msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
-#~ msgstr " 在VM中加入PCI控制器，提供橋接能力，此功能僅於VMware可使用"
-
-#~ msgid "xen"
-#~ msgstr "xen"
-
-#~ msgid "vmware"
-#~ msgstr "vmware"
-
-#~ msgid "DATA"
-#~ msgstr "資料(DATA)"
-
-#~ msgid "Core"
-#~ msgstr "Core"
-
-#~ msgid "x509"
-#~ msgstr "x509"
-
-#~ msgid "LDAP"
-#~ msgstr "LDAP"
-
-#~ msgid "Step 1: Specify a name and the number of instances"
-#~ msgstr "第1步：設定虛擬機器名稱及數量"
-
-#~ msgid "Step 2: Select a template"
-#~ msgstr "第2步：選擇一個範本"
-
-#~ msgid "KEY"
-#~ msgstr "鍵(KEY)"
-
-#~ msgid "VALUE"
-#~ msgstr "值(VALUE)"
+#~ msgid "Virtual Machine ID"
+#~ msgstr "虛擬機器ID"

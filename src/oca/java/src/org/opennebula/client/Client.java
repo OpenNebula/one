@@ -41,7 +41,7 @@ public class Client{
 
     /**
      * Creates a new xml-rpc client with default options: the auth. file will be
-     * assumed to be at $ONE_AUTH, and the endpoint will be set to $ONE_XMLRPC. <br/>
+     * assumed to be at $ONE_AUTH, and the endpoint will be set to $ONE_XMLRPC. <br>
      * It is the equivalent of Client(null, null).
      *
      * @throws ClientConfigurationException

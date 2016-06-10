@@ -61,7 +61,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's VirtualRouters</li>
+     * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      */
     public VirtualRouterPool(Client client, int filter)
@@ -89,7 +89,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's VirtualRouters</li>
+     * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -147,7 +147,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's VirtualRouters</li>
+     * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve
@@ -219,7 +219,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
-     * <li>>= 0: UID User's VirtualRouters</li>
+     * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @param startId Lowest Id to retrieve
      * @param endId Biggest Id to retrieve

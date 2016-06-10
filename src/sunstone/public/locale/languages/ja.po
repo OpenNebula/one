@@ -1,18 +1,18 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR 2002-2016, OpenNebula Project, OpenNebula Systems
+# This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
 # Akihiko Ota <skywalker.37th@gmail.com>, 2015
 # kuromabo <md81bird@hitaki.net>, 2015
-# Sono Mishiro <selene.jaxa@gmail.com>, 2014-2016
+# Sono Mishiro <selene.jaxa@gmail.com>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-01 10:50+0200\n"
-"PO-Revision-Date: 2015-09-01 10:34+0000\n"
-"Last-Translator: Daniel Molina <dmolina@opennebula.org>\n"
+"POT-Creation-Date: 2016-06-10 18:30+0200\n"
+"PO-Revision-Date: 2016-06-01 09:00+0000\n"
+"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/opennebula/one/language/ja/)\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -30,27 +30,22 @@ msgstr ""
 msgid "Datastores"
 msgstr "データストア"
 
-#: ../app/tabs/datastores-tab.js:51 ../app/tabs/files-tab/datatable.js:69
-#: ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable.js:69
+#: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
+#: ../app/tabs/images-tab/datatable-common.js:66
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:84
 #: ../app/utils/vcenter/images.js:103
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/files-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
 msgid "Datastore"
 msgstr "データストア"
 
 #: ../app/tabs/groups-tab/actions.js:33
-#, fuzzy
 msgid "Group created"
-msgstr "作成されたVDC"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create.js:53
 msgid "Create Group"
@@ -58,13 +53,12 @@ msgstr "グループを作成"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:73
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
-#: ../app/tabs/files-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
@@ -73,10 +67,10 @@ msgstr "グループを作成"
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
 #: ../app/tabs/vms-tab/form-panels/create.js:51
-#: ../app/tabs/images-tab/form-panels/create.js:57
+#: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
-#: ../app/tabs/provision-tab/vms/create.hbs:39
-#: ../app/tabs/provision-tab/flows/create.hbs:29
+#: ../app/tabs/provision-tab/vms/create.hbs:45
+#: ../app/tabs/provision-tab/flows/create.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:189
 #: ../app/sunstone/buttons.hbs:30
 msgid "Create"
@@ -90,7 +84,7 @@ msgstr "グループを更新"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create.js:69
+#: ../app/tabs/templates-tab/form-panels/create-common.js:78
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -102,9 +96,9 @@ msgstr "グループを更新"
 #: ../app/tabs/vnets-tab/buttons.js:40
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/clusters-tab/buttons.js:33
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:28
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:30
 #: ../app/utils/dialogs/overcommit/html.hbs:65
 msgid "Update"
 msgstr "更新"
@@ -118,7 +112,7 @@ msgid "Quotas"
 msgstr "クオータ"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions.js:54
+#: ../app/tabs/templates-tab/actions-common.js:58
 #: ../app/tabs/templates-tab/buttons.js:81
 #: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
 #: ../app/tabs/provision-tab/templates/list.js:172
@@ -126,7 +120,7 @@ msgstr "クオータ"
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
-#: ../app/tabs/datastores-tab/buttons.js:57 ../app/tabs/files-tab/buttons.js:57
+#: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
 #: ../app/tabs/oneflow-services-tab/buttons.js:52
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
@@ -141,13 +135,12 @@ msgid "Delete"
 msgstr "削除"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable.js:66
+#: ../app/tabs/templates-tab/datatable-common.js:64
 #: ../app/tabs/vrouters-tab/datatable.js:58
 #: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
 #: ../app/tabs/oneflow-templates-tab/datatable.js:62
 #: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/files-tab/datatable.js:65
 #: ../app/tabs/marketplaces-tab/datatable.js:80
 #: ../app/tabs/oneflow-services-tab/datatable.js:63
 #: ../app/tabs/secgroups-tab/datatable.js:62
@@ -159,7 +152,7 @@ msgstr "削除"
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable.js:65
+#: ../app/tabs/images-tab/datatable-common.js:62
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -170,12 +163,11 @@ msgstr "削除"
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:43
 #: ../app/tabs/zones-tab/panels/info/html.hbs:27
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:27
-#: ../app/tabs/provision-tab/vms/list.hbs:52
+#: ../app/tabs/provision-tab/vms/list.hbs:53
 #: ../app/tabs/provision-tab/flows/list.hbs:46
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:142
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:27
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:27
-#: ../app/tabs/files-tab/panels/info/html.hbs:27
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:27
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:27
@@ -191,12 +183,11 @@ msgid "ID"
 msgstr "ID"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:67
 #: ../app/tabs/vrouters-tab/datatable.js:61
 #: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
 #: ../app/tabs/oneflow-templates-tab/datatable.js:65
 #: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/files-tab/datatable.js:68
 #: ../app/tabs/marketplaces-tab/datatable.js:83
 #: ../app/tabs/oneflow-services-tab/datatable.js:66
 #: ../app/tabs/secgroups-tab/datatable.js:65
@@ -206,35 +197,34 @@ msgstr "ID"
 #: ../app/tabs/users-tab/datatable.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable.js:68 ../app/utils/vcenter/images.js:130
-#: ../app/utils/vcenter/templates.js:137 ../app/utils/vcenter/datastores.js:128
-#: ../app/utils/vcenter/networks.js:136
+#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/utils/vcenter/images.js:124 ../app/utils/vcenter/templates.js:137
+#: ../app/utils/vcenter/datastores.js:128 ../app/utils/vcenter/networks.js:136
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/groups-tab/panels/info/html.hbs:32
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
-#: ../app/tabs/provision-tab/vms/list.hbs:53
+#: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:24
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -287,11 +277,10 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable.js:71
+#: ../app/tabs/templates-tab/datatable-common.js:69
 #: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/oneflow-templates-tab/datatable.js:66
 #: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/files-tab/datatable.js:77
 #: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/oneflow-services-tab/datatable.js:68
 #: ../app/tabs/secgroups-tab/datatable.js:66
@@ -300,9 +289,9 @@ msgstr "CPU"
 #: ../app/tabs/clusters-tab/datatable.js:67
 #: ../app/tabs/users-tab/datatable.js:75
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable.js:77
-#: ../app/tabs/provision-tab/vms/create.hbs:72
-#: ../app/tabs/provision-tab/flows/create.hbs:54
+#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/provision-tab/vms/create.hbs:78
+#: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
 msgstr ""
 
@@ -324,13 +313,12 @@ msgstr "以下のグループが選択されています:"
 
 #: ../app/tabs/groups-tab/panels/info.js:47
 #: ../app/tabs/vdcs-tab/panels/info.js:41
-#: ../app/tabs/templates-tab/panels/info.js:47
+#: ../app/tabs/templates-tab/panels/info-common.js:44
 #: ../app/tabs/vrouters-tab/panels/info.js:53
 #: ../app/tabs/zones-tab/panels/info.js:45
 #: ../app/tabs/hosts-tab/panels/info.js:58
 #: ../app/tabs/oneflow-templates-tab/panels/info.js:46
 #: ../app/tabs/datastores-tab/panels/info.js:49
-#: ../app/tabs/files-tab/panels/info.js:51
 #: ../app/tabs/marketplaces-tab/panels/info.js:48
 #: ../app/tabs/oneflow-services-tab/panels/info.js:47
 #: ../app/tabs/secgroups-tab/panels/info.js:49
@@ -339,7 +327,7 @@ msgstr "以下のグループが選択されています:"
 #: ../app/tabs/clusters-tab/panels/info.js:46
 #: ../app/tabs/users-tab/panels/info.js:51
 #: ../app/tabs/vms-tab/panels/info.js:51
-#: ../app/tabs/images-tab/panels/info.js:50
+#: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
 msgstr "情報"
 
@@ -349,15 +337,14 @@ msgstr "情報"
 #: ../app/tabs/zones-tab/panels/info.js:66
 #: ../app/tabs/hosts-tab/panels/info.js:96
 #: ../app/tabs/datastores-tab/panels/info.js:72
-#: ../app/tabs/files-tab/panels/info.js:71
 #: ../app/tabs/marketplaces-tab/panels/info.js:71
-#: ../app/tabs/secgroups-tab/panels/info.js:87
+#: ../app/tabs/secgroups-tab/panels/info.js:84
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
 #: ../app/tabs/users-tab/panels/info.js:78
 #: ../app/tabs/vms-tab/panels/info.js:94
-#: ../app/tabs/images-tab/panels/info.js:70
+#: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
 msgstr "属性"
 
@@ -449,7 +436,7 @@ msgid "Clusters"
 msgstr "クラスタ"
 
 #: ../app/tabs/vdcs-tab/datatable.js:69 ../app/tabs/acls-tab/datatable.js:136
-#: ../app/tabs/hosts-tab.js:50 ../app/tabs/hosts-tab.js:54
+#: ../app/tabs/hosts-tab.js:51 ../app/tabs/hosts-tab.js:55
 #: ../app/tabs/clusters-tab/datatable.js:64
 #: ../app/tabs/clusters-tab/panels/hosts.js:39
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:21
@@ -497,9 +484,9 @@ msgstr ""
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:73
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:138
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:57
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:79
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:52
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:59
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:81
 #: ../app/utils/accounting/html.hbs:39
 msgid "All"
 msgstr "すべて"
@@ -509,27 +496,23 @@ msgstr "すべて"
 msgid "Resources"
 msgstr "リソース"
 
-#: ../app/tabs/templates-tab/actions.js:36
-#: ../app/tabs/templates-tab/actions.js:218
-#: ../app/tabs/templates-tab/actions.js:229
-#: ../app/tabs/marketplaceapps-tab/actions.js:76
-#, fuzzy
-msgid "VM Template created"
-msgstr "VMテンプレート"
-
-#: ../app/tabs/templates-tab/actions.js:50
-msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
+#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+msgid "Create VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions.js:53
-msgid "Delete all images"
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+msgid "Update VM Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions.js:154
-#: ../app/tabs/templates-tab/actions.js:199 ../app/tabs/vms-tab/actions.js:40
+#: ../app/tabs/templates-tab/form-panels/create-common.js:66
 #, fuzzy
-msgid "VM created"
-msgstr "作成されたVDC"
+msgid "Create Virtual Router VM Template"
+msgstr "仮想データセンタを作成"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:67
+#, fuzzy
+msgid "Update Virtual Router VM Template"
+msgstr "仮想データセンタを更新"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -537,29 +520,21 @@ msgstr "VMテンプレートからインスタンス生成"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
 #: ../app/tabs/oneflow-templates-tab/buttons.js:33
 msgid "Instantiate"
 msgstr "インスタンス生成"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:111
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
 msgid "No template selected"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:211
-#: ../app/tabs/vrouters-tab/form-panels/create.js:135
-#: ../app/tabs/provision-tab.js:965 ../app/tabs/provision-tab.js:1209
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
+#: ../app/tabs/vrouters-tab/form-panels/create.js:129
+#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
 #: ../app/utils/user-inputs.js:226
 msgid "Custom Attributes"
 msgstr "カスタム属性"
-
-#: ../app/tabs/templates-tab/form-panels/create.js:63
-msgid "Create VM Template"
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create.js:68
-msgid "Update VM Template"
-msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import.js:50
 msgid "Import vCenter VM Templates"
@@ -579,8 +554,8 @@ msgstr "インポート"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:56
 #: ../app/tabs/vms-tab/panels/storage.js:159
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:43
 msgid "Context"
 msgstr "Context"
 
@@ -606,28 +581,24 @@ msgstr "スケジューリング"
 msgid "OS Booting"
 msgstr "OS起動"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:377
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:378
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:34
-#, fuzzy
 msgid "Image ID"
-msgstr "イメージ"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:379
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:380
 msgid "Volatile"
-msgstr "揮発ディスク"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:398
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:405
 msgid "Network ID"
-msgstr "ネットワーク"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:400
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:407
 msgid "Manual settings"
-msgstr "設定"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:410
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:417
 msgid "Disks and NICs will appear here"
 msgstr ""
 
@@ -637,7 +608,7 @@ msgid "Storage"
 msgstr "ストレージ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:161
-#: ../app/utils/disks-resize.js:127
+#: ../app/utils/disks-resize.js:134
 msgid "DISK"
 msgstr "DISK"
 
@@ -653,7 +624,7 @@ msgstr "Disk"
 #: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:53
 #: ../app/utils/nics-section/html.hbs:3
 msgid "Network"
@@ -687,77 +658,98 @@ msgstr "プロバイダ"
 msgid "Provider"
 msgstr "プロバイダ"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:49
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:53
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:20
 msgid "General"
 msgstr "全般"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:147
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
 #: ../app/utils/vcenter/templates.js:233
 msgid "Which datastore you want this VM to run on?"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:168
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
 #: ../app/utils/vcenter/templates.js:254
 msgid "Which resource pool you want this VM to run in?"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:39
+#: ../app/tabs/templates-tab/actions-common.js:227
+#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/marketplaceapps-tab/actions.js:76
+msgid "VM Template created"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:54
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:57
+msgid "Delete all images"
+msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:158
+#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/vms-tab/actions.js:40
+msgid "VM created"
 msgstr ""
 
 #: ../app/tabs/templates-tab/buttons.js:49
 #: ../app/tabs/vrouters-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
-#: ../app/tabs/datastores-tab/buttons.js:43 ../app/tabs/files-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
 #: ../app/tabs/oneflow-services-tab/buttons.js:28
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
-#: ../app/tabs/vms-tab/buttons.js:33 ../app/tabs/images-tab/buttons.js:42
+#: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
 msgid "Change owner"
 msgstr "オーナーの変更"
 
 #: ../app/tabs/templates-tab/buttons.js:52
 #: ../app/tabs/vrouters-tab/buttons.js:35
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
-#: ../app/tabs/datastores-tab/buttons.js:46 ../app/tabs/files-tab/buttons.js:35
+#: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
 #: ../app/tabs/oneflow-services-tab/buttons.js:30
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
-#: ../app/tabs/vms-tab/buttons.js:36 ../app/tabs/images-tab/buttons.js:45
+#: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
 msgid "Select the new owner"
 msgstr "新しいオーナーを選択"
 
 #: ../app/tabs/templates-tab/buttons.js:56
 #: ../app/tabs/vrouters-tab/buttons.js:39
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
-#: ../app/tabs/datastores-tab/buttons.js:50 ../app/tabs/files-tab/buttons.js:39
+#: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
 #: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
-#: ../app/tabs/vms-tab/buttons.js:40 ../app/tabs/images-tab/buttons.js:49
+#: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
 msgid "Change group"
 msgstr "グループの変更"
 
 #: ../app/tabs/templates-tab/buttons.js:59
 #: ../app/tabs/vrouters-tab/buttons.js:42
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
-#: ../app/tabs/datastores-tab/buttons.js:53 ../app/tabs/files-tab/buttons.js:42
+#: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
 #: ../app/tabs/oneflow-services-tab/buttons.js:37
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
-#: ../app/tabs/vms-tab/buttons.js:43 ../app/tabs/images-tab/buttons.js:52
+#: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
 msgid "Select the new group"
 msgstr "新しいグループを選択"
 
 #: ../app/tabs/templates-tab/buttons.js:64
 #: ../app/tabs/oneflow-templates-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:52 ../app/tabs/images-tab/buttons.js:77
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:38
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:40
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:45
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:41
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:45
 msgid "Clone"
 msgstr "クローン"
 
@@ -779,30 +771,28 @@ msgstr "未共有"
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:65
 #: ../app/tabs/vrouters-tab/datatable.js:59
 #: ../app/tabs/oneflow-templates-tab/datatable.js:63
 #: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/files-tab/datatable.js:66
 #: ../app/tabs/marketplaces-tab/datatable.js:81
 #: ../app/tabs/oneflow-services-tab/datatable.js:64
 #: ../app/tabs/secgroups-tab/datatable.js:63
 #: ../app/tabs/vnets-tab/datatable.js:65
 #: ../app/tabs/marketplaceapps-tab/datatable.js:82
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable.js:66
+#: ../app/tabs/images-tab/datatable-common.js:63
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "オーナー"
 
-#: ../app/tabs/templates-tab/datatable.js:68
+#: ../app/tabs/templates-tab/datatable-common.js:66
 #: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
 #: ../app/tabs/oneflow-templates-tab/datatable.js:64
 #: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/files-tab/datatable.js:67
 #: ../app/tabs/marketplaces-tab/datatable.js:82
 #: ../app/tabs/oneflow-services-tab/datatable.js:65
 #: ../app/tabs/secgroups-tab/datatable.js:64
@@ -810,7 +800,7 @@ msgstr "オーナー"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
@@ -822,37 +812,38 @@ msgstr "オーナー"
 msgid "Group"
 msgstr "グループ"
 
-#: ../app/tabs/templates-tab/datatable.js:70
-#: ../app/tabs/files-tab/datatable.js:72 ../app/tabs/images-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/images-tab/datatable-common.js:69
 msgid "Registration time"
 msgstr "登録日時"
 
-#: ../app/tabs/templates-tab/datatable.js:77
+#: ../app/tabs/templates-tab/datatable-common.js:75
 #: ../app/tabs/oneflow-templates-tab/datatable.js:72
 msgid "Please select a Template from the list"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:78
+#: ../app/tabs/templates-tab/datatable-common.js:76
 #: ../app/tabs/oneflow-templates-tab/datatable.js:73
 msgid "You selected the following Template:"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:79
+#: ../app/tabs/templates-tab/datatable-common.js:77
 #: ../app/tabs/oneflow-templates-tab/datatable.js:74
 msgid "Please select one or more Templates from the list"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable.js:80
+#: ../app/tabs/templates-tab/datatable-common.js:78
 #: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "You selected the following Templates:"
 msgstr ""
 
-#: ../app/tabs/templates-tab/panels/template.js:45
-#: ../app/tabs/vms-tab/panels/template.js:39
-#: ../app/tabs/vms-tab/panels/template.js:63
+#: ../app/tabs/templates-tab/panels/template-common.js:43
+#: ../app/tabs/oneflow-templates-tab/panels/template.js:45
+#: ../app/tabs/vms-tab/panels/template.js:40
+#: ../app/tabs/vms-tab/panels/template.js:69
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
-#: ../app/tabs/provision-tab/vms/create.hbs:44
-#: ../app/tabs/provision-tab/flows/create.hbs:34
+#: ../app/tabs/provision-tab/vms/create.hbs:50
+#: ../app/tabs/provision-tab/flows/create.hbs:38
 msgid "Template"
 msgstr "テンプレート"
 
@@ -862,49 +853,41 @@ msgid "System"
 msgstr "システム"
 
 #: ../app/tabs/vrouters-tab/actions.js:31
-#, fuzzy
 msgid "Virtual Router created"
-msgstr "仮想リソース"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create.js:60
-#, fuzzy
 msgid "Create Virtual Router"
-msgstr "仮想ネットワークを作成"
+msgstr ""
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:205
+#: ../app/tabs/vrouters-tab/form-panels/create.js:199
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:67
-#, fuzzy
 msgid "Please select a virtual router from the list"
-msgstr "リストからクラスタを選択してください"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:68
-#, fuzzy
 msgid "You selected the following virtual router:"
-msgstr "以下のクラスタを選択しています："
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:69
-#, fuzzy
 msgid "Please select one or more virtual routers from the list"
-msgstr "リストから1つ以上のクラスタを選択してください"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/datatable.js:70
-#, fuzzy
 msgid "You selected the following virtual routers:"
-msgstr "以下のクラスタが選択されています:"
+msgstr ""
 
-#: ../app/tabs/vrouters-tab/panels/info.js:153
-#: ../app/tabs/vms-tab/panels/network.js:395
-#, fuzzy
+#: ../app/tabs/vrouters-tab/panels/info.js:154
+#: ../app/tabs/vms-tab/panels/network.js:396
 msgid "This will detach the nic immediately"
-msgstr "選択したテンプレートを削除します"
+msgstr ""
 
 #: ../app/tabs/zones-tab/actions.js:31
-#, fuzzy
 msgid "Zone created"
-msgstr "イメージ名"
+msgstr ""
 
 #: ../app/tabs/zones-tab/datatable.js:64
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -932,9 +915,8 @@ msgid "Infrastructure"
 msgstr "インフラストラクチャー"
 
 #: ../app/tabs/hosts-tab/actions.js:33
-#, fuzzy
 msgid "Host created"
-msgstr "クラスタを作成しました"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
@@ -946,19 +928,16 @@ msgid "Select cluster"
 msgstr "クラスタを選択"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
-#, fuzzy
 msgid "Select the destination cluster"
-msgstr "追加先のクラスタを選択:"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/datastores-tab/buttons.js:63
-#: ../app/tabs/files-tab/buttons.js:47
 #: ../app/tabs/marketplaceapps-tab/buttons.js:55
 #: ../app/tabs/images-tab/buttons.js:57
 msgid "Enable"
 msgstr "有効"
 
 #: ../app/tabs/hosts-tab/buttons.js:44 ../app/tabs/datastores-tab/buttons.js:68
-#: ../app/tabs/files-tab/buttons.js:52
 #: ../app/tabs/marketplaceapps-tab/buttons.js:60
 #: ../app/tabs/images-tab/buttons.js:62
 msgid "Disable"
@@ -1013,9 +992,8 @@ msgstr "割り当て済みメモリー"
 
 #: ../app/tabs/hosts-tab/datatable.js:75
 #: ../app/tabs/datastores-tab/datatable.js:89
-#: ../app/tabs/files-tab/datatable.js:74
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable.js:74
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
 msgid "Status"
 msgstr "状態"
@@ -1065,7 +1043,7 @@ msgstr "実メモリー"
 msgid "ESX"
 msgstr "ESX"
 
-#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:55
+#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:56
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
@@ -1096,6 +1074,10 @@ msgstr "合計"
 msgid "PCI"
 msgstr ""
 
+#: ../app/tabs/hosts-tab/panels/zombies.js:48
+msgid "Zombies"
+msgstr ""
+
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
 msgstr ""
@@ -1111,19 +1093,37 @@ msgid "Import Wilds"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
-#: ../app/utils/vcenter/images.js:259 ../app/utils/vcenter/templates.js:301
+#: ../app/utils/vcenter/images.js:260 ../app/utils/vcenter/templates.js:301
 #: ../app/utils/vcenter/datastores.js:264 ../app/utils/vcenter/networks.js:335
 #: ../app/utils/vcenter/clusters.js:208
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "サーバーに接続できません: サーバーは実行中かつアクセス可能ですか？"
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
-#: ../app/tabs/hosts-tab.js:56 ../app/tabs/vms-tab.js:71
+#: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
 #: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:32
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "合計"
+
+#: ../app/tabs/vrouter-templates-tab.js:44
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
+#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
+#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
+msgid "Virtual Routers"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab.js:48
+#, fuzzy
+msgid "Virtual Router VM Templates"
+msgstr "仮想マシンをテンプレートに保存"
+
+#: ../app/tabs/vrouter-templates-tab.js:49
+#, fuzzy
+msgid "Virtual Router VM Template"
+msgstr "仮想マシンをテンプレートに保存"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1136,16 +1136,15 @@ msgstr "テンプレート"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
 #: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:626 ../app/tabs/provision-tab.js:807
-#: ../app/tabs/provision-tab.js:1078
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
+#: ../app/tabs/provision-tab.js:1070
 msgid "There are no templates available"
 msgstr "利用可能なテンプレートがありません"
 
 #: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:639
-#, fuzzy
+#: ../app/tabs/provision-tab.js:627
 msgid "No labels defined"
-msgstr "イメージが定義されていません"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:148
 msgid "Create a template by saving a running Virtual Machine"
@@ -1156,23 +1155,22 @@ msgid "SHARED"
 msgstr "SHARED"
 
 #: ../app/tabs/provision-tab/templates/list.js:252
-#: ../app/tabs/provision-tab/vms/list.js:230
+#: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
-#: ../app/tabs/provision-tab/vms/create.hbs:65
+#: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr "ALL"
 
 #: ../app/tabs/provision-tab/templates/list.js:273
-#, fuzzy
 msgid "Handle with care! This action will immediately destroy the template"
-msgstr "取扱注意！このアクションは直ちにテンプレートを破壊します"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:275
 msgid "and the image associated."
 msgstr "関連するイメージ"
 
 #: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:369
+#: ../app/tabs/provision-tab/templates/list.js:371
 msgid "The template"
 msgstr "テンプレート"
 
@@ -1184,15 +1182,15 @@ msgstr "関連するイメージは共有され，全てのユーザはこのテ
 msgid "Share template"
 msgstr "共有テンプレート"
 
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:373
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "関連するイメージは共有解除され，ユーザはこのテンプレートを使用して新しいVMを生成できなくなります"
 
-#: ../app/tabs/provision-tab/templates/list.js:375
+#: ../app/tabs/provision-tab/templates/list.js:377
 msgid "Unshare template"
 msgstr "未共有テンプレート"
 
-#: ../app/tabs/provision-tab/vms/list.js:71
+#: ../app/tabs/provision-tab/vms/list.js:76
 #: ../app/tabs/acls-tab/datatable.js:139
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:18
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:75
@@ -1200,100 +1198,99 @@ msgstr "未共有テンプレート"
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
-#: ../app/tabs/provision-tab/vms/list.js:92
-#: ../app/tabs/provision-tab/vms/list.js:156
+#: ../app/tabs/provision-tab/vms/list.js:97
+#: ../app/tabs/provision-tab/vms/list.js:161
 msgid "There are no Virtual Machines"
 msgstr "仮想マシンがありません"
 
-#: ../app/tabs/provision-tab/vms/list.js:500 ../app/tabs/templates-tab.js:52
+#: ../app/tabs/provision-tab/vms/list.js:505 ../app/tabs/templates-tab.js:52
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:53
 msgid "VM Template"
 msgstr "VMテンプレート"
 
-#: ../app/tabs/provision-tab/vms/list.js:500
+#: ../app/tabs/provision-tab/vms/list.js:505
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
 msgstr "正常に保存しました"
 
-#: ../app/tabs/provision-tab/vms/list.js:508
+#: ../app/tabs/provision-tab/vms/list.js:513
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:825
-#: ../app/tabs/provision-tab/vms/list.js:833
-#: ../app/tabs/provision-tab/vms/list.js:839
-#: ../app/tabs/provision-tab/vms/list.js:848
-#: ../app/tabs/provision-tab/vms/list.js:939
-#: ../app/tabs/provision-tab/vms/list.js:1005
+#: ../app/tabs/provision-tab/vms/list.js:796
+#: ../app/tabs/provision-tab/vms/list.js:804
+#: ../app/tabs/provision-tab/vms/list.js:810
+#: ../app/tabs/provision-tab/vms/list.js:819
+#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:976
 #: ../app/tabs/provision-tab/flows/list.js:633 ../app/opennebula/role.js:45
 #: ../app/opennebula/service.js:27
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:54
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:66
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:54
 msgid "DEPLOYING"
 msgstr "デプロイ"
 
-#: ../app/tabs/provision-tab/vms/list.js:867
+#: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:188
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:56
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
 msgstr "実行中"
 
-#: ../app/tabs/provision-tab/vms/list.js:877
+#: ../app/tabs/provision-tab/vms/list.js:848
 msgid "SAVING IMAGE"
 msgstr "SAVING IMAGE"
 
-#: ../app/tabs/provision-tab/vms/list.js:895
-#: ../app/tabs/provision-tab/vms/list.js:944
-#: ../app/tabs/provision-tab/vms/list.js:1009 ../app/tabs/hosts-tab.js:59
+#: ../app/tabs/provision-tab/vms/list.js:866
+#: ../app/tabs/provision-tab/vms/list.js:915
+#: ../app/tabs/provision-tab/vms/list.js:980 ../app/tabs/hosts-tab.js:60
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/host.js:42
 #: ../app/opennebula/host.js:54 ../app/opennebula/image.js:28
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:70
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:86
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:70
 #: ../app/tabs/dashboard-tab/hosts.hbs:27
 msgid "ERROR"
 msgstr "エラー"
 
-#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:881
 msgid "POWERING OFF"
 msgstr "POWERING OFF"
 
-#: ../app/tabs/provision-tab/vms/list.js:914
-#: ../app/tabs/provision-tab/vms/list.js:918
-#: ../app/tabs/provision-tab/vms/list.js:949
-#: ../app/tabs/provision-tab/vms/list.js:1017
+#: ../app/tabs/provision-tab/vms/list.js:885
+#: ../app/tabs/provision-tab/vms/list.js:889
+#: ../app/tabs/provision-tab/vms/list.js:920
+#: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:201
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
 msgid "UNKNOWN"
 msgstr "UNKNOWN"
 
-#: ../app/tabs/provision-tab/vms/list.js:928
-#: ../app/tabs/provision-tab/vms/list.js:999 ../app/tabs/hosts-tab.js:58
+#: ../app/tabs/provision-tab/vms/list.js:899
+#: ../app/tabs/provision-tab/vms/list.js:970 ../app/tabs/hosts-tab.js:59
 #: ../app/tabs/vms-tab.js:73 ../app/opennebula/datastore.js:26
 #: ../app/opennebula/host.js:59 ../app/tabs/provision-tab/dashboard/vms.hbs:62
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:76
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:62
 #: ../app/tabs/dashboard-tab/hosts.hbs:26
 msgid "OFF"
 msgstr "OFF"
 
-#: ../app/tabs/provision-tab/vms/list.js:933
-#, fuzzy
+#: ../app/tabs/provision-tab/vms/list.js:904
 msgid "UNDEPLOYED"
-msgstr "アンデプロイ"
+msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:994
+#: ../app/tabs/provision-tab/vms/list.js:965
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 msgid "READY"
 msgstr "READY"
 
-#: ../app/tabs/provision-tab/vms/list.js:1013
+#: ../app/tabs/provision-tab/vms/list.js:984
 msgid "DELETING"
 msgstr "DELETING"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
-#: ../app/tabs/oneflow-templates-tab.js:47
+#: ../app/tabs/oneflow-templates-tab.js:48
 #: ../app/tabs/oneflow-services-tab.js:46
 #: ../app/tabs/oneflow-services-tab.js:50
 #: ../app/utils/menu/provision-top-row.hbs:42
@@ -1305,7 +1302,7 @@ msgid "There are no Services"
 msgstr "サービスがありません"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
-#: ../app/tabs/oneflow-templates-tab.js:56
+#: ../app/tabs/oneflow-templates-tab.js:57
 #: ../app/tabs/oneflow-services-tab.js:55
 msgid "Cannot connect to OneFlow server"
 msgstr "OneFlowサーバに接続できません"
@@ -1322,7 +1319,7 @@ msgstr "新しいサービスを作成"
 msgid "Change Cardinality"
 msgstr "カーディナリティの変更"
 
-#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:122
 msgid "The cardinality for this role cannot be changed"
 msgstr "このルールのカーディナリティは変更できません"
 
@@ -1332,15 +1329,13 @@ msgstr "このルールのカーディナリティは変更できません"
 msgid "Dismiss Alert"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:193
-#, fuzzy
+#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:146
 msgid "Number of VMs for Role"
-msgstr "ロールの名前"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:500
-#, fuzzy
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr "注意して下さい，このアクションは直ちにサービスを破壊します"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:502
 #: ../app/tabs/provision-tab/flows/list.js:523
@@ -1348,9 +1343,8 @@ msgid "All the information will be lost!"
 msgstr "全ての情報が失われるでしょう!"
 
 #: ../app/tabs/provision-tab/flows/list.js:521
-#, fuzzy
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr "注意して下さい，このアクションは直ちにサービスをシャットダウンします"
+msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:527
 #: ../app/tabs/oneflow-services-tab/buttons.js:43
@@ -1409,8 +1403,6 @@ msgid "Virtual Networks"
 msgstr "仮想ネットワーク"
 
 #: ../app/tabs/vnets-tab.js:57 ../app/tabs/secgroups-tab/utils/common.js:94
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:25
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:25
 msgid "Virtual Network"
 msgstr "仮想ネットワーク"
 
@@ -1427,9 +1419,8 @@ msgid "Access Control Lists"
 msgstr "アクセス管理リスト"
 
 #: ../app/tabs/acls-tab/actions.js:32
-#, fuzzy
 msgid "ACL Rule created"
-msgstr "クラスタを作成しました"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
@@ -1538,23 +1529,13 @@ msgstr "セキュリティグループ"
 msgid "VDCs"
 msgstr "VDCs"
 
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
-#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
-#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
-#, fuzzy
-msgid "Virtual Routers"
-msgstr "仮想リソース"
-
 #: ../app/tabs/acls-tab/datatable.js:178
-#, fuzzy
 msgid "Marketplaces"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:181
-#, fuzzy
 msgid "Marketplace Apps"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:56
 #: ../app/utils/accounting.js:349
@@ -1578,21 +1559,19 @@ msgid "Cluster ID"
 msgstr "クラスタID"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:33
-#, fuzzy
 msgid "Service Template created"
-msgstr "サービステンプレートを作成"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
 #: ../app/tabs/oneflow-services-tab/actions.js:34
-#, fuzzy
 msgid "Service created"
-msgstr "サービステンプレートを作成"
+msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:55
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
 msgid "Instantiate Service Template"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:141
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:156
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:18
 msgid "Role"
 msgstr "ロール"
@@ -1611,7 +1590,7 @@ msgstr "サービステンプレートを更新"
 msgid "Can only contain alphanumeric and underscore characters"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:431
 msgid "Role "
 msgstr "ロール"
 
@@ -1624,9 +1603,8 @@ msgid "Upload a file"
 msgstr "ファイルをアップロード"
 
 #: ../app/tabs/datastores-tab/actions.js:34
-#, fuzzy
 msgid "Datastore created"
-msgstr "ホストを正常に作成しました"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
@@ -1637,14 +1615,13 @@ msgid "Please select a cluster for this datastore"
 msgstr "このデータストアに対するクラスタを選択してください"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Datastores"
-msgstr "データストアを作成"
+msgstr ""
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:230
+#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
 #: ../app/tabs/marketplaces-tab/datatable.js:84
 #: ../app/tabs/vms-tab/panels/capacity.js:52
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:24
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:21
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:47
@@ -1665,11 +1642,11 @@ msgid "DS MAD"
 msgstr "DS MAD"
 
 #: ../app/tabs/datastores-tab/datatable.js:88
-#: ../app/tabs/files-tab/datatable.js:71 ../app/tabs/vnets-tab/panels/ar.js:304
+#: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
 #: ../app/tabs/marketplaceapps-tab/datatable.js:88
 #: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable.js:71
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1679,10 +1656,9 @@ msgstr "DS MAD"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:109
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:37
-#: ../app/tabs/files-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:91
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:129
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:51
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:45
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:25
@@ -1711,156 +1687,87 @@ msgstr "リストから1つ以上のデータストアを選択してくださ�
 msgid "You selected the following datastores:"
 msgstr "以下のデータストアが選択されています:"
 
-#: ../app/tabs/provision-tab.js:110
+#: ../app/tabs/provision-tab.js:111
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:22
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:52
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:24
 msgid "Cardinality"
 msgstr "カーディナリティ"
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
 msgstr "コスト"
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
 msgstr "HOUR"
 
-#: ../app/tabs/provision-tab.js:766 ../app/tabs/provision-tab.js:844
-#: ../app/tabs/provision-tab/vms/create.hbs:66
+#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:768 ../app/tabs/provision-tab.js:846
-#: ../app/tabs/provision-tab/vms/create.hbs:67
-#, fuzzy
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
-msgstr "グループ"
+msgstr ""
 
-#: ../app/tabs/provision-tab.js:770 ../app/tabs/provision-tab.js:848
-#: ../app/tabs/provision-tab/vms/create.hbs:68
-#, fuzzy
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
-msgstr "システム"
+msgstr ""
 
-#: ../app/tabs/provision-tab.js:997 ../app/tabs/provision-tab.js:1242
+#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
 msgid "You must select at least a template configuration"
 msgstr "最低1つのテンプレート構成を選択する必要があります"
 
-#: ../app/tabs/oneflow-templates-tab.js:51
-#, fuzzy
-msgid "Service Templates"
-msgstr "保存済テンプレート"
-
 #: ../app/tabs/oneflow-templates-tab.js:52
-#, fuzzy
-msgid "Service Template"
-msgstr "サービステンプレートを作成"
-
-#: ../app/tabs/files-tab/actions.js:30
-#, fuzzy
-msgid "File created"
-msgstr "クラスタを作成しました"
-
-#: ../app/tabs/files-tab/form-panels/create.js:54
-msgid "Create File"
-msgstr "ファイルを作成"
-
-#: ../app/tabs/files-tab/form-panels/create.js:173
-#: ../app/tabs/images-tab/form-panels/create.js:278
-msgid "Uploading..."
-msgstr "アップロード中..."
-
-#: ../app/tabs/files-tab/form-panels/create.js:199
-#: ../app/tabs/files-tab/form-panels/create.js:279
-msgid "Please select a datastore for this file"
-msgstr "このファイルのデータストアを選択してください"
-
-#: ../app/tabs/files-tab/form-panels/create.js:236
-#: ../app/tabs/images-tab/form-panels/create.js:386
-msgid "Please select a file to upload"
+msgid "Service Templates"
 msgstr ""
 
-#: ../app/tabs/files-tab/form-panels/create.js:244
-#: ../app/tabs/images-tab/form-panels/create.js:394
-msgid "Registering in OpenNebula"
-msgstr "OpenNebulaに登録"
+#: ../app/tabs/oneflow-templates-tab.js:53
+msgid "Service Template"
+msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:70
-#: ../app/tabs/secgroups-tab/utils/common.js:108
-#: ../app/tabs/vnets-tab/panels/ar.js:309
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable.js:70
-#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:131
-#: ../app/tabs/files-tab/panels/info/html.hbs:56
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:104
-#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
-#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
-#: ../app/tabs/images-tab/panels/info/html.hbs:67
-#: ../app/utils/vcenter/networks/row.hbs:39
-msgid "Size"
-msgstr "サイズ"
+#: ../app/tabs/files-tab/actions.js:30
+msgid "File created"
+msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:73 ../app/tabs/images-tab/datatable.js:73
-#: ../app/tabs/provision-tab/vms/create.hbs:34
-#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
-#: ../app/tabs/images-tab/panels/info/html.hbs:51
-msgid "Persistent"
-msgstr "Persistent"
-
-#: ../app/tabs/files-tab/datatable.js:75 ../app/tabs/images-tab/datatable.js:75
-msgid "#VMS"
-msgstr "#VMS"
-
-#: ../app/tabs/files-tab/datatable.js:76 ../app/tabs/images-tab/datatable.js:76
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
-msgid "Target"
-msgstr "アタッチ先のデバイス"
-
-#: ../app/tabs/files-tab/datatable.js:84
-#, fuzzy
+#: ../app/tabs/files-tab/datatable.js:44
 msgid "Please select a file from the list"
-msgstr "リストからイメージを選択してください"
+msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:85
+#: ../app/tabs/files-tab/datatable.js:45
 msgid "You selected the following file:"
 msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:86
+#: ../app/tabs/files-tab/datatable.js:46
 msgid "Please select one or more files from the list"
 msgstr ""
 
-#: ../app/tabs/files-tab/datatable.js:87
+#: ../app/tabs/files-tab/datatable.js:47
 msgid "You selected the following files:"
 msgstr "以下のファイルが選択されています:"
-
-#: ../app/tabs/files-tab/panels/info.js:102 ../app/opennebula/image.js:40
-msgid "KERNEL"
-msgstr ""
-
-#: ../app/tabs/files-tab/panels/info.js:103 ../app/opennebula/image.js:41
-msgid "RAMDISK"
-msgstr ""
-
-#: ../app/tabs/files-tab/panels/info.js:104 ../app/opennebula/image.js:42
-msgid "CONTEXT"
-msgstr ""
 
 #: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
 msgid "Security Group"
 msgstr "セキュリティグループ"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
-#, fuzzy
 msgid "MarketPlace created"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
@@ -1880,9 +1787,8 @@ msgid "This is the document root for http server"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:62
-#, fuzzy
 msgid "Storage bridge list"
-msgstr "ブリッジ"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:63
 msgid "Comma separated list of servers to access the image directory if not local"
@@ -1901,18 +1807,16 @@ msgid "S3 bucket to store marketapps"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:83
-#, fuzzy
 msgid "Amazon Region"
-msgstr "Amazon EC2"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:84
 msgid "Only if using public Amazon S3 service."
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:89
-#, fuzzy
 msgid "Total Marketplace size in MB"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:94
 msgid "Signature Version"
@@ -1939,14 +1843,12 @@ msgid "Split marketapps into chunks of this size (in MB). You should **never** u
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:127
-#, fuzzy
 msgid "Create MarketPlace"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:132
-#, fuzzy
 msgid "Update MarketPlace"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:85
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
@@ -1960,27 +1862,23 @@ msgid "Driver"
 msgstr "ドライバー"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:95
-#, fuzzy
 msgid "Please select a marketplace from the list"
-msgstr "リストからリソースを選択してください"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:96
-#, fuzzy
 msgid "You selected the following marketplace:"
-msgstr "以下のイメージが選択されています:"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:97
-#, fuzzy
 msgid "Please select one or more marketplaces from the list"
-msgstr "リストから1つ以上のデータストアを選択してください"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:98
-#, fuzzy
 msgid "You selected the following marketplaces:"
-msgstr "以下のファイルが選択されています:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:155
+#: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "回復"
 
@@ -1992,12 +1890,11 @@ msgstr "選択したサービスを削除します"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:61
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
-#: ../app/tabs/images-tab/panels/info/html.hbs:72
+#: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "状態"
 
@@ -2049,33 +1946,33 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:40
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:41
 msgid "Scale"
 msgstr "スケール"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:28
-#: ../app/tabs/vms-tab/buttons.js:65
+#: ../app/tabs/vms-tab/buttons.js:66
 msgid "Hold"
 msgstr "ホールド"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:33
-#: ../app/tabs/vms-tab/buttons.js:71
+#: ../app/tabs/vms-tab/buttons.js:72
 msgid "Release"
 msgstr "リリース"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
-#: ../app/tabs/vms-tab/buttons.js:77
+#: ../app/tabs/vms-tab/buttons.js:78
 msgid "Suspend"
 msgstr "サスペンド"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:89
+#: ../app/tabs/vms-tab/buttons.js:90
 msgid "Stop"
 msgstr "停止"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:53
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:58
-#: ../app/tabs/vms-tab/buttons.js:95 ../app/tabs/vms-tab/buttons.js:101
+#: ../app/tabs/vms-tab/buttons.js:96 ../app/tabs/vms-tab/buttons.js:102
 #: ../app/tabs/provision-tab/vms/info.hbs:82
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:18
 msgid "Reboot"
@@ -2083,19 +1980,19 @@ msgstr "再起動"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
-#: ../app/tabs/vms-tab/buttons.js:107 ../app/tabs/vms-tab/buttons.js:113
+#: ../app/tabs/vms-tab/buttons.js:108 ../app/tabs/vms-tab/buttons.js:114
 msgid "Power Off"
 msgstr "電源オフ"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
-#: ../app/tabs/vms-tab/buttons.js:119 ../app/tabs/vms-tab/buttons.js:125
+#: ../app/tabs/vms-tab/buttons.js:120 ../app/tabs/vms-tab/buttons.js:126
 msgid "Undeploy"
 msgstr "アンデプロイ"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:88
-#: ../app/tabs/vms-tab/buttons.js:131 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:132 ../app/tabs/vms-tab/buttons.js:138
 #: ../app/tabs/provision-tab/vms/info.hbs:60
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:18
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
@@ -2103,13 +2000,11 @@ msgstr "アンデプロイ"
 msgid "Terminate"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:76
-#: ../app/tabs/secgroups-tab/form-panels/create.js:172
+#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
 #: ../app/tabs/users-tab/dialogs/password.js:87
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:77
-#: ../app/utils/form-panels/form-panel.js:79
-#: ../app/utils/form-panels/form-panel.js:92
+#: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
 msgstr ""
 
@@ -2140,15 +2035,14 @@ msgid "You have to provide an SSH key"
 msgstr "SSH鍵を入力する必要があります"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
-#, fuzzy
 msgid "Security Group created"
-msgstr "セキュリティグループ名"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/actions.js:79
+#: ../app/tabs/secgroups-tab/actions.js:80
 msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/actions.js:86
+#: ../app/tabs/secgroups-tab/actions.js:87
 #: ../app/tabs/secgroups-tab/buttons.js:57
 msgid "Commit"
 msgstr ""
@@ -2178,32 +2072,32 @@ msgid "You selected the following security groups:"
 msgstr "以下のセキュリティグループが選択されています:"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:46
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
 msgstr "TCP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:46
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
 msgstr "UDP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:49
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
 msgid "ICMP"
 msgstr "ICMP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:52
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "IPsec"
 msgstr "IPsec"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:67
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
 msgstr "アウトバウンド"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:70
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
 msgstr "インバウンド"
 
@@ -2214,14 +2108,27 @@ msgstr "インバウンド"
 msgid "Start"
 msgstr "開始"
 
+#: ../app/tabs/secgroups-tab/utils/common.js:108
+#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:125
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
+#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
+#: ../app/tabs/images-tab/panels/info/html.hbs:69
+#: ../app/utils/vcenter/networks/row.hbs:39
+msgid "Size"
+msgstr "サイズ"
+
 #: ../app/tabs/secgroups-tab/utils/common.js:112
 msgid "Any"
 msgstr "任意"
 
 #: ../app/tabs/vnets-tab/actions.js:38
-#, fuzzy
 msgid "Virtual Network created"
-msgstr "仮想ネットワーク名"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:56
 msgid "Create Virtual Network"
@@ -2245,7 +2152,7 @@ msgid "Import vCenter Networks"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/buttons.js:45
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:79
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:78
 msgid "Reserve"
 msgstr "予約"
 
@@ -2329,9 +2236,8 @@ msgid "NET:"
 msgstr "NET:"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:96
-#, fuzzy
 msgid "VR:"
-msgstr "VM:"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
@@ -2342,43 +2248,42 @@ msgstr ""
 msgid "Addresses"
 msgstr "アドレス"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:176
+#: ../app/tabs/vnets-tab/panels/ar.js:177
 msgid "This will delete all the addresses in this range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:233
-#, fuzzy
+#: ../app/tabs/vnets-tab/panels/ar.js:234
 msgid "The Address Range was not found"
-msgstr "アドレスレンジが見つかりません"
+msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:305
+#: ../app/tabs/vnets-tab/panels/ar.js:306
 msgid "MAC Start"
 msgstr "MAC 開始"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:306 ../app/utils/vcenter/networks.js:200
+#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:200
 msgid "IP Start"
 msgstr "IP開始"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:307
+#: ../app/tabs/vnets-tab/panels/ar.js:308
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
 msgid "Global prefix"
 msgstr "グローバル プレフィックス"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:308
+#: ../app/tabs/vnets-tab/panels/ar.js:309
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
 msgid "ULA prefix"
 msgstr "ULA プレフィックス"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
 msgstr "使用済リース"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:311
+#: ../app/tabs/vnets-tab/panels/ar.js:312
 msgid "Reservation parent AR"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar.js:76
-#: ../app/tabs/vnets-tab/dialogs/add-ar.js:80
+#: ../app/tabs/vnets-tab/dialogs/update-ar.js:77
+#: ../app/tabs/vnets-tab/dialogs/add-ar.js:81
 msgid "One or more required fields are missing."
 msgstr "1つ以上の項目が入力されていません。"
 
@@ -2395,26 +2300,23 @@ msgstr "リストからアドレスレンジを選択してください"
 msgid "You selected the following Address Range:"
 msgstr "以下のアドレスレンジが選択されています:"
 
-#: ../app/tabs/hosts-tab.js:57 ../app/opennebula/datastore.js:25
+#: ../app/tabs/hosts-tab.js:58 ../app/opennebula/datastore.js:25
 #: ../app/opennebula/host.js:53 ../app/tabs/dashboard-tab/hosts.hbs:25
 msgid "ON"
 msgstr "ON"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
-#, fuzzy
 msgid "App"
-msgstr "適用"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:34
-#, fuzzy
 msgid "MarketPlace App created"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
 #: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
-#, fuzzy
 msgid "Image created"
-msgstr "イメージ名"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:125
 #: ../app/tabs/images-tab/actions.js:93
@@ -2435,9 +2337,8 @@ msgid "Ok"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
-#, fuzzy
 msgid "Create MarketPlace App"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:61
 msgid "Create MarketPlace App from Image"
@@ -2448,66 +2349,55 @@ msgid "Download App To OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
-#, fuzzy
 msgid "Download"
-msgstr "ダウンロード"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
-#, fuzzy
 msgid "OpenNebula"
-msgstr "OpenNebula ホスト"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:85
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
-#, fuzzy
 msgid "Version"
-msgstr "権限"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:89
-#, fuzzy
 msgid "Registration Time"
-msgstr "登録日時"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 msgid "Marketplace"
 msgstr "マーケットプレイス"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:99
-#, fuzzy
 msgid "Please select an appliance from the list"
-msgstr "リストからイメージを選択してください"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:100
-#, fuzzy
 msgid "You selected the following appliance:"
-msgstr "以下のイメージが選択されています:"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#, fuzzy
 msgid "Please select one or more appliances from the list"
-msgstr "リストから1人以上のユーザを選択してください"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:102
-#, fuzzy
 msgid "You selected the following appliances:"
-msgstr "以下のファイルが選択されています:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab.js:51
-#, fuzzy
 msgid "Service"
-msgstr "サービス"
+msgstr ""
 
 #: ../app/tabs/instances-top-tab.js:23
-#, fuzzy
 msgid "Instances"
-msgstr "インスタンスタイプ"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab.js:50
-#, fuzzy
 msgid "Virtual Router"
-msgstr "仮想リソース"
+msgstr ""
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -2545,20 +2435,17 @@ msgstr "以下のクラスタが選択されています:"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
-#, fuzzy
 msgid "MarketPlaces"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab.js:53 ../app/tabs/images-tab/buttons.js:32
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
-#, fuzzy
 msgid "MarketPlace"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
-#, fuzzy
 msgid "User created"
-msgstr "クラスタを作成しました"
+msgstr ""
 
 #: ../app/tabs/users-tab/form-panels/create.js:50
 msgid "Create User"
@@ -2581,14 +2468,12 @@ msgid "Auth"
 msgstr "認証"
 
 #: ../app/tabs/users-tab/buttons.js:52
-#, fuzzy
 msgid "Change primary group"
-msgstr "グループの変更"
+msgstr ""
 
 #: ../app/tabs/users-tab/buttons.js:55
-#, fuzzy
 msgid "This will change the primary group of the selected users. Select the new group"
-msgstr "選択されたユーザーのメイングループを変更します。新しいグループを選択してください。"
+msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:69
 msgid "Auth driver"
@@ -2652,7 +2537,7 @@ msgid "Settings"
 msgstr "設定"
 
 #: ../app/tabs/vms-tab.js:70 ../app/tabs/vms-tab/dialogs/migrate.js:138
-#: ../app/tabs/vnets-topology-tab.js:540
+#: ../app/tabs/vnets-topology-tab.js:542
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
@@ -2668,73 +2553,82 @@ msgid "FAILED"
 msgstr "失敗"
 
 #: ../app/tabs/vms-tab/form-panels/create.js:50
-#: ../app/tabs/provision-tab/vms/create.hbs:19
+#: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "仮想マシンの作成"
 
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:57
-#, fuzzy
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 msgid "Update VM Configuration"
-msgstr "ネットワーク構成"
+msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:51
+#: ../app/tabs/vms-tab/buttons.js:48
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:52
 msgid "Deploy"
 msgstr "デプロイ"
 
-#: ../app/tabs/vms-tab/buttons.js:53 ../app/tabs/vms-tab/buttons.js:59
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:53
+#: ../app/tabs/vms-tab/buttons.js:54 ../app/tabs/vms-tab/buttons.js:60
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:52
 msgid "Migrate"
 msgstr "マイグレート"
 
-#: ../app/tabs/vms-tab/buttons.js:59
+#: ../app/tabs/vms-tab/buttons.js:60
 msgid "live"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:101 ../app/tabs/vms-tab/buttons.js:113
-#: ../app/tabs/vms-tab/buttons.js:125 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
+#: ../app/tabs/vms-tab/buttons.js:114
+msgid "Keeps allocated Host resources. The resume operation happens quickly"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
+#: ../app/tabs/vms-tab/buttons.js:126
+msgid "Frees Host resources. The resume operation may take long"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
+#: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
 msgid "hard"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:143
+#: ../app/tabs/vms-tab/buttons.js:144
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 msgid "Reschedule"
 msgstr "再スケジュール"
 
-#: ../app/tabs/vms-tab/buttons.js:149
+#: ../app/tabs/vms-tab/buttons.js:150
 msgid "Un-Reschedule"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:158
+#: ../app/tabs/vms-tab/buttons.js:159
 msgid "retry"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:159
+#: ../app/tabs/vms-tab/buttons.js:160
 msgid "success"
 msgstr "成功"
 
-#: ../app/tabs/vms-tab/buttons.js:160
+#: ../app/tabs/vms-tab/buttons.js:161
 msgid "failure"
 msgstr "失敗"
 
-#: ../app/tabs/vms-tab/buttons.js:161
+#: ../app/tabs/vms-tab/buttons.js:162
 msgid "delete"
 msgstr "削除"
 
-#: ../app/tabs/vms-tab/buttons.js:162
+#: ../app/tabs/vms-tab/buttons.js:163
 msgid "delete-recreate"
 msgstr "削除-再生成"
 
-#: ../app/tabs/vms-tab/buttons.js:164
+#: ../app/tabs/vms-tab/buttons.js:165
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:175
+#: ../app/tabs/vms-tab/buttons.js:176
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:21
 msgid "VNC"
 msgstr "VNC"
 
-#: ../app/tabs/vms-tab/buttons.js:180
+#: ../app/tabs/vms-tab/buttons.js:181
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
 msgid "SPICE"
 msgstr "SPICE"
@@ -2770,9 +2664,8 @@ msgid "Action"
 msgstr "アクション"
 
 #: ../app/tabs/vms-tab/panels/actions.js:69
-#, fuzzy
 msgid "Time"
-msgstr "タイムスタンプ"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:70
 msgid "Done"
@@ -2844,7 +2737,7 @@ msgstr "スナップショット-作成"
 
 #: ../app/tabs/vms-tab/panels/actions.js:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 msgid "Add"
 msgstr "追加"
 
@@ -2853,8 +2746,8 @@ msgid "No actions to show"
 msgstr "表示するアクションなし"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:135
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:145
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:36
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:49
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:49
@@ -2862,8 +2755,8 @@ msgid "yes"
 msgstr "はい"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:136
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:146
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:37
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:51
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:51
@@ -2871,7 +2764,7 @@ msgid "no"
 msgstr "いいえ"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:46
-#: ../app/tabs/images-tab/panels/snapshots.js:45
+#: ../app/tabs/images-tab/panels/snapshots.js:46
 msgid "Snapshots"
 msgstr "スナップショット"
 
@@ -2881,8 +2774,8 @@ msgstr "タイムスタンプ"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:82
 #: ../app/tabs/vms-tab/panels/snapshots.js:85
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:42
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
 msgid "Take snapshot"
 msgstr "スナップショットをとる"
 
@@ -2914,9 +2807,8 @@ msgid "Reason"
 msgstr "原因"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
-#, fuzzy
 msgid "Change time"
-msgstr "課金時間"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:72
 msgid "Total time"
@@ -2958,6 +2850,11 @@ msgstr "DS 要件"
 msgid "DS Rank"
 msgstr "DS Rank"
 
+#: ../app/tabs/vms-tab/panels/template.js:61
+#, fuzzy
+msgid "User template"
+msgstr "未共有テンプレート"
+
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
 msgstr ""
@@ -2969,7 +2866,7 @@ msgstr "アタッチ/デタッチを実行中"
 
 #: ../app/tabs/vms-tab/panels/storage.js:214
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:48
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 msgid "Save as"
 msgstr "名前を付けて保存"
 
@@ -2992,17 +2889,16 @@ msgstr "YES"
 msgid "NO"
 msgstr "NO"
 
-#: ../app/tabs/vms-tab/panels/storage.js:353
-#, fuzzy
+#: ../app/tabs/vms-tab/panels/storage.js:354
 msgid "This will detach the disk immediately"
-msgstr "選択したテンプレートを削除します"
+msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:456
+#: ../app/tabs/vms-tab/panels/storage.js:458
 msgid "This will delete the disk snapshot "
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:532
-#: ../app/tabs/images-tab/panels/snapshots.js:199
+#: ../app/tabs/vms-tab/panels/storage.js:534
+#: ../app/tabs/images-tab/panels/snapshots.js:202
 msgid "Active"
 msgstr ""
 
@@ -3063,8 +2959,8 @@ msgid " (VRouter)"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:347
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:128
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr "プロトコル"
@@ -3075,25 +2971,25 @@ msgid "Range"
 msgstr "レンジ"
 
 #: ../app/tabs/vms-tab/panels/network.js:351
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr "ICMP Type"
 
-#: ../app/tabs/vms-tab/panels/network.js:424
+#: ../app/tabs/vms-tab/panels/network.js:425
 msgid "Network reception"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:431
+#: ../app/tabs/vms-tab/panels/network.js:432
 msgid "Network transmission"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:438
+#: ../app/tabs/vms-tab/panels/network.js:439
 msgid "Network reception speed"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:447
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission speed"
 msgstr ""
 
@@ -3140,9 +3036,8 @@ msgid "Virtual Data Center"
 msgstr "仮想データセンタ"
 
 #: ../app/tabs/images-tab/actions.js:72
-#, fuzzy
 msgid "Please select one (and just one) Image to export."
-msgstr "最低 1つのリソースを選択してください"
+msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:94
 msgid "This Image resides in Datastore "
@@ -3152,19 +3047,34 @@ msgstr ""
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create.js:56
+#: ../app/tabs/images-tab/form-panels/create-common.js:52
 msgid "Create Image"
 msgstr "イメージを作成"
 
-#: ../app/tabs/images-tab/form-panels/create.js:304
-#: ../app/tabs/images-tab/form-panels/create.js:429
+#: ../app/tabs/images-tab/form-panels/create-common.js:54
+msgid "Create File"
+msgstr "ファイルを作成"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:289
+msgid "Uploading..."
+msgstr "アップロード中..."
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:315
+#: ../app/tabs/images-tab/form-panels/create-common.js:440
 msgid "Please select a datastore for this image"
 msgstr "このイメージのデータストアを選択してください"
 
+#: ../app/tabs/images-tab/form-panels/create-common.js:397
+msgid "Please select a file to upload"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:405
+msgid "Registering in OpenNebula"
+msgstr "OpenNebulaに登録"
+
 #: ../app/tabs/images-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Images"
-msgstr "イメージを作成"
+msgstr ""
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
@@ -3174,39 +3084,74 @@ msgstr "persistentに設定"
 msgid "Make non persistent"
 msgstr "non persistentに設定"
 
-#: ../app/tabs/images-tab/datatable.js:84
+#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/provision-tab/vms/create.hbs:40
+#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
+#: ../app/tabs/images-tab/panels/info/html.hbs:52
+msgid "Persistent"
+msgstr "Persistent"
+
+#: ../app/tabs/images-tab/datatable-common.js:72
+msgid "#VMS"
+msgstr "#VMS"
+
+#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
+msgid "Target"
+msgstr "アタッチ先のデバイス"
+
+#: ../app/tabs/images-tab/datatable.js:44
 msgid "Please select an image from the list"
 msgstr "リストからイメージを選択してください"
 
-#: ../app/tabs/images-tab/datatable.js:85
+#: ../app/tabs/images-tab/datatable.js:45
 msgid "You selected the following image:"
 msgstr "以下のイメージが選択されています:"
 
-#: ../app/tabs/images-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable.js:46
 msgid "Please select one or more images from the list"
 msgstr ""
 
-#: ../app/tabs/images-tab/datatable.js:87
+#: ../app/tabs/images-tab/datatable.js:47
 msgid "You selected the following images:"
 msgstr ""
 
-#: ../app/tabs/images-tab/panels/info.js:103 ../app/opennebula/image.js:37
+#: ../app/tabs/images-tab/panels/info-common.js:96
+#: ../app/opennebula/image.js:37
 msgid "OS"
 msgstr "OS"
 
-#: ../app/tabs/images-tab/panels/info.js:104 ../app/opennebula/image.js:38
+#: ../app/tabs/images-tab/panels/info-common.js:97
+#: ../app/opennebula/image.js:38
 msgid "CDROM"
 msgstr "CDROM"
 
-#: ../app/tabs/images-tab/panels/info.js:105 ../app/opennebula/image.js:39
+#: ../app/tabs/images-tab/panels/info-common.js:98
+#: ../app/opennebula/image.js:39
 msgid "DATABLOCK"
 msgstr "DATABLOCK"
 
-#: ../app/tabs/images-tab/panels/snapshots.js:129
+#: ../app/tabs/images-tab/panels/info-common.js:103
+#: ../app/opennebula/image.js:40
+msgid "KERNEL"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/info-common.js:104
+#: ../app/opennebula/image.js:41
+msgid "RAMDISK"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/info-common.js:105
+#: ../app/opennebula/image.js:42
+msgid "CONTEXT"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
 msgstr ""
 
-#: ../app/tabs/images-tab/panels/snapshots.js:161
+#: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
 msgstr ""
 
@@ -3215,25 +3160,23 @@ msgid "Collapse VMs"
 msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:58
-#, fuzzy
 msgid "Open VMs"
-msgstr "最小VM数"
+msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:89 ../app/tabs/vnets-topology-tab.js:91
-#, fuzzy
 msgid "Network Topology"
-msgstr "ネットワークモデル"
+msgstr ""
 
-#: ../app/tabs/vnets-topology-tab.js:543
+#: ../app/tabs/vnets-topology-tab.js:545
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:903 ../app/sunstone.js:904
+#: ../app/sunstone.js:910 ../app/sunstone.js:911
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:991 ../app/sunstone.js:992
+#: ../app/sunstone.js:998 ../app/sunstone.js:999
 msgid "Loading..."
 msgstr ""
 
@@ -3285,70 +3228,70 @@ msgstr "デプロイ失敗"
 msgid "FAILED_SCALING"
 msgstr "スケーリング失敗"
 
-#: ../app/opennebula/vm.js:185
+#: ../app/opennebula/vm.js:186
 msgid "LCM_INIT"
 msgstr "LCM_INIT"
 
-#: ../app/opennebula/vm.js:186 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
+#: ../app/opennebula/vm.js:217
 msgid "PROLOG"
 msgstr "PROLOG"
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:204
-#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
-#: ../app/opennebula/vm.js:207 ../app/opennebula/vm.js:217
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
+#: ../app/opennebula/vm.js:221
 msgid "BOOT"
 msgstr "BOOT"
 
-#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:193
-#: ../app/opennebula/vm.js:228 ../app/opennebula/vm.js:230
-#: ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
+#: ../app/opennebula/vm.js:246
 msgid "MIGRATE"
 msgstr "MIGRATE"
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:191
-#: ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:193
 msgid "SAVE"
 msgstr "SAVE"
 
-#: ../app/opennebula/vm.js:195 ../app/opennebula/vm.js:196
-#: ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:216
 msgid "EPILOG"
 msgstr "EPILOG"
 
-#: ../app/opennebula/vm.js:197 ../app/opennebula/vm.js:198
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:214
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
 msgid "SHUTDOWN"
 msgstr "SHUTDOWN"
 
-#: ../app/opennebula/vm.js:199 ../app/opennebula/vm.js:221
-#: ../app/opennebula/vm.js:222 ../app/opennebula/vm.js:223
-#: ../app/opennebula/vm.js:224 ../app/opennebula/vm.js:225
-#: ../app/opennebula/vm.js:226 ../app/opennebula/vm.js:227
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:233
-#: ../app/opennebula/vm.js:234 ../app/opennebula/vm.js:235
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
+#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
+#: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
+#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
+#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
+#: ../app/opennebula/vm.js:247
 msgid "FAILURE"
 msgstr "FAILURE"
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:208
+#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
 msgid "CLEANUP"
 msgstr "CLEANUP"
 
-#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:210
-#: ../app/opennebula/vm.js:211 ../app/opennebula/vm.js:212
-#: ../app/opennebula/vm.js:213 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:220
 msgid "HOTPLUG"
 msgstr "HOTPLUG"
 
-#: ../app/opennebula/vm.js:209 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
-#: ../app/opennebula/vm.js:239 ../app/opennebula/vm.js:240
-#: ../app/opennebula/vm.js:241 ../app/opennebula/vm.js:242
-#: ../app/opennebula/vm.js:243 ../app/opennebula/vm.js:244
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
+#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
+#: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
+#: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
 msgid "SNAPSHOT"
 msgstr "SNAPSHOT"
 
@@ -3401,14 +3344,12 @@ msgid "USED_PERS"
 msgstr "USED_PERS"
 
 #: ../app/opennebula/image.js:32
-#, fuzzy
 msgid "LOCKED_USED"
-msgstr "LOCKED"
+msgstr ""
 
 #: ../app/opennebula/image.js:33
-#, fuzzy
 msgid "LOCKED_USED_PERS"
-msgstr "USED_PERS"
+msgstr ""
 
 #: ../app/utils/nics-section.js:306
 msgid "There are no networks available."
@@ -3547,54 +3488,44 @@ msgstr ""
 msgid "Add Label"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:122
+#: ../app/utils/disks-resize.js:129
 msgid "Volatile Disk"
 msgstr "揮発ディスク"
 
-#: ../app/utils/disks-resize.js:124 ../app/utils/disks-resize.js:156
-#, fuzzy
+#: ../app/utils/disks-resize.js:131 ../app/utils/disks-resize.js:163
 msgid "Image was not found"
-msgstr "アドレスレンジが見つかりません"
+msgstr ""
 
-#: ../app/utils/disks-resize.js:139
+#: ../app/utils/disks-resize.js:146
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:143
+#: ../app/utils/disks-resize.js:150
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:151
-#, fuzzy
+#: ../app/utils/disks-resize.js:158
 msgid "Image state: "
-msgstr "イメージ名"
+msgstr ""
 
-#: ../app/utils/dialogs/confirm.js:69
-#: ../app/utils/dialogs/confirm-with-select.js:117
+#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "このアクションを確認する必要があります"
 
 #: ../app/utils/vcenter/images.js:88
-#, fuzzy
 msgid "No new images found in this datastore"
-msgstr "このデータセンタびは新しいテンプレートはありません"
+msgstr ""
 
-#: ../app/utils/vcenter/images.js:108 ../app/utils/vcenter/templates.js:112
-#: ../app/utils/vcenter/networks.js:111
-#, fuzzy
-msgid "Select All"
-msgstr "クラスタを選択"
-
-#: ../app/utils/vcenter/images.js:113
+#: ../app/utils/vcenter/images.js:107
 msgid "Import Selected Images"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:118
-#, fuzzy
+#: ../app/utils/vcenter/images.js:112
 msgid "Clear Imported Images"
-msgstr "イメージを作成"
+msgstr ""
 
-#: ../app/utils/vcenter/images.js:249
+#: ../app/utils/vcenter/images.js:243
 msgid "Image created successfully"
 msgstr "イメージを正常に作成しました"
 
@@ -3609,62 +3540,57 @@ msgstr "データセンタ"
 msgid "No new templates found in this DataCenter"
 msgstr "このデータセンタびは新しいテンプレートはありません"
 
+#: ../app/utils/vcenter/templates.js:112 ../app/utils/vcenter/networks.js:111
+msgid "Select All"
+msgstr ""
+
 #: ../app/utils/vcenter/templates.js:118 ../app/utils/vcenter/networks.js:117
-#, fuzzy
 msgid "Expand Advanced Sections"
-msgstr "詳細オプション"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:123
-#, fuzzy
 msgid "Import Selected Templates"
-msgstr "テンプレートの選択"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:128
-#, fuzzy
 msgid "Clear Imported Templates"
-msgstr "テンプレートを複製"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:291
 msgid "Template created successfully"
 msgstr "テンプレートを正常に作成しました"
 
 #: ../app/utils/vcenter/datastores.js:92
-#, fuzzy
 msgid "No new datastores found in this DataCenter"
-msgstr "このデータセンタびは新しいテンプレートはありません"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:111
-#, fuzzy
 msgid "Import Selected Datastores"
-msgstr "データストアを選択"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:116 ../app/utils/vcenter/clusters.js:106
-#, fuzzy
 msgid "Clear Imported Datastores"
-msgstr "データストアを作成"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:129
 msgid "Datacenter"
 msgstr "データセンタ"
 
 #: ../app/utils/vcenter/datastores.js:254
-#, fuzzy
 msgid "Datastore created successfully"
-msgstr "ホストを正常に作成しました"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:91
 msgid "No new networks found in this DataCenter"
 msgstr "このデータセンタには新しいネットワークはありません"
 
 #: ../app/utils/vcenter/networks.js:122
-#, fuzzy
 msgid "Import Selected Networks"
-msgstr "ネットワークを選択"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:127
-#, fuzzy
 msgid "Clear Imported Networks"
-msgstr "仮想ネットワークを作成"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
 #: ../app/utils/vcenter/networks.js:214 ../app/utils/vcenter/networks.js:224
@@ -3673,23 +3599,20 @@ msgid "Optional"
 msgstr "オプション"
 
 #: ../app/utils/vcenter/networks.js:213
-#, fuzzy
 msgid "Global Prefix"
-msgstr "グローバル プレフィックス"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:223
-#, fuzzy
 msgid "ULA Prefix"
-msgstr "ULA プレフィックス"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:325
 msgid "Virtual Network created successfully"
 msgstr "仮想ネットワークを正常に作成しました"
 
 #: ../app/utils/vcenter/clusters.js:87
-#, fuzzy
 msgid "No new clusters found in this DataCenter"
-msgstr "このデータセンタにはクラスタはありません"
+msgstr ""
 
 #: ../app/utils/vcenter/clusters.js:191
 msgid "Host created successfully"
@@ -3729,9 +3652,8 @@ msgid "Allow users in this group to use the following Sunstone views"
 msgstr "このグループのユーザーに次のSunstoneビューの使用を許可する"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:57
-#, fuzzy
 msgid "Not required. Defaults to the one set in sunstone-views.yaml"
-msgstr "グループユーザの利用可能なビュー．デフォルトが未定義の場合，sunstone-iews.yamlの構成が使用されます"
+msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:66
 msgid "Default Users View"
@@ -3799,7 +3721,6 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:22
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
-#: ../app/tabs/files-tab/panels/info/html.hbs:22
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
@@ -3826,45 +3747,45 @@ msgstr ""
 msgid "Update Quota"
 msgstr "クオータを更新"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:29
-#: ../app/utils/dialogs/clusters/html.hbs:29
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
+#: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
 msgstr "変更を適用"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:43
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:40
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
 #: ../app/tabs/support-tab/dialogs/upload/html.hbs:33
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:43
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:43
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:37
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:83
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:40
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:44
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:46
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:44
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:34
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:82
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:37
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:28
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:54
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:50
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:46
-#: ../app/utils/dialogs/generic-confirm/html.hbs:32
-#: ../app/utils/dialogs/confirm/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:45
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:47
+#: ../app/utils/dialogs/generic-confirm/html.hbs:33
+#: ../app/utils/dialogs/confirm/html.hbs:32
 #: ../app/utils/dialogs/overcommit/html.hbs:68
-#: ../app/utils/dialogs/clusters/html.hbs:32
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:39
+#: ../app/utils/dialogs/clusters/html.hbs:33
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:38
 msgid "Close modal"
 msgstr ""
 
@@ -3878,7 +3799,6 @@ msgstr "ここにVDCテンプレートを記述"
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
@@ -3891,7 +3811,7 @@ msgstr "説明"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:236
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:179
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:190
 msgid "Custom attributes"
 msgstr "カスタム属性"
 
@@ -3936,9 +3856,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:11
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:11
-#, fuzzy
 msgid "Instance type"
-msgstr "インスタンスタイプ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:12
 msgid "Specifies the capacity of the VM in terms of CPU and memory"
@@ -3953,74 +3872,64 @@ msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf f
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:29
-#, fuzzy
 msgid "VM user name"
-msgstr "ユーザー名"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:30
 msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
-#, fuzzy
 msgid "VM user password"
-msgstr "VMパスワード"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
-#, fuzzy
 msgid "Password for VM User"
-msgstr "VM_USERのパスワード"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:46
-#, fuzzy
 msgid "Affinity group"
-msgstr "グループによるフィルタ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:47
 msgid "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-#, fuzzy
 msgid "Availability set"
-msgstr "利用可能なセット"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
-#, fuzzy
 msgid "Cloud service"
-msgstr "Cloudサービス"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:68
-#, fuzzy
 msgid "SSH port"
-msgstr "SSHポート"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
 msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
-#, fuzzy
 msgid "Storage account"
-msgstr "ストレージ アカウント"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
-#, fuzzy
 msgid "Subnet name"
-msgstr "サブネット"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:92
-#, fuzzy
 msgid "TCP endpoints"
-msgstr "TCPエンドポイント"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:93
 msgid "Comma-separated list of TCP ports to be accessible from the public internet to this VM"
@@ -4028,9 +3937,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:31
-#, fuzzy
 msgid "Virtual Network name"
-msgstr "仮想ネットワーク名"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
@@ -4057,23 +3965,20 @@ msgid "The ID of the kernel with which to launch the instance."
 msgstr "インスタンスを起動するためのカーネルのID。"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:27
-#, fuzzy
 msgid "Availability zone"
-msgstr "利用可能なゾーン"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:35
-#, fuzzy
 msgid "Block device mapping"
-msgstr "ブロックデバイスサイズ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:36
 msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the --block-device-mapping option of the EC2 CLI Reference for the syntax"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
-#, fuzzy
 msgid "Client token"
-msgstr "クライアントトークン"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
 msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
@@ -4088,9 +3993,8 @@ msgid "Obtain a better I/O throughput for VMs with EBS provisioned volumes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
-#, fuzzy
 msgid "Elastic IP address"
-msgstr "開始IPアドレス"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
 msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
@@ -4105,23 +4009,20 @@ msgid "Defines which OpenNebula host will use this template"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:74
-#, fuzzy
 msgid "Keypair name"
-msgstr "キーペア"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:75
 msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:83
-#, fuzzy
 msgid "License pool name"
-msgstr "ライセンス プール"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:89
-#, fuzzy
 msgid "Placement group name"
-msgstr "配置グループ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:97
 msgid "Private IP"
@@ -4133,7 +4034,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:104
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 msgid "Ramdisk"
 msgstr "RAMディスク"
 
@@ -4142,20 +4043,17 @@ msgid "The ID of the RAM disk to select."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:113
-#, fuzzy
 msgid "Security group names"
-msgstr "セキュリティグループ名"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:121
-#, fuzzy
 msgid "You can specify more than one security group (comma separated)."
-msgstr "セキュリティグループの名前です．複数のセキュリティグループを選択できます(カンマ区切り)．"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:120
-#, fuzzy
 msgid "Security group IDs"
-msgstr "セキュリティグループ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:129
 msgid "Subnet ID"
@@ -4178,23 +4076,20 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:151
-#, fuzzy
 msgid "User data"
-msgstr "ユーザデータ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:152
 msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:22
-#, fuzzy
 msgid "Volatile disk"
-msgstr "揮発ディスク"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:40
-#, fuzzy
 msgid "Image name"
-msgstr "イメージ名"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:48
 msgid "Image owner's user ID"
@@ -4211,7 +4106,7 @@ msgid "Advanced options"
 msgstr "詳細オプション"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:67
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:91
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:101
 msgid "Size in MB"
 msgstr ""
 
@@ -4229,21 +4124,19 @@ msgid "Swap"
 msgstr "スワップ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:84
-#, fuzzy
 msgid "Filesystem format"
-msgstr "ファイルシステムタイプ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
-#, fuzzy
 msgid "Device target"
-msgstr "デバイスモデル"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:152
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:163
 msgid "Image mapping driver"
 msgstr ""
 
@@ -4256,18 +4149,16 @@ msgid "Prefix for the emulated device this image will be mounted at. For instanc
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:32
-#, fuzzy
 msgid "Read-only"
-msgstr "読み込み専用"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:44
 msgid "Cache"
 msgstr "キャッシュ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:58
-#, fuzzy
 msgid "IO policy"
-msgstr "IOポリシーを設定"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:69
 msgid "Discard"
@@ -4298,14 +4189,12 @@ msgid "Total (read+write) bytes/s"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:95
-#, fuzzy
 msgid "Read bytes/s"
-msgstr "Read Bytes Sec"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:99
-#, fuzzy
 msgid "Write bytes/s"
-msgstr "Write Bytes Sec"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:106
 msgid "IO throttling (IOPS)"
@@ -4316,9 +4205,8 @@ msgid "Total (read+write) IOPS"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
-#, fuzzy
 msgid "Read IOPS"
-msgstr "Read IOPS Sec"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
 msgid "Write IOPS Sec"
@@ -4329,7 +4217,7 @@ msgid "Boot"
 msgstr "起動"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 msgid "Kernel"
 msgstr "カーネル"
 
@@ -4338,33 +4226,28 @@ msgid "Features"
 msgstr "特徴"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:39
-#, fuzzy
 msgid "CPU Architecture"
-msgstr "仮想化のためのCPUアーキテクチャ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
-#, fuzzy
 msgid "libvirt machine type"
-msgstr "libvirt マシンタイプ，KVMのみ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
-#, fuzzy
 msgid "Root device"
-msgstr "1st Boot device type"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:65
-#, fuzzy
 msgid "Boot order"
-msgstr "ブートローダー"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:66
 msgid "Select the devices to boot from, and their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:78
-#, fuzzy
 msgid "Kernel boot parameters"
-msgstr "詳細オプション"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:86
 msgid "Path to the bootloader executable"
@@ -4376,9 +4259,8 @@ msgstr "登録済イメージ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:98
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:128
-#, fuzzy
 msgid "Remote path"
-msgstr "リモートPATH"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:107
 msgid "KERNEL_DS"
@@ -4457,19 +4339,16 @@ msgid "Choose Network"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:25
-#, fuzzy
 msgid "Virtual Network ID"
-msgstr "仮想ネットワーク"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
-#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr "仮想ネットワーク"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:45
-#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr "仮想ネットワーク名"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
 msgid "Override Network Values IPv4"
@@ -4505,14 +4384,12 @@ msgid "Override Network Values IPv6"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:109
-#, fuzzy
 msgid "Global address"
-msgstr "グローバル プレフィックス"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:123
-#, fuzzy
 msgid "Force IPv4 context"
-msgstr "矯正"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:124
 msgid "Override force IPv4 for this IPv6 network. Values: Yes or No."
@@ -4531,9 +4408,8 @@ msgid "Graphics"
 msgstr "グラフィックス"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
-#, fuzzy
 msgid "Listen on IP"
-msgstr "待受けIP"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:45
 msgid "Server port"
@@ -4548,9 +4424,8 @@ msgid "Keymap"
 msgstr "キーマップ"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
-#, fuzzy
 msgid "Generate random password"
-msgstr "ランダムパスワードの生成"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
@@ -4703,9 +4578,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:81
 #: ../app/utils/vcenter/templates/row.hbs:38
-#, fuzzy
 msgid "Default Datastore"
-msgstr "データストアを作成"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:89
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:112
@@ -4723,21 +4597,18 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:96
 #: ../app/utils/vcenter/templates/row.hbs:53
-#, fuzzy
 msgid "Available Datastores"
-msgstr "データストアを作成"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:104
 #: ../app/utils/vcenter/templates/row.hbs:63
-#, fuzzy
 msgid "Default Resource Pool"
-msgstr "デフォルトのモデル"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
 #: ../app/utils/vcenter/templates/row.hbs:78
-#, fuzzy
 msgid "Available Resource Pools"
-msgstr "仮想リソース"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:132
 #: ../app/utils/showback/html.hbs:63 ../app/utils/showback/html.hbs:90
@@ -4791,9 +4662,8 @@ msgid "Number of virtual cpus. This value is optional, the default hypervisor be
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:48
-#, fuzzy
 msgid "Memory modification"
-msgstr "ネットワーク構成"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:49
 msgid "Allow users to modify this template's default memory on instantiate"
@@ -4815,17 +4685,15 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:161
 #: ../app/utils/user-inputs/row.hbs:16
-#, fuzzy
 msgid "range"
-msgstr "レンジ"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:118
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:162
 #: ../app/utils/user-inputs/row.hbs:18
-#, fuzzy
 msgid "list"
-msgstr "ホワイトリスト"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:64
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:72
@@ -4844,9 +4712,8 @@ msgstr "最小"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:127
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:171
 #: ../app/utils/user-inputs/row.hbs:44 ../app/utils/user-inputs/row.hbs:61
-#, fuzzy
 msgid "Max"
-msgstr "5月"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:109
 msgid "CPU modification"
@@ -4865,9 +4732,8 @@ msgid "Allow users to modify this template's default VCPU on instantiate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
-#, fuzzy
 msgid "Contextualization type"
-msgstr "SSHコンテクスチュアリゼーションを追加"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
 msgid "vCenter customizations"
@@ -4890,9 +4756,8 @@ msgid "Add an ssh public key to the context. If the Public Key textarea is empty
 msgstr "コンテキストにSSH公開鍵を追加．公開鍵のテキストエリアが空欄ならば，ユーザ変数SSH_PUBLIC_KEYが使用されます"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
-#, fuzzy
 msgid "SSH public key"
-msgstr "公開鍵"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:80
 msgid "  Add Network contextualization"
@@ -4910,36 +4775,43 @@ msgstr "OneGateトークンを追加"
 msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
-#, fuzzy
-msgid "Start script"
-msgstr "短い説明"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
+msgid "  Report Ready to OneGate"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:100
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
+msgid "Sends READY=YES to OneGate, useful for OneFlow"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+msgid "Start script"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:104
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
 msgid "Encode script in Base64"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:111
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
 msgid "User Inputs"
 msgstr "ユーザー入力"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:112
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:127
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
 msgid "FILES_DS"
 msgstr "FILES_DS"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
 msgstr "初期化スクリプト"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
 msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr ""
 
@@ -4952,9 +4824,8 @@ msgid "kvm"
 msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:32
-#, fuzzy
 msgid "Data"
-msgstr "データストア"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Raw data to be passed directly to the hypervisor"
@@ -4965,9 +4836,8 @@ msgid "PCI Devices"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-#, fuzzy
 msgid "Device name"
-msgstr "デバイスモデル"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
 msgid "Vendor"
@@ -4986,17 +4856,17 @@ msgid "Custom Tags"
 msgstr "カスタムタグ"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:31
-#, fuzzy
 msgid "Instantiate as persistent"
-msgstr "VMテンプレートからインスタンス生成"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
-#: ../app/tabs/provision-tab/vms/create.hbs:35
+#: ../app/tabs/provision-tab/vms/create.hbs:41
 msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:39
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:24
+#: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 msgid "VM name"
 msgstr ""
 
@@ -5019,7 +4889,6 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:37
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 msgid "Register time"
@@ -5029,54 +4898,48 @@ msgstr "登録日時"
 msgid "Clone Template"
 msgstr "テンプレートを複製"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:26
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr ""
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 msgid "Prefix"
 msgstr "プレフィックス"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:43
-#, fuzzy
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
 msgid "Clone with Images"
-msgstr "イメージをクローン"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
-#, fuzzy
 msgid "Write the Virtual Router template here"
-msgstr "ここに仮想ネットワークテンプレートを記述"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-#, fuzzy
 msgid "Keepalive service ID"
-msgstr "パスワードの更新"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Keepalive password"
-msgstr "パスワードの更新"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-#, fuzzy
 msgid "Virtual machine name"
-msgstr "仮想マシン名"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:71
 msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-#, fuzzy
 msgid "Number of VM instances"
-msgstr "インスタンスの数"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:39
@@ -5084,40 +4947,30 @@ msgid "Floating IP"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:46
-#, fuzzy
 msgid "Floating IPv6 ULA"
-msgstr "IPv6 ULA"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:47
-#, fuzzy
 msgid "Floating IPv6 Global"
-msgstr "IPv6グローバル"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:50
-#, fuzzy
 msgid "Management Interface"
-msgstr "ネットワークインターフェース"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
-#, fuzzy
 msgid "Attach NIC"
-msgstr "アタッチ"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 msgid "Attach new nic"
 msgstr "新しいNICをアタッチ"
 
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/panels/info/html.hbs:62
-#, fuzzy
-msgid "Virtual Router ID"
-msgstr "仮想リソース"
-
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:34
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:34
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:29
 msgid "Attach"
 msgstr "アタッチ"
 
@@ -5160,7 +5013,7 @@ msgstr "カスタムIM_MAD"
 msgid "Get vCenter Clusters"
 msgstr "vCenter クラスタを取得"
 
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:25
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:29
 msgid "Remote ID"
 msgstr ""
 
@@ -5178,15 +5031,13 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:84
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:42
 #: ../app/utils/dialogs/overcommit/html.hbs:45
-#, fuzzy
 msgid "Reserved CPU"
-msgstr "予約"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:91
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:49
-#, fuzzy
 msgid "Reserved Memory"
-msgstr "使用済メモリー"
+msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
 msgid "PCI Address"
@@ -5213,9 +5064,8 @@ msgid "You have to boot the Virtual Machine first"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
-#, fuzzy
 msgid "The disks of the Virtual Machine will be saved in a new Image"
-msgstr "このテンプレートを使って作成される仮想マシンの数"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
@@ -5248,29 +5098,25 @@ msgid "Net Upload Speed"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
-#, fuzzy
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
-msgstr "このアクションは，このVMの電源を切ります．VMはpoweroffステートになり，後で電源を入れることが出来ます"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:9
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:9
-#, fuzzy
 msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
-msgstr "電源オフ シグナルをVMに送出します(この操作はコンソールからコマンドを実行することと等価です)．もしVMにこの操作の反応がない時は，電源オフを試して下さい(これは物理マシンの電源オフボタンをおすことと等価です)．"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
-#, fuzzy
 msgid "Power off and undeploy"
-msgstr "マシンの電源をオフにする"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:25
 msgid "Power off and undeploy the VM"
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:31
-#, fuzzy
 msgid "Send the power off signal and undeploy the VM"
-msgstr "電源オフ シグナルを送出する"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_poweroff.hbs:5
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
@@ -5284,14 +5130,13 @@ msgstr "マシンの電源をオフにする"
 msgid "Send the power off signal"
 msgstr "電源オフ シグナルを送出する"
 
-#: ../app/tabs/provision-tab/vms/create.hbs:24
+#: ../app/tabs/provision-tab/vms/create.hbs:30
 msgid "Virtual Machine Name"
 msgstr "仮想マシン名"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:5
-#, fuzzy
 msgid "This Virtual Machine will be saved in a new Template."
-msgstr "このテンプレートを使って作成される仮想マシンの数"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
@@ -5306,15 +5151,14 @@ msgid "The new Virtual Machine's disks can be made persistent. In a persistent V
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:38
-#, fuzzy
 msgid "Non-persistent"
-msgstr "Persistent"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:48
 msgid "Save Virtual Machine to Template"
 msgstr "仮想マシンをテンプレートに保存"
 
-#: ../app/tabs/provision-tab/vms/list.hbs:54
+#: ../app/tabs/provision-tab/vms/list.hbs:55
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 msgid "User ID"
 msgstr "ユーザID"
@@ -5324,9 +5168,8 @@ msgid "This action will reboot this Virtual Machine."
 msgstr "このアクションは，このVMを再起動します"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:9
-#, fuzzy
 msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't affect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
-msgstr "VMに再起動シグナルを送出できます(この操作はコンソールから再起動コマンドを実行することと等価です)．もしこの操作に反応がない時は，マシンを再起動して下さい(この操作は物理マシンのリセットボタンを押すことと等価です)．"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
 msgid "Reboot the machine"
@@ -5337,19 +5180,16 @@ msgid "Send the reboot signal"
 msgstr "再起動シグナルを送出します"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:5
-#, fuzzy
 msgid "Be careful, this action will shutdown and destroy your Virtual Machine"
-msgstr "注意して下さい，このアクションは直ちにVMを破壊します"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:9
-#, fuzzy
 msgid "You can send the shutdown signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't affect your Virtual Machine, try to terminate the machine (this is equivalent to pressing the power off button in a physical computer)."
-msgstr "電源オフ シグナルをVMに送出します(この操作はコンソールからコマンドを実行することと等価です)．もしVMにこの操作の反応がない時は，電源オフを試して下さい(これは物理マシンの電源オフボタンをおすことと等価です)．"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
-#, fuzzy
 msgid "Terminate the machine"
-msgstr "マシンを再起動します"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
@@ -5359,11 +5199,11 @@ msgstr ""
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/create.hbs:19
+#: ../app/tabs/provision-tab/flows/create.hbs:20
 msgid "Create Service"
 msgstr "サービスを作成"
 
-#: ../app/tabs/provision-tab/flows/create.hbs:24
+#: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr "サービス名"
 
@@ -5373,27 +5213,27 @@ msgid "RUNNING VMS"
 msgstr "実行中VM"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:81
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:95
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/tabs/dashboard-tab/users.hbs:35 ../app/tabs/dashboard-tab/vms.hbs:39
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
 msgid "CPU hours"
 msgstr "CPU時間"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:93
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:41 ../app/tabs/dashboard-tab/vms.hbs:45
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
 msgid "Memory GB hours"
 msgstr "メモリGB時間"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:105
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:115
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
 #: ../app/tabs/dashboard-tab/users.hbs:47 ../app/tabs/dashboard-tab/vms.hbs:51
 #: ../app/utils/accounting/html.hbs:96 ../app/utils/accounting/html.hbs:139
 msgid "Disk MB hours"
 msgstr ""
 
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:19
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
 msgid "Group Virtual Machines"
 msgstr "仮想マシンのグループ"
 
@@ -5412,9 +5252,8 @@ msgid "Zones where the rule applies"
 msgstr "ルールを適用するゾーン"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:129
-#, fuzzy
 msgid "MarketPlace Apps"
-msgstr "マーケットプレイス"
+msgstr ""
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:134
 msgid "Resource subset"
@@ -5447,9 +5286,8 @@ msgid "Write the Service template here"
 msgstr "ここにサービステンプレートを記述"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
-#, fuzzy
 msgid "Network configuration"
-msgstr "ネットワーク構成"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:68
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:36
@@ -5467,9 +5305,8 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
-#, fuzzy
 msgid "VM shutdown action"
-msgstr "シャットダウンアクション"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
@@ -5481,14 +5318,12 @@ msgid "Wait for VMs to report that they are READY via OneGate to consider them r
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
-#, fuzzy
 msgid "Advanced service parameters"
-msgstr "サービステンプレートを更新"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
-#, fuzzy
 msgid "Service name"
-msgstr "サービス名"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:21
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
@@ -5510,24 +5345,21 @@ msgid "Network Configuration"
 msgstr "ネットワーク構成"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
-#, fuzzy
 msgid "Clone Service Template"
-msgstr "サービステンプレートを作成"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
-#, fuzzy
 msgid "Role name"
-msgstr "ロール名"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
-#, fuzzy
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
 msgid "Number of VMs"
-msgstr "インスタンスの数"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:35
-#, fuzzy
 msgid "VM template to create this role's VMs"
-msgstr "VMテンプレート"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
 msgid "Network Interfaces"
@@ -5715,23 +5547,21 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:213
-#, fuzzy
 msgid "VM template content"
-msgstr "VMテンプレート"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:214
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:196
-#, fuzzy
 msgid "Advanced role parameters"
-msgstr "詳細オプション"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:29
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 msgid "Change"
 msgstr "変更"
 
@@ -5753,35 +5583,29 @@ msgid "Recurrence"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:34
-#, fuzzy
 msgid "Get Datastores"
-msgstr "データストア"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
-#, fuzzy
 msgid "Write the Datastore template here"
-msgstr "ここにVDCテンプレートを記述"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
-#, fuzzy
 msgid "Storage backend"
-msgstr "ストレージ アカウント"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
-#, fuzzy
 msgid "Filesystem - shared mode"
-msgstr "ファイルシステムタイプ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:29
-#, fuzzy
 msgid "Filesystem - ssh mode"
-msgstr "ファイルシステムタイプ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:30
-#, fuzzy
 msgid "Filesystem - qcow2 mode"
-msgstr "ファイルシステムタイプ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
@@ -5845,9 +5669,8 @@ msgid "Custom TM_MAD"
 msgstr "カスタムTM_MAD"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
-#, fuzzy
 msgid "Datastore Type"
-msgstr "データストア"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
 msgid "Block"
@@ -5862,9 +5685,8 @@ msgid "Gluster"
 msgstr "Gluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
-#, fuzzy
 msgid "Restricted directories for registering Images"
-msgstr "使用禁止ディレクトリ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:120
 msgid "Safe directories for registering Images"
@@ -5891,9 +5713,8 @@ msgid "Check available capacity of the Datastore before creating a new Image"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:151
-#, fuzzy
 msgid "Host bridge list"
-msgstr "ブリッジ"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
 msgid "Space separated list of servers to add new Images to the Datastore storage"
@@ -5920,32 +5741,28 @@ msgid "Gluster volume to use for the datastore"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
-#, fuzzy
 msgid "Ceph pool to store Images"
-msgstr "イメージを作成"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
-#, fuzzy
 msgid "Ceph host"
-msgstr "Cephホスト"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:195
-#, fuzzy
 msgid "Ceph user"
-msgstr "Cephユーザー"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:197
 msgid "The username to interact with the Ceph cluster"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:204
-#, fuzzy
 msgid "Ceph secret"
-msgstr "Cephシークレット"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:206
 msgid "A generated UUID for a LibVirt secret"
@@ -5956,9 +5773,8 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:219
-#, fuzzy
 msgid "RBD format"
-msgstr "RBDフォーマット"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:225
 msgid "Ceph configuration file path"
@@ -5969,32 +5785,28 @@ msgid "Needed if using a non-default path for the ceph configuration file."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:234
-#, fuzzy
 msgid "iSCSI host"
-msgstr "Cephホスト"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:236
 msgid "Example: 'host' or 'host:port'"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:243
-#, fuzzy
 msgid "iSCSI user for CHAP authentication"
-msgstr "認証の変更"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:249
-#, fuzzy
 msgid "iSCSI usage for CHAP authentication"
-msgstr "認証の変更"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:251
 msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:258
-#, fuzzy
 msgid "vCenter cluster"
-msgstr "vCenter クラスタを取得"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:260
 msgid "The vCenter Cluster that has access to this datastore."
@@ -6008,56 +5820,13 @@ msgstr "Base path"
 msgid "Limit"
 msgstr "制限"
 
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:26
-#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
-msgid "Write the Image template here"
+#: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
+msgid "Write the MarketPlace template here"
 msgstr ""
 
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:34
-#, fuzzy
-msgid "File type"
-msgstr "ファイルシステムタイプ"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:51
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
-msgid "Image location"
-msgstr "イメージの場所"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:55
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:66
-#, fuzzy
-msgid "Path in OpenNebula server"
-msgstr "OpenNebulaに登録"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:68
-msgid "Upload"
-msgstr "アップロード"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:66
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:77
-msgid "Path"
-msgstr "パス"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:51
-#: ../app/tabs/images-tab/panels/info/html.hbs:62
-msgid "Filesystem type"
-msgstr "ファイルシステムタイプ"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:66
-#: ../app/tabs/images-tab/panels/info/html.hbs:77
-msgid "Running VMS"
-msgstr "実行中のVM"
-
-#: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
-#, fuzzy
-msgid "Write the MarketPlace template here"
-msgstr "ここにサービステンプレートを記述"
-
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Configuration attributes"
-msgstr "カスタム属性"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
@@ -6079,15 +5848,11 @@ msgstr ""
 msgid "Select a role in the table for more information"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:25
-msgid "Number of VMs to instantiate with this role"
-msgstr ""
-
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:33
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
 msgstr "矯正"
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:35
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr ""
 
@@ -6152,46 +5917,46 @@ msgstr "SSH公開鍵を更新してください！"
 msgid "Write the Security Group template here"
 msgstr "ここにセキュリティグループテンプレートを記述"
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:35
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
+#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
+msgid "Rules"
+msgstr "規則"
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:76
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:80
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:78
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:82
 msgid "Port range"
 msgstr "ポートレンジ"
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:90
-#, fuzzy
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
 msgid "Target Network"
-msgstr "仮想ネットワーク"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:93
-#, fuzzy
-msgid "Any network"
-msgstr "ネットワーク"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:94
-#, fuzzy
-msgid "Manual network"
-msgstr "仮想ネットワーク"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:95
-#, fuzzy
-msgid "OpenNebula Virtual Network"
-msgstr "仮想ネットワークを作成"
+msgid "Any network"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:99
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
+msgid "Manual network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:97
+msgid "OpenNebula Virtual Network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:28
 msgid "First IP address"
 msgstr "開始IPアドレス"
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:119
-#, fuzzy
-msgid "+ Security Group rule"
-msgstr "セキュリティグループ名"
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
+msgid "Add rule"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:130
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
 msgid "Port Range"
 msgstr "ポートレンジ"
@@ -6204,15 +5969,11 @@ msgstr ""
 msgid "VMs in error. The update to the latest rules failed:"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
-msgid "Rules"
-msgstr "規則"
-
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
 msgstr "セキュリティグループを複製"
 
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr "複数のセキュリティグループが選択され，新しいコピーに名付けるプレフィックスを選択してください"
 
@@ -6229,19 +5990,16 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:76
-#, fuzzy
 msgid "Network mode"
-msgstr "ネットワークモデル"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:79
-#, fuzzy
 msgid "Bridged"
-msgstr "ブリッジ"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:80
-#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr "セキュリティグループ"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:81
 msgid "Bridged & ebtables VLAN"
@@ -6288,9 +6046,8 @@ msgid "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. S
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:114
-#, fuzzy
 msgid "Custom, use a custom virtual network driver."
-msgstr "配置グループの名前です．"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:123
 msgid "MAC spoofing filter"
@@ -6309,9 +6066,8 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
-#, fuzzy
 msgid "MTU of the interface"
-msgstr "イメージの種類。"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
@@ -6326,9 +6082,8 @@ msgid "IPv6 Gateway"
 msgstr "IPv6 ゲートウェイ"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:230
-#, fuzzy
 msgid "MTU of the Guest interfaces"
-msgstr "他のネットワークインターフェースを追加"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:33
 msgid "Remove"
@@ -6362,57 +6117,56 @@ msgstr "Hold IP"
 msgid "IPv6 Link"
 msgstr "IPv6リンク"
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
 msgid "Edit Address Range"
 msgstr "アドレスレンジを編集"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
 msgid "Reservation from Virtual Network"
 msgstr "仮想ネットワークから予約"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:29
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
 msgstr "アドレスの数"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:37
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
 msgid "Add to a new Virtual Network"
 msgstr "新しい仮想ネットワークに追加"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:41
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr "既存の予約に追加"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:48
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
 msgid "Virtual Network Name"
 msgstr "仮想ネットワーク名"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:60
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
 msgid "You can select the addresses from an specific Address Range"
 msgstr "特定のアドレスレンジからアドレスを選択できます"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
 msgid "First address"
 msgstr "開始アドレス"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:72
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IPv4 or MAC"
 msgstr "IPv4 または MAC"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:57
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:31
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:112
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:33
-#, fuzzy
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:123
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:34
 msgid "Advanced Options"
-msgstr "詳細オプション"
+msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
 msgstr "新しいアドレスレンジ"
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:36
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
 msgid "Reset"
 msgstr "リセット"
@@ -6442,19 +6196,16 @@ msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
-#, fuzzy
 msgid "VM Template Name"
-msgstr "テンプレート名"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
-#, fuzzy
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
-msgstr "以下のテンプレートがOpenNebulaに作成され、以前のイメージはディスク上で参照されます。"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:40
-#, fuzzy
 msgid "Select the Datastore to store the resource"
-msgstr "このイメージのデータストアを選択"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:19
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:52
@@ -6462,19 +6213,16 @@ msgid "Select the Marketplace where the App will be created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:24
-#, fuzzy
 msgid "Write the MarketPlace Appliance template here"
-msgstr "ここに仮想マシンテンプレートを記述"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:48
-#, fuzzy
 msgid "Select the Image to create the App"
-msgstr "新しいオーナーを選択"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
-#, fuzzy
 msgid "Templates for the App"
-msgstr "VDCの詳細"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
@@ -6487,9 +6235,8 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
-#, fuzzy
 msgid "App template"
-msgstr "テンプレート"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -6528,9 +6275,8 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
-#, fuzzy
 msgid "Select Secondary Groups"
-msgstr "セカンダリグループ"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -6549,19 +6295,16 @@ msgid "core"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:39
-#, fuzzy
 msgid "public"
-msgstr "公開"
+msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
-#, fuzzy
 msgid "custom"
-msgstr "カスタム"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
-#, fuzzy
 msgid "Image / Size-Format"
-msgstr "イメージ / フォーマット-サイズ"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:33
 msgid "Attach disk"
@@ -6578,14 +6321,13 @@ msgstr "Cost / CPU"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:40
 msgid "Resize"
 msgstr "リサイズ"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:75
-#, fuzzy
 msgid "Real memory"
-msgstr "実メモリー"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:37
 msgid "LCM State"
@@ -6595,31 +6337,24 @@ msgstr "LCM State"
 msgid "Deploy ID"
 msgstr "Deploy ID"
 
+#: ../app/tabs/vms-tab/panels/info/html.hbs:62
+msgid "Virtual Router ID"
+msgstr ""
+
 #: ../app/tabs/vms-tab/panels/info/html.hbs:87
 msgid "Monitoring"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
-#, fuzzy
 msgid "Update Configuration"
-msgstr "ネットワーク構成"
+msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:27
-msgid "Virtual Machine ID"
-msgstr "仮想マシンID"
-
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:31
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:31
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
 msgid "Disk ID"
 msgstr "Disk ID"
 
@@ -6627,15 +6362,15 @@ msgstr "Disk ID"
 msgid "Resize VM capacity"
 msgstr "VM容量をリサイズ"
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:38
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:36
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:37
 msgid "Enforce"
 msgstr "強制"
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:35
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr ""
 
@@ -6660,16 +6395,15 @@ msgstr "Canvasがサポートされていません．"
 msgid "Save as Template"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 msgid "Template name"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:40
-#, fuzzy
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
-msgstr "non persistentに設定"
+msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:44
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
 msgid "Save As Template"
 msgstr ""
 
@@ -6681,17 +6415,17 @@ msgstr "新しいディスクをアタッチ"
 msgid "Migrate Virtual Machine"
 msgstr "仮想マシンをマイグレート"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:30
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:27
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
 msgid "Select a Host"
 msgstr "ホストを選択"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:45
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
 msgid "Select a datastore"
 msgstr "データストアを選択"
 
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
 msgid "Snapshot name"
 msgstr "スナップショット名"
 
@@ -6703,71 +6437,95 @@ msgstr "仮想マシンをデプロイ"
 msgid "Disk Saveas"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 msgid "Snapshot ID"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
-#, fuzzy
 msgid "Get Images"
-msgstr "イメージ"
+msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:38
-#, fuzzy
-msgid "Operating System image"
-msgstr "オペレーティングシステム"
+#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
+msgid "Write the Image template here"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
-msgid "Readonly CD-ROM"
+msgid "Operating System image"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
+msgid "Readonly CD-ROM"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:55
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
 msgid "This image is persistent"
-msgstr "non persistentに設定"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:70
+msgid "Image location"
+msgstr "イメージの場所"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:74
+msgid "Path in OpenNebula server"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:76
+msgid "Upload"
+msgstr "アップロード"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:79
 msgid "Empty disk image"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
+msgid "Path"
+msgstr "パス"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
 msgid "Disk provisioning type"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:118
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
 msgid "Bus adapter controller"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:135
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:146
 msgid "BUS"
 msgstr "BUS"
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:169
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:180
 msgid "Target device"
-msgstr "サービスを作成"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
 msgstr ""
 
+#: ../app/tabs/images-tab/panels/info/html.hbs:64
+msgid "Filesystem type"
+msgstr "ファイルシステムタイプ"
+
+#: ../app/tabs/images-tab/panels/info/html.hbs:79
+msgid "Running VMS"
+msgstr "実行中のVM"
+
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
 msgid "Clone Image"
 msgstr "イメージをクローン"
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:35
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
 msgid "You can select a different target datastore"
 msgstr ""
 
@@ -6796,9 +6554,8 @@ msgid "Filter"
 msgstr "フィルタ"
 
 #: ../app/utils/accounting/html.hbs:52
-#, fuzzy
 msgid "Get accounting"
-msgstr "利用状況の集計"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:68
 msgid "There are no accounting records"
@@ -6810,9 +6567,8 @@ msgid "Date"
 msgstr "日付"
 
 #: ../app/utils/accounting/html.hbs:104
-#, fuzzy
 msgid "Accounting Tables"
-msgstr "利用状況"
+msgstr ""
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
@@ -6831,9 +6587,8 @@ msgid "password"
 msgstr "パスワード"
 
 #: ../app/utils/user-inputs/row.hbs:14
-#, fuzzy
 msgid "number"
-msgstr "数"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:15
 msgid "number (float)"
@@ -6846,14 +6601,12 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:27 ../app/utils/user-inputs/row.hbs:32
 #: ../app/utils/user-inputs/row.hbs:49 ../app/utils/user-inputs/row.hbs:66
 #: ../app/utils/user-inputs/row.hbs:76
-#, fuzzy
 msgid "Default value"
-msgstr "デフォルト"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:72
-#, fuzzy
 msgid "Options"
-msgstr "オプション"
+msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:73
 msgid "Comma-separated list of options for the drop-down select input"
@@ -6874,26 +6627,25 @@ msgstr ""
 msgid "Confirm"
 msgstr "確認"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:25
-#: ../app/utils/dialogs/confirm/html.hbs:26
+#: ../app/utils/dialogs/generic-confirm/html.hbs:26
+#: ../app/utils/dialogs/confirm/html.hbs:25
 msgid "You have to confirm this action."
 msgstr "このアクションの確認が必要です"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:27
-#: ../app/utils/dialogs/confirm/html.hbs:28
+#: ../app/utils/dialogs/generic-confirm/html.hbs:28
+#: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
 msgstr "続行しますか?"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:30
-#: ../app/utils/dialogs/confirm/html.hbs:31
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:37
+#: ../app/utils/dialogs/generic-confirm/html.hbs:31
+#: ../app/utils/dialogs/confirm/html.hbs:30
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 msgid "OK"
 msgstr "OK"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:20
-#, fuzzy
 msgid "Host Overcommitment"
-msgstr "ホスト 要件"
+msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:30
 msgid "Prior to assigning a VM to a Host, the available capacity is checked to ensure that the VM fits in the host. The capacity is obtained by the monitor probes. You may alter this behaviour by reserving an amount of capacity. You can reserve this capacity:"
@@ -6912,15 +6664,14 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
-#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr "使用済メモリー"
+msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
 
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:28
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
 msgstr "何か選択する必要があります。"
 
@@ -6929,23 +6680,20 @@ msgid "Ownership"
 msgstr "所有"
 
 #: ../app/utils/nics-section/html.hbs:9
-#, fuzzy
 msgid "Network Interface"
-msgstr "ネットワークインターフェース"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:5
-#, fuzzy
 msgid "Interface"
-msgstr "ネットワークインターフェース"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:14
 msgid "Select a Network"
 msgstr "ネットワークを選択"
 
 #: ../app/utils/nics-section/dd.hbs:27
-#, fuzzy
 msgid "Force IPv4:"
-msgstr "矯正"
+msgstr ""
 
 #: ../app/utils/nics-section/dd.hbs:29
 msgid "Optionally, you can force the IP assigned to the network interface."
@@ -6964,9 +6712,8 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:22
-#, fuzzy
 msgid "Key"
-msgstr "キーマップ"
+msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:23
 msgid "Value"
@@ -6981,9 +6728,8 @@ msgid "Filter by group"
 msgstr "グループによるフィルタ"
 
 #: ../app/utils/showback/html.hbs:28
-#, fuzzy
 msgid "Get showback"
-msgstr "ショーバックを取得"
+msgstr ""
 
 #: ../app/utils/showback/html.hbs:43
 msgid "There are no showback records"
@@ -7005,745 +6751,8 @@ msgstr "月の詳細情報を開くには，行を選択してください"
 msgid "Hours"
 msgstr "時"
 
-#~ msgid "Elastic IP"
-#~ msgstr "Elastic IP"
-
-#~ msgid "Specifies the instance type."
-#~ msgstr "インスタンスタイプを指定"
-
-#~ msgid "Name of the license pool."
-#~ msgstr "ライセンスプールの名前です．"
-
-#~ msgid "Name of the placement group."
-#~ msgstr "配置グループの名前です．"
-
-#~ msgid "Name of the security group. You can specify more than one security group (comma separated)."
-#~ msgstr "セキュリティグループの名前です．複数のセキュリティグループを選択できます(カンマ区切り)．"
-
-#~ msgid "Name of the virtual network to which this VM will be connected"
-#~ msgstr "VMが接続される仮想ネットワークの名前です．"
-
-#~ msgid "VM User"
-#~ msgstr "VMユーザ"
-
-#~ msgid "Hybrid Cloud"
-#~ msgstr "ハイブリッドCloud"
-
-#~ msgid "Host name missing!"
-#~ msgstr "ホスト名がありません！"
-
-#, fuzzy
-#~ msgid "Public Directory"
-#~ msgstr "公開鍵"
-
-#, fuzzy
-#~ msgid "Total MB"
-#~ msgstr "合計"
-
-#, fuzzy
-#~ msgid "Read Length"
-#~ msgstr "読み込み専用"
-
-#~ msgid "This will suspend selected machines"
-#~ msgstr "選択されたマシンをサスペンドします"
-
-#~ msgid "This will resume selected VMs"
-#~ msgstr "選択されたVMを再開します"
-
-#~ msgid "This will stop selected VMs"
-#~ msgstr "選択されたVMを停止します"
-
-#, fuzzy
-#~ msgid "This will initiate the terminate process in the selected VMs"
-#~ msgstr "選択されたVMを再開します"
-
-#~ msgid "This will deploy the selected VMs on the chosen host"
-#~ msgstr "指定したホストに選択したVMをデプロイします"
-
-#~ msgid "This will migrate the selected VMs to the chosen host"
-#~ msgstr "指定したホストに選択したVMをマイグレートします"
-
-#~ msgid "This will live-migrate the selected VMs to the chosen host"
-#~ msgstr "指定したホストに選択したVMをライブマイグレートします"
-
-#~ msgid "This will reschedule selected VMs"
-#~ msgstr "選択されたVMを再スケジュールします"
-
-#~ msgid "ACTION"
-#~ msgstr "アクション"
-
-#~ msgid "TIME"
-#~ msgstr "時間"
-
-#~ msgid "MESSAGE"
-#~ msgstr "メッセージ"
-
-#~ msgid "Description of the VDC"
-#~ msgstr "VDCの詳細"
-
-#~ msgid "Add another provider"
-#~ msgstr "他のプロバイダを追加"
-
-#~ msgid "Add another disk"
-#~ msgstr "他のディスクを追加"
-
-#~ msgid "Name of the image to be used in the Virtual Image disk."
-#~ msgstr "仮想イメージディスクで使われているイメージの名前です。"
-
-#~ msgid "User Name"
-#~ msgstr "ユーザ名"
-
-#~ msgid "Device Prefix"
-#~ msgstr "デバイス プレフィックス"
-
-#~ msgid "Selects the cache mechanism for the disk."
-#~ msgstr "このディスクのキャッシュ機構を選択してください．"
-
-#~ msgid "none"
-#~ msgstr "なし"
-
-#~ msgid "writethrough"
-#~ msgstr "ライトスルー"
-
-#~ msgid "writeback"
-#~ msgstr "ライトバック"
-
-#~ msgid "unsafe"
-#~ msgstr "安全でない"
-
-#~ msgid "IO"
-#~ msgstr "IO"
-
-#~ msgid "threads"
-#~ msgstr "スレッド"
-
-#~ msgid "native"
-#~ msgstr "ネイティブ"
-
-#~ msgid "Total Bytes Sec"
-#~ msgstr "Total Bytes Sec"
-
-#~ msgid "Total IOPS Sec"
-#~ msgstr "Total IOPS Sec"
-
-#~ msgid "Arch"
-#~ msgstr "アーキテクチャー"
-
-#~ msgid "Machine type"
-#~ msgstr "マシンタイプ"
-
-#~ msgid "Root"
-#~ msgstr "ルート"
-
-#~ msgid "Device to be mounted as root"
-#~ msgstr "デバイスをルートとしてマウントする"
-
-#~ msgid "Kernel cmd"
-#~ msgstr "カーネルコマンド"
-
-#~ msgid "Arguments for the booting kernel"
-#~ msgstr "カーネル起動時の引数"
-
-#~ msgid "Bootloader"
-#~ msgstr "ブートローダー"
-
-#~ msgid "Default model"
-#~ msgstr "デフォルトのモデル"
-
-#, fuzzy
-#~ msgid "Default value for all NICs. Hardware that will emulate the network interface."
-#~ msgstr "全てのNICのデフォルト値．ハードウェアはネットワークインターフェースをエミュレートします．Xenではvifの属性タイプである"
-
-#~ msgid "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
-#~ msgstr "この仮想マシンのネットワークインターフェースに，IPアドレスとMACアドレスをリースする仮想ネットワークの名前です．"
-
-#~ msgid "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
-#~ msgstr "この仮想マシンのネットワークインターフェースに，IPアドレスとMACアドレスをリースする仮想ネットワークの，オーナーのユーザ名です．"
-
-#~ msgid "Model"
-#~ msgstr "モデル"
-
-#~ msgid "TCP Firewall"
-#~ msgstr "TCPファイアウォール"
-
-#~ msgid "Whitelist"
-#~ msgstr "ホワイトリスト"
-
-#~ msgid "Blacklist"
-#~ msgstr "ブラックリスト"
-
-#~ msgid "PORTS"
-#~ msgstr "ポート"
-
-#~ msgid "UDP Firewall"
-#~ msgstr "UDPファイアウォール"
-
-#~ msgid "Drop"
-#~ msgstr "ドロップ"
-
-#~ msgid "IP to listen on"
-#~ msgstr "待受けるIP"
-
-#~ msgid "Port"
-#~ msgstr "ポート"
-
-#~ msgid "Keyboard configuration locale to use in the VNC/SPICE display"
-#~ msgstr "VNC/SPICE ディスプレイで使用する，キーボード設定ロケール"
-
-#~ msgid "Password for the VNC/SPICE server"
-#~ msgstr "VNC/SPICEサーバーのパスワード"
-
-#~ msgid "A random password will be generated for each VM, and will be included in the VM information"
-#~ msgstr "ランダムパスワードは各VMのために生成され，VM情報に含まれる"
-
-#~ msgid "TYPE"
-#~ msgstr "タイプ"
-
-#~ msgid "Description of the template"
-#~ msgstr "テンプレートの説明"
-
-#~ msgid "Logo for the template."
-#~ msgstr "テンプレートのロゴ。"
-
-#~ msgid "VM Name"
-#~ msgstr "VM名"
-
-#~ msgid "Number of Virtual Machines that will be created using this template"
-#~ msgstr "このテンプレートを使って作成される仮想マシンの数"
-
-#, fuzzy
-#~ msgid "Description of the Virtual Router"
-#~ msgstr "仮想ネットワークの詳細"
-
-#~ msgid "Name for this template"
-#~ msgstr "このテンプレートの名前"
-
-#~ msgid "Description of the service"
-#~ msgstr "サービスの詳細"
-
-#~ msgid "Add another Network"
-#~ msgstr "他のネットワークを追加"
-
-#~ msgid "Add another role"
-#~ msgstr "他のロールを追加"
-
-#~ msgid "Number of Services that will be created using this template"
-#~ msgstr "このテンプレートを使って作成されるサービスの数"
-
-#~ msgid "Add another policy"
-#~ msgstr "他のポリシーを追加"
-
-#~ msgid "Presets"
-#~ msgstr "プリセット"
-
-#~ msgid "Managers"
-#~ msgstr "管理者"
-
-#~ msgid "Safe Directories"
-#~ msgstr "安全なディレクトリ"
-
-#~ msgid "Transfer BW Limit"
-#~ msgstr "転送帯域制限"
-
-#~ msgid "Pool Name"
-#~ msgstr "プール名"
-
-#, fuzzy
-#~ msgid "iSCSI User"
-#~ msgstr "Cephユーザー"
-
-#~ msgid "Human readable description of the file for other users."
-#~ msgstr "このファイルについての、他のユーザーに向けた説明文。"
-
-#~ msgid "Type of the file."
-#~ msgstr "ファイルの種類。"
-
-#~ msgid "Select the datastore for this file"
-#~ msgstr "このファイルのデータストアを選択"
-
-#~ msgid "Provide a path"
-#~ msgstr "パスを入力"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace for other users."
-#~ msgstr "このファイルについての、他のユーザーに向けた説明文。"
-
-#~ msgid "Description for the Security Group"
-#~ msgstr "セキュリティグループの説明"
-
-#~ msgid "Defines the direction of the rule."
-#~ msgstr "ルールのディレクションを定義します"
-
-#~ msgid "Defines the protocol of the rule."
-#~ msgstr "ルールのプロトコルを定義します"
-
-#~ msgid "Specific ICMP type of the rule. If a type has multiple codes, it includes all the codes within."
-#~ msgstr "ルールの具体的なICMPタイプ．タイプが複数のコードを持つ場合，すべてのコードを含むようにします"
-
-#~ msgid "Selects whether to apply this TCP or UDP rule to all the ports or just a specific set."
-#~ msgstr "全てのポートまたは一部に，このTCPまたはUDPのルールを適用するかどうかを選択します．"
-
-#~ msgid "Iptables range"
-#~ msgstr "iptablesレンジ"
-
-#~ msgid "A Port Range to filter specific ports. Uses the iptables port syntax: port[,port|,port:port]..."
-#~ msgstr "特定のポートをフィルタするポートの範囲．iptablesポートの構文を使用： port[,port|,port:port]..."
-
-#~ msgid "Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custom defined network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already defined VNETs."
-#~ msgstr "任意： 送信元または宛先に関係なく，任意の接続にこのルールを適用．　ネットワーク： カスタム定義されたネットワーク範囲のみに，このルールを適用．　仮想ネットワーク： 既に定義されたVNETの送信元，または宛先への接続のみにこのルールを適用"
-
-#~ msgid "Number of addresses in the range"
-#~ msgstr "アドレスレンジの数"
-
-#~ msgid "Add Rule"
-#~ msgstr "規則を追加"
-
-#~ msgid "Description of the Virtual Network"
-#~ msgstr "仮想ネットワークの詳細"
-
-#~ msgid "Firewall"
-#~ msgstr "ファイアウォール"
-
-#~ msgid "ebtables"
-#~ msgstr "ebtables"
-
-#~ msgid "VN MAD"
-#~ msgstr "VN MAD"
-
-#~ msgid "Add another Address Range"
-#~ msgstr "他のアドレスレンジを追加"
-
-#~ msgid "Base network address. For example, 192.168.1.0"
-#~ msgstr "基になるネットワークアドレス．例 192.168.1.0"
-
-#~ msgid "Network mask. For example, 255.255.255.0"
-#~ msgstr "ネットワークマスク．例 255.255.255.0"
-
-#~ msgid "Router for this network. Leave empty if the network is not routable"
-#~ msgstr "このネットワークのルータ．このネットワークがルーティング出来ない場合，空のままにします"
-
-#~ msgid "IPv6 Router for this network"
-#~ msgstr "このネットワークのIPv6ルータ"
-
-#~ msgid "Specific DNS for this network"
-#~ msgstr "このネットワークの特定のDNS"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace App for other users."
-#~ msgstr "このファイルについての、他のユーザーに向けた説明文。"
-
-#, fuzzy
-#~ msgid "User Groups"
-#~ msgstr "グループ"
-
-#~ msgid "REAL CPU"
-#~ msgstr "実CPU"
-
-#~ msgid "REAL MEMORY"
-#~ msgstr "実メモリー"
-
-#~ msgid "Name that the Image will get. Every image must have a unique name."
-#~ msgstr "イメージに付ける名前。全てのイメージは固有の名前を持たなければなりません。"
-
-#~ msgid "Human readable description of the image for other users."
-#~ msgstr "このイメージについての、他のユーザーに向けた説明文。"
-
-#~ msgid "Select the datastore for this image"
-#~ msgstr "このイメージのデータストアを選択"
-
-#~ msgid "Persistence of the image"
-#~ msgstr "イメージをPersistentに設定する"
-
-#~ msgid "Empty datablock"
-#~ msgstr "空のデータブロックを作成"
-
-#~ msgid "Size of the datablock in MB."
-#~ msgstr "データブロックのサイズをMB単位で記載"
-
-#, fuzzy
-#~ msgid "Controller for the image."
-#~ msgstr "イメージの種類。"
-
-#~ msgid "Target on which the image will be mounted at. For example: hda, sdb..."
-#~ msgstr "このイメージをアタッチするデバイス名。例: hda、sdb…"
-
-#~ msgid "Add another attribute"
-#~ msgstr "他の属性を追加"
-
-#~ msgid "Cannot connect to OpenNebula Marketplace"
-#~ msgstr "OpenNebulaマーケットプレイスに接続できません"
-
-#~ msgid "Files & Kernels"
-#~ msgstr "ファイル & カーネル"
-
-#~ msgid "The appliance is not ready"
-#~ msgstr "アプライアンスは準備できていません"
-
-#~ msgid "Publisher"
-#~ msgstr "発行者"
-
-#~ msgid "OpenNebula Marketplace"
-#~ msgstr "OpenNebulaマーケットプレイス"
-
-#~ msgid "Appliance"
-#~ msgstr "アプライアンス"
-
-#~ msgid "This will delete the selected VMs from the database"
-#~ msgstr "このデータベースから選択したVMを削除します"
-
-#~ msgid "This will delete and recreate VMs to PENDING state"
-#~ msgstr "VMを削除，再生成しペンディング状態にします"
-
-#~ msgid "OneFlow - Services"
-#~ msgstr "OneFlow - サービス"
-
-#~ msgid "OneFlow - Service"
-#~ msgstr "OneFlow - サービス"
-
-#~ msgid "OneFlow - Templates"
-#~ msgstr "OneFlow - テンプレート"
-
-#~ msgid "OneFlow - Template"
-#~ msgstr "OneFlow - テンプレート"
-
-#~ msgid "There are no saved templates available"
-#~ msgstr "保存された利用可能なテンプレートがありません"
-
-#~ msgid "The list of users is empty"
-#~ msgstr "ユーザリストが空です"
-
-#~ msgid "User Virtual Machines"
-#~ msgstr "ユーザ仮想マシン"
-
-#~ msgid "User Saved Templates"
-#~ msgstr "ユーザ保存済テンプレート"
-
-#~ msgid "User Services"
-#~ msgstr "ユーザ サービス"
-
-#~ msgid "User Accounting"
-#~ msgstr "ユーザ 会計"
-
-#~ msgid "User Showback"
-#~ msgstr "ユーザ ショーバック"
-
-#~ msgid "Be careful, this action will inmediately remove the User from OpenNebula"
-#~ msgstr "注意して下さい，このアクションはOpenNebulaからユーザを直ちに削除します"
-
-#~ msgid "Delete User"
-#~ msgstr "ユーザ削除"
-
-#~ msgid "Update User Quota"
-#~ msgstr "ユーザ割り当てを更新"
-
-#~ msgid "Change cardinality"
-#~ msgstr "カーディナリティの変更"
-
-#~ msgid "Change Capacity"
-#~ msgstr "カーディナリティの変更"
-
-#~ msgid "There are no instance_types available. Please contact your cloud administrator"
-#~ msgstr "利用可能なインスタンスタイプがありません。クラウド管理者に問い合わせてください。"
-
-#~ msgid "There are no instance types available"
-#~ msgstr "利用可能なインスタンスタイプがありません"
-
-#~ msgid "You have not specified all the Custom Atrributes for this VM"
-#~ msgstr "このVMのすべてのカスタム属性を指定していません"
-
-#~ msgid "You have not specified all the Networks for this Service"
-#~ msgstr "このサービスの全てのネットワークを指定していません"
-
-#~ msgid "You have not specified all the Custom Atrributes for this Service"
-#~ msgstr "サービスの全てのカスタム属性を指定していません"
-
-#~ msgid "You have to provide a username and password"
-#~ msgstr "ユーザー名やパスワードを入力する必要があります"
-
-#~ msgid "Arch Linux"
-#~ msgstr "Arch Linux"
-
-#~ msgid "CentOS"
-#~ msgstr "CentOS"
-
-#~ msgid "Debian"
-#~ msgstr "Debian"
-
-#~ msgid "Fedora"
-#~ msgstr "Fedora"
-
-#~ msgid "Linux"
-#~ msgstr "Linux"
-
-#~ msgid "Redhat"
-#~ msgstr "Redhat"
-
-#~ msgid "Ubuntu"
-#~ msgstr "Ubuntu"
-
-#~ msgid "Windows XP/2003"
-#~ msgstr "Windows XP/2003"
-
-#~ msgid "Windows 8"
-#~ msgstr "Windows 8"
-
-#~ msgid "Block Device Template"
-#~ msgstr "ブロックデバイステンプレート"
-
-#~ msgid "Hourly Billing"
-#~ msgstr "時間課金"
-
-#~ msgid "Local Disk"
-#~ msgstr "ローカルディスク"
-
-#~ msgid "Max Memory"
-#~ msgstr "最大メモリー"
-
-#~ msgid "Postscript"
-#~ msgstr "Postscript"
-
-#~ msgid "Private Netwrok Only"
-#~ msgstr "プライベートネットワークのみ"
-
-#~ msgid "Primary Network VLAN"
-#~ msgstr "プライマリ Network VLAN"
-
-#~ msgid "SSH Keys"
-#~ msgstr "SSH鍵"
-
-#~ msgid "The number of CPU cores to allocate to the VM"
-#~ msgstr "VMに割り当てるCPUコアの数"
-
-#~ msgid "Add to group"
-#~ msgstr "グループに追加"
-
-#~ msgid "This will add the user to a secondary group. Select the new group"
-#~ msgstr "ユーザーを第二グループに追加します。新しいグループを選択してください。"
-
-#~ msgid "Remove from group"
-#~ msgstr "グループから削除"
-
-#~ msgid "This will remove the user from a secondary group. Select the group"
-#~ msgstr "第二グループからユーザーを削除します。グループを選択してください。"
-
-#~ msgid "shutdown"
-#~ msgstr "シャットダウン"
-
-#~ msgid "shutdown-hard"
-#~ msgstr "強制シャットダウン"
-
-#~ msgid "INTERFACE"
-#~ msgstr "インターフェース"
-
-#~ msgid "Select a Network for this interface"
-#~ msgstr "このインターフェースのネットワークを選択"
-
-#~ msgid "There are no networks available. Please contact your cloud administrator"
-#~ msgstr "利用可能なネットワークがありません。クラウド管理者に問い合わせてください。"
-
-#~ msgid "Please select the vCenter Networks to be imported to OpenNebula."
-#~ msgstr "OpenNebulaにインポートする vCenter ネットワークを選択してください"
-
-#~ msgid "VLAN"
-#~ msgstr "VLAN"
-
-#~ msgid "SIZE"
-#~ msgstr "サイズ"
-
-#~ msgid "IP START"
-#~ msgstr "開始IPアドレス"
-
-#~ msgid "GLOBAL PREFIX"
-#~ msgstr "GLOBAL PREFIX"
-
-#~ msgid "ULA_PREFIX"
-#~ msgstr "ULA_PREFIX"
-
-#~ msgid "Please select the vCenter Templates to be imported to OpenNebula."
-#~ msgstr "OpenNebulaにインポートする vCenter テンプレートを選択してください．"
-
-#~ msgid "IMAGES"
-#~ msgstr "イメージ"
-
-#~ msgid "USERS"
-#~ msgstr "ユーザー"
-
-#~ msgid "VMware VMFS"
-#~ msgstr "VMware VMFS"
-
-#~ msgid "Block LVM"
-#~ msgstr "Block LVM"
-
-#~ msgid "VMware"
-#~ msgstr "VMware"
-
-#~ msgid "VMFS"
-#~ msgstr "VMFS"
-
-#~ msgid "Base Path"
-#~ msgstr "Base Path"
-
-#~ msgid "XEN"
-#~ msgstr "XEN"
-
-#~ msgid "Microsoft Azure"
-#~ msgstr "Microsoft Azure"
-
-#~ msgid "IBM Softlayer"
-#~ msgstr "IBM Softlayer"
-
-#~ msgid "Dummy"
-#~ msgstr "ダミー"
-
-#~ msgid "Networking"
-#~ msgstr "ネットワーク"
-
-#~ msgid "Default (dummy)"
-#~ msgstr "デフォルト(dummy)"
-
-#~ msgid "Custom VNM_MAD"
-#~ msgstr "カスタムVNM_MAD"
-
-#~ msgid "FS type"
-#~ msgstr "FSタイプ"
-
-#~ msgid "Type of file system to be built."
-#~ msgstr "作成するファイルシステムのタイプ"
-
-#~ msgid "The following images will be created in OpenNebula."
-#~ msgstr "以下のイメージがOpenNebulaに作成されます。"
-
-#~ msgid "If you want to edit parameters of the image you can do it later in the images tab"
-#~ msgstr "後でイメージのパラメータを編集したい場合は、「イメージ」タブから編集できます"
-
-#~ msgid "Import Appliance"
-#~ msgstr "アプライアンスのインポート"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "link"
-#~ msgstr "リンク"
-
-#~ msgid "Catalog"
-#~ msgstr "カタログ"
-
-#~ msgid "OpenNebula Template"
-#~ msgstr "OpenNebulaテンプレート"
-
-#~ msgid "Shutdown hard"
-#~ msgstr "強制シャットダウンする"
-
-#~ msgid "Filter by User"
-#~ msgstr "ユーザによるフィルタ"
-
-#~ msgid "Group Accounting"
-#~ msgstr "グループ 会計"
-
-#~ msgid "Group Showback"
-#~ msgstr "グループ ショーバック"
-
-#~ msgid "Group Info"
-#~ msgstr "グループ情報"
-
-#~ msgid "Saved"
-#~ msgstr "保存済"
-
-#~ msgid "Repeat Password"
-#~ msgstr "パスワードの繰り返し"
-
-#~ msgid "Define Quotas"
-#~ msgstr "割り当ての定義"
-
-#~ msgid "Manual"
-#~ msgstr "マニュアル"
-
-#~ msgid "Add User"
-#~ msgstr "ユーザの追加"
-
-#~ msgid "Unlimited. Group quotas will still apply"
-#~ msgstr "無制限．グループの割当も適用されます"
-
-#~ msgid "Xen"
-#~ msgstr "Xen"
-
-#~ msgid "Do not allow to change capacity"
-#~ msgstr "容量の変更を許可しない"
-
-#~ msgid "Guest OS"
-#~ msgstr "ゲストOS"
-
-#~ msgid "Set the OS of the VM, only for VMware"
-#~ msgstr "VMのOSを設定，VMwareのみ"
-
-#~ msgid "1st Boot"
-#~ msgstr "1st Boot"
-
-#~ msgid "HD"
-#~ msgstr "HD"
-
-#~ msgid "FD"
-#~ msgstr "FD"
-
-#~ msgid "NETWORK"
-#~ msgstr "NETWORK"
-
-#~ msgid "2nd Boot"
-#~ msgstr "2nd Boot"
-
-#~ msgid "2nd Boot device type"
-#~ msgstr "2nd Boot device type"
-
-#~ msgid "3rd Boot"
-#~ msgstr "3rd Boot"
-
-#~ msgid "3rd Boot device type"
-#~ msgstr "3rd Boot device type"
-
-#~ msgid "PATH"
-#~ msgstr "PATH"
-
-#~ msgid "Used to change the IO emulator in Xen HVM. Only XEN."
-#~ msgstr "Xen，HVMでのIOエミュレータを変更するために使用．XENのみ"
-
-#~ msgid "PCI BRIDGE"
-#~ msgstr "PCIブリッジ"
-
-#~ msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
-#~ msgstr "ブリッジ-to-ブリッジ機能を提供するPCIコントローラを追加，VMwareのみ"
-
-#~ msgid "xen"
-#~ msgstr "xen"
-
-#~ msgid "vmware"
-#~ msgstr "vmware"
-
-#~ msgid "DATA"
-#~ msgstr "DATA"
-
-#~ msgid "DATA_VMX"
-#~ msgstr "DATA_VMX"
-
-#~ msgid "Core"
-#~ msgstr "コア"
-
-#~ msgid "x509"
-#~ msgstr "x509"
-
-#~ msgid "LDAP"
-#~ msgstr "LDAP"
-
-#~ msgid "Step 1: Specify a name and the number of instances"
-#~ msgstr "ステップ1: インスタンス名と数の指定"
-
-#~ msgid "Step 2: Select a template"
-#~ msgstr "ステップ2: テンプレートの選択"
-
-#~ msgid "Step 3: Fill the required inputs"
-#~ msgstr "ステップ3: 必要な入力を埋める"
-
-#~ msgid "KEY"
-#~ msgstr "キー"
-
-#~ msgid "VALUE"
-#~ msgstr "値"
+#~ msgid "Please select a datastore for this file"
+#~ msgstr "このファイルのデータストアを選択してください"
+
+#~ msgid "Virtual Machine ID"
+#~ msgstr "仮想マシンID"

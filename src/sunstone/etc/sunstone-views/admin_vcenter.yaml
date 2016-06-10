@@ -14,8 +14,8 @@ enabled_tabs:
     - datastores-tab
     - images-tab
     #- files-tab
-    - marketplaces-tab
-    - marketplaceapps-tab
+    #- marketplaces-tab
+    #- marketplaceapps-tab
     - network-top-tab
     - vnets-tab
     - vnets-topology-tab
@@ -31,6 +31,7 @@ enabled_tabs:
     - acls-tab
     - settings-tab
     - support-tab
+    - upgrade-top-tab
 autorefresh: true
 features:
     # True to show showback monthly reports, and VM cost
@@ -527,6 +528,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.upload_marketplace_dialog: false
             Image.import_dialog: true
             Image.rename: true
             Image.chown: true
@@ -747,3 +749,6 @@ tabs:
             user_showback_tab: true
         actions:
             User.quotas_dialog: false
+    upgrade-top-tab:
+        panel_tabs:
+        actions:

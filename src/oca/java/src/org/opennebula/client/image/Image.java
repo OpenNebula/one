@@ -85,8 +85,7 @@ public class Image extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param description A string containing the template of the image.
-     * @param datastoreId The cluster ID. If it is -1, this image
-     * won't be added to any cluster.
+     * @param datastoreId The Datastore ID
      *
      * @return If successful the message contains the associated
      * id generated for this Image.
@@ -629,7 +628,7 @@ public class Image extends PoolElement
 
     /**
      * Returns the state of the Image.
-     * <br/>
+     * <br>
      * The method {@link Image#info()} must be called before.
      *
      * @return The state of the Image.
@@ -642,7 +641,7 @@ public class Image extends PoolElement
 
     /**
      * Returns the short length string state of the Image.
-     * <br/>
+     * <br>
      * The method {@link Image#info()} must be called before.
      *
      * @return The short length string state of the Image.

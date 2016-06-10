@@ -24,6 +24,12 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         :description => "Show all template data"
     }
 
+    FLOAT = {
+        :name       => "float",
+        :large      => "--float",
+        :description => "Makes this IP request a Floating one"
+    }
+
     def self.rname
         "VROUTER"
     end

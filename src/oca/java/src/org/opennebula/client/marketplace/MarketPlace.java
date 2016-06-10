@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.opennebula.client.datastore;
+package org.opennebula.client.marketplace;
 
 import org.opennebula.client.Client;
 import org.opennebula.client.OneResponse;
 import org.opennebula.client.PoolElement;
-import org.opennebula.client.cluster.ClusterPool;
 import org.w3c.dom.Node;
 
 /**
- * This class represents an OpenNebula datastore.
+ * This class represents an OpenNebula MarketPlace.
  * It also offers static XML-RPC call wrappers.
  */
-public class Datastore extends PoolElement
+public class MarketPlace extends PoolElement
 {
 
-    private static final String METHOD_PREFIX = "datastore.";
+    private static final String METHOD_PREFIX = "market.";
     private static final String INFO     = METHOD_PREFIX + "info";
     private static final String ALLOCATE = METHOD_PREFIX + "allocate";
     private static final String DELETE   = METHOD_PREFIX + "delete";
@@ -36,22 +35,13 @@ public class Datastore extends PoolElement
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String RENAME   = METHOD_PREFIX + "rename";
-    private static final String ENABLE   = METHOD_PREFIX + "enable";
-
-    private static final String[] DATASTORE_TYPES = {"IMAGE", "SYSTEM", "FILE"};
-
-    private static final String[] SHORT_DATASTORE_TYPES = {"img", "sys", "fil"};
-
-    private static final String[] DATASTORE_STATES = {"READY", "DISABLED"};
-
-    private static final String[] SHORT_DATASTORE_STATES = {"rdy", "disa"};
 
     /**
-     * Creates a new Datastore representation.
-     * @param id The datastore id.
+     * Creates a new MarketPlace representation.
+     * @param id The MarketPlace id.
      * @param client XML-RPC Client.
      */
-    public Datastore(int id, Client client)
+    public MarketPlace(int id, Client client)
     {
         super(id, client);
     }
@@ -59,7 +49,7 @@ public class Datastore extends PoolElement
     /**
      * @see PoolElement
      */
-    protected Datastore(Node xmlElement, Client client)
+    protected MarketPlace(Node xmlElement, Client client)
     {
         super(xmlElement, client);
     }
@@ -69,39 +59,23 @@ public class Datastore extends PoolElement
     // =================================
 
     /**
-     * Allocates a new Datastore in OpenNebula.
+     * Allocates a new MarketPlace in OpenNebula.
      *
      * @param client XML-RPC Client.
-     * @param description A string containing the template of the datastore.
-     * @param clusterId Id of the cluster. If it is -1, this datastore
-     * won't be added to any cluster.
+     * @param description A string containing the template of the MarketPlace.
      * @return If successful the message contains the associated
-     * id generated for this Datastore.
-     */
-    public static OneResponse allocate(Client client,
-            String description, int clusterId)
-    {
-        return client.call(ALLOCATE, description, clusterId);
-    }
-
-    /**
-     * Allocates a new Datastore in OpenNebula.
-     *
-     * @param client XML-RPC Client.
-     * @param description A string containing the template of the datastore.
-     * @return If successful the message contains the associated
-     * id generated for this Datastore.
+     * id generated for this MarketPlace.
      */
     public static OneResponse allocate(Client client, String description)
     {
-        return allocate(client, description, ClusterPool.NONE_CLUSTER_ID);
+        return client.call(ALLOCATE, description);
     }
 
     /**
-     * Retrieves the information of the given Datastore.
+     * Retrieves the information of the given MarketPlace.
      *
      * @param client XML-RPC Client.
-     * @param id The datastore id to retrieve the information from
+     * @param id The MarketPlace id to retrieve the information from
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -111,10 +85,10 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Deletes a datastore from OpenNebula.
+     * Deletes a MarketPlace from OpenNebula.
      *
      * @param client XML-RPC Client.
-     * @param id The id of the target datastore we want to delete.
+     * @param id The id of the target MarketPlace we want to delete.
      * @return A encapsulated response.
      */
     public static OneResponse delete(Client client, int id)
@@ -123,13 +97,13 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Replaces the datastore contents.
+     * Replaces the MarketPlace contents.
      *
      * @param client XML-RPC Client.
-     * @param id The id of the target datastore we want to modify.
-     * @param new_template New datastore contents.
+     * @param id The id of the target MarketPlace we want to modify.
+     * @param new_template New MarketPlace contents.
      * @param append True to append new attributes instead of replace the whole template
-     * @return If successful the message contains the datastore id.
+     * @return If successful the message contains the MarketPlace id.
      */
     public static OneResponse update(Client client, int id, String new_template,
         boolean append)
@@ -138,25 +112,10 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Publishes or unpublishes a datastore.
-     *
-     * @param client XML-RPC Client.
-     * @param id The id of the target datastore we want to modify.
-     * @param publish True for publishing, false for unpublishing.
-     * @return If successful the message contains the datastore id.
-     */
-    public static OneResponse publish(Client client, int id, boolean publish)
-    {
-        int group_u = publish ? 1 : 0;
-
-        return chmod(client, id, -1, -1, -1, group_u, -1, -1, -1, -1, -1);
-    }
-
-    /**
      * Changes the owner/group
      *
      * @param client XML-RPC Client.
-     * @param id The id of the target datastore we want to modify.
+     * @param id The id of the target MarketPlace we want to modify.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -167,10 +126,10 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Changes the datastore permissions
+     * Changes the MarketPlace permissions
      *
      * @param client XML-RPC Client.
-     * @param id The id of the target datastore.
+     * @param id The id of the target MarketPlace.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change
@@ -220,29 +179,16 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Renames this Datastore.
+     * Renames this MarketPlace.
      *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
-     * @param name New name for the Datastore
-     * @return If successful the message contains the datastore id.
+     * @param name New name for the MarketPlace
+     * @return If successful the message contains the MarketPlace id.
      */
     public static OneResponse rename(Client client, int id, String name)
     {
         return client.call(RENAME, id, name);
-    }
-
-    /**
-     * Enables or disables this Datastore.
-     *
-     * @param client XML-RPC Client.
-     * @param id The id of the target object.
-     * @param enable True for enabling, false for disabling.
-     * @return If successful the message contains the datastore id.
-     */
-    public static OneResponse enable(Client client, int id, boolean enable)
-    {
-        return client.call(ENABLE, id, enable);
     }
 
     // =================================
@@ -250,7 +196,7 @@ public class Datastore extends PoolElement
     // =================================
 
     /**
-     * Retrieves the information of the Datastore.
+     * Retrieves the information of the MarketPlace.
      *
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
@@ -263,7 +209,7 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Deletes the datastore from OpenNebula.
+     * Deletes the MarketPlace from OpenNebula.
      *
      * @return A encapsulated response.
      */
@@ -273,10 +219,10 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Replaces the datastore template.
+     * Replaces the MarketPlace template.
      *
-     * @param new_template New datastore template.
-     * @return If successful the message contains the datastore id.
+     * @param new_template New MarketPlace template.
+     * @return If successful the message contains the MarketPlace id.
      */
     public OneResponse update(String new_template)
     {
@@ -284,46 +230,15 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Replaces the datastore template.
+     * Replaces the MarketPlace template.
      *
-     * @param new_template New datastore template.
+     * @param new_template New MarketPlace template.
      * @param append True to append new attributes instead of replace the whole template
-     * @return If successful the message contains the datastore id.
+     * @return If successful the message contains the MarketPlace id.
      */
     public OneResponse update(String new_template, boolean append)
     {
         return update(client, id, new_template, append);
-    }
-
-    /**
-     * Publishes or unpublishes the datastore.
-     *
-     * @param publish True for publishing, false for unpublishing.
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse publish(boolean publish)
-    {
-        return publish(client, id, publish);
-    }
-
-    /**
-     * Publishes the datastore.
-     *
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse publish()
-    {
-        return publish(true);
-    }
-
-    /**
-     * Unpublishes the datastore.
-     *
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse unpublish()
-    {
-        return publish(false);
     }
 
     /**
@@ -361,7 +276,7 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Changes the datastore permissions
+     * Changes the MarketPlace permissions
      *
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
@@ -407,9 +322,9 @@ public class Datastore extends PoolElement
     }
 
     /**
-     * Renames this Datastore
+     * Renames this MarketPlace
      *
-     * @param name New name for the Datastore.
+     * @param name New name for the MarketPlace.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse rename(String name)
@@ -417,115 +332,19 @@ public class Datastore extends PoolElement
         return rename(client, id, name);
     }
 
-    /**
-     * Enables or disables the datastore.
-     *
-     * @param enable True for enabling, false for disabling.
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse enable(boolean enable)
-    {
-        return enable(client, id, enable);
-    }
-
-    /**
-     * Enables the datastore.
-     *
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse enable()
-    {
-        return enable(true);
-    }
-
-    /**
-     * Disables the datastore.
-     *
-     * @return If successful the message contains the datastore id.
-     */
-    public OneResponse disable()
-    {
-        return enable(false);
-    }
-
     // =================================
     // Helpers
     // =================================
-    /**
-     * Returns the type of the Datastore.
-     *
-     * @return The type of the Datastore.
-     */
-    public int type()
-    {
-        String state = xpath("TYPE");
-        return state != null ? Integer.parseInt( state ) : -1;
-    }
 
     /**
-     * Returns the type of the Datastore as a String.
+     * Returns whether or not the App is part of this MarketPlace
      *
-     * @return The type of the Datastore as a String.
-     */
-    public String typeStr()
-    {
-        int type = type();
-        return type != -1 ? DATASTORE_TYPES[type] : null;
-    }
-
-    /**
-     * Returns the type of the Datastore as a short String.
-     *
-     * @return The type of the Datastore as a short String.
-     */
-    public String shortTypeStr()
-    {
-        int type = type();
-        return type != -1 ? SHORT_DATASTORE_TYPES[type] : null;
-    }
-
-    /**
-     * Returns the state of the Datastore.
-     *
-     * @return The state of the Datastore.
-     */
-    public int state()
-    {
-        String state = xpath("STATE");
-        return state != null ? Integer.parseInt( state ) : -1;
-    }
-
-    /**
-     * Returns the state of the Datastore as a String.
-     *
-     * @return The state of the Datastore as a String.
-     */
-    public String stateStr()
-    {
-        int state = state();
-        return state != -1 ? DATASTORE_STATES[state] : null;
-    }
-
-    /**
-     * Returns the state of the Datastore as a short String.
-     *
-     * @return The state of the Datastore as a short String.
-     */
-    public String shortStateStr()
-    {
-        int state = state();
-        return state != -1 ? SHORT_DATASTORE_STATES[state] : null;
-    }
-
-    /**
-     * Returns whether or not the image is part of this datastore
-     *
-     * @param id The image ID.
-     * @return Whether or not the image is part of this datastore.
+     * @param id The App ID.
+     * @return Whether or not the App is part of this MarketPlace.
      */
     public boolean contains(int id)
     {
-        String res = xpath("IMAGES/ID[.="+id+"]");
+        String res = xpath("MARKETPLACEAPPS/ID[.="+id+"]");
         return res != null && res.equals(""+id);
     }
 }

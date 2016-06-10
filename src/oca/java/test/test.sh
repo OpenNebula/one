@@ -52,6 +52,9 @@ until grep 'Datastore default (1) successfully monitored' $LOG_LOCATION/oned.log
     sleep 1;
 done
 
+echo 'SAFE_DIRS = "/"' > /tmp/one-javatest-ds.txt
+onedatastore update --append 1 /tmp/one-javatest-ds.txt
+
 java -cp ../lib/*:../jar/*:$JUNIT_JAR:. org.junit.runner.JUnitCore $1
 
 CODE=$?

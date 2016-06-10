@@ -70,7 +70,8 @@ define(function(require) {
 
   function _htmlWizard() {
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId
+      'formPanelId': this.formPanelId,
+      'project': config['support']['project'],
     });
   }
 
