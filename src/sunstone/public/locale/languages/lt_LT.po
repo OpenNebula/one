@@ -1,18 +1,19 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2016, OpenNebula Project (OpenNebula.org), C12G Labs
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR 2002-2016, OpenNebula Project, OpenNebula Systems
+# This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
+# Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014,2016
 # Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
-# Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
-# Linas Bukauskas, 2014-2016
+# Linas Bukauskas, 2014-2015
+# rolnas <rolnas@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-01 10:50+0200\n"
-"PO-Revision-Date: 2015-09-01 10:33+0000\n"
-"Last-Translator: Daniel Molina <dmolina@opennebula.org>\n"
+"POT-Creation-Date: 2016-06-10 18:30+0200\n"
+"PO-Revision-Date: 2016-06-09 06:37+0000\n"
+"Last-Translator: Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>\n"
 "Language-Team: Lithuanian (Lithuania) (http://www.transifex.com/opennebula/one/language/lt_LT/)\n"
 "Language: lt_LT\n"
 "MIME-Version: 1.0\n"
@@ -30,27 +31,22 @@ msgstr ""
 msgid "Datastores"
 msgstr "Duomenų saugyklos"
 
-#: ../app/tabs/datastores-tab.js:51 ../app/tabs/files-tab/datatable.js:69
-#: ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable.js:69
+#: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
+#: ../app/tabs/images-tab/datatable-common.js:66
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:84
 #: ../app/utils/vcenter/images.js:103
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/files-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
 msgid "Datastore"
 msgstr "Duomenų saugykla"
 
 #: ../app/tabs/groups-tab/actions.js:33
-#, fuzzy
 msgid "Group created"
-msgstr "Telkinys sukurtas"
+msgstr "Grupė sukurta"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:53
 msgid "Create Group"
@@ -58,13 +54,12 @@ msgstr "Sukurti grupę"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:73
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
-#: ../app/tabs/files-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
@@ -73,10 +68,10 @@ msgstr "Sukurti grupę"
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
 #: ../app/tabs/vms-tab/form-panels/create.js:51
-#: ../app/tabs/images-tab/form-panels/create.js:57
+#: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
-#: ../app/tabs/provision-tab/vms/create.hbs:39
-#: ../app/tabs/provision-tab/flows/create.hbs:29
+#: ../app/tabs/provision-tab/vms/create.hbs:45
+#: ../app/tabs/provision-tab/flows/create.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:189
 #: ../app/sunstone/buttons.hbs:30
 msgid "Create"
@@ -90,7 +85,7 @@ msgstr "Atnaujinti grupę"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create.js:69
+#: ../app/tabs/templates-tab/form-panels/create-common.js:78
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -102,9 +97,9 @@ msgstr "Atnaujinti grupę"
 #: ../app/tabs/vnets-tab/buttons.js:40
 #: ../app/tabs/clusters-tab/form-panels/create.js:58
 #: ../app/tabs/clusters-tab/buttons.js:33
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:28
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:30
 #: ../app/utils/dialogs/overcommit/html.hbs:65
 msgid "Update"
 msgstr "Atnaujinti"
@@ -118,7 +113,7 @@ msgid "Quotas"
 msgstr "Apribojimai"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions.js:54
+#: ../app/tabs/templates-tab/actions-common.js:58
 #: ../app/tabs/templates-tab/buttons.js:81
 #: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
 #: ../app/tabs/provision-tab/templates/list.js:172
@@ -126,7 +121,7 @@ msgstr "Apribojimai"
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
-#: ../app/tabs/datastores-tab/buttons.js:57 ../app/tabs/files-tab/buttons.js:57
+#: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
 #: ../app/tabs/oneflow-services-tab/buttons.js:52
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
@@ -141,13 +136,12 @@ msgid "Delete"
 msgstr "Trinti"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable.js:66
+#: ../app/tabs/templates-tab/datatable-common.js:64
 #: ../app/tabs/vrouters-tab/datatable.js:58
 #: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
 #: ../app/tabs/oneflow-templates-tab/datatable.js:62
 #: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/files-tab/datatable.js:65
 #: ../app/tabs/marketplaces-tab/datatable.js:80
 #: ../app/tabs/oneflow-services-tab/datatable.js:63
 #: ../app/tabs/secgroups-tab/datatable.js:62
@@ -159,7 +153,7 @@ msgstr "Trinti"
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable.js:65
+#: ../app/tabs/images-tab/datatable-common.js:62
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -170,12 +164,11 @@ msgstr "Trinti"
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:43
 #: ../app/tabs/zones-tab/panels/info/html.hbs:27
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:27
-#: ../app/tabs/provision-tab/vms/list.hbs:52
+#: ../app/tabs/provision-tab/vms/list.hbs:53
 #: ../app/tabs/provision-tab/flows/list.hbs:46
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:142
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:27
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:27
-#: ../app/tabs/files-tab/panels/info/html.hbs:27
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:27
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:27
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:27
@@ -191,12 +184,11 @@ msgid "ID"
 msgstr "ID"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:67
 #: ../app/tabs/vrouters-tab/datatable.js:61
 #: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
 #: ../app/tabs/oneflow-templates-tab/datatable.js:65
 #: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/files-tab/datatable.js:68
 #: ../app/tabs/marketplaces-tab/datatable.js:83
 #: ../app/tabs/oneflow-services-tab/datatable.js:66
 #: ../app/tabs/secgroups-tab/datatable.js:65
@@ -206,35 +198,34 @@ msgstr "ID"
 #: ../app/tabs/users-tab/datatable.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable.js:68 ../app/utils/vcenter/images.js:130
-#: ../app/utils/vcenter/templates.js:137 ../app/utils/vcenter/datastores.js:128
-#: ../app/utils/vcenter/networks.js:136
+#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/utils/vcenter/images.js:124 ../app/utils/vcenter/templates.js:137
+#: ../app/utils/vcenter/datastores.js:128 ../app/utils/vcenter/networks.js:136
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/groups-tab/panels/info/html.hbs:32
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
-#: ../app/tabs/provision-tab/vms/list.hbs:53
+#: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:32
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:24
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -287,11 +278,10 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable.js:71
+#: ../app/tabs/templates-tab/datatable-common.js:69
 #: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/oneflow-templates-tab/datatable.js:66
 #: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/files-tab/datatable.js:77
 #: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/oneflow-services-tab/datatable.js:68
 #: ../app/tabs/secgroups-tab/datatable.js:66
@@ -300,37 +290,36 @@ msgstr "CPU"
 #: ../app/tabs/clusters-tab/datatable.js:67
 #: ../app/tabs/users-tab/datatable.js:75
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable.js:77
-#: ../app/tabs/provision-tab/vms/create.hbs:72
-#: ../app/tabs/provision-tab/flows/create.hbs:54
+#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/provision-tab/vms/create.hbs:78
+#: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
-msgstr ""
+msgstr "Žymos"
 
 #: ../app/tabs/groups-tab/datatable.js:77
 msgid "Please select a Group from the list"
-msgstr ""
+msgstr "Prašome pasirinkti grupę iš sąrašo"
 
 #: ../app/tabs/groups-tab/datatable.js:78
 msgid "You selected the following Group:"
-msgstr ""
+msgstr "Jūs pasirinkote šią grupę:"
 
 #: ../app/tabs/groups-tab/datatable.js:79
 msgid "Please select one or more groups from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelias grupes iš sąrašo"
 
 #: ../app/tabs/groups-tab/datatable.js:80
 msgid "You selected the following groups:"
-msgstr ""
+msgstr "Jūs pasirinkote šias grupes:"
 
 #: ../app/tabs/groups-tab/panels/info.js:47
 #: ../app/tabs/vdcs-tab/panels/info.js:41
-#: ../app/tabs/templates-tab/panels/info.js:47
+#: ../app/tabs/templates-tab/panels/info-common.js:44
 #: ../app/tabs/vrouters-tab/panels/info.js:53
 #: ../app/tabs/zones-tab/panels/info.js:45
 #: ../app/tabs/hosts-tab/panels/info.js:58
 #: ../app/tabs/oneflow-templates-tab/panels/info.js:46
 #: ../app/tabs/datastores-tab/panels/info.js:49
-#: ../app/tabs/files-tab/panels/info.js:51
 #: ../app/tabs/marketplaces-tab/panels/info.js:48
 #: ../app/tabs/oneflow-services-tab/panels/info.js:47
 #: ../app/tabs/secgroups-tab/panels/info.js:49
@@ -339,7 +328,7 @@ msgstr ""
 #: ../app/tabs/clusters-tab/panels/info.js:46
 #: ../app/tabs/users-tab/panels/info.js:51
 #: ../app/tabs/vms-tab/panels/info.js:51
-#: ../app/tabs/images-tab/panels/info.js:50
+#: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
 msgstr "Info"
 
@@ -349,15 +338,14 @@ msgstr "Info"
 #: ../app/tabs/zones-tab/panels/info.js:66
 #: ../app/tabs/hosts-tab/panels/info.js:96
 #: ../app/tabs/datastores-tab/panels/info.js:72
-#: ../app/tabs/files-tab/panels/info.js:71
 #: ../app/tabs/marketplaces-tab/panels/info.js:71
-#: ../app/tabs/secgroups-tab/panels/info.js:87
+#: ../app/tabs/secgroups-tab/panels/info.js:84
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
 #: ../app/tabs/users-tab/panels/info.js:78
 #: ../app/tabs/vms-tab/panels/info.js:94
-#: ../app/tabs/images-tab/panels/info.js:70
+#: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
 msgstr "Atributai"
 
@@ -374,7 +362,7 @@ msgstr "Apskaitymas"
 #: ../app/tabs/users-tab/panels/showback.js:40 ../app/utils/showback.js:205
 #: ../app/utils/showback/html.hbs:53
 msgid "Showback"
-msgstr ""
+msgstr "Resursų kaina"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
 msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
@@ -390,7 +378,7 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:47
 msgid "Full control of the cloud, including virtual and physical resources."
-msgstr ""
+msgstr "V"
 
 #: ../app/tabs/groups-tab/utils/views.js:53
 msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
@@ -418,15 +406,15 @@ msgstr ""
 
 #: ../app/tabs/vdcs-tab/actions.js:32 ../app/tabs/vdcs-tab/actions.js:103
 msgid "VDC created"
-msgstr ""
+msgstr "VDC sukurtas"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:59
 msgid "Create Virtual Data Center"
-msgstr ""
+msgstr "Sukurti virtualų duomenų centrą"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:64
 msgid "Update Virtual Data Center"
-msgstr ""
+msgstr "Koreguoti virtualų duomenų centrą"
 
 #: ../app/tabs/vdcs-tab/datatable.js:67
 #: ../app/tabs/vdcs-tab/panels/groups.js:39 ../app/tabs/groups-tab.js:48
@@ -449,7 +437,7 @@ msgid "Clusters"
 msgstr "Telkiniai"
 
 #: ../app/tabs/vdcs-tab/datatable.js:69 ../app/tabs/acls-tab/datatable.js:136
-#: ../app/tabs/hosts-tab.js:50 ../app/tabs/hosts-tab.js:54
+#: ../app/tabs/hosts-tab.js:51 ../app/tabs/hosts-tab.js:55
 #: ../app/tabs/clusters-tab/datatable.js:64
 #: ../app/tabs/clusters-tab/panels/hosts.js:39
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:21
@@ -470,19 +458,19 @@ msgstr "VNetai"
 
 #: ../app/tabs/vdcs-tab/datatable.js:78
 msgid "Please select a VDC from the list"
-msgstr ""
+msgstr "Pasirinkite VDC iš sąrašo"
 
 #: ../app/tabs/vdcs-tab/datatable.js:79
 msgid "You selected the following VDC:"
-msgstr ""
+msgstr "Pasirinkti VDC:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:80
 msgid "Please select one or more VDCs from the list"
-msgstr ""
+msgstr "Pasirinkite vieną ar daugiau VDC iš sąrašo"
 
 #: ../app/tabs/vdcs-tab/datatable.js:81
 msgid "You selected the following VDCs:"
-msgstr ""
+msgstr "Pasirinkti VDC:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:136
 #: ../app/tabs/acls-tab/form-panels/create.js:304
@@ -497,9 +485,9 @@ msgstr ""
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:73
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:138
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:57
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:79
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:52
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:59
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:81
 #: ../app/utils/accounting/html.hbs:39
 msgid "All"
 msgstr "Visi"
@@ -509,61 +497,49 @@ msgstr "Visi"
 msgid "Resources"
 msgstr "Ištekliai"
 
-#: ../app/tabs/templates-tab/actions.js:36
-#: ../app/tabs/templates-tab/actions.js:218
-#: ../app/tabs/templates-tab/actions.js:229
-#: ../app/tabs/marketplaceapps-tab/actions.js:76
+#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+msgid "Create VM Template"
+msgstr "Sukurti VM šabloną"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+msgid "Update VM Template"
+msgstr "Koreguoti VM šabloną"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:66
 #, fuzzy
-msgid "VM Template created"
-msgstr "VM šablonas"
+msgid "Create Virtual Router VM Template"
+msgstr "Sukurti virtualų maršrutizatorių"
 
-#: ../app/tabs/templates-tab/actions.js:50
-msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
-msgstr ""
-
-#: ../app/tabs/templates-tab/actions.js:53
-msgid "Delete all images"
-msgstr ""
-
-#: ../app/tabs/templates-tab/actions.js:154
-#: ../app/tabs/templates-tab/actions.js:199 ../app/tabs/vms-tab/actions.js:40
+#: ../app/tabs/templates-tab/form-panels/create-common.js:67
 #, fuzzy
-msgid "VM created"
-msgstr "Disko pavadinimas"
+msgid "Update Virtual Router VM Template"
+msgstr "Koreguoti VM šabloną"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
-msgstr ""
+msgstr "Sukurti VM pagal šabloną"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
 #: ../app/tabs/oneflow-templates-tab/buttons.js:33
 msgid "Instantiate"
-msgstr ""
+msgstr "Sukurti"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:111
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
 msgid "No template selected"
-msgstr ""
+msgstr "Šablonas nepasirinktas"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:211
-#: ../app/tabs/vrouters-tab/form-panels/create.js:135
-#: ../app/tabs/provision-tab.js:965 ../app/tabs/provision-tab.js:1209
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
+#: ../app/tabs/vrouters-tab/form-panels/create.js:129
+#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
 #: ../app/utils/user-inputs.js:226
 msgid "Custom Attributes"
 msgstr "Individualizuoti atributai"
 
-#: ../app/tabs/templates-tab/form-panels/create.js:63
-msgid "Create VM Template"
-msgstr ""
-
-#: ../app/tabs/templates-tab/form-panels/create.js:68
-msgid "Update VM Template"
-msgstr ""
-
 #: ../app/tabs/templates-tab/form-panels/import.js:50
 msgid "Import vCenter VM Templates"
-msgstr ""
+msgstr "Importuoti vCenter VM šabloną"
 
 #: ../app/tabs/templates-tab/form-panels/import.js:51
 #: ../app/tabs/templates-tab/buttons.js:33
@@ -579,8 +555,8 @@ msgstr "Inportuoti"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:56
 #: ../app/tabs/vms-tab/panels/storage.js:159
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:43
 msgid "Context"
 msgstr "Kontekstas"
 
@@ -588,11 +564,11 @@ msgstr "Kontekstas"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:24
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:73
 msgid "None"
-msgstr ""
+msgstr "Joks"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:179
 msgid "Set manually"
-msgstr ""
+msgstr "Nustatyti rankiniu būdu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io.js:51
 msgid "Input/Output"
@@ -600,35 +576,32 @@ msgstr "Įvedimas/Išvedimas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling.js:55
 msgid "Scheduling"
-msgstr ""
+msgstr "Planavimas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
-msgstr ""
+msgstr "OS startuoja"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:377
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:378
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:34
-#, fuzzy
 msgid "Image ID"
-msgstr "Diskas"
+msgstr "Vaizdo ID"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:379
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:380
 msgid "Volatile"
-msgstr ""
+msgstr "Laikinas"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:398
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:405
 msgid "Network ID"
-msgstr "Tinklas"
+msgstr "Tinklo ID"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:400
-#, fuzzy
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:407
 msgid "Manual settings"
-msgstr "Nustatymai"
+msgstr "Pasirinktiniai nustatymai"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:410
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:417
 msgid "Disks and NICs will appear here"
-msgstr ""
+msgstr "Diskai ir tinklo plokštės atsiras čia"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:55
 #: ../app/tabs/vms-tab/panels/storage.js:51
@@ -636,14 +609,14 @@ msgid "Storage"
 msgstr "saugykla"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:161
-#: ../app/utils/disks-resize.js:127
+#: ../app/utils/disks-resize.js:134
 msgid "DISK"
-msgstr ""
+msgstr "DISKAS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:197
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:149
 msgid "Disk"
-msgstr ""
+msgstr "Diskas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
 #: ../app/tabs/vms-tab/panels/network.js:49
@@ -652,7 +625,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:53
 #: ../app/utils/nics-section/html.hbs:3
 msgid "Network"
@@ -661,12 +634,12 @@ msgstr "Tinklas"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:177
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:213
 msgid "NIC"
-msgstr ""
+msgstr "Tinklo plokštė"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:55
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
-msgstr ""
+msgstr "Kita"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:93
 #: ../app/utils/resource-select.js:50
@@ -675,133 +648,152 @@ msgstr "Prašome pasirinkti"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:54
 msgid "Hybrid"
-msgstr ""
+msgstr "Hibridinis"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:156
 msgid "PROVIDER"
-msgstr ""
+msgstr "TIEKĖJAS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:160
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:182
 msgid "Provider"
-msgstr ""
+msgstr "Tiekėjas"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:49
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:53
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:20
 msgid "General"
 msgstr "Bendras"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:147
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
 #: ../app/utils/vcenter/templates.js:233
 msgid "Which datastore you want this VM to run on?"
-msgstr ""
+msgstr "Kurioje duomenų saugykloje norite sukurti VM?"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:168
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
 #: ../app/utils/vcenter/templates.js:254
 msgid "Which resource pool you want this VM to run in?"
+msgstr "Kuriame resursų telkinyje norite sukurti VM?"
+
+#: ../app/tabs/templates-tab/actions-common.js:39
+#: ../app/tabs/templates-tab/actions-common.js:227
+#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/marketplaceapps-tab/actions.js:76
+msgid "VM Template created"
+msgstr "VM šablonas sukurtas"
+
+#: ../app/tabs/templates-tab/actions-common.js:54
+msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr ""
+
+#: ../app/tabs/templates-tab/actions-common.js:57
+msgid "Delete all images"
+msgstr "Ištrinti visus vaizdus"
+
+#: ../app/tabs/templates-tab/actions-common.js:158
+#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/vms-tab/actions.js:40
+msgid "VM created"
+msgstr "VM sukurtas"
 
 #: ../app/tabs/templates-tab/buttons.js:49
 #: ../app/tabs/vrouters-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
-#: ../app/tabs/datastores-tab/buttons.js:43 ../app/tabs/files-tab/buttons.js:32
+#: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
 #: ../app/tabs/oneflow-services-tab/buttons.js:28
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
-#: ../app/tabs/vms-tab/buttons.js:33 ../app/tabs/images-tab/buttons.js:42
+#: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
 msgid "Change owner"
 msgstr "Keisti savininką"
 
 #: ../app/tabs/templates-tab/buttons.js:52
 #: ../app/tabs/vrouters-tab/buttons.js:35
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
-#: ../app/tabs/datastores-tab/buttons.js:46 ../app/tabs/files-tab/buttons.js:35
+#: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
 #: ../app/tabs/oneflow-services-tab/buttons.js:30
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
-#: ../app/tabs/vms-tab/buttons.js:36 ../app/tabs/images-tab/buttons.js:45
+#: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
 msgid "Select the new owner"
 msgstr "Pasirinkti naują savininką"
 
 #: ../app/tabs/templates-tab/buttons.js:56
 #: ../app/tabs/vrouters-tab/buttons.js:39
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
-#: ../app/tabs/datastores-tab/buttons.js:50 ../app/tabs/files-tab/buttons.js:39
+#: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
 #: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
-#: ../app/tabs/vms-tab/buttons.js:40 ../app/tabs/images-tab/buttons.js:49
+#: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
 msgid "Change group"
 msgstr "Keisti grupę"
 
 #: ../app/tabs/templates-tab/buttons.js:59
 #: ../app/tabs/vrouters-tab/buttons.js:42
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
-#: ../app/tabs/datastores-tab/buttons.js:53 ../app/tabs/files-tab/buttons.js:42
+#: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
 #: ../app/tabs/oneflow-services-tab/buttons.js:37
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
-#: ../app/tabs/vms-tab/buttons.js:43 ../app/tabs/images-tab/buttons.js:52
+#: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
 msgid "Select the new group"
 msgstr "Pasirinkti naują grupę"
 
 #: ../app/tabs/templates-tab/buttons.js:64
 #: ../app/tabs/oneflow-templates-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:52 ../app/tabs/images-tab/buttons.js:77
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:38
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:40
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:45
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:41
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:45
 msgid "Clone"
 msgstr "Klonuoti"
 
 #: ../app/tabs/templates-tab/buttons.js:69
 #: ../app/tabs/provision-tab/templates/list.js:166
 msgid "Share"
-msgstr "Bendrinti"
+msgstr "Dalintis"
 
 #: ../app/tabs/templates-tab/buttons.js:70
 msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Šablonas ir visi jam priskirti disko vaizdai bus pasidalinti su grupės nariais. Teisės pakeistos: GROUP USE"
 
 #: ../app/tabs/templates-tab/buttons.js:75
 #: ../app/tabs/provision-tab/templates/list.js:163
 msgid "Unshare"
-msgstr ""
+msgstr "Nebesidalinti"
 
 #: ../app/tabs/templates-tab/buttons.js:76
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Šablonas ir visi jam priskirti disko vaizdai bus nebesidalinami su grupės nariais. Teisės pakeistos: GROUP USE"
 
-#: ../app/tabs/templates-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:65
 #: ../app/tabs/vrouters-tab/datatable.js:59
 #: ../app/tabs/oneflow-templates-tab/datatable.js:63
 #: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/files-tab/datatable.js:66
 #: ../app/tabs/marketplaces-tab/datatable.js:81
 #: ../app/tabs/oneflow-services-tab/datatable.js:64
 #: ../app/tabs/secgroups-tab/datatable.js:63
 #: ../app/tabs/vnets-tab/datatable.js:65
 #: ../app/tabs/marketplaceapps-tab/datatable.js:82
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable.js:66
+#: ../app/tabs/images-tab/datatable-common.js:63
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "Savininkas"
 
-#: ../app/tabs/templates-tab/datatable.js:68
+#: ../app/tabs/templates-tab/datatable-common.js:66
 #: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
 #: ../app/tabs/oneflow-templates-tab/datatable.js:64
 #: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/files-tab/datatable.js:67
 #: ../app/tabs/marketplaces-tab/datatable.js:82
 #: ../app/tabs/oneflow-services-tab/datatable.js:65
 #: ../app/tabs/secgroups-tab/datatable.js:64
@@ -809,7 +801,7 @@ msgstr "Savininkas"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
@@ -821,37 +813,38 @@ msgstr "Savininkas"
 msgid "Group"
 msgstr "Grupė"
 
-#: ../app/tabs/templates-tab/datatable.js:70
-#: ../app/tabs/files-tab/datatable.js:72 ../app/tabs/images-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/images-tab/datatable-common.js:69
 msgid "Registration time"
 msgstr "Registravimo data"
 
-#: ../app/tabs/templates-tab/datatable.js:77
+#: ../app/tabs/templates-tab/datatable-common.js:75
 #: ../app/tabs/oneflow-templates-tab/datatable.js:72
 msgid "Please select a Template from the list"
-msgstr ""
+msgstr "Prašome pasirinkti šabloną iš sąrašo"
 
-#: ../app/tabs/templates-tab/datatable.js:78
+#: ../app/tabs/templates-tab/datatable-common.js:76
 #: ../app/tabs/oneflow-templates-tab/datatable.js:73
 msgid "You selected the following Template:"
-msgstr ""
+msgstr "Jūs pasirinkote šabloną:"
 
-#: ../app/tabs/templates-tab/datatable.js:79
+#: ../app/tabs/templates-tab/datatable-common.js:77
 #: ../app/tabs/oneflow-templates-tab/datatable.js:74
 msgid "Please select one or more Templates from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis šablonus iš sąrašo"
 
-#: ../app/tabs/templates-tab/datatable.js:80
+#: ../app/tabs/templates-tab/datatable-common.js:78
 #: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "You selected the following Templates:"
-msgstr ""
+msgstr "Jūs pasirinkote šiuos šablonus:"
 
-#: ../app/tabs/templates-tab/panels/template.js:45
-#: ../app/tabs/vms-tab/panels/template.js:39
-#: ../app/tabs/vms-tab/panels/template.js:63
+#: ../app/tabs/templates-tab/panels/template-common.js:43
+#: ../app/tabs/oneflow-templates-tab/panels/template.js:45
+#: ../app/tabs/vms-tab/panels/template.js:40
+#: ../app/tabs/vms-tab/panels/template.js:69
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
-#: ../app/tabs/provision-tab/vms/create.hbs:44
-#: ../app/tabs/provision-tab/flows/create.hbs:34
+#: ../app/tabs/provision-tab/vms/create.hbs:50
+#: ../app/tabs/provision-tab/flows/create.hbs:38
 msgid "Template"
 msgstr "Šablonas"
 
@@ -861,49 +854,41 @@ msgid "System"
 msgstr "Sistema"
 
 #: ../app/tabs/vrouters-tab/actions.js:31
-#, fuzzy
 msgid "Virtual Router created"
-msgstr "Virtualūs ištekliai"
+msgstr "Virtualus maršrutizatorius sukurtas"
 
 #: ../app/tabs/vrouters-tab/form-panels/create.js:60
-#, fuzzy
 msgid "Create Virtual Router"
-msgstr "Sukurti virtualų kompiuterių tinklą"
+msgstr "Sukurti virtualų maršrutizatorių"
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:205
+#: ../app/tabs/vrouters-tab/form-panels/create.js:199
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr ""
+msgstr "Įvyko klaida kuriant VM. Virtualus maršrutizatorius turi būti ištrintas rankiniu būdu."
 
 #: ../app/tabs/vrouters-tab/datatable.js:67
-#, fuzzy
 msgid "Please select a virtual router from the list"
-msgstr "Prašome pasirinkti išteklį iš sąrašo"
+msgstr "Prašome pasirinkti virtualų maršrutizatorių iš sąrašo"
 
 #: ../app/tabs/vrouters-tab/datatable.js:68
-#, fuzzy
 msgid "You selected the following virtual router:"
-msgstr "Jūs pasirinkote pasirinkote telkinį:"
+msgstr "Jūs pasirinkote šį virtualų maršrutizatorių:"
 
 #: ../app/tabs/vrouters-tab/datatable.js:69
-#, fuzzy
 msgid "Please select one or more virtual routers from the list"
-msgstr "Prašome pasirinkti vieną ar kelis telkinius iš sąrašo"
+msgstr "Prašome pasirinkti vieną ar kelis virtualius maršrutizatorius iš sąrašo"
 
 #: ../app/tabs/vrouters-tab/datatable.js:70
-#, fuzzy
 msgid "You selected the following virtual routers:"
-msgstr "Jūs pasirinkote pasirinkote telkinį:"
+msgstr "Jūs pasirinkote šiuos virtualius maršrutizatorius:"
 
-#: ../app/tabs/vrouters-tab/panels/info.js:153
-#: ../app/tabs/vms-tab/panels/network.js:395
-#, fuzzy
+#: ../app/tabs/vrouters-tab/panels/info.js:154
+#: ../app/tabs/vms-tab/panels/network.js:396
 msgid "This will detach the nic immediately"
-msgstr "Tai ištrints pasirinktus servisus"
+msgstr ""
 
 #: ../app/tabs/zones-tab/actions.js:31
-#, fuzzy
 msgid "Zone created"
-msgstr "Disko pavadinimas"
+msgstr "Zona sukurta"
 
 #: ../app/tabs/zones-tab/datatable.js:64
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -912,28 +897,27 @@ msgstr "Galinis taškas"
 
 #: ../app/tabs/zones-tab/datatable.js:71
 msgid "Please select a Zone from the list"
-msgstr ""
+msgstr "Prašome pasirinkti zoną iš sąrašo"
 
 #: ../app/tabs/zones-tab/datatable.js:72
 msgid "You selected the following Zone:"
-msgstr ""
+msgstr "Jūs pasirinkite šią zoną:"
 
 #: ../app/tabs/zones-tab/datatable.js:73
 msgid "Please select one or more Zones from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelias zonas iš sąrašo"
 
 #: ../app/tabs/zones-tab/datatable.js:74
 msgid "You selected the following Zones:"
-msgstr ""
+msgstr "Jūs pasirinkite šias zonas:"
 
 #: ../app/tabs/infrastructure-top-tab.js:23
 msgid "Infrastructure"
 msgstr "Infrastruktūra"
 
 #: ../app/tabs/hosts-tab/actions.js:33
-#, fuzzy
 msgid "Host created"
-msgstr "Telkinys sukurtas"
+msgstr "Serveris sukurtas"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
@@ -945,19 +929,16 @@ msgid "Select cluster"
 msgstr "Pasirinkti telkinį"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
-#, fuzzy
 msgid "Select the destination cluster"
-msgstr "Pasirinkti tikslinį telkinį:"
+msgstr "Pasirinkite tikslo telkinį"
 
 #: ../app/tabs/hosts-tab/buttons.js:39 ../app/tabs/datastores-tab/buttons.js:63
-#: ../app/tabs/files-tab/buttons.js:47
 #: ../app/tabs/marketplaceapps-tab/buttons.js:55
 #: ../app/tabs/images-tab/buttons.js:57
 msgid "Enable"
 msgstr "Aktyvinti"
 
 #: ../app/tabs/hosts-tab/buttons.js:44 ../app/tabs/datastores-tab/buttons.js:68
-#: ../app/tabs/files-tab/buttons.js:52
 #: ../app/tabs/marketplaceapps-tab/buttons.js:60
 #: ../app/tabs/images-tab/buttons.js:62
 msgid "Disable"
@@ -965,7 +946,7 @@ msgstr "Deaktyvuoti"
 
 #: ../app/tabs/hosts-tab/buttons.js:49
 msgid "Offline"
-msgstr ""
+msgstr "Neprisijungęs"
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
@@ -1012,9 +993,8 @@ msgstr "Išskirta MEM"
 
 #: ../app/tabs/hosts-tab/datatable.js:75
 #: ../app/tabs/datastores-tab/datatable.js:89
-#: ../app/tabs/files-tab/datatable.js:74
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable.js:74
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
 msgid "Status"
 msgstr "Būsena"
@@ -1052,19 +1032,19 @@ msgstr "Jūs pasirinkote pasirinkote serverius:"
 #: ../app/tabs/hosts-tab/datatable.js:234
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
 msgid "Allocated Memory"
-msgstr ""
+msgstr "Išskirta atmintis"
 
 #: ../app/tabs/hosts-tab/datatable.js:250
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:25
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:67
 msgid "Real Memory"
-msgstr ""
+msgstr "Tikroji atmintis"
 
 #: ../app/tabs/hosts-tab/panels/esx.js:46
 msgid "ESX"
-msgstr ""
+msgstr "ESX"
 
-#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:55
+#: ../app/tabs/hosts-tab/panels/info.js:132 ../app/tabs/hosts-tab.js:56
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
@@ -1073,17 +1053,17 @@ msgstr "Serveris"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:48
 msgid "Graphs"
-msgstr ""
+msgstr "Grafikai"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Allocated"
-msgstr ""
+msgstr "Išskirta"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Real"
-msgstr ""
+msgstr "Tikra"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93 ../app/utils/accounting.js:610
@@ -1093,36 +1073,58 @@ msgstr "Iš viso"
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
+msgstr "PCI"
+
+#: ../app/tabs/hosts-tab/panels/zombies.js:48
+msgid "Zombies"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
-msgstr ""
+msgstr "Kitos"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:156
 msgid "VM imported"
-msgstr ""
+msgstr "VM įkelta"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:162
 #: ../app/tabs/hosts-tab/panels/wilds.js:175
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:19
 msgid "Import Wilds"
-msgstr ""
+msgstr "Importuoti kitokias"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
-#: ../app/utils/vcenter/images.js:259 ../app/utils/vcenter/templates.js:301
+#: ../app/utils/vcenter/images.js:260 ../app/utils/vcenter/templates.js:301
 #: ../app/utils/vcenter/datastores.js:264 ../app/utils/vcenter/networks.js:335
 #: ../app/utils/vcenter/clusters.js:208
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "Negalima pasiekti serverio: ar jis pasiekiamas ir vykdomas?"
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
-#: ../app/tabs/hosts-tab.js:56 ../app/tabs/vms-tab.js:71
+#: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
 #: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:32
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "Iš viso"
+
+#: ../app/tabs/vrouter-templates-tab.js:44
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
+#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
+#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
+msgid "Virtual Routers"
+msgstr "Virtualūs maršrutizatoriai"
+
+#: ../app/tabs/vrouter-templates-tab.js:48
+#, fuzzy
+msgid "Virtual Router VM Templates"
+msgstr "Virtualus maršrutizatorius sukurtas"
+
+#: ../app/tabs/vrouter-templates-tab.js:49
+#, fuzzy
+msgid "Virtual Router VM Template"
+msgstr "Virtualus maršrutizatorius sukurtas"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1135,62 +1137,61 @@ msgstr "Šablonai"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
 #: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:626 ../app/tabs/provision-tab.js:807
-#: ../app/tabs/provision-tab.js:1078
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
+#: ../app/tabs/provision-tab.js:1070
 msgid "There are no templates available"
 msgstr "Nėra jokių šablonų"
 
 #: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:639
-#, fuzzy
+#: ../app/tabs/provision-tab.js:627
 msgid "No labels defined"
-msgstr "Nėra aprašyto atvaizdžio"
+msgstr "Nepriskirta jokių atributų"
 
 #: ../app/tabs/provision-tab/templates/list.js:148
 msgid "Create a template by saving a running Virtual Machine"
-msgstr ""
+msgstr "Sukurti šabloną išsaugant veikiančią virtualią mašiną"
 
 #: ../app/tabs/provision-tab/templates/list.js:164
 msgid "SHARED"
-msgstr ""
+msgstr "PASIDALINTAS"
 
 #: ../app/tabs/provision-tab/templates/list.js:252
-#: ../app/tabs/provision-tab/vms/list.js:230
+#: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
-#: ../app/tabs/provision-tab/vms/create.hbs:65
+#: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr "VISI"
 
 #: ../app/tabs/provision-tab/templates/list.js:273
 msgid "Handle with care! This action will immediately destroy the template"
-msgstr ""
+msgstr "Atsargiai! Šis veiksmas sunaikins šabloną"
 
 #: ../app/tabs/provision-tab/templates/list.js:275
 msgid "and the image associated."
-msgstr ""
+msgstr "ir susietas vaizdas."
 
 #: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:369
+#: ../app/tabs/provision-tab/templates/list.js:371
 msgid "The template"
 msgstr "Šablonas"
 
 #: ../app/tabs/provision-tab/templates/list.js:325
 msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
-msgstr ""
+msgstr "ir susietas vaizdas bus pasidalintas ir visi naudotojai galės kurti naujas VM naudojantis šiuo šablonu."
 
 #: ../app/tabs/provision-tab/templates/list.js:329
 msgid "Share template"
 msgstr "Bendrinti šabloną"
 
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:373
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
-msgstr ""
+msgstr "ir susietas vaizdas nebus pasidalintas ir visi naudotojai negalės kurti naujas VM naudojantis šiuo šablonu."
 
-#: ../app/tabs/provision-tab/templates/list.js:375
+#: ../app/tabs/provision-tab/templates/list.js:377
 msgid "Unshare template"
-msgstr ""
+msgstr "Nebesidalinti šablonu"
 
-#: ../app/tabs/provision-tab/vms/list.js:71
+#: ../app/tabs/provision-tab/vms/list.js:76
 #: ../app/tabs/acls-tab/datatable.js:139
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:18
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:75
@@ -1198,129 +1199,128 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr "Virtualios mašinos"
 
-#: ../app/tabs/provision-tab/vms/list.js:92
-#: ../app/tabs/provision-tab/vms/list.js:156
+#: ../app/tabs/provision-tab/vms/list.js:97
+#: ../app/tabs/provision-tab/vms/list.js:161
 msgid "There are no Virtual Machines"
 msgstr "Nėra virtualių mašinų"
 
-#: ../app/tabs/provision-tab/vms/list.js:500 ../app/tabs/templates-tab.js:52
+#: ../app/tabs/provision-tab/vms/list.js:505 ../app/tabs/templates-tab.js:52
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:53
 msgid "VM Template"
 msgstr "VM šablonas"
 
-#: ../app/tabs/provision-tab/vms/list.js:500
+#: ../app/tabs/provision-tab/vms/list.js:505
 #: ../app/tabs/vms-tab/dialogs/saveas-template.js:86
 msgid "saved successfully"
 msgstr "išsaugota sėkmingai"
 
-#: ../app/tabs/provision-tab/vms/list.js:508
+#: ../app/tabs/provision-tab/vms/list.js:513
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:825
-#: ../app/tabs/provision-tab/vms/list.js:833
-#: ../app/tabs/provision-tab/vms/list.js:839
-#: ../app/tabs/provision-tab/vms/list.js:848
-#: ../app/tabs/provision-tab/vms/list.js:939
-#: ../app/tabs/provision-tab/vms/list.js:1005
+#: ../app/tabs/provision-tab/vms/list.js:796
+#: ../app/tabs/provision-tab/vms/list.js:804
+#: ../app/tabs/provision-tab/vms/list.js:810
+#: ../app/tabs/provision-tab/vms/list.js:819
+#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:976
 #: ../app/tabs/provision-tab/flows/list.js:633 ../app/opennebula/role.js:45
 #: ../app/opennebula/service.js:27
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:54
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:66
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:54
 msgid "DEPLOYING"
 msgstr "DIEGIAMA"
 
-#: ../app/tabs/provision-tab/vms/list.js:867
+#: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:188
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:56
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
 msgstr "VYKDOMA"
 
-#: ../app/tabs/provision-tab/vms/list.js:877
+#: ../app/tabs/provision-tab/vms/list.js:848
 msgid "SAVING IMAGE"
 msgstr "SAUGOMAS DISKAS"
 
-#: ../app/tabs/provision-tab/vms/list.js:895
-#: ../app/tabs/provision-tab/vms/list.js:944
-#: ../app/tabs/provision-tab/vms/list.js:1009 ../app/tabs/hosts-tab.js:59
+#: ../app/tabs/provision-tab/vms/list.js:866
+#: ../app/tabs/provision-tab/vms/list.js:915
+#: ../app/tabs/provision-tab/vms/list.js:980 ../app/tabs/hosts-tab.js:60
 #: ../app/opennebula/marketplaceapp.js:27 ../app/opennebula/host.js:42
 #: ../app/opennebula/host.js:54 ../app/opennebula/image.js:28
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:70
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:86
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:70
 #: ../app/tabs/dashboard-tab/hosts.hbs:27
 msgid "ERROR"
 msgstr "KLAIDA"
 
-#: ../app/tabs/provision-tab/vms/list.js:910
+#: ../app/tabs/provision-tab/vms/list.js:881
 msgid "POWERING OFF"
-msgstr ""
+msgstr "IŠJUNGIAMA"
 
-#: ../app/tabs/provision-tab/vms/list.js:914
-#: ../app/tabs/provision-tab/vms/list.js:918
-#: ../app/tabs/provision-tab/vms/list.js:949
-#: ../app/tabs/provision-tab/vms/list.js:1017
+#: ../app/tabs/provision-tab/vms/list.js:885
+#: ../app/tabs/provision-tab/vms/list.js:889
+#: ../app/tabs/provision-tab/vms/list.js:920
+#: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:201
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
 msgid "UNKNOWN"
 msgstr "NEŽINOMA"
 
-#: ../app/tabs/provision-tab/vms/list.js:928
-#: ../app/tabs/provision-tab/vms/list.js:999 ../app/tabs/hosts-tab.js:58
+#: ../app/tabs/provision-tab/vms/list.js:899
+#: ../app/tabs/provision-tab/vms/list.js:970 ../app/tabs/hosts-tab.js:59
 #: ../app/tabs/vms-tab.js:73 ../app/opennebula/datastore.js:26
 #: ../app/opennebula/host.js:59 ../app/tabs/provision-tab/dashboard/vms.hbs:62
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:76
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:62
 #: ../app/tabs/dashboard-tab/hosts.hbs:26
 msgid "OFF"
 msgstr "Išjungti"
 
-#: ../app/tabs/provision-tab/vms/list.js:933
-#, fuzzy
+#: ../app/tabs/provision-tab/vms/list.js:904
 msgid "UNDEPLOYED"
-msgstr "PAŠALINIMAS"
+msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.js:994
+#: ../app/tabs/provision-tab/vms/list.js:965
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
 msgid "READY"
 msgstr "PARUOŠTA"
 
-#: ../app/tabs/provision-tab/vms/list.js:1013
+#: ../app/tabs/provision-tab/vms/list.js:984
 msgid "DELETING"
 msgstr "TRINAMA"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
-#: ../app/tabs/oneflow-templates-tab.js:47
+#: ../app/tabs/oneflow-templates-tab.js:48
 #: ../app/tabs/oneflow-services-tab.js:46
 #: ../app/tabs/oneflow-services-tab.js:50
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
-msgstr ""
+msgstr "Servisai"
 
 #: ../app/tabs/provision-tab/flows/list.js:95
 msgid "There are no Services"
-msgstr ""
+msgstr "Nėra jokių servisų"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
-#: ../app/tabs/oneflow-templates-tab.js:56
+#: ../app/tabs/oneflow-templates-tab.js:57
 #: ../app/tabs/oneflow-services-tab.js:55
 msgid "Cannot connect to OneFlow server"
-msgstr ""
+msgstr "Negalima prisijungti prie OneFlow serverio"
 
 #: ../app/tabs/provision-tab/flows/list.js:154
 msgid "Looks like you don't have any Service. Click the button below to get started"
-msgstr ""
+msgstr "Panašu, kad jūs neturite jokių paleistų servisų. Paspauskite žemiau esantį mygtuką norėdami pradėti"
 
 #: ../app/tabs/provision-tab/flows/list.js:160
 msgid "Create a new Service"
-msgstr ""
+msgstr "Sukurti naują servisą"
 
 #: ../app/tabs/provision-tab/flows/list.js:443
 msgid "Change Cardinality"
-msgstr ""
+msgstr "Keisti kardinalumą"
 
-#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:121
+#: ../app/tabs/provision-tab/flows/list.js:445 ../app/tabs/provision-tab.js:122
 msgid "The cardinality for this role cannot be changed"
 msgstr ""
 
@@ -1328,16 +1328,15 @@ msgstr ""
 #: ../app/tabs/provision-tab/flows/list.js:509
 #: ../app/tabs/provision-tab/flows/list.js:530
 msgid "Dismiss Alert"
-msgstr ""
+msgstr "Atmesti įspėjimą"
 
-#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:193
-#, fuzzy
+#: ../app/tabs/provision-tab/flows/list.js:460 ../app/tabs/provision-tab.js:146
 msgid "Number of VMs for Role"
-msgstr "Vartotojų grupės pavadinimas"
+msgstr "VM skaičius šiai rolei"
 
 #: ../app/tabs/provision-tab/flows/list.js:500
 msgid "Be careful, this action will immediately destroy your Service"
-msgstr ""
+msgstr "Būkite atsargus, šis veiksmas sunaikins jūsų servisą"
 
 #: ../app/tabs/provision-tab/flows/list.js:502
 #: ../app/tabs/provision-tab/flows/list.js:523
@@ -1346,7 +1345,7 @@ msgstr "Visi duomenys bus prarasti"
 
 #: ../app/tabs/provision-tab/flows/list.js:521
 msgid "Be careful, this action will immediately shutdown your Service"
-msgstr ""
+msgstr "Būkite atsargus, šis veiksmas gali tuoj pat išjungti jūsų servisą"
 
 #: ../app/tabs/provision-tab/flows/list.js:527
 #: ../app/tabs/oneflow-services-tab/buttons.js:43
@@ -1405,8 +1404,6 @@ msgid "Virtual Networks"
 msgstr "Virtualūs tinklai"
 
 #: ../app/tabs/vnets-tab.js:57 ../app/tabs/secgroups-tab/utils/common.js:94
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:25
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:25
 msgid "Virtual Network"
 msgstr "Virtualus kompiuterių tinklas"
 
@@ -1423,9 +1420,8 @@ msgid "Access Control Lists"
 msgstr "Prieigos teisių sąrašas"
 
 #: ../app/tabs/acls-tab/actions.js:32
-#, fuzzy
 msgid "ACL Rule created"
-msgstr "Telkinys sukurtas"
+msgstr "ACL taisyklės sukurtos"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
@@ -1433,11 +1429,11 @@ msgstr "Kurti ACL"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:212
 msgid "Please select a user to whom the acl applies"
-msgstr ""
+msgstr "Prašome pasirinkti naudotoją, kuriam norite priskirti prieigos teises"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:220
 msgid "Please select a group to whom the acl applies"
-msgstr ""
+msgstr "Prašome pasirinkti grupę, kuriai norite priskirti prieigos teises"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:229
 msgid "Please select at least one resource"
@@ -1478,19 +1474,19 @@ msgstr "ACL eilutė"
 
 #: ../app/tabs/acls-tab/datatable.js:73
 msgid "Please select an ACL rule from the list"
-msgstr ""
+msgstr "Prašome pasirinkti ACL taisyklę iš sąrašo"
 
 #: ../app/tabs/acls-tab/datatable.js:74
 msgid "You selected the following ACL rule:"
-msgstr ""
+msgstr "Jūs pasirinkote šią ACL taisyklę:"
 
 #: ../app/tabs/acls-tab/datatable.js:75
 msgid "Please select one or more ACL rules from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelias ACL taisykles iš sąrašo"
 
 #: ../app/tabs/acls-tab/datatable.js:76
 msgid "You selected the following ACL rules:"
-msgstr ""
+msgstr "Jūs pasirinkote šias ACL taisykles:"
 
 #: ../app/tabs/acls-tab/datatable.js:145
 #: ../app/tabs/datastores-tab/panels/images.js:40 ../app/tabs/images-tab.js:47
@@ -1534,17 +1530,9 @@ msgstr "Saugos grupė"
 msgid "VDCs"
 msgstr ""
 
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
-#: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
-#: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
-#, fuzzy
-msgid "Virtual Routers"
-msgstr "Virtualūs ištekliai"
-
 #: ../app/tabs/acls-tab/datatable.js:178
 msgid "Marketplaces"
-msgstr ""
+msgstr "Prekyvietė"
 
 #: ../app/tabs/acls-tab/datatable.js:181
 msgid "Marketplace Apps"
@@ -1572,32 +1560,30 @@ msgid "Cluster ID"
 msgstr "Telkinio ID"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:33
-#, fuzzy
 msgid "Service Template created"
-msgstr "Išsaugoti šablonai"
+msgstr "Serviso šablonas sukurtas"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
 #: ../app/tabs/oneflow-services-tab/actions.js:34
-#, fuzzy
 msgid "Service created"
-msgstr "Išsaugoti šablonai"
+msgstr "Servisas sukurtas"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:55
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
 msgid "Instantiate Service Template"
-msgstr ""
+msgstr "Sukurti serviso šabloną"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:141
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:156
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:18
 msgid "Role"
 msgstr "Rolė"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:52
 msgid "Create Service Template"
-msgstr ""
+msgstr "Sukurti serviso šabloną"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:57
 msgid "Update Service Template"
-msgstr ""
+msgstr "Atnaujinti serviso šabloną"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:107
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:22
@@ -1605,22 +1591,21 @@ msgstr ""
 msgid "Can only contain alphanumeric and underscore characters"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:430
+#: ../app/tabs/oneflow-templates-tab/form-panels/create.js:431
 msgid "Role "
 msgstr "Rolė"
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:63
 msgid "This will delete the selected templates"
-msgstr ""
+msgstr "Tai ištrins pasirinktus šablonus"
 
 #: ../app/tabs/support-tab/buttons.js:29
 msgid "Upload a file"
-msgstr ""
+msgstr "Įkelti failą"
 
 #: ../app/tabs/datastores-tab/actions.js:34
-#, fuzzy
 msgid "Datastore created"
-msgstr "Diskas sukurtas sėkmingai"
+msgstr "Duomenų saugykla sukurta"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
@@ -1631,14 +1616,13 @@ msgid "Please select a cluster for this datastore"
 msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Datastores"
-msgstr "Sukurti duomenų saugyklą"
+msgstr "Importuoti vCenter duomenų saugyklą"
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:230
+#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
 #: ../app/tabs/marketplaces-tab/datatable.js:84
 #: ../app/tabs/vms-tab/panels/capacity.js:52
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:24
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:21
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:47
@@ -1659,11 +1643,11 @@ msgid "DS MAD"
 msgstr "DS MAD"
 
 #: ../app/tabs/datastores-tab/datatable.js:88
-#: ../app/tabs/files-tab/datatable.js:71 ../app/tabs/vnets-tab/panels/ar.js:304
+#: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
 #: ../app/tabs/marketplaceapps-tab/datatable.js:88
 #: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable.js:71
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1673,10 +1657,9 @@ msgstr "DS MAD"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:109
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:37
-#: ../app/tabs/files-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:91
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:129
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:51
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:45
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:25
@@ -1705,156 +1688,87 @@ msgstr "Prašome pasirinkti vieną ar kelias duomenų saugyklas iš sąrašo"
 msgid "You selected the following datastores:"
 msgstr "Jūs pasirinkote duomenų saugyklą:"
 
-#: ../app/tabs/provision-tab.js:110
+#: ../app/tabs/provision-tab.js:111
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:22
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:52
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:24
 msgid "Cardinality"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
-msgstr ""
+msgstr "KAINA"
 
-#: ../app/tabs/provision-tab.js:113 ../app/tabs/provision-tab.js:233
-#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:27
+#: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
+#: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
+#: ../app/tabs/provision-tab/vms/create.hbs:23
+#: ../app/tabs/provision-tab/flows/create.hbs:23
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
-msgstr ""
+msgstr "VALANDA"
 
-#: ../app/tabs/provision-tab.js:766 ../app/tabs/provision-tab.js:844
-#: ../app/tabs/provision-tab/vms/create.hbs:66
+#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:768 ../app/tabs/provision-tab.js:846
-#: ../app/tabs/provision-tab/vms/create.hbs:67
-#, fuzzy
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
-msgstr "Grupė"
+msgstr "grupė"
 
-#: ../app/tabs/provision-tab.js:770 ../app/tabs/provision-tab.js:848
-#: ../app/tabs/provision-tab/vms/create.hbs:68
-#, fuzzy
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
-msgstr "Sistema"
+msgstr "sistema"
 
-#: ../app/tabs/provision-tab.js:997 ../app/tabs/provision-tab.js:1242
+#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
 msgid "You must select at least a template configuration"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab.js:51
-#, fuzzy
-msgid "Service Templates"
-msgstr "Išsaugoti šablonai"
-
 #: ../app/tabs/oneflow-templates-tab.js:52
-#, fuzzy
+msgid "Service Templates"
+msgstr "Servisų šablonai"
+
+#: ../app/tabs/oneflow-templates-tab.js:53
 msgid "Service Template"
-msgstr "Išsaugoti šablonai"
+msgstr "Serviso šablonas"
 
 #: ../app/tabs/files-tab/actions.js:30
-#, fuzzy
 msgid "File created"
-msgstr "Telkinys sukurtas"
+msgstr "Failas sukurtas"
 
-#: ../app/tabs/files-tab/form-panels/create.js:54
-msgid "Create File"
-msgstr "Sukurti failą"
-
-#: ../app/tabs/files-tab/form-panels/create.js:173
-#: ../app/tabs/images-tab/form-panels/create.js:278
-msgid "Uploading..."
-msgstr "Įkeliama..."
-
-#: ../app/tabs/files-tab/form-panels/create.js:199
-#: ../app/tabs/files-tab/form-panels/create.js:279
-msgid "Please select a datastore for this file"
-msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
-
-#: ../app/tabs/files-tab/form-panels/create.js:236
-#: ../app/tabs/images-tab/form-panels/create.js:386
-msgid "Please select a file to upload"
-msgstr ""
-
-#: ../app/tabs/files-tab/form-panels/create.js:244
-#: ../app/tabs/images-tab/form-panels/create.js:394
-msgid "Registering in OpenNebula"
-msgstr ""
-
-#: ../app/tabs/files-tab/datatable.js:70
-#: ../app/tabs/secgroups-tab/utils/common.js:108
-#: ../app/tabs/vnets-tab/panels/ar.js:309
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable.js:70
-#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:131
-#: ../app/tabs/files-tab/panels/info/html.hbs:56
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:104
-#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
-#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
-#: ../app/tabs/images-tab/panels/info/html.hbs:67
-#: ../app/utils/vcenter/networks/row.hbs:39
-msgid "Size"
-msgstr "Dydis"
-
-#: ../app/tabs/files-tab/datatable.js:73 ../app/tabs/images-tab/datatable.js:73
-#: ../app/tabs/provision-tab/vms/create.hbs:34
-#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
-#: ../app/tabs/images-tab/panels/info/html.hbs:51
-msgid "Persistent"
-msgstr "Pastovus"
-
-#: ../app/tabs/files-tab/datatable.js:75 ../app/tabs/images-tab/datatable.js:75
-msgid "#VMS"
-msgstr "#VMS"
-
-#: ../app/tabs/files-tab/datatable.js:76 ../app/tabs/images-tab/datatable.js:76
-#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
-msgid "Target"
-msgstr "Tikslas"
-
-#: ../app/tabs/files-tab/datatable.js:84
-#, fuzzy
+#: ../app/tabs/files-tab/datatable.js:44
 msgid "Please select a file from the list"
-msgstr "Prašome pasirinkti serverį iš sąrašo"
+msgstr "Prašome pasirinkti failą iš sąrašo"
 
-#: ../app/tabs/files-tab/datatable.js:85
+#: ../app/tabs/files-tab/datatable.js:45
 msgid "You selected the following file:"
-msgstr ""
-
-#: ../app/tabs/files-tab/datatable.js:86
-msgid "Please select one or more files from the list"
-msgstr ""
-
-#: ../app/tabs/files-tab/datatable.js:87
-msgid "You selected the following files:"
 msgstr "Jūs pasirinkite šiuos failus:"
 
-#: ../app/tabs/files-tab/panels/info.js:102 ../app/opennebula/image.js:40
-msgid "KERNEL"
-msgstr ""
+#: ../app/tabs/files-tab/datatable.js:46
+msgid "Please select one or more files from the list"
+msgstr "Prašome pasirinkti vieną ar kelis failus iš sąrašo"
 
-#: ../app/tabs/files-tab/panels/info.js:103 ../app/opennebula/image.js:41
-msgid "RAMDISK"
-msgstr ""
-
-#: ../app/tabs/files-tab/panels/info.js:104 ../app/opennebula/image.js:42
-msgid "CONTEXT"
-msgstr ""
+#: ../app/tabs/files-tab/datatable.js:47
+msgid "You selected the following files:"
+msgstr "Jūs pasirinkite šiuos failus:"
 
 #: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
 msgid "Security Group"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
-#, fuzzy
 msgid "MarketPlace created"
-msgstr "VM šablonas"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
@@ -1874,9 +1788,8 @@ msgid "This is the document root for http server"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:62
-#, fuzzy
 msgid "Storage bridge list"
-msgstr "Tiltas"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:63
 msgid "Comma separated list of servers to access the image directory if not local"
@@ -1931,20 +1844,18 @@ msgid "Split marketapps into chunks of this size (in MB). You should **never** u
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:127
-#, fuzzy
 msgid "Create MarketPlace"
-msgstr "Sukurti virtualią mašiną"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:132
-#, fuzzy
 msgid "Update MarketPlace"
-msgstr "Atnaujinti kalbą"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:85
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
 #: ../app/tabs/marketplaceapps-tab.js:49 ../app/tabs/marketplaceapps-tab.js:53
 msgid "Apps"
-msgstr ""
+msgstr "Programėlės"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
@@ -1952,27 +1863,23 @@ msgid "Driver"
 msgstr "Tvarkyklė"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:95
-#, fuzzy
 msgid "Please select a marketplace from the list"
-msgstr "Prašome pasirinkti išteklį iš sąrašo"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:96
-#, fuzzy
 msgid "You selected the following marketplace:"
-msgstr "Jūs pasirinkote išteklį:"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:97
-#, fuzzy
 msgid "Please select one or more marketplaces from the list"
-msgstr "Prašome pasirinkti vieną ar kelias duomenų saugyklas iš sąrašo"
+msgstr ""
 
 #: ../app/tabs/marketplaces-tab/datatable.js:98
-#, fuzzy
 msgid "You selected the following marketplaces:"
-msgstr "Jūs pasirinkite šiuos failus:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:155
+#: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "Atkurti"
 
@@ -1984,30 +1891,29 @@ msgstr "Tai ištrints pasirinktus servisus"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:61
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
-#: ../app/tabs/images-tab/panels/info/html.hbs:72
+#: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "Būsena"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:74
 msgid "Please select a Service from the list"
-msgstr ""
+msgstr "Prašome pasirinkti servisą iš sąrašo"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:75
 msgid "You selected the following Service:"
-msgstr ""
+msgstr "Jūs pasirinkote pasirinkote šį servisą:"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:76
 msgid "Please select one or more Services from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis servisus iš sąrašo"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "You selected the following Services:"
-msgstr ""
+msgstr "Jūs pasirinkote pasirinkote šiuos servisus:"
 
 #: ../app/tabs/oneflow-services-tab/panels/log.js:39
 #: ../app/tabs/vms-tab/panels/log.js:41
@@ -2041,53 +1947,53 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:40
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:41
 msgid "Scale"
 msgstr "Išplėsti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:28
-#: ../app/tabs/vms-tab/buttons.js:65
+#: ../app/tabs/vms-tab/buttons.js:66
 msgid "Hold"
-msgstr ""
+msgstr "Laikyti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:33
-#: ../app/tabs/vms-tab/buttons.js:71
+#: ../app/tabs/vms-tab/buttons.js:72
 msgid "Release"
 msgstr "Išleisti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:38
-#: ../app/tabs/vms-tab/buttons.js:77
+#: ../app/tabs/vms-tab/buttons.js:78
 msgid "Suspend"
 msgstr "Sustabdtyti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:48
-#: ../app/tabs/vms-tab/buttons.js:89
+#: ../app/tabs/vms-tab/buttons.js:90
 msgid "Stop"
 msgstr "Sustabdyti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:53
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:58
-#: ../app/tabs/vms-tab/buttons.js:95 ../app/tabs/vms-tab/buttons.js:101
+#: ../app/tabs/vms-tab/buttons.js:96 ../app/tabs/vms-tab/buttons.js:102
 #: ../app/tabs/provision-tab/vms/info.hbs:82
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:18
 msgid "Reboot"
-msgstr ""
+msgstr "Perkrauti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:63
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:68
-#: ../app/tabs/vms-tab/buttons.js:107 ../app/tabs/vms-tab/buttons.js:113
+#: ../app/tabs/vms-tab/buttons.js:108 ../app/tabs/vms-tab/buttons.js:114
 msgid "Power Off"
 msgstr "Išjungti"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:73
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
-#: ../app/tabs/vms-tab/buttons.js:119 ../app/tabs/vms-tab/buttons.js:125
+#: ../app/tabs/vms-tab/buttons.js:120 ../app/tabs/vms-tab/buttons.js:126
 msgid "Undeploy"
 msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:88
-#: ../app/tabs/vms-tab/buttons.js:131 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:132 ../app/tabs/vms-tab/buttons.js:138
 #: ../app/tabs/provision-tab/vms/info.hbs:60
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:18
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
@@ -2095,13 +2001,11 @@ msgstr ""
 msgid "Terminate"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:76
-#: ../app/tabs/secgroups-tab/form-panels/create.js:172
+#: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
 #: ../app/tabs/users-tab/dialogs/password.js:87
 #: ../app/tabs/users-tab/dialogs/auth-driver.js:77
-#: ../app/utils/form-panels/form-panel.js:79
-#: ../app/utils/form-panels/form-panel.js:92
+#: ../app/utils/form-panels/form-panel.js:77
 msgid "One or more required fields are missing or malformed."
 msgstr ""
 
@@ -2116,7 +2020,7 @@ msgstr "Pasirinkti grupę"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:51
 msgid "Config"
-msgstr ""
+msgstr "Konfigūracija"
 
 #: ../app/tabs/settings-tab/panels/user-config.js:99
 msgid "Fill in a new password"
@@ -2132,70 +2036,69 @@ msgid "You have to provide an SSH key"
 msgstr "Jūs turite pateikti savo SSH raktą"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
-#, fuzzy
 msgid "Security Group created"
 msgstr "Saugos grupė"
 
-#: ../app/tabs/secgroups-tab/actions.js:79
+#: ../app/tabs/secgroups-tab/actions.js:80
 msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/actions.js:86
+#: ../app/tabs/secgroups-tab/actions.js:87
 #: ../app/tabs/secgroups-tab/buttons.js:57
 msgid "Commit"
-msgstr ""
+msgstr "Patvirtinti"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
-msgstr ""
+msgstr "Sukurti ugniasienės taisyklių rinkinį"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
-msgstr ""
+msgstr "Koreguoti ugniasienės taisyklių rinkinį"
 
 #: ../app/tabs/secgroups-tab/datatable.js:72
 msgid "Please select a security group from the list"
-msgstr ""
+msgstr "Prašome pasirinkti ugniasienės taisyklių rinkinį iš sąrašo"
 
 #: ../app/tabs/secgroups-tab/datatable.js:73
 msgid "You selected the following security group:"
-msgstr ""
+msgstr "Jūs pasirinkote šią ugniasienės taisyklių rinkinį"
 
 #: ../app/tabs/secgroups-tab/datatable.js:74
 msgid "Please select one or more security groups from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis ugniasienių taisyklių rinkinius iš sąrašo"
 
 #: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "You selected the following security groups:"
-msgstr ""
+msgstr "Jūs pasirinkote šiiuos ugniasienės taisyklių rinkinius"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:46
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
-msgstr ""
+msgstr "TCP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:46
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
-msgstr ""
+msgstr "UDP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:49
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
 msgid "ICMP"
 msgstr "ICMP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:52
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "IPsec"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:67
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
 msgstr ""
 
 #: ../app/tabs/secgroups-tab/utils/common.js:70
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
 msgstr ""
 
@@ -2206,14 +2109,27 @@ msgstr ""
 msgid "Start"
 msgstr "Pradžia"
 
+#: ../app/tabs/secgroups-tab/utils/common.js:108
+#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:125
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
+#: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
+#: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:27
+#: ../app/tabs/images-tab/panels/info/html.hbs:69
+#: ../app/utils/vcenter/networks/row.hbs:39
+msgid "Size"
+msgstr "Dydis"
+
 #: ../app/tabs/secgroups-tab/utils/common.js:112
 msgid "Any"
-msgstr ""
+msgstr "Bet kuris"
 
 #: ../app/tabs/vnets-tab/actions.js:38
-#, fuzzy
 msgid "Virtual Network created"
-msgstr "Virtualaus tinklo vardas"
+msgstr "Virtualus kompiuterių tinklas sukurtas"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:56
 msgid "Create Virtual Network"
@@ -2221,7 +2137,7 @@ msgstr "Sukurti virtualų kompiuterių tinklą"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:61
 msgid "Update Virtual Network"
-msgstr ""
+msgstr "Koreguoti virtualų kompiuterių tinklą"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:225
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
@@ -2237,7 +2153,7 @@ msgid "Import vCenter Networks"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/buttons.js:45
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:79
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:78
 msgid "Reserve"
 msgstr "Rezervuoti"
 
@@ -2269,15 +2185,15 @@ msgstr "Prašome pasirinkti interneto tinklą iš sąrašo"
 
 #: ../app/tabs/vnets-tab/datatable.js:81
 msgid "You selected the following network:"
-msgstr "Jūs pasirinkote tokius interneto tinklus:"
+msgstr "Jūs pasirinkote tokį interneto tinklą:"
 
 #: ../app/tabs/vnets-tab/datatable.js:82
 msgid "Please select one or more networks from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis interneto tinklus iš sąrašo"
 
 #: ../app/tabs/vnets-tab/datatable.js:83
 msgid "You selected the following networks:"
-msgstr ""
+msgstr "Jūs pasirinkote tokius interneto tinklus:"
 
 #: ../app/tabs/vnets-tab/datatable.js:131
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:162
@@ -2321,56 +2237,54 @@ msgid "NET:"
 msgstr "NET:"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:96
-#, fuzzy
 msgid "VR:"
-msgstr "VM:"
+msgstr "VR:"
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
-msgstr ""
+msgstr "V. Maršrutizatorius"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:52
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:29
 msgid "Addresses"
 msgstr "Adresai"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:176
+#: ../app/tabs/vnets-tab/panels/ar.js:177
 msgid "This will delete all the addresses in this range"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:233
-#, fuzzy
+#: ../app/tabs/vnets-tab/panels/ar.js:234
 msgid "The Address Range was not found"
-msgstr "Nerastas adresų intervalas"
+msgstr "Adresų intervalas nebuvo rastas"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:305
+#: ../app/tabs/vnets-tab/panels/ar.js:306
 msgid "MAC Start"
 msgstr "MAC pradžia"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:306 ../app/utils/vcenter/networks.js:200
+#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:200
 msgid "IP Start"
 msgstr "IP pradžia"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:307
+#: ../app/tabs/vnets-tab/panels/ar.js:308
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
 msgid "Global prefix"
 msgstr "Globalus prefiksas"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:308
+#: ../app/tabs/vnets-tab/panels/ar.js:309
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
 msgid "ULA prefix"
-msgstr ""
+msgstr "ULA prefiksas"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:310
+#: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/ar.js:311
+#: ../app/tabs/vnets-tab/panels/ar.js:312
 msgid "Reservation parent AR"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar.js:76
-#: ../app/tabs/vnets-tab/dialogs/add-ar.js:80
+#: ../app/tabs/vnets-tab/dialogs/update-ar.js:77
+#: ../app/tabs/vnets-tab/dialogs/add-ar.js:81
 msgid "One or more required fields are missing."
 msgstr "Vienas ar keli privalomi laukai neužpildyti."
 
@@ -2387,31 +2301,28 @@ msgstr "Prašome pasirinkti adresų intervalą iš sąrašo"
 msgid "You selected the following Address Range:"
 msgstr "Jūs pasirinkote šį adresų intervalą:"
 
-#: ../app/tabs/hosts-tab.js:57 ../app/opennebula/datastore.js:25
+#: ../app/tabs/hosts-tab.js:58 ../app/opennebula/datastore.js:25
 #: ../app/opennebula/host.js:53 ../app/tabs/dashboard-tab/hosts.hbs:25
 msgid "ON"
 msgstr "Įjungti"
 
 #: ../app/tabs/marketplaceapps-tab.js:54
-#, fuzzy
 msgid "App"
-msgstr "Taikyti"
+msgstr "Programėlė"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:34
-#, fuzzy
 msgid "MarketPlace App created"
-msgstr "VM šablonas"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
 #: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
-#, fuzzy
 msgid "Image created"
-msgstr "Disko pavadinimas"
+msgstr "Atvaizdas sukurtas"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:125
 #: ../app/tabs/images-tab/actions.js:93
 msgid "Error"
-msgstr ""
+msgstr "Klaida"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:127
 msgid "This MarketPlace App resides in Zone "
@@ -2424,7 +2335,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/actions.js:132
 #: ../app/tabs/images-tab/actions.js:99
 msgid "Ok"
-msgstr ""
+msgstr "Gerai"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:56
 msgid "Create MarketPlace App"
@@ -2439,65 +2350,55 @@ msgid "Download App To OpenNebula"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:56
-#, fuzzy
 msgid "Download"
-msgstr "Parsisiuntimai"
+msgstr "Parsisiųsti"
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:32
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:22
-#, fuzzy
 msgid "OpenNebula"
-msgstr "OpenNebula šablonas"
+msgstr "OpenNebula"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:85
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
-#, fuzzy
 msgid "Version"
-msgstr "Leidimai"
+msgstr "Versija"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:89
-#, fuzzy
 msgid "Registration Time"
-msgstr "Registravimo data"
+msgstr "Registracijos laikas"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 msgid "Marketplace"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:99
-#, fuzzy
 msgid "Please select an appliance from the list"
-msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:100
-#, fuzzy
 msgid "You selected the following appliance:"
-msgstr "Jūs pasirinkite šiuos failus:"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:101
-#, fuzzy
 msgid "Please select one or more appliances from the list"
-msgstr "Prašome pasirinkti vieną ar kelias duomenų saugyklas iš sąrašo"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:102
-#, fuzzy
 msgid "You selected the following appliances:"
-msgstr "Jūs pasirinkite šiuos failus:"
+msgstr ""
 
 #: ../app/tabs/oneflow-services-tab.js:51
-#, fuzzy
 msgid "Service"
-msgstr "Serviso pavadinimas"
+msgstr "Servisas"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab.js:50
-#, fuzzy
 msgid "Virtual Router"
-msgstr "Virtualūs ištekliai"
+msgstr "Virtualus maršrutizatorius"
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -2519,11 +2420,11 @@ msgstr "Atnaujinti telkinį"
 
 #: ../app/tabs/clusters-tab/datatable.js:73
 msgid "Please select a Cluster from the list"
-msgstr ""
+msgstr "Prašome pasirinkti telkinį iš sąrašo"
 
 #: ../app/tabs/clusters-tab/datatable.js:74
 msgid "You selected the following Cluster:"
-msgstr ""
+msgstr "Jūs pasirinkote pasirinkote šį telkinį:"
 
 #: ../app/tabs/clusters-tab/datatable.js:75
 msgid "Please select one or more clusters from the list"
@@ -2531,7 +2432,7 @@ msgstr "Prašome pasirinkti vieną ar kelis telkinius iš sąrašo"
 
 #: ../app/tabs/clusters-tab/datatable.js:76
 msgid "You selected the following clusters:"
-msgstr "Jūs pasirinkote pasirinkote telkinį:"
+msgstr "Jūs pasirinkote pasirinkote šiuos telkinius:"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
@@ -2544,9 +2445,8 @@ msgid "MarketPlace"
 msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
-#, fuzzy
 msgid "User created"
-msgstr "Telkinys sukurtas"
+msgstr "Naudotojas sukurtas"
 
 #: ../app/tabs/users-tab/form-panels/create.js:50
 msgid "Create User"
@@ -2569,9 +2469,8 @@ msgid "Auth"
 msgstr ""
 
 #: ../app/tabs/users-tab/buttons.js:52
-#, fuzzy
 msgid "Change primary group"
-msgstr "Keisti grupę"
+msgstr "Pakeisti pirminę grupę"
 
 #: ../app/tabs/users-tab/buttons.js:55
 msgid "This will change the primary group of the selected users. Select the new group"
@@ -2587,31 +2486,31 @@ msgstr "Grupės ID"
 
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Hidden User Data"
-msgstr ""
+msgstr "Paslėpti naudotojo duomenis"
 
 #: ../app/tabs/users-tab/datatable.js:81
 msgid "Please select a User from the list"
-msgstr ""
+msgstr "Prašome pasirinkti naudotoją iš sąrašo"
 
 #: ../app/tabs/users-tab/datatable.js:82
 msgid "You selected the following User:"
-msgstr ""
+msgstr "Jūs pasirinkite šį naudotoją:"
 
 #: ../app/tabs/users-tab/datatable.js:83
 msgid "Please select one or more users from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis naudotojus iš sąrašo"
 
 #: ../app/tabs/users-tab/datatable.js:84
 msgid "You selected the following users:"
-msgstr ""
+msgstr "Jūs pasirinkite šiuos naudotojus:"
 
 #: ../app/tabs/users-tab/panels/info.js:165
 msgid "ascending"
-msgstr ""
+msgstr "didėjančia tvarka"
 
 #: ../app/tabs/users-tab/panels/info.js:166
 msgid "descending"
-msgstr ""
+msgstr "mažėjančia tvarka"
 
 #: ../app/tabs/images-tab.js:52 ../app/utils/quotas/quota-widgets.js:272
 #: ../app/utils/quotas/quota-widgets.js:1167
@@ -2620,7 +2519,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:30
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:27
 msgid "Image"
-msgstr "Diskas"
+msgstr "Disko atvaizdas"
 
 #: ../app/tabs/files-tab.js:42 ../app/tabs/files-tab.js:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:45
@@ -2639,7 +2538,7 @@ msgid "Settings"
 msgstr "Nustatymai"
 
 #: ../app/tabs/vms-tab.js:70 ../app/tabs/vms-tab/dialogs/migrate.js:138
-#: ../app/tabs/vnets-topology-tab.js:540
+#: ../app/tabs/vnets-topology-tab.js:542
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
@@ -2655,92 +2554,101 @@ msgid "FAILED"
 msgstr "NEPAVYKĘS"
 
 #: ../app/tabs/vms-tab/form-panels/create.js:50
-#: ../app/tabs/provision-tab/vms/create.hbs:19
+#: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "Sukurti virtualią mašiną"
 
-#: ../app/tabs/vms-tab/form-panels/updateconf.js:57
-#, fuzzy
+#: ../app/tabs/vms-tab/form-panels/updateconf.js:58
 msgid "Update VM Configuration"
-msgstr "Kompiuterių tinklo konfigūracija"
+msgstr "Koreguoti VM konfigūraciją"
 
-#: ../app/tabs/vms-tab/buttons.js:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:51
+#: ../app/tabs/vms-tab/buttons.js:48
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:52
 msgid "Deploy"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:53 ../app/tabs/vms-tab/buttons.js:59
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:53
+#: ../app/tabs/vms-tab/buttons.js:54 ../app/tabs/vms-tab/buttons.js:60
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:52
 msgid "Migrate"
-msgstr ""
+msgstr "Perkelti"
 
-#: ../app/tabs/vms-tab/buttons.js:59
+#: ../app/tabs/vms-tab/buttons.js:60
 msgid "live"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:101 ../app/tabs/vms-tab/buttons.js:113
-#: ../app/tabs/vms-tab/buttons.js:125 ../app/tabs/vms-tab/buttons.js:137
+#: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
+#: ../app/tabs/vms-tab/buttons.js:114
+msgid "Keeps allocated Host resources. The resume operation happens quickly"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
+#: ../app/tabs/vms-tab/buttons.js:126
+msgid "Frees Host resources. The resume operation may take long"
+msgstr ""
+
+#: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
+#: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
 msgid "hard"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:143
+#: ../app/tabs/vms-tab/buttons.js:144
 #: ../app/tabs/vms-tab/panels/info/html.hbs:57
 msgid "Reschedule"
-msgstr ""
+msgstr "Perplanuoti"
 
-#: ../app/tabs/vms-tab/buttons.js:149
+#: ../app/tabs/vms-tab/buttons.js:150
 msgid "Un-Reschedule"
-msgstr ""
-
-#: ../app/tabs/vms-tab/buttons.js:158
-msgid "retry"
-msgstr ""
+msgstr "Atšaukti perplanavimą"
 
 #: ../app/tabs/vms-tab/buttons.js:159
+msgid "retry"
+msgstr "pabandyti dar kartą"
+
+#: ../app/tabs/vms-tab/buttons.js:160
 msgid "success"
 msgstr "sėkmė"
 
-#: ../app/tabs/vms-tab/buttons.js:160
+#: ../app/tabs/vms-tab/buttons.js:161
 msgid "failure"
 msgstr "klaida"
 
-#: ../app/tabs/vms-tab/buttons.js:161
-msgid "delete"
-msgstr ""
-
 #: ../app/tabs/vms-tab/buttons.js:162
-msgid "delete-recreate"
-msgstr ""
+msgid "delete"
+msgstr "trinti"
 
-#: ../app/tabs/vms-tab/buttons.js:164
+#: ../app/tabs/vms-tab/buttons.js:163
+msgid "delete-recreate"
+msgstr "trinti-perkurti"
+
+#: ../app/tabs/vms-tab/buttons.js:165
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state"
 msgstr ""
 
-#: ../app/tabs/vms-tab/buttons.js:175
+#: ../app/tabs/vms-tab/buttons.js:176
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:21
 msgid "VNC"
-msgstr ""
+msgstr "VNC"
 
-#: ../app/tabs/vms-tab/buttons.js:180
+#: ../app/tabs/vms-tab/buttons.js:181
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
 msgid "SPICE"
 msgstr ""
 
 #: ../app/tabs/vms-tab/datatable.js:72
 msgid "Please select a VM from the list"
-msgstr ""
+msgstr "Prašome pasirinkti VM iš sąrašo"
 
 #: ../app/tabs/vms-tab/datatable.js:73
 msgid "You selected the following VM:"
-msgstr ""
+msgstr "Jūs pasirinkite šią VM:"
 
 #: ../app/tabs/vms-tab/datatable.js:74
 msgid "Please select one or more VMs from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelias VM iš sąrašo"
 
 #: ../app/tabs/vms-tab/datatable.js:75
 msgid "You selected the following VMs:"
-msgstr ""
+msgstr "Jūs pasirinkite šias VM:"
 
 #: ../app/tabs/vms-tab/panels/actions.js:42
 #: ../app/tabs/vms-tab/panels/actions.js:72
@@ -2754,28 +2662,27 @@ msgstr "Veiksmai"
 #: ../app/tabs/vms-tab/panels/actions.js:68
 #: ../app/tabs/vms-tab/panels/placement.js:69
 msgid "Action"
-msgstr ""
+msgstr "Veiksmas"
 
 #: ../app/tabs/vms-tab/panels/actions.js:69
-#, fuzzy
 msgid "Time"
-msgstr "Laiko žyma"
+msgstr "Laikas"
 
 #: ../app/tabs/vms-tab/panels/actions.js:70
 msgid "Done"
-msgstr ""
+msgstr "Atlikta"
 
 #: ../app/tabs/vms-tab/panels/actions.js:71
 msgid "Message"
-msgstr ""
+msgstr "Pranešimas"
 
 #: ../app/tabs/vms-tab/panels/actions.js:73
 msgid "Add action"
-msgstr ""
+msgstr "Pridėti veiksmą"
 
 #: ../app/tabs/vms-tab/panels/actions.js:93
 msgid "terminate"
-msgstr ""
+msgstr "nutraukti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:94
 msgid "terminate-hard"
@@ -2783,27 +2690,27 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:95
 msgid "hold"
-msgstr ""
+msgstr "laikyti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:96
 msgid "release"
-msgstr ""
+msgstr "išleisti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:97
 msgid "stop"
-msgstr ""
+msgstr "sustabdyti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:98
 msgid "suspend"
-msgstr ""
+msgstr "sustabdyti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:99
 msgid "resume"
-msgstr ""
+msgstr "tęsti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:100
 msgid "reboot"
-msgstr ""
+msgstr "perkrauti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:101
 msgid "reboot-hard"
@@ -2811,7 +2718,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:102
 msgid "poweroff"
-msgstr ""
+msgstr "išjungti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:103
 msgid "poweroff-hard"
@@ -2831,17 +2738,17 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/actions.js:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:101
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
 msgid "Add"
 msgstr "Pridėti"
 
 #: ../app/tabs/vms-tab/panels/actions.js:192
 msgid "No actions to show"
-msgstr ""
+msgstr "Nėra jokių veiksmų"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:135
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:145
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:36
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:49
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:49
@@ -2849,8 +2756,8 @@ msgid "yes"
 msgstr "taip"
 
 #: ../app/tabs/vms-tab/panels/info.js:79
-#: ../app/tabs/images-tab/panels/info.js:75
-#: ../app/tabs/images-tab/panels/info.js:136
+#: ../app/tabs/images-tab/panels/info-common.js:66
+#: ../app/tabs/images-tab/panels/info-common.js:146
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:37
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:51
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:51
@@ -2858,7 +2765,7 @@ msgid "no"
 msgstr "ne"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:46
-#: ../app/tabs/images-tab/panels/snapshots.js:45
+#: ../app/tabs/images-tab/panels/snapshots.js:46
 msgid "Snapshots"
 msgstr ""
 
@@ -2868,8 +2775,8 @@ msgstr "Laiko žyma"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:82
 #: ../app/tabs/vms-tab/panels/snapshots.js:85
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:42
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
 msgid "Take snapshot"
 msgstr ""
 
@@ -2898,16 +2805,15 @@ msgstr "#"
 
 #: ../app/tabs/vms-tab/panels/placement.js:70
 msgid "Reason"
-msgstr ""
+msgstr "Priežastis"
 
 #: ../app/tabs/vms-tab/panels/placement.js:71
-#, fuzzy
 msgid "Change time"
-msgstr "Keisti svetainę"
+msgstr "Keisti laiką"
 
 #: ../app/tabs/vms-tab/panels/placement.js:72
 msgid "Total time"
-msgstr ""
+msgstr "Visas laikas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:73
 msgid "Prolog time"
@@ -2915,7 +2821,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:86
 msgid "No data available in table"
-msgstr ""
+msgstr "Lentelėje nėra duomenų"
 
 #: ../app/tabs/vms-tab/panels/placement.js:137
 msgid "Sched Message"
@@ -2931,7 +2837,7 @@ msgstr "Reikalavimai"
 
 #: ../app/tabs/vms-tab/panels/placement.js:169
 msgid "Rank"
-msgstr ""
+msgstr "Rangas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:177
 msgid "Placement - Datastore"
@@ -2939,15 +2845,20 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:182
 msgid "DS Requirements"
-msgstr ""
+msgstr "DS reikalavimai"
 
 #: ../app/tabs/vms-tab/panels/placement.js:186
 msgid "DS Rank"
-msgstr ""
+msgstr "DS rangas"
+
+#: ../app/tabs/vms-tab/panels/template.js:61
+#, fuzzy
+msgid "User template"
+msgstr "Nebesidalinti šablonu"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
-msgstr ""
+msgstr "Išsaugoti kaip vykdomą"
 
 #: ../app/tabs/vms-tab/panels/storage.js:204
 #: ../app/tabs/vms-tab/panels/network.js:237
@@ -2956,7 +2867,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:214
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:48
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
 msgid "Save as"
 msgstr "Išsaugoti kaip"
 
@@ -2979,19 +2890,18 @@ msgstr "TAIP"
 msgid "NO"
 msgstr "NE"
 
-#: ../app/tabs/vms-tab/panels/storage.js:353
-#, fuzzy
+#: ../app/tabs/vms-tab/panels/storage.js:354
 msgid "This will detach the disk immediately"
-msgstr "Tai ištrins pasirinktas mašinas iš duomenų bazės"
+msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:456
+#: ../app/tabs/vms-tab/panels/storage.js:458
 msgid "This will delete the disk snapshot "
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/storage.js:532
-#: ../app/tabs/images-tab/panels/snapshots.js:199
+#: ../app/tabs/vms-tab/panels/storage.js:534
+#: ../app/tabs/images-tab/panels/snapshots.js:202
 msgid "Active"
-msgstr ""
+msgstr "Aktyvus"
 
 #: ../app/tabs/vms-tab/panels/network.js:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:56
@@ -3023,11 +2933,11 @@ msgstr "Globalus IPv6"
 #: ../app/tabs/vms-tab/panels/network.js:94
 #: ../app/tabs/vms-tab/panels/network.js:97
 msgid "Attach nic"
-msgstr ""
+msgstr "Pridėti naują tinklo plokštę"
 
 #: ../app/tabs/vms-tab/panels/network.js:117
 msgid "Network Monitoring Attributes"
-msgstr ""
+msgstr "Tinklo stebėsenos atributai"
 
 #: ../app/tabs/vms-tab/panels/network.js:141
 msgid "NET RX"
@@ -3047,40 +2957,40 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/network.js:278
 msgid " (VRouter)"
-msgstr ""
+msgstr "(V.Maršrutizatorius)"
 
 #: ../app/tabs/vms-tab/panels/network.js:347
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:43
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:128
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
-msgstr ""
+msgstr "Protokolas"
 
 #: ../app/tabs/vms-tab/panels/network.js:349
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 msgid "Range"
-msgstr ""
+msgstr "Intervalas"
 
 #: ../app/tabs/vms-tab/panels/network.js:351
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:54
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
-msgstr ""
+msgstr "ICMP tipas"
 
-#: ../app/tabs/vms-tab/panels/network.js:424
+#: ../app/tabs/vms-tab/panels/network.js:425
 msgid "Network reception"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:431
+#: ../app/tabs/vms-tab/panels/network.js:432
 msgid "Network transmission"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:438
+#: ../app/tabs/vms-tab/panels/network.js:439
 msgid "Network reception speed"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:447
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission speed"
 msgstr ""
 
@@ -3096,7 +3006,7 @@ msgstr "Jūs nepasirinkote serverio"
 
 #: ../app/tabs/vms-tab/dialogs/migrate.js:139
 msgid "is currently running on Host"
-msgstr ""
+msgstr "yra vykdomas serveryje"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:35
 msgid "Used CPU"
@@ -3116,20 +3026,19 @@ msgstr "Pradžios laikas"
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:41
 msgid "Hidden Template"
-msgstr ""
+msgstr "Paslėpti šablonai"
 
 #: ../app/tabs/vdcs-tab.js:49
 msgid "Virtual Data Centers"
-msgstr ""
+msgstr "Virtualūs duomenų centrai"
 
 #: ../app/tabs/vdcs-tab.js:50
 msgid "Virtual Data Center"
-msgstr ""
+msgstr "Virtualus duomenų centras"
 
 #: ../app/tabs/images-tab/actions.js:72
-#, fuzzy
 msgid "Please select one (and just one) Image to export."
-msgstr "Prašoma pasirinkti bent vieną išteklių"
+msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:94
 msgid "This Image resides in Datastore "
@@ -3139,19 +3048,34 @@ msgstr ""
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create.js:56
+#: ../app/tabs/images-tab/form-panels/create-common.js:52
 msgid "Create Image"
 msgstr "Sukurti diską"
 
-#: ../app/tabs/images-tab/form-panels/create.js:304
-#: ../app/tabs/images-tab/form-panels/create.js:429
+#: ../app/tabs/images-tab/form-panels/create-common.js:54
+msgid "Create File"
+msgstr "Sukurti failą"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:289
+msgid "Uploading..."
+msgstr "Įkeliama..."
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:315
+#: ../app/tabs/images-tab/form-panels/create-common.js:440
 msgid "Please select a datastore for this image"
-msgstr ""
+msgstr "Prašome pasirinkti duomenų saugyklą šiam disko atvaizdui"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:397
+msgid "Please select a file to upload"
+msgstr "Prašome pasirinkti failą, kurį norite įkelti"
+
+#: ../app/tabs/images-tab/form-panels/create-common.js:405
+msgid "Registering in OpenNebula"
+msgstr "Registruojama OpenNebula"
 
 #: ../app/tabs/images-tab/form-panels/import.js:50
-#, fuzzy
 msgid "Import vCenter Images"
-msgstr "Sukurti diską"
+msgstr "Importuoti vCenter disko atvaizdus"
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
@@ -3161,39 +3085,74 @@ msgstr ""
 msgid "Make non persistent"
 msgstr ""
 
-#: ../app/tabs/images-tab/datatable.js:84
+#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/provision-tab/vms/create.hbs:40
+#: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:28
+#: ../app/tabs/images-tab/panels/info/html.hbs:52
+msgid "Persistent"
+msgstr "Pastovus"
+
+#: ../app/tabs/images-tab/datatable-common.js:72
+msgid "#VMS"
+msgstr "#VMS"
+
+#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/vms-tab/panels/storage/html.hbs:25
+msgid "Target"
+msgstr "Tikslas"
+
+#: ../app/tabs/images-tab/datatable.js:44
 msgid "Please select an image from the list"
-msgstr ""
+msgstr "Prašome pasirinkti disko atvaizdą iš sąrašo"
 
-#: ../app/tabs/images-tab/datatable.js:85
+#: ../app/tabs/images-tab/datatable.js:45
 msgid "You selected the following image:"
-msgstr ""
+msgstr "Jūs pasirinkote šį disko atvaizdą:"
 
-#: ../app/tabs/images-tab/datatable.js:86
+#: ../app/tabs/images-tab/datatable.js:46
 msgid "Please select one or more images from the list"
-msgstr ""
+msgstr "Prašome pasirinkti vieną ar kelis disko atvaizdus iš sąrašo"
 
-#: ../app/tabs/images-tab/datatable.js:87
+#: ../app/tabs/images-tab/datatable.js:47
 msgid "You selected the following images:"
-msgstr ""
+msgstr "Jūs pasirinkite šiuos disko atvaizdus:"
 
-#: ../app/tabs/images-tab/panels/info.js:103 ../app/opennebula/image.js:37
+#: ../app/tabs/images-tab/panels/info-common.js:96
+#: ../app/opennebula/image.js:37
 msgid "OS"
 msgstr "OS"
 
-#: ../app/tabs/images-tab/panels/info.js:104 ../app/opennebula/image.js:38
+#: ../app/tabs/images-tab/panels/info-common.js:97
+#: ../app/opennebula/image.js:38
 msgid "CDROM"
 msgstr "CDROM"
 
-#: ../app/tabs/images-tab/panels/info.js:105 ../app/opennebula/image.js:39
+#: ../app/tabs/images-tab/panels/info-common.js:98
+#: ../app/opennebula/image.js:39
 msgid "DATABLOCK"
 msgstr "Duomenų blokas"
 
-#: ../app/tabs/images-tab/panels/snapshots.js:129
+#: ../app/tabs/images-tab/panels/info-common.js:103
+#: ../app/opennebula/image.js:40
+msgid "KERNEL"
+msgstr "BRANDUOLYS"
+
+#: ../app/tabs/images-tab/panels/info-common.js:104
+#: ../app/opennebula/image.js:41
+msgid "RAMDISK"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/info-common.js:105
+#: ../app/opennebula/image.js:42
+msgid "CONTEXT"
+msgstr ""
+
+#: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
 msgstr ""
 
-#: ../app/tabs/images-tab/panels/snapshots.js:161
+#: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
 msgstr ""
 
@@ -3202,33 +3161,31 @@ msgid "Collapse VMs"
 msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:58
-#, fuzzy
 msgid "Open VMs"
-msgstr "Min. VM"
+msgstr ""
 
 #: ../app/tabs/vnets-topology-tab.js:89 ../app/tabs/vnets-topology-tab.js:91
-#, fuzzy
 msgid "Network Topology"
-msgstr "Tinklo modelis"
+msgstr "Tinklo topologija"
 
-#: ../app/tabs/vnets-topology-tab.js:543
+#: ../app/tabs/vnets-topology-tab.js:545
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:903 ../app/sunstone.js:904
+#: ../app/sunstone.js:910 ../app/sunstone.js:911
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:991 ../app/sunstone.js:992
+#: ../app/sunstone.js:998 ../app/sunstone.js:999
 msgid "Loading..."
-msgstr ""
+msgstr "Kraunama..."
 
 #: ../app/opennebula/marketplaceapp.js:24 ../app/opennebula/host.js:39
 #: ../app/opennebula/host.js:51 ../app/opennebula/host.js:57
 #: ../app/opennebula/image.js:23
 msgid "INIT"
-msgstr ""
+msgstr "INIT"
 
 #: ../app/opennebula/marketplaceapp.js:26 ../app/opennebula/image.js:27
 msgid "LOCKED"
@@ -3238,27 +3195,27 @@ msgstr "UŽRAKINTA"
 #: ../app/opennebula/host.js:55 ../app/opennebula/host.js:58
 #: ../app/opennebula/image.js:26
 msgid "DISABLED"
-msgstr ""
+msgstr "IŠJUNGTA"
 
 #: ../app/opennebula/marketplaceapp.js:33 ../app/opennebula/datastore.js:29
 msgid "IMAGE"
-msgstr ""
+msgstr "DISKO ATVAIZDAS"
 
 #: ../app/opennebula/marketplaceapp.js:34
 msgid "VMTEMPLATE"
-msgstr ""
+msgstr "VM šablonas"
 
 #: ../app/opennebula/marketplaceapp.js:35
 msgid "SERVICE_TEMPLATE"
-msgstr ""
+msgstr "SERVISO_ŠABLONAS"
 
 #: ../app/opennebula/datastore.js:30
 msgid "SYSTEM"
-msgstr ""
+msgstr "SISTEMA"
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr ""
+msgstr "FAILAS"
 
 #: ../app/opennebula/role.js:50 ../app/opennebula/service.js:32
 msgid "FAILED_UNDEPLOYING"
@@ -3272,70 +3229,70 @@ msgstr "NEPAVYKĘS_DIEGIMAS"
 msgid "FAILED_SCALING"
 msgstr "KLAIDA IŠPLEČIANT"
 
-#: ../app/opennebula/vm.js:185
+#: ../app/opennebula/vm.js:186
 msgid "LCM_INIT"
 msgstr ""
 
-#: ../app/opennebula/vm.js:186 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
+#: ../app/opennebula/vm.js:217
 msgid "PROLOG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:204
-#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:206
-#: ../app/opennebula/vm.js:207 ../app/opennebula/vm.js:217
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
+#: ../app/opennebula/vm.js:221
 msgid "BOOT"
 msgstr ""
 
-#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:193
-#: ../app/opennebula/vm.js:228 ../app/opennebula/vm.js:230
-#: ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
+#: ../app/opennebula/vm.js:246
 msgid "MIGRATE"
 msgstr ""
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:191
-#: ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
+#: ../app/opennebula/vm.js:193
 msgid "SAVE"
 msgstr "IŠSAUGOTA"
 
-#: ../app/opennebula/vm.js:195 ../app/opennebula/vm.js:196
-#: ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:216
 msgid "EPILOG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:197 ../app/opennebula/vm.js:198
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:214
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
 msgid "SHUTDOWN"
 msgstr "IŠJUNGTI"
 
-#: ../app/opennebula/vm.js:199 ../app/opennebula/vm.js:221
-#: ../app/opennebula/vm.js:222 ../app/opennebula/vm.js:223
-#: ../app/opennebula/vm.js:224 ../app/opennebula/vm.js:225
-#: ../app/opennebula/vm.js:226 ../app/opennebula/vm.js:227
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:233
-#: ../app/opennebula/vm.js:234 ../app/opennebula/vm.js:235
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
+#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
+#: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
+#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
+#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
+#: ../app/opennebula/vm.js:247
 msgid "FAILURE"
 msgstr "KLAIDA"
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:208
+#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
 msgid "CLEANUP"
 msgstr ""
 
-#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:210
-#: ../app/opennebula/vm.js:211 ../app/opennebula/vm.js:212
-#: ../app/opennebula/vm.js:213 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
+#: ../app/opennebula/vm.js:220
 msgid "HOTPLUG"
 msgstr ""
 
-#: ../app/opennebula/vm.js:209 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
-#: ../app/opennebula/vm.js:239 ../app/opennebula/vm.js:240
-#: ../app/opennebula/vm.js:241 ../app/opennebula/vm.js:242
-#: ../app/opennebula/vm.js:243 ../app/opennebula/vm.js:244
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
+#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
+#: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
+#: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
 msgid "SNAPSHOT"
 msgstr ""
 
@@ -3369,7 +3326,7 @@ msgstr "Atnaujinti"
 
 #: ../app/opennebula/host.js:56
 msgid "RETRY"
-msgstr ""
+msgstr "Bandyti dar kartą"
 
 #: ../app/opennebula/image.js:25 ../app/tabs/dashboard-tab/storage.hbs:24
 msgid "USED"
@@ -3388,9 +3345,8 @@ msgid "USED_PERS"
 msgstr ""
 
 #: ../app/opennebula/image.js:32
-#, fuzzy
 msgid "LOCKED_USED"
-msgstr "UŽRAKINTA"
+msgstr ""
 
 #: ../app/opennebula/image.js:33
 msgid "LOCKED_USED_PERS"
@@ -3463,55 +3419,55 @@ msgstr "Data UTC"
 
 #: ../app/utils/locale.js:41
 msgid "January"
-msgstr ""
+msgstr "Sausis"
 
 #: ../app/utils/locale.js:41
 msgid "February"
-msgstr ""
+msgstr "Vasaris"
 
 #: ../app/utils/locale.js:41
 msgid "March"
-msgstr ""
+msgstr "Kovas"
 
 #: ../app/utils/locale.js:41
 msgid "April"
-msgstr ""
+msgstr "Balandis"
 
 #: ../app/utils/locale.js:41
 msgid "May"
-msgstr ""
+msgstr "Gegužė"
 
 #: ../app/utils/locale.js:42
 msgid "June"
-msgstr ""
+msgstr "Birželis"
 
 #: ../app/utils/locale.js:42
 msgid "July"
-msgstr ""
+msgstr "Liepa"
 
 #: ../app/utils/locale.js:42
 msgid "August"
-msgstr ""
+msgstr "Rugpjūtis"
 
 #: ../app/utils/locale.js:42
 msgid "September"
-msgstr ""
+msgstr "Rugsėjis"
 
 #: ../app/utils/locale.js:42
 msgid "October"
-msgstr ""
+msgstr "Spalis"
 
 #: ../app/utils/locale.js:43
 msgid "November"
-msgstr ""
+msgstr "Lapkritis"
 
 #: ../app/utils/locale.js:43
 msgid "December"
-msgstr ""
+msgstr "Gruodis"
 
 #: ../app/utils/notifier.js:89
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr ""
+msgstr "Tinklas nepasiekiamas: ar OpenNebula veikia?"
 
 #: ../app/utils/notifier.js:105
 msgid "Unauthorized"
@@ -3527,59 +3483,50 @@ msgstr "Jūs pasirinkote išteklį:"
 
 #: ../app/utils/labels/utils.js:109
 msgid "Edit Labels"
-msgstr ""
+msgstr "Koreguoti žymas"
 
 #: ../app/utils/labels/utils.js:112
 msgid "Add Label"
-msgstr ""
+msgstr "Pridėti žymą"
 
-#: ../app/utils/disks-resize.js:122
+#: ../app/utils/disks-resize.js:129
 msgid "Volatile Disk"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:124 ../app/utils/disks-resize.js:156
-#, fuzzy
+#: ../app/utils/disks-resize.js:131 ../app/utils/disks-resize.js:163
 msgid "Image was not found"
-msgstr "Nerastas adresų intervalas"
+msgstr "Nerastas disko atvaizdas"
 
-#: ../app/utils/disks-resize.js:139
+#: ../app/utils/disks-resize.js:146
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:143
+#: ../app/utils/disks-resize.js:150
 msgid "Non-persistent disk. The changes will be lost once the VM is shut down"
 msgstr ""
 
-#: ../app/utils/disks-resize.js:151
-#, fuzzy
+#: ../app/utils/disks-resize.js:158
 msgid "Image state: "
-msgstr "Disko pavadinimas"
+msgstr "Disko atvaizdo būsena"
 
-#: ../app/utils/dialogs/confirm.js:69
-#: ../app/utils/dialogs/confirm-with-select.js:117
+#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "Jūs nepatvirtinote šio veiksmo"
 
 #: ../app/utils/vcenter/images.js:88
 msgid "No new images found in this datastore"
-msgstr ""
+msgstr "Naujų disko atvaizdų duomenų telkinyje nerasta"
 
-#: ../app/utils/vcenter/images.js:108 ../app/utils/vcenter/templates.js:112
-#: ../app/utils/vcenter/networks.js:111
-#, fuzzy
-msgid "Select All"
-msgstr "Pasirinkti telkinį"
-
-#: ../app/utils/vcenter/images.js:113
+#: ../app/utils/vcenter/images.js:107
 msgid "Import Selected Images"
-msgstr ""
+msgstr "Importuoti pasirinktus disko atvaizdus"
 
-#: ../app/utils/vcenter/images.js:118
-#, fuzzy
+#: ../app/utils/vcenter/images.js:112
 msgid "Clear Imported Images"
-msgstr "Sukurti diską"
+msgstr "Išvalyti importuotus disko atvaizdus"
 
-#: ../app/utils/vcenter/images.js:249
+#: ../app/utils/vcenter/images.js:243
 msgid "Image created successfully"
 msgstr "Diskas sukurtas sėkmingai"
 
@@ -3594,20 +3541,21 @@ msgstr ""
 msgid "No new templates found in this DataCenter"
 msgstr ""
 
+#: ../app/utils/vcenter/templates.js:112 ../app/utils/vcenter/networks.js:111
+msgid "Select All"
+msgstr "Pasirinkti visus"
+
 #: ../app/utils/vcenter/templates.js:118 ../app/utils/vcenter/networks.js:117
-#, fuzzy
 msgid "Expand Advanced Sections"
-msgstr "Papildomi nustatymai"
+msgstr ""
 
 #: ../app/utils/vcenter/templates.js:123
-#, fuzzy
 msgid "Import Selected Templates"
-msgstr "Pasirinkite šabloną"
+msgstr "Importuoti pasirinktus šablonus"
 
 #: ../app/utils/vcenter/templates.js:128
-#, fuzzy
 msgid "Clear Imported Templates"
-msgstr "Naudotojo išsaugoti šablonai"
+msgstr "Išvalyti importuotus šablonus"
 
 #: ../app/utils/vcenter/templates.js:291
 msgid "Template created successfully"
@@ -3618,57 +3566,50 @@ msgid "No new datastores found in this DataCenter"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:111
-#, fuzzy
 msgid "Import Selected Datastores"
-msgstr "Pasirinkti duomenų saugyklą"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:116 ../app/utils/vcenter/clusters.js:106
-#, fuzzy
 msgid "Clear Imported Datastores"
-msgstr "Sukurti duomenų saugyklą"
+msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:129
 msgid "Datacenter"
 msgstr ""
 
 #: ../app/utils/vcenter/datastores.js:254
-#, fuzzy
 msgid "Datastore created successfully"
-msgstr "Diskas sukurtas sėkmingai"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:91
 msgid "No new networks found in this DataCenter"
 msgstr ""
 
 #: ../app/utils/vcenter/networks.js:122
-#, fuzzy
 msgid "Import Selected Networks"
-msgstr "Pasirinkite kompiuterių tinklą"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:127
-#, fuzzy
 msgid "Clear Imported Networks"
-msgstr "Sukurti virtualų kompiuterių tinklą"
+msgstr ""
 
 #: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
 #: ../app/utils/vcenter/networks.js:214 ../app/utils/vcenter/networks.js:224
 #: ../app/utils/vcenter/networks/row.hbs:57
 msgid "Optional"
-msgstr ""
+msgstr "Papildomai"
 
 #: ../app/utils/vcenter/networks.js:213
-#, fuzzy
 msgid "Global Prefix"
 msgstr "Globalus prefiksas"
 
 #: ../app/utils/vcenter/networks.js:223
-#, fuzzy
 msgid "ULA Prefix"
-msgstr "IPv6 prefiksas"
+msgstr "ULA prefiksas"
 
 #: ../app/utils/vcenter/networks.js:325
 msgid "Virtual Network created successfully"
-msgstr ""
+msgstr "Virtualus kompiuterių tinklas sukurtas sėkmingai"
 
 #: ../app/utils/vcenter/clusters.js:87
 msgid "No new clusters found in this DataCenter"
@@ -3676,7 +3617,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/clusters.js:191
 msgid "Host created successfully"
-msgstr ""
+msgstr "Serveris sukurtas sėkmingai"
 
 #: ../app/utils/user-inputs.js:510
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
@@ -3690,7 +3631,7 @@ msgstr "GB"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:20
 msgid "New Groups are automatically added to the default VDC"
-msgstr ""
+msgstr "Naujos naudotojų grupės automatiškai pridėtos į numatytąjį VDC"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:35
 #: ../app/sunstone/user_and_zone.hbs:44
@@ -3717,24 +3658,24 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:66
 msgid "Default Users View"
-msgstr ""
+msgstr "Numatytasis naudotojo rodinys"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:70
 msgid "Default Admin View"
-msgstr ""
+msgstr "Numatytasis administratoriaus rodinys"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:87
 msgid "Group Users"
-msgstr ""
+msgstr "Grupės naudotojai"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:88
 msgid "Group Admins"
-msgstr ""
+msgstr "Grupės administratoriai"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:93
 #: ../app/tabs/users-tab/panels/info/html.hbs:69
 msgid "View"
-msgstr ""
+msgstr "Rodinys"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:126
 msgid "Create an administrator user"
@@ -3742,7 +3683,7 @@ msgstr "Sukurti naudotoją administratorius"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:128
 msgid "You can create now an administrator user. More administrators can be added later."
-msgstr ""
+msgstr "Dabar galite sukurti administratoriaus naudotoją. Daugiau administratorių galės būti sukurti vėliau."
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:142
 msgid "Allow users to view the VMs and Services of other users in the same group"
@@ -3766,7 +3707,7 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:22
 msgid "Edit administrators"
-msgstr ""
+msgstr "Koreguoti administratorius"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
 msgid "Users marked with <i class='fa fa-star'></i> are administrators"
@@ -3781,7 +3722,6 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:22
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:22
-#: ../app/tabs/files-tab/panels/info/html.hbs:22
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:23
@@ -3808,45 +3748,45 @@ msgstr ""
 msgid "Update Quota"
 msgstr "Atnaujinti apribojimus"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:29
-#: ../app/utils/dialogs/clusters/html.hbs:29
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:30
+#: ../app/utils/dialogs/clusters/html.hbs:30
 msgid "Apply changes"
 msgstr "Išsaugoti pakeitimus"
 
-#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:43
+#: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:40
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
 #: ../app/tabs/support-tab/dialogs/upload/html.hbs:33
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:43
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:43
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:37
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:83
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:40
-#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/groups/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:32
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:32
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:44
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:46
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:44
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:44
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:34
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:82
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:37
+#: ../app/tabs/users-tab/dialogs/quotas/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:28
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:37
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:54
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:50
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:46
-#: ../app/utils/dialogs/generic-confirm/html.hbs:32
-#: ../app/utils/dialogs/confirm/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:41
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:55
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:45
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:47
+#: ../app/utils/dialogs/generic-confirm/html.hbs:33
+#: ../app/utils/dialogs/confirm/html.hbs:32
 #: ../app/utils/dialogs/overcommit/html.hbs:68
-#: ../app/utils/dialogs/clusters/html.hbs:32
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:39
+#: ../app/utils/dialogs/clusters/html.hbs:33
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:38
 msgid "Close modal"
 msgstr ""
 
@@ -3860,7 +3800,6 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
@@ -3873,9 +3812,9 @@ msgstr "Aprašas"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:236
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:179
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:190
 msgid "Custom attributes"
-msgstr ""
+msgstr "Individualizuoti atributai"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
 msgid "Selects all current and future clusters"
@@ -3927,49 +3866,43 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:20
 msgid "Location"
-msgstr ""
+msgstr "Vieta"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:21
 msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:29
-#, fuzzy
 msgid "VM user name"
-msgstr "Naudotojo vardas"
+msgstr "VM naudotojo vardas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:30
 msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:36
-#, fuzzy
 msgid "VM user password"
-msgstr "VM slaptažodis"
+msgstr "VM naudotojo slaptažodis"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:37
-#, fuzzy
 msgid "Password for VM User"
-msgstr "VM_USER slaptažodis"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:46
-#, fuzzy
 msgid "Affinity group"
-msgstr "Priskirti grupę"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:47
 msgid "Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
-#, fuzzy
 msgid "Availability set"
-msgstr "Sukurti duomenų saugyklą"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
-#, fuzzy
 msgid "Cloud service"
-msgstr "Serviso pavadinimas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:62
 msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
@@ -3977,30 +3910,27 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:68
 msgid "SSH port"
-msgstr ""
+msgstr "SSH portas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:69
 msgid "Port where the VMs ssh server will listen on"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:77
-#, fuzzy
 msgid "Storage account"
-msgstr "saugykla"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
-#, fuzzy
 msgid "Subnet name"
-msgstr "Potinklis"
+msgstr "Potinklio pavadinimas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:92
-#, fuzzy
 msgid "TCP endpoints"
-msgstr "Galinis taškas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:93
 msgid "Comma-separated list of TCP ports to be accessible from the public internet to this VM"
@@ -4008,9 +3938,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:99
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:31
-#, fuzzy
 msgid "Virtual Network name"
-msgstr "Virtualaus tinklo vardas"
+msgstr "Virtualaus tinklo pavadinimas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:107
 msgid "Win RM"
@@ -4065,9 +3994,8 @@ msgid "Obtain a better I/O throughput for VMs with EBS provisioned volumes"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
-#, fuzzy
 msgid "Elastic IP address"
-msgstr "Pirmas IP adresas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
 msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
@@ -4082,9 +4010,8 @@ msgid "Defines which OpenNebula host will use this template"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:74
-#, fuzzy
 msgid "Keypair name"
-msgstr "Raktų pora"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:75
 msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
@@ -4095,13 +4022,12 @@ msgid "License pool name"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:89
-#, fuzzy
 msgid "Placement group name"
-msgstr "Tomo grupės pavadinimas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:97
 msgid "Private IP"
-msgstr ""
+msgstr "Privatus IP"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:98
 msgid "If you're using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
@@ -4109,7 +4035,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:104
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:26
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:39
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:45
 msgid "Ramdisk"
 msgstr "Virtualusis diskas"
 
@@ -4118,9 +4044,8 @@ msgid "The ID of the RAM disk to select."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:113
-#, fuzzy
 msgid "Security group names"
-msgstr "Saugos grupė"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:121
@@ -4128,13 +4053,12 @@ msgid "You can specify more than one security group (comma separated)."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:120
-#, fuzzy
 msgid "Security group IDs"
-msgstr "Saugos grupė"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:129
 msgid "Subnet ID"
-msgstr ""
+msgstr "Potinklio ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:130
 msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
@@ -4153,7 +4077,6 @@ msgid "Tenancy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:151
-#, fuzzy
 msgid "User data"
 msgstr "Naudotojo duomenys"
 
@@ -4166,17 +4089,16 @@ msgid "Volatile disk"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:40
-#, fuzzy
 msgid "Image name"
-msgstr "Disko pavadinimas"
+msgstr "Disko atvaizdo pavadinimas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:48
 msgid "Image owner's user ID"
-msgstr ""
+msgstr "Disko atvaizdo savininko ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:54
 msgid "Image owner's user name"
-msgstr ""
+msgstr "Disko atvaizdo savininko naudotojo vardas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:28
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:93
@@ -4185,9 +4107,9 @@ msgid "Advanced options"
 msgstr "Papildomi nustatymai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:67
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:91
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:101
 msgid "Size in MB"
-msgstr ""
+msgstr "Dydis MB"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:75
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:101
@@ -4203,37 +4125,33 @@ msgid "Swap"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:84
-#, fuzzy
 msgid "Filesystem format"
-msgstr "Failų sistemos tipas"
+msgstr "Failų sistemos formatas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
-#, fuzzy
 msgid "Device target"
-msgstr "Serviso pavadinimas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:11
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:152
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:163
 msgid "Image mapping driver"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:25
-#, fuzzy
 msgid "Device prefix"
-msgstr "Serviso pavadinimas"
+msgstr "Įrenginio prefiksas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:26
 msgid "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used."
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:32
-#, fuzzy
 msgid "Read-only"
-msgstr "Tik skaitymui"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:44
 msgid "Cache"
@@ -4288,9 +4206,8 @@ msgid "Total (read+write) IOPS"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
-#, fuzzy
 msgid "Read IOPS"
-msgstr "Tik skaitymui"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
 msgid "Write IOPS Sec"
@@ -4301,7 +4218,7 @@ msgid "Boot"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:23
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:38
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:44
 msgid "Kernel"
 msgstr "Branduolys"
 
@@ -4311,12 +4228,11 @@ msgstr "Požymiai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:39
 msgid "CPU Architecture"
-msgstr ""
+msgstr "CPU architektūra"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
-#, fuzzy
 msgid "libvirt machine type"
-msgstr "Virtualio mašinos pavadinimas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
@@ -4331,9 +4247,8 @@ msgid "Select the devices to boot from, and their order"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:78
-#, fuzzy
 msgid "Kernel boot parameters"
-msgstr "Papildomi nustatymai"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:86
 msgid "Path to the bootloader executable"
@@ -4425,19 +4340,16 @@ msgid "Choose Network"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:25
-#, fuzzy
 msgid "Virtual Network ID"
-msgstr "Virtualus kompiuterių tinklas"
+msgstr "Virtualaus kompiuterių tinklo ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
-#, fuzzy
 msgid "Virtual Network owner's user ID"
-msgstr "Virtualūs tinklai"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:45
-#, fuzzy
 msgid "Virtual Network owner's user Name"
-msgstr "Virtualaus tinklo vardas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
 msgid "Override Network Values IPv4"
@@ -4473,9 +4385,8 @@ msgid "Override Network Values IPv6"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:109
-#, fuzzy
 msgid "Global address"
-msgstr "Globalus prefiksas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:123
 msgid "Force IPv4 context"
@@ -4495,16 +4406,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
-msgstr ""
+msgstr "Grafikai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:37
-#, fuzzy
 msgid "Listen on IP"
-msgstr "Klausomas IP"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:45
 msgid "Server port"
-msgstr ""
+msgstr "Serverio portas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:46
 msgid "Port for the VNC/SPICE server"
@@ -4515,9 +4425,8 @@ msgid "Keymap"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:69
-#, fuzzy
 msgid "Generate random password"
-msgstr "Atnaujinti slaptažodį"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:77
 msgid "Inputs"
@@ -4549,7 +4458,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:31
 msgid "Host Requirements"
-msgstr ""
+msgstr "Serverio reikalavimai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:35
 msgid "Select Hosts "
@@ -4574,7 +4483,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:55
 msgid "Datastore Requirements"
-msgstr ""
+msgstr "Duomenų saugyklos reikalavimai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:60
 msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
@@ -4658,7 +4567,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:69
 msgid "VM disks"
-msgstr ""
+msgstr "VM diskai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:70
 msgid "If selected, VM disks won't be deleted after the VM finishes its lifecycle."
@@ -4670,9 +4579,8 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:81
 #: ../app/utils/vcenter/templates/row.hbs:38
-#, fuzzy
 msgid "Default Datastore"
-msgstr "Sukurti duomenų saugyklą"
+msgstr "Numatytoji duomenų saugykla"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:89
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:112
@@ -4690,21 +4598,18 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:96
 #: ../app/utils/vcenter/templates/row.hbs:53
-#, fuzzy
 msgid "Available Datastores"
-msgstr "Sukurti duomenų saugyklą"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:104
 #: ../app/utils/vcenter/templates/row.hbs:63
-#, fuzzy
 msgid "Default Resource Pool"
-msgstr "Virtualūs ištekliai"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:119
 #: ../app/utils/vcenter/templates/row.hbs:78
-#, fuzzy
 msgid "Available Resource Pools"
-msgstr "Virtualūs ištekliai"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:132
 #: ../app/utils/showback/html.hbs:63 ../app/utils/showback/html.hbs:90
@@ -4758,9 +4663,8 @@ msgid "Number of virtual cpus. This value is optional, the default hypervisor be
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:48
-#, fuzzy
 msgid "Memory modification"
-msgstr "Kompiuterių tinklo konfigūracija"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:49
 msgid "Allow users to modify this template's default memory on instantiate"
@@ -4782,16 +4686,15 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:117
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:161
 #: ../app/utils/user-inputs/row.hbs:16
-#, fuzzy
 msgid "range"
-msgstr "Keisti"
+msgstr "intervalas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:57
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:118
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:162
 #: ../app/utils/user-inputs/row.hbs:18
 msgid "list"
-msgstr ""
+msgstr "sąrašas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:64
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:72
@@ -4810,9 +4713,8 @@ msgstr "Min."
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:127
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:171
 #: ../app/utils/user-inputs/row.hbs:44 ../app/utils/user-inputs/row.hbs:61
-#, fuzzy
 msgid "Max"
-msgstr "Maks. VM"
+msgstr "Max"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:109
 msgid "CPU modification"
@@ -4831,9 +4733,8 @@ msgid "Allow users to modify this template's default VCPU on instantiate"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:18
-#, fuzzy
 msgid "Contextualization type"
-msgstr "Įtraukti SSH kontekstualizaciją"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:29
 msgid "vCenter customizations"
@@ -4841,11 +4742,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:42
 msgid "Configuration"
-msgstr ""
+msgstr "Konfigūracija"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:48
 msgid "Custom vars"
-msgstr ""
+msgstr "Individualizuoti parametrai"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:61
 msgid "  Add SSH contextualization"
@@ -4856,9 +4757,8 @@ msgid "Add an ssh public key to the context. If the Public Key textarea is empty
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:69
-#, fuzzy
 msgid "SSH public key"
-msgstr "Viešas raktas"
+msgstr "SSH viešas raktas"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:80
 msgid "  Add Network contextualization"
@@ -4876,36 +4776,43 @@ msgstr ""
 msgid "Add a file (token.txt) to the context containing the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
-#, fuzzy
-msgid "Start script"
-msgstr "Pradžios laikas"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
+msgid "  Report Ready to OneGate"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:100
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
+msgid "Sends READY=YES to OneGate, useful for OneFlow"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
+msgid "Start script"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:109
 msgid "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:104
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
 msgid "Encode script in Base64"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:111
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
 msgid "User Inputs"
 msgstr "Naudotojo įvestys"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:112
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:121
 msgid "These attributes must be provided by the user when a new VM is instantiated. They will be included in the VM context"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:127
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
 msgid "FILES_DS"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:144
 msgid "Init scripts"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:136
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:145
 msgid "The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order"
 msgstr ""
 
@@ -4918,9 +4825,8 @@ msgid "kvm"
 msgstr "kvm"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:32
-#, fuzzy
 msgid "Data"
-msgstr "Duomenų saugykla"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:33
 msgid "Raw data to be passed directly to the hypervisor"
@@ -4931,9 +4837,8 @@ msgid "PCI Devices"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-#, fuzzy
 msgid "Device name"
-msgstr "Serviso pavadinimas"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
 msgid "Vendor"
@@ -4956,14 +4861,15 @@ msgid "Instantiate as persistent"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:32
-#: ../app/tabs/provision-tab/vms/create.hbs:35
+#: ../app/tabs/provision-tab/vms/create.hbs:41
 msgid "Creates a private persistent copy of the template plus any image defined in DISK, and instantiates that copy"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:39
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:24
+#: ../app/tabs/hosts-tab/panels/zombies/html.hbs:22
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:28
 msgid "VM name"
-msgstr ""
+msgstr "VM pavadinimas"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:41
 msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs, the wildcard %i will be replaced with a number starting from 0"
@@ -4984,7 +4890,6 @@ msgid "Sets the new VM to hold state, instead of pending. The scheduler will not
 msgstr ""
 
 #: ../app/tabs/templates-tab/panels/info/html.hbs:32
-#: ../app/tabs/files-tab/panels/info/html.hbs:37
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:37
 #: ../app/tabs/images-tab/panels/info/html.hbs:37
 msgid "Register time"
@@ -4992,44 +4897,40 @@ msgstr "Registravimo data"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
 msgid "Clone Template"
-msgstr ""
+msgstr "Kopijuoti šabloną"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:26
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
 msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr ""
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:35
 msgid "Prefix"
-msgstr ""
+msgstr "Prefiksas"
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:39
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:40
 msgid "You can also clone any Image referenced inside this Template. They will be cloned to a new Image, and made persistent."
 msgstr ""
 
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:43
-#, fuzzy
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:44
 msgid "Clone with Images"
-msgstr "Sukurti diską"
+msgstr "Kopijuoti kartu su disko atvaizdais"
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-#, fuzzy
 msgid "Keepalive service ID"
-msgstr "Atnaujinti slaptažodį"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Keepalive password"
-msgstr "Atnaujinti slaptažodį"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-#, fuzzy
 msgid "Virtual machine name"
 msgstr "Virtualio mašinos pavadinimas"
 
@@ -5038,50 +4939,39 @@ msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-#, fuzzy
 msgid "Number of VM instances"
-msgstr "Adresų skaičius"
+msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
 #: ../app/utils/nics-section/dd.hbs:39
 msgid "Floating IP"
-msgstr ""
+msgstr "Slankusis IP"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:46
-#, fuzzy
 msgid "Floating IPv6 ULA"
-msgstr "IPv6 ULA"
+msgstr "Slankusis IPv6 ULA"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:47
-#, fuzzy
 msgid "Floating IPv6 Global"
-msgstr "Globalus IPv6"
+msgstr "Slankusis IPv6 globalus"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:50
-#, fuzzy
 msgid "Management Interface"
-msgstr "Tinklo sąsajos"
+msgstr "Valdymo sąsaja"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
-#, fuzzy
 msgid "Attach NIC"
-msgstr "Pridėti"
+msgstr "Pridėti tinklo plokštę"
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
 msgid "Attach new nic"
-msgstr ""
+msgstr "Pridėti naują tinklo plokštę"
 
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/panels/info/html.hbs:62
-#, fuzzy
-msgid "Virtual Router ID"
-msgstr "Virtualūs ištekliai"
-
-#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:34
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:34
+#: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:35
+#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:29
 msgid "Attach"
 msgstr "Pridėti"
 
@@ -5124,7 +5014,7 @@ msgstr ""
 msgid "Get vCenter Clusters"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:25
+#: ../app/tabs/hosts-tab/panels/wilds/html.hbs:29
 msgid "Remote ID"
 msgstr ""
 
@@ -5142,15 +5032,13 @@ msgstr ""
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:84
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:42
 #: ../app/utils/dialogs/overcommit/html.hbs:45
-#, fuzzy
 msgid "Reserved CPU"
-msgstr "Rezervuoti"
+msgstr "Rzervuota CPU"
 
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:91
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:49
-#, fuzzy
 msgid "Reserved Memory"
-msgstr "Naudojama atmintis"
+msgstr "Rezervuota atmintis"
 
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:23
 msgid "PCI Address"
@@ -5192,7 +5080,7 @@ msgstr "Išjungti"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:76
 msgid "Power on"
-msgstr ""
+msgstr "Įjungti"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:130
 msgid "Net RX"
@@ -5220,9 +5108,8 @@ msgid "You can send the power off signal to the Virtual Machine (this is equival
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:18
-#, fuzzy
 msgid "Power off and undeploy"
-msgstr "Išjungti mašiną"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:25
 msgid "Power off and undeploy the VM"
@@ -5244,7 +5131,7 @@ msgstr "Išjungti mašiną"
 msgid "Send the power off signal"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/create.hbs:24
+#: ../app/tabs/provision-tab/vms/create.hbs:30
 msgid "Virtual Machine Name"
 msgstr "Virtualio mašinos pavadinimas"
 
@@ -5254,7 +5141,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
-msgstr ""
+msgstr "Jūs galite sukurti naują virtualią mašiną naudodami šį šabloną"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
 msgid "Template Name"
@@ -5265,15 +5152,14 @@ msgid "The new Virtual Machine's disks can be made persistent. In a persistent V
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:38
-#, fuzzy
 msgid "Non-persistent"
-msgstr "Pastovus"
+msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:48
 msgid "Save Virtual Machine to Template"
 msgstr ""
 
-#: ../app/tabs/provision-tab/vms/list.hbs:54
+#: ../app/tabs/provision-tab/vms/list.hbs:55
 #: ../app/tabs/provision-tab/flows/list.hbs:48
 msgid "User ID"
 msgstr "Naudotojo ID"
@@ -5288,7 +5174,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:25
 msgid "Reboot the machine"
-msgstr ""
+msgstr "Perkrauti mašiną"
 
 #: ../app/tabs/provision-tab/vms/confirm_reboot.hbs:31
 msgid "Send the reboot signal"
@@ -5303,9 +5189,8 @@ msgid "You can send the shutdown signal to the Virtual Machine (this is equivale
 msgstr ""
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:25
-#, fuzzy
 msgid "Terminate the machine"
-msgstr "Išjungti mašiną"
+msgstr "Nutraukti mašinos vykdymą"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
@@ -5315,41 +5200,41 @@ msgstr ""
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr ""
 
-#: ../app/tabs/provision-tab/flows/create.hbs:19
+#: ../app/tabs/provision-tab/flows/create.hbs:20
 msgid "Create Service"
-msgstr ""
+msgstr "Sukurti servisą"
 
-#: ../app/tabs/provision-tab/flows/create.hbs:24
+#: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr "Serviso pavadinimas"
 
 #: ../app/tabs/provision-tab/dashboard/quotas.hbs:34
 #: ../app/tabs/provision-tab/dashboard/group-quotas.hbs:34
 msgid "RUNNING VMS"
-msgstr ""
+msgstr "Veikiančios VMs"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:81
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:95
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:81
 #: ../app/tabs/dashboard-tab/users.hbs:35 ../app/tabs/dashboard-tab/vms.hbs:39
 #: ../app/utils/accounting/html.hbs:78 ../app/utils/accounting/html.hbs:107
 msgid "CPU hours"
 msgstr "CPU valandos"
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:93
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:41 ../app/tabs/dashboard-tab/vms.hbs:45
 #: ../app/utils/accounting/html.hbs:87 ../app/utils/accounting/html.hbs:123
 msgid "Memory GB hours"
 msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:105
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:115
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:105
 #: ../app/tabs/dashboard-tab/users.hbs:47 ../app/tabs/dashboard-tab/vms.hbs:51
 #: ../app/utils/accounting/html.hbs:96 ../app/utils/accounting/html.hbs:139
 msgid "Disk MB hours"
 msgstr ""
 
-#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:19
+#: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
 msgid "Group Virtual Machines"
 msgstr ""
 
@@ -5402,7 +5287,6 @@ msgid "Write the Service template here"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
-#, fuzzy
 msgid "Network configuration"
 msgstr "Kompiuterių tinklo konfigūracija"
 
@@ -5422,9 +5306,8 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
-#, fuzzy
 msgid "VM shutdown action"
-msgstr "išjungti"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
@@ -5436,12 +5319,10 @@ msgid "Wait for VMs to report that they are READY via OneGate to consider them r
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
-#, fuzzy
 msgid "Advanced service parameters"
-msgstr "Papildomi nustatymai"
+msgstr "Papildomi serviso parametrai"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
-#, fuzzy
 msgid "Service name"
 msgstr "Serviso pavadinimas"
 
@@ -5465,24 +5346,21 @@ msgid "Network Configuration"
 msgstr "Kompiuterių tinklo konfigūracija"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
-#, fuzzy
 msgid "Clone Service Template"
-msgstr "Naudotojo išsaugoti šablonai"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
-#, fuzzy
 msgid "Role name"
-msgstr "Vartotojų grupės pavadinimas"
+msgstr "Rolės pavadinimas"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:27
-#, fuzzy
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:26
 msgid "Number of VMs"
-msgstr "Adresų skaičius"
+msgstr "VM skaičius"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:35
-#, fuzzy
 msgid "VM template to create this role's VMs"
-msgstr "Šablonas siejamas su šia role"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:47
 msgid "Network Interfaces"
@@ -5609,7 +5487,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:124
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:106
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr ""
+msgstr "Laikas sekundėmis kiekvienam periodui iš '# Periods'"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:124
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
@@ -5653,9 +5531,8 @@ msgstr "Laiko formatas"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:171
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:163
-#, fuzzy
 msgid "Time expression depends on the the time format selected"
-msgstr "Laiko išraiška priklauso nuo pasirinkto laiko formato"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:173
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
@@ -5671,23 +5548,21 @@ msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:213
-#, fuzzy
 msgid "VM template content"
-msgstr "VM šablonas"
+msgstr "VM šabloni turinys"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:214
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:196
-#, fuzzy
 msgid "Advanced role parameters"
-msgstr "Papildomi nustatymai"
+msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
-#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:29
-#: ../app/tabs/users-tab/dialogs/password/html.hbs:29
+#: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:30
+#: ../app/tabs/users-tab/dialogs/password/html.hbs:30
 msgid "Change"
 msgstr "Keisti"
 
@@ -5709,9 +5584,8 @@ msgid "Recurrence"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:34
-#, fuzzy
 msgid "Get Datastores"
-msgstr "Duomenų saugyklos"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
@@ -5719,24 +5593,20 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:26
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:33
-#, fuzzy
 msgid "Storage backend"
-msgstr "saugykla"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
-#, fuzzy
 msgid "Filesystem - shared mode"
-msgstr "Failų sistemos tipas"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:29
-#, fuzzy
 msgid "Filesystem - ssh mode"
-msgstr "Failų sistemos tipas"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:30
-#, fuzzy
 msgid "Filesystem - qcow2 mode"
-msgstr "Failų sistemos tipas"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
@@ -5800,9 +5670,8 @@ msgid "Custom TM_MAD"
 msgstr "Individualizuotas TM_MAD"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
-#, fuzzy
 msgid "Datastore Type"
-msgstr "Duomenų saugykla"
+msgstr "Duomenų saugyklos tipas"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:104
 msgid "Block"
@@ -5817,9 +5686,8 @@ msgid "Gluster"
 msgstr "Gluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:114
-#, fuzzy
 msgid "Restricted directories for registering Images"
-msgstr "Ribotų teisių kanalogai"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:120
 msgid "Safe directories for registering Images"
@@ -5846,9 +5714,8 @@ msgid "Check available capacity of the Datastore before creating a new Image"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:151
-#, fuzzy
 msgid "Host bridge list"
-msgstr "Tiltas"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:153
 msgid "Space separated list of servers to add new Images to the Datastore storage"
@@ -5875,23 +5742,20 @@ msgid "Gluster volume to use for the datastore"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:180
-#, fuzzy
 msgid "Ceph pool to store Images"
-msgstr "Sukurti diską"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
-#, fuzzy
 msgid "Ceph host"
-msgstr "Ceph"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:195
-#, fuzzy
 msgid "Ceph user"
-msgstr "Ceph"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:197
 msgid "The username to interact with the Ceph cluster"
@@ -5910,9 +5774,8 @@ msgid "Staging directory for Image registration"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:219
-#, fuzzy
 msgid "RBD format"
-msgstr "Laiko formatas"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:225
 msgid "Ceph configuration file path"
@@ -5931,23 +5794,20 @@ msgid "Example: 'host' or 'host:port'"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:243
-#, fuzzy
 msgid "iSCSI user for CHAP authentication"
-msgstr "Pakeisti autentifikaciją"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:249
-#, fuzzy
 msgid "iSCSI usage for CHAP authentication"
-msgstr "Pakeisti autentifikaciją"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:251
 msgid "'Usage' of the registered secret with the authentication string."
 msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:258
-#, fuzzy
 msgid "vCenter cluster"
-msgstr "Sukurti telkinį"
+msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:260
 msgid "The vCenter Cluster that has access to this datastore."
@@ -5961,54 +5821,13 @@ msgstr ""
 msgid "Limit"
 msgstr "Limitai"
 
-#: ../app/tabs/files-tab/form-panels/create/advanced.hbs:26
-#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
-msgid "Write the Image template here"
-msgstr ""
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:34
-#, fuzzy
-msgid "File type"
-msgstr "Failų sistemos tipas"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:51
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
-msgid "Image location"
-msgstr "disko atvaizdžio vieta"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:55
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:66
-msgid "Path in OpenNebula server"
-msgstr ""
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:58
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:68
-msgid "Upload"
-msgstr "Nusiuntimas"
-
-#: ../app/tabs/files-tab/form-panels/create/wizard.hbs:66
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:77
-msgid "Path"
-msgstr "Kelias"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:51
-#: ../app/tabs/images-tab/panels/info/html.hbs:62
-msgid "Filesystem type"
-msgstr "Failų sistemos tipas"
-
-#: ../app/tabs/files-tab/panels/info/html.hbs:66
-#: ../app/tabs/images-tab/panels/info/html.hbs:77
-msgid "Running VMS"
-msgstr "Veikiančios VMS"
-
 #: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
 msgid "Write the MarketPlace template here"
 msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
-#, fuzzy
 msgid "Configuration attributes"
-msgstr "Individualizuoti atributai"
+msgstr "Konfigūracijos atributai"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
@@ -6028,17 +5847,13 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:84
 msgid "Select a role in the table for more information"
-msgstr ""
+msgstr "Pasirinkite rolę norėdami pamatyti daugiau informacijos"
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:25
-msgid "Number of VMs to instantiate with this role"
-msgstr ""
-
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:33
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
+#: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:35
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr ""
 
@@ -6103,49 +5918,49 @@ msgstr "Atnaujinkite savo viešą SSH rakto dalį!"
 msgid "Write the Security Group template here"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:35
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
+#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
+msgid "Rules"
+msgstr "Taisyklės"
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:76
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:80
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:78
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:82
 msgid "Port range"
+msgstr "Portų intervalas"
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:92
+msgid "Target Network"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:90
-#, fuzzy
-msgid "Target Network"
-msgstr "Virtualus kompiuterių tinklas"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:93
-#, fuzzy
-msgid "Any network"
-msgstr "Tinklas"
-
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:94
-#, fuzzy
-msgid "Manual network"
-msgstr "Virtualus kompiuterių tinklas"
-
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:95
-#, fuzzy
-msgid "OpenNebula Virtual Network"
-msgstr "Sukurti virtualų kompiuterių tinklą"
+msgid "Any network"
+msgstr "Bet kuris kompiuterių tinklas"
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:99
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
+msgid "Manual network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:97
+msgid "OpenNebula Virtual Network"
+msgstr ""
+
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:28
 msgid "First IP address"
 msgstr "Pirmas IP adresas"
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:119
-#, fuzzy
-msgid "+ Security Group rule"
-msgstr "Saugos grupė"
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
+msgid "Add rule"
+msgstr ""
 
-#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:130
+#: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
 msgid "Port Range"
-msgstr ""
+msgstr "Portų intervalas"
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:19
 msgid "VMs marked with <i class='fa fa-warning'></i> are waiting to be updated with the latest rules:"
@@ -6155,15 +5970,11 @@ msgstr ""
 msgid "VMs in error. The update to the latest rules failed:"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
-msgid "Rules"
-msgstr ""
-
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
-msgstr ""
+msgstr "Kopijuoti ugniasienės taisyklių rinkinį"
 
-#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr ""
 
@@ -6180,19 +5991,16 @@ msgid "Name of the physical bridge in the nodes to attach VM NICs"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:76
-#, fuzzy
 msgid "Network mode"
-msgstr "Tinklo modelis"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:79
-#, fuzzy
 msgid "Bridged"
-msgstr "Tiltas"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:80
-#, fuzzy
 msgid "Bridged & Security Groups"
-msgstr "Saugos grupė"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:81
 msgid "Bridged & ebtables VLAN"
@@ -6204,7 +6012,7 @@ msgstr "802.1Q"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:83
 msgid "VXLAN"
-msgstr ""
+msgstr "VXLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:84
 msgid "Open vSwitch"
@@ -6259,9 +6067,8 @@ msgid "Node NIC to send/receive virtual network traffic"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
-#, fuzzy
 msgid "MTU of the interface"
-msgstr "Disko tipas"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
@@ -6289,11 +6096,11 @@ msgstr "Rinkitės adresų intervalą, kad pamatyti daugiau informacijos"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
-msgstr ""
+msgstr "Pirmasis"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:58
 msgid "Last"
-msgstr ""
+msgstr "Paskutinis"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
@@ -6305,63 +6112,62 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
 msgid "Hold IP"
-msgstr ""
+msgstr "Laikyti IP"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:39
 msgid "IPv6 Link"
 msgstr "IPv6 ryšys"
 
-#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
 msgid "Edit Address Range"
 msgstr "Keisti adresų intervalą"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:22
 msgid "Reservation from Virtual Network"
 msgstr "Rezervacija iš virtualaus tinklo"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:29
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
 msgstr "Adresų skaičius"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:37
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
 msgid "Add to a new Virtual Network"
 msgstr "Įtraukti į naują virtualų tinklą"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:41
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
 msgstr "Įtraukti egzistuojančią rezervaciją"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:48
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:47
 msgid "Virtual Network Name"
 msgstr "Virtualaus tinklo vardas"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:60
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
 msgid "You can select the addresses from an specific Address Range"
 msgstr "Jūs galite rinktis adresą iš konkretaus adresų rėžio"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
 msgid "First address"
 msgstr "Pirmas adresas"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:72
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IPv4 or MAC"
 msgstr "IPv4 arba MAC"
 
-#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:57
+#: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:31
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:112
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:33
-#, fuzzy
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:32
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:123
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:34
 msgid "Advanced Options"
 msgstr "Papildomi nustatymai"
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:23
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
 msgstr "Naujas adresų intervalas"
 
-#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:36
+#: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:33
 #: ../app/sunstone/buttons.hbs:27
 msgid "Reset"
 msgstr "Atkurti"
@@ -6391,18 +6197,16 @@ msgid "Name that the resource will get for description purposes."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
-#, fuzzy
 msgid "VM Template Name"
-msgstr "Šablono pavadinimas"
+msgstr "VM šablono pavadinimas"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:40
-#, fuzzy
 msgid "Select the Datastore to store the resource"
-msgstr "Prašome pasirinkti duomenų saugyklą "
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:19
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:52
@@ -6414,14 +6218,12 @@ msgid "Write the MarketPlace Appliance template here"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:48
-#, fuzzy
 msgid "Select the Image to create the App"
-msgstr "Pasirinkti naują savininką"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
-#, fuzzy
 msgid "Templates for the App"
-msgstr "Šablono aprašymas"
+msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
@@ -6434,9 +6236,8 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
-#, fuzzy
 msgid "App template"
-msgstr "Šablonas"
+msgstr "Programėlės šablonas"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -6448,7 +6249,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:56
 msgid "Format"
-msgstr ""
+msgstr "Formatas"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:38
 msgid "Authentication driver"
@@ -6460,7 +6261,7 @@ msgstr "Atnaujinti slaptažodį"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:51
 msgid "Table Order"
-msgstr ""
+msgstr "Lentelės tvarka"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:60
 msgid "Language"
@@ -6475,9 +6276,8 @@ msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
-#, fuzzy
 msgid "Select Secondary Groups"
-msgstr "Antrinės grupės"
+msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -6496,14 +6296,12 @@ msgid "core"
 msgstr ""
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:39
-#, fuzzy
 msgid "public"
-msgstr "Viašas"
+msgstr "viešas"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
-#, fuzzy
 msgid "custom"
-msgstr "Individualizuotas"
+msgstr "individualizuotas"
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
 msgid "Image / Size-Format"
@@ -6524,14 +6322,13 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:40
 msgid "Resize"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:75
-#, fuzzy
 msgid "Real memory"
-msgstr "Naudojama atmintis"
+msgstr "Tikroji atmintis"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:37
 msgid "LCM State"
@@ -6541,31 +6338,24 @@ msgstr ""
 msgid "Deploy ID"
 msgstr ""
 
+#: ../app/tabs/vms-tab/panels/info/html.hbs:62
+msgid "Virtual Router ID"
+msgstr "Virtualaus maršrutizatoriaus ID"
+
 #: ../app/tabs/vms-tab/panels/info/html.hbs:87
 msgid "Monitoring"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
-#, fuzzy
 msgid "Update Configuration"
-msgstr "Kompiuterių tinklo konfigūracija"
+msgstr "Koreguoti konfigūraciją"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:27
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:27
-msgid "Virtual Machine ID"
-msgstr "Virtualios mašinos ID"
-
-#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:31
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:31
+#: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
 msgid "Disk ID"
 msgstr "Disko ID"
 
@@ -6573,15 +6363,15 @@ msgstr "Disko ID"
 msgid "Resize VM capacity"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:33
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:38
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:36
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:30
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:37
 msgid "Enforce"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:35
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:40
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:38
+#: ../app/tabs/vms-tab/dialogs/resize/html.hbs:32
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:39
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:39
 msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr ""
 
@@ -6604,19 +6394,19 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
 msgid "Save as Template"
-msgstr ""
+msgstr "Išsaugoti kaip šabloną"
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 msgid "Template name"
-msgstr ""
+msgstr "Šablono pavadinimas"
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:40
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:44
+#: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
 msgid "Save As Template"
-msgstr ""
+msgstr "Išsaugoti kaip šabloną"
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6624,19 +6414,19 @@ msgstr "Pridėti naują diską"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
 msgid "Migrate Virtual Machine"
-msgstr ""
+msgstr "Migruoti virtualią mašiną"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:30
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:27
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:29
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:28
 msgid "Select a Host"
 msgstr "Pasirinkite serverį"
 
-#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:47
-#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:45
+#: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:46
+#: ../app/tabs/vms-tab/dialogs/deploy/html.hbs:46
 msgid "Select a datastore"
 msgstr "Pasirinkti duomenų saugyklą"
 
-#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
+#: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:28
 msgid "Snapshot name"
 msgstr ""
 
@@ -6648,76 +6438,101 @@ msgstr ""
 msgid "Disk Saveas"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:37
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 msgid "Snapshot ID"
 msgstr ""
 
-#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:43
+#: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
-msgstr ""
+msgstr "Naujas disko atvaizdo pavadinimas"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
-#, fuzzy
 msgid "Get Images"
-msgstr "Atvaizdžiai"
+msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:38
-#, fuzzy
-msgid "Operating System image"
-msgstr "Operacinė sistema"
+#: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
+msgid "Write the Image template here"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:39
+msgid "Operating System image"
+msgstr "Operacinės sistemos diskas"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
 msgid "Readonly CD-ROM"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:55
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
 msgid "This image is persistent"
 msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:70
-msgid "Empty disk image"
+msgid "Image location"
+msgstr "disko atvaizdžio vieta"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:74
+msgid "Path in OpenNebula server"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:97
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:76
+msgid "Upload"
+msgstr "Nusiuntimas"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:79
+msgid "Empty disk image"
+msgstr "Tuščias disko atvaizdas"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
+msgid "Path"
+msgstr "Kelias"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
 msgid "Disk provisioning type"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:118
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
 msgid "Bus adapter controller"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:135
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:146
 msgid "BUS"
 msgstr "MAGISTRALĖ"
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:169
-#, fuzzy
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:180
 msgid "Target device"
-msgstr "Tikslas"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
 msgstr ""
 
+#: ../app/tabs/images-tab/panels/info/html.hbs:64
+msgid "Filesystem type"
+msgstr "Failų sistemos tipas"
+
+#: ../app/tabs/images-tab/panels/info/html.hbs:79
+msgid "Running VMS"
+msgstr "Veikiančios VMS"
+
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:19
 msgid "Clone Image"
-msgstr ""
+msgstr "Kopijuoti disko atvaizdą"
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:26
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:27
 msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
-#: ../app/tabs/images-tab/dialogs/clone/html.hbs:35
+#: ../app/tabs/images-tab/dialogs/clone/html.hbs:36
 msgid "You can select a different target datastore"
 msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:37
 msgid "Sign Out"
-msgstr ""
+msgstr "Atsijungti"
 
 #: ../app/sunstone/buttons.hbs:83
 msgid "Wizard"
@@ -6740,9 +6555,8 @@ msgid "Filter"
 msgstr "Atrinkti"
 
 #: ../app/utils/accounting/html.hbs:52
-#, fuzzy
 msgid "Get accounting"
-msgstr "Gauti apskaitą"
+msgstr ""
 
 #: ../app/utils/accounting/html.hbs:68
 msgid "There are no accounting records"
@@ -6754,13 +6568,12 @@ msgid "Date"
 msgstr "Data"
 
 #: ../app/utils/accounting/html.hbs:104
-#, fuzzy
 msgid "Accounting Tables"
-msgstr "Apskaitymas"
+msgstr ""
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr ""
+msgstr "Diskai"
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
@@ -6775,29 +6588,26 @@ msgid "password"
 msgstr "slaptažodis"
 
 #: ../app/utils/user-inputs/row.hbs:14
-#, fuzzy
 msgid "number"
-msgstr "Skaičius"
+msgstr "skaičius"
 
 #: ../app/utils/user-inputs/row.hbs:15
 msgid "number (float)"
-msgstr ""
+msgstr "skaičius (realus)"
 
 #: ../app/utils/user-inputs/row.hbs:17
 msgid "range (float)"
-msgstr ""
+msgstr "intervalas (realių skaičių)"
 
 #: ../app/utils/user-inputs/row.hbs:27 ../app/utils/user-inputs/row.hbs:32
 #: ../app/utils/user-inputs/row.hbs:49 ../app/utils/user-inputs/row.hbs:66
 #: ../app/utils/user-inputs/row.hbs:76
-#, fuzzy
 msgid "Default value"
-msgstr "Numatytas"
+msgstr "Numatytoji reikšmė"
 
 #: ../app/utils/user-inputs/row.hbs:72
-#, fuzzy
 msgid "Options"
-msgstr "Veiksmai"
+msgstr "Parinktys"
 
 #: ../app/utils/user-inputs/row.hbs:73
 msgid "Comma-separated list of options for the drop-down select input"
@@ -6810,7 +6620,7 @@ msgstr "Ieškoti"
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
 msgid "There is no data available"
-msgstr ""
+msgstr "Nėra duomenų"
 
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
@@ -6818,19 +6628,19 @@ msgstr ""
 msgid "Confirm"
 msgstr "Patvirtinti"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:25
-#: ../app/utils/dialogs/confirm/html.hbs:26
+#: ../app/utils/dialogs/generic-confirm/html.hbs:26
+#: ../app/utils/dialogs/confirm/html.hbs:25
 msgid "You have to confirm this action."
 msgstr "Jūs turite patvirtinti veiksmą."
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:27
-#: ../app/utils/dialogs/confirm/html.hbs:28
+#: ../app/utils/dialogs/generic-confirm/html.hbs:28
+#: ../app/utils/dialogs/confirm/html.hbs:27
 msgid "Do you want to proceed?"
 msgstr "Ar norite tęsti?"
 
-#: ../app/utils/dialogs/generic-confirm/html.hbs:30
-#: ../app/utils/dialogs/confirm/html.hbs:31
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:37
+#: ../app/utils/dialogs/generic-confirm/html.hbs:31
+#: ../app/utils/dialogs/confirm/html.hbs:30
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:36
 msgid "OK"
 msgstr "Gerai"
 
@@ -6855,15 +6665,14 @@ msgid "These values can be negative, in that case you'll be actually increasing 
 msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
-#, fuzzy
 msgid "Reserved Memory in KB"
-msgstr "Naudojama atmintis"
+msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
 
-#: ../app/utils/dialogs/confirm-with-select/html.hbs:28
+#: ../app/utils/dialogs/confirm-with-select/html.hbs:27
 msgid "You need to select something."
 msgstr "Jums reikia kažką pasirinkti."
 
@@ -6872,14 +6681,12 @@ msgid "Ownership"
 msgstr "Nuosavybė"
 
 #: ../app/utils/nics-section/html.hbs:9
-#, fuzzy
 msgid "Network Interface"
-msgstr "Tinklo sąsajos"
+msgstr "Tinklo jungtis"
 
 #: ../app/utils/nics-section/dd.hbs:5
-#, fuzzy
 msgid "Interface"
-msgstr "Tinklo sąsajos"
+msgstr "Jungtis"
 
 #: ../app/utils/nics-section/dd.hbs:14
 msgid "Select a Network"
@@ -6887,7 +6694,7 @@ msgstr "Pasirinkite kompiuterių tinklą"
 
 #: ../app/utils/nics-section/dd.hbs:27
 msgid "Force IPv4:"
-msgstr ""
+msgstr "Garantuoti IPv4:"
 
 #: ../app/utils/nics-section/dd.hbs:29
 msgid "Optionally, you can force the IP assigned to the network interface."
@@ -6906,21 +6713,20 @@ msgid "You can add Security Groups to this network interface. These IDs do not o
 msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:22
-#, fuzzy
 msgid "Key"
-msgstr "Raktų pora"
+msgstr "Raktas"
 
 #: ../app/utils/custom-tags-table/html.hbs:23
 msgid "Value"
-msgstr ""
+msgstr "Reikšmė"
 
 #: ../app/utils/showback/html.hbs:19
 msgid "Filter by user"
-msgstr ""
+msgstr "Grupuoti pagal naudotoją"
 
 #: ../app/utils/showback/html.hbs:23
 msgid "Filter by group"
-msgstr ""
+msgstr "Grupuoti pagal grupę"
 
 #: ../app/utils/showback/html.hbs:28
 msgid "Get showback"
@@ -6932,11 +6738,11 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
-msgstr ""
+msgstr "Metai"
 
 #: ../app/utils/showback/html.hbs:61
 msgid "Month"
-msgstr ""
+msgstr "Mėnuo"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
@@ -6944,332 +6750,13 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
-msgstr ""
+msgstr "Valandos"
 
-#~ msgid "VM User"
-#~ msgstr "VM naudotojas"
+#~ msgid "Please select a datastore for this file"
+#~ msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
 
-#~ msgid "Host name missing!"
-#~ msgstr "Nenurodytas serverio vardas!"
-
-#, fuzzy
-#~ msgid "Public Directory"
-#~ msgstr "Viešas raktas"
-
-#, fuzzy
-#~ msgid "Total MB"
-#~ msgstr "Iš viso"
-
-#, fuzzy
-#~ msgid "Read Length"
-#~ msgstr "Tik skaitymui"
-
-#~ msgid "This will suspend selected machines"
-#~ msgstr "Tai sustabdys pasirinktas virtualias mašinas"
-
-#~ msgid "This will resume selected VMs"
-#~ msgstr "Tai atstatys pasirinktas virtualias mašinas"
-
-#, fuzzy
-#~ msgid "This will initiate the terminate process in the selected VMs"
-#~ msgstr "Tai inicijuos išjungimo proecesą pasirinktai virtualiai mašinai"
-
-#, fuzzy
-#~ msgid "This will initiate the terminate-hard (forced) process in the selected VMs"
-#~ msgstr "Tai inicijuos išjungimo proecesą pasirinktai virtualiai mašinai"
-
-#~ msgid "ACTION"
-#~ msgstr "Veiksmas"
-
-#~ msgid "TIME"
-#~ msgstr "Laikas"
-
-#~ msgid "MESSAGE"
-#~ msgstr "Žinutė"
-
-#~ msgid "Add another disk"
-#~ msgstr "Pridėti naują diską"
-
-#~ msgid "User Name"
-#~ msgstr "Naudotojo vardas"
-
-#~ msgid "IO"
-#~ msgstr "IO"
-
-#~ msgid "Arch"
-#~ msgstr "Arch"
-
-#~ msgid "TCP Firewall"
-#~ msgstr "TCP ugniasienė"
-
-#~ msgid "UDP Firewall"
-#~ msgstr "UDP ungniasienė"
-
-#~ msgid "Drop"
-#~ msgstr "Išmesti"
-
-#~ msgid "TYPE"
-#~ msgstr "TIPAS"
-
-#~ msgid "Description of the template"
-#~ msgstr "Šablono aprašymas"
-
-#~ msgid "Logo for the template."
-#~ msgstr "Šablono logotipas"
-
-#~ msgid "VM Name"
-#~ msgstr "VM pavadinimas"
-
-#, fuzzy
-#~ msgid "Description of the Virtual Router"
-#~ msgstr "Virtualaus kompiuterių tinklo apibūdinimas"
-
-#~ msgid "Name for this template"
-#~ msgstr "Šablono pavadinimas"
-
-#~ msgid "Description of the service"
-#~ msgstr "Serviso aprašymas"
-
-#~ msgid "Add another Network"
-#~ msgstr "Pridėti kitą kompiuterių tinklą"
-
-#~ msgid "Add another role"
-#~ msgstr "Pridėti vartotojų grupė"
-
-#~ msgid "Presets"
-#~ msgstr "Išankstinės parinktys"
-
-#~ msgid "Managers"
-#~ msgstr "Tvarkytojai"
-
-#~ msgid "Safe Directories"
-#~ msgstr "Saugūs katalogai"
-
-#~ msgid "Human readable description of the file for other users."
-#~ msgstr "Failo aprašymas matomas kitiems vartotojams."
-
-#~ msgid "Type of the file."
+#~ msgid "File type"
 #~ msgstr "Failo tipas"
 
-#~ msgid "Select the datastore for this file"
-#~ msgstr "Prašome pasirinkti duomenų saugyklą "
-
-#~ msgid "Provide a path"
-#~ msgstr "Nurodykite kelią iki direktorijos"
-
-#~ msgid "Path to the original file that will be copied to the file repository."
-#~ msgstr "Kelias į originalų failą, kuris bus kopijuojamas į repozitoriją"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace for other users."
-#~ msgstr "Failo aprašymas matomas kitiems vartotojams."
-
-#~ msgid "Number of addresses in the range"
-#~ msgstr "Adresų skaičius intervale"
-
-#~ msgid "Description of the Virtual Network"
-#~ msgstr "Virtualaus kompiuterių tinklo apibūdinimas"
-
-#~ msgid "Firewall"
-#~ msgstr "Ugniasienė"
-
-#~ msgid "VN MAD"
-#~ msgstr "VN MAD"
-
-#~ msgid "Add another Address Range"
-#~ msgstr "Pridėkite kitą adresų intervalą"
-
-#~ msgid "Base network address. For example, 192.168.1.0"
-#~ msgstr "Bazinis tinklo adresas. Pavyzdžiui, 192.168.1.0"
-
-#~ msgid "Network mask. For example, 255.255.255.0"
-#~ msgstr "Tinklo kaukė. Pavyzdžiui, 255.255.255.0"
-
-#, fuzzy
-#~ msgid "Human readable description of the MarketPlace App for other users."
-#~ msgstr "Failo aprašymas matomas kitiems vartotojams."
-
-#, fuzzy
-#~ msgid "User Groups"
-#~ msgstr "Grupės"
-
-#~ msgid "Name that the Image will get. Every image must have a unique name."
-#~ msgstr "Disko pavadinimas. Kiekvienas diskas turi turėti unikalų pavadinimą."
-
-#~ msgid "Human readable description of the image for other users."
-#~ msgstr "Disko aprašymas matomas kitiems naudotojams."
-
-#~ msgid "Select the datastore for this image"
-#~ msgstr "Prašome pasirinkti duomenų saugyklą šiam diskui"
-
-#~ msgid "Empty datablock"
-#~ msgstr "Tuščias duomenų blokas"
-
-#~ msgid "Size of the datablock in MB."
-#~ msgstr "Duomenų bloko dydis MB"
-
-#, fuzzy
-#~ msgid "Controller for the image."
-#~ msgstr "Disko tipas"
-
-#~ msgid "Add another attribute"
-#~ msgstr "Įtraukti kitą atributą"
-
-#~ msgid "Files & Kernels"
-#~ msgstr "Failai ir branduoliai"
-
-#~ msgid "Publisher"
-#~ msgstr "Leidėjas"
-
-#~ msgid "OneFlow - Templates"
-#~ msgstr "OneFlow - šablonai"
-
-#~ msgid "OneFlow - Template"
-#~ msgstr "OneFlow - šablonas"
-
-#~ msgid "There are no saved templates available"
-#~ msgstr "Nėra išsaugotų šablonų"
-
-#~ msgid "The list of users is empty"
-#~ msgstr "Naudotojų sąrašas tuščias"
-
-#~ msgid "User Virtual Machines"
-#~ msgstr "Naudotojo virtualios mašinos"
-
-#~ msgid "Delete User"
-#~ msgstr "Ištrinti naudotoją"
-
-#~ msgid "Update User Quota"
-#~ msgstr "Atnaujinti naudotojo limitus"
-
-#~ msgid "Change Capacity"
-#~ msgstr "Keisti talpą"
-
-#~ msgid "You have to provide a username and password"
-#~ msgstr "Turi pateikti naudotojo vardą ir slaptažodį"
-
-#~ msgid "CentOS"
-#~ msgstr "CentOS"
-
-#~ msgid "Debian"
-#~ msgstr "Debian"
-
-#~ msgid "Fedora"
-#~ msgstr "Fedora"
-
-#~ msgid "Linux"
-#~ msgstr "Linux"
-
-#~ msgid "Redhat"
-#~ msgstr "Redhat"
-
-#~ msgid "Ubuntu"
-#~ msgstr "Ubuntu"
-
-#~ msgid "Windows XP/2003"
-#~ msgstr "Windows XP/2003"
-
-#~ msgid "Windows 8"
-#~ msgstr "Windows 8"
-
-#~ msgid "Local Disk"
-#~ msgstr "Lokalus diskas"
-
-#~ msgid "SSH Keys"
-#~ msgstr "SSH raktai"
-
-#~ msgid "Remove from group"
-#~ msgstr "Pašalinti iš grupės"
-
-#~ msgid "VLAN"
-#~ msgstr "VLAN"
-
-#~ msgid "SIZE"
-#~ msgstr "DYDIS"
-
-#~ msgid "IMAGES"
-#~ msgstr "Diskai"
-
-#~ msgid "USERS"
-#~ msgstr "Naudotojai"
-
-#~ msgid "VMware VMFS"
-#~ msgstr "VMware VMFS"
-
-#~ msgid "Block LVM"
-#~ msgstr "Blokinis LVM"
-
-#~ msgid "VMware"
-#~ msgstr "VMware"
-
-#~ msgid "VMFS"
-#~ msgstr "VMFS"
-
-#~ msgid "XEN"
-#~ msgstr "XEN"
-
-#~ msgid "Dummy"
-#~ msgstr "Fiktyvus"
-
-#~ msgid "Default (dummy)"
-#~ msgstr "Numatytas (fiktyvus)"
-
-#~ msgid "FS type"
-#~ msgstr "Failų sistemos tipas"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "link"
-#~ msgstr "nuoroda"
-
-#~ msgid "Catalog"
-#~ msgstr "Katalogas"
-
-#~ msgid "Filter by User"
-#~ msgstr "Grupuoti pagal naudotoją"
-
-#~ msgid "Saved"
-#~ msgstr "Išsaugota"
-
-#~ msgid "Repeat Password"
-#~ msgstr "Pakartokite slaptažodį"
-
-#~ msgid "Add User"
-#~ msgstr "Pridėti naudotoją"
-
-#~ msgid "Guest OS"
-#~ msgstr "Svečio OS"
-
-#~ msgid "HD"
-#~ msgstr "HD"
-
-#~ msgid "FD"
-#~ msgstr "FD"
-
-#~ msgid "NETWORK"
-#~ msgstr "TINKLAS"
-
-#~ msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
-#~ msgstr "Įtraukti PCI kontrolerį, kuris suteikia \"bridge-to-bridge\" galimybę tik VMWare."
-
-#~ msgid "xen"
-#~ msgstr "xen"
-
-#~ msgid "vmware"
-#~ msgstr "vmware"
-
-#~ msgid "LDAP"
-#~ msgstr "LDAP"
-
-#~ msgid "Step 2: Select a template"
-#~ msgstr "2 žingsnis: pasirinkite šabloną"
-
-#~ msgid "Step 3: Fill the required inputs"
-#~ msgstr "3 žingnsis: užpildykite reikalingus laukus"
-
-#~ msgid "KEY"
-#~ msgstr "RAKTAS"
-
-#~ msgid "VALUE"
-#~ msgstr "REIKŠMĖ"
+#~ msgid "Virtual Machine ID"
+#~ msgstr "Virtualios mašinos ID"
