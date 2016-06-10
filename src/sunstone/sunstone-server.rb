@@ -495,14 +495,17 @@ get '/spice' do
 end
 
 get '/version' do
-    version = {:version => OpenNebula::VERSION, :remote_version => nil}
+    version = {}
 
     if (remote_version_url = $conf[:remote_version])
-        remote_version = Net::HTTP.get(URI(remote_version_url)).strip rescue nil
-
-        if !remote_version.nil? && !remote_version.empty?
-            version[:remote_version] = remote_version
+        begin
+            version = JSON.parse(Net::HTTP.get(URI(remote_version_url)))
+        rescue Exception
         end
+    end
+
+    if !version[:version] || version[:version].empty?
+        version[:version] = OpenNebula::VERSION
     end
 
     [200, version.to_json]
