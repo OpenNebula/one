@@ -501,8 +501,22 @@ public:
      */
     VirtualNetworkTemplate * clone_template() const
     {
-        return new VirtualNetworkTemplate(
+        VirtualNetworkTemplate * new_vn = new VirtualNetworkTemplate(
                 *(static_cast<VirtualNetworkTemplate *>(obj_template)));
+
+        //Clone non-template attributes
+        //  AUTOMATIC_VLAN_ID
+        //  VLAN_ID
+        if ( vlan_id.empty() )
+        {
+            new_vn->replace("AUTOMATIC_VLAN_ID", "NO");
+        }
+        else
+        {
+            new_vn->replace("VLAN_ID", vlan_id);
+        }
+
+        return new_vn;
     };
 
 private:

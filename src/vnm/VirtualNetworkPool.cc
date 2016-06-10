@@ -384,7 +384,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
 
     ostringstream oss;
 
-    if ( !vn->vlan_id.empty() )
+    if ( !vn->vlan_id.empty() || !vn->vlan_id_automatic )
     {
         return 0;
     }
