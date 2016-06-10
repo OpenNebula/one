@@ -149,7 +149,6 @@ void Datastore::disk_attribute(
     if (VirtualMachine::is_volatile(disk))
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
-        disk->replace("TYPE", Image::disk_type_to_str(get_disk_type()));
     }
 }
 

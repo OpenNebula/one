@@ -530,9 +530,9 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</auth>\n";
             }
         }
-        else if ( type == "RBD" || type == "RBD_CDROM" )
+        else if ( type == "RBD" || type == "RBD_CDROM" || disk_type == "RBD" )
         {
-            if ( type == "RBD" )
+            if (type == "RBD" || disk_type == "RBD")
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
             }
