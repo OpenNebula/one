@@ -1386,7 +1386,7 @@ class VCenterVm
             vm          = connection.find_vm_template(deploy_id)
             xml         = REXML::Document.new xml_text
 
-            reconfigure_vm(vm, xml, false)
+            reconfigure_vm(vm, xml, false, hostname)
 
             vm.PowerOnVM_Task.wait_for_completion
             return vm.config.uuid
@@ -2243,7 +2243,7 @@ private
                 :spec   => clone_spec).wait_for_completion
         end
 
-        reconfigure_vm(vm, xml, true)
+        reconfigure_vm(vm, xml, true, hostname)
 
         # Power on the VM
         vm.PowerOnVM_Task.wait_for_completion
@@ -2262,7 +2262,7 @@ private
     ########################################################################
     # Reconfigures a VM with new deployment description
     ########################################################################
-    def self.reconfigure_vm(vm, xml, newvm)
+    def self.reconfigure_vm(vm, xml, newvm, hostname)
         vm_uuid     = vm.config.uuid
         vmid        = xml.root.elements["/VM/ID"].text
         context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
@@ -2428,6 +2428,8 @@ private
 
         if !disks.nil?
             disk_array = []
+            hid         = VIClient::translate_hostname(hostname)
+            connection  = VIClient.new(hid)
             disks.each{|disk|
                ds_name    = disk.elements["DATASTORE"].text
                img_name   = disk.elements["SOURCE"].text
@@ -2463,7 +2465,7 @@ private
     # @params img_name[String] path of the image
     # @params size_kb[String] size in kb of the disk
     # @params vm[RbVmomi::VIM::VirtualMachine] VM if called from instance
-    # @params connection[ViClient::conneciton] connection if called from instance
+    # @params connection[ViClient::connectoon] connection if called from instance
     ############################################################################
     def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb, vm=nil, connection=nil)
         only_return = true
