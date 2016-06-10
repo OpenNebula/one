@@ -29,7 +29,15 @@ define(function(require) {
 
   function _setup() {
     $('#li_upgrade-top-tab > a').on("click", function(e){
-      window.location = config['upgrade']['url'];
+      var redirect_port = config['upgrade']['redirect_port'];
+      var upgrade_url = config['upgrade']['url'];
+
+      if (redirect_port) {
+        window.location = document.URL.replace(/(https?:\/\/)([^:\/]+).*$/,"$1$2:"+redirect_port)
+      } else {
+        window.location = upgrade_url
+      }
+
       return false;
     });
 
