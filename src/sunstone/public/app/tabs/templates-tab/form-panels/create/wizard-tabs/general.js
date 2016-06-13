@@ -235,6 +235,8 @@ define(function(require) {
         $('.modify_datastore', context).val('list');
         $('.initial_datastore', context).val(ds.initial);
         $('.available_datastores', context).val(ds.params);
+
+        delete templateJSON["USER_INPUTS"]["VCENTER_DATASTORE"];
       }
 
       if (templateJSON["USER_INPUTS"]["RESOURCE_POOL"]) {
@@ -242,17 +244,23 @@ define(function(require) {
         $('.modify_rp', context).val('list');
         $('.initial_rp', context).val(rp.initial);
         $('.available_rps', context).val(rp.params);
+
+        delete templateJSON["USER_INPUTS"]["RESOURCE_POOL"];
       }
     }
 
     if (templateJSON["VCENTER_DATASTORE"]) {
       $('.modify_datastore', context).val('fixed');
       WizardFields.fillInput($('.initial_datastore', context), templateJSON["VCENTER_DATASTORE"]);
+
+      delete templateJSON["VCENTER_DATASTORE"];
     }
 
     if (templateJSON["RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
       WizardFields.fillInput($('.initial_rp', context), templateJSON["RESOURCE_POOL"]);
+
+      delete templateJSON["RESOURCE_POOL"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);
