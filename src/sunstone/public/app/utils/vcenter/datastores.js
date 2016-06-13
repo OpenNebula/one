@@ -143,7 +143,7 @@ define(function(require) {
             $.each(datastores, function(id, datastore){
               var trow = $(
                 '<tr class="vcenter_datastore">' +
-                  '<td><input type="checkbox" class="check_item" checked/></td>' +
+                  '<td><input type="checkbox" class="check_item"/></td>' +
                   '<td>' + datastore.name + '</td>' +
                   '<td>' + datastore.cluster + '</td>' +
                   '<td><div class="vcenter_datastore_response"/></td>' +

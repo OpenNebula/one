@@ -139,7 +139,7 @@ define(function(require) {
           $.each(response, function(id, image) {
               var trow = $(
                 '<tr class="vcenter_image">' +
-                  '<td><input type="checkbox" class="check_item" checked/></td>' +
+                  '<td><input type="checkbox" class="check_item"/></td>' +
                   '<td>' + image.name + '</td>' +
                   '<td>' + image.size + ' MB</td>' +
                   '<td><div class="vcenter_image_response"/></td>' +

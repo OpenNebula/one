@@ -108,7 +108,7 @@ define(function(require) {
                     '</li>' +
                     '<li> ' +
                       '<label class="inline">' +
-                        '<input type="checkbox" class="check_all" checked/>' +
+                        '<input type="checkbox" class="check_all"/>' +
                         Locale.tr("Select All") +
                       '</label>' +
                     '</li>' +
