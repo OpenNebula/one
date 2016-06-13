@@ -254,13 +254,43 @@
       <input type="text" name="iscsi_usage" id="iscsi_usage" />
     </div>
     <div class="medium-6 columns">
-      <label for="vceter_cluster">
+      <label for="vcenter_cluster">
         {{tr "vCenter cluster"}}
         <span class="tip">
           {{tr "The vCenter Cluster that has access to this datastore."}}
         </span>
       </label>
       <input type="text" name="vcenter_cluster" id="vcenter_cluster" />
+    </div>
+    <div class="medium-6 columns end">
+      <label for="vcenter_adapter_type">
+        {{tr "Bus adapter controller"}}
+      </label>
+      <select name="vcenter_adapter_type" id="vcenter_adapter_type">
+        <option value="" selected="selected"></option>
+        <option value="lsiLogic">lsiLogic</option>
+        <option value="ide">ide</option>
+        <option value="busLogic">busLogic</option>
+        <option value="custom">custom</option>
+      </select>
+      <div>
+        <input type="text" id="custom_vcenter_adapter_type" name="custom_vcenter_adapter_type" />
+      </div>
+    </div>
+    <div class="medium-6 columns end">
+      <label for="vcenter_disk_type">
+        {{tr "Disk provisioning type"}}
+      </label>
+      <select name="vcenter_disk_type" id="vcenter_disk_type">
+        <option value="" selected="selected"></option>
+        <option value="thin">Thin</option>
+        <option value="thick">Thick</option>
+        <option value="eagerZeroedThick">Eager Zeroed Thick</option>
+        <option value="custom">custom</option>
+      </select>
+      <div>
+        <input type="text" id="custom_vcenter_disk_type" name="custom_vcenter_disk_type" />
+      </div>
     </div>
   </div>
 </form>
