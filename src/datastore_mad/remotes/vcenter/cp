@@ -107,11 +107,18 @@ def vmdk_info(file)
     end
 
     case get_type(file_path).strip
-    when "application/octet-stream", "application/x-iso9660-image"
+    when "application/octet-stream"
         return {
             :type   => :standalone,
             :file   => file_path,
             :dir    => File.dirname(file_path)
+        }
+    when "application/x-iso9660-image"
+        return {
+            :type   => :standalone,
+            :file   => file_path,
+            :dir    => File.dirname(file_path),
+            :extension => '.iso'
         }
     when "text/plain"
         info = {
@@ -202,6 +209,7 @@ if is_remote?(file_path) || needs_unpack?(file_path)
 end
 
 info = vmdk_info(file_path)
+extension = info[:extension] || ''
 
 case info[:type]
 when :standalone
@@ -214,7 +222,8 @@ end
 files_to_upload.each_with_index do |f, index|
     path = "#{target_path}/#{File.basename(f)}"
     if index == files_to_upload.size - 1
-        uploader_args = hostname + " " + ds_name + " " + path + " " + f
+        uploader_args = hostname + " " + ds_name + " " +
+            "#{path}#{extension}" + " " + f
     else
         uploader_args = hostname + " " + ds_name + " " +
                         path + " " + f + " &> /dev/null"
