@@ -177,8 +177,17 @@ define(function(require) {
       $('div.network_mode_description[value="' + $(this).val() + '"]').show();
     });
 
+    $('select[wizard_field=AUTOMATIC_VLAN_ID]', context).change(function(){
+      if($(this).val() != "") {
+        $('input[wizard_field="VLAN_ID"]', context).hide().prop('wizard_field_disabled', true);
+      } else {
+        $('input[wizard_field="VLAN_ID"]', context).show().prop('wizard_field_disabled', false);
+      }
+    });
+
     //Initialize shown options
     $('#network_mode', context).trigger("change");
+    $('select[wizard_field=AUTOMATIC_VLAN_ID]', context).trigger("change");
 
     this.securityGroupsTable.initialize();
 
@@ -329,6 +338,14 @@ define(function(require) {
     $("div.mode_param [wizard_field]", context).prop('wizard_field_disabled', true).removeAttr('required');
 
     WizardFields.fillInput($('input#vn_mad', context), element.TEMPLATE["VN_MAD"]);
+
+    if (element.VLAN_ID_AUTOMATIC == 1){
+      $('select[wizard_field=AUTOMATIC_VLAN_ID]', context).val("YES").
+                                attr('disabled', 'disabled').trigger("change");
+    } else {
+      $('select[wizard_field=AUTOMATIC_VLAN_ID]', context).val("").
+                                attr('disabled', 'disabled').trigger("change");
+    }
 
     WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
     WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);

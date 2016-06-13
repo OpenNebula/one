@@ -135,10 +135,15 @@
       </div>
       <div class="row">
         <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch custom">
-          <label for="vlan_id">
+          <label>
             {{tr "VLAN ID"}}
+            <select wizard_field="AUTOMATIC_VLAN_ID">
+              <option value="YES">{{tr "Automatic VLAN ID"}}</option>
+              <option value="NO">{{tr "No VLAN network"}}</option>
+              <option value="">{{tr "Manual VLAN ID"}}</option>
+            </select>
+            <input type="number" wizard_field="VLAN_ID"/>
           </label>
-          <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />
         </div>
         <div class="medium-3 columns left mode_param 8021Q vxlan custom">
           <label for="phydev">
