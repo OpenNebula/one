@@ -1807,12 +1807,12 @@ class VCenterVm
       str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
       str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s           << " "
       str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s           << " "
-      str_info << "ESX_HOST='"                  << @esx_host.to_s        << "' "
+      str_info << "ESX_HOST=\\\""               << @esx_host.to_s        << "\\\" "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
       str_info << "VMWARETOOLS_VERSION="        << @vmtools_ver.to_s     << " "
       str_info << "VMWARETOOLS_VERSION_STATUS=" << @vmtools_verst.to_s   << " "
-      str_info << "RESOURCE_POOL='"             << @vm.resourcePool.name << "' "
+      str_info << "RESOURCE_POOL=\\\""          << @vm.resourcePool.name << "\\\" "
     end
 
     ########################################################################
