@@ -248,7 +248,7 @@ error_vn_mad:
     goto error_common;
 
 error_bridge:
-    ose << "No BRIDGE in template for Virtual Network.";
+    ose << "BRIDGE or PHY_DEV have to be set in Virtual Network template.";
     goto error_common;
 
 error_db:
