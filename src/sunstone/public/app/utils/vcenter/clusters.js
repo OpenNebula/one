@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaHost = require('opennebula/host');
   var OpenNebulaError = require('opennebula/error');
   var Notifier = require('utils/notifier');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./clusters/html');
 
@@ -93,7 +94,7 @@ define(function(require) {
 
             $(".vcenter_datacenter_list", context).append(content);
           } else {
-            var tableId = "vcenter_network_table_" + datacenter_name;
+            var tableId = "vcenter_cluster_table_" + UniqueId.id();
             content = 
               '<fieldset>' +
                 '<legend>' +
@@ -109,14 +110,14 @@ define(function(require) {
                   '</ul>' +
                 '</legend>' +
                 '<div class="row">' +
-                  '<div class="large-12 columns" id="vcenter_cluster_table_' + datacenter_name + '">' +
+                  '<div class="large-12 columns" id="' + tableId + '">' +
                   '</div>' +
                 '</div>';
             '</fieldset>';
 
             $(".vcenter_datacenter_list", context).append(content);
 
-            var tbody = $('#vcenter_cluster_table_' + datacenter_name, context);
+            var tableDiv = $('#' + tableId, context);
 
             $.each(clusters, function(id, cluster_name) {
               var row = $('<div class="vcenter_cluster">' +
@@ -132,7 +133,7 @@ define(function(require) {
                     '<div class="large-2 columns vcenter_host_result">' +
                     '</div>' +
                   '</div>' +
-                '</div>').appendTo(tbody);
+                '</div>').appendTo(tableDiv);
 
               $(".cluster_name", row).data("cluster_name", cluster_name);
               //$(".cluster_name", row).data("datacenter_name", datacenter_name);

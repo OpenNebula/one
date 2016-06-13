@@ -23,6 +23,7 @@ define(function(require) {
   var CustomLayoutDataTable = require('utils/custom-layout-table');
   var UserInputs = require('utils/user-inputs');
   var Notifier = require('utils/notifier');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./templates/html');
   var EmptyTableTemplate = require('hbs!./templates/empty-table');
@@ -98,7 +99,7 @@ define(function(require) {
 
             $(".vcenter_datacenter_list", context).append(content);
           } else {
-            var tableId = "vcenter_template_table_" + datacenter_name;
+            var tableId = "vcenter_template_table_" + UniqueId.id();
             content = 
               '<fieldset>' +
                 '<legend>' +

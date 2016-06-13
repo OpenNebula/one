@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
   var Notifier = require('utils/notifier');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./datastores/html');
 
@@ -98,7 +99,7 @@ define(function(require) {
 
             $(".vcenter_datacenter_list", context).append(content);
           } else {
-            var tableId = "vcenter_network_table_" + datacenter_name;
+            var tableId = "vcenter_datastore_table" + UniqueId.id();
             content = 
               '<fieldset>' +
                 '<legend>' +
@@ -120,7 +121,7 @@ define(function(require) {
                 '</legend>' +
                 '<div class="row">' +
                   '<div class="large-12 columns">' +
-                    '<table class="dataTable vcenter_datastore_table" id="vcenter_datastore_table_' + datacenter_name + '">' +
+                    '<table class="dataTable vcenter_datastore_table" id="' + tableId + '">' +
                       '<thead>' +
                         '<th class="check">' +
                           '<input type="checkbox" class="check_all"/>' +
@@ -137,7 +138,7 @@ define(function(require) {
             '</fieldset>';
 
             var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-            var tbody = $('#vcenter_datastore_table_' + datacenter_name + ' tbody', context);
+            var tbody = $('#' + tableId + ' tbody', context);
 
             $.each(datastores, function(id, datastore){
               var trow = $(
@@ -154,7 +155,7 @@ define(function(require) {
             });
 
             var tmplDataTable = new DomDataTable(
-              'vcenter_datastore_table_' + datacenter_name,
+              tableId,
               {
                 actions: false,
                 info: false,

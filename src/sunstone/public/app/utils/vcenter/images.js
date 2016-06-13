@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
   var Notifier = require('utils/notifier');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./images/html');
 
@@ -94,7 +95,7 @@ define(function(require) {
 
           $(".vcenter_datacenter_list", context).append(content);
         } else {
-          var tableId = "vcenter_image_table_" + opts.vcenter_datastore;
+          var tableId = "vcenter_image_table_" + UniqueId.id();
           content = 
             '<fieldset>' +
               '<legend>' +
@@ -151,7 +152,7 @@ define(function(require) {
             });
 
           var imageDataTable = new DomDataTable(
-            'vcenter_image_table_' + opts.vcenter_datastore,
+              tableId,
               {
                 actions: false,
                 info: false,
