@@ -121,67 +121,53 @@ define(function(require) {
 
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).hide();
 
-    $("div.mode_param", context).hide();
-    $("div.mode_param input", context).prop('wizard_field_disabled', true);
-
     $('#network_mode', context).change(function() {
-      $('input,label[for!="network_mode"]', $(this).parent()).hide();
-      $('input', $(this).parent()).val("");
+      $("div.mode_param", context).hide();
+      $("div.mode_param [wizard_field]", context).prop('wizard_field_disabled', true);
+
+      $('input#vn_mad', context).removeAttr('required');
+
       switch ($(this).val()) {
       case "dummy":
-
         $("div.mode_param.dummy", context).show();
-        $("div.mode_param.dummy input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.dummy [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
-        $('input#vn_mad', context).removeAttr('required');
         break;
       case "fw":
         $("div.mode_param.fw", context).show();
-        $("div.mode_param.fw input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.fw [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
-        $('input#vn_mad', context).removeAttr('required');
         break;
       case "802.1Q":
         $("div.mode_param.8021Q", context).show();
-        $("div.mode_param.8021Q input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.8021Q [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
-        $('input#vn_mad', context).removeAttr('required');
         break;
       case "vxlan":
         $("div.mode_param.vxlan", context).show();
-        $("div.mode_param.vxlan input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.vxlan [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
-        $('input#vn_mad', context).removeAttr('required');
         break;
       case "ebtables":
         $("div.mode_param.ebtables", context).show();
-        $("div.mode_param.ebtables input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.ebtables [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
-        $('input#vn_mad', context).removeAttr('required');
         break;
-      case "openvswitch":
+      case "ovswitch":
         $("div.mode_param.ovswitch", context).show();
-        $("div.mode_param.ovswitch input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.ovswitch [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
-        $('input#vn_mad', context).removeAttr('required');
         break;
       case "custom":
         $("div.mode_param.custom", context).show();
-        $("div.mode_param.custom input", context).prop('wizard_field_disabled', false);
+        $("div.mode_param.custom [wizard_field]", context).prop('wizard_field_disabled', false);
 
-        $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).removeAttr('required');
         $('input#vn_mad', context).attr('required', '');
         break;
@@ -338,12 +324,9 @@ define(function(require) {
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
-    $('input#vn_mad,label[for="vn_mad"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
-    $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
+    $('input#bridge', context).attr('required', '');
+    $("div.mode_param", context).show();
+    $("div.mode_param [wizard_field]", context).prop('wizard_field_disabled', true).removeAttr('required');
 
     WizardFields.fillInput($('input#vn_mad', context), element.TEMPLATE["VN_MAD"]);
 
