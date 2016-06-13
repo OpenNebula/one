@@ -106,13 +106,14 @@ def vmdk_info(file)
         end
     end
 
-    if get_type(file_path).strip == "application/octet-stream"
+    case get_type(file_path).strip
+    when "application/octet-stream", "application/x-iso9660-image"
         return {
             :type   => :standalone,
             :file   => file_path,
             :dir    => File.dirname(file_path)
         }
-    elsif get_type(file_path).strip == "text/plain"
+    when "text/plain"
         info = {
             :type   => :flat,
             :file   => file_path,
