@@ -47,6 +47,7 @@ hostname  = drv_action["/VMM_DRIVER_ACTION_DATA/HOST"]
 vm_id     = drv_action["/VMM_DRIVER_ACTION_DATA/VM/ID"]
 ds_name   = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/DATASTORE"]
 img_path  = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/SOURCE"]
+type      = drv_action["/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']/TYPE"]
 size_kb   = 0  # No volatile disk support at the moment
 
 if ds_name.nil? || hostname.nil? || img_path.nil?
@@ -60,6 +61,7 @@ begin
                                          deploy_id,
                                          ds_name,
                                          img_path,
+                                         type,
                                          size_kb)
 rescue Exception => e
     STDERR.puts "Error attach image #{img_path}. Reason: #{e.message}"

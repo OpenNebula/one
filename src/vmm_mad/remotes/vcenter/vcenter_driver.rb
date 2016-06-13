@@ -655,7 +655,8 @@ class VIClient
 
             # Create Search Spec
             spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
-            spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
+            spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new,
+                            RbVmomi::VIM::IsoImageFileQuery.new]
             spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner => true,
                                                         :fileSize => true,
                                                         :fileType => true,
@@ -799,7 +800,8 @@ class VIClient
 
         # Create Search Spec
         spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
-        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new]
+        spec.query   = [RbVmomi::VIM::VmDiskFileQuery.new,
+                        RbVmomi::VIM::IsoImageFileQuery.new]
         spec.details = RbVmomi::VIM::FileQueryFlags(:fileOwner    => true,
                                                     :fileSize     => true,
                                                     :fileType     => true,
@@ -2433,8 +2435,9 @@ private
             disks.each{|disk|
                ds_name    = disk.elements["DATASTORE"].text
                img_name   = disk.elements["SOURCE"].text
+               type_str   = disk.elements["TYPE"].text
 
-               disk_array += attach_disk("", "", ds_name, img_name, 0, vm, connection)[:deviceChange]
+               disk_array += attach_disk("", "", ds_name, img_name, 0, type_str, vm, connection)[:deviceChange]
             }
 
             device_change += disk_array
@@ -2467,7 +2470,7 @@ private
     # @params vm[RbVmomi::VIM::VirtualMachine] VM if called from instance
     # @params connection[ViClient::connectoon] connection if called from instance
     ############################################################################
-    def self.attach_disk(hostname, deploy_id, ds_name, img_name, size_kb, vm=nil, connection=nil)
+    def self.attach_disk(hostname, deploy_id, ds_name, img_name, type, size_kb, vm=nil, connection=nil)
         only_return = true
         if !vm
             hid         = VIClient::translate_hostname(hostname)
@@ -2484,24 +2487,47 @@ private
 
         controller, new_number = find_free_controller(vm)
 
-        vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
-              :datastore => ds,
-              :diskMode  => 'persistent',
-              :fileName  => "[#{ds_name}] #{img_name}"
-        )
+        if type == "CDROM"
+            vmdk_backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
+                  :datastore => ds,
+                  :fileName  => "[#{ds_name}] #{img_name}"
+            )
 
-        device = RbVmomi::VIM::VirtualDisk(
-          :backing       => vmdk_backing,
-          :capacityInKB  => size_kb,
-          :controllerKey => controller.key,
-          :key           => -1,
-          :unitNumber    => new_number
-        )
+            cd = vm.config.hardware.device.select {|hw| 
+                                 hw.class == RbVmomi::VIM::VirtualCdrom}.first
+            device = RbVmomi::VIM::VirtualCdrom(
+                     backing: vmdk_backing,
+                     key: cd.key,
+                     controllerKey: cd.controllerKey,
+                     connectable: RbVmomi::VIM::VirtualDeviceConnectInfo(
+                       startConnected: false,
+                       connected: false,
+                       allowGuestControl: false
+                     )
+                    )
+            device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+               :device    => device,
+               :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('edit')
+            )
+        else
+            vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
+                  :datastore => ds,
+                  :diskMode  => 'persistent',
+                  :fileName  => "[#{ds_name}] #{img_name}"
+            )
 
-        device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
-          :device    => device,
-          :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
-        )
+            device = RbVmomi::VIM::VirtualDisk(
+              :backing       => vmdk_backing,
+              :capacityInKB  => size_kb,
+              :controllerKey => controller.key,
+              :key           => -1,
+              :unitNumber    => new_number
+            )
+            device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+               :device    => device,
+               :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
+            )
+        end
 
         vm_config_spec = RbVmomi::VIM::VirtualMachineConfigSpec(
           :deviceChange => [device_config_spec]
