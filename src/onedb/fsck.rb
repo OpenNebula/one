@@ -2137,7 +2137,7 @@ EOT
                             target = e.at_xpath("LN_TARGET").text if !e.at_xpath("LN_TARGET").nil?
                         end
 
-                        if !target.nil? && target != "NONE" # self or system
+                        if !target.nil? && target == "SYSTEM"
                             sys_used += size
 
                             if !e.at_xpath("DISK_SNAPSHOT_TOTAL_SIZE").nil?
