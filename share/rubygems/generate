@@ -53,6 +53,17 @@ GEM_DESCRIPTION={
         :name => 'opennebula',
         :files => [
             ['src/oca/ruby/opennebula.rb', '/lib'],
+
+            # Needed for onevcenter
+            ['src/vmm_mad/remotes/vcenter/vcenter_driver.rb', '/lib'],
+
+            # vcenter_driver.rb dependencies
+            ['src/mad/ruby/VirtualMachineDriver.rb', '/lib'],
+            ['src/mad/ruby/OpenNebulaDriver.rb', '/lib'],
+            ['src/mad/ruby/CommandManager.rb', '/lib'],
+            ['src/mad/ruby/ActionManager.rb', '/lib'],
+            ['src/mad/ruby/DriverExecHelper.rb', '/lib'],
+
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
             ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
