@@ -478,6 +478,7 @@ define(function(require) {
     //before running the action.
     $(document).on("click", '.confirm_button', function() {
       var dialogInstance = _getDialogInstance(CONFIRM_DIALOG_ID)
+      dialogInstance.reset();
       $('#' + CONFIRM_DIALOG_ID).data('buttonAction', $(this).attr('href'));
       $('#' + CONFIRM_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
       dialogInstance.show();
