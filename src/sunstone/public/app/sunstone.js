@@ -722,8 +722,10 @@ define(function(require) {
 
     Foundation.reflow(context, 'tabs');
 
-    $('[href="' + activaTabHref + '"]', context).trigger("click");
-    $('#' + containerId + 'Tabs', context).trigger('change.zf.tabs');
+    if(activaTabHref != undefined){
+      $('[href="' + activaTabHref + '"]', context).trigger("click");
+      $('#' + containerId + 'Tabs', context).trigger('change.zf.tabs');
+    }
 
     if (hooks) {
       $.each(hooks, function(i, hook){
