@@ -98,7 +98,7 @@ define(function(require) {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
 
         $.each(selected_nodes, function() {
-          window.open("http://localhost:9869/marketplaceapp/"+this+"/download?csrftoken="+csrftoken, "_blank");
+          window.open("/marketplaceapp/"+this+"/download?csrftoken="+csrftoken, "_blank");
         });
       },
       elements: function(opts) {
