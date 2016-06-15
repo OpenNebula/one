@@ -94,7 +94,7 @@ class OneMarket
                 print_var(tmpl64, "TYPE",       file["type"])
 
                 if !tmpl64.empty?
-                    print_var(tmpl64, "APPTEMPLATE64", Base64::strict_encode64(tmpl64))
+                    print_var(tmpl, "APPTEMPLATE64", Base64::strict_encode64(tmpl64))
                 end
             end
 

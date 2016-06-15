@@ -44,7 +44,7 @@ lcm_state_num = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"].to_i
 lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 keep_disks    = !drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
                  drv_action['/VMM_DRIVER_ACTION_DATA/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
-disks         = drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]
+disks         = [drv_action.to_hash["VMM_DRIVER_ACTION_DATA"]["VM"]["TEMPLATE"]["DISK"]].flatten.compact
 
 cloned_tmplt = nil
 if !drv_action['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?

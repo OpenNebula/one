@@ -251,7 +251,8 @@ int Host::update_info(Template        &tmpl,
     ostringstream zombie;
     ostringstream wild;
 
-    set<int>::iterator set_it;
+    set<int>::iterator        set_it;
+    map<int,string>::iterator map_it;
 
     set<int> prev_tmp_lost   = tmp_lost_vms;
     set<int> prev_tmp_zombie = tmp_zombie_vms;
@@ -403,6 +404,19 @@ int Host::update_info(Template        &tmpl,
             wild << wname;
 
             obj_template->set(*it);
+        }
+    }
+
+    for(map_it = found.begin(); map_it != found.end(); )
+    {
+        if ( one_util::regex_match("STATE=. ",map_it->second.c_str()) != 0 )
+        {
+            tmp_lost_vms.insert(map_it->first);
+            found.erase(map_it++);
+        }
+        else
+        {
+            ++map_it;
         }
     }
 

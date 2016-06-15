@@ -134,6 +134,24 @@ define(function(require) {
           $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
     });
 
+    $('input[name="custom_vcenter_adapter_type"]',dialog).parent().hide();
+    $('select#vcenter_adapter_type',dialog).change(function(){
+      if ($(this).val() == "custom"){
+        $('input[name="custom_vcenter_adapter_type"]',dialog).attr("required", true).parent().show();
+      } else {
+        $('input[name="custom_vcenter_adapter_type"]',dialog).attr("required", false).parent().hide();
+      }
+    });
+
+    $('input[name="custom_vcenter_disk_type"]',dialog).parent().hide();
+    $('select#vcenter_disk_type',dialog).change(function(){
+      if ($(this).val() == "custom"){
+        $('input[name="custom_vcenter_disk_type"]',dialog).attr("required", true).parent().show();
+      } else {
+        $('input[name="custom_vcenter_disk_type"]',dialog).attr("required", false).parent().hide();
+      }
+    });
+
     $('#presets', dialog).change(function() {
       _hideAll(dialog);
       var choice_str = $(this).val();
@@ -148,6 +166,12 @@ define(function(require) {
         $('select#ds_mad', dialog).val($(opt).attr("ds")).change();
         $('select#tm_mad', dialog).val($(opt).attr("tm")).change();
       }
+
+      $('select#vcenter_adapter_type', dialog).attr('required', false);
+      $('select#vcenter_disk_type', dialog).attr('required', false);
+
+      $('input[name="custom_vcenter_adapter_type"]',dialog).attr('required', false);
+      $('input[name="custom_vcenter_disk_type"]',dialog).attr('required', false);
 
       switch (choice_str){
         case "fs_shared":
@@ -171,6 +195,10 @@ define(function(require) {
         case "vcenter":
           $('input#system_ds_type', dialog).attr('disabled', 'disabled');
           $('input#file_ds_type', dialog).attr('disabled', 'disabled');
+
+          $('select#vcenter_adapter_type', dialog).attr('required', true);
+          $('select#vcenter_disk_type', dialog).attr('required', true);
+
           _selectvCenter(dialog);
           break;
         
@@ -234,7 +262,10 @@ define(function(require) {
     var iscsi_user      = $('#iscsi_user', dialog).val();
     var iscsi_usage     = $('#iscsi_usage', dialog).val();
     var vcenter_cluster = $('#vcenter_cluster', dialog).val();
-
+    var vcenter_adapter_type  = $('#vcenter_adapter_type', dialog).val();
+    vcenter_adapter_type      = vcenter_adapter_type == "custom" ? $('input[name="custom_vcenter_adapter_type"]', dialog).val() : vcenter_adapter_type;
+    var vcenter_disk_type     = $('#vcenter_disk_type', dialog).val();
+    vcenter_disk_type         = vcenter_disk_type == "custom" ? $('input[name="custom_vcenter_disk_type"]', dialog).val() : vcenter_disk_type;
     var ds_obj = {
       "datastore" : {
         "name" : name,
@@ -316,6 +347,12 @@ define(function(require) {
     if (vcenter_cluster)
         ds_obj.datastore.vcenter_cluster = vcenter_cluster;
 
+    if (vcenter_adapter_type)
+        ds_obj.datastore.adapter_type = vcenter_adapter_type;
+
+    if (vcenter_disk_type)
+        ds_obj.datastore.disk_type = vcenter_disk_type;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -361,6 +398,8 @@ define(function(require) {
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
     $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().hide();
+    $('label[for="vcenter_adapter_type"],input#vcenter_adapter_type', dialog).parent().hide();
+    $('label[for="vcenter_disk_type"],input#vcenter_disk_type', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
 
@@ -389,6 +428,8 @@ define(function(require) {
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().show();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().show();
     $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().show();
+    $('label[for="vcenter_adapter_type"],input#vcenter_adapter_type', dialog).parent().show();
+    $('label[for="vcenter_disk_type"],input#vcenter_disk_type', dialog).parent().show();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().show();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().show();
 
@@ -487,6 +528,8 @@ define(function(require) {
     $('input#limit_mb', dialog).attr('disabled', 'disabled');
     $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
     $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().fadeIn();
+    $('label[for="vcenter_adapter_type"],input#vcenter_adapter_type', dialog).parent().fadeIn();
+    $('label[for="vcenter_disk_type"],input#vcenter_disk_type', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {

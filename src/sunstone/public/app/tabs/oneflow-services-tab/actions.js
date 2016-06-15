@@ -45,7 +45,7 @@ define(function(require) {
     return selected_nodes;
   }
 
-  function roleVMElements() {
+  function roleVMElements(opts) {
     var selected_nodes = [];
 
     var dataTable = $('table[id^=datatable_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
@@ -53,6 +53,16 @@ define(function(require) {
     $.each(nodes, function() {
       selected_nodes.push($(this).val());
     });
+
+    if (opts && opts.names){
+      var pairs = [];
+
+      $.each(selected_nodes, function(){
+        pairs.push({id: this, name: OpenNebulaVM.getName(this)});
+      });
+
+      return pairs;
+    }
 
     return selected_nodes;
   }

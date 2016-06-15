@@ -19,7 +19,14 @@ define(function(require) {
   var Locale = require('utils/locale');
 
   var valOrDefault = function(value, defaultValue, options) {
-    var out = value || defaultValue;
+    var out;
+
+    if (value == undefined || ($.isPlainObject(value) && $.isEmptyObject(value))){
+        out = defaultValue;
+    } else {
+        out = value;
+    }
+
     return new Handlebars.SafeString(out);
   };
 

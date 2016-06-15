@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
   var Notifier = require('utils/notifier');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./images/html');
 
@@ -94,7 +95,7 @@ define(function(require) {
 
           $(".vcenter_datacenter_list", context).append(content);
         } else {
-          var tableId = "vcenter_image_table_" + opts.vcenter_datastore;
+          var tableId = "vcenter_image_table_" + UniqueId.id();
           content = 
             '<fieldset>' +
               '<legend>' +
@@ -138,7 +139,7 @@ define(function(require) {
           $.each(response, function(id, image) {
               var trow = $(
                 '<tr class="vcenter_image">' +
-                  '<td><input type="checkbox" class="check_item" checked/></td>' +
+                  '<td><input type="checkbox" class="check_item"/></td>' +
                   '<td>' + image.name + '</td>' +
                   '<td>' + image.size + ' MB</td>' +
                   '<td><div class="vcenter_image_response"/></td>' +
@@ -151,7 +152,7 @@ define(function(require) {
             });
 
           var imageDataTable = new DomDataTable(
-            'vcenter_image_table_' + opts.vcenter_datastore,
+              tableId,
               {
                 actions: false,
                 info: false,

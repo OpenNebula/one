@@ -248,7 +248,7 @@ error_vn_mad:
     goto error_common;
 
 error_bridge:
-    ose << "No BRIDGE in template for Virtual Network.";
+    ose << "BRIDGE or PHY_DEV have to be set in Virtual Network template.";
     goto error_common;
 
 error_db:
@@ -291,6 +291,10 @@ int VirtualNetwork::post_update_template(string& error)
     {
         erase_template_attribute("VLAN_ID", vlan_id);
         add_template_attribute("VLAN_ID", vlan_id);
+    }
+    else
+    {
+        remove_template_attribute("VLAN_ID");
     }
 
     erase_template_attribute("BRIDGE",new_bridge);

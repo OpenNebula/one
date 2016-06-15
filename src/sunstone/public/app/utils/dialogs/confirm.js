@@ -75,7 +75,7 @@ define(function(require) {
     $('#confirm_proceed', dialog).val(actionId);
     $('#confirm_tip', dialog).text(tip);
 
-    if(button.text) {
+    if(button && button.text) {
       $('.subheader', dialog).html(button.text);
     }
 

@@ -5,6 +5,7 @@
 # Translators:
 # Bastian Widmer <bastian.widmer@gmail.com>, 2012-2013
 # Bastian Widmer <bastian.widmer@gmail.com>, 2012
+# Daniel Seichter <daniel.seichter@dseichter.de>, 2016
 # jules <>, 2012
 # jules <>, 2012
 # Matthias Albert <matthias@ma-c.de>, 2013
@@ -31,8 +32,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-10 18:30+0200\n"
-"PO-Revision-Date: 2016-06-10 08:13+0000\n"
+"POT-Creation-Date: 2016-06-13 18:40+0200\n"
+"PO-Revision-Date: 2016-06-13 15:33+0000\n"
 "Last-Translator: Noah Müller\n"
 "Language-Team: German (http://www.transifex.com/opennebula/one/language/de/)\n"
 "Language: de\n"
@@ -54,8 +55,8 @@ msgstr "Datenspeicher"
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/images-tab/datatable-common.js:66
 #: ../app/utils/quotas/quota-widgets.js:413
-#: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:84
-#: ../app/utils/vcenter/images.js:103
+#: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:85
+#: ../app/utils/vcenter/images.js:104
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
@@ -219,8 +220,8 @@ msgstr "ID"
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
 #: ../app/tabs/images-tab/datatable-common.js:65
-#: ../app/utils/vcenter/images.js:124 ../app/utils/vcenter/templates.js:137
-#: ../app/utils/vcenter/datastores.js:128 ../app/utils/vcenter/networks.js:136
+#: ../app/utils/vcenter/images.js:125 ../app/utils/vcenter/templates.js:138
+#: ../app/utils/vcenter/datastores.js:129 ../app/utils/vcenter/networks.js:137
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/groups-tab/panels/info/html.hbs:32
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
@@ -688,12 +689,12 @@ msgid "General"
 msgstr "Allgemein"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
-#: ../app/utils/vcenter/templates.js:233
+#: ../app/utils/vcenter/templates.js:234
 msgid "Which datastore you want this VM to run on?"
 msgstr "Auf welchem Datenspeicher sollen die Virtuellen Maschienen laufen?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
-#: ../app/utils/vcenter/templates.js:254
+#: ../app/utils/vcenter/templates.js:255
 msgid "Which resource pool you want this VM to run in?"
 msgstr "In welchem Ressourcen Pool soll die Virtuelle Maschiene laufen?"
 
@@ -1118,9 +1119,9 @@ msgid "Import Wilds"
 msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
-#: ../app/utils/vcenter/images.js:260 ../app/utils/vcenter/templates.js:301
-#: ../app/utils/vcenter/datastores.js:264 ../app/utils/vcenter/networks.js:335
-#: ../app/utils/vcenter/clusters.js:208
+#: ../app/utils/vcenter/images.js:261 ../app/utils/vcenter/templates.js:302
+#: ../app/utils/vcenter/datastores.js:265 ../app/utils/vcenter/networks.js:336
+#: ../app/utils/vcenter/clusters.js:209
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "Kann Server nicht kontaktieren: Ist er in Betrieb und erreichbar?"
 
@@ -1637,7 +1638,7 @@ msgstr "Datenspeicher erstellt"
 msgid "Create Datastore"
 msgstr "Datenspeicher erstellen"
 
-#: ../app/tabs/datastores-tab/form-panels/create.js:328
+#: ../app/tabs/datastores-tab/form-panels/create.js:365
 msgid "Please select a cluster for this datastore"
 msgstr "Bitte einen Cluster für diesen Datenspeicher auswählen"
 
@@ -2141,7 +2142,7 @@ msgstr "Start"
 #: ../app/tabs/vnets-tab/panels/ar.js:310
 #: ../app/tabs/marketplaceapps-tab/datatable.js:86
 #: ../app/tabs/images-tab/datatable-common.js:67
-#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:125
+#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:126
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
@@ -2167,7 +2168,7 @@ msgstr "Virtuelles Netzwerk erstellen"
 msgid "Update Virtual Network"
 msgstr "Virtuelles Netzwerk aktualisieren"
 
-#: ../app/tabs/vnets-tab/form-panels/create.js:225
+#: ../app/tabs/vnets-tab/form-panels/create.js:220
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:22
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:44
@@ -2183,11 +2184,11 @@ msgstr ""
 #: ../app/tabs/vnets-tab/buttons.js:45
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:78
 msgid "Reserve"
-msgstr ""
+msgstr "Reserve"
 
 #: ../app/tabs/vnets-tab/datatable.js:68
 msgid "Reservation"
-msgstr ""
+msgstr "Reservierung"
 
 #: ../app/tabs/vnets-tab/datatable.js:70
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:65
@@ -2204,6 +2205,7 @@ msgstr "Leases"
 
 #: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:139
+#: ../app/tabs/vnets-tab/panels/info/html.hbs:34
 msgid "VLAN ID"
 msgstr "VLAN ID"
 
@@ -2254,7 +2256,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/secgroups.js:39
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:34
 msgid "Security"
-msgstr ""
+msgstr "Sicherheit"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:90
 msgid "VM:"
@@ -2289,7 +2291,7 @@ msgstr "Der Adressbereich konnte nicht gefunden werden"
 msgid "MAC Start"
 msgstr "MAC Start"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:200
+#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:201
 msgid "IP Start"
 msgstr "IP Start"
 
@@ -2422,7 +2424,7 @@ msgstr ""
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
-msgstr ""
+msgstr "Instanzen"
 
 #: ../app/tabs/vrouters-tab.js:50
 msgid "Virtual Router"
@@ -2465,12 +2467,12 @@ msgstr "Sie haben die folgenden Cluster ausgewählt:"
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
 msgid "MarketPlaces"
-msgstr ""
+msgstr "Marktplätze"
 
 #: ../app/tabs/marketplaces-tab.js:53 ../app/tabs/images-tab/buttons.js:32
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
 msgid "MarketPlace"
-msgstr ""
+msgstr "Marktplatz"
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
@@ -2534,11 +2536,11 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/info.js:165
 msgid "ascending"
-msgstr ""
+msgstr "aufsteigend"
 
 #: ../app/tabs/users-tab/panels/info.js:166
 msgid "descending"
-msgstr ""
+msgstr "absteigend"
 
 #: ../app/tabs/images-tab.js:52 ../app/utils/quotas/quota-widgets.js:272
 #: ../app/utils/quotas/quota-widgets.js:1167
@@ -2694,15 +2696,15 @@ msgstr "Aktion"
 
 #: ../app/tabs/vms-tab/panels/actions.js:69
 msgid "Time"
-msgstr ""
+msgstr "Zeit"
 
 #: ../app/tabs/vms-tab/panels/actions.js:70
 msgid "Done"
-msgstr ""
+msgstr "Erledigt"
 
 #: ../app/tabs/vms-tab/panels/actions.js:71
 msgid "Message"
-msgstr ""
+msgstr "Nachricht"
 
 #: ../app/tabs/vms-tab/panels/actions.js:73
 msgid "Add action"
@@ -2939,8 +2941,8 @@ msgid "IP"
 msgstr "IP"
 
 #: ../app/tabs/vms-tab/panels/network.js:82
-#: ../app/utils/vcenter/networks.js:192 ../app/utils/vcenter/networks.js:205
-#: ../app/utils/vcenter/networks.js:218
+#: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
+#: ../app/utils/vcenter/networks.js:219
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:62
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:63
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
@@ -2992,7 +2994,7 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
-msgstr ""
+msgstr "Protokoll"
 
 #: ../app/tabs/vms-tab/panels/network.js:349
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
@@ -3107,7 +3109,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/buttons.js:67
 msgid "Make persistent"
-msgstr "Dauerhaft machen"
+msgstr "Beständig machen"
 
 #: ../app/tabs/images-tab/buttons.js:72
 msgid "Make non persistent"
@@ -3119,7 +3121,7 @@ msgstr "Transient machen"
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:28
 #: ../app/tabs/images-tab/panels/info/html.hbs:52
 msgid "Persistent"
-msgstr "Presistent"
+msgstr "Beständig"
 
 #: ../app/tabs/images-tab/datatable-common.js:72
 msgid "#VMS"
@@ -3443,55 +3445,55 @@ msgstr ""
 #: ../app/utils/accounting.js:609 ../app/utils/accounting.js:626
 #: ../app/utils/accounting.js:643
 msgid "Date UTC"
-msgstr ""
+msgstr "Datum im UTC Format"
 
 #: ../app/utils/locale.js:41
 msgid "January"
-msgstr ""
+msgstr "Januar"
 
 #: ../app/utils/locale.js:41
 msgid "February"
-msgstr ""
+msgstr "Februar"
 
 #: ../app/utils/locale.js:41
 msgid "March"
-msgstr ""
+msgstr "März"
 
 #: ../app/utils/locale.js:41
 msgid "April"
-msgstr ""
+msgstr "April"
 
 #: ../app/utils/locale.js:41
 msgid "May"
-msgstr ""
+msgstr "Mai"
 
 #: ../app/utils/locale.js:42
 msgid "June"
-msgstr ""
+msgstr "Juni"
 
 #: ../app/utils/locale.js:42
 msgid "July"
-msgstr ""
+msgstr "Juli"
 
 #: ../app/utils/locale.js:42
 msgid "August"
-msgstr ""
+msgstr "August"
 
 #: ../app/utils/locale.js:42
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: ../app/utils/locale.js:42
 msgid "October"
-msgstr ""
+msgstr "Oktober"
 
 #: ../app/utils/locale.js:43
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: ../app/utils/locale.js:43
 msgid "December"
-msgstr ""
+msgstr "Dezember"
 
 #: ../app/utils/notifier.js:89
 msgid "Network is unreachable: is OpenNebula running?"
@@ -3503,19 +3505,19 @@ msgstr "Nicht autorisiert"
 
 #: ../app/utils/tab-datatable.js:105
 msgid "Please select a resource from the list"
-msgstr ""
+msgstr "Bitte wählen sie eine Ressource aus der Liste"
 
 #: ../app/utils/tab-datatable.js:109
 msgid "You selected the following resource:"
-msgstr ""
+msgstr "Sie haben die folgende Ressource ausgewählt:"
 
 #: ../app/utils/labels/utils.js:109
 msgid "Edit Labels"
-msgstr ""
+msgstr "Labels editieren"
 
 #: ../app/utils/labels/utils.js:112
 msgid "Add Label"
-msgstr ""
+msgstr "Label hinzufügen"
 
 #: ../app/utils/disks-resize.js:129
 msgid "Volatile Disk"
@@ -3523,7 +3525,7 @@ msgstr "Flüchtiger Speicher"
 
 #: ../app/utils/disks-resize.js:131 ../app/utils/disks-resize.js:163
 msgid "Image was not found"
-msgstr ""
+msgstr "Abbild nicht gefunden"
 
 #: ../app/utils/disks-resize.js:146
 msgid "Persistent image. The changes will be saved back to the datastore after the VM is shut down"
@@ -3542,108 +3544,108 @@ msgstr ""
 msgid "You have to confirm this action"
 msgstr "Sie müssen die Aktion bestätigen"
 
-#: ../app/utils/vcenter/images.js:88
+#: ../app/utils/vcenter/images.js:89
 msgid "No new images found in this datastore"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:107
+#: ../app/utils/vcenter/images.js:108
 msgid "Import Selected Images"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:112
+#: ../app/utils/vcenter/images.js:113
 msgid "Clear Imported Images"
 msgstr ""
 
-#: ../app/utils/vcenter/images.js:243
+#: ../app/utils/vcenter/images.js:244
 msgid "Image created successfully"
 msgstr "Abbild erfolgreich erstellt"
 
-#: ../app/utils/vcenter/templates.js:88 ../app/utils/vcenter/templates.js:107
-#: ../app/utils/vcenter/datastores.js:88 ../app/utils/vcenter/datastores.js:107
-#: ../app/utils/vcenter/networks.js:87 ../app/utils/vcenter/networks.js:106
-#: ../app/utils/vcenter/clusters.js:83 ../app/utils/vcenter/clusters.js:102
+#: ../app/utils/vcenter/templates.js:89 ../app/utils/vcenter/templates.js:108
+#: ../app/utils/vcenter/datastores.js:89 ../app/utils/vcenter/datastores.js:108
+#: ../app/utils/vcenter/networks.js:88 ../app/utils/vcenter/networks.js:107
+#: ../app/utils/vcenter/clusters.js:84 ../app/utils/vcenter/clusters.js:103
 msgid "DataCenter"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:92
+#: ../app/utils/vcenter/templates.js:93
 msgid "No new templates found in this DataCenter"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:112 ../app/utils/vcenter/networks.js:111
+#: ../app/utils/vcenter/templates.js:113 ../app/utils/vcenter/networks.js:112
 msgid "Select All"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:118 ../app/utils/vcenter/networks.js:117
+#: ../app/utils/vcenter/templates.js:119 ../app/utils/vcenter/networks.js:118
 msgid "Expand Advanced Sections"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:123
+#: ../app/utils/vcenter/templates.js:124
 msgid "Import Selected Templates"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:128
+#: ../app/utils/vcenter/templates.js:129
 msgid "Clear Imported Templates"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:291
+#: ../app/utils/vcenter/templates.js:292
 msgid "Template created successfully"
 msgstr "Vorlage erfolgreich erstellt"
 
-#: ../app/utils/vcenter/datastores.js:92
+#: ../app/utils/vcenter/datastores.js:93
 msgid "No new datastores found in this DataCenter"
 msgstr ""
 
-#: ../app/utils/vcenter/datastores.js:111
+#: ../app/utils/vcenter/datastores.js:112
 msgid "Import Selected Datastores"
 msgstr ""
 
-#: ../app/utils/vcenter/datastores.js:116 ../app/utils/vcenter/clusters.js:106
+#: ../app/utils/vcenter/datastores.js:117 ../app/utils/vcenter/clusters.js:107
 msgid "Clear Imported Datastores"
 msgstr ""
 
-#: ../app/utils/vcenter/datastores.js:129
+#: ../app/utils/vcenter/datastores.js:130
 msgid "Datacenter"
 msgstr ""
 
-#: ../app/utils/vcenter/datastores.js:254
+#: ../app/utils/vcenter/datastores.js:255
 msgid "Datastore created successfully"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:91
+#: ../app/utils/vcenter/networks.js:92
 msgid "No new networks found in this DataCenter"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:122
+#: ../app/utils/vcenter/networks.js:123
 msgid "Import Selected Networks"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:127
+#: ../app/utils/vcenter/networks.js:128
 msgid "Clear Imported Networks"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
-#: ../app/utils/vcenter/networks.js:214 ../app/utils/vcenter/networks.js:224
+#: ../app/utils/vcenter/networks.js:194 ../app/utils/vcenter/networks.js:207
+#: ../app/utils/vcenter/networks.js:215 ../app/utils/vcenter/networks.js:225
 #: ../app/utils/vcenter/networks/row.hbs:57
 msgid "Optional"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:213
+#: ../app/utils/vcenter/networks.js:214
 msgid "Global Prefix"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:223
+#: ../app/utils/vcenter/networks.js:224
 msgid "ULA Prefix"
 msgstr ""
 
-#: ../app/utils/vcenter/networks.js:325
+#: ../app/utils/vcenter/networks.js:326
 msgid "Virtual Network created successfully"
 msgstr ""
 
-#: ../app/utils/vcenter/clusters.js:87
+#: ../app/utils/vcenter/clusters.js:88
 msgid "No new clusters found in this DataCenter"
 msgstr ""
 
-#: ../app/utils/vcenter/clusters.js:191
+#: ../app/utils/vcenter/clusters.js:192
 msgid "Host created successfully"
 msgstr ""
 
@@ -3838,7 +3840,7 @@ msgid "Description"
 msgstr "Beschreibung"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:45
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:236
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:241
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:58
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:190
 msgid "Custom attributes"
@@ -4384,23 +4386,23 @@ msgid "Override Network Values IPv4"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:70
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:202
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:207
 msgid "Network mask"
 msgstr "Netzwerkmaske"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:76
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:196
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:201
 msgid "Network address"
 msgstr "Netzwerk Adresse"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:84
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:210
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:215
 msgid "Gateway"
 msgstr "Gateway"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:90
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:224
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:229
 msgid "DNS"
 msgstr "DNS"
 
@@ -5841,6 +5843,16 @@ msgstr ""
 msgid "The vCenter Cluster that has access to this datastore."
 msgstr ""
 
+#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:267
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
+msgid "Bus adapter controller"
+msgstr ""
+
+#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:282
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
+msgid "Disk provisioning type"
+msgstr ""
+
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
 msgid "Base path"
 msgstr "Basispfad"
@@ -6000,7 +6012,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
-msgstr ""
+msgstr "Sicherheitsgruppe klonen"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
@@ -6048,7 +6060,7 @@ msgstr "Open vSwitch"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:90
 msgid "Network Driver (VN_MAD)"
-msgstr ""
+msgstr "Netzwerk Treiber (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."
@@ -6086,31 +6098,45 @@ msgstr ""
 msgid "IP spoofing filter"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:145
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
+msgid "Automatic VLAN ID"
+msgstr ""
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
+#, fuzzy
+msgid "No VLAN network"
+msgstr "Netzwerk"
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
+#, fuzzy
+msgid "Manual VLAN ID"
+msgstr "VLAN ID"
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
 msgstr "Physikalisches Gerät"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:147
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:152
 msgid "Node NIC to send/receive virtual network traffic"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:159
 msgid "MTU of the interface"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:187
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:192
 msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:216
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:221
 msgid "IPv6 Gateway"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:230
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:235
 msgid "MTU of the Guest interfaces"
 msgstr ""
 
@@ -6156,7 +6182,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
-msgstr ""
+msgstr "Anzahl Adressen"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
 msgid "Add to a new Virtual Network"
@@ -6518,14 +6544,6 @@ msgstr ""
 msgid "Path"
 msgstr "Pfad"
 
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
-msgid "Disk provisioning type"
-msgstr ""
-
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
-msgid "Bus adapter controller"
-msgstr ""
-
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:146
 msgid "BUS"
 msgstr "BUS"
@@ -6710,11 +6728,11 @@ msgstr "Besitz"
 
 #: ../app/utils/nics-section/html.hbs:9
 msgid "Network Interface"
-msgstr ""
+msgstr "Netzwerkschnittstelle"
 
 #: ../app/utils/nics-section/dd.hbs:5
 msgid "Interface"
-msgstr ""
+msgstr "Schnittstelle"
 
 #: ../app/utils/nics-section/dd.hbs:14
 msgid "Select a Network"

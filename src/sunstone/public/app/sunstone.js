@@ -478,6 +478,7 @@ define(function(require) {
     //before running the action.
     $(document).on("click", '.confirm_button', function() {
       var dialogInstance = _getDialogInstance(CONFIRM_DIALOG_ID)
+      dialogInstance.reset();
       $('#' + CONFIRM_DIALOG_ID).data('buttonAction', $(this).attr('href'));
       $('#' + CONFIRM_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
       dialogInstance.show();
@@ -722,8 +723,10 @@ define(function(require) {
 
     Foundation.reflow(context, 'tabs');
 
-    $('[href="' + activaTabHref + '"]', context).trigger("click");
-    $('#' + containerId + 'Tabs', context).trigger('change.zf.tabs');
+    if(activaTabHref != undefined){
+      $('[href="' + activaTabHref + '"]', context).trigger("click");
+      $('#' + containerId + 'Tabs', context).trigger('change.zf.tabs');
+    }
 
     if (hooks) {
       $.each(hooks, function(i, hook){

@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-10 18:30+0200\n"
-"PO-Revision-Date: 2016-06-07 15:43+0000\n"
+"POT-Creation-Date: 2016-06-13 18:40+0200\n"
+"PO-Revision-Date: 2016-06-13 07:46+0000\n"
 "Last-Translator: Jan Benadik <jan.benadik@atos.net>\n"
 "Language-Team: Slovak (Slovakia) (http://www.transifex.com/opennebula/one/language/sk_SK/)\n"
 "Language: sk_SK\n"
@@ -34,8 +34,8 @@ msgstr "Dátové sklady"
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
 #: ../app/tabs/images-tab/datatable-common.js:66
 #: ../app/utils/quotas/quota-widgets.js:413
-#: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:84
-#: ../app/utils/vcenter/images.js:103
+#: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:85
+#: ../app/utils/vcenter/images.js:104
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:32
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
@@ -199,8 +199,8 @@ msgstr "ID"
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
 #: ../app/tabs/images-tab/datatable-common.js:65
-#: ../app/utils/vcenter/images.js:124 ../app/utils/vcenter/templates.js:137
-#: ../app/utils/vcenter/datastores.js:128 ../app/utils/vcenter/networks.js:136
+#: ../app/utils/vcenter/images.js:125 ../app/utils/vcenter/templates.js:138
+#: ../app/utils/vcenter/datastores.js:129 ../app/utils/vcenter/networks.js:137
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
 #: ../app/tabs/groups-tab/panels/info/html.hbs:32
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
@@ -634,7 +634,7 @@ msgstr "Sieť"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:177
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:213
 msgid "NIC"
-msgstr "Adaptér"
+msgstr "Sieťový adaptér"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:55
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
@@ -666,12 +666,12 @@ msgid "General"
 msgstr "Všeobecne"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
-#: ../app/utils/vcenter/templates.js:233
+#: ../app/utils/vcenter/templates.js:234
 msgid "Which datastore you want this VM to run on?"
 msgstr "V ktorom dátovom sklade chceš aby tento virtuálny stroj bežal?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
-#: ../app/utils/vcenter/templates.js:254
+#: ../app/utils/vcenter/templates.js:255
 msgid "Which resource pool you want this VM to run in?"
 msgstr "V rámci ktorého fondu zdrojov chceš aby tento virtuálny stroj bežal?"
 
@@ -855,7 +855,7 @@ msgstr "Systém"
 
 #: ../app/tabs/vrouters-tab/actions.js:31
 msgid "Virtual Router created"
-msgstr "Virtuálny router vytvorený"
+msgstr "Virtuálny router bol vytvorený"
 
 #: ../app/tabs/vrouters-tab/form-panels/create.js:60
 msgid "Create Virtual Router"
@@ -888,7 +888,7 @@ msgstr "Toto odpojí disk okamžite"
 
 #: ../app/tabs/zones-tab/actions.js:31
 msgid "Zone created"
-msgstr "Zóna vytvorená"
+msgstr "Zóna bola vytvorená"
 
 #: ../app/tabs/zones-tab/datatable.js:64
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:32
@@ -917,7 +917,7 @@ msgstr "Infraštruktúra"
 
 #: ../app/tabs/hosts-tab/actions.js:33
 msgid "Host created"
-msgstr "Host vytvorený"
+msgstr "Host bol vytvorený"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
@@ -1085,18 +1085,18 @@ msgstr "Wilds"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:156
 msgid "VM imported"
-msgstr "VS importovaný"
+msgstr "VS bol importovaný"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:162
 #: ../app/tabs/hosts-tab/panels/wilds.js:175
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:19
 msgid "Import Wilds"
-msgstr "Import  Wilds"
+msgstr "Importuj  Wilds"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
-#: ../app/utils/vcenter/images.js:260 ../app/utils/vcenter/templates.js:301
-#: ../app/utils/vcenter/datastores.js:264 ../app/utils/vcenter/networks.js:335
-#: ../app/utils/vcenter/clusters.js:208
+#: ../app/utils/vcenter/images.js:261 ../app/utils/vcenter/templates.js:302
+#: ../app/utils/vcenter/datastores.js:265 ../app/utils/vcenter/networks.js:336
+#: ../app/utils/vcenter/clusters.js:209
 msgid "Cannot contact server: is it running and reachable?"
 msgstr "Nemôžem kontaktovať server - je spustený?"
 
@@ -1119,12 +1119,12 @@ msgstr "Virtuálne routre"
 #: ../app/tabs/vrouter-templates-tab.js:48
 #, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Virtuálny router vytvorený"
+msgstr "Virtuálny router bol vytvorený"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
 #, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Virtuálny router vytvorený"
+msgstr "Virtuálny router bol vytvorený"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1266,7 +1266,7 @@ msgstr "VYPÍNANÝ"
 #: ../app/tabs/provision-tab/flows/list.js:673
 #: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
 msgid "UNKNOWN"
-msgstr "Neznámy"
+msgstr "NEZNÁMY"
 
 #: ../app/tabs/provision-tab/vms/list.js:899
 #: ../app/tabs/provision-tab/vms/list.js:970 ../app/tabs/hosts-tab.js:59
@@ -1275,11 +1275,11 @@ msgstr "Neznámy"
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:62
 #: ../app/tabs/dashboard-tab/hosts.hbs:26
 msgid "OFF"
-msgstr "Vypnutý"
+msgstr "VYPNUTÝ"
 
 #: ../app/tabs/provision-tab/vms/list.js:904
 msgid "UNDEPLOYED"
-msgstr "Nenasadený"
+msgstr "NENASADENÝ"
 
 #: ../app/tabs/provision-tab/vms/list.js:965
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
@@ -1357,34 +1357,34 @@ msgstr "Shutdown"
 #: ../app/opennebula/role.js:44 ../app/opennebula/service.js:26
 #: ../app/tabs/dashboard-tab/vms.hbs:26
 msgid "PENDING"
-msgstr "Čaká..."
+msgstr "ČAKÁ ..."
 
 #: ../app/tabs/provision-tab/flows/list.js:637 ../app/opennebula/role.js:47
 #: ../app/opennebula/service.js:29
 msgid "UNDEPLOYING"
-msgstr "Zrušenie nasadenia"
+msgstr "NASADENIA SA RUŠIA"
 
 #: ../app/tabs/provision-tab/flows/list.js:641
 msgid "FAILED UNDEPLOYING"
-msgstr "ZRUŠENIE NASADENIA NEÚSPEŠNÉ"
+msgstr "ZRUŠENIE NASADENIA BOLO NEÚSPEŠNÉ"
 
 #: ../app/tabs/provision-tab/flows/list.js:645
 msgid "FAILED DEPLOYING"
-msgstr "NASADENIE NEÚSPEŠNÉ"
+msgstr "NASADENIE BOLO NEÚSPEŠNÉ"
 
 #: ../app/tabs/provision-tab/flows/list.js:649
 msgid "FAILED SCALING"
-msgstr "ŠKÁLOVANIE NEÚSPEŠNÉ"
+msgstr "ŠKÁLOVANIE BOLO NEÚSPEŠNÉ"
 
 #: ../app/tabs/provision-tab/flows/list.js:653 ../app/opennebula/role.js:48
 #: ../app/opennebula/service.js:30
 msgid "WARNING"
-msgstr "Varovanie"
+msgstr "VAROVANIE"
 
 #: ../app/tabs/provision-tab/flows/list.js:661 ../app/opennebula/role.js:52
 #: ../app/opennebula/service.js:34
 msgid "SCALING"
-msgstr "Škálovanie"
+msgstr "ŠKÁLOVANIE"
 
 #: ../app/tabs/provision-tab/flows/list.js:665 ../app/opennebula/role.js:54
 #: ../app/opennebula/service.js:36
@@ -1394,7 +1394,7 @@ msgstr "COOLDOWN"
 #: ../app/tabs/provision-tab/flows/list.js:669 ../app/opennebula/role.js:49
 #: ../app/opennebula/service.js:31
 msgid "DONE"
-msgstr "Hotovo"
+msgstr "HOTOVO"
 
 #: ../app/tabs/vnets-tab.js:52 ../app/tabs/vnets-tab.js:56
 #: ../app/tabs/acls-tab/datatable.js:142
@@ -1413,7 +1413,7 @@ msgstr "Použité IP"
 
 #: ../app/tabs/acls-tab.js:38
 msgid "ACLs"
-msgstr "ACL"
+msgstr "ACLs"
 
 #: ../app/tabs/acls-tab.js:42
 msgid "Access Control Lists"
@@ -1421,7 +1421,7 @@ msgstr "Riadenie prístupu"
 
 #: ../app/tabs/acls-tab/actions.js:32
 msgid "ACL Rule created"
-msgstr "ACL pravidlo vytvorené"
+msgstr "ACL pravidlo bolo vytvorené"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
@@ -1523,16 +1523,16 @@ msgstr "Zóny"
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
 #: ../app/utils/nics-section/dd.hbs:61
 msgid "Security Groups"
-msgstr "Security skupina"
+msgstr "Security skupiny"
 
 #: ../app/tabs/acls-tab/datatable.js:172 ../app/tabs/vdcs-tab.js:45
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:117
 msgid "VDCs"
-msgstr "VDC"
+msgstr "VDCs"
 
 #: ../app/tabs/acls-tab/datatable.js:178
 msgid "Marketplaces"
-msgstr "Obchodné miesta"
+msgstr "Trhoviská"
 
 #: ../app/tabs/acls-tab/datatable.js:181
 msgid "Marketplace Apps"
@@ -1561,12 +1561,12 @@ msgstr "Cluster ID"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:33
 msgid "Service Template created"
-msgstr "Servisná šablóna vytvorená"
+msgstr "Servisná šablóna bola vytvorená"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
 #: ../app/tabs/oneflow-services-tab/actions.js:34
 msgid "Service created"
-msgstr "Služba vytvorená"
+msgstr "Služba bola vytvorená"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:56
 msgid "Instantiate Service Template"
@@ -1605,13 +1605,13 @@ msgstr "Nahraj súbor"
 
 #: ../app/tabs/datastores-tab/actions.js:34
 msgid "Datastore created"
-msgstr "Dátový sklad vytvorený"
+msgstr "Dátový sklad bol vytvorený"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
 msgstr "Vytvor dátový sklad"
 
-#: ../app/tabs/datastores-tab/form-panels/create.js:328
+#: ../app/tabs/datastores-tab/form-panels/create.js:365
 msgid "Please select a cluster for this datastore"
 msgstr "Vyber dátový sklad pre tento obraz"
 
@@ -1703,7 +1703,7 @@ msgstr "Kardinalita"
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
-msgstr "Náklad"
+msgstr "NÁKLAD"
 
 #: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
@@ -1744,7 +1744,7 @@ msgstr "Šablóna služby"
 
 #: ../app/tabs/files-tab/actions.js:30
 msgid "File created"
-msgstr "Súbor vytvorený"
+msgstr "Súbor bol vytvorený"
 
 #: ../app/tabs/files-tab/datatable.js:44
 msgid "Please select a file from the list"
@@ -1764,11 +1764,11 @@ msgstr "Vybral si nasledovné súbory:"
 
 #: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
 msgid "Security Group"
-msgstr "Security grupa"
+msgstr "Security skupina"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr "Trhovisko vytvorené"
+msgstr "Trhovisko bolo vytvorené"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
@@ -2037,7 +2037,7 @@ msgstr "Poskytni SSH kľúč"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
-msgstr "Security grupa vytvorená"
+msgstr "Security skupina bola vytvorená"
 
 #: ../app/tabs/secgroups-tab/actions.js:80
 msgid "Please note: each time the rules are edited, the commit operation is done automatically. <br/><br/>This action will force the propagation of security group changes to VMs. The operation takes time to iterate over all VMs in the security group, the progress can be checked in the \"VMs\" panel."
@@ -2050,7 +2050,7 @@ msgstr "Vykonaj"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
-msgstr "Vytvor security grupu"
+msgstr "Vytvor security skupinu"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
@@ -2058,19 +2058,19 @@ msgstr "Aktualizuj security grupu"
 
 #: ../app/tabs/secgroups-tab/datatable.js:72
 msgid "Please select a security group from the list"
-msgstr "Vyber security grupu zo zoznamu"
+msgstr "Vyber security skupinu zo zoznamu"
 
 #: ../app/tabs/secgroups-tab/datatable.js:73
 msgid "You selected the following security group:"
-msgstr "Vybral si nasledovné security grupy:"
+msgstr "Vybral si nasledovné security slupiny:"
 
 #: ../app/tabs/secgroups-tab/datatable.js:74
 msgid "Please select one or more security groups from the list"
-msgstr "Vyber jednu alebo viac security grúp zo zoznamu"
+msgstr "Vyber jednu alebo viac security skupín zo zoznamu"
 
 #: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "You selected the following security groups:"
-msgstr "Vybral si nasledovné security grupy:"
+msgstr "Vybral si nasledovné security slupiny:"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:43
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
@@ -2113,7 +2113,7 @@ msgstr "Štart"
 #: ../app/tabs/vnets-tab/panels/ar.js:310
 #: ../app/tabs/marketplaceapps-tab/datatable.js:86
 #: ../app/tabs/images-tab/datatable-common.js:67
-#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:125
+#: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:126
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:47
@@ -2129,7 +2129,7 @@ msgstr "Ľubovoľný"
 
 #: ../app/tabs/vnets-tab/actions.js:38
 msgid "Virtual Network created"
-msgstr "Virtuálna sieť vytvorená"
+msgstr "Virtuálna sieť bola vytvorená"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:56
 msgid "Create Virtual Network"
@@ -2139,7 +2139,7 @@ msgstr "Vytvor virtuálnu sieť"
 msgid "Update Virtual Network"
 msgstr "Aktualizuj virtuálnu sieť"
 
-#: ../app/tabs/vnets-tab/form-panels/create.js:225
+#: ../app/tabs/vnets-tab/form-panels/create.js:220
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:22
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:44
@@ -2164,7 +2164,7 @@ msgstr "Rezervácia"
 #: ../app/tabs/vnets-tab/datatable.js:70
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:65
 msgid "Bridge"
-msgstr "Bridge"
+msgstr "Most"
 
 #: ../app/tabs/vnets-tab/datatable.js:71
 #: ../app/tabs/vnets-tab/panels/leases.js:42
@@ -2176,6 +2176,7 @@ msgstr "Prenájmy"
 
 #: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:139
+#: ../app/tabs/vnets-tab/panels/info/html.hbs:34
 msgid "VLAN ID"
 msgstr "VLAN ID"
 
@@ -2261,7 +2262,7 @@ msgstr "Rozsah adries nebol nájdený"
 msgid "MAC Start"
 msgstr "Štartovacia MAC"
 
-#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:200
+#: ../app/tabs/vnets-tab/panels/ar.js:307 ../app/utils/vcenter/networks.js:201
 msgid "IP Start"
 msgstr "Štartovacia IP"
 
@@ -2317,7 +2318,7 @@ msgstr "Aplikácia trhoviska vytvorená"
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
 #: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
 msgid "Image created"
-msgstr "Obraz vytvorený"
+msgstr "Obraz bol vytvorený"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:125
 #: ../app/tabs/images-tab/actions.js:93
@@ -2370,7 +2371,7 @@ msgstr "Čas registrácie"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 msgid "Marketplace"
-msgstr "Obchod"
+msgstr "Trhovisko"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:99
 msgid "Please select an appliance from the list"
@@ -2403,12 +2404,12 @@ msgstr "Virtuálny router"
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
 msgid "Dashboard"
-msgstr "Dashboard"
+msgstr "Palubná doska"
 
 #: ../app/tabs/clusters-tab/actions.js:32
 #: ../app/tabs/clusters-tab/actions.js:64
 msgid "Cluster created"
-msgstr "Cluster vytvorený"
+msgstr "Cluster bol vytvorený"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
@@ -2446,7 +2447,7 @@ msgstr "Trhovisko"
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
-msgstr "Užívateľ vytvorený"
+msgstr "Užívateľ bol vytvorený"
 
 #: ../app/tabs/users-tab/form-panels/create.js:50
 msgid "Create User"
@@ -2486,7 +2487,7 @@ msgstr "ID Skupiny"
 
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Hidden User Data"
-msgstr "Skryté užívateľské dáta"
+msgstr "Skryté používateľské dáta"
 
 #: ../app/tabs/users-tab/datatable.js:81
 msgid "Please select a User from the list"
@@ -2547,11 +2548,11 @@ msgstr "VS"
 
 #: ../app/tabs/vms-tab.js:72 ../app/tabs/dashboard-tab/vms.hbs:25
 msgid "ACTIVE"
-msgstr "Aktívny"
+msgstr "AKTÍVNY"
 
 #: ../app/tabs/vms-tab.js:75 ../app/tabs/dashboard-tab/vms.hbs:27
 msgid "FAILED"
-msgstr "Zhavarovaný"
+msgstr "ZHAVAROVANÝ"
 
 #: ../app/tabs/vms-tab/form-panels/create.js:50
 #: ../app/tabs/provision-tab/vms/create.hbs:20
@@ -2598,7 +2599,7 @@ msgstr "Preplánuj"
 
 #: ../app/tabs/vms-tab/buttons.js:150
 msgid "Un-Reschedule"
-msgstr "Zruší preplánovanie"
+msgstr "Zruš preplánovanie"
 
 #: ../app/tabs/vms-tab/buttons.js:159
 msgid "retry"
@@ -2786,7 +2787,7 @@ msgstr "Žiadne snímky"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:115
 msgid "snapshot in progress"
-msgstr "Snapshot sa vytvára"
+msgstr "Snímka sa vytvára"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:123
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:27
@@ -2884,11 +2885,11 @@ msgstr "Snímka"
 
 #: ../app/tabs/vms-tab/panels/storage.js:255
 msgid "YES"
-msgstr "Áno"
+msgstr "ÁNO"
 
 #: ../app/tabs/vms-tab/panels/storage.js:255
 msgid "NO"
-msgstr "Nie"
+msgstr "NIE"
 
 #: ../app/tabs/vms-tab/panels/storage.js:354
 msgid "This will detach the disk immediately"
@@ -2896,7 +2897,7 @@ msgstr "Toto odpojí disk okamžite"
 
 #: ../app/tabs/vms-tab/panels/storage.js:458
 msgid "This will delete the disk snapshot "
-msgstr "Týmto vymažeš snapshot disku"
+msgstr "Týmto vymažeš snímku disku"
 
 #: ../app/tabs/vms-tab/panels/storage.js:534
 #: ../app/tabs/images-tab/panels/snapshots.js:202
@@ -2911,8 +2912,8 @@ msgid "IP"
 msgstr "IP"
 
 #: ../app/tabs/vms-tab/panels/network.js:82
-#: ../app/utils/vcenter/networks.js:192 ../app/utils/vcenter/networks.js:205
-#: ../app/utils/vcenter/networks.js:218
+#: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
+#: ../app/utils/vcenter/networks.js:219
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:62
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:63
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
@@ -3171,7 +3172,7 @@ msgstr "Topológia siete"
 #: ../app/tabs/vnets-topology-tab.js:545
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
-msgstr "Vnet"
+msgstr "VNet"
 
 #: ../app/sunstone.js:910 ../app/sunstone.js:911
 msgid "Submitting..."
@@ -3203,7 +3204,7 @@ msgstr "OBRAZ"
 
 #: ../app/opennebula/marketplaceapp.js:34
 msgid "VMTEMPLATE"
-msgstr "VMTEMPLATE"
+msgstr "VSŠABLÓNA"
 
 #: ../app/opennebula/marketplaceapp.js:35
 msgid "SERVICE_TEMPLATE"
@@ -3264,7 +3265,7 @@ msgstr "EPILÓG"
 #: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
 #: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
 msgid "SHUTDOWN"
-msgstr "Shutdown"
+msgstr "SHUTDOWN"
 
 #: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
 #: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
@@ -3514,110 +3515,110 @@ msgstr "Stav obrazu:"
 msgid "You have to confirm this action"
 msgstr "Musíš potvrdiť túto operáciu"
 
-#: ../app/utils/vcenter/images.js:88
+#: ../app/utils/vcenter/images.js:89
 msgid "No new images found in this datastore"
 msgstr "Žiadne nové šablóny v tomto dátovom centre."
 
-#: ../app/utils/vcenter/images.js:107
+#: ../app/utils/vcenter/images.js:108
 msgid "Import Selected Images"
 msgstr "Importuj vybraté obrazy"
 
-#: ../app/utils/vcenter/images.js:112
+#: ../app/utils/vcenter/images.js:113
 msgid "Clear Imported Images"
 msgstr "Vymaž importované obrazy"
 
-#: ../app/utils/vcenter/images.js:243
+#: ../app/utils/vcenter/images.js:244
 msgid "Image created successfully"
-msgstr "Obraz úspešne vytvorený"
+msgstr "Obraz bol úspešne vytvorený"
 
-#: ../app/utils/vcenter/templates.js:88 ../app/utils/vcenter/templates.js:107
-#: ../app/utils/vcenter/datastores.js:88 ../app/utils/vcenter/datastores.js:107
-#: ../app/utils/vcenter/networks.js:87 ../app/utils/vcenter/networks.js:106
-#: ../app/utils/vcenter/clusters.js:83 ../app/utils/vcenter/clusters.js:102
+#: ../app/utils/vcenter/templates.js:89 ../app/utils/vcenter/templates.js:108
+#: ../app/utils/vcenter/datastores.js:89 ../app/utils/vcenter/datastores.js:108
+#: ../app/utils/vcenter/networks.js:88 ../app/utils/vcenter/networks.js:107
+#: ../app/utils/vcenter/clusters.js:84 ../app/utils/vcenter/clusters.js:103
 msgid "DataCenter"
 msgstr "Dátové centrum"
 
-#: ../app/utils/vcenter/templates.js:92
+#: ../app/utils/vcenter/templates.js:93
 msgid "No new templates found in this DataCenter"
 msgstr "Žiadne nové šablóny v tomto dátovom centre."
 
-#: ../app/utils/vcenter/templates.js:112 ../app/utils/vcenter/networks.js:111
+#: ../app/utils/vcenter/templates.js:113 ../app/utils/vcenter/networks.js:112
 msgid "Select All"
 msgstr "Vyber všetko"
 
-#: ../app/utils/vcenter/templates.js:118 ../app/utils/vcenter/networks.js:117
+#: ../app/utils/vcenter/templates.js:119 ../app/utils/vcenter/networks.js:118
 msgid "Expand Advanced Sections"
 msgstr "Rozbaľ rozšírené sekcie"
 
-#: ../app/utils/vcenter/templates.js:123
+#: ../app/utils/vcenter/templates.js:124
 msgid "Import Selected Templates"
 msgstr "Importuj vybraté šablóny"
 
-#: ../app/utils/vcenter/templates.js:128
+#: ../app/utils/vcenter/templates.js:129
 msgid "Clear Imported Templates"
 msgstr "Vymaž vybraté šablóny"
 
-#: ../app/utils/vcenter/templates.js:291
+#: ../app/utils/vcenter/templates.js:292
 msgid "Template created successfully"
-msgstr "Šablóna úspešne vytvorená"
+msgstr "Šablóna bola úspešne vytvorená"
 
-#: ../app/utils/vcenter/datastores.js:92
+#: ../app/utils/vcenter/datastores.js:93
 msgid "No new datastores found in this DataCenter"
 msgstr "Nenašli sa žiadne dátové sklady v tomto dátovom centre"
 
-#: ../app/utils/vcenter/datastores.js:111
+#: ../app/utils/vcenter/datastores.js:112
 msgid "Import Selected Datastores"
 msgstr "Importuj vybratý dátový sklad"
 
-#: ../app/utils/vcenter/datastores.js:116 ../app/utils/vcenter/clusters.js:106
+#: ../app/utils/vcenter/datastores.js:117 ../app/utils/vcenter/clusters.js:107
 msgid "Clear Imported Datastores"
 msgstr "Vyčisti importované dátové sklady"
 
-#: ../app/utils/vcenter/datastores.js:129
+#: ../app/utils/vcenter/datastores.js:130
 msgid "Datacenter"
 msgstr "Datacenter"
 
-#: ../app/utils/vcenter/datastores.js:254
+#: ../app/utils/vcenter/datastores.js:255
 msgid "Datastore created successfully"
-msgstr "Dátový sklad úspešne vytvorený"
+msgstr "Dátový sklad bol úspešne vytvorený"
 
-#: ../app/utils/vcenter/networks.js:91
+#: ../app/utils/vcenter/networks.js:92
 msgid "No new networks found in this DataCenter"
 msgstr "V tomto dátovom centre neboli nájdené žiadne nové siete."
 
-#: ../app/utils/vcenter/networks.js:122
+#: ../app/utils/vcenter/networks.js:123
 msgid "Import Selected Networks"
 msgstr "Importuj vybraté siete"
 
-#: ../app/utils/vcenter/networks.js:127
+#: ../app/utils/vcenter/networks.js:128
 msgid "Clear Imported Networks"
 msgstr "Vymaž vybraté siete"
 
-#: ../app/utils/vcenter/networks.js:193 ../app/utils/vcenter/networks.js:206
-#: ../app/utils/vcenter/networks.js:214 ../app/utils/vcenter/networks.js:224
+#: ../app/utils/vcenter/networks.js:194 ../app/utils/vcenter/networks.js:207
+#: ../app/utils/vcenter/networks.js:215 ../app/utils/vcenter/networks.js:225
 #: ../app/utils/vcenter/networks/row.hbs:57
 msgid "Optional"
 msgstr "Voliteľne"
 
-#: ../app/utils/vcenter/networks.js:213
+#: ../app/utils/vcenter/networks.js:214
 msgid "Global Prefix"
 msgstr "Všeobecný prefix"
 
-#: ../app/utils/vcenter/networks.js:223
+#: ../app/utils/vcenter/networks.js:224
 msgid "ULA Prefix"
 msgstr "ULA prefix"
 
-#: ../app/utils/vcenter/networks.js:325
+#: ../app/utils/vcenter/networks.js:326
 msgid "Virtual Network created successfully"
-msgstr "Virtuálna sieť úspešne vytvorená"
+msgstr "Virtuálna sieť bola úspešne vytvorená"
 
-#: ../app/utils/vcenter/clusters.js:87
+#: ../app/utils/vcenter/clusters.js:88
 msgid "No new clusters found in this DataCenter"
 msgstr "V tomto dátovom centre neboli nájdené žiadne nové clustre."
 
-#: ../app/utils/vcenter/clusters.js:191
+#: ../app/utils/vcenter/clusters.js:192
 msgid "Host created successfully"
-msgstr "Host úspešne vytvorený"
+msgstr "Host bol úspešne vytvorený"
 
 #: ../app/utils/user-inputs.js:510
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
@@ -3810,7 +3811,7 @@ msgid "Description"
 msgstr "Popis"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:45
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:236
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:241
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:58
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:190
 msgid "Custom attributes"
@@ -3922,7 +3923,7 @@ msgstr "Storage účet"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:83
 msgid "Subnet name"
-msgstr "Meno subnetu"
+msgstr "Meno podsiete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:84
 msgid "Name of the particular Subnet where this VM will be connected to"
@@ -3995,7 +3996,7 @@ msgstr "Dosiahne lepšiu I/O priepustnosť s EBS zariadením"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:58
 msgid "Elastic IP address"
-msgstr "Elastic IP adresa"
+msgstr "Pružná IP adresa"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:59
 msgid "This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
@@ -4045,7 +4046,7 @@ msgstr "ID RAM disku"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:113
 msgid "Security group names"
-msgstr "Mená Security grúp"
+msgstr "Mená Security skupín"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:114
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:121
@@ -4058,7 +4059,7 @@ msgstr "ID bezpečnostnej skupiny"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:129
 msgid "Subnet ID"
-msgstr "ID subsiete"
+msgstr "ID podsiete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:130
 msgid "If you're using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
@@ -4228,11 +4229,11 @@ msgstr "Fičúrie"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:39
 msgid "CPU Architecture"
-msgstr "CPU architektúra"
+msgstr "Architektúra CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
 msgid "libvirt machine type"
-msgstr "libvirt typ"
+msgstr "Typ libvirt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
@@ -4313,7 +4314,7 @@ msgstr "HyperV"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:194
 msgid "Add support in the VM for hyper-v features (HYPERV)"
-msgstr "Pridaj podporu pre HyperV (hyperV fičúrie)"
+msgstr "Pridaj podporu pre HyperV (HyperV fičúrie)"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:206
 msgid "Localtime"
@@ -4356,23 +4357,23 @@ msgid "Override Network Values IPv4"
 msgstr "Prepíš hodnoty IPv4 siete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:70
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:202
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:207
 msgid "Network mask"
 msgstr "Sieťová maska"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:76
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:196
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:201
 msgid "Network address"
 msgstr "Sieťová adresa"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:84
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:115
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:210
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:215
 msgid "Gateway"
 msgstr "Brána"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:90
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:224
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:229
 msgid "DNS"
 msgstr "DNS"
 
@@ -4714,7 +4715,7 @@ msgstr "Minimálne"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:171
 #: ../app/utils/user-inputs/row.hbs:44 ../app/utils/user-inputs/row.hbs:61
 msgid "Max"
-msgstr "Max."
+msgstr "Maximálne"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:109
 msgid "CPU modification"
@@ -4991,7 +4992,7 @@ msgstr "Meno zóny"
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:74
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:85
 msgid "Custom"
-msgstr "Užívateľský"
+msgstr "Používateľský"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:43
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:47
@@ -5004,11 +5005,11 @@ msgstr "Virtualizácia"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:57
 msgid "Custom VMM_MAD"
-msgstr "Užívateľský VMM_MAD"
+msgstr "Používateľský VMM_MAD"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:74
 msgid "Custom IM_MAD"
-msgstr "Užívateľský IM_MAD"
+msgstr "Používateľský IM_MAD"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:101
 msgid "Get vCenter Clusters"
@@ -5236,7 +5237,7 @@ msgstr "Diskové MB hodiny"
 
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:18
 msgid "Group Virtual Machines"
-msgstr "Skupina Virtuálne stroje"
+msgstr "Skupina Virtuálnych strojov"
 
 #: ../app/tabs/provision-tab/dashboard/empty-graphs.hbs:20
 #: ../app/tabs/dashboard-tab/empty-graph.hbs:20
@@ -5284,7 +5285,7 @@ msgstr "ACL reťazce - prezeranie"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Service template here"
-msgstr "Požiadavka vytvorená"
+msgstr "Požiadavka bola vytvorená"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:38
 msgid "Network configuration"
@@ -5643,7 +5644,7 @@ msgstr "iSCSI/Libvirt"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
 msgid "Custom DS_MAD"
-msgstr "Užívateľský DS_MAD"
+msgstr "Používateľský DS_MAD"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:64
 msgid "Transfer"
@@ -5667,7 +5668,7 @@ msgstr "FS LVM"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:77
 msgid "Custom TM_MAD"
-msgstr "Užívateľský TM_MAD"
+msgstr "Používateľský TM_MAD"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:87
 msgid "Datastore Type"
@@ -5813,6 +5814,16 @@ msgstr "vCenter cluster"
 msgid "The vCenter Cluster that has access to this datastore."
 msgstr "vCeter cluster s prístupom k tomuto dátovému skladu"
 
+#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:267
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
+msgid "Bus adapter controller"
+msgstr "Radič zbernice"
+
+#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:282
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
+msgid "Disk provisioning type"
+msgstr "Disk provisioning typ"
+
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
 msgid "Base path"
 msgstr "Cesta"
@@ -5863,7 +5874,7 @@ msgstr "Zmeň jazyk"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:46
 msgid "Update Language"
-msgstr "Updatni jazyk"
+msgstr "Aktualizuj jazyk"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:74
 msgid "Change Password"
@@ -5889,7 +5900,7 @@ msgstr "Zmeň pohľad"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:135
 msgid "Update view"
-msgstr "Updatni pohľad"
+msgstr "Aktualizuj pohľad"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:164
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:188
@@ -5899,7 +5910,7 @@ msgstr "Pridaj SSH kľúč"
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:189
 msgid "Update SSH Key"
-msgstr "Updatni SSH kľúč"
+msgstr "Aktualizuj SSH kľúč"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:171
 msgid "Add a public SSH key to your account!"
@@ -5912,7 +5923,7 @@ msgstr "VS bude prístupný bez použitia hesla"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:176
 msgid "Update your public SSH key!"
-msgstr "Updatni Tvoj verejný SSH kľúč!"
+msgstr "Aktualizuj Tvoj verejný SSH kľúč!"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Security Group template here"
@@ -5968,15 +5979,15 @@ msgstr "Virtuálne stroje označené s <i class='fa fa-warning'></i> čakajú na
 
 #: ../app/tabs/secgroups-tab/panels/vms/html.hbs:31
 msgid "VMs in error. The update to the latest rules failed:"
-msgstr "Virtuálny stroj je v chybovom stave. Update na najnovšie pravidlo zhavaroval:"
+msgstr "Virtuálny stroj je v chybovom stave. Aktualizácia na najnovšie pravidlo zhavarovala:"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:19
 msgid "Clone Security Group"
-msgstr "Klonuj security grupu"
+msgstr "Klonuj security skupinu"
 
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:27
 msgid "Several security groups are selected, please choose a prefix to name the new copies"
-msgstr "Je vybratých viac security grúp - zvoľ prefix pre pomenovanie kópií"
+msgstr "Je vybratých viac security skupín - zvoľ prefix pre pomenovanie kópií"
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:34
 msgid "Get Networks"
@@ -5996,11 +6007,11 @@ msgstr "Sieťový mód"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:79
 msgid "Bridged"
-msgstr "Bridged"
+msgstr "Premostený"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:80
 msgid "Bridged & Security Groups"
-msgstr "Bridged & Security Groups"
+msgstr "Bridged & Security skupiny"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:81
 msgid "Bridged & ebtables VLAN"
@@ -6024,15 +6035,15 @@ msgstr "Sieťový ovládač (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."
-msgstr "Bridžovaný, traffic virtuálneho stroja je priamo premostený prostredníctvom existujúceho Linux mostu v nóde. Traffic nie je filtrovaný."
+msgstr "Premostený, traffic virtuálneho stroja je priamo premostený prostredníctvom existujúceho Linux mostu v nóde. Traffic nie je filtrovaný."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:99
 msgid "Bridged & Security Groups, bridged network with Security Group rules."
-msgstr "Bridged & Security Groups, bridžovaná sieť so skupinovými security pravidlami."
+msgstr "Bridged & Security Groups, premostená sieť so skupinovými security pravidlami."
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:102
 msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-msgstr "Bridged & ebtables VLAN, obmedzený bsieťový prístup prostredníctvom pravidiel ebtables. Skupinové security pravidlá sú aplikované. "
+msgstr "Bridged & ebtables VLAN, obmedzený sieťový prístup prostredníctvom pravidiel ebtables. Skupinové security pravidlá sú aplikované. "
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:105
 msgid "802.1Q, restrict network access through VLAN tagging. Security Group rules are applied."
@@ -6048,7 +6059,7 @@ msgstr "Open vSwitch: obmedzený sieťový prístup s Open vSwitch virtuálnym p
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:114
 msgid "Custom, use a custom virtual network driver."
-msgstr "Užívateľský, použi používateľsky definovaný ovládač virtuálnej siete"
+msgstr "Používateľský, použi používateľsky definovaný ovládač virtuálnej siete"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:123
 msgid "MAC spoofing filter"
@@ -6058,31 +6069,45 @@ msgstr "MAC spoofing filter"
 msgid "IP spoofing filter"
 msgstr "IP spoofing filter"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:145
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
+msgid "Automatic VLAN ID"
+msgstr ""
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
+#, fuzzy
+msgid "No VLAN network"
+msgstr "Ľubovoľná sieť"
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
+#, fuzzy
+msgid "Manual VLAN ID"
+msgstr "VLAN ID"
+
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
 msgstr "Fyzické zariadenie"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:147
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:152
 msgid "Node NIC to send/receive virtual network traffic"
 msgstr "NIC nódu pre send / receive traffic virtuálnej siete"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:154
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:159
 msgid "MTU of the interface"
 msgstr "MTU rozhrania"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:177
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr "Rozsahy adries musia byť manažované na paneloch jednotlivých virtuálnych sietí"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:187
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:192
 msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr "Základná security grupa 0 je automaticky pridaná do novej virtuálnej siete"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:216
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:221
 msgid "IPv6 Gateway"
 msgstr "IPv6 Gateway"
 
-#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:230
+#: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:235
 msgid "MTU of the Guest interfaces"
 msgstr "MTU hosťovského rozhrania"
 
@@ -6301,7 +6326,7 @@ msgstr "Verejný"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
 msgid "custom"
-msgstr "Užívateľský"
+msgstr "Používateľský"
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
 msgid "Image / Size-Format"
@@ -6352,7 +6377,7 @@ msgstr "Aktualizuj konfiguráciu"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
-msgstr "Snapshot disku"
+msgstr "Snímka disku"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:28
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:28
@@ -6440,7 +6465,7 @@ msgstr "Ulož disk ako"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:32
 msgid "Snapshot ID"
-msgstr "ID snapshotu"
+msgstr "ID snímky"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
@@ -6460,7 +6485,7 @@ msgstr "Obraz operačného systému"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
 msgid "Readonly CD-ROM"
-msgstr "Iba na čítanie CD-ROM"
+msgstr "CD-ROM iba na čítanie "
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
@@ -6489,14 +6514,6 @@ msgstr "Vyprázdni obraz disku"
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
 msgid "Path"
 msgstr "Cesta"
-
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
-msgid "Disk provisioning type"
-msgstr "Disk provisioning typ"
-
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
-msgid "Bus adapter controller"
-msgstr "Radič zbernice"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:146
 msgid "BUS"

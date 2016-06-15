@@ -40,6 +40,29 @@ begin
 
     ds = vi_client.get_datastore(ds_name)
 
+    # Monkey path datastore objects. Can not be done patching the class
+    # as the library redefines it when a new object is created. Using both
+    # the database vmodl.db and the Datastore.rb
+    #
+    # This patch fixes a bug in rbvmomi. It does not specify the path of the
+    # datacenter. If it is inside a folder it could not be found.
+    class <<ds
+        def get_ds_path
+            p = datacenter.parent
+            path = [datacenter.name]
+            while p.class == RbVmomi::VIM::Folder
+                path.unshift(p.name)
+                p = p.parent
+            end
+
+            path.delete_at(0) # The first folder is the root "Datacenters"
+            path.join('/')
+        end
+        def mkuripath path
+            "/folder/#{URI.escape path}?dcPath=#{URI.escape get_ds_path}&dsName=#{URI.escape name}"
+        end
+    end
+
     directory = File.dirname(target_path)
     vi_client.create_directory(directory, ds_name)
 
