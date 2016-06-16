@@ -34,7 +34,18 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             if nic[:bridge_ovs] && !nic[:bridge_ovs].empty?
                 nic[:bridge] = nic[:bridge_ovs]
             end
+            nic[:bridge_ovs_real] = get_real_bridge(nic[:bridge])
         end
+    end
+
+    def get_real_bridge(bridge)
+        ret = nil
+        while ret != bridge do
+            bridge = ret unless ret == nil
+            ret = `#{command(:ovs_vsctl)} br-to-parent #{bridge}`.strip
+        end
+
+        return ret
     end
 
     def activate
@@ -164,7 +175,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         in_port = ""
 
-        dump_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
+        dump_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge_ovs_real]}"
         `#{dump_flows}`.lines do |flow|
             next unless flow.match("#{@nic[:mac]}")
 
@@ -185,13 +196,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         priority = (priority.to_s.empty? ? "" : "priority=#{priority},")
 
         run "#{command(:ovs_ofctl)} add-flow " <<
-            "#{@nic[:bridge]} #{filter},#{priority}actions=#{action}"
+            "#{@nic[:bridge_ovs_real]} #{filter},#{priority}actions=#{action}"
     end
 
     def del_flow(filter)
         filter.gsub!(/priority=(\d+)/,"")
         run "#{command(:ovs_ofctl)} del-flows " <<
-            "#{@nic[:bridge]} #{filter}"
+            "#{@nic[:bridge_ovs_real]} #{filter}"
     end
 
     def run(cmd)
@@ -200,7 +211,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def ports
         dump_ports = `#{command(:ovs_ofctl)} \
-                      dump-ports #{@nic[:bridge]} #{@nic[:tap]}`
+                      dump-ports #{@nic[:bridge_ovs_real]} #{@nic[:tap]}`
 
         dump_ports.scan(/^\s*port\s*(\d+):/).flatten
     end
