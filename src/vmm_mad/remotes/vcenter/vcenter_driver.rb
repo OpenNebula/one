@@ -2437,7 +2437,7 @@ private
                img_name   = disk.elements["SOURCE"].text
                type_str   = disk.elements["TYPE"].text
 
-               disk_array += attach_disk("", "", ds_name, img_name, 0, type_str, vm, connection)[:deviceChange]
+               disk_array += attach_disk("", "", ds_name, img_name, type_str, 0, vm, connection)[:deviceChange]
             }
 
             device_change += disk_array
