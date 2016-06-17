@@ -28,7 +28,11 @@
             <span class="tip">
               {{tr "Optionally, you can force the IP assigned to the network interface."}}
             </span>
-            <input type="text" class="manual_ip4" />
+            {{#if options.nic.IP}}
+            <input type="text" class="manual_ip4" value="{{options.nic.IP}}"/>
+            {{else}}
+            <input type="text" class="manual_ip4"/>
+            {{/if}}
           </label>
         </div>
       {{/if}}

@@ -116,11 +116,14 @@ define(function(require) {
         nic["FLOATING_IP"] = "YES";
       }
 
-      delete nic["IP"];
       var ip4 = $("input.manual_ip4", $(this)).val();
 
-      if (ip4 != undefined && ip4 != ""){
-        nic["IP"] = ip4;
+      if (ip4 != undefined){
+        delete nic["IP"];
+
+        if (ip4 != ""){
+          nic["IP"] = ip4;
+        }
       }
 
       delete nic["VROUTER_MANAGEMENT"];
