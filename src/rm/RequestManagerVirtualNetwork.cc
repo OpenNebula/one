@@ -450,6 +450,8 @@ void VirtualNetworkReserve::request_execute(
             if (rvn != 0)
             {
                 vnpool->drop(rvn, att.resp_msg);
+
+                rvn->unlock();
             }
         }
 

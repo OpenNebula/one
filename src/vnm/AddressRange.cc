@@ -630,6 +630,11 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
 
     string ip = _ip;
 
+    if ( ip.find_first_not_of("0123456789.") != std::string::npos )
+    {
+        return -1;
+    }
+
     while ( (pos = ip.find('.')) !=  string::npos )
     {
         ip.replace(pos,1," ");
@@ -637,11 +642,6 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
     }
 
     if (count != 3)
-    {
-        return -1;
-    }
-
-    if ( ip.find_first_not_of("0123456789 ") != std::string::npos )
     {
         return -1;
     }
