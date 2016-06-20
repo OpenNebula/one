@@ -74,31 +74,7 @@ fi
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-to_mb() {
-    value=\$(echo "\$1" | sed 's/[^0123456789].*\$//g')
-    units=\$(echo "\$1" | sed 's/^[0123456789]*//g' | tr '[:upper:]' '[:lower:]')
-
-    case "\$units" in
-        t|tb) value=\$(expr \$value \* 1024 \* 1024) ;;
-        g|gb) value=\$(expr \$value \* 1024) ;;
-        m|mb) value=\$value ;;
-        k|kb) value=\$(expr \$value / 1024) ;;
-        b|'') value=0 ;;
-        *) value=0;;
-    esac
-    echo "\$value"
-}
-
-MAX_AVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
-USED=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$3}')
-
-USED_MB=\$(to_mb \$USED)
-FREE_MB=\$(to_mb \$MAX_AVAIL)
-TOTAL_MB=\$(expr \$USED_MB + \$FREE_MB)
-
-echo "USED_MB=\$USED_MB"
-echo "FREE_MB=\$FREE_MB"
-echo "TOTAL_MB=\$TOTAL_MB"
+$CEPH df --format xml
 EOF
 )
 
@@ -106,9 +82,23 @@ MONITOR_DATA=$(ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" 2>&1)
 MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA" | tr ' ' '\n'
+    XPATH="${DRIVER_PATH}/../xpath.rb --stdin"
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(echo $MONITOR_DATA | $XPATH \
+                        "/stats/pools/pool[name = \"${POOL_NAME}\"]/stats/bytes_used" \
+                        "/stats/pools/pool[name = \"${POOL_NAME}\"]/stats/max_avail")
+
+    BYTES_USED="${XPATH_ELEMENTS[j++]}"
+    FREE="${XPATH_ELEMENTS[j++]}"
+
+    echo "USED_MB=$(($BYTES_USED / 1024**2))
+          TOTAL_MB=$((($BYTES_USED + $FREE) / 1024**2))
+          FREE_MB=$(($FREE / 1024**2))" | tr -d ' '
 else
     echo "$MONITOR_DATA"
     exit $MONITOR_STATUS
 fi
-
