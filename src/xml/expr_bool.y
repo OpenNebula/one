@@ -158,7 +158,7 @@ expr:   STRING '=' INTEGER {
             $$ = (rc == 0 && val < $3);}
 
         | STRING '=' STRING {
-            string val;
+            std::string val;
             int rc;
 
             rc = oxml->search($1,val);
@@ -166,7 +166,7 @@ expr:   STRING '=' INTEGER {
         }
 
         | STRING '!''=' STRING {
-            string val;
+            std::string val;
             int rc;
 
             rc = oxml->search($1,val);

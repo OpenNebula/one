@@ -84,8 +84,6 @@
 #include "expr_bool.h"
 #include "ObjectXML.h"
 
-using namespace std;
-
 #define YYERROR_VERBOSE
 #define expr_bool__lex expr_lex
 
@@ -1497,7 +1495,7 @@ yyreduce:
   case 12:
 #line 160 "expr_bool.y" /* yacc.c:1646  */
     {
-            string val;
+            std::string val;
             int rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
@@ -1509,7 +1507,7 @@ yyreduce:
   case 13:
 #line 168 "expr_bool.y" /* yacc.c:1646  */
     {
-            string val;
+            std::string val;
             int rc;
 
             rc = oxml->search((yyvsp[-3].val_str),val);

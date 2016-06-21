@@ -431,13 +431,11 @@ void insert_vector(VirtualMachine * vm,
         }
         else
         {
-            const VectorAttribute * tmp = 0;
-
             for (int i=0 ; i < num ; i++)
             {
-                if (tmp->vector_value(vvar.c_str()) == vval)
+                if (values[i]->vector_value(vvar.c_str()) == vval)
                 {
-                    vattr = tmp;
+                    vattr = values[i];
                     break;
                 }
             }
@@ -454,7 +452,7 @@ void insert_vector(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 
 
-#line 458 "vm_var_syntax.cc" /* yacc.c:339  */
+#line 456 "vm_var_syntax.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -506,13 +504,13 @@ extern int vm_var__debug;
 
 union YYSTYPE
 {
-#line 410 "vm_var_syntax.y" /* yacc.c:355  */
+#line 408 "vm_var_syntax.y" /* yacc.c:355  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 516 "vm_var_syntax.cc" /* yacc.c:355  */
+#line 514 "vm_var_syntax.cc" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -542,7 +540,7 @@ int vm_var__parse (mem_collector * mc, VirtualMachine * vm, ostringstream *  par
 
 /* Copy the second part of user declarations.  */
 
-#line 546 "vm_var_syntax.cc" /* yacc.c:358  */
+#line 544 "vm_var_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -842,7 +840,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   434,   434,   435,   438,   442,   455,   470
+       0,   432,   432,   433,   436,   440,   453,   468
 };
 #endif
 
@@ -1722,15 +1720,15 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 439 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 437 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         (*parsed) << (yyvsp[0].val_str);
     }
-#line 1730 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1728 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 443 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 441 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-1].val_str));
 
@@ -1743,11 +1741,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1747 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1745 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 456 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 454 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-4].val_str));
         string vname((yyvsp[-2].val_str));
@@ -1762,11 +1760,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1766 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1764 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 471 "vm_var_syntax.y" /* yacc.c:1646  */
+#line 469 "vm_var_syntax.y" /* yacc.c:1646  */
     {
         string name((yyvsp[-8].val_str));
         string vname((yyvsp[-6].val_str));
@@ -1784,11 +1782,11 @@ yyreduce:
             (*parsed) << (yyvsp[0].val_char);
         }
     }
-#line 1788 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1786 "vm_var_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1792 "vm_var_syntax.cc" /* yacc.c:1646  */
+#line 1790 "vm_var_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2023,7 +2021,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 489 "vm_var_syntax.y" /* yacc.c:1906  */
+#line 487 "vm_var_syntax.y" /* yacc.c:1906  */
 
 
 extern "C" void vm_var__error(

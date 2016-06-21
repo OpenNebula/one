@@ -376,13 +376,11 @@ void insert_vector(VirtualMachine * vm,
         }
         else
         {
-            const VectorAttribute * tmp = 0;
-
             for (int i=0 ; i < num ; i++)
             {
-                if (tmp->vector_value(vvar.c_str()) == vval)
+                if (values[i]->vector_value(vvar.c_str()) == vval)
                 {
-                    vattr = tmp;
+                    vattr = values[i];
                     break;
                 }
             }
