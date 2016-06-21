@@ -1026,10 +1026,10 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<source>\n";
         file << "\t\t\t\t<address "
-                 << "domain="   << one_util::escape_xml_attr("0x" + domain)
-                 << "bus="      << one_util::escape_xml_attr("0x" + bus)
-                 << "slot="     << one_util::escape_xml_attr("0x" + slot)
-                 << "function=" << one_util::escape_xml_attr("0x" + func)
+                 << " domain="   << one_util::escape_xml_attr("0x" + domain)
+                 << " bus="      << one_util::escape_xml_attr("0x" + bus)
+                 << " slot="     << one_util::escape_xml_attr("0x" + slot)
+                 << " function=" << one_util::escape_xml_attr("0x" + func)
              << "/>\n";
         file << "\t\t\t</source>\n";
 
