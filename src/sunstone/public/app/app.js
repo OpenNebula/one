@@ -121,8 +121,16 @@ define(function(require) {
         success: function (request, obj_list) {
           $('.zone-ul').empty();
           $.each(obj_list, function() {
+            var icon;
+
+            if(this.ZONE.NAME == config['zone_name']){
+              icon = '<i class="fa fa-fw fa-check"></i>'
+            } else {
+              icon = '<i class="fa fa-fw"></i>'
+            }
+
             $('.zone-ul').append('<li>' +
-              '<a href="#" id="' + this.ZONE.NAME + '" class="zone-choice">' + this.ZONE.NAME + '</a></li>');
+              '<a href="#" id="' + this.ZONE.NAME + '" class="zone-choice">' + icon + ' ' + this.ZONE.NAME + '</a></li>');
           });
         },
         error: Notifier.onError

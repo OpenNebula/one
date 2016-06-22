@@ -35,7 +35,6 @@
     }
 
     @include breakpoint(medium down) {
-      .username,
       .zonename {
         display: none;
       }
