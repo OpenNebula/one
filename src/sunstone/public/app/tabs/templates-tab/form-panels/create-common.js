@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplateUtils = require('utils/template-utils');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -208,6 +209,9 @@ define(function(require) {
     this.resourceId = element.ID;
 
     var templateJSON = element.TEMPLATE;
+
+    // Fills the name
+    WizardFields.fillInput($("#NAME", context), element.NAME);
 
     // Populates the Avanced mode Tab
     $('#template', context).val(TemplateUtils.templateToString(templateJSON));
