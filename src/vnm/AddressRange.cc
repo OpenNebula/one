@@ -339,6 +339,12 @@ int AddressRange::update_attributes(
 
             return -1;
         }
+        
+        if (check_ip4_subnet(new_size) == -1)
+        {
+            error_msg = "The new SIZE does not fit in the IP4_SUBNET.";
+            return -1;
+        }
 
         next = 0;
     }
@@ -729,6 +735,25 @@ int AddressRange::check_ip4_subnet() const
     unsigned int ip_end = ip4_subnet[0] | (~maskb);
 
     if ( ip < ip_start || (ip + size) > ip_end )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+int AddressRange::check_ip4_subnet(unsigned int new_size) const
+{
+    unsigned int maskb = 0;
+    if (ip4_subnet[1] != 0)
+    {
+      maskb = (0xFFFFFFFF << (32 - ip4_subnet[1])) & 0xFFFFFFFF;
+    }
+
+    unsigned int ip_start = ip4_subnet[0] & maskb;
+    unsigned int ip_end = ip4_subnet[0] | (~maskb);
+
+    if ( ip < ip_start || (ip + new_size) > ip_end )
     {
         return -1;
     }

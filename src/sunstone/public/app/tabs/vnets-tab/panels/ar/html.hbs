@@ -42,7 +42,9 @@
         <thead>
           <tr>
             <th>{{tr "Address Range"}}</th>
+            <th>{{tr "IPAM"}}</th>
             <th>{{tr "Type"}}</th>
+            <th>{{tr "IPv4 Subnet"}}</th>
             <th>{{tr "Start"}}</th>
             <th>{{tr "IPv6 Prefix"}}</th>
             <th>{{tr "Leases"}}</th>
@@ -52,7 +54,9 @@
           {{#each arList}}
             <tr ar="{{id}}">
               <td style="white-space: nowrap" class="value_td">{{id}}</td>
+              <td style="white-space: nowrap" class="value_td">{{ipam_mad}}</td>
               <td style="white-space: nowrap" class="value_td">{{type}}</td>
+              <td style="white-space: nowrap" class="value_td">{{ip4_subnet}}</td>
               <td style="white-space: nowrap" class="value_td">{{start}}</td>
               <td style="white-space: nowrap" class="value_td">{{{prefixHTML}}}</td>
               <td style="white-space: nowrap" class="value_td">{{{leasesHTML}}}</td>

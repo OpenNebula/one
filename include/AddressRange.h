@@ -403,6 +403,7 @@ protected:
      *    @param subnet in string form 192.168.0.0/24
      */
     int check_ip4_subnet() const;
+    int check_ip4_subnet(unsigned int size) const;
 
     /**
      *  IP version 4 to binary (32 bits)

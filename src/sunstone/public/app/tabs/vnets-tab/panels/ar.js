@@ -81,7 +81,11 @@ define(function(require) {
       var ar = arList[i];
       var id = ar.AR_ID;
 
+      var ipam_mad = (ar.IPAM_MAD ? ar.IPAM_MAD : "default");
+
       var type = (ar.TYPE ? ar.TYPE : "--");
+
+      var ip4_subnet = (ar.IP4_SUBNET ? ar.IP4_SUBNET : "--");
 
       var start = "";
 
@@ -107,7 +111,9 @@ define(function(require) {
 
       processedARList.push({
         "id" : id,
+        "ipam_mad" : ipam_mad,
         "type" : type,
+        "ip4_subnet": ip4_subnet,
         "start" : start,
         "prefixHTML" : prefix,
         "leasesHTML" : leases
@@ -302,9 +308,11 @@ define(function(require) {
     var last_ip6_ula    = ar.IP6_ULA_END;
 
     var arKnownAttr = [
+      {key: Locale.tr("IPAM Driver"),  value: ar.IPAM_MAD},
       {key: Locale.tr("Type"),         value: ar.TYPE},
       {key: Locale.tr("MAC Start"),    value: ar.MAC},
-      {key: Locale.tr("IP Start"),     value: ar.IP},
+      {key: Locale.tr("IPv4 Subnet"),  value: ar.IP4_SUBNET},
+      {key: Locale.tr("IPv4 Start"),   value: ar.IP},
       {key: Locale.tr("Global prefix"),value: ar.GLOBAL_PREFIX},
       {key: Locale.tr("ULA prefix"),   value: ar.ULA_PREFIX},
       {key: Locale.tr("Size"),         value: ar.SIZE},
@@ -319,8 +327,10 @@ define(function(require) {
     delete ar["IP6_GLOBAL"];
     delete ar["IP6_GLOBAL_END"];
     delete ar["AR_ID"];
+    delete ar["IPAM_MAD"];
     delete ar["TYPE"];
     delete ar["MAC"];
+    delete ar["IP4_SUBNET"];
     delete ar["IP"];
     delete ar["GLOBAL_PREFIX"];
     delete ar["ULA_PREFIX"];
