@@ -682,10 +682,14 @@ void LifeCycleManager::prolog_success_action(int vid)
                     vm->set_state(VirtualMachine::BOOT_MIGRATE);
                     break;
 
-                case VirtualMachine::PROLOG:
-                case VirtualMachine::PROLOG_FAILURE: //recover success
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
+                    vm->set_previous_reason(History::USER);
+                    vm->set_previous_action(History::MIGRATE_ACTION);
+                    vmpool->update_previous_history(vm);
+
+                case VirtualMachine::PROLOG:
+                case VirtualMachine::PROLOG_FAILURE: //recover success
                     action = VirtualMachineManager::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT);
                     break;
