@@ -269,6 +269,18 @@ void  LifeCycleManager::migrate_action(int vid)
         else //VirtualMachine::UNKNOWN
         {
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
+
+            vm->set_previous_running_etime(the_time);
+
+            vm->set_previous_etime(the_time);
+
+            vm->set_previous_action(History::MIGRATE_ACTION);
+
+            vm->set_previous_reason(History::USER);
+
+            vm->set_previous_vm_info();
+
+            vmpool->update_previous_history(vm);
         }
 
         vm->set_state(VirtualMachine::ACTIVE);
@@ -344,9 +356,11 @@ void  LifeCycleManager::live_migrate_action(int vid)
 
         vm->set_stime(time(0));
 
+        vmpool->update_history(vm);
+
         vm->set_previous_action(History::LIVE_MIGRATE_ACTION);
 
-        vmpool->update_history(vm);
+        vmpool->update_previous_history(vm);
 
         vm->get_requirements(cpu, mem, disk, pci);
 

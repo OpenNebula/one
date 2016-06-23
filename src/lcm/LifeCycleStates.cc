@@ -683,11 +683,7 @@ void LifeCycleManager::prolog_success_action(int vid)
                     break;
 
                 case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE: //recover success
-                    vm->set_previous_reason(History::USER);
-                    vm->set_previous_action(History::MIGRATE_ACTION);
-                    vmpool->update_previous_history(vm);
-
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
                 case VirtualMachine::PROLOG:
                 case VirtualMachine::PROLOG_FAILURE: //recover success
                     action = VirtualMachineManager::DEPLOY;
@@ -736,6 +732,7 @@ void LifeCycleManager::prolog_success_action(int vid)
             vm->set_vm_info();
 
             vm->set_reason(History::USER);
+
             vm->set_action(History::MIGRATE_ACTION);
 
             vmpool->update_history(vm);
