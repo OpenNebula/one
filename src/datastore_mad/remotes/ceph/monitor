@@ -33,6 +33,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/ceph.conf
+source ${DRIVER_PATH}/ceph_utils.sh
 
 # -------- Get datastore arguments from OpenNebula core ------------
 
@@ -83,22 +84,9 @@ MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
     XPATH="${DRIVER_PATH}/../xpath.rb --stdin"
-
-    unset i j XPATH_ELEMENTS
-
-    while IFS= read -r -d '' element; do
-        XPATH_ELEMENTS[i++]="$element"
-    done < <(echo $MONITOR_DATA | $XPATH \
-                        "/stats/pools/pool[name = \"${POOL_NAME}\"]/stats/bytes_used" \
-                        "/stats/pools/pool[name = \"${POOL_NAME}\"]/stats/max_avail")
-
-    BYTES_USED="${XPATH_ELEMENTS[j++]}"
-    FREE="${XPATH_ELEMENTS[j++]}"
-
-    echo "USED_MB=$(($BYTES_USED / 1024**2))
-          TOTAL_MB=$((($BYTES_USED + $FREE) / 1024**2))
-          FREE_MB=$(($FREE / 1024**2))" | tr -d ' '
+    echo -e "$(rbd_df_monitor ${MONITOR_DATA} ${POOL_NAME})"
 else
     echo "$MONITOR_DATA"
     exit $MONITOR_STATUS
 fi
+

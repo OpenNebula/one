@@ -33,6 +33,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 # -------- Get datastore arguments from OpenNebula core ------------
 
@@ -74,31 +75,7 @@ fi
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-to_mb() {
-    value=\$(echo "\$1" | sed 's/[^0123456789].*\$//g')
-    units=\$(echo "\$1" | sed 's/^[0123456789]*//g' | tr '[:upper:]' '[:lower:]')
-
-    case "\$units" in
-        t|tb) value=\$(expr \$value \* 1024 \* 1024) ;;
-        g|gb) value=\$(expr \$value \* 1024) ;;
-        m|mb) value=\$value ;;
-        k|kb) value=\$(expr \$value / 1024) ;;
-        b|'') value=0 ;;
-        *) value=0;;
-    esac
-    echo "\$value"
-}
-
-MAX_AVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
-USED=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$3}')
-
-USED_MB=\$(to_mb \$USED)
-FREE_MB=\$(to_mb \$MAX_AVAIL)
-TOTAL_MB=\$(expr \$USED_MB + \$FREE_MB)
-
-echo "USED_MB=\$USED_MB"
-echo "FREE_MB=\$FREE_MB"
-echo "TOTAL_MB=\$TOTAL_MB"
+$CEPH df --format xml
 EOF
 )
 
@@ -106,7 +83,8 @@ MONITOR_DATA=$(ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" 2>&1)
 MONITOR_STATUS=$?
 
 if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA" | tr ' ' '\n'
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    echo -e "$(rbd_df_monitor ${MONITOR_DATA} ${POOL_NAME})"
 else
     echo "$MONITOR_DATA"
     exit $MONITOR_STATUS
