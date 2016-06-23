@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-13 07:46+0000\n"
-"Last-Translator: Jan Benadik <jan.benadik@atos.net>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 13:28+0000\n"
+"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
 "Language-Team: Slovak (Slovakia) (http://www.transifex.com/opennebula/one/language/sk_SK/)\n"
 "Language: sk_SK\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +54,7 @@ msgstr "Vytvor skupinu"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -85,7 +85,7 @@ msgstr "Update skupiny"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -497,23 +497,21 @@ msgstr "Všetko"
 msgid "Resources"
 msgstr "Zdroje"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Vytvor šablónu VS"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Aktualizuj šablónu VS"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Vytvor virtuálny router"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Aktualizuj šablónu VS"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -1117,14 +1115,12 @@ msgid "Virtual Routers"
 msgstr "Virtuálne routre"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Virtuálny router bol vytvorený"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Virtuálny router bol vytvorený"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1521,7 +1517,7 @@ msgstr "Zóny"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Security skupiny"
 
@@ -2853,9 +2849,8 @@ msgid "DS Rank"
 msgstr "Dátový sklad - poradie"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Ukonči zdieľanie šablóny"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3174,11 +3169,11 @@ msgstr "Topológia siete"
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "Odosielanie"
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Nahrávam ..."
 
@@ -3353,7 +3348,7 @@ msgstr "LOCKNUTÝ_POUŽǏVANÝ"
 msgid "LOCKED_USED_PERS"
 msgstr "LOCKED_USED_PERS"
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "Žiadne siete nie sú dostupné"
 
@@ -4944,7 +4939,7 @@ msgid "Number of VM instances"
 msgstr "Počet VS inštancií"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr "Plávajúca IP"
 
@@ -4957,7 +4952,7 @@ msgid "Floating IPv6 Global"
 msgstr "Plávajúca globálna IPv6"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Rozhranie pre manažment"
 
@@ -6074,14 +6069,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "Ľubovoľná sieť"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "VLAN ID"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6717,15 +6710,15 @@ msgstr "Vnúť IPv4"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "Voliteľne, môžeš vnútiť IP sieťovému adaptéru"
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "Pokiaľ je zaškrtnuté, každý virtuálny stroj bude mať pridelenú jeho sieťovému adaptéru plávajúcu IP "
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "Pokiaľ je zaškrtnuté, tento sieťový adaptér bude manažovaným adaptérom virtuálneho routra. Traffic nebude forwardovaný."
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Môžeš pridať Security skupinu danému sieťovému adaptéru. Toto ID neprepíše ID definované vo virtuálnej sieti. Všetky ID security skupín sú kombinované a aplikované inštancii virtuálneho stroja."
 
@@ -6768,18 +6761,3 @@ msgstr "Vyber riadok pre detailné informácia za mesiac"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "Hodiny"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Vyber dátový sklad pre tento súbor"
-
-#~ msgid "File type"
-#~ msgstr "Typ súboru"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "Počet VS na spustenie inštancie s touto rolou"
-
-#~ msgid "+ Security Group rule"
-#~ msgstr "+ Skupinové security pravidlo"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "ID virtuálneho stroja"

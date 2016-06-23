@@ -5,15 +5,16 @@
 # Translators:
 # Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014,2016
 # Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
+# J N <julinote@gmail.com>, 2016
 # Linas Bukauskas, 2014-2015
 # rolnas <rolnas@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-09 06:37+0000\n"
-"Last-Translator: Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-23 08:55+0000\n"
+"Last-Translator: rolnas <rolnas@gmail.com>\n"
 "Language-Team: Lithuanian (Lithuania) (http://www.transifex.com/opennebula/one/language/lt_LT/)\n"
 "Language: lt_LT\n"
 "MIME-Version: 1.0\n"
@@ -54,7 +55,7 @@ msgstr "Sukurti grupę"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -85,7 +86,7 @@ msgstr "Atnaujinti grupę"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -497,23 +498,21 @@ msgstr "Visi"
 msgid "Resources"
 msgstr "Ištekliai"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Sukurti VM šabloną"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Koreguoti VM šabloną"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Sukurti virtualų maršrutizatorių"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr "Sukurti virtualaus maršrutizatoriaus šabloną"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Koreguoti VM šabloną"
+msgstr "Pakeisti virtualaus maršrutizatoriaus šabloną"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -884,7 +883,7 @@ msgstr "Jūs pasirinkote šiuos virtualius maršrutizatorius:"
 #: ../app/tabs/vrouters-tab/panels/info.js:154
 #: ../app/tabs/vms-tab/panels/network.js:396
 msgid "This will detach the nic immediately"
-msgstr ""
+msgstr "Atjungti tinklo plokštę"
 
 #: ../app/tabs/zones-tab/actions.js:31
 msgid "Zone created"
@@ -967,7 +966,7 @@ msgstr "Telkinys"
 
 #: ../app/tabs/hosts-tab/datatable.js:70
 msgid "RVMs"
-msgstr ""
+msgstr "RVMs"
 
 #: ../app/tabs/hosts-tab/datatable.js:71 ../app/tabs/hosts-tab/datatable.js:218
 #: ../app/tabs/vms-tab/panels/capacity.js:120
@@ -1077,7 +1076,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombiai"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1117,14 +1116,12 @@ msgid "Virtual Routers"
 msgstr "Virtualūs maršrutizatoriai"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Virtualus maršrutizatorius sukurtas"
+msgstr "Virtualių maršrutizatorių VM šablonai"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Virtualus maršrutizatorius sukurtas"
+msgstr "Virtualaus maršrutizatoriaus VM šablonas"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1217,7 +1214,7 @@ msgstr "išsaugota sėkmingai"
 
 #: ../app/tabs/provision-tab/vms/list.js:513
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
-msgstr ""
+msgstr "VM kopijuojams fone. Šablonas matysis tuoj pat, kai bus paruoštas ir VM neužrakinta."
 
 #: ../app/tabs/provision-tab/vms/list.js:796
 #: ../app/tabs/provision-tab/vms/list.js:804
@@ -1279,7 +1276,7 @@ msgstr "Išjungti"
 
 #: ../app/tabs/provision-tab/vms/list.js:904
 msgid "UNDEPLOYED"
-msgstr ""
+msgstr "NEVEIKLI"
 
 #: ../app/tabs/provision-tab/vms/list.js:965
 #: ../app/opennebula/marketplaceapp.js:25 ../app/opennebula/image.js:24
@@ -1521,14 +1518,14 @@ msgstr "Zonos"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Saugos grupė"
 
 #: ../app/tabs/acls-tab/datatable.js:172 ../app/tabs/vdcs-tab.js:45
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:117
 msgid "VDCs"
-msgstr ""
+msgstr "VDCs"
 
 #: ../app/tabs/acls-tab/datatable.js:178
 msgid "Marketplaces"
@@ -1589,7 +1586,7 @@ msgstr "Atnaujinti serviso šabloną"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:22
 #: ../app/utils/user-inputs/row.hbs:5
 msgid "Can only contain alphanumeric and underscore characters"
-msgstr ""
+msgstr "Turi būti raidės, skaičiai ir pabraukimas"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:431
 msgid "Role "
@@ -1693,7 +1690,7 @@ msgstr "Jūs pasirinkote duomenų saugyklą:"
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:22
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:52
 msgid "Cardinality"
-msgstr ""
+msgstr "Kardinalumas"
 
 #: ../app/tabs/provision-tab.js:114 ../app/tabs/provision-tab.js:187
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
@@ -1718,7 +1715,7 @@ msgstr "VALANDA"
 #: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
 #: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
-msgstr ""
+msgstr "mano"
 
 #: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
 #: ../app/tabs/provision-tab/vms/create.hbs:73
@@ -1764,7 +1761,7 @@ msgstr "Jūs pasirinkite šiuos failus:"
 
 #: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
 msgid "Security Group"
-msgstr ""
+msgstr "Saugumo grupė"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
@@ -1801,7 +1798,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:73
 msgid "Secret Access Key"
-msgstr ""
+msgstr "Prieigos kodas"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:78
 msgid "S3 bucket to store marketapps"
@@ -1938,12 +1935,12 @@ msgstr "Laukiama kol VM bus paruošta"
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
 #: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:163
 msgid "VNC Connection in progress"
-msgstr ""
+msgstr "VNC prisijungiama"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
 #: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:176
 msgid "SPICE Connection in progress"
-msgstr ""
+msgstr "SPICE prisijungiama"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
@@ -1989,7 +1986,7 @@ msgstr "Išjungti"
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:78
 #: ../app/tabs/vms-tab/buttons.js:120 ../app/tabs/vms-tab/buttons.js:126
 msgid "Undeploy"
-msgstr ""
+msgstr "Anuliuoti dislokaciją"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:83
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:88
@@ -1999,7 +1996,7 @@ msgstr ""
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:204
 msgid "Terminate"
-msgstr ""
+msgstr "Nudaigoti"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/secgroups-tab/dialogs/clone.js:71
@@ -2095,12 +2092,12 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:67
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
-msgstr ""
+msgstr "Išeinantys"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:70
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
-msgstr ""
+msgstr "Įeinantys"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:103
 #: ../app/tabs/secgroups-tab/utils/common.js:105
@@ -2218,7 +2215,7 @@ msgstr "Ne"
 
 #: ../app/tabs/vnets-tab/panels/info.js:84
 msgid "Reservation parent"
-msgstr ""
+msgstr "Rezervacijos tėvas"
 
 #: ../app/tabs/vnets-tab/panels/info.js:91
 msgid "This Network is already a reservation"
@@ -2227,7 +2224,7 @@ msgstr "Šis tinklas jau rezervuotas"
 #: ../app/tabs/vnets-tab/panels/secgroups.js:39
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:34
 msgid "Security"
-msgstr ""
+msgstr "Apsauga"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:90
 msgid "VM:"
@@ -2278,11 +2275,11 @@ msgstr "ULA prefiksas"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:311
 msgid "Used leases"
-msgstr ""
+msgstr "Panaudotos"
 
 #: ../app/tabs/vnets-tab/panels/ar.js:312
 msgid "Reservation parent AR"
-msgstr ""
+msgstr "Rezervaciojos tėvo AR"
 
 #: ../app/tabs/vnets-tab/dialogs/update-ar.js:77
 #: ../app/tabs/vnets-tab/dialogs/add-ar.js:81
@@ -2371,7 +2368,7 @@ msgstr "Registracijos laikas"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:90
 msgid "Marketplace"
-msgstr ""
+msgstr "Prekyvietė"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:99
 msgid "Please select an appliance from the list"
@@ -2395,7 +2392,7 @@ msgstr "Servisas"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
-msgstr ""
+msgstr "Egzemplioriai"
 
 #: ../app/tabs/vrouters-tab.js:50
 msgid "Virtual Router"
@@ -2438,12 +2435,12 @@ msgstr "Jūs pasirinkote pasirinkote šiuos telkinius:"
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
 msgid "MarketPlaces"
-msgstr ""
+msgstr "Prekyvietės"
 
 #: ../app/tabs/marketplaces-tab.js:53 ../app/tabs/images-tab/buttons.js:32
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
 msgid "MarketPlace"
-msgstr ""
+msgstr "Prekyvietė"
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
@@ -2575,7 +2572,7 @@ msgstr "Perkelti"
 
 #: ../app/tabs/vms-tab/buttons.js:60
 msgid "live"
-msgstr ""
+msgstr "gyvai"
 
 #: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
 #: ../app/tabs/vms-tab/buttons.js:114
@@ -2633,7 +2630,7 @@ msgstr "VNC"
 #: ../app/tabs/vms-tab/buttons.js:181
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:21
 msgid "SPICE"
-msgstr ""
+msgstr "SPICE"
 
 #: ../app/tabs/vms-tab/datatable.js:72
 msgid "Please select a VM from the list"
@@ -2768,7 +2765,7 @@ msgstr "ne"
 #: ../app/tabs/vms-tab/panels/snapshots.js:46
 #: ../app/tabs/images-tab/panels/snapshots.js:46
 msgid "Snapshots"
-msgstr ""
+msgstr "Būsenos"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:74
 msgid "Timestamp"
@@ -2779,26 +2776,26 @@ msgstr "Laiko žyma"
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
 msgid "Take snapshot"
-msgstr ""
+msgstr "Sukurti būsenos kopiją"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:103
 msgid "No snapshots to show"
-msgstr ""
+msgstr "Nėra įrašytų būsenų"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:115
 msgid "snapshot in progress"
-msgstr ""
+msgstr "Vyksta būsenos įrašymas"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:123
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:27
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:27
 msgid "Revert"
-msgstr ""
+msgstr "Atkūrti"
 
 #: ../app/tabs/vms-tab/panels/placement.js:42
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:20
 msgid "Placement"
-msgstr ""
+msgstr "Talpinimas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:66
 msgid "#"
@@ -2818,7 +2815,7 @@ msgstr "Visas laikas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:73
 msgid "Prolog time"
-msgstr ""
+msgstr "Prologo laikas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:86
 msgid "No data available in table"
@@ -2826,11 +2823,11 @@ msgstr "Lentelėje nėra duomenų"
 
 #: ../app/tabs/vms-tab/panels/placement.js:137
 msgid "Sched Message"
-msgstr ""
+msgstr "Planuotojo pranešimas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:160
 msgid "Placement - Host"
-msgstr ""
+msgstr "Vieta - serveris"
 
 #: ../app/tabs/vms-tab/panels/placement.js:165
 msgid "Requirements"
@@ -2842,7 +2839,7 @@ msgstr "Rangas"
 
 #: ../app/tabs/vms-tab/panels/placement.js:177
 msgid "Placement - Datastore"
-msgstr ""
+msgstr "Vieta - duomenų saugykla"
 
 #: ../app/tabs/vms-tab/panels/placement.js:182
 msgid "DS Requirements"
@@ -2853,9 +2850,8 @@ msgid "DS Rank"
 msgstr "DS rangas"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Nebesidalinti šablonu"
+msgstr "Mano šablonai"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -2864,7 +2860,7 @@ msgstr "Išsaugoti kaip vykdomą"
 #: ../app/tabs/vms-tab/panels/storage.js:204
 #: ../app/tabs/vms-tab/panels/network.js:237
 msgid "attach/detach in progress"
-msgstr ""
+msgstr "vyksta prijungimas/atjungimas"
 
 #: ../app/tabs/vms-tab/panels/storage.js:214
 #: ../app/tabs/vms-tab/panels/storage/disk-details.hbs:22
@@ -2881,7 +2877,7 @@ msgstr "Atjungti"
 #: ../app/tabs/vms-tab/panels/storage.js:230
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:20
 msgid "Snapshot"
-msgstr ""
+msgstr "Būsena"
 
 #: ../app/tabs/vms-tab/panels/storage.js:255
 msgid "YES"
@@ -3142,12 +3138,12 @@ msgstr "BRANDUOLYS"
 #: ../app/tabs/images-tab/panels/info-common.js:104
 #: ../app/opennebula/image.js:41
 msgid "RAMDISK"
-msgstr ""
+msgstr "RAMDISK"
 
 #: ../app/tabs/images-tab/panels/info-common.js:105
 #: ../app/opennebula/image.js:42
 msgid "CONTEXT"
-msgstr ""
+msgstr "CONTEXT"
 
 #: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
@@ -3174,11 +3170,11 @@ msgstr "Tinklo topologija"
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Kraunama..."
 
@@ -3353,7 +3349,7 @@ msgstr ""
 msgid "LOCKED_USED_PERS"
 msgstr ""
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "Nėra jokių kompiuterinių tinklų"
 
@@ -4944,7 +4940,7 @@ msgid "Number of VM instances"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr "Slankusis IP"
 
@@ -4957,7 +4953,7 @@ msgid "Floating IPv6 Global"
 msgstr "Slankusis IPv6 globalus"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Valdymo sąsaja"
 
@@ -6074,14 +6070,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "Bet kuris kompiuterių tinklas"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "VLAN ID"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6557,7 +6551,7 @@ msgstr "Vediklis"
 
 #: ../app/sunstone/buttons.hbs:86
 msgid "Advanced"
-msgstr ""
+msgstr "Papildomai"
 
 #: ../app/utils/accounting/html.hbs:23
 msgid "End time"
@@ -6573,11 +6567,11 @@ msgstr "Atrinkti"
 
 #: ../app/utils/accounting/html.hbs:52
 msgid "Get accounting"
-msgstr ""
+msgstr "Gauti apskaitą"
 
 #: ../app/utils/accounting/html.hbs:68
 msgid "There are no accounting records"
-msgstr ""
+msgstr "Nėra apskaitos įrašų"
 
 #: ../app/utils/accounting/html.hbs:113 ../app/utils/accounting/html.hbs:129
 #: ../app/utils/accounting/html.hbs:145 ../app/utils/showback/html.hbs:62
@@ -6586,7 +6580,7 @@ msgstr "Data"
 
 #: ../app/utils/accounting/html.hbs:104
 msgid "Accounting Tables"
-msgstr ""
+msgstr "Apskaitos lentelės"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
@@ -6683,7 +6677,7 @@ msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
 msgid "Reserved Memory in KB"
-msgstr ""
+msgstr "Rezervuota atmintis, KB"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -6717,15 +6711,15 @@ msgstr "Garantuoti IPv4:"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
@@ -6747,11 +6741,11 @@ msgstr "Grupuoti pagal grupę"
 
 #: ../app/utils/showback/html.hbs:28
 msgid "Get showback"
-msgstr ""
+msgstr "Gauti kainą"
 
 #: ../app/utils/showback/html.hbs:43
 msgid "There are no showback records"
-msgstr ""
+msgstr "Nėra kainų įrašų"
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
@@ -6768,12 +6762,3 @@ msgstr ""
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "Valandos"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
-
-#~ msgid "File type"
-#~ msgstr "Failo tipas"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "Virtualios mašinos ID"

@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-03 16:00+0000\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 14:53+0000\n"
 "Last-Translator: Remy Zandwijk <remy@luckyhands.nl>\n"
 "Language-Team: Dutch (Netherlands) (http://www.transifex.com/opennebula/one/language/nl_NL/)\n"
 "Language: nl_NL\n"
@@ -60,7 +60,7 @@ msgstr "Creeër een groep"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -91,7 +91,7 @@ msgstr "Bijwerken Groep"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -412,15 +412,15 @@ msgstr ""
 
 #: ../app/tabs/vdcs-tab/actions.js:32 ../app/tabs/vdcs-tab/actions.js:103
 msgid "VDC created"
-msgstr ""
+msgstr "VDC gecreëerd"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:59
 msgid "Create Virtual Data Center"
-msgstr ""
+msgstr "Creëer een Virtueel Data Center"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:64
 msgid "Update Virtual Data Center"
-msgstr ""
+msgstr "Werk Virtueel Data Center bij"
 
 #: ../app/tabs/vdcs-tab/datatable.js:67
 #: ../app/tabs/vdcs-tab/panels/groups.js:39 ../app/tabs/groups-tab.js:48
@@ -503,23 +503,21 @@ msgstr "Alle"
 msgid "Resources"
 msgstr "Bronnen"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Creëer VM sjabloon"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Werk VM sjabloon bij"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Creëer virtuele router"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr "Creëer Virtuele Router VM Sjabloon"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Werk VM sjabloon bij"
+msgstr "Werk het Virtuele Router Sjabloon bij"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -1083,7 +1081,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombies"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1123,14 +1121,12 @@ msgid "Virtual Routers"
 msgstr "Virtuele routers"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Virtuele router gecreëerd"
+msgstr "Virtuele Router VM sjablonen"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Virtuele router gecreëerd"
+msgstr "Virtuele Router VM sjabloon"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1187,7 +1183,7 @@ msgstr "en het betreffende image zal gedeeld worden, en alle gebruikers zullen i
 
 #: ../app/tabs/provision-tab/templates/list.js:329
 msgid "Share template"
-msgstr ""
+msgstr "Deel sjabloon"
 
 #: ../app/tabs/provision-tab/templates/list.js:373
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
@@ -1195,7 +1191,7 @@ msgstr "en het geassocieerde image zal niet langer gedeeld worden en de gebruike
 
 #: ../app/tabs/provision-tab/templates/list.js:377
 msgid "Unshare template"
-msgstr ""
+msgstr "Deel sjabloon niet meer"
 
 #: ../app/tabs/provision-tab/vms/list.js:76
 #: ../app/tabs/acls-tab/datatable.js:139
@@ -1427,7 +1423,7 @@ msgstr "Toegangscontrolelijst"
 
 #: ../app/tabs/acls-tab/actions.js:32
 msgid "ACL Rule created"
-msgstr ""
+msgstr "ACL regel gecreëerd"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:51
 msgid "Create ACL"
@@ -1435,11 +1431,11 @@ msgstr "Maak ACL aan"
 
 #: ../app/tabs/acls-tab/form-panels/create.js:212
 msgid "Please select a user to whom the acl applies"
-msgstr ""
+msgstr "Selecteer een gebruiker waarop de ACL van toepassing is a.u.b."
 
 #: ../app/tabs/acls-tab/form-panels/create.js:220
 msgid "Please select a group to whom the acl applies"
-msgstr ""
+msgstr "Selecteer een groep waarop de ACL van toepassing is a.u.b."
 
 #: ../app/tabs/acls-tab/form-panels/create.js:229
 msgid "Please select at least one resource"
@@ -1480,19 +1476,19 @@ msgstr "ACL string"
 
 #: ../app/tabs/acls-tab/datatable.js:73
 msgid "Please select an ACL rule from the list"
-msgstr ""
+msgstr "Selecteer een ACL regel uit de lijst a.u.b."
 
 #: ../app/tabs/acls-tab/datatable.js:74
 msgid "You selected the following ACL rule:"
-msgstr ""
+msgstr "U heeft de volgende ACL regel geselecteerd:"
 
 #: ../app/tabs/acls-tab/datatable.js:75
 msgid "Please select one or more ACL rules from the list"
-msgstr ""
+msgstr "Selecteer één of meerdere ACL regels uit de lijst a.u.b."
 
 #: ../app/tabs/acls-tab/datatable.js:76
 msgid "You selected the following ACL rules:"
-msgstr ""
+msgstr "U heeft de volgende ACL regels geselecteerd:"
 
 #: ../app/tabs/acls-tab/datatable.js:145
 #: ../app/tabs/datastores-tab/panels/images.js:40 ../app/tabs/images-tab.js:47
@@ -1527,7 +1523,7 @@ msgstr "Zones"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Veiligheidsgroepen"
 
@@ -1811,7 +1807,7 @@ msgstr "Geheime toegangssleutel"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:78
 msgid "S3 bucket to store marketapps"
-msgstr ""
+msgstr "S3 bucket om de marktplaatsapps op te slaan"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:83
 msgid "Amazon Region"
@@ -1823,7 +1819,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:89
 msgid "Total Marketplace size in MB"
-msgstr ""
+msgstr "Totale Marktplaats grootte in MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:94
 msgid "Signature Version"
@@ -2859,9 +2855,8 @@ msgid "DS Rank"
 msgstr "DS Rangorde"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Het sjabloon"
+msgstr "Gebruikerssjabloon"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -2899,11 +2894,11 @@ msgstr "NO"
 
 #: ../app/tabs/vms-tab/panels/storage.js:354
 msgid "This will detach the disk immediately"
-msgstr ""
+msgstr "Dit zal de disk direct afkoppelen"
 
 #: ../app/tabs/vms-tab/panels/storage.js:458
 msgid "This will delete the disk snapshot "
-msgstr ""
+msgstr "Dit zal het disk snapshot verwijderen"
 
 #: ../app/tabs/vms-tab/panels/storage.js:534
 #: ../app/tabs/images-tab/panels/snapshots.js:202
@@ -3180,11 +3175,11 @@ msgstr "Netwerk topologie"
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "Versturen..."
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Laden..."
 
@@ -3305,23 +3300,23 @@ msgstr "SNAPSHOT"
 
 #: ../app/opennebula/host.js:40
 msgid "MONITORING_MONITORED"
-msgstr ""
+msgstr "MONITORING_MONITORED"
 
 #: ../app/opennebula/host.js:41
 msgid "MONITORED"
-msgstr ""
+msgstr "MONITORED"
 
 #: ../app/opennebula/host.js:44
 msgid "MONITORING_ERROR"
-msgstr ""
+msgstr "MONITORING_ERROR"
 
 #: ../app/opennebula/host.js:45
 msgid "MONITORING_INIT"
-msgstr ""
+msgstr "MONITORING_INIT"
 
 #: ../app/opennebula/host.js:46
 msgid "MONITORING_DISABLED"
-msgstr ""
+msgstr "MONITORING_DISABLED"
 
 #: ../app/opennebula/host.js:47
 msgid "OFFLINE"
@@ -3353,13 +3348,13 @@ msgstr "USED_PERS"
 
 #: ../app/opennebula/image.js:32
 msgid "LOCKED_USED"
-msgstr ""
+msgstr "LOCKED_USER"
 
 #: ../app/opennebula/image.js:33
 msgid "LOCKED_USED_PERS"
-msgstr ""
+msgstr "LOCKED_USER_PERS"
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "Er zijn geen netwerken beschikbaar."
 
@@ -3718,7 +3713,7 @@ msgstr "Bewerk beheerders"
 
 #: ../app/tabs/groups-tab/panels/users/html.hbs:38
 msgid "Users marked with <i class='fa fa-star'></i> are administrators"
-msgstr ""
+msgstr "Gebruikers gemarkeerd met <i class='fa fa-star'></i> zijn beheerders"
 
 #: ../app/tabs/groups-tab/panels/info/html.hbs:22
 #: ../app/tabs/vdcs-tab/panels/info/html.hbs:22
@@ -3799,7 +3794,7 @@ msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
 msgid "Write the VDC template here"
-msgstr ""
+msgstr "Schrijf het VDC sjabloon hier"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:34
@@ -3825,15 +3820,15 @@ msgstr "Aangepaste eigenschappen"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
 msgid "Selects all current and future clusters"
-msgstr ""
+msgstr "Selecteer alle huidige en toekomstige clusters"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:46
 msgid "Selects all current and future hosts"
-msgstr ""
+msgstr "Selecteer alle huidige en toekomstige hosts"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:60
 msgid "Selects all current and future vnets"
-msgstr ""
+msgstr "Selecteer alle huidige en toekomstige vnets"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:74
 msgid "Selects all current and future datastores"
@@ -3905,7 +3900,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:53
 msgid "Availability set"
-msgstr ""
+msgstr "Beschikbaarheids set"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/azure.hbs:61
 msgid "Cloud service"
@@ -3986,7 +3981,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:42
 msgid "Client token"
-msgstr ""
+msgstr "Cliënt token"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:43
 msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
@@ -4166,7 +4161,7 @@ msgstr "Cache"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:58
 msgid "IO policy"
-msgstr ""
+msgstr "IO beleid"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:69
 msgid "Discard"
@@ -4194,7 +4189,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:91
 msgid "Total (read+write) bytes/s"
-msgstr ""
+msgstr "Totaal aantal (lezen+schrijven) bytes/s"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:95
 msgid "Read bytes/s"
@@ -4210,15 +4205,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:108
 msgid "Total (read+write) IOPS"
-msgstr ""
+msgstr "Totaal aantal (lezen+schrijven) IOPS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:112
 msgid "Read IOPS"
-msgstr ""
+msgstr "Lees IOPS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:116
 msgid "Write IOPS Sec"
-msgstr ""
+msgstr "Schrijf IOPS Sec"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:20
 msgid "Boot"
@@ -4239,11 +4234,11 @@ msgstr "CPU architectuur"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
 msgid "libvirt machine type"
-msgstr ""
+msgstr "libvirt machine type"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
-msgstr ""
+msgstr "Root apparaat"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:65
 msgid "Boot order"
@@ -4352,11 +4347,11 @@ msgstr "Virtueel netwerk ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:39
 msgid "Virtual Network owner's user ID"
-msgstr ""
+msgstr "Virtueel Netwerk eigenaar ID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:45
 msgid "Virtual Network owner's user Name"
-msgstr ""
+msgstr "Virtueel Netwerk eigenaar gebruikersnaam"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:52
 msgid "Override Network Values IPv4"
@@ -4642,7 +4637,7 @@ msgstr "Gebruikers zullen niet toegestaan worden NICs te verwijderen of toe te v
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:171
 msgid "Make this template available for Virtual Router machines only"
-msgstr ""
+msgstr "Maak dit sjabloon alleen voor Virtuele Router machines beschikbaar"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:172
 msgid "Virtual Routers create Virtual Machines from a source Template. This checkbox makes this template available to be selected in the New Virtual Router wizard"
@@ -4681,7 +4676,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:115
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:159
 msgid "fixed"
-msgstr ""
+msgstr "vast"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:55
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:116
@@ -4785,7 +4780,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
 msgid "  Report Ready to OneGate"
-msgstr ""
+msgstr "Rapporteer Klaar aan OneGate"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
 msgid "Sends READY=YES to OneGate, useful for OneFlow"
@@ -4801,7 +4796,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:113
 msgid "Encode script in Base64"
-msgstr ""
+msgstr "Codeer script in Base64"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:120
 msgid "User Inputs"
@@ -4927,7 +4922,7 @@ msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
-msgstr ""
+msgstr "Schrijf het Virtuele Router sjabloon hier"
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
 msgid "Keepalive service ID"
@@ -4947,10 +4942,10 @@ msgstr ""
 
 #: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
 msgid "Number of VM instances"
-msgstr ""
+msgstr "Aantal Virtuele Machine instanties"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr ""
 
@@ -4963,13 +4958,13 @@ msgid "Floating IPv6 Global"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Management Interface"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:53
 msgid "Attach NIC"
-msgstr ""
+msgstr "Koppel NIC"
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
@@ -5069,7 +5064,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:43
 msgid "You have to boot the Virtual Machine first"
-msgstr ""
+msgstr "U moet eerst de Virtuele Machine opstarten"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
@@ -5077,7 +5072,7 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
-msgstr ""
+msgstr "U moet eerste de Virtuele Machine uitschakelen"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:65
 #: ../app/tabs/provision-tab/vms/info.hbs:70
@@ -5091,19 +5086,19 @@ msgstr "Inschakelen"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:130
 msgid "Net RX"
-msgstr "Net RX"
+msgstr "Netto RX"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:147
 msgid "Net TX"
-msgstr "Net TX"
+msgstr "Netto TX"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:164
 msgid "Net Download Speed"
-msgstr ""
+msgstr "Netto Download Snelheid"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:181
 msgid "Net Upload Speed"
-msgstr ""
+msgstr "Netto Upload Snelheid"
 
 #: ../app/tabs/provision-tab/vms/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
@@ -5144,11 +5139,11 @@ msgstr "Virtuele Machine Naam"
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:5
 msgid "This Virtual Machine will be saved in a new Template."
-msgstr ""
+msgstr "Deze Virtuele Machine zal in een nieuw sjabloon opgeslagen worden."
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
-msgstr ""
+msgstr "Dan kan u met dit sjabloon een nieuwe Virtuele Machine maken."
 
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:14
 msgid "Template Name"
@@ -5314,7 +5309,7 @@ msgstr "Rechtstreeks"
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
 msgid "VM shutdown action"
-msgstr ""
+msgstr "VM uitschakelactie"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
@@ -5354,7 +5349,7 @@ msgstr "Netwerkconfiguratie"
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
 msgid "Clone Service Template"
-msgstr ""
+msgstr "Kloon Service Sjabloon"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 msgid "Role name"
@@ -5396,7 +5391,7 @@ msgstr "Afkoelen"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:88
 msgid "Cooldown time after an elasticity operation (seconds)"
-msgstr ""
+msgstr "Afkoelingsperiode na een elasiticiteitsoperatie (seconden)"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:99
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:82
@@ -5529,7 +5524,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
 msgid "Start time: Exact time for the adjustment"
-msgstr ""
+msgstr "Starttijd: Exacte tijd voor de aanpassing"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:169
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
@@ -5548,7 +5543,7 @@ msgstr "Tijd expressie"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:72
 msgid "Role elasticity"
-msgstr ""
+msgstr "Rol elasticiteit"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:200
 msgid "If it is not set, the one set for the Service will be used"
@@ -5605,15 +5600,15 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:28
 msgid "Filesystem - shared mode"
-msgstr ""
+msgstr "Bestandssysteem - gedeelde modus"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:29
 msgid "Filesystem - ssh mode"
-msgstr ""
+msgstr "Bestandssysteem - ssh modus"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:30
 msgid "Filesystem - qcow2 mode"
-msgstr ""
+msgstr "Bestandssysteem - qcow2 modus"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:52
@@ -5702,7 +5697,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:126
 msgid "Storage usage limit (MB)"
-msgstr ""
+msgstr "Opslag gebruik limiet (MB)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:132
 msgid "Transfer bandwidth limit (B/s)"
@@ -5754,15 +5749,15 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:186
 msgid "Ceph host"
-msgstr ""
+msgstr "Ceph host"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:188
 msgid "Space-separated list of Ceph monitors"
-msgstr ""
+msgstr "Spatie-gescheiden lijst van Ceph monitoren"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:195
 msgid "Ceph user"
-msgstr ""
+msgstr "Ceph gebruiker"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:197
 msgid "The username to interact with the Ceph cluster"
@@ -5770,7 +5765,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:204
 msgid "Ceph secret"
-msgstr ""
+msgstr "Ceph geheim"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:206
 msgid "A generated UUID for a LibVirt secret"
@@ -5782,11 +5777,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:219
 msgid "RBD format"
-msgstr ""
+msgstr "RBD formaat"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:225
 msgid "Ceph configuration file path"
-msgstr ""
+msgstr "Ceph configuratiebestand pad"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:227
 msgid "Needed if using a non-default path for the ceph configuration file."
@@ -5794,15 +5789,15 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:234
 msgid "iSCSI host"
-msgstr ""
+msgstr "iSCSI host"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:236
 msgid "Example: 'host' or 'host:port'"
-msgstr ""
+msgstr "Voorbeeld: 'host' of 'host:poort'"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:243
 msgid "iSCSI user for CHAP authentication"
-msgstr ""
+msgstr "iSCSI gebruikt voor CHAP autenticatie"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:249
 msgid "iSCSI usage for CHAP authentication"
@@ -5814,7 +5809,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:258
 msgid "vCenter cluster"
-msgstr ""
+msgstr "vCenter cluster"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:260
 msgid "The vCenter Cluster that has access to this datastore."
@@ -5823,7 +5818,7 @@ msgstr ""
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:267
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
 msgid "Bus adapter controller"
-msgstr ""
+msgstr "Bus adapter controller"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:282
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
@@ -5844,7 +5839,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:45
 msgid "Configuration attributes"
-msgstr ""
+msgstr "Configuratie attributen"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:27
 msgid "Seconds between each group of actions"
@@ -5938,11 +5933,11 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
 msgid "Rules"
-msgstr ""
+msgstr "Regels"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:37
 msgid "Traffic direction"
-msgstr ""
+msgstr "Verkeer richting"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:82
@@ -5955,15 +5950,15 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:95
 msgid "Any network"
-msgstr ""
+msgstr "Elk netwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:96
 msgid "Manual network"
-msgstr ""
+msgstr "Handmatig netwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:97
 msgid "OpenNebula Virtual Network"
-msgstr ""
+msgstr "OpenNebula Virtueel Netwerk"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:101
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:28
@@ -5972,7 +5967,7 @@ msgstr "Eerste IP-adres"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
 msgid "Add rule"
-msgstr ""
+msgstr "Voeg regel toe"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -6009,7 +6004,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:76
 msgid "Network mode"
-msgstr ""
+msgstr "Netwerkmodus"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:79
 msgid "Bridged"
@@ -6029,7 +6024,7 @@ msgstr "802.1Q"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:83
 msgid "VXLAN"
-msgstr ""
+msgstr "VXLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:84
 msgid "Open vSwitch"
@@ -6037,7 +6032,7 @@ msgstr "Open vSwitch"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:90
 msgid "Network Driver (VN_MAD)"
-msgstr ""
+msgstr "Netwerk driver (VN_MAD)"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."
@@ -6069,25 +6064,23 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:123
 msgid "MAC spoofing filter"
-msgstr ""
+msgstr "MAC spoofing filter"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:131
 msgid "IP spoofing filter"
-msgstr ""
+msgstr "IP spoofing filter"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
 msgid "Automatic VLAN ID"
-msgstr ""
+msgstr "Automatisch VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "Netwerk"
+msgstr "Geen VLAN netwerk"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "VLAN ID"
+msgstr "Handmatig VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6099,7 +6092,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:159
 msgid "MTU of the interface"
-msgstr ""
+msgstr "MTU van de interface"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:182
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
@@ -6127,19 +6120,19 @@ msgstr "Selecteer een AdresReeks  om meer informatie te zien"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
-msgstr ""
+msgstr "Eerste"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:58
 msgid "Last"
-msgstr ""
+msgstr "Laatste"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
-msgstr ""
+msgstr "IP6_GLOBAL"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
 msgid "IP6_ULA"
-msgstr ""
+msgstr "IP6_ULA"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
 msgid "Hold IP"
@@ -6192,7 +6185,7 @@ msgstr "IPv4 of MAC"
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:123
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:34
 msgid "Advanced Options"
-msgstr ""
+msgstr "Geavanceerde Opties"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
@@ -6229,7 +6222,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
 msgid "VM Template Name"
-msgstr ""
+msgstr "VM Sjabloon Naam"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -6254,7 +6247,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:56
 msgid "Templates for the App"
-msgstr ""
+msgstr "Sjabloon voor de App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
@@ -6268,7 +6261,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:67
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
 msgid "App template"
-msgstr ""
+msgstr "App sjabloon"
 
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:36
 msgid "You can provide a template for the resource that will be created in OpenNebula"
@@ -6292,7 +6285,7 @@ msgstr "Bijwerken wachtwoord"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:51
 msgid "Table Order"
-msgstr ""
+msgstr "Tabel volgorde"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:60
 msgid "Language"
@@ -6300,7 +6293,7 @@ msgstr "Taal"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:84
 msgid "Public SSH Key"
-msgstr ""
+msgstr "Publieke SSH Sleutel"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:98
 msgid "You can provide a SSH Key for this User clicking on the edit button"
@@ -6308,7 +6301,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
 msgid "Select Secondary Groups"
-msgstr ""
+msgstr "Selecteer secundaire groepen"
 
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:19
 msgid "Change authentication"
@@ -6324,15 +6317,15 @@ msgstr "Authenticatie"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
-msgstr ""
+msgstr "kern"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:39
 msgid "public"
-msgstr ""
+msgstr "publiek"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:43
 msgid "custom"
-msgstr ""
+msgstr "aangepast"
 
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:26
 msgid "Image / Size-Format"
@@ -6345,11 +6338,11 @@ msgstr "Aankoppelen disk"
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:51
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:27
 msgid "Cost / MByte"
-msgstr ""
+msgstr "Kosten / MByte"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:26
 msgid "Cost / CPU"
-msgstr ""
+msgstr "Kosten / CPU"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:44
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:46
@@ -6359,7 +6352,7 @@ msgstr "Grootte wijzigen"
 
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:75
 msgid "Real memory"
-msgstr ""
+msgstr "Werkelijk geheugen"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:37
 msgid "LCM State"
@@ -6375,11 +6368,11 @@ msgstr "Virtuele router ID"
 
 #: ../app/tabs/vms-tab/panels/info/html.hbs:87
 msgid "Monitoring"
-msgstr ""
+msgstr "Monitoren"
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
 msgid "Update Configuration"
-msgstr ""
+msgstr "Bijwerken configuratie"
 
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:20
 msgid "Disk Snapshot"
@@ -6417,7 +6410,7 @@ msgstr "Laden"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:24
 msgid "Send CtrlAltDel"
-msgstr ""
+msgstr "Stuur CtrlAltDel"
 
 #: ../app/tabs/vms-tab/dialogs/vnc/html.hbs:36
 msgid "Canvas not supported."
@@ -6425,11 +6418,11 @@ msgstr "Canvas is niet ondersteund"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:20
 msgid "Save as Template"
-msgstr ""
+msgstr "Sla op als sjabloon"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:28
 msgid "Template name"
-msgstr ""
+msgstr "Sjabloon naam"
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:35
 msgid "Make the new images persistent"
@@ -6437,7 +6430,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
 msgid "Save As Template"
-msgstr ""
+msgstr "Sla op als sjabloon"
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -6491,7 +6484,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:40
 msgid "Readonly CD-ROM"
-msgstr ""
+msgstr "Alleen-lezen CD-ROM"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:41
 msgid "Generic storage datablock"
@@ -6507,7 +6500,7 @@ msgstr "Locatie van afbeelding"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:74
 msgid "Path in OpenNebula server"
-msgstr ""
+msgstr "Pad in OpenNebula server"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:76
 msgid "Upload"
@@ -6555,7 +6548,7 @@ msgstr ""
 
 #: ../app/sunstone/user_and_zone.hbs:37
 msgid "Sign Out"
-msgstr ""
+msgstr "Afmelden"
 
 #: ../app/sunstone/buttons.hbs:83
 msgid "Wizard"
@@ -6596,7 +6589,7 @@ msgstr ""
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
-msgstr ""
+msgstr "Disks"
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
@@ -6604,7 +6597,7 @@ msgstr "Tekst"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
-msgstr ""
+msgstr "tekst (base64)"
 
 #: ../app/utils/user-inputs/row.hbs:13
 msgid "password"
@@ -6612,7 +6605,7 @@ msgstr "wachtwoord"
 
 #: ../app/utils/user-inputs/row.hbs:14
 msgid "number"
-msgstr ""
+msgstr "nummer"
 
 #: ../app/utils/user-inputs/row.hbs:15
 msgid "number (float)"
@@ -6626,11 +6619,11 @@ msgstr ""
 #: ../app/utils/user-inputs/row.hbs:49 ../app/utils/user-inputs/row.hbs:66
 #: ../app/utils/user-inputs/row.hbs:76
 msgid "Default value"
-msgstr ""
+msgstr "Standaard waarde"
 
 #: ../app/utils/user-inputs/row.hbs:72
 msgid "Options"
-msgstr ""
+msgstr "Opties"
 
 #: ../app/utils/user-inputs/row.hbs:73
 msgid "Comma-separated list of options for the drop-down select input"
@@ -6643,7 +6636,7 @@ msgstr "Zoeken"
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
 msgid "There is no data available"
-msgstr ""
+msgstr "Er is geen data beschikbaar"
 
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
@@ -6689,7 +6682,7 @@ msgstr ""
 
 #: ../app/utils/dialogs/overcommit/html.hbs:51
 msgid "Reserved Memory in KB"
-msgstr ""
+msgstr "Gereserveerd geheugen in KB"
 
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
@@ -6705,11 +6698,11 @@ msgstr "Eigenaar"
 
 #: ../app/utils/nics-section/html.hbs:9
 msgid "Network Interface"
-msgstr ""
+msgstr "Netwerk interface"
 
 #: ../app/utils/nics-section/dd.hbs:5
 msgid "Interface"
-msgstr ""
+msgstr "Interface"
 
 #: ../app/utils/nics-section/dd.hbs:14
 msgid "Select a Network"
@@ -6717,39 +6710,39 @@ msgstr "Selecteer een netwerk"
 
 #: ../app/utils/nics-section/dd.hbs:27
 msgid "Force IPv4:"
-msgstr ""
+msgstr "Forceer IPv4:"
 
 #: ../app/utils/nics-section/dd.hbs:29
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
 #: ../app/utils/custom-tags-table/html.hbs:22
 msgid "Key"
-msgstr ""
+msgstr "Sleutel"
 
 #: ../app/utils/custom-tags-table/html.hbs:23
 msgid "Value"
-msgstr ""
+msgstr "Waarde"
 
 #: ../app/utils/showback/html.hbs:19
 msgid "Filter by user"
-msgstr ""
+msgstr "Filter op gebruiker"
 
 #: ../app/utils/showback/html.hbs:23
 msgid "Filter by group"
-msgstr ""
+msgstr "Filter op groep"
 
 #: ../app/utils/showback/html.hbs:28
 msgid "Get showback"
@@ -6761,25 +6754,16 @@ msgstr ""
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
-msgstr ""
+msgstr "Jaar"
 
 #: ../app/utils/showback/html.hbs:61
 msgid "Month"
-msgstr ""
+msgstr "Maand"
 
 #: ../app/utils/showback/html.hbs:70
 msgid "Select a row to get detailed information of the month"
-msgstr ""
+msgstr "Selecteer een rij om gedetailleerde informatie van de maand te krijgen"
 
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
-msgstr ""
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Selecteer aub een dataopslagplaats voor dit bestand"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "Aantal VMs die geïnstantieerd moet worden met deze rol"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "Virtuele Machine ID"
+msgstr "Uren"

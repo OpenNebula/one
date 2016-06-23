@@ -35,8 +35,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-13 09:23+0000\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 14:45+0000\n"
 "Last-Translator: Olivier Le Monnier <olivier@olsc.org>\n"
 "Language-Team: French (France) (http://www.transifex.com/opennebula/one/language/fr_FR/)\n"
 "Language: fr_FR\n"
@@ -78,7 +78,7 @@ msgstr "Créer un Groupe"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -103,13 +103,13 @@ msgstr "Créer"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:58
 msgid "Update Group"
-msgstr "Modifier le Groupe"
+msgstr "Mettre à jour le Groupe"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:59
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -276,7 +276,7 @@ msgstr "Utilisateurs"
 #: ../app/tabs/dashboard-tab/vms.hbs:22
 #: ../app/utils/menu/provision-top-row.hbs:29 ../app/utils/showback/html.hbs:80
 msgid "VMs"
-msgstr "VMs"
+msgstr "Machines Virtuelles"
 
 #: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:71
 #: ../app/utils/quotas/quota-widgets.js:196
@@ -438,7 +438,7 @@ msgstr "Créer un Centre de Données Virtuel"
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:64
 msgid "Update Virtual Data Center"
-msgstr "Modifier le Centre de Données Virtuel"
+msgstr "Mettre à jour le Centre de Données Virtuel"
 
 #: ../app/tabs/vdcs-tab/datatable.js:67
 #: ../app/tabs/vdcs-tab/panels/groups.js:39 ../app/tabs/groups-tab.js:48
@@ -521,23 +521,21 @@ msgstr "Tous"
 msgid "Resources"
 msgstr "Ressources"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Créer un Modèle de VM"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Mettre à jour le modèle de VM"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Créer un routeur Virtuel"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr "Créer un modèle de VM Routeur Virtuel"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Mettre à jour le modèle de VM"
+msgstr "Mettre à jour le modèle de VM Routeul Virtuel"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -604,7 +602,7 @@ msgstr "Planification"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
-msgstr "Démarrage du Système d’exploitation"
+msgstr "Démarrage de l’OS"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:378
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:34
@@ -1101,7 +1099,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombies"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1141,14 +1139,12 @@ msgid "Virtual Routers"
 msgstr "Routeurs Virtuels"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Routeur Virtuel créé"
+msgstr "Modèles de VM Routeur Virtuel"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Routeur Virtuel créé"
+msgstr "Modèle de VM Routeur Virtuel"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1545,7 +1541,7 @@ msgstr "Zones"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Groupes de sécurité"
 
@@ -1607,7 +1603,7 @@ msgstr "Créer un Modèle de Service"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:57
 msgid "Update Service Template"
-msgstr "Modifier un Modèle de Service"
+msgstr "Mettre à jour le Modèle de Service"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:107
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:22
@@ -2078,7 +2074,7 @@ msgstr "Créer un Groupe de Sécurité"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
-msgstr "Modifier le Groupe de Sécurité"
+msgstr "Mettre à jour le Groupe de Sécurité"
 
 #: ../app/tabs/secgroups-tab/datatable.js:72
 msgid "Please select a security group from the list"
@@ -2161,7 +2157,7 @@ msgstr "Créer un Réseau Virtuel"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:61
 msgid "Update Virtual Network"
-msgstr "Modifier le Réseau Virtuel"
+msgstr "Mettre à jour le Réseau Virtuel"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:220
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:59
@@ -2604,12 +2600,12 @@ msgstr "en direct"
 #: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
 #: ../app/tabs/vms-tab/buttons.js:114
 msgid "Keeps allocated Host resources. The resume operation happens quickly"
-msgstr ""
+msgstr "Conserve les ressources allouées à l'Hôte. L’opération de rétablissement est rapide"
 
 #: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
 #: ../app/tabs/vms-tab/buttons.js:126
 msgid "Frees Host resources. The resume operation may take long"
-msgstr ""
+msgstr "Libère les ressources de l’Hôte. L’opération de rétablissement peut être longue"
 
 #: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
 #: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
@@ -2877,9 +2873,8 @@ msgid "DS Rank"
 msgstr "Rang Espace de staockage"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Ne plus partager le modèle"
+msgstr "Modèle utilisateur"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3120,7 +3115,7 @@ msgstr "Persistant"
 
 #: ../app/tabs/images-tab/datatable-common.js:72
 msgid "#VMS"
-msgstr "#VMS"
+msgstr "#VMs"
 
 #: ../app/tabs/images-tab/datatable-common.js:73
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:25
@@ -3198,11 +3193,11 @@ msgstr "Topologie réseau"
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "Soumission"
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Chargement…"
 
@@ -3377,7 +3372,7 @@ msgstr "VÉRROUILLÉ_UTILISÉ"
 msgid "LOCKED_USED_PERS"
 msgstr "VÉRROUILLÉ_UTILISÉ_PERSISTANT"
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "Il n’y a pas de réseau disponible"
 
@@ -4612,7 +4607,7 @@ msgstr "Espace de stockage par défaut"
 #: ../app/utils/vcenter/templates/row.hbs:46
 #: ../app/utils/vcenter/templates/row.hbs:71
 msgid "Fixed"
-msgstr "Traité"
+msgstr "fixe"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:90
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:113
@@ -4803,11 +4798,11 @@ msgstr "Ajouter un fichier (token.txt) au contexte contenant le jeton utilisé p
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
 msgid "  Report Ready to OneGate"
-msgstr ""
+msgstr "Rapporte « PRÊT » à OneGate"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
 msgid "Sends READY=YES to OneGate, useful for OneFlow"
-msgstr ""
+msgstr "Envoie « READY=YES » à OneGate, utile pour OneFlow"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
 msgid "Start script"
@@ -4968,7 +4963,7 @@ msgid "Number of VM instances"
 msgstr "Nombre d’instances de la VM"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr "IP flottante"
 
@@ -4981,7 +4976,7 @@ msgid "Floating IPv6 Global"
 msgstr "IPv6 Global flottant"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Interface de gestion"
 
@@ -5341,7 +5336,7 @@ msgstr "Forcer l’arrêt"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:91
 msgid "Wait for VMs to report that they are READY via OneGate to consider them running"
-msgstr "Attendre que les VMs signalent qu’elles sont READY via OneGate avant de les considérer comme démarrées"
+msgstr "Attendre que les VMs signalent qu’elles sont « PRÊTE » via OneGate avant de les considérer comme démarrées"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:64
 msgid "Advanced service parameters"
@@ -5990,7 +5985,7 @@ msgstr "Première adresse IP"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
 msgid "Add rule"
-msgstr ""
+msgstr "Ajouter une règle"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -6095,17 +6090,15 @@ msgstr "Filtre anti-usurpation d’adresse IP"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
 msgid "Automatic VLAN ID"
-msgstr ""
+msgstr "ID de VLAN automatique"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "N’importe quel réseau"
+msgstr "Pas de réseau VLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "ID du VLAN"
+msgstr "ID de VLAN manuel"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6741,15 +6734,15 @@ msgstr "Forcer IPv4 :"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "De manière optionnelle, vous pouvez forcer l’adresse IP assignée à l’interface réseau."
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "Si coché, chaque Machine Virtuelle aura une adresse IP flottante ajoutée à son interface réseau."
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "Si coché, cette interface réseau sera une interface de gestion de Routeur Virtuel. Le trafic réseau ne sera par routé."
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Vous pouvez ajouter des Groupes de Sécurité à cette interface réseau. Ces identifiants n’écrasent pas ceux définis au niveau du Réseau Virtuel. Tous les identifiants des Groupes de Sécurité sont combinés et appliqués à l’instance de la Machine Virtuelle."
 
@@ -6792,18 +6785,3 @@ msgstr "Sélectionnez un ligne pour avoir des informations détaillées du mois"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "Heures"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Veuillez choisir un espace de stockage pour ce fichier"
-
-#~ msgid "File type"
-#~ msgstr "Type de fichier"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "Nombre de VMs à instancier avec ce rôle"
-
-#~ msgid "+ Security Group rule"
-#~ msgstr "+ règle de Groupe de Sécurité"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "ID Machine Virtuelle"

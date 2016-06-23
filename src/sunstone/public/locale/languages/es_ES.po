@@ -23,9 +23,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-07 08:05+0000\n"
-"Last-Translator: skymix <jose.diaz@red.es>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 13:28+0000\n"
+"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/opennebula/one/language/es_ES/)\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -66,7 +66,7 @@ msgstr "Crear Grupo"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -97,7 +97,7 @@ msgstr "Actualizar Grupo"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -509,23 +509,21 @@ msgstr "Todo"
 msgid "Resources"
 msgstr "Recursos"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Crear Plantilla MV"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Actualizar Plantilla MV"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Crear Router Virtual"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Actualizar Plantilla MV"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -1129,14 +1127,12 @@ msgid "Virtual Routers"
 msgstr "Routers Virtual "
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Router Virtual creado"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Router Virtual creado"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1533,7 +1529,7 @@ msgstr "Zonas"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Grupos de seguridad"
 
@@ -2865,9 +2861,8 @@ msgid "DS Rank"
 msgstr "Rango del DS"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Dejar de compatir plantilla"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3186,11 +3181,11 @@ msgstr "Modelo de Red"
 msgid "VNet"
 msgstr "Red Virtual"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "Enviando..."
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -3365,7 +3360,7 @@ msgstr "LOCKED_USED"
 msgid "LOCKED_USED_PERS"
 msgstr "LOCKED_USED_PERS"
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "No hay redes disponibles"
 
@@ -4956,7 +4951,7 @@ msgid "Number of VM instances"
 msgstr "Numero de instancias de MV"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr "IP Flotante"
 
@@ -4969,7 +4964,7 @@ msgid "Floating IPv6 Global"
 msgstr "IPv6 Flotante Global"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Interface de Gestión"
 
@@ -6086,14 +6081,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "Cualquier red"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "Identificador VLAN"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6729,15 +6722,15 @@ msgstr "Forzar IPv4:"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "Opcionalmente, puedes forzar la asignación de IP en la tarjeta de red."
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "Si esta marcado, cada MV tendrá una IP flotante agregada a su tarjeta de red."
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "Si esta marcado, esta tarjeta de red será un interfaz de gestión del Router Virtual. El trafico no será reenviado."
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Puedes agregar Grupos de Seguridad a esta tarjeta de red. Estos IDs no reemplazarán a los que estén definidos en la Red Virtual. Todos los IDs de Grupos de Seguridad se combinarán, y serán aplicados a la instancia de la MV."
 
@@ -6780,18 +6773,3 @@ msgstr "Selecciona una fila para obtener información detallada del mes"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "Horas"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Por favor, seleccione un datastore para este fichero"
-
-#~ msgid "File type"
-#~ msgstr "Tipo de Fichero"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "Número de MVs que se instanciarán en este role"
-
-#~ msgid "+ Security Group rule"
-#~ msgstr "+regla Grupo de Seguridad"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "ID Máquina Virtual"

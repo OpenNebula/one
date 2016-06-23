@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-08 04:33+0000\n"
-"Last-Translator: clm_sky <clm_sky@hotmail.com>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 13:28+0000\n"
+"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/opennebula/one/language/zh_CN/)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "创建群组"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -88,7 +88,7 @@ msgstr "更新群组"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -500,23 +500,21 @@ msgstr "全部"
 msgid "Resources"
 msgstr "资源"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "创建虚拟机模版"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "更新虚拟机模版"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "创建虚拟路由器"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "更新虚拟机模版"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -1120,14 +1118,12 @@ msgid "Virtual Routers"
 msgstr "虚拟路由器"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "虚拟路由器已创建"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "虚拟路由器已创建"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1524,7 +1520,7 @@ msgstr "区域管理"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "安全规则组"
 
@@ -2859,9 +2855,8 @@ msgid "DS Rank"
 msgstr "DS Rank"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "非共享的模板"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3180,11 +3175,11 @@ msgstr "网络拓扑"
 msgid "VNet"
 msgstr "虚拟网络"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "提交中..."
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "加载中..."
 
@@ -3359,7 +3354,7 @@ msgstr "锁定_已使用"
 msgid "LOCKED_USED_PERS"
 msgstr "锁定_已使用_持久"
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "没有可用的网络。"
 
@@ -4950,7 +4945,7 @@ msgid "Number of VM instances"
 msgstr "虚拟机实例的数量"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr "浮动 IP"
 
@@ -4963,7 +4958,7 @@ msgid "Floating IPv6 Global"
 msgstr "浮动 IPv6 全球化"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "管理接口"
 
@@ -6080,14 +6075,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "任意网络"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "VLAN ID"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6723,15 +6716,15 @@ msgstr "强制 IPv4"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "可选项，你能强制把IP分配到网络接口"
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "如果选中此选项，每个虚拟机将会有一个浮动的 ip 地址添加到其网络接口。"
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "如果选中，此网络接口将成为一个虚拟路由器的管理接口。流量不会被转发。"
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "在虚拟网络中定义。所有安全组 Id 相结合，并应用于虚拟机实例。"
 
@@ -6774,18 +6767,3 @@ msgstr "选择行以获取一个月的详细的信息"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "小时"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "请选择一个数据仓库用来存放文件。"
-
-#~ msgid "File type"
-#~ msgstr "文件类型"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "使用此角色创建的VM数量"
-
-#~ msgid "+ Security Group rule"
-#~ msgstr "+ 安全组规则"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "虚拟机ID"

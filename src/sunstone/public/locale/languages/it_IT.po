@@ -20,9 +20,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-07 06:15+0000\n"
-"Last-Translator: caifti <caifti@gmail.com>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 13:49+0000\n"
+"Last-Translator: Carlo Daffara <cdaffara@conecta.it>\n"
 "Language-Team: Italian (Italy) (http://www.transifex.com/opennebula/one/language/it_IT/)\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
@@ -63,7 +63,7 @@ msgstr "Crea gruppo"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -94,7 +94,7 @@ msgstr "Aggiorna gruppo"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -371,7 +371,7 @@ msgstr "Accounting"
 #: ../app/tabs/users-tab/panels/showback.js:40 ../app/utils/showback.js:205
 #: ../app/utils/showback/html.hbs:53
 msgid "Showback"
-msgstr ""
+msgstr "Showback"
 
 #: ../app/tabs/groups-tab/utils/views.js:23
 msgid "Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."
@@ -506,23 +506,21 @@ msgstr "Tutto"
 msgid "Resources"
 msgstr "Risorse"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
+#: ../app/tabs/templates-tab/form-panels/create-common.js:64
 msgid "Create VM Template"
 msgstr "Crea template VM"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:64
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
 msgid "Update VM Template"
 msgstr "Aggiorna template VM"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "Crea router virtuale"
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr "Crea un template per il virtual router"
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "Aggiorna template VM"
+msgstr "Aggiorna il template per il virtual router"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -693,7 +691,7 @@ msgstr "Template VM creato"
 
 #: ../app/tabs/templates-tab/actions-common.js:54
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
-msgstr ""
+msgstr "Questo cancellerà il template.<br/>Puoi anche cancellare ogni immagine collegata a questo template"
 
 #: ../app/tabs/templates-tab/actions-common.js:57
 msgid "Delete all images"
@@ -1086,7 +1084,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombie"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1126,14 +1124,12 @@ msgid "Virtual Routers"
 msgstr "Router virtuali"
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "Router virtuale creato"
+msgstr "Template per il virtual router"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "Router virtuale creato"
+msgstr "Template per il virtual router"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1226,7 +1222,7 @@ msgstr "salvato correttamente"
 
 #: ../app/tabs/provision-tab/vms/list.js:513
 msgid "VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."
-msgstr ""
+msgstr "Clonazione della VM in background. Il Template apparirà appena sarà pronto, e la VM sbloccata."
 
 #: ../app/tabs/provision-tab/vms/list.js:796
 #: ../app/tabs/provision-tab/vms/list.js:804
@@ -1530,7 +1526,7 @@ msgstr "Zone"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "Gruppi di sicurezza"
 
@@ -1570,7 +1566,7 @@ msgstr "ID cluster"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:33
 msgid "Service Template created"
-msgstr ""
+msgstr "Template del servizio creato"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
 #: ../app/tabs/oneflow-services-tab/actions.js:34
@@ -1626,7 +1622,7 @@ msgstr "Seleziona un cluster per questo datastore"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:50
 msgid "Import vCenter Datastores"
-msgstr ""
+msgstr "Importa i Datastore vCenter"
 
 #: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
 #: ../app/tabs/marketplaces-tab/datatable.js:84
@@ -1745,7 +1741,7 @@ msgstr "Devi selezionare almeno la configurazione di un template"
 
 #: ../app/tabs/oneflow-templates-tab.js:52
 msgid "Service Templates"
-msgstr ""
+msgstr "Template Servizi"
 
 #: ../app/tabs/oneflow-templates-tab.js:53
 msgid "Service Template"
@@ -1777,12 +1773,12 @@ msgstr "Gruppo di protezione"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr ""
+msgstr "MarketPlace creato"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:46
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:100
 msgid "Endpoint URL for marketplace"
-msgstr ""
+msgstr "URL di destinazione del marketplace"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:51
 msgid "Base URL for marketapp"
@@ -1822,7 +1818,7 @@ msgstr "Regione Amazon"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:84
 msgid "Only if using public Amazon S3 service."
-msgstr ""
+msgstr "Solo se utilizza il servizio pubblico Amazon S3."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:89
 msgid "Total Marketplace size in MB"
@@ -1834,7 +1830,7 @@ msgstr "Versione firma"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:95
 msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
-msgstr ""
+msgstr "Lasciare vuoto per il servizio Amazon AWS S3. Se connesso a Ceph S3 **deve** essere 's3'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:105
 msgid "Force Path Style"
@@ -2862,9 +2858,8 @@ msgid "DS Rank"
 msgstr "Rango DS"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "Rimuovi condivisione template"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3183,11 +3178,11 @@ msgstr "Topologia di rete"
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr "Inviando..."
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr "Caricamento in corso..."
 
@@ -3217,7 +3212,7 @@ msgstr "TEMPLATE VM"
 
 #: ../app/opennebula/marketplaceapp.js:35
 msgid "SERVICE_TEMPLATE"
-msgstr ""
+msgstr "SERVICE_TEMPLATE"
 
 #: ../app/opennebula/datastore.js:30
 msgid "SYSTEM"
@@ -3362,7 +3357,7 @@ msgstr ""
 msgid "LOCKED_USED_PERS"
 msgstr ""
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "Non ci sono reti disponibili."
 
@@ -4242,11 +4237,11 @@ msgstr "Architettura CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:49
 msgid "libvirt machine type"
-msgstr ""
+msgstr "tipo di macchina libvirt"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:57
 msgid "Root device"
-msgstr ""
+msgstr "Root device"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:65
 msgid "Boot order"
@@ -4335,15 +4330,15 @@ msgstr "L'orologio del guest sarà sincronizzato con il fuso orario configurato 
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:217
 msgid "QEMU Guest Agent"
-msgstr ""
+msgstr "Guest Agent QEMU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:218
 msgid "Enables the QEMU Guest Agent communication. This does not start the Guest Agent inside the VM."
-msgstr ""
+msgstr "Abilita la comunicazione con il Guest Agent QEMU. Questo non avvia il Guest Agent all'interno della VM."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/html.hbs:31
 msgid "Default hardware model to emulate for all NICs"
-msgstr ""
+msgstr "Modello hardware emulato di default per tutte le schede di rete"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:21
 msgid "Choose Network"
@@ -4412,7 +4407,7 @@ msgstr "Hardware"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:135
 msgid "Hardware model to emulate"
-msgstr ""
+msgstr "Modello hardware da emulare"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -4953,9 +4948,9 @@ msgid "Number of VM instances"
 msgstr "Numero di istanze VM"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
-msgstr ""
+msgstr "Floating IP"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:46
 msgid "Floating IPv6 ULA"
@@ -4966,7 +4961,7 @@ msgid "Floating IPv6 Global"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr "Interfaccia di gestione"
 
@@ -5076,7 +5071,7 @@ msgstr "Devi avviare prima la macchina virtuale"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:48
 msgid "The disks of the Virtual Machine will be saved in a new Image"
-msgstr ""
+msgstr "I dischi della macchina virtuale saranno salvati in una nuova immagine"
 
 #: ../app/tabs/provision-tab/vms/info.hbs:53
 msgid "You have to power-off the virtual machine first"
@@ -5204,7 +5199,7 @@ msgstr "Spegni la macchina"
 
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:31
 msgid "Send the shutdown signal and terminate"
-msgstr ""
+msgstr "Invia il segnale di spegnimento e termina"
 
 #: ../app/tabs/provision-tab/flows/info.hbs:44
 msgid "Recover a failed service, cleaning the failed VMs"
@@ -5317,7 +5312,7 @@ msgstr "Immediata"
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
 msgid "VM shutdown action"
-msgstr ""
+msgstr "Azione di spegnimento della VM"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
@@ -5975,7 +5970,7 @@ msgstr "Primo indirizzo IP"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
 msgid "Add rule"
-msgstr ""
+msgstr "Aggiungi regola"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -6083,14 +6078,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "Qualsiasi network"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "ID VLAN"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6482,7 +6475,7 @@ msgstr "Nuovo nome immagine"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
 msgid "Get Images"
-msgstr ""
+msgstr "Ottieni le immagini"
 
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Image template here"
@@ -6502,7 +6495,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:62
 msgid "This image is persistent"
-msgstr ""
+msgstr "Questa immagine è persistente"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:70
 msgid "Image location"
@@ -6518,7 +6511,7 @@ msgstr "Carica"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:79
 msgid "Empty disk image"
-msgstr ""
+msgstr "Immagine disco vuota"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
 msgid "Path"
@@ -6726,15 +6719,15 @@ msgstr "Forza IPv4:"
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
@@ -6756,11 +6749,11 @@ msgstr "Filtro per gruppo"
 
 #: ../app/utils/showback/html.hbs:28
 msgid "Get showback"
-msgstr ""
+msgstr "Ottieni showback"
 
 #: ../app/utils/showback/html.hbs:43
 msgid "There are no showback records"
-msgstr ""
+msgstr "Non ci sono registrazioni di showback"
 
 #: ../app/utils/showback/html.hbs:60
 msgid "Year"
@@ -6777,15 +6770,3 @@ msgstr "Seleziona una riga per ottenere le informazioni dettagliate del mese"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "Ore"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "Seleziona un datastore per questo file"
-
-#~ msgid "File type"
-#~ msgstr "Tipo di file"
-
-#~ msgid "Number of VMs to instantiate with this role"
-#~ msgstr "Numero di VM da istanziare con questo ruolo"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "ID macchina virtuale"
