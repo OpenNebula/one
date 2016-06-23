@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# get_free_addr_range type subnet start_addr size rsize
+#   Allocates "rsize" address in given subnet, in specified range
+#   with:
+#     addrtype: IP4 or IP6
+#     subnet: subnet where the range is located ; example: 10.4.0.0/16
+#     start_addr: first address of the range; example: 10.4.0.0
+#     size: range size ; example: 35 for range 10.4.0.8-10.4.0.42
+#     rsize: reservation size, number of address to allocate; example: 6
+#
+ADDRTYPE="$1"
+SUBNET="$2"
+START_ADDR="$3"
+SIZE="$4"
+RSIZE="$5"
+
+exit -1

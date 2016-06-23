@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# get_used_addr type subnet start_addr size
+#   return number of used address in range (start_addr,start_addr+size)
+#   with:
+#     addrtype: IP4 or IP6
+#     subnet: surveyed subnet
+#     start_addr: start of range
+#     size: size of range
+#
+ADDRTYPE="$1"
+SUBNET="$2"
+START_ADDRESS="$3"
+SIZE="$4"
+
+exit -1

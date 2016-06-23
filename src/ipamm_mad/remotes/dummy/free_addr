@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# free_addr addrtype subnet addr
+#   undeclare address
+#   with:
+#     addrtype: IP4 or IP6
+#     subnet: subnet where the address is located ; example: 172.16.0.0/16
+#     addr: address to undeclare
+#
+ADDRTYPE="$1"
+SUBNET="$2"
+ADDRESS="$3"
+
+exit -1
