@@ -111,6 +111,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "EPILOG_DELETE";
         break;
 
+    case EPILOG_LOCAL:
+        aname = "EPILOG_LOCAL";
+        break;
+
     case EPILOG_DELETE_STOP:
         aname = "EPILOG_DELETE_STOP";
         break;

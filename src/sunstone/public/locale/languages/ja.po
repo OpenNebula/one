@@ -4,15 +4,15 @@
 #
 # Translators:
 # Akihiko Ota <skywalker.37th@gmail.com>, 2015
-# kuromabo <md81bird@hitaki.net>, 2015
+# kuromabo <md81bird@hitaki.net>, 2015-2016
 # Sono Mishiro <selene.jaxa@gmail.com>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-13 18:40+0200\n"
-"PO-Revision-Date: 2016-06-01 09:00+0000\n"
-"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
+"POT-Creation-Date: 2016-06-23 11:50+0200\n"
+"PO-Revision-Date: 2016-06-22 13:56+0000\n"
+"Last-Translator: kuromabo <md81bird@hitaki.net>\n"
 "Language-Team: Japanese (http://www.transifex.com/opennebula/one/language/ja/)\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -45,7 +45,7 @@ msgstr "データストア"
 
 #: ../app/tabs/groups-tab/actions.js:33
 msgid "Group created"
-msgstr ""
+msgstr "グループを作成しました"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:53
 msgid "Create Group"
@@ -53,7 +53,7 @@ msgstr "グループを作成"
 
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
-#: ../app/tabs/templates-tab/form-panels/create-common.js:73
+#: ../app/tabs/templates-tab/form-panels/create-common.js:74
 #: ../app/tabs/vrouters-tab/form-panels/create.js:61
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
@@ -84,7 +84,7 @@ msgstr "グループを更新"
 #: ../app/tabs/groups-tab/buttons.js:33
 #: ../app/tabs/vdcs-tab/form-panels/create.js:65
 #: ../app/tabs/vdcs-tab/buttons.js:33
-#: ../app/tabs/templates-tab/form-panels/create-common.js:78
+#: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
@@ -293,7 +293,7 @@ msgstr "CPU"
 #: ../app/tabs/provision-tab/vms/create.hbs:78
 #: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
-msgstr ""
+msgstr "ラベル"
 
 #: ../app/tabs/groups-tab/datatable.js:77
 msgid "Please select a Group from the list"
@@ -457,19 +457,19 @@ msgstr "ネットワーク"
 
 #: ../app/tabs/vdcs-tab/datatable.js:78
 msgid "Please select a VDC from the list"
-msgstr ""
+msgstr "リストからVDCを選択してください"
 
 #: ../app/tabs/vdcs-tab/datatable.js:79
 msgid "You selected the following VDC:"
-msgstr ""
+msgstr "以下のVDCが選択されています:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:80
 msgid "Please select one or more VDCs from the list"
-msgstr ""
+msgstr "リストから1つ以上のVDCを選択してください"
 
 #: ../app/tabs/vdcs-tab/datatable.js:81
 msgid "You selected the following VDCs:"
-msgstr ""
+msgstr "以下のVDCが選択されています:"
 
 #: ../app/tabs/vdcs-tab/datatable.js:136
 #: ../app/tabs/acls-tab/form-panels/create.js:304
@@ -496,23 +496,21 @@ msgstr "すべて"
 msgid "Resources"
 msgstr "リソース"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:63
-msgid "Create VM Template"
-msgstr ""
-
 #: ../app/tabs/templates-tab/form-panels/create-common.js:64
-msgid "Update VM Template"
-msgstr ""
+msgid "Create VM Template"
+msgstr "VMテンプレートを作成"
 
-#: ../app/tabs/templates-tab/form-panels/create-common.js:66
-#, fuzzy
-msgid "Create Virtual Router VM Template"
-msgstr "仮想データセンタを作成"
+#: ../app/tabs/templates-tab/form-panels/create-common.js:65
+msgid "Update VM Template"
+msgstr "VMテンプレートを更新"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
-#, fuzzy
+msgid "Create Virtual Router VM Template"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr "仮想データセンタを更新"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -567,7 +565,7 @@ msgstr "なし"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:179
 msgid "Set manually"
-msgstr ""
+msgstr "手動で設定"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io.js:51
 msgid "Input/Output"
@@ -584,7 +582,7 @@ msgstr "OS起動"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:378
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/html.hbs:34
 msgid "Image ID"
-msgstr ""
+msgstr "イメージID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:380
 msgid "Volatile"
@@ -592,15 +590,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:405
 msgid "Network ID"
-msgstr ""
+msgstr "ネットワークID"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:407
 msgid "Manual settings"
-msgstr ""
+msgstr "手動設定"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:417
 msgid "Disks and NICs will appear here"
-msgstr ""
+msgstr "ディスクとNICがここに表示されます"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:55
 #: ../app/tabs/vms-tab/panels/storage.js:51
@@ -679,7 +677,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/actions-common.js:238
 #: ../app/tabs/marketplaceapps-tab/actions.js:76
 msgid "VM Template created"
-msgstr ""
+msgstr "VMテンプレートを作成しました"
 
 #: ../app/tabs/templates-tab/actions-common.js:54
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
@@ -687,13 +685,13 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/actions-common.js:57
 msgid "Delete all images"
-msgstr ""
+msgstr "すべてのイメージを削除"
 
 #: ../app/tabs/templates-tab/actions-common.js:158
 #: ../app/tabs/templates-tab/actions-common.js:203
 #: ../app/tabs/vms-tab/actions.js:40
 msgid "VM created"
-msgstr ""
+msgstr "VMを作成しました"
 
 #: ../app/tabs/templates-tab/buttons.js:49
 #: ../app/tabs/vrouters-tab/buttons.js:32
@@ -916,7 +914,7 @@ msgstr "インフラストラクチャー"
 
 #: ../app/tabs/hosts-tab/actions.js:33
 msgid "Host created"
-msgstr ""
+msgstr "ホストを作成しました"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
@@ -945,7 +943,7 @@ msgstr "無効"
 
 #: ../app/tabs/hosts-tab/buttons.js:49
 msgid "Offline"
-msgstr ""
+msgstr "オフライン"
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
@@ -1072,7 +1070,7 @@ msgstr "合計"
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
-msgstr ""
+msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
@@ -1084,7 +1082,7 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:156
 msgid "VM imported"
-msgstr ""
+msgstr "VMがインポートされました"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:162
 #: ../app/tabs/hosts-tab/panels/wilds.js:175
@@ -1116,14 +1114,12 @@ msgid "Virtual Routers"
 msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:48
-#, fuzzy
 msgid "Virtual Router VM Templates"
-msgstr "仮想マシンをテンプレートに保存"
+msgstr ""
 
 #: ../app/tabs/vrouter-templates-tab.js:49
-#, fuzzy
 msgid "Virtual Router VM Template"
-msgstr "仮想マシンをテンプレートに保存"
+msgstr ""
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1520,7 +1516,7 @@ msgstr "ゾーン"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:61
+#: ../app/utils/nics-section/dd.hbs:65
 msgid "Security Groups"
 msgstr "セキュリティグループ"
 
@@ -1531,7 +1527,7 @@ msgstr "VDCs"
 
 #: ../app/tabs/acls-tab/datatable.js:178
 msgid "Marketplaces"
-msgstr ""
+msgstr "マーケットプレイス"
 
 #: ../app/tabs/acls-tab/datatable.js:181
 msgid "Marketplace Apps"
@@ -2852,9 +2848,8 @@ msgid "DS Rank"
 msgstr "DS Rank"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
-#, fuzzy
 msgid "User template"
-msgstr "未共有テンプレート"
+msgstr ""
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
@@ -3173,11 +3168,11 @@ msgstr ""
 msgid "VNet"
 msgstr "VNet"
 
-#: ../app/sunstone.js:910 ../app/sunstone.js:911
+#: ../app/sunstone.js:913 ../app/sunstone.js:914
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:998 ../app/sunstone.js:999
+#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
 msgid "Loading..."
 msgstr ""
 
@@ -3352,7 +3347,7 @@ msgstr ""
 msgid "LOCKED_USED_PERS"
 msgstr ""
 
-#: ../app/utils/nics-section.js:306
+#: ../app/utils/nics-section.js:309
 msgid "There are no networks available."
 msgstr "利用可能なネットワークがありません"
 
@@ -4943,7 +4938,7 @@ msgid "Number of VM instances"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:39
+#: ../app/utils/nics-section/dd.hbs:43
 msgid "Floating IP"
 msgstr ""
 
@@ -4956,7 +4951,7 @@ msgid "Floating IPv6 Global"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:50
+#: ../app/utils/nics-section/dd.hbs:54
 msgid "Management Interface"
 msgstr ""
 
@@ -6073,14 +6068,12 @@ msgid "Automatic VLAN ID"
 msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
-#, fuzzy
 msgid "No VLAN network"
-msgstr "ネットワーク"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
-#, fuzzy
 msgid "Manual VLAN ID"
-msgstr "VLAN ID"
+msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6716,15 +6709,15 @@ msgstr ""
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:41
+#: ../app/utils/nics-section/dd.hbs:45
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:52
+#: ../app/utils/nics-section/dd.hbs:56
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:63
+#: ../app/utils/nics-section/dd.hbs:67
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
@@ -6767,9 +6760,3 @@ msgstr "月の詳細情報を開くには，行を選択してください"
 #: ../app/utils/showback/html.hbs:89
 msgid "Hours"
 msgstr "時"
-
-#~ msgid "Please select a datastore for this file"
-#~ msgstr "このファイルのデータストアを選択してください"
-
-#~ msgid "Virtual Machine ID"
-#~ msgstr "仮想マシンID"

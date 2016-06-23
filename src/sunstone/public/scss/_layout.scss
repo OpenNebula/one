@@ -34,8 +34,16 @@
       color: $bold-black;
     }
 
+    .submenu {
+      a {
+        color: $dark-gray;
+        &:hover {
+          color: $black;
+        }
+      }
+    }
+
     @include breakpoint(medium down) {
-      .username,
       .zonename {
         display: none;
       }

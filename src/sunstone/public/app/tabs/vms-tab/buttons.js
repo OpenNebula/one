@@ -173,12 +173,12 @@ define(function(require) {
     },
     "VM.startvnc" : {
       type: "action",
-      text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("VNC"),
+      text: '<i class="fa fa-desktop"/> ' + Locale.tr("VNC"),
       custom_classes: "only-sunstone-info vnc-sunstone-info"
     },
     "VM.startspice" : {
       type: "action",
-      text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("SPICE"),
+      text: '<i class="fa fa-desktop"/> ' + Locale.tr("SPICE"),
       custom_classes: "only-sunstone-info spice-sunstone-info"
     },
     "VM.save_as_template" : {

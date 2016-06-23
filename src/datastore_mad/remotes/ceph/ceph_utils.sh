@@ -177,3 +177,33 @@ rbd_rm_r() {
         $RBD rm $rbd
     fi
 }
+
+#--------------------------------------------------------------------------------
+# Parse the output of rbd df in xml format and generates a monitor string for a
+# Ceph pool. You **MUST** define XPATH util before using this function
+#   @param $1 the xml output of the command
+#   @param $2 the pool name
+#--------------------------------------------------------------------------------
+rbd_df_monitor() {
+
+    local monitor_data i j xpath_elements pool_name bytes_used free
+
+    monitor_data=$1
+    pool_name=$2
+
+    while IFS= read -r -d '' element; do
+        xpath_elements[i++]="$element"
+    done < <(echo $monitor_data | $XPATH \
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/bytes_used" \
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/max_avail")
+
+    bytes_used="${xpath_elements[j++]:-0}"
+    free="${xpath_elements[j++]:-0}"
+
+    cat << EOF | tr -d '[:blank:][:space:]'
+        USED_MB=$(($bytes_used / 1024**2))\n
+        TOTAL_MB=$((($bytes_used + $free) / 1024**2))\n
+        FREE_MB=$(($free / 1024**2))\n
+EOF
+}
+
