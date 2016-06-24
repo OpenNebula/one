@@ -34,12 +34,10 @@ require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'shellwords'
 
-# This is a generic AuthZ/AuthN driver able to manage multiple authentication
-# protocols (simultaneosly). It also supports the definition of custom
-# authorization methods
+# IPAM Manager driver 
 class IPAMDriver < OpenNebulaDriver
 
-    # Auth Driver Protocol constants
+    # IPAM Driver Protocol constants
     ACTION = {
         :get_used_addr => "GET_USED_ADDR",
         :get_free_addr_range => "GET_FREE_ADDR_RANGE",
@@ -47,13 +45,7 @@ class IPAMDriver < OpenNebulaDriver
         :free_addr => "FREE_ADDR"
     }
 
-
-    # Initialize an IPAMDriver
-    #
-    # @param [String] the authorization method to be used, nil to use the
-    #        built-in ACL engine
-    # @param [Array] authentication modules enabled, nil will use any
-    #        any method existing in remotes directory
+    # Init the driver
     def initialize(ipam_type, options={})
         @options={
             :concurrency   => 1,

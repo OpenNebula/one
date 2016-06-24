@@ -65,15 +65,27 @@ private:
      */
     IPAMManager * ipamm;
 
+    /**
+     * Get the number of used addresses
+     */
     void get_used_addr(int oid,
                        const string& params) const;
 
+    /**
+     * Get a free address range
+     */
     void get_free_addr_range(int oid,
                              const string& params) const;
 
+    /**
+     * Register an address range
+     */
     void register_addr_range(int oid,
                              const string& params) const;
 
+    /**
+     * Free an address
+     */
     void free_addr(int oid,
                    const string& params) const;
 

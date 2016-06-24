@@ -51,10 +51,41 @@ public:
 
 private:
 
+    /**
+     * Get a free address from the IPAM
+     *   @param index the index
+     *   @return 0 on success
+     */
     int get_free_addr(unsigned int &index);
+
+    /**
+     * Get a free address range from the IPAM
+     *   @param index the index
+     *   @param rsize the size of the range
+     *   @return 0 on success
+     */
     int get_free_addr_range(unsigned int &index, unsigned int rsize);
+
+    /**
+     * Register an address
+     *   @param index the index
+     *   @return 0 on success
+     */
     int register_addr(unsigned int index);
+
+    /**
+     * Register an address range
+     *   @param index the index
+     *   @param rsize the size of the range
+     *   @return 0 on success
+     */
     int register_addr_range(unsigned int sindex, unsigned int rsize);
+
+    /**
+     * Free an address
+     *   @param index the index
+     *   @return 0 on success
+     */
     int free_addr(unsigned int index);
 
 };

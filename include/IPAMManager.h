@@ -76,7 +76,7 @@ public:
     int start();
 
     /**
-     *  Loads Virtual Machine Manager Mads defined in configuration file
+     *  Loads IPAM Manager Mads defined in configuration file
      *   @param uid of the user executing the driver. When uid is 0 the nebula
      *   identity will be used. Otherwise the Mad will be loaded through the
      *   sudo application.
@@ -167,11 +167,23 @@ private:
         void *          arg);
 
     /**
-     *  This function register an IP address
+     * Get the number of used addresses 
      */
     void get_used_addr_action(IPAMRequest * ir);
+
+    /**
+     * Get a free address range 
+     */
     void get_free_addr_range_action(IPAMRequest * ir);
+
+    /**
+     * Register an address range
+     */
     void register_addr_range_action(IPAMRequest * ir);
+
+    /**
+     * Free an address
+     */
     void free_addr_action(IPAMRequest * ir);
 };
 
