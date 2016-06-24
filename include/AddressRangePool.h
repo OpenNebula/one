@@ -296,7 +296,7 @@ public:
     unsigned int get_used_addr() const;
 
     /**
-     *  Return the number of used addresses handle by one
+     *  Return the number of used addresses handled by one
      */
     unsigned int get_one_used_addr() const;
 
