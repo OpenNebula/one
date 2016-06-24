@@ -81,7 +81,7 @@ define(function(require) {
       var ar = arList[i];
       var id = ar.AR_ID;
 
-      var ipam_mad = (ar.IPAM_MAD ? ar.IPAM_MAD : "default");
+      var ipam_mad = (ar.IPAM_MAD ? ar.IPAM_MAD : "internal");
 
       var type = (ar.TYPE ? ar.TYPE : "--");
 

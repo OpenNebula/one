@@ -61,7 +61,7 @@ int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 
 AddressRange * AddressRangePool::allocate_ar()
 {
-    return AddressRange::new_ar_by_type("default", next_ar++);
+    return AddressRange::new_ar_by_type("internal", next_ar++);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -515,7 +515,7 @@ int AddressRangePool::external_ipam() const
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if (it->second->get_ipam_mad() != "default")
+        if (it->second->get_ipam_mad() != "internal")
         {
             return 0;
         }

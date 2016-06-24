@@ -74,9 +74,9 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
 
 AddressRange * AddressRange::new_ar_by_type(string ipam_mad, unsigned int next_ar)
 {
-    if ( ipam_mad.empty() || ipam_mad == "default" )
+    if ( ipam_mad.empty() || ipam_mad == "internal" )
     {
-        return new AddressRangeOne("default", next_ar);
+        return new AddressRangeOne("internal", next_ar);
     }
 
     return new AddressRangeIPAM(ipam_mad, next_ar);
@@ -1485,7 +1485,7 @@ void AddressRange::reserve_addr_range(int vid, unsigned int rsize,
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("IPAM_MAD", "default");
+    new_ar->replace("IPAM_MAD", "internal");
 
     new_ar->replace("PARENT_NETWORK_AR_ID", id);
 }
