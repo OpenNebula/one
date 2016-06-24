@@ -16,7 +16,7 @@
 
 #include "AddressRange.h"
 #include "AddressRangeIPAM.h"
-#include "AddressRangeOne.h"
+#include "AddressRangeInternal.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
 #include "NebulaUtil.h"
@@ -76,7 +76,7 @@ AddressRange * AddressRange::new_ar_by_type(string ipam_mad, unsigned int next_a
 {
     if ( ipam_mad.empty() || ipam_mad == "internal" )
     {
-        return new AddressRangeOne("internal", next_ar);
+        return new AddressRangeInternal("internal", next_ar);
     }
 
     return new AddressRangeIPAM(ipam_mad, next_ar);
@@ -102,7 +102,14 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 
     attr = vattr;
 
-    /* ------------------------- AR Type & Size ---------------------------- */
+    /* --------------------- IPAM_MAD, AR Type & Size ----------------------- */
+
+    value = vattr->vector_value("IPAM_MAD");
+
+    if (value.empty())
+    {
+        vattr->replace("IPAM_MAD", "internal");
+    }
 
     value = vattr->vector_value("TYPE");
     type  = str_to_type(value);
@@ -262,6 +269,15 @@ int AddressRange::update_attributes(
     }
 
     /* --------------- Copy non-update attributes ----------------- */
+
+    string _ipam_mad = attr->vector_value("IPAM_MAD");
+
+    if (_ipam_mad.empty())
+    {
+        _ipam_mad = "internal";
+    }
+
+    vup->replace("IPAM_MAD", _ipam_mad);
 
     vup->replace("TYPE", attr->vector_value("TYPE"));
 

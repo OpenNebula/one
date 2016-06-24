@@ -74,7 +74,7 @@ public:
     // *************************************************************************
 
     /**
-     *  Return an AddressRangeOne or AddressRangeIPAM
+     *  Return an AddressRangeInternal or AddressRangeIPAM
      *    @param ipam_mad the driver name
      *    @next_ar id of the next address range
      *    @return the new address range

@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef ADDRESS_RANGE_ONE_H_
-#define ADDRESS_RANGE_ONE_H_
+#ifndef ADDRESS_RANGE_INTERNAL_H_
+#define ADDRESS_RANGE_INTERNAL_H_
 
 #include <string>
 #include <set>
@@ -32,13 +32,13 @@ class VectorAttribute;
 /**
  *  The Lease class represents an address lease from a Virtual Network.
  */
-class AddressRangeOne : public AddressRange 
+class AddressRangeInternal : public AddressRange 
 {
 public:
 
-    AddressRangeOne(string _ipam_mad, unsigned int _id):AddressRange(_ipam_mad, _id){};
+    AddressRangeInternal(string _ipam_mad, unsigned int _id):AddressRange(_ipam_mad, _id){};
 
-    virtual ~AddressRangeOne(){};
+    virtual ~AddressRangeInternal(){};
 
     /**
      *  Return the number of used addresses

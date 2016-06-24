@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "AddressRangeOne.h"
+#include "AddressRangeInternal.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
 #include "NebulaUtil.h"
@@ -24,7 +24,7 @@
 
 using namespace std;
 
-int AddressRangeOne::get_free_addr(unsigned int &index)
+int AddressRangeInternal::get_free_addr(unsigned int &index)
 {
     for (unsigned int i=0; i<size; i++, next = (next+1)%size)
     {
@@ -38,7 +38,7 @@ int AddressRangeOne::get_free_addr(unsigned int &index)
     return -1;
 }
 
-int AddressRangeOne::get_free_addr_range(unsigned int &index, unsigned int rsize)
+int AddressRangeInternal::get_free_addr_range(unsigned int &index, unsigned int rsize)
 {
     bool valid = true;
 
@@ -75,7 +75,7 @@ int AddressRangeOne::get_free_addr_range(unsigned int &index, unsigned int rsize
     return 0;
 }
 
-int AddressRangeOne::register_addr(unsigned int index)
+int AddressRangeInternal::register_addr(unsigned int index)
 {
     if ((allocated.count(index) != 0) || (index >= size))
     {
@@ -85,7 +85,7 @@ int AddressRangeOne::register_addr(unsigned int index)
     return 0;
 }
 
-int AddressRangeOne::register_addr_range(unsigned int sindex, unsigned int rsize)
+int AddressRangeInternal::register_addr_range(unsigned int sindex, unsigned int rsize)
 {
     if ((sindex+rsize) > size)
     {
@@ -103,7 +103,7 @@ int AddressRangeOne::register_addr_range(unsigned int sindex, unsigned int rsize
     return 0;
 }
 
-int AddressRangeOne::free_addr(unsigned int index)
+int AddressRangeInternal::free_addr(unsigned int index)
 {
     return 0;
 }

@@ -16,7 +16,7 @@
 
 #include "AddressRangePool.h"
 #include "AddressRangeIPAM.h"
-#include "AddressRangeOne.h"
+#include "AddressRangeInternal.h"
 #include "AddressRange.h"
 
 using namespace std;
