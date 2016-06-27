@@ -67,7 +67,7 @@ def needs_unpack?(file)
     end
 
     type = get_type(file_path)
-    type.gsub!(%r{^application/x-}, '')
+    type.gsub!(%r{^application/(x-)?}, '')
     unpack = %w{bzip2 gzip tar}.include?(type)
 
     temp.unlink
