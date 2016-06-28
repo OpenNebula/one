@@ -64,6 +64,7 @@
  \-f, \-\-file file           Selects the template file
  \-n, \-\-network id|name     Selects the virtual network
  \-i, \-\-ip ip               IP address for the new NIC
+ \-\-float                   Makes this IP request a Floating one
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -123,7 +124,20 @@ update \fIvrouterid\fR [\fIfile\fR] Update the Virtual Router contents\. If a pa
 rename \fIvrouterid\fR \fIname\fR Renames the Virtual Router
 .
 .IP "\(bu" 4
-nic\-attach \fIvrouterid\fR Attaches a NIC to a VirtualRouter, and each one of its VMs\. When using \-\-file add only one NIC instance\. valid options: file, network, ip
+nic\-attach \fIvrouterid\fR Attaches a NIC to a VirtualRouter, and each one of its VMs\. When using \-\-file add only one NIC instance\.
+.
+.IP "" 4
+.
+.nf
+
+Note if you are using a HA configuration for this router, \-\-float can be
+added\. When an IP is requested in HA clusters use \-\-float\.
+valid options: file, network, ip, float
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 nic\-detach \fIvrouterid\fR \fInicid\fR Detaches a NIC from a VirtualRouter, and each one of its VMs
@@ -171,7 +185,7 @@ templateid OpenNebula VMTEMPLATE name or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.0\.0 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.0\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

@@ -333,7 +333,7 @@ function mkfs_command {
 #This function executes $2 at $1 host and report error $3
 function ssh_exec_and_log
 {
-    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 export LANG=C
 export LC_ALL=C
 $2
@@ -360,7 +360,7 @@ EOF`
 # $4: ERROR_REPORT
 function ssh_exec_and_log_stdin
 {
-    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 export LANG=C
 export LC_ALL=C
 $(cat $3)
@@ -388,7 +388,7 @@ EOF`
 # the command fails
 function ssh_monitor_and_log
 {
-    SSH_EXEC_OUT="$($SSH $1 sh -s 2>/dev/null <<EOF
+    SSH_EXEC_OUT="$($SSH $1 bash -s 2>/dev/null <<EOF
 export LANG=C
 export LC_ALL=C
 $2
@@ -414,7 +414,7 @@ EOF
 # file ".monitor" in the directory. Used for local disk monitoring
 function ssh_make_path
 {
-    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 set -e
 if [ ! -d $2 ]; then
    mkdir -p $2
