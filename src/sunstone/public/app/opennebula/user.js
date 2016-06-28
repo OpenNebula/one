@@ -76,6 +76,13 @@ define(function(require) {
       var action_obj = {"password": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "passwd", action_obj);
     },
+    "login": function(params) {
+      var action_obj = {"username": params.data.username,
+                        "token": params.data.token,
+                        "expire": params.data.expire};
+
+      OpenNebulaAction.simple_action(params, RESOURCE, "login", action_obj);
+    },
     "chgrp" : function(params) {
       var action_obj = {"group_id": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "chgrp", action_obj);

@@ -45,6 +45,7 @@ module OpenNebulaJSON
                  when "set_quota"    then self.set_quota(action_hash['params'])
                  when "addgroup"     then self.addgroup(action_hash['params'])
                  when "delgroup"     then self.delgroup(action_hash['params'])
+                 when "login"        then self.login(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -84,6 +85,14 @@ module OpenNebulaJSON
 
         def delgroup(params=Hash.new)
             super(params['group_id'].to_i)
+        end
+
+        def login(params=Hash.new)
+            username = params['username'].nil? ? "" : params['username']
+            token   = params['token'].nil? ? "" : params['token']
+            expire  = params['expire'].nil? ? 36000 : params['expire']
+
+            super(username, token, expire)
         end
 
     end

@@ -93,6 +93,7 @@ tabs:
             User.refresh: true
             User.create_dialog: true
             User.update_password: true
+            User.login_token: true
             User.quotas_dialog: true
             User.groups_dialog: true
             User.chgrp: true

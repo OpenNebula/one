@@ -20,18 +20,18 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./password/html');
+  var TemplateHTML = require('hbs!./login-token/html');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var UserCreation = require('tabs/users-tab/utils/user-creation');
-  var Config = require('sunstone-config');
+  var OpenNebula = require('opennebula');
+  //var Config = require('sunstone-config');
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./password/dialogId');
+  var DIALOG_ID = require('./login-token/dialogId');
   var USERS_TAB_ID = require('../tabId');
 
   /*
@@ -40,8 +40,6 @@ define(function(require) {
 
   function Dialog() {
     this.dialogId = DIALOG_ID;
-
-    this.userCreation = new UserCreation(DIALOG_ID, {name: false, auth_driver: false});
 
     BaseDialog.call(this);
   }
@@ -62,46 +60,59 @@ define(function(require) {
 
   /**
    * @param {object} params
-   *        - params.selectedElements : Array of user ids
+   *        - params.element : user element
    */
   function _setParams(params) {
-    this.selectedElements = params.selectedElements;
+    this.element = params.element;
   }
 
   function _html() {
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'userCreationHTML': this.userCreation.html()
+      'element': this.element
     });
   }
 
   function _setup(context) {
     var that = this;
 
-    this.userCreation.setup(context);
+    $("#token_btn", context).click(function(){
 
-    Foundation.reflow(context, 'abide');
+      $("#token_btn", context).html('<i class="fa fa-spinner fa-spin"/>')
 
-    $('#' + DIALOG_ID + 'Form')
-      .on('forminvalid.zf.abide', function(ev, frm) {
-        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-      })
-      .on('formvalid.zf.abide', function(ev, frm) {
-        var inputs = that.userCreation.retrieve(context);
+      OpenNebula.User.login({
+        data : {
+          id: "-1",
+          'username': that.element.NAME,
+          //token
+          //expire
+        },
+        success: function(req, response){
+          OpenNebula.User.show({
+            data : {
+              id: that.element.ID
+            },
+            success: function(request, user_json){
+              Sunstone.getDialog(DIALOG_ID).hide();
+              Sunstone.getDialog(DIALOG_ID).setParams({element: user_json.USER});
+              Sunstone.getDialog(DIALOG_ID).reset();
+              Sunstone.getDialog(DIALOG_ID).show();
 
-        Sunstone.runAction('User.passwd', that.selectedElements, inputs.password);
-
-        Sunstone.getDialog(DIALOG_ID).hide();
-        Sunstone.getDialog(DIALOG_ID).reset();
-        if (Sunstone.getTab() == USERS_TAB_ID){
-          Sunstone.runAction('User.refresh');
-        } else {
-          Sunstone.runAction('Settings.refresh');
-        }
-      })
-      .on("submit", function(ev) {
-        ev.preventDefault();
+              if (Sunstone.getTab() == USERS_TAB_ID){
+                Sunstone.runAction('User.refresh');
+              } else {
+                Sunstone.runAction('Settings.refresh');
+              }
+            },
+            error: function(request, error_json){
+              Sunstone.getDialog(DIALOG_ID).hide();
+              Notifier.onError(request, error_json);
+            }
+          });
+        },
+        error: Notifier.onError
       });
+    });
 
     return false;
   }
@@ -110,7 +121,7 @@ define(function(require) {
     var tabId = Sunstone.getTab();
 
     if (tabId == USERS_TAB_ID){
-      this.setNames( {tabId: USERS_TAB_ID} );
+      this.setNames( Sunstone.getDataTable(USERS_TAB_ID).elements({names: true}) );
     }
 
     return false;

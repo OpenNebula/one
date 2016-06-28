@@ -27,7 +27,8 @@ define(function(require) {
     require('./users-tab/dialogs/password'),
     require('./users-tab/dialogs/auth-driver'),
     require('./users-tab/dialogs/quotas'),
-    require('./users-tab/dialogs/groups')
+    require('./users-tab/dialogs/groups'),
+    require('./users-tab/dialogs/login-token')
   ];
 
   var _panels = [
