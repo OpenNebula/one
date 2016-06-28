@@ -2003,7 +2003,9 @@ private
     #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
     ########################################################################
     def self.is_disk?(device)
-        !device.class.ancestors.index(RbVmomi::VIM::VirtualDisk).nil?
+        is_disk  = !(device.class.ancestors.index(RbVmomi::VIM::VirtualDisk)).nil?
+        is_cdrom =  !(device.class.ancestors.index(RbVmomi::VIM::VirtualCdrom)).nil?
+        is_disk or is_cdrom
     end
 
     ########################################################################
