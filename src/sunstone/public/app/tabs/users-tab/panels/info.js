@@ -42,6 +42,7 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
+  var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
 
   /*
     CONSTRUCTOR
@@ -125,14 +126,6 @@ define(function(require) {
       }
     });
 
-    // SSH input
-
-    context.off("click", ".user_ssh_public_key_edit");
-    context.on("click", ".user_ssh_public_key_edit", function() {
-      $("#user_ssh_public_key_text", context).hide();
-      $("#user_ssh_public_key_textarea", context).show().focus();
-    });
-
     // Password button
     context.off("click", "#update_password");
     context.on("click", "#update_password", function(){
@@ -140,6 +133,22 @@ define(function(require) {
         {selectedElements: [that.element.ID]});
       Sunstone.getDialog(PASSWORD_DIALOG_ID).reset();
       Sunstone.getDialog(PASSWORD_DIALOG_ID).show();
+    });
+
+    // Login token button
+    context.off("click", "#login_token");
+    context.on("click", "#login_token", function(){
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).show();
+    });
+
+    // SSH input
+
+    context.off("click", ".user_ssh_public_key_edit");
+    context.on("click", ".user_ssh_public_key_edit", function() {
+      $("#user_ssh_public_key_text", context).hide();
+      $("#user_ssh_public_key_textarea", context).show().focus();
     });
 
     context.off("change", "#user_ssh_public_key_textarea");

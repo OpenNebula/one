@@ -80,6 +80,11 @@ tabs:
             user_showback_tab: true
         actions:
             User.quotas_dialog: false
+    # Buttons inside the settings-tab panel user_info_tab
+    users-tab:
+        actions:
+            User.update_password: true
+            User.login_token: true
     vms-tab:
         actions: *provisionactions
     images-tab:

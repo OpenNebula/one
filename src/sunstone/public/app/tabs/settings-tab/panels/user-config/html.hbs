@@ -197,3 +197,54 @@
     </form>
   </div>
 </div>
+<div class="row">
+  <div class="large-6 columns">
+    <div class="row">
+      <div class="large-12 large-centered columns">
+        <dl class="accordion" data-accordion>
+          <dd class="accordion-item" data-accordion-item>
+            <a href="#provision_login_token_accordion" class="text-center accordion-title">
+              <div class="row only-not-active">
+                <div class="large-12 large-centered columns">
+                  <div class="text-center">
+                    <span class="fa-stack fa-3x">
+                      <i class="fa fa-cloud fa-stack-2x"></i>
+                      <i class="fa fa-unlock-alt fa-stack-1x fa-inverse"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <br class="only-not-active">
+              <i class="fa fa-lg fa-unlock-alt only-active"></i>
+              {{tr "Login Token"}}
+            </a>
+            <div id="provision_login_token_accordion" class="accordion-content" data-tab-content>
+              <br>
+              <form id="provision_login_token_form">
+                <br/>
+                <p>
+                  {{tr "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"}}
+                </p>
+                <div class="provision_login_token_current">
+                  <p>{{tr "Current login token, valid until"}} <span class="provision_login_token_valid"></span></p>
+                  <br/>
+                  <pre class="text-center provision_login_token_value"></pre>
+                  <br/>
+                  <br/>
+                  <p class="label secondary radius float-center text-center">
+                    <i class="fa fa-warning"/> {{tr "Getting a new token will invalidate the current one"}}
+                  </p>
+                </div>
+                <div class="row">
+                  <div class="large-12 columns">
+                    <button href"#" type="submit" class="button large radius large-12 small-12 provision_login_token_button">{{tr "Get a login token"}}</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
