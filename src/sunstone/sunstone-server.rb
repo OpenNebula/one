@@ -511,8 +511,8 @@ get '/version' do
         end
     end
 
-    if !version[:version] || version[:version].empty?
-        version[:version] = OpenNebula::VERSION
+    if !version["version"] || version["version"].empty?
+        version["version"] = OpenNebula::VERSION
     end
 
     [200, version.to_json]
