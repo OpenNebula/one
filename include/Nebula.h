@@ -439,6 +439,16 @@ public:
     };
 
     /**
+     *  Gets an Auth driver configuration attribute
+     */
+    int get_auth_conf_attribute(
+        const string& driver_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("AUTH_DRIVER_CONF", driver_name, value);
+    };
+
+    /**
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
