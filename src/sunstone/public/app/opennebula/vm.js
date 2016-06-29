@@ -267,6 +267,7 @@ define(function(require) {
     'GUEST_IP',
     'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
+    'AWS_PRIVATE_IP_ADDRESS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
   ];
