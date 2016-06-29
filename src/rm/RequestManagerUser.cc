@@ -40,7 +40,7 @@ void RequestManagerUser::
         return;
     }
 
-    if ( user_action(id, paramList, att.resp_msg) < 0 )
+    if ( user_action(id, paramList, att, att.resp_msg) < 0 )
     {
         failure_response(ACTION, att);
         return;
@@ -54,16 +54,39 @@ void RequestManagerUser::
 
 int UserChangePassword::user_action(int     user_id,
                                     xmlrpc_c::paramList const& paramList,
+                                    RequestAttributes&         att,
                                     string& error_str)
 {
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
     User * user;
 
+    string driver;
+    bool   allowed = false;
+    const VectorAttribute* auth_conf;
+
     user = static_cast<User *>(pool->get(user_id,true));
 
     if ( user == 0 )
     {
+        return -1;
+    }
+
+    driver = user->get_auth_driver();
+
+    if (Nebula::instance().get_auth_conf_attribute(driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("PASSWORD_CHANGE", allowed);
+    }
+
+    if (!allowed &&
+        att.uid != UserPool::ONEADMIN_ID &&
+        att.gid != GroupPool::ONEADMIN_ID)
+    {
+        error_str = "Password for driver '"+user->get_auth_driver()+
+                    "' cannot be changed.";
+
+        user->unlock();
         return -1;
     }
 
@@ -84,6 +107,7 @@ int UserChangePassword::user_action(int     user_id,
 
 int UserChangeAuth::user_action(int     user_id,
                                 xmlrpc_c::paramList const& paramList,
+                                RequestAttributes&         att,
                                 string& error_str)
 {
     string new_auth = xmlrpc_c::value_string(paramList.getString(2));
@@ -131,6 +155,7 @@ int UserChangeAuth::user_action(int     user_id,
 
 int UserSetQuota::user_action(int     user_id,
                               xmlrpc_c::paramList const& paramList,
+                              RequestAttributes&         att,
                               string& error_str)
 {
 

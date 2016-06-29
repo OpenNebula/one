@@ -50,6 +50,7 @@ protected:
 
     virtual int user_action(int                        user_id,
                             xmlrpc_c::paramList const& _paramList,
+                            RequestAttributes&         att,
                             string&                    error_str ) = 0;
 
     /* -------------------------------------------------------------------- */
@@ -74,6 +75,7 @@ public:
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
+                    RequestAttributes&         att,
                     string&                    err);
 };
 
@@ -96,6 +98,7 @@ public:
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
+                    RequestAttributes&         att,
                     string&                    err);
 };
 
@@ -117,6 +120,7 @@ public:
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
+                    RequestAttributes&         att,
                     string&                    err);
 };
 
