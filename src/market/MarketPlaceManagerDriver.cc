@@ -112,7 +112,7 @@ static void monitor_action(
     if ( rc != 0 )
     {
         oss << "Error parsing marketplace information: " << error_msg
-            << ". Monitoring information: " << endl << *info;
+            << ". Monitoring information: " << endl << info64;
 
         NebulaLog::log("MKP", Log::ERROR, oss);
 
