@@ -90,6 +90,8 @@ define(function(require) {
                           buttons. By default it will be the parent tab
       'customTrListener': function executed when a tr is clicked. Arguments
                           are (tableObj, tr)
+      'searchDropdownHTML': optional HTML to place inside a dropdown next to
+                            the search input
     }
 
     1. The table HTML is returned calling the table.dataTableHTML attr
@@ -144,7 +146,10 @@ define(function(require) {
                           'conf': this.conf,
                           'selectOptions': this.selectOptions});
 
-    that.searchInputHTML = TemplateSearchInputHTML({'dataTableSearchId': this.dataTableId + 'Search'});
+    that.searchInputHTML = TemplateSearchInputHTML({
+      'dataTableSearchId': this.dataTableId + 'Search',
+      'searchDropdownHTML': this.conf.searchDropdownHTML
+    });
 
     return that;
   }
@@ -212,6 +217,18 @@ define(function(require) {
       return false;
     });
 
+    if(that.conf.searchDropdownHTML != undefined){
+      var context = $('#' + this.dataTableId + 'Search-wrapper');
+      that.setupSearch(context);
+
+      $("button.advanced-search", context).on('click', function(){
+        $('#' + that.dataTableId + 'Search-dropdown', context).foundation('close');
+        that.dataTable.fnDraw(true);
+
+        return false;
+      });
+    }
+
     this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
     })
@@ -243,6 +260,8 @@ define(function(require) {
     if (this.conf.select) {
       that.dataTable.fnSetColumnVis(0, false);
     }
+
+    Foundation.reflow($('#' + this.dataTableId + 'Search-dropdown'), 'dropdown');
   }
 
   function _defaultTrListener(tableObj, tr) {
@@ -506,6 +525,10 @@ define(function(require) {
       if (SunstoneConfig.isTabActionEnabled(that.tabId, that.resource+".menu_labels")){
         LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       }
+    }
+
+    if(that.conf.searchDropdownHTML != undefined){
+      this.dataTable.fnDraw(true);
     }
 
     if (that.postUpdateView) {
