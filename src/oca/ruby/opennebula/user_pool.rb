@@ -51,5 +51,27 @@ module OpenNebula
         end
 
         alias_method :info!, :info
+
+        #######################################################################
+        # Helpers to get information
+        #######################################################################
+
+        # Returns a list of user IDs that have the given password. info() needs
+        # to be called before.
+        #
+        # @param driver [String] auth driver to match
+        # @param password [String] password to match
+        # @return [Array] an array of IDs
+        def users_with_password(driver, password)
+            ids = []
+
+            each do |user|
+                if user["PASSWORD"] == password
+                    ids << user["ID"]
+                end
+            end
+
+            return ids
+        end
     end
 end
