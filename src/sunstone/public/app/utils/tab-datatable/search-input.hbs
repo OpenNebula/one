@@ -14,4 +14,29 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
+{{#if searchDropdownHTML}}
+<div id="{{dataTableSearchId}}-wrapper" class="input-group">
+  <input class="input-group-field" id="{{dataTableSearchId}}" type="search" placeholder="{{tr "Search"}}" />
+  <div class="input-group-button">
+    <button type="button" class="button search-dropdown hollow secondary" data-toggle="{{dataTableSearchId}}-dropdown">
+      <i class="fa fa-fw fa-caret-down"/>
+    </button>
+  </div>
+  <div class="dropdown-pane left" id="{{dataTableSearchId}}-dropdown" data-dropdown data-auto-focus="true" style="width:500px">
+    {{{searchDropdownHTML}}}
+    <div class="row">
+      <div class="small-12 columns">
+        <button type="button" class="button advanced-search">
+          <i class="fa fa-fw fa-search"/>
+        </button>
+        <a class="advanced-search-clear right">{{tr "Clear search"}}</a>
+      </div>
+    </div>
+    <button class="close-button" data-close aria-label="{{tr "Close"}}" type="button">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</div>
+{{else}}
 <input id="{{dataTableSearchId}}" type="search" placeholder="{{tr "Search"}}" />
+{{/if}}
