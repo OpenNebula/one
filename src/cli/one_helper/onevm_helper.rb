@@ -45,14 +45,6 @@ private
     end
 end
 
-EXTERNAL_IP_ATTRS = [
-    'GUEST_IP',
-    'AWS_IP_ADDRESS',
-    'AWS_PRIVATE_IP_ADDRESS',
-    'AZ_IPADDRESS',
-    'SL_PRIMARYIPADDRESS'
-];
-
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -528,7 +520,7 @@ in the frontend machine.
         # Find out if it is a hybrid VM to avoid showing local IPs
         isHybrid=false
         vm_monitoring.each{|key, value|
-            if EXTERNAL_IP_ATTRS.include? key
+            if VirtualMachine::EXTERNAL_IP_ATTRS.include? key
                 isHybrid=true
             end
         }
