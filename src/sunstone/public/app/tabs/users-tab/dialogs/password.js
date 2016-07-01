@@ -110,7 +110,7 @@ define(function(require) {
     var tabId = Sunstone.getTab();
 
     if (tabId == USERS_TAB_ID){
-      this.setNames( Sunstone.getDataTable(USERS_TAB_ID).elements({names: true}) );
+      this.setNames( {tabId: USERS_TAB_ID} );
     }
 
     return false;

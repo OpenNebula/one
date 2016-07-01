@@ -64,7 +64,7 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+    this.setNames( {tabId: TAB_ID} );
   }
 
   function _setup(context) {

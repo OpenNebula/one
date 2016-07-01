@@ -16,6 +16,7 @@
 
 define(function(require) {
   var TemplateUtils = require('utils/template-utils');
+  var Sunstone = require('sunstone');
 
   function BaseDialog() {
     return this;
@@ -72,8 +73,26 @@ define(function(require) {
     return false;
   }
 
-  function _setNames(elements){
+  /**
+   * Sets the ID & names of the selected objects
+   *
+   * @param   {Object}  opts
+   *          - tabId: Optional. If given, the object names will be taken from
+   *                   the selected elements of this tab's dataTable
+   *          - elements: Optional. Array of objects: [{id, name}]
+   */
+  function _setNames(opts){
     var html = "";
+
+    var elements = undefined;
+
+    if (opts.elements != undefined) {
+      elements = opts.elements;
+    } else if ( opts.tabId != undefined &&
+                Sunstone.getDataTable(opts.tabId) != undefined){
+
+      elements = Sunstone.getDataTable(opts.tabId).elements({names: true})
+    }
 
     if (elements) {
       html = '<h6 class="subheader">';

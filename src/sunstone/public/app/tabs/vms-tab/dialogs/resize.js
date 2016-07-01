@@ -94,7 +94,7 @@ define(function(require) {
   function _onShow(context) {
     var that = this;
 
-    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+    this.setNames( {tabId: TAB_ID} );
 
     CapacityInputs.fill(context, that.element);
 

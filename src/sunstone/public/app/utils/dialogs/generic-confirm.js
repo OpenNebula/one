@@ -138,7 +138,7 @@ define(function(require) {
     }
 
     if (this.params.headerTabId != undefined){
-      this.setNames( Sunstone.getDataTable(this.params.headerTabId).elements({names: true}) );
+      this.setNames( {tabId: this.params.headerTabId} );
     }
 
     return false;

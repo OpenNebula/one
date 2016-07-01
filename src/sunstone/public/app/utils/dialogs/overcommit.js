@@ -88,13 +88,8 @@ define(function(require) {
   }
 
   function _onShow(context) {
-    this.setNames( Sunstone.getDataTable(this.tabId).elements({names: true}) );
+    this.setNames( {tabId: this.tabId} );
 
-/*
-    $("#element_id", context).text(this.element.ID);
-    $("#element_name", context).text(this.element.NAME);
-    $("#resource_name", context).text(this.resourceName);
-*/
     WizardFields.fill(context, this.element.TEMPLATE);
 
     return false;
