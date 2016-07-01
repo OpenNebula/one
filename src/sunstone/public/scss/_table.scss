@@ -66,13 +66,6 @@ table {
   }
 }
 
-.dataTableSearchRow {
-  input[type="search"],
-  .button {
-    margin-bottom: 0;
-  }
-}
-
 .select-resources {
   .refresh-table {
     margin-top: 0.5rem;
@@ -87,4 +80,9 @@ table{
 
 span .fa-times:hover {
   cursor: pointer;
+}
+
+button.search-dropdown {
+  box-shadow: none !important;
+  border-style: none !important;
 }

@@ -26,6 +26,7 @@ define(function(require) {
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -86,6 +87,8 @@ define(function(require) {
 
     this.totalUsers = 0;
 
+    this.conf.searchDropdownHTML = SearchDropdown();
+
     TabDataTable.call(this);
   }
 
@@ -94,12 +97,65 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
+  Table.prototype.setupSearch = _setupSearch;
 
   return Table;
 
   /*
     FUNCTION DEFINITIONS
    */
+
+  function _setupSearch(context) {
+    var that = this;
+
+    $(".pass-search", context).on('input', function(){
+      var val = $(".pass-search", context).val();
+
+      if(val == undefined || val == ""){
+        $("button.search-dropdown", context).addClass("hollow");
+      } else {
+        $("button.search-dropdown", context).removeClass("hollow");
+      }
+
+      that.dataTable.fnDraw(true);
+    }).on("keyup keypress", function(e) {
+      var code = e.keyCode || e.which;
+      if (code  == 13) {
+        $("button.advanced-search", context).click();
+      }
+    });
+
+    $("a.advanced-search-clear", context).on('click', function(){
+      $(".pass-search", context).val("").trigger("input");
+
+      $("button.advanced-search", context).click();
+    });
+
+    $.fn.dataTable.ext.search.push(
+      function( settings, data, dataIndex ) {
+        // This is a global search function, we need to apply it only if the
+        // search is triggered for the current table
+        if(that.dataTableId != settings.nTable.id){
+          return true;
+        }
+
+        var val = $(".pass-search", context).val();
+
+        if(val == undefined || val == ""){
+          return true;
+        }
+
+        try {
+          var pass = $("input.check_item", that.dataTable.fnGetNodes(dataIndex)).attr("password64");
+          pass = atob(pass);
+
+          return pass == val;
+        } catch (err) {}
+
+        return true;
+      }
+    );
+  }
 
   function _elementArray(element_json) {
     this.totalUsers++;
@@ -134,10 +190,13 @@ define(function(require) {
     // Build hidden user template
     var hidden_template = TemplateUtils.templateToString(element);
 
+    this.passwordList += '<option value="' + element.PASSWORD + '">'
+
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '" name="selected_items" ' +
+                           'value="' + element.ID + '" ' +
+                           'password64="' + btoa(element.PASSWORD) + '"/>',
       element.ID,
       element.NAME,
       element.GNAME,
@@ -153,9 +212,12 @@ define(function(require) {
 
   function _preUpdateView() {
     this.totalUsers = 0;
+    this.passwordList = "";
   }
 
   function _postUpdateView() {
     $(".total_users").text(this.totalUsers);
+
+    $("#userSearchPasswordList", $("#"+TAB_NAME)).html(this.passwordList);
   }
 });

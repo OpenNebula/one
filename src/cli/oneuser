@@ -516,4 +516,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         0
     end
+
+    passwdsearch_desc = <<-EOT.unindent
+        Searches for users with a specific auth driver that has the given
+        string in their password field
+    EOT
+
+    command :passwdsearch, passwdsearch_desc, :driver, :password,
+            :options=>[CLIHelper::CSV_OPT, OpenNebulaHelper::XML] do
+
+        options[:list] = ["ID", "NAME", "AUTH", "PASSWORD"]
+        options[:filter] = ["AUTH=#{args[0]}", "PASSWORD=#{args[1]}"]
+
+        helper.list_pool(options)
+    end
 end
