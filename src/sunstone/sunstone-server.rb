@@ -77,8 +77,7 @@ ONED_CONF_OPTS = {
         'DS_MAD_CONF',
         'MARKET_MAD_CONF',
         'VM_MAD',
-        'IM_MAD',
-        'AUTH_MAD'
+        'IM_MAD'
     ]
 }
 
