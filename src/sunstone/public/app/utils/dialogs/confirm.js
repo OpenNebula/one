@@ -80,7 +80,7 @@ define(function(require) {
     }
 
     var action = Sunstone.getAction(actionId);
-    this.setNames( action.elements({names: true}) );
+    this.setNames( {elements: action.elements({names: true})} );
 
     return false;
   }

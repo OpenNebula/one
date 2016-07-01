@@ -140,9 +140,9 @@ define(function(require) {
 
   function _onShow(dialog) {
     if(this.resource == "datastore"){
-      this.setNames( Sunstone.getDataTable(DATASTORES_TAB_ID).elements({names: true}) );
+      this.setNames( {tabId: DATASTORES_TAB_ID} );
     }else{
-      this.setNames( Sunstone.getDataTable(VNETS_TAB_ID).elements({names: true}) );
+      this.setNames( {tabId: VNETS_TAB_ID} );
     }
 
     this.clustersTable.refreshResourceTableSelect();

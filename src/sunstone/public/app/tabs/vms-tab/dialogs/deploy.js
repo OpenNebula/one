@@ -107,7 +107,7 @@ define(function(require) {
   }
 
   function _onShow(dialog) {
-    this.setNames( Sunstone.getDataTable(TAB_ID).elements({names: true}) );
+    this.setNames( {tabId: TAB_ID} );
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
 

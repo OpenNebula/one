@@ -95,7 +95,7 @@ define(function(require) {
   function _onShow(context) {
     var sel_elems = Sunstone.getDataTable(ONEFLOW_TEMPLATES_TAB_ID).elements({names: true});
 
-    this.setNames(sel_elems);
+    this.setNames( {elements: sel_elems} );
 
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
