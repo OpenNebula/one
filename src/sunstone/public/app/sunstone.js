@@ -610,6 +610,10 @@ define(function(require) {
     }
   }
 
+  var _getTab = function() {
+    return $(".tab:visible").attr("id");
+  }
+
   var _showElement = function(tabName, infoAction, elementId) {
     _showTab(tabName);
 
@@ -1099,6 +1103,7 @@ define(function(require) {
 
     'showTab': _showTab,
     "showElement" : _showElement,
+    "getTab": _getTab,
 
     "showFormPanel": _showFormPanel,
     "resetFormPanel": _resetFormPanel,
