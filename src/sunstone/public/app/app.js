@@ -23,6 +23,7 @@ define(function(require) {
   Foundation.DropdownMenu.defaults.closeOnClick = true;
   Foundation.DropdownMenu.defaults.disableHover = true;
   Foundation.DropdownMenu.defaults.clickOpen = true;
+  Foundation.Reveal.defaults.closeOnClick = false;
 
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
