@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
+  var LabelsUtils = require('utils/labels/utils');
 
   /*
     CONSTANTS
@@ -30,6 +31,8 @@ define(function(require) {
   var RESOURCE = "VirtualRouter";
   var XML_ROOT = "VROUTER";
   var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 5;
+  var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
     CONSTRUCTOR
@@ -41,6 +44,7 @@ define(function(require) {
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -58,7 +62,8 @@ define(function(require) {
       Locale.tr("ID"),
       Locale.tr("Owner"),
       Locale.tr("Group"),
-      Locale.tr("Name")
+      Locale.tr("Name"),
+      Locale.tr("Labels")
     ];
 
     this.selectOptions = {
@@ -69,6 +74,8 @@ define(function(require) {
       "select_resource_multiple": Locale.tr("Please select one or more virtual routers from the list"),
       "you_selected_multiple": Locale.tr("You selected the following virtual routers:")
     };
+
+    this.labels = [];
 
     TabDataTable.call(this);
   }
@@ -93,7 +100,8 @@ define(function(require) {
         element.ID,
         element.UNAME,
         element.GNAME,
-        element.NAME
+        element.NAME,
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
     ];
   }
 });
