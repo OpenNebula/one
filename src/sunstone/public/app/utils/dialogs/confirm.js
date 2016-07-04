@@ -58,6 +58,15 @@ define(function(require) {
   }
 
   function _setup(dialog) {
+    $(dialog).keypress(function (e) {
+      if (e.which == 13 || e.keyCode == 13) {
+        $('#confirm_proceed', dialog).click();
+        return false;
+      } else {
+        return true;
+      }
+    });
+
     // Submit action is configured in sunstone.js since it's an action_button
     return false;
   }

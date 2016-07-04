@@ -88,8 +88,18 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    $(context).keypress(function (e) {
+      if (e.which == 13 || e.keyCode == 13) {
+        $('#' + DIALOG_ID + 'Form', context).submit();
+        return false;
+      } else {
+        return true;
+      }
+    });
+
     $('#' + DIALOG_ID + 'Form', context).submit(function(e) {
-      if (that.params.buttons != undefined){
+      // With more than one button, skip
+      if (that.params.buttons != undefined && that.params.buttons.length > 1){
         e.preventDefault();
         return false;
       }
@@ -97,7 +107,7 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).hide();
 
       if (that.params.submit != undefined){
-        that.params.submit(this);
+        that.params.submit[0](this);
       }
 
       return false;
