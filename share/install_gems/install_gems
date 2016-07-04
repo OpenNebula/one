@@ -32,13 +32,13 @@ DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 
 GROUPS={
     :quota      => [SQLITE, 'sequel'],
-    :sunstone   => ['json', RACK, 'sinatra', 'thin', 'memcache-client',
+    :sunstone   => [RACK, 'sinatra', 'thin', 'memcache-client',
                      ZENDESK_API, SQLITE],
-    :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb json} << RACK,
+    :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb} << RACK,
     :hybrid     => %w{configparser azure},
     :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
-    :oneflow    => ['sinatra', 'json', TREETOP, 'parse-cron'],
+    :oneflow    => ['sinatra', TREETOP, 'parse-cron'],
     :ec2_hybrid => 'aws-sdk --version "= 1.66"',
     :oca        => 'ox',
     :market     => 'aws-sdk',
