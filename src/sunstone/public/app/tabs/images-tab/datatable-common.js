@@ -54,7 +54,8 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(tabId)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "file-size", "aTargets": [ 6 ] }
       ]
     }
 
@@ -99,7 +100,7 @@ define(function(require) {
       element.GNAME,
       element.NAME,
       element.DATASTORE,
-      element.SIZE,
+      Humanize.sizeFromMB(element.SIZE),
       OpenNebulaImage.typeStr(element.TYPE),
       Humanize.prettyTime(element.REGTIME),
       parseInt(element.PERSISTENT) ? "yes" : "no",
