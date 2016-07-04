@@ -43,6 +43,7 @@ define(function(require) {
   var XML_ROOT = "USER";
   var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
   var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
     CONSTRUCTOR
@@ -126,7 +127,30 @@ define(function(require) {
       }
     });
 
-    // Password button
+    // View password button
+    context.off("click", "#view_password");
+    context.on("click", "#view_password", function(){
+      Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+        header : Locale.tr("Password"),
+        headerTabId: TAB_ID,
+        body: '<label>' + Locale.tr("Current password") + '</label>' +
+              '<pre>'+that.element.PASSWORD+'</pre>',
+        question : '',
+        buttons : [
+          Locale.tr("Close"),
+        ],
+        submit : [
+          function(){
+            return false;
+          }
+        ]
+      });
+
+      Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+      Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+    });
+
+    // Edit password button
     context.off("click", "#update_password");
     context.on("click", "#update_password", function(){
       Sunstone.getDialog(PASSWORD_DIALOG_ID).setParams(

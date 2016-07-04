@@ -76,19 +76,23 @@
           <tbody>
             <tr>
               <td class="key_td">{{tr "Authentication driver"}}</td>
-              <td class="value_td">{{element.AUTH_DRIVER}}</td>
-              <td></td>
+              <td class="value_td" colspan="2">{{element.AUTH_DRIVER}}</td>
             </tr>
-            {{#isTabActionEnabled "users-tab" "User.update_password"}}
             <tr class="passsword_edit">
               <td class="key_td">{{tr "Password"}}</td>
               <td class="value_td">
-                <button id="update_password" type="button" class="button small radius secondary" style="min-width:80%">
-                  {{tr "Update password"}} <i class="fa fa-pencil-square-o"/>
+                <button id="view_password" type="button" class="button small radius secondary" style="min-width:80%">
+                  {{tr "View"}}
                 </button>
               </td>
+              <td class="value_td">
+                {{#isTabActionEnabled "users-tab" "User.update_password"}}
+                <div>
+                  <a id="update_password" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+                </div>
+                {{/isTabActionEnabled}}
+              </td>
             </tr>
-            {{/isTabActionEnabled}}
             {{#isTabActionEnabled "users-tab" "User.login_token"}}
             <tr class="login_token">
               <td class="key_td">{{tr "Login token"}}</td>
@@ -97,6 +101,7 @@
                   {{tr "Get a login token"}}
                 </button>
               </td>
+              <td/>
             </tr>
             {{/isTabActionEnabled}}
           </tbody>
