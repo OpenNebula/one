@@ -71,9 +71,9 @@ define(function(require) {
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
-          {"sWidth": "250px", "aTargets": [5]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+          {"bVisible": false, "aTargets": ['_all']},
+          {"sType": "file-size", "aTargets": [ 6 ] }
       ]
     }
 

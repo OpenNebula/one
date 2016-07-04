@@ -25,6 +25,8 @@ define(function(require) {
   Foundation.DropdownMenu.defaults.clickOpen = true;
   Foundation.Reveal.defaults.closeOnClick = false;
 
+  _setupDataTableSearch();
+
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
@@ -174,5 +176,26 @@ define(function(require) {
       //$(document).foundation('dropdown', 'closeall');
       Sunstone.showTab(SETTINGS_TAB_ID);
     });
+  }
+
+  function _setupDataTableSearch() {
+    $.fn.dataTable.ext.type.order['file-size-pre'] = function ( data ) {
+      var matches = data.match( /^(\d+(?:\.\d+)?)\s*([a-z]+)/i );
+      var multipliers = {
+        B:  1,
+        KB: 1024,
+        MB: 1048576,
+        GB: 1073741824,
+        TB: 1099511627776,
+        PB: 1125899906842624
+      };
+
+      if (matches) {
+        var multiplier = multipliers[matches[2]];
+        return parseFloat( matches[1] ) * multiplier;
+      } else {
+        return -1;
+      }
+    }
   }
 });
