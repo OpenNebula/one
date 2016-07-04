@@ -528,7 +528,7 @@ define(function(require) {
 
   function _setupAttributeInputMB(context) {
     // MB to GB
-    $("div.mb_input", context).on("input", "input, select", function(){
+    $("div.mb_input", context).on("change", "input, select", function(){
       var val = "";
 
       if (this.value && this.value >= 0) {
@@ -539,7 +539,7 @@ define(function(require) {
     });
 
     // GB to MB
-    $("div.gb_input", context).on("input", "input, select", function(){
+    $("div.gb_input", context).on("change", "input, select", function(){
       var val = "";
 
       if (this.value && this.value >= 0) {
@@ -559,7 +559,7 @@ define(function(require) {
         $("div.mb_input", context).hide();
         gb_inputs.appendTo($("div.gb_input", context));
 
-        $("div.mb_input input,select",context).trigger("input");
+        $("input, select", $("div.mb_input",context)).trigger("change");
       } else {
         $("div.mb_input", context).show();
         gb_inputs = $("div.gb_input", context).children().detach();
