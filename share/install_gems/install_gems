@@ -216,7 +216,7 @@ def install_warning(packages)
 #    puts "Use -h for help"
 #    puts
     puts "About to install the gems for these components:"
-    puts "* "<<packages.join("\n* ")
+    puts "* " << packages.join("\n* ")
     puts
     puts "Press enter to continue..."
     yes=STDIN.readline
@@ -224,7 +224,7 @@ end
 
 def help
     puts "Specify the package dependencies from this list:"
-    puts "* "<<PACKAGES.join("\n* ")
+    puts "* " << PACKAGES.join("\n* ")
     puts
     puts "If no parameters are specified then this list will be used:"
     puts DEFAULT.join(' ')
@@ -316,12 +316,12 @@ def install_dependencies(gems, distro)
         end
 
         puts "About to install these dependencies:"
-        puts "* "<<deps.join("\n* ")
+        puts "* " << deps.join("\n* ")
         puts
         puts "Press enter to continue..."
         STDIN.readline
 
-        command=distro.last[:install_command]+" "<<deps.join(' ')
+        command=distro.last[:install_command]+" " << deps.join(' ')
         puts command
         system command
     end
@@ -369,7 +369,7 @@ def install_gems(packages)
 
     special_gems=gems_list.select {|g| g.match(/\s/) }
     special_gems.each do |gem|
-        cmd=command_string+" "<<gem
+        cmd=command_string+" " << gem
         run_command(cmd)
     end
 
@@ -501,7 +501,4 @@ when 'showallpackages'
 when 'install'
     install_gems(packages)
 end
-
-
-
 
