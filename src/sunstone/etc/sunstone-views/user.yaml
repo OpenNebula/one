@@ -86,6 +86,7 @@ tabs:
             #- 8         # Group ID
             #- 9         # Hidden User Data
             #- 10        # Labels
+            #- 11        # Search data
         actions:
             User.refresh: true
             User.create_dialog: true

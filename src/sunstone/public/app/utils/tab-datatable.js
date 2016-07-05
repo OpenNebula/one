@@ -221,6 +221,19 @@ define(function(require) {
       var context = $('#' + this.dataTableId + 'Search-wrapper');
       that.setupSearch(context);
 
+      $("a.advanced-search-clear", context).on('click', function(){
+        $("input", context).val("").trigger("change");
+
+        $("button.advanced-search", context).click();
+      });
+
+      $("input", context).on("keypress", function(e) {
+        var code = e.keyCode || e.which;
+        if (code  == 13) {
+          $("button.advanced-search", context).click();
+        }
+      });
+
       $("button.advanced-search", context).on('click', function(){
         $('#' + that.dataTableId + 'Search-dropdown', context).foundation('close');
         that.dataTable.fnDraw(true);
@@ -525,10 +538,6 @@ define(function(require) {
       if (SunstoneConfig.isTabActionEnabled(that.tabId, that.resource+".menu_labels")){
         LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
       }
-    }
-
-    if(that.conf.searchDropdownHTML != undefined){
-      this.dataTable.fnDraw(true);
     }
 
     if (that.postUpdateView) {

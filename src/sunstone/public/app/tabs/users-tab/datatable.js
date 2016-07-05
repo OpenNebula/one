@@ -36,6 +36,7 @@ define(function(require) {
   var XML_ROOT = "USER";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 10;
+  var SEARCH_COLUMN = 11;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -73,7 +74,8 @@ define(function(require) {
       Locale.tr("CPU"),
       Locale.tr("Group ID"),
       Locale.tr("Hidden User Data"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ];
 
     this.selectOptions = {
@@ -88,6 +90,9 @@ define(function(require) {
     this.totalUsers = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown();
+
+    this.searchFields = ["NAME", "GNAME", "PASSWORD", "AUTH_DRIVER"];
+    this.searchVals   = {"NAME": "", "GNAME": "", "PASSWORD": "", "AUTH_DRIVER": ""};
 
     TabDataTable.call(this);
   }
@@ -108,27 +113,27 @@ define(function(require) {
   function _setupSearch(context) {
     var that = this;
 
-    $(".pass-search", context).on('input', function(){
-      var val = $(".pass-search", context).val();
+    $("[search-field]", context).on('input change', function(){
+      that.searchVals[$(this).attr("search-field")] = $(this).val();
+    });
 
-      if(val == undefined || val == ""){
+    this.dataTable.on('search.dt', function() {
+      var empty = true;
+
+      for(var i=0; i < that.searchFields.length; i++){
+        var name = that.searchFields[i];
+        empty = $("[search-field="+name+"]", context).val() == "";
+
+        if(!empty){
+          break;
+        }
+      }
+
+      if(empty){
         $("button.search-dropdown", context).addClass("hollow");
       } else {
         $("button.search-dropdown", context).removeClass("hollow");
       }
-
-      that.dataTable.fnDraw(true);
-    }).on("keyup keypress", function(e) {
-      var code = e.keyCode || e.which;
-      if (code  == 13) {
-        $("button.advanced-search", context).click();
-      }
-    });
-
-    $("a.advanced-search-clear", context).on('click', function(){
-      $(".pass-search", context).val("").trigger("input");
-
-      $("button.advanced-search", context).click();
     });
 
     $.fn.dataTable.ext.search.push(
@@ -139,17 +144,22 @@ define(function(require) {
           return true;
         }
 
-        var val = $(".pass-search", context).val();
-
-        if(val == undefined || val == ""){
-          return true;
-        }
-
         try {
-          var pass = $("input.check_item", that.dataTable.fnGetNodes(dataIndex)).attr("password64");
-          pass = atob(pass);
+          var data = JSON.parse(atob(data[SEARCH_COLUMN]));
 
-          return pass == val;
+          var match = true;
+
+          for(var i=0; i < that.searchFields.length; i++){
+            var name = that.searchFields[i];
+
+            match = (data[name].match( that.searchVals[name] ) != null);
+
+            if (!match){
+              break;
+            }
+          }
+
+          return match;
         } catch (err) {}
 
         return true;
@@ -158,6 +168,8 @@ define(function(require) {
   }
 
   function _elementArray(element_json) {
+    var that = this;
+
     this.totalUsers++;
 
     var element = element_json[XML_ROOT];
@@ -190,13 +202,23 @@ define(function(require) {
     // Build hidden user template
     var hidden_template = TemplateUtils.templateToString(element);
 
-    this.passwordList += '<option value="' + element.PASSWORD + '">'
+    var search = {
+      NAME:  element.NAME,
+      GNAME: element.GNAME,
+      PASSWORD: element.PASSWORD,
+      AUTH_DRIVER: element.AUTH_DRIVER
+    }
+
+    try{
+      that.searchFields.forEach(function(name){
+        that.searchSets[name].add(search[name]);
+      });
+    }catch(e){}
 
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" ' +
-                           'value="' + element.ID + '" ' +
-                           'password64="' + btoa(element.PASSWORD) + '"/>',
+                           'value="' + element.ID + '"/>',
       element.ID,
       element.NAME,
       element.GNAME,
@@ -206,18 +228,40 @@ define(function(require) {
       cpu,
       element.GID,
       hidden_template,
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(JSON.stringify(search))
     ];
   }
 
   function _preUpdateView() {
+    var that = this;
+
     this.totalUsers = 0;
-    this.passwordList = "";
+
+    this.searchSets = {};
+
+    try {
+      that.searchFields.forEach(function(name){
+        that.searchSets[name] = new Set();
+      });
+    } catch(e){}
   }
 
   function _postUpdateView() {
+    var that = this;
+
     $(".total_users").text(this.totalUsers);
 
-    $("#userSearchPasswordList", $("#"+TAB_NAME)).html(this.passwordList);
+    try {
+      that.searchFields.forEach(function(name){
+        var st = "";
+
+        that.searchSets[name].forEach(function(val){
+          st += '<option value="' + val + '">';
+        });
+
+        $("datalist[search-datalist="+name+"]", $("#"+TAB_NAME)).html(st);
+      });
+    } catch(e){}
   }
 });
