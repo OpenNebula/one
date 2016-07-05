@@ -1,9 +1,27 @@
 <div class="row">
   <div class="small-12 columns">
     <label>
+      {{tr "Name"}}
+      <input search-field="NAME" type="text" list="userSearchListNAME"/>
+      <datalist search-datalist="NAME" id="userSearchListNAME">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Group"}}
+      <input search-field="GNAME" type="text" list="userSearchListGNAME"/>
+      <datalist search-datalist="GNAME" id="userSearchListGNAME">
+      </datalist>
+    </label>
+    <label>
       {{tr "Password"}}
-      <input class="pass-search" type="text" list="userSearchPasswordList"/>
-      <datalist id="userSearchPasswordList">
+      <input search-field="PASSWORD" type="text" list="userSearchListPASSWORD"/>
+      <datalist search-datalist="PASSWORD" id="userSearchListPASSWORD">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Auth driver"}}
+      <input search-field="AUTH_DRIVER" type="text" list="userSearchListAUTH_DRIVER"/>
+      <datalist search-datalist="AUTH_DRIVER" id="userSearchListAUTH_DRIVER">
       </datalist>
     </label>
   </div>
