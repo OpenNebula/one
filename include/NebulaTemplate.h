@@ -133,6 +133,11 @@ private:
      */
     void set_conf_market(const std::string& name,
                          const std::string& required_attrs);
+    /**
+     *  Sets a the defaults for a Auth drivers
+     */
+    void set_conf_auth(const std::string& name,
+                       const std::string& change_password);
 };
 
 

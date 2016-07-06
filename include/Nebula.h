@@ -445,7 +445,7 @@ public:
         const string& driver_name,
         const VectorAttribute* &value) const
     {
-        return get_conf_attribute("AUTH_DRIVER_CONF", driver_name, value);
+        return get_conf_attribute("AUTH_MAD_CONF", driver_name, value);
     };
 
     /**
