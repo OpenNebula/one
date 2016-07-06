@@ -153,6 +153,28 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
 
     register_multiple_conf_default("MARKET_MAD_CONF");
+/*
+#*******************************************************************************
+# Auth Manager Configuration
+#*******************************************************************************
+# core
+# public
+# ssh
+# x509
+# ldap
+# server_cipher
+# server_x509
+#******
+*/
+    set_conf_auth("core", "YES");
+    set_conf_auth("public", "NO");
+    set_conf_auth("ssh", "YES");
+    set_conf_auth("x509", "NO");
+    set_conf_auth("ldap", "YES");
+    set_conf_auth("server_cipher", "NO");
+    set_conf_auth("server_x509", "NO");
+
+    register_multiple_conf_default("AUTH_MAD_CONF");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -283,6 +305,22 @@ void OpenNebulaTemplate::set_conf_market(const std::string& name,
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
 
     vattribute = new VectorAttribute("MARKET_MAD_CONF", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void OpenNebulaTemplate::set_conf_auth(const std::string& name,
+                                       const std::string& password_change)
+{
+    VectorAttribute *   vattribute;
+    std::map<std::string,std::string>  vvalue;
+
+    vvalue.insert(make_pair("NAME", name));
+    vvalue.insert(make_pair("PASSWORD_CHANGE", password_change));
+
+    vattribute = new VectorAttribute("AUTH_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));
 }
 
