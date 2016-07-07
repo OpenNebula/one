@@ -23,6 +23,7 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -32,6 +33,7 @@ define(function(require) {
   var XML_ROOT = "VROUTER";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 5;
+  var SEARCH_COLUMN = 6;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -63,7 +65,8 @@ define(function(require) {
       Locale.tr("Owner"),
       Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ];
 
     this.selectOptions = {
@@ -75,7 +78,8 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following virtual routers:")
     };
 
-    this.labels = [];
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   }
@@ -93,6 +97,12 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
+    var search = {
+      NAME:  element.NAME,
+      UNAME: element.UNAME,
+      GNAME: element.GNAME
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                              element.ID + '" name="selected_items" value="' +
@@ -101,7 +111,8 @@ define(function(require) {
         element.UNAME,
         element.GNAME,
         element.NAME,
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        btoa(JSON.stringify(search))
     ];
   }
 });

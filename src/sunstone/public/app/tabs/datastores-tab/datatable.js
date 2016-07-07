@@ -25,6 +25,7 @@ define(function(require) {
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('./utils/datastore-capacity-bar');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -34,6 +35,7 @@ define(function(require) {
   var XML_ROOT = "DATASTORE";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 12;
+  var SEARCH_COLUMN = 13;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -87,7 +89,8 @@ define(function(require) {
       Locale.tr("DS MAD"),
       Locale.tr("Type"),
       Locale.tr("Status"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ]
 
     this.selectOptions = {
@@ -99,6 +102,9 @@ define(function(require) {
       "select_resource_multiple": Locale.tr("Please select one or more datastores from the list"),
       "you_selected_multiple": Locale.tr("You selected the following datastores:")
     }
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
@@ -121,6 +127,17 @@ define(function(require) {
       clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
     }
 
+    var state = OpenNebulaDatastore.stateStr(element.STATE);
+
+    var search = {
+      NAME:   element.NAME,
+      UNAME:  element.UNAME,
+      GNAME:  element.GNAME,
+      STATE:  state,
+      TM_MAD: element.TM_MAD,
+      DS_MAD: element.DS_MAD
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                              element.ID + '" name="selected_items" value="' +
@@ -135,8 +152,9 @@ define(function(require) {
         element.TM_MAD,
         element.DS_MAD,
         OpenNebulaDatastore.typeStr(element.TYPE),
-        OpenNebulaDatastore.stateStr(element.STATE),
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+        state,
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        btoa(JSON.stringify(search))
     ];
   }
 });

@@ -219,10 +219,14 @@ define(function(require) {
 
     if(that.conf.searchDropdownHTML != undefined){
       var context = $('#' + this.dataTableId + 'Search-wrapper');
-      that.setupSearch(context);
+      if (that.setupSearch != undefined){
+        that.setupSearch(context);
+      } else {
+        _setupSearch(that, context);
+      }
 
       $("a.advanced-search-clear", context).on('click', function(){
-        $("input", context).val("").trigger("change");
+        $("input", context).val("").trigger("input");
 
         $("button.advanced-search", context).click();
       });
@@ -276,6 +280,121 @@ define(function(require) {
 
     Foundation.reflow($('#' + this.dataTableId + 'Search-dropdown'), 'dropdown');
   }
+
+
+  function _setupSearch(that, context) {
+    that.searchFields = [];
+
+    $("[search-field]", context).each(function(){
+      that.searchFields.push( $(this).attr("search-field") );
+    });
+
+    that.searchVals = {};
+    that.searchFields.forEach(function(name){
+      that.searchVals[name] = "";
+    });
+
+    that.searchOps = {};
+    that.searchFields.forEach(function(name){
+      var op = $("[search-field="+name+"]", context).attr("search-operation");
+
+      if (op == undefined){
+        op = "match";
+      }
+
+      that.searchOps[name] = op;
+    });
+
+    $("[search-field]", context).on('input change', function(){
+      var name = $(this).attr("search-field");
+
+      if($(this).attr("type") == "date"){
+        var val = $(this).val();
+
+        if(val == ""){
+          that.searchVals[name] = "";
+        } else {
+          that.searchVals[name] = parseInt( new Date(val).getTime() ) / 1000;
+        }
+      }else{
+        that.searchVals[name] = $(this).val();
+      }
+    });
+
+    that.dataTable.on('search.dt', function() {
+      var empty = true;
+
+      for(var i=0; i < that.searchFields.length; i++){
+        var name = that.searchFields[i];
+        empty = $("[search-field="+name+"]", context).val() == "";
+
+        if(!empty){
+          break;
+        }
+      }
+
+      if(empty){
+        $("button.search-dropdown", context).addClass("hollow");
+      } else {
+        $("button.search-dropdown", context).removeClass("hollow");
+      }
+    });
+
+    $.fn.dataTable.ext.search.push(
+      function( settings, data, dataIndex ) {
+        // This is a global search function, we need to apply it only if the
+        // search is triggered for the current table
+        if(that.dataTableId != settings.nTable.id){
+          return true;
+        }
+
+        try {
+          var values = JSON.parse(atob(data[that.searchColumn]));
+
+          var match = true;
+
+          for(var i=0; i < that.searchFields.length; i++){
+            var name = that.searchFields[i];
+
+            switch(that.searchOps[name]){
+              case "match":
+                match = (values[name].match( that.searchVals[name] ) != null);
+                break;
+              case "<=":
+                match = (that.searchVals[name] == "") ||
+                        (values[name] <= that.searchVals[name]);
+                break;
+              case ">=":
+                match = (that.searchVals[name] == "") ||
+                        (values[name] >= that.searchVals[name]);
+                break;
+              case ">":
+                match = (that.searchVals[name] == "") ||
+                        (values[name] > that.searchVals[name]);
+                break;
+              case "<":
+                match = (that.searchVals[name] == "") ||
+                        (values[name] < that.searchVals[name]);
+                break;
+              case "==":
+                match = (that.searchVals[name] == "") ||
+                        (values[name] == that.searchVals[name]);
+                break;
+            }
+
+            if (!match){
+              break;
+            }
+          }
+
+          return match;
+        } catch (err) {}
+
+        return true;
+      }
+    );
+  }
+
 
   function _defaultTrListener(tableObj, tr) {
     var aData = tableObj.dataTable.fnGetData(tr);
@@ -436,6 +555,15 @@ define(function(require) {
       that.preUpdateView();
     }
 
+    if(that.conf.searchDropdownHTML != undefined){
+      that.searchSets = {};
+      try {
+        that.searchFields.forEach(function(name){
+          that.searchSets[name] = new Set();
+        });
+      } catch(e){}
+    }
+
     that.dataTable.DataTable().page.len(parseInt(config['user_config']['page_length']));
 
     var row_id_index = this.dataTable.attr("row_id");
@@ -479,6 +607,16 @@ define(function(require) {
           var item = that.elementArray(this);
           if (item){
             item_list.push(item);
+
+            if(that.searchColumn != undefined){
+              try{
+                var values = JSON.parse(atob(item[that.searchColumn]));
+
+                that.searchFields.forEach(function(name){
+                  that.searchSets[name].add(values[name]);
+                });
+              }catch(e){}
+            }
           }
         });
       }
@@ -542,6 +680,24 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
+    }
+
+    if(that.conf.searchDropdownHTML != undefined){
+      try {
+        that.searchFields.forEach(function(name){
+          var st = "";
+
+          var dlist = $("datalist[search-datalist="+name+"]", $("#"+that.tabId));
+
+          if(dlist.length > 0){
+            that.searchSets[name].forEach(function(val){
+              st += '<option value="' + val + '">';
+            });
+
+            dlist.html(st);
+          }
+        });
+      } catch(e){}
     }
   }
 

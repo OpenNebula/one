@@ -27,6 +27,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var Notifier = require('utils/notifier');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -34,6 +35,7 @@ define(function(require) {
 
   var XML_ROOT = "VMTEMPLATE";
   var LABELS_COLUMN = 6;
+  var SEARCH_COLUMN = 7;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -66,7 +68,8 @@ define(function(require) {
       Locale.tr("Group"),
       Locale.tr("Name"),
       Locale.tr("Registration time"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ];
 
     this.selectOptions = {
@@ -78,7 +81,8 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following Templates:"),
     };
 
-    this.labels = [];
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
@@ -98,6 +102,14 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
+    var search = {
+      NAME:           element.NAME,
+      UNAME:          element.UNAME,
+      GNAME:          element.GNAME,
+      REGTIME_AFTER:  element.REGTIME,
+      REGTIME_BEFORE: element.REGTIME
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="' + this.resource.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
@@ -107,7 +119,8 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         Humanize.prettyTime(element.REGTIME),
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        btoa(JSON.stringify(search))
     ];
   }
 

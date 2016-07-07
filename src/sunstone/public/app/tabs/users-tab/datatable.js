@@ -89,10 +89,8 @@ define(function(require) {
 
     this.totalUsers = 0;
 
-    this.conf.searchDropdownHTML = SearchDropdown();
-
-    this.searchFields = ["NAME", "GNAME", "PASSWORD", "AUTH_DRIVER"];
-    this.searchVals   = {"NAME": "", "GNAME": "", "PASSWORD": "", "AUTH_DRIVER": ""};
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   }
@@ -102,7 +100,6 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
-  Table.prototype.setupSearch = _setupSearch;
 
   return Table;
 
@@ -110,66 +107,7 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
-  function _setupSearch(context) {
-    var that = this;
-
-    $("[search-field]", context).on('input change', function(){
-      that.searchVals[$(this).attr("search-field")] = $(this).val();
-    });
-
-    this.dataTable.on('search.dt', function() {
-      var empty = true;
-
-      for(var i=0; i < that.searchFields.length; i++){
-        var name = that.searchFields[i];
-        empty = $("[search-field="+name+"]", context).val() == "";
-
-        if(!empty){
-          break;
-        }
-      }
-
-      if(empty){
-        $("button.search-dropdown", context).addClass("hollow");
-      } else {
-        $("button.search-dropdown", context).removeClass("hollow");
-      }
-    });
-
-    $.fn.dataTable.ext.search.push(
-      function( settings, data, dataIndex ) {
-        // This is a global search function, we need to apply it only if the
-        // search is triggered for the current table
-        if(that.dataTableId != settings.nTable.id){
-          return true;
-        }
-
-        try {
-          var data = JSON.parse(atob(data[SEARCH_COLUMN]));
-
-          var match = true;
-
-          for(var i=0; i < that.searchFields.length; i++){
-            var name = that.searchFields[i];
-
-            match = (data[name].match( that.searchVals[name] ) != null);
-
-            if (!match){
-              break;
-            }
-          }
-
-          return match;
-        } catch (err) {}
-
-        return true;
-      }
-    );
-  }
-
   function _elementArray(element_json) {
-    var that = this;
-
     this.totalUsers++;
 
     var element = element_json[XML_ROOT];
@@ -209,12 +147,6 @@ define(function(require) {
       AUTH_DRIVER: element.AUTH_DRIVER
     }
 
-    try{
-      that.searchFields.forEach(function(name){
-        that.searchSets[name].add(search[name]);
-      });
-    }catch(e){}
-
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" ' +
@@ -234,34 +166,10 @@ define(function(require) {
   }
 
   function _preUpdateView() {
-    var that = this;
-
     this.totalUsers = 0;
-
-    this.searchSets = {};
-
-    try {
-      that.searchFields.forEach(function(name){
-        that.searchSets[name] = new Set();
-      });
-    } catch(e){}
   }
 
   function _postUpdateView() {
-    var that = this;
-
     $(".total_users").text(this.totalUsers);
-
-    try {
-      that.searchFields.forEach(function(name){
-        var st = "";
-
-        that.searchSets[name].forEach(function(val){
-          st += '<option value="' + val + '">';
-        });
-
-        $("datalist[search-datalist="+name+"]", $("#"+TAB_NAME)).html(st);
-      });
-    } catch(e){}
   }
 });

@@ -116,6 +116,7 @@ tabs:
             - 5         # Memory
             - 6         # CPU
             #- 7         # Labels
+            #- 8        # Search data
         actions:
             Group.refresh: true
             Group.create_dialog: true
@@ -140,6 +141,7 @@ tabs:
             - 6         # VNets
             - 7         # Datastores
             #- 8         # Labels
+            #- 9        # Search data
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
@@ -178,6 +180,7 @@ tabs:
             - 4         # Name
             - 5         # Registration time
             #- 6         # Labels
+            #- 7        # Search data
         actions:
             Template.refresh: true
             Template.create_dialog: true
@@ -217,6 +220,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             #- 5        # Labels
+            #- 6        # Search data
         actions:
             ServiceTemplate.refresh: true
             ServiceTemplate.create_dialog: true
@@ -242,6 +246,7 @@ tabs:
             - 4         # Name
             - 5         # Registration time
             #- 6         # Labels
+            #- 7        # Search data
         actions:
             VirtualRouterTemplate.refresh: true
             VirtualRouterTemplate.create_dialog: true
@@ -297,6 +302,7 @@ tabs:
             - 11      # VNC
             #- 12      # Hidden Template
             #- 13      # Labels
+            #- 14        # Search data
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -384,6 +390,7 @@ tabs:
             - 4         # Name
             - 5         # State
             #- 6        # Labels
+            #- 7        # Search data
         actions:
             Service.refresh: true
             Service.chown: true
@@ -444,6 +451,7 @@ tabs:
             #- 11        # VM MAD
             #- 12        # Last monitored on
             #- 13        # Labels
+            #- 14        # Search data
         actions:
             Host.refresh: true
             Host.create_dialog: true
@@ -493,6 +501,7 @@ tabs:
             - 10        # Type
             - 11        # Status
             #- 12        # Labels
+            #- 13        # Search data
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: true
@@ -527,6 +536,7 @@ tabs:
             - 11        # #VMs
             #- 12       # Target
             #- 13       # Labels
+            #- 14        # Search data
         actions:
             Image.refresh: true
             Image.create_dialog: true
@@ -565,6 +575,7 @@ tabs:
             #- 11        # #VMs
             #- 12       # Target
             #- 13       # Labels
+            #- 14        # Search data
         actions:
             File.refresh: true
             File.create_dialog: true
@@ -592,6 +603,7 @@ tabs:
             - 7         # Driver
             - 8         # Zone
             #- 9        # Labels
+            #- 10        # Search data
         actions:
             MarketPlace.refresh: true
             MarketPlace.create_dialog: true
@@ -621,6 +633,7 @@ tabs:
             - 10        # Marketplace
             - 11         # Zone
             #- 12        # Labels
+            #- 13        # Search data
         actions:
             MarketPlaceApp.refresh: true
             MarketPlaceApp.create_dialog: true
@@ -658,6 +671,7 @@ tabs:
             - 8         # Leases
             #- 9         # VLAN ID
             #- 10         # Labels
+            #- 11        # Search data
         actions:
             Network.refresh: true
             Network.create_dialog: true
@@ -688,6 +702,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             #- 5        # Labels
+            #- 6        # Search data
         actions:
             VirtualRouter.refresh: true
             VirtualRouter.create_dialog: true
@@ -718,6 +733,7 @@ tabs:
             - 3         # Group
             - 4         # Name
             #- 5         # Labels
+            #- 6        # Search data
         actions:
             SecurityGroup.refresh: true
             SecurityGroup.create_dialog: true

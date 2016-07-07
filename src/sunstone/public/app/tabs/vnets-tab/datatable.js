@@ -25,6 +25,8 @@ define(function(require) {
   var ProgressBar = require('utils/progress-bar');
   var Utils = require('./utils/common');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
+  var OpenNebulaNetwork = require('opennebula/network');
 
   /*
     CONSTANTS
@@ -34,6 +36,7 @@ define(function(require) {
   var XML_ROOT = "VNET";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 10;
+  var SEARCH_COLUMN = 11;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -70,7 +73,8 @@ define(function(require) {
       Locale.tr("Bridge"),
       Locale.tr("Leases"),
       Locale.tr("VLAN ID"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ];
 
     this.selectOptions = {
@@ -85,6 +89,9 @@ define(function(require) {
 
     this.usedLeases = 0;
     this.totalVNets = 0;
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
@@ -120,6 +127,20 @@ define(function(require) {
       clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
     }
 
+    var parent_net = "";
+
+    if(element.PARENT_NETWORK_ID.length > 0){
+      parent_net = OpenNebulaNetwork.getName(element.PARENT_NETWORK_ID);
+    }
+
+    var search = {
+      NAME:     element.NAME,
+      UNAME:    element.UNAME,
+      GNAME:    element.GNAME,
+      VLAN_ID: (element.VLAN_ID.length ? element.VLAN_ID : ""),
+      PARENT_NETWORK: parent_net
+    }
+
     return [
       '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                            element.ID + '" name="selected_items" value="' +
@@ -133,7 +154,8 @@ define(function(require) {
       element.BRIDGE,
       ProgressBar.html(element.USED_LEASES, total_size),
       element.VLAN_ID.length ? element.VLAN_ID : "-",
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(JSON.stringify(search))
     ];
   }
 

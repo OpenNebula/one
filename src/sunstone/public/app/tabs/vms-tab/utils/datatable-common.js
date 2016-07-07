@@ -39,7 +39,8 @@ define(function(require) {
     Locale.tr("Start Time"),
     "",
     Locale.tr("Hidden Template"),
-    Locale.tr("Labels")
+    Locale.tr("Labels"),
+    "search_data"
   ];
 
   return {
@@ -80,7 +81,20 @@ define(function(require) {
         memoryMonitoring = element.MONITORING.MEMORY
       }
     }
-    
+
+    var hostname = OpenNebulaVM.hostnameStr(element);
+
+    var search = {
+      NAME:         element.NAME,
+      UNAME:        element.UNAME,
+      GNAME:        element.GNAME,
+      STATUS:       state,
+      HOST:         hostname,
+      CLUSTER:      OpenNebulaVM.clusterStr(element),
+      STIME_AFTER:  element.STIME,
+      STIME_BEFORE: element.STIME
+    }
+
     return [
       '<input class="check_item" '+
         'type="checkbox" '+
@@ -95,12 +109,13 @@ define(function(require) {
       state,
       cpuMonitoring,
       Humanize.size(memoryMonitoring),
-      OpenNebulaVM.hostnameStr(element),
+      hostname,
       OpenNebulaVM.ipsStr(element),
       Humanize.prettyTime(element.STIME),
       vncIcon,
       TemplateUtils.templateToString(element),
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(JSON.stringify(search))
     ];
   }
 

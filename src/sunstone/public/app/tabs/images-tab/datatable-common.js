@@ -25,6 +25,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var OpenNebulaImage = require('opennebula/image');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -32,6 +33,7 @@ define(function(require) {
 
   var XML_ROOT = "IMAGE"
   var LABELS_COLUMN = 13;
+  var SEARCH_COLUMN = 14;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -72,8 +74,12 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("#VMS"),
       Locale.tr("Target"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ]
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
@@ -91,6 +97,20 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.IMAGE;
 
+    var type = OpenNebulaImage.typeStr(element.TYPE);
+    var state = OpenNebulaImage.stateStr(element.STATE);
+
+    var search = {
+      NAME:       element.NAME,
+      UNAME:      element.UNAME,
+      GNAME:      element.GNAME,
+      DATASTORE:  element.DATASTORE,
+      TYPE:       type,
+      STATE:      state,
+      REGTIME_AFTER:  element.REGTIME,
+      REGTIME_BEFORE: element.REGTIME
+    }
+
     return [
       '<input class="check_item" type="checkbox" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
@@ -101,13 +121,14 @@ define(function(require) {
       element.NAME,
       element.DATASTORE,
       Humanize.sizeFromMB(element.SIZE),
-      OpenNebulaImage.typeStr(element.TYPE),
+      type,
       Humanize.prettyTime(element.REGTIME),
       parseInt(element.PERSISTENT) ? "yes" : "no",
-      OpenNebulaImage.stateStr(element.STATE),
+      state,
       element.RUNNING_VMS,
       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--',
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(JSON.stringify(search))
     ];
   }
 });
