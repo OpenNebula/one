@@ -87,7 +87,7 @@ fi
 #-------------------------------------------------------------------------------
 
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
-VG_NAME="vg-one-$DS_SYS_ID"
+VG_NAME="vg-one-$DS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 CLONE_CMD=$(cat <<EOF
