@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="small-12 columns">
+    <label>
+      {{tr "Name"}}
+      <input search-field="NAME" type="text" list="{{tableId}}-searchListNAME"/>
+      <datalist search-datalist="NAME" id="{{tableId}}-searchListNAME">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Owner"}}
+      <input search-field="UNAME" type="text" list="{{tableId}}-searchListUNAME"/>
+      <datalist search-datalist="UNAME" id="{{tableId}}-searchListUNAME">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Group"}}
+      <input search-field="GNAME" type="text" list="{{tableId}}-searchListGNAME"/>
+      <datalist search-datalist="GNAME" id="{{tableId}}-searchListGNAME">
+      </datalist>
+    </label>
+    <label>
+      {{tr "State"}}
+      <input search-field="STATE" type="text" list="{{tableId}}-searchListSTATE"/>
+      <datalist search-datalist="STATE" id="{{tableId}}-searchListSTATE">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Marketplace"}}
+      <input search-field="MARKETPLACE" type="text" list="{{tableId}}-searchListMARKETPLACE"/>
+      <datalist search-datalist="MARKETPLACE" id="{{tableId}}-searchListMARKETPLACE">
+      </datalist>
+    </label>
+    <label>
+      {{tr "Zone"}}
+      <input search-field="ZONE" type="text" list="{{tableId}}-searchListZONE"/>
+      <datalist search-datalist="ZONE" id="{{tableId}}-searchListZONE">
+      </datalist>
+    </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Created after"}}
+      <input search-field="REGTIME_AFTER" search-operation=">=" type="date"/>
+    </label>
+  </div>
+  <div class="medium-6 columns">
+    <label>
+      {{tr "Created before"}}
+      <input search-field="REGTIME_BEFORE" search-operation="<=" type="date"/>
+    </label>
+  </div>
+</div>

@@ -20,6 +20,8 @@ define(function(require) {
       OpenNebulaError  = require('./error');
       Locale = require('utils/locale');
 
+  var OpenNebulaCluster = require('./cluster');
+
   var RESOURCE = "VM";
 
   var STATES_STR = [
@@ -574,6 +576,18 @@ define(function(require) {
       };
 
       return hostname;
+    },
+    "clusterStr": function(element) {
+      var state = element.STATE;
+      var cluster = "--";
+      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
+        var history = retrieveLastHistoryRecord(element)
+        if (history) {
+          cluster = history.CID;
+        };
+      };
+
+      return OpenNebulaCluster.getName(cluster);
     },
     "migrateActionStr": function(stateId) {
       return MIGRATE_ACTION_STR[stateId];

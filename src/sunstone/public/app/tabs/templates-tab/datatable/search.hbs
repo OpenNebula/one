@@ -7,22 +7,30 @@
       </datalist>
     </label>
     <label>
+      {{tr "Owner"}}
+      <input search-field="UNAME" type="text" list="{{tableId}}-searchListUNAME"/>
+      <datalist search-datalist="UNAME" id="{{tableId}}-searchListUNAME">
+      </datalist>
+    </label>
+    <label>
       {{tr "Group"}}
       <input search-field="GNAME" type="text" list="{{tableId}}-searchListGNAME"/>
       <datalist search-datalist="GNAME" id="{{tableId}}-searchListGNAME">
       </datalist>
     </label>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns">
     <label>
-      {{tr "Password"}}
-      <input search-field="PASSWORD" type="text" list="{{tableId}}-searchListPASSWORD"/>
-      <datalist search-datalist="PASSWORD" id="{{tableId}}-searchListPASSWORD">
-      </datalist>
+      {{tr "Created after"}}
+      <input search-field="REGTIME_AFTER" search-operation=">=" type="date"/>
     </label>
+  </div>
+  <div class="medium-6 columns">
     <label>
-      {{tr "Auth driver"}}
-      <input search-field="AUTH_DRIVER" type="text" list="{{tableId}}-searchListAUTH_DRIVER"/>
-      <datalist search-datalist="AUTH_DRIVER" id="{{tableId}}-searchListAUTH_DRIVER">
-      </datalist>
+      {{tr "Created before"}}
+      <input search-field="REGTIME_BEFORE" search-operation="<=" type="date"/>
     </label>
   </div>
 </div>

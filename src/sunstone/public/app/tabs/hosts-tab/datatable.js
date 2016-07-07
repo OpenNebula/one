@@ -27,6 +27,7 @@ define(function(require) {
   var MemoryBars = require('./utils/memory-bars');
   var OpenNebulaHost = require('opennebula/host');
   var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
 
 
   /*
@@ -37,6 +38,7 @@ define(function(require) {
   var XML_ROOT = "HOST";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 13;
+  var SEARCH_COLUMN = 14;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -76,7 +78,8 @@ define(function(require) {
       Locale.tr("IM MAD"),
       Locale.tr("VM MAD"),
       Locale.tr("Last monitored on"),
-      Locale.tr("Labels")
+      Locale.tr("Labels"),
+      "search_data"
     ];
 
     this.selectOptions = {
@@ -98,6 +101,9 @@ define(function(require) {
     this.maxMemory = 0;
     this.allocatedMemory = 0;
     this.realMemory = 0;
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
@@ -148,6 +154,16 @@ define(function(require) {
     this.allocatedMemory += parseInt(element.HOST_SHARE.MEM_USAGE);
     this.realMemory += parseInt(element.HOST_SHARE.USED_MEM);
 
+    var state = OpenNebulaHost.simpleStateStr(element.STATE);
+
+    var search = {
+      NAME:     element.NAME,
+      CLUSTER:  element.CLUSTER,
+      STATE:    state,
+      IM_MAD:   element.IM_MAD,
+      VM_MAD:   element.VM_MAD
+    }
+
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
@@ -160,11 +176,12 @@ define(function(require) {
         cpuBars.allocated,
         memoryBars.real,
         memoryBars.allocated,
-        OpenNebulaHost.simpleStateStr(element.STATE),
+        state,
         element.IM_MAD,
         element.VM_MAD,
         Humanize.prettyTime(element.LAST_MON_TIME),
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||'')
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        btoa(JSON.stringify(search))
     ];
   }
 

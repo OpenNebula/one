@@ -29,6 +29,7 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -38,6 +39,7 @@ define(function(require) {
   var XML_ROOT = "VM";
   var TAB_NAME = require('./tabId');
   var LABELS_COLUMN = 13;
+  var SEARCH_COLUMN = 14;
 
 
   /*
@@ -80,6 +82,9 @@ define(function(require) {
     this.pendingVms = 0;
     this.failedVms = 0;
     this.offVms = 0;
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);
   };
