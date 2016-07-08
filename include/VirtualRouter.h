@@ -47,6 +47,11 @@ public:
         return vms.add(vmid);
     }
 
+    int del_vmid(int vmid)
+    {
+        return vms.del(vmid);
+    }
+
     bool has_vmids() const
     {
         return vms.size() > 0;
@@ -104,6 +109,20 @@ public:
      *    @return 0 on success
      */
     int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+
+    /**
+     * Set the template ID to instantiate new VMs
+     *
+     * @param tmpl_id VM Template ID
+     */
+    void set_template_id(int tmpl_id);
+
+    /**
+     * Get the template ID set with set_template_id
+     *
+     * @return VM Template ID, or -1 if it was not found
+     */
+    int get_template_id();
 
     // ------------------------------------------------------------------------
     // Attach and detach NIC

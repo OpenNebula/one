@@ -19,7 +19,7 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 
-static const History::VMAction action[11] = {
+static const History::VMAction action[15] = {
     History::MIGRATE_ACTION,
     History::LIVE_MIGRATE_ACTION,
     History::HOLD_ACTION,
@@ -30,10 +30,14 @@ static const History::VMAction action[11] = {
     History::RESCHED_ACTION,
     History::UNRESCHED_ACTION,
     History::DISK_SNAPSHOT_CREATE_ACTION,
-    History::DISK_SNAPSHOT_DELETE_ACTION
+    History::DISK_SNAPSHOT_DELETE_ACTION,
+    History::TERMINATE_ACTION,
+    History::TERMINATE_HARD_ACTION,
+    History::DELETE_ACTION,
+    History::DELETE_RECREATE_ACTION
 };
 
-const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 11);
+const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 15);
 
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
@@ -717,3 +721,27 @@ void VirtualRouter::set_auth_request(int uid,
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualRouter::set_template_id(int tmpl_id)
+{
+    replace_template_attribute("TEMPLATE_ID", tmpl_id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualRouter::get_template_id()
+{
+    int tmpl_id;
+
+    if (get_template_attribute("TEMPLATE_ID", tmpl_id))
+    {
+        return tmpl_id;
+    }
+    else
+    {
+        return -1;
+    }
+}

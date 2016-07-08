@@ -26,6 +26,7 @@ define(function(require) {
   var XML_ROOT = "VROUTER";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Virtual Router created"));
@@ -33,6 +34,32 @@ define(function(require) {
   var _actions = {
     "VirtualRouter.create" : _commonActions.create(CREATE_DIALOG_ID),
     "VirtualRouter.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "VirtualRouter.instantiate_vms" : {
+      type: "custom",
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) Virtual Router.");
+          return false;
+        }
+
+        var vrId = "" + selected_nodes[0];
+
+        OpenNebulaResource.show({
+          data:{
+            id: vrId
+          },
+          success: function(request, response){
+            Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
+            Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
+              function(formPanelInstance, context) {
+                formPanelInstance.fill(context, response[XML_ROOT]);
+              });
+          },
+          error: Notifier.onError
+        });
+      }
+    },
     "VirtualRouter.list" : _commonActions.list(),
     "VirtualRouter.show" : _commonActions.show(),
     "VirtualRouter.refresh" : _commonActions.refresh(),

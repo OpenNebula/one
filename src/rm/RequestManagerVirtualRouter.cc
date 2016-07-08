@@ -42,7 +42,6 @@ void VirtualRouterInstantiate::request_execute(
 
     PoolObjectAuth vr_perms;
     Template*      extra_attrs;
-    bool           has_vmids;
     string         error;
     string         vr_name, tmp_name;
     ostringstream  oss;
@@ -67,10 +66,22 @@ void VirtualRouterInstantiate::request_execute(
     vr->get_permissions(vr_perms);
 
     extra_attrs = vr->get_vm_template();
-    has_vmids   = vr->has_vmids();
     vr_name     = vr->get_name();
 
+    if (tmpl_id == -1)
+    {
+        tmpl_id = vr->get_template_id();
+    }
+
     vr->unlock();
+
+    if (tmpl_id == -1)
+    {
+        att.resp_msg = "A template ID was not provided, and the virtual router "
+                       "does not have a default one";
+        failure_response(ACTION, att);
+        return;
+    }
 
     if ( att.uid != 0 )
     {
@@ -84,13 +95,6 @@ void VirtualRouterInstantiate::request_execute(
             failure_response(AUTHORIZATION, att);
             return;
         }
-    }
-
-    if (has_vmids)
-    {
-        att.resp_msg = "Virtual router already has VMs. Cannot instantiate new ones";
-        failure_response(ACTION, att);
-        return;
     }
 
     VMTemplate * tmpl = tpool->get(tmpl_id,true);
@@ -153,6 +157,8 @@ void VirtualRouterInstantiate::request_execute(
         {
             vr->add_vmid(*vmid);
         }
+
+        vr->set_template_id(tmpl_id);
 
         vrpool->update(vr);
 

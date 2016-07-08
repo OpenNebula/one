@@ -173,7 +173,8 @@ void DispatchManager::init_managers()
 
     imagem = nd.get_imagem();
 
-    hpool  = nd.get_hpool();
-    vmpool = nd.get_vmpool();
+    hpool       = nd.get_hpool();
+    vmpool      = nd.get_vmpool();
+    vrouterpool = nd.get_vrouterpool();
 }
 

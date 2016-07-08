@@ -205,6 +205,7 @@ void  DispatchManager::done_action(int vid)
     int uid;
     int gid;
     string deploy_id;
+    int vrid = -1;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -244,6 +245,11 @@ void  DispatchManager::done_action(int vid)
             deploy_id = vm->get_deploy_id();
         }
 
+        if (vm->is_vrouter())
+        {
+            vrid = vm->get_vrouter_id();
+        }
+
         vm->unlock();
 
         Quotas::vm_del(uid, gid, tmpl);
@@ -253,6 +259,20 @@ void  DispatchManager::done_action(int vid)
         if (!deploy_id.empty())
         {
             vmpool->drop_index(deploy_id);
+        }
+
+        if (vrid != -1)
+        {
+            VirtualRouter* vr = vrouterpool->get(vrid, true);
+
+            if (vr != 0)
+            {
+                vr->del_vmid(vid);
+
+                vrouterpool->update(vr);
+
+                vr->unlock();
+            }
         }
     }
     else
