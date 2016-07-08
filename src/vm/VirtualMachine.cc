@@ -280,10 +280,12 @@ error_previous_history:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void set_boot_order(Template * tmpl)
+static int set_boot_order(Template * tmpl, string& error_str)
 {
     vector<VectorAttribute *> disk;
     vector<VectorAttribute *> nic;
+
+    ostringstream oss;
 
     int ndisk = tmpl->get("DISK", disk);
     int nnic  = tmpl->get("NIC", nic);
@@ -297,19 +299,19 @@ static void set_boot_order(Template * tmpl)
     {
         nic[i]->remove("ORDER");
     }
-    
+
     VectorAttribute * os = tmpl->get("OS");
 
     if ( os == 0 )
     {
-        return;
+        return 0;
     }
 
     string order = os->vector_value("BOOT");
 
     if ( order.empty() )
     {
-        return;
+        return 0;
     }
 
     vector<string> bdevs = one_util::split(order, ',');
@@ -326,6 +328,13 @@ static void set_boot_order(Template * tmpl)
         const char * id_name;
 
         one_util::toupper(*i);
+
+        int rc = one_util::regex_match("^(DISK|NIC)[[:digit:]]+$", (*i).c_str());
+
+        if (rc != 0)
+        {
+            goto error_parsing;
+        }
 
         if ((*i).compare(0,4,"DISK") == 0)
         {
@@ -347,7 +356,7 @@ static void set_boot_order(Template * tmpl)
         }
         else
         {
-            continue;
+            goto error_parsing;
         }
 
         istringstream iss((*i).substr(pos, string::npos));
@@ -356,8 +365,10 @@ static void set_boot_order(Template * tmpl)
 
         if (iss.fail())
         {
-            continue;
+            goto error_parsing;
         }
+
+        bool found = false;
 
         for (int j=0; j<max; ++j)
         {
@@ -367,9 +378,28 @@ static void set_boot_order(Template * tmpl)
                    j_disk_id == disk_id )
             {
                 (*dev)[j]->replace("ORDER", index++);
+                found = true;
             }
         }
+
+        if (!found)
+        {
+            oss << "Wrong OS/BOOT value. Device with "
+                << id_name << " " << disk_id << " not found";
+
+            goto error_common;
+        }
     }
+
+    return 0;
+
+error_parsing:
+    oss << "Wrong OS/BOOT value: \"" << order
+        << "\" should be a comma-separated list of disk# or nic#";
+
+error_common:
+    error_str = oss.str();
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -597,7 +627,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Set boot order
     // -------------------------------------------------------------------------
 
-    set_boot_order(obj_template);
+    rc = set_boot_order(obj_template, error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_boot_order;
+    }
 
     // -------------------------------------------------------------------------
     // Parse the context & requirements
@@ -672,6 +707,9 @@ error_update:
     goto error_rollback;
 
 error_pci:
+    goto error_rollback;
+
+error_boot_order:
     goto error_rollback;
 
 error_context:
@@ -4883,7 +4921,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         case SUSPENDED:
         case STOPPED:
 
-            err = "configuration cannot be update in state " + state_str();
+            err = "configuration cannot be updated in state " + state_str();
             return -1;
     }
 
@@ -4895,7 +4933,10 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
     replace_vector_values(obj_template, &tmpl, "OS", os_names, 6);
 
-    set_boot_order(obj_template);
+    if ( set_boot_order(obj_template, err) != 0 )
+    {
+        return -1;
+    }
 
     // -------------------------------------------------------------------------
     // Update FEATURES:
