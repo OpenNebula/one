@@ -75,7 +75,7 @@ define(function(require) {
       return false;
     });
 
-    $('#' + DIALOG_ID + 'Form', context).on("click", "button", function() {
+    $('#' + DIALOG_ID + 'Form', context).on("click", "button.custom_submit", function() {
       if(!$('#' + DIALOG_ID + 'Form', context)[0].checkValidity()){
         if ($(this).val() == that.resource+".clone_recursive"){
           $('#' + DIALOG_ID + 'Form button[type="submit"]', context).click();
