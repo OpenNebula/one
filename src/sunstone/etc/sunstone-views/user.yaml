@@ -252,6 +252,7 @@ tabs:
             VirtualRouterTemplate.refresh: true
             VirtualRouterTemplate.create_dialog: true
             VirtualRouterTemplate.update_dialog: true
+            VirtualRouterTemplate.instantiate_vms: true
             VirtualRouterTemplate.rename: true
             VirtualRouterTemplate.chown: false
             VirtualRouterTemplate.chgrp: false

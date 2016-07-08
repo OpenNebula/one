@@ -20,6 +20,7 @@
 #include "ActionManager.h"
 #include "HostPool.h"
 #include "VirtualMachinePool.h"
+#include "VirtualRouterPool.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ class DispatchManager : public ActionListener
 public:
 
     DispatchManager():
-            hpool(0), vmpool(0), tm(0), vmm(0), lcm(0), imagem(0)
+            hpool(0), vmpool(0), vrouterpool(0), tm(0), vmm(0), lcm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -456,6 +457,11 @@ private:
      *  Pointer to the Virtual Machine Pool, to access hosts
      */
     VirtualMachinePool *    vmpool;
+
+    /**
+     *  Pointer to the Virtual Machine Pool, to access hosts
+     */
+    VirtualRouterPool *     vrouterpool;
 
     /**
      * Pointer to TransferManager

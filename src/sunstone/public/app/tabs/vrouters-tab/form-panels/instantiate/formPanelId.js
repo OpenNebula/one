@@ -14,47 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var Locale = require('utils/locale');
-
-  var Buttons = {
-    "VirtualRouter.refresh" : {
-      type: "action",
-      layout: "refresh",
-      alwaysActive: true
-    },
-    "VirtualRouter.create_dialog" : {
-      type: "create_dialog",
-      layout: "create"
-    },
-    "VirtualRouter.instantiate_vms" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Instantiate VMs")
-    },
-    "VirtualRouter.chown" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change owner"),
-      layout: "user_select",
-      select: "User",
-      tip: Locale.tr("Select the new owner")
-    },
-    "VirtualRouter.chgrp" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change group"),
-      layout: "user_select",
-      select: "Group",
-      tip: Locale.tr("Select the new group")
-    },
-    "VirtualRouter.delete" : {
-      type: "confirm",
-      layout: "del",
-      text: Locale.tr("Delete")
-    },
-    "VirtualRouter.edit_labels" : {
-      layout: "labels",
-    }
-  };
-
-  return Buttons;
+define(function(require){
+  return 'instantiateVirtualRouterForm';
 });

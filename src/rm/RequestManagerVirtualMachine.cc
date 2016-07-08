@@ -535,26 +535,13 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm->is_vrouter() && !VirtualRouter::is_action_supported(action))
     {
-        bool failure = true;
+        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
+            "virtual router VMs";
 
-        // Terminate operation is allowed for orphan virtual router VMs.
-        if ( action == History::TERMINATE_ACTION ||
-                action == History::TERMINATE_HARD_ACTION )
-        {
-            VirtualRouterPool* vrpool = Nebula::instance().get_vrouterpool();
-            failure = (vrpool->get(vm->get_vrouter_id(), false) != 0);
-        }
+        failure_response(ACTION, att);
 
-        if (failure)
-        {
-            att.resp_msg = "Action \"" + action_st + "\" is not supported for "
-                "virtual router VMs";
-
-            failure_response(ACTION, att);
-
-            vm->unlock();
-            return;
-        }
+        vm->unlock();
+        return;
     }
 
     vm->unlock();
