@@ -72,16 +72,12 @@ define(function(require) {
   function _setParams(params) {
     this.params = params;
 
-    if (this.params.buttons != undefined){
-      if (!$.isArray(this.params.buttons)){
-        this.params.buttons = [this.params.buttons];
-      }
+    if (this.params.buttons != undefined && !$.isArray(this.params.buttons)){
+      this.params.buttons = [this.params.buttons];
+    }
 
-      if (this.params.submit != undefined){
-        if (!$.isArray(this.params.submit)){
-          this.params.submit = [this.params.submit];
-        }
-      }
+    if (this.params.submit != undefined && !$.isArray(this.params.submit)){
+      this.params.submit = [this.params.submit];
     }
   }
 
