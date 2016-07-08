@@ -65,7 +65,8 @@ DISTRIBUTIONS={
             'thin'      => ['g++'],
             'json'      => ['gcc']
         },
-        :install_command => 'apt-get install',
+        :install_command_interactive => 'apt-get install',
+        :install_command => 'apt-get -y install',
         :gem_env    => {
             'rake'      => '/usr/bin/rake'
         }
@@ -82,7 +83,8 @@ DISTRIBUTIONS={
             'thin'      => ['gcc-c++'],
             'json'      => ['gcc']
         },
-        :install_command => 'yum install'
+        :install_command_interactive => 'yum install',
+        :install_command => 'yum -y install'
     }
 }
 
@@ -150,7 +152,9 @@ def install_rubygems
 
 EOT
 
-        STDIN.readline
+        if @interactive
+            STDIN.readline
+        end
 
         `gem install rubygems-update --version '= 1.3.6'`
 
@@ -219,7 +223,10 @@ def install_warning(packages)
     puts "* " << packages.join("\n* ")
     puts
     puts "Press enter to continue..."
-    yes=STDIN.readline
+
+    if @interactive
+        yes=STDIN.readline
+    end
 end
 
 def help
@@ -319,9 +326,18 @@ def install_dependencies(gems, distro)
         puts "* " << deps.join("\n* ")
         puts
         puts "Press enter to continue..."
-        STDIN.readline
 
-        command=distro.last[:install_command]+" " << deps.join(' ')
+        if @interactive
+            STDIN.readline
+        end
+
+        if @interactive
+            install_command = distro.last[:install_command_interactive]
+        else
+            install_command = distro.last[:install_command]
+        end
+
+        command=install_command+" " << deps.join(' ')
         puts command
         system command
     end
@@ -348,7 +364,12 @@ def install_gems(packages)
 
     dist=detect_distro
     if !dist
-        dist=select_distribution
+        if !@interactive
+            STDERR.puts "Distribution not deteced"
+            exit 1
+        else
+            dist=select_distribution
+        end
     end
 
     install_dependencies(gems_list, dist)
@@ -477,7 +498,12 @@ elsif params.include?('--showallgems')
 elsif params.include?('--showallpackages')
     params-=['--showallpackages']
     command='showallpackages'
+elsif params.include?('--yes')
+    params-=['--yes']
+    @interactive = false
+    command='install'
 else
+    @interactive = true
     command='install'
 end
 
@@ -486,7 +512,6 @@ if params.length>0
 else
     packages=DEFAULT
 end
-
 
 case command
 when 'help'
@@ -501,4 +526,3 @@ when 'showallpackages'
 when 'install'
     install_gems(packages)
 end
-
