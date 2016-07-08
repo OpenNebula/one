@@ -641,6 +641,7 @@ define(function(require) {
     require('./vms-tab/panels/snapshots'),
     require('./vms-tab/panels/placement'),
     require('./vms-tab/panels/actions'),
+    require('./vms-tab/panels/conf'),
     require('./vms-tab/panels/template'),
     require('./vms-tab/panels/log')
   ];
