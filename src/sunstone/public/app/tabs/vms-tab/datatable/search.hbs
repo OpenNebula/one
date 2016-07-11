@@ -24,6 +24,15 @@
       <datalist search-datalist="STATUS" id="{{tableId}}-searchListSTATUS">
       </datalist>
     </label>
+    <label>
+      {{tr "VM type"}}
+      <select search-field="VM_TYPE">
+        <option value="">{{tr "Any"}}</option>
+        <option value="VM">{{tr "Regular VM"}}</option>
+        <option value="VR">{{tr "Virtual Router"}}</option>
+        <option value="FLOW">{{tr "Service"}}</option>
+      </select>
+    </label>
   </div>
   <div class="medium-6 columns">
     <label>

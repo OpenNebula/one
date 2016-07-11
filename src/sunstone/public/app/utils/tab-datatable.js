@@ -226,7 +226,7 @@ define(function(require) {
       }
 
       $("a.advanced-search-clear", context).on('click', function(){
-        $("input", context).val("").trigger("input");
+        $("input,select", context).val("").trigger("input");
 
         $("button.advanced-search", context).click();
       });
