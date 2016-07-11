@@ -506,7 +506,7 @@ define(function(require) {
           _attributeInput(attr_gb) +
         '</div>' +
         '<div class="input-group-button">'+
-          '<select id="mb_input_unit" style="width: auto;">' +
+          '<select id="mb_input_unit">' +
             '<option value="MB">'+Locale.tr("MB")+'</option>' +
             '<option value="GB" selected>'+Locale.tr("GB")+'</option>' +
           '</select>' +
