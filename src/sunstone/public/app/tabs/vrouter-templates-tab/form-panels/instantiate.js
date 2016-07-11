@@ -26,17 +26,17 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var NicsSection = require('utils/nics-section');
-  var VRouterTemplatesTable = require('tabs/vrouter-templates-tab/datatable');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaAction = require('opennebula/action');
   var Notifier = require('utils/notifier');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./instantiate/html');
+  var TemplateWizardHTML = require('hbs!./instantiate/wizard');
 
   /*
     CONSTANTS
@@ -54,15 +54,11 @@ define(function(require) {
     this.tabId = TAB_ID;
     this.actions = {
       'instantiate': {
-        'title': Locale.tr("Instantiate VMs"),
+        'title': Locale.tr("Instantiate Virtual Router Template"),
         'buttonText': Locale.tr("Instantiate"),
         'resetButton': false
       }
     };
-
-    this.templatesTable = new VRouterTemplatesTable(
-        'vr_instantiate',
-        { 'select': true });
 
     BaseFormPanel.call(this);
   }
@@ -70,8 +66,8 @@ define(function(require) {
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
-  FormPanel.prototype.fill = _fill;
-  FormPanel.prototype.htmlWizard = _html;
+  FormPanel.prototype.setTemplateId = _setTemplateId;
+  FormPanel.prototype.htmlWizard = _htmlWizard;
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
@@ -82,8 +78,8 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
-  function _html() {
-    return TemplateHTML({
+  function _htmlWizard() {
+    return TemplateWizardHTML({
       'formPanelId': this.formPanelId
     });
   }
@@ -91,57 +87,35 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $(".selectTemplateTable", context).html(this.templatesTable.dataTableHTML);
-    $(".table_wrapper", context).show();
+    NicsSection.insert({},
+      $(".nicsContext", context),
+      { floatingIP: true,
+        forceIPv4:true,
+        management: true,
+        securityGroups: Config.isFeatureEnabled("secgroups")});
 
-    this.templatesTable.initialize();
-
-    this.templatesTable.idInput().attr("required", "");
-
-    this.templatesTable.idInput().on("change", function(){
-      var templateId = $(this).val();
-
-      var inputs_div = $(".template_user_inputs", context);
-      inputs_div.empty();
-
-      OpenNebulaTemplate.show({
-        data : {
-          id: templateId
-        },
-        timeout: true,
-        success: function (request, template_json) {
-          UserInputs.vmTemplateInsert(
-              inputs_div,
-              template_json,
-              {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
-        },
-        error: Notifier.onError
-      });
+    $(".vr_attributes #name", context).on("input", function(){
+      $('#vm_name', context).val("vr-"+$(this).val()+"-%i");
     });
 
     Tips.setup(context);
+
     return false;
-  }
-
-  function _onShow(context) {
-    this.templatesTable.refreshResourceTableSelect();
-  }
-
-  function _fill(context, element) {
-    this.setHeader(element);
-
-    this.vrId = element.ID;
-
-    if(element.TEMPLATE.TEMPLATE_ID != undefined){
-      this.templatesTable.selectResourceTableSelect(
-          {ids: element.TEMPLATE.TEMPLATE_ID});
-    }
   }
 
   function _submitWizard(context) {
     var that = this;
 
-    var tmplId = this.templatesTable.retrieveResourceTableSelect();
+    var virtual_router_json = WizardFields.retrieve($(".vr_attributes", context));
+
+    var nics = NicsSection.retrieve($(".nicsContext", context));
+    if (nics.length > 0) {
+      virtual_router_json.NIC = nics;
+    }
+
+    virtual_router_json = {
+      "virtual_router" : virtual_router_json
+    };
 
     var vm_name = $('#vm_name', context).val();
     var n_times = parseInt($('#vm_n_times', context).val());
@@ -152,35 +126,74 @@ define(function(require) {
 
     var hold = $('#hold', context).prop("checked");
 
-    var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
-
-    var extra_info = {
-      'n_vms': n_times,
-      'template_id': tmplId,
-      'vm_name': vm_name,
-      'hold': hold,
-      'template': tmpl
-    };
-
-    OpenNebulaVirtualRouter.instantiate({
-      data:{
-        id: that.vrId,
-        extra_param: extra_info
-      },
+    OpenNebulaVirtualRouter.create({
+      data : virtual_router_json,
       timeout: true,
-      success: function(request, response){
-        OpenNebulaAction.clear_cache("VM");
+      success: function (request, response) {
 
-        Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
-        Sunstone.hideFormPanel(TAB_ID);
+        var tmpl = WizardFields.retrieve($(".template_user_inputs", context));
+
+        var extra_info = {
+          'n_vms': n_times,
+          'template_id': that.templateId,
+          'vm_name': vm_name,
+          'hold': hold,
+          'template': tmpl
+        };
+
+        Notifier.notifyCustom(Locale.tr("Virtual Router created"), " ID: " + response.VROUTER.ID, false);
+
+        OpenNebulaVirtualRouter.instantiate({
+          data:{
+            id: response.VROUTER.ID,
+            extra_param: extra_info
+          },
+          timeout: true,
+          success: function(request, response){
+            OpenNebulaAction.clear_cache("VM");
+
+            Sunstone.resetFormPanel(TAB_ID, that.formPanelId);
+            Sunstone.hideFormPanel(TAB_ID);
+          },
+          error: function(request, response) {
+            Sunstone.hideFormPanelLoading(TAB_ID);
+
+            Notifier.notifyError(Locale.tr(
+              "Failed to create VMs. Virtual Router may need to be deleted manually."));
+            Notifier.onError(request, response);
+          }
+        });
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(TAB_ID);
-
         Notifier.onError(request, response);
-      }
+      },
     });
 
     return false;
+  }
+
+  function _onShow(context) {
+  }
+
+  function _setTemplateId(context, templateId){
+    this.templateId = templateId;
+
+    var inputs_div = $(".template_user_inputs", context);
+    inputs_div.empty();
+
+    OpenNebulaTemplate.show({
+      data : {
+        id: templateId
+      },
+      timeout: true,
+      success: function (request, template_json) {
+        UserInputs.vmTemplateInsert(
+            inputs_div,
+            template_json,
+            {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+      },
+      error: Notifier.onError
+    });
   }
 });

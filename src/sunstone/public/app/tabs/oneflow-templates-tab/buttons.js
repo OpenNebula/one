@@ -27,15 +27,15 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
-    "ServiceTemplate.instantiate_dialog" : {
-      type: "action",
-      layout: "main",
-      text: Locale.tr("Instantiate")
-    },
     "ServiceTemplate.update_dialog" : {
       type: "action",
       layout: "main",
       text: Locale.tr("Update")
+    },
+    "ServiceTemplate.instantiate_dialog" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Instantiate")
     },
     "ServiceTemplate.chown" : {
       type: "confirm_with_select",

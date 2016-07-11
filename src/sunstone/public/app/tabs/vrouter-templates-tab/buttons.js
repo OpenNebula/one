@@ -16,6 +16,7 @@
 
 define(function(require) {
   var TemplateButtons = require('tabs/templates-tab/buttons');
+  var Locale = require('utils/locale');
 
   var Buttons = {
     "VirtualRouterTemplate.refresh" : TemplateButtons["Template.refresh"],
@@ -23,6 +24,11 @@ define(function(require) {
 //    "VirtualRouterTemplate.import_dialog" : TemplateButtons["Template.import_dialog"],
     "VirtualRouterTemplate.update_dialog" : TemplateButtons["Template.update_dialog"],
 //    "VirtualRouterTemplate.instantiate_vms" : TemplateButtons["Template.instantiate_vms"],
+    "VirtualRouterTemplate.instantiate_dialog" : {
+      type: "action",
+      layout: "main",
+      text: Locale.tr("Instantiate")
+    },
     "VirtualRouterTemplate.chown" : TemplateButtons["Template.chown"],
     "VirtualRouterTemplate.chgrp" : TemplateButtons["Template.chgrp"],
     "VirtualRouterTemplate.clone_dialog" : TemplateButtons["Template.clone_dialog"],

@@ -36,7 +36,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./vrouter-templates-tab/form-panels/create')
+    require('./vrouter-templates-tab/form-panels/create'),
+    require('./vrouter-templates-tab/form-panels/instantiate')
   ];
 
   var Tab = {
