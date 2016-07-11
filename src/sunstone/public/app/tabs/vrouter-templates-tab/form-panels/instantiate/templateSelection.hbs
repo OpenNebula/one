@@ -14,31 +14,30 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<fieldset>
+<fieldset class="table_wrapper" style="display:none">
   <legend>{{tr "Template"}}</legend>
-  <div class="row">
-    {{{templatesTableHTML}}}
+  <div class="row selectTemplateTable">
   </div>
 </fieldset>
 <div class="row nameContainer">
   <div class="medium-4 columns">
-    <label for="vm_name">
+    <label>
       {{tr "Virtual machine name"}}
       <span class="tip">
         {{tr "When creating multiple VMs, %i is replaces by the VM number in the set"}}.
       </span>
+      <input type="text" name="vm_name" id="vm_name" />
     </label>
-    <input type="text" name="vm_name" id="vm_name" />
   </div> 
   <div class="medium-4 columns">
-    <label for="vm_n_times">
+    <label>
       {{tr "Number of VM instances"}}
+      <input type="number" name="vm_n_times" id="vm_n_times" value="1" min="1">
     </label>
-    <input type="number" name="vm_n_times" id="vm_n_times" value="1" min="1">
   </div>
   <div class="medium-4 columns">
-    <input type="checkbox" name="hold" id="hold"/>
-    <label for="hold">
+    <label>
+      <input type="checkbox" name="hold" id="hold"/>
       {{tr "Start on hold"}}
     </label>
   </div>

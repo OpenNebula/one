@@ -24,7 +24,7 @@ define(function(require) {
   
   var CREATE_DIALOG_ID = require('tabs/vrouter-templates-tab/form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('tabs/templates-tab/dialogs/clone/dialogId');
-  var INSTANTIATE_DIALOG_ID = undefined;
+  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
   var IMPORT_DIALOG_ID = undefined;
 
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
@@ -39,10 +39,29 @@ define(function(require) {
       'TAB_ID'  : TAB_ID,
       'CREATE_DIALOG_ID'  : CREATE_DIALOG_ID,
       'CLONE_DIALOG_ID' : CLONE_DIALOG_ID,
-      'INSTANTIATE_DIALOG_ID' : INSTANTIATE_DIALOG_ID,
+      'INSTANTIATE_DIALOG_ID' : undefined,
       'IMPORT_DIALOG_ID'  : IMPORT_DIALOG_ID,
       'CONFIRM_DIALOG_ID' : CONFIRM_DIALOG_ID,
     });
+
+  actions["VirtualRouterTemplate.instantiate_dialog"] = {
+    type: "custom",
+    call: function() {
+      var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+      if (selected_nodes.length != 1) {
+        Notifier.notifyMessage("Please select one (and just one) template to instantiate.");
+        return false;
+      }
+
+      var templateId = "" + selected_nodes[0];
+
+      Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
+      Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
+        function(formPanelInstance, context) {
+          formPanelInstance.setTemplateId(context, templateId);
+        });
+    }
+  };
 
   return actions;
 });
