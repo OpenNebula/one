@@ -591,6 +591,7 @@ class VIClient
             datastores.each { |ds|
                 next if !ds.is_a? RbVmomi::VIM::Datastore
                 # Find the Cluster from which to access this ds
+                next if !ds.host[0]
                 cluster_name = ds.host[0].key.parent.name
 
                 if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
