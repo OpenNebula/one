@@ -84,11 +84,22 @@ define(function(require) {
 
     var hostname = OpenNebulaVM.hostnameStr(element);
 
+    var type;
+
+    if (element.TEMPLATE.VROUTER_ID != undefined){
+      type = "VR";
+    } else if (element.USER_TEMPLATE.SERVICE_ID != undefined){
+      type = "FLOW";
+    } else {
+      type = "VM";
+    }
+
     var search = {
       NAME:         element.NAME,
       UNAME:        element.UNAME,
       GNAME:        element.GNAME,
       STATUS:       state,
+      VM_TYPE:      type,
       HOST:         hostname,
       CLUSTER:      OpenNebulaVM.clusterStr(element),
       STIME_AFTER:  element.STIME,
