@@ -473,7 +473,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 
-    if ( user_obj_template->get("MEMORY", ivalue) == false || ivalue <= 0 )
+    if ( user_obj_template->get("MEMORY", ivalue) == false || (ivalue * 1024) <= 0 )
     {
         goto error_memory;
     }
