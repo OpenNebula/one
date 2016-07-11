@@ -16,28 +16,34 @@
 
 <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
-    <div class="medium-6 columns">
-      <label for="service_name">{{tr "Service name"}}
-        <span class="tip">{{tr "When creating several Services, the wildcard %i will be replaced with a number starting from 0"}}.</span>
-      </label>
-      <input type="text" name="service_name" id="service_name" />
-    </div>
-    <div class="medium-6 columns">
-      <label for="service_n_times">{{tr "Number of instances"}}
-      </label>
-      <input type="number" min="1" name="service_n_times" id="service_n_times" value="1">
+    <div class="large-12 large-centered columns selectTemplateTable">
     </div>
   </div>
-  <h5>
-    <span class="name"></span>
-    <span class="total_cost_div" hidden>
-      <small class="cost_value">0.00</small>
-      <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-    </span>
-  </h5>
-  <div id="instantiate_service_user_inputs">
-    <i class="fa fa-spinner fa-spin"></i>
-  </div>
-  <div class="row" id="instantiate_service_role_user_inputs">
+  <div class="instantiate_wrapper">
+    <div class="row">
+      <div class="medium-6 columns">
+        <label for="service_name">{{tr "Service name"}}
+          <span class="tip">{{tr "When creating several Services, the wildcard %i will be replaced with a number starting from 0"}}.</span>
+        </label>
+        <input type="text" name="service_name" id="service_name" />
+      </div>
+      <div class="medium-6 columns">
+        <label for="service_n_times">{{tr "Number of instances"}}
+        </label>
+        <input type="number" min="1" name="service_n_times" id="service_n_times" value="1">
+      </div>
+    </div>
+    <h5>
+      <span class="name"></span>
+      <span class="total_cost_div" hidden>
+        <small class="cost_value">0.00</small>
+        <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+      </span>
+    </h5>
+    <div id="instantiate_service_user_inputs">
+      <i class="fa fa-spinner fa-spin"></i>
+    </div>
+    <div class="row" id="instantiate_service_role_user_inputs">
+    </div>
   </div>
 </form>

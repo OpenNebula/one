@@ -29,6 +29,7 @@ define(function(require) {
 
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service created"));
@@ -81,7 +82,12 @@ define(function(require) {
     "Service.rename": _commonActions.singleAction('rename'),
     "Service.shutdown":    _commonActions.multipleAction('shutdown'),
     "Service.recover":    _commonActions.multipleAction('recover'),
-
+    "Service.create_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
     "Service.list" : {
       type: "list",
       call: OpenNebulaResource.list,

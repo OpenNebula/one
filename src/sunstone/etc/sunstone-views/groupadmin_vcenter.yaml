@@ -396,6 +396,7 @@ tabs:
             #- 7         # Search data
         actions:
             Service.refresh: true
+            Service.create_dialog: true
             Service.chown: true
             Service.chgrp: false
             Service.chmod: false

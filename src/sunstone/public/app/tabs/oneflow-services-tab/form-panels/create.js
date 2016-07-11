@@ -19,10 +19,10 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var InstantiateTemplateFormPanel = require('tabs/templates-tab/form-panels/instantiate');
+  var InstantiateTemplateFormPanel = require('tabs/oneflow-templates-tab/form-panels/instantiate');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var TemplatesTable = require('tabs/templates-tab/datatable');
+  var TemplatesTable = require('tabs/oneflow-templates-tab/datatable');
   /*
     CONSTANTS
    */
@@ -41,13 +41,13 @@ define(function(require) {
     this.tabId = TAB_ID;
     this.actions = {
       'create': {
-        'title': Locale.tr("Create Virtual Machine"),
+        'title': Locale.tr("Create Service"),
         'buttonText': Locale.tr("Create"),
         'resetButton': true
       }
     };
 
-    this.templatesTable = new TemplatesTable('vm_create', {'select': true});
+    this.templatesTable = new TemplatesTable('service_create', {'select': true});
   }
 
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
@@ -70,26 +70,20 @@ define(function(require) {
 
     this.templatesTable.initialize();
 
+    $(".instantiate_wrapper", context).hide();
+
     this.templatesTable.idInput().on("change", function(){
-        $(".nameContainer", context).show();
-        $(".persistentContainer", context).show();
+      $(".instantiate_wrapper", context).show();
 
-         var templatesContext = $(".list_of_templates", context);
-        templatesContext.html("");
-        templatesContext.show();
-
-        var template_id = $(this).val();
-        that.setTemplateIds(context, [template_id]);
+      var template_id = $(this).val();
+      that.setTemplateId(context, template_id);
     });
 
     Tips.setup(context);
   }
 
   function _onShow(context) {
-    this.templatesTable.resetResourceTableSelect();
+    this.templatesTable.refreshResourceTableSelect();
     InstantiateTemplateFormPanel.prototype.onShow.call(this, context);
-
-    $(".nameContainer", context).hide();
-    $(".persistentContainer", context).hide();
   }
 });
