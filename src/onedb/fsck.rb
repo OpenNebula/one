@@ -1355,16 +1355,18 @@ EOT
 
         @db.fetch("SELECT oid,body FROM marketplace_pool") do |row|
             market_id = row[:oid]
-            doc = Document.new(row[:body])
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-            apps_elem = doc.root.elements.delete("MARKETPLACEAPPS")
+            apps_elem = doc.root.at_xpath("MARKETPLACEAPPS")
+            apps_elem.remove if !apps_elem.nil?
 
-            apps_new_elem = doc.root.add_element("MARKETPLACEAPPS")
+            apps_new_elem = doc.create_element("MARKETPLACEAPPS")
+            doc.root.add_child(apps_new_elem)
 
             error = false
 
             marketplace[market_id][:apps].each do |id|
-                id_elem = apps_elem.elements.delete("ID[.=#{id}]")
+                id_elem = apps_elem.at_xpath("ID[.=#{id}]")
 
                 if id_elem.nil?
                     error = true
@@ -1372,12 +1374,14 @@ EOT
                     log_error(
                         "Marketplace App #{id} is missing from Marketplace #{market_id} "<<
                         "app id list")
+                else
+                    id_elem.remove
                 end
 
-                apps_new_elem.add_element("ID").text = id.to_s
+                apps_new_elem.add_child(doc.create_element("ID")).content = id.to_s
             end
 
-            apps_elem.each_element("ID") do |id_elem|
+            apps_elem.xpath("ID").each do |id_elem|
                 error = true
 
                 log_error(
@@ -1385,7 +1389,23 @@ EOT
                     "app id list, but it should not")
             end
 
-            markets_fix[row[:oid]] = doc.root.to_s
+            zone_elem = doc.root.at_xpath("ZONE_ID")
+
+            if (zone_elem.nil? || zone_elem.text == "-1")
+                error = true
+
+                log_error("Marketplace #{market_id} has an invalid ZONE_ID. Will be set to 0")
+
+                if (zone_elem.nil?)
+                    zone_elem = doc.root.add_child(doc.create_element("ZONE_ID"))
+                end
+
+                zone_elem.content = "0"
+            end
+
+            if (error)
+                markets_fix[row[:oid]] = doc.root.to_s
+            end
         end
 
         if !db_version[:is_slave]
