@@ -230,6 +230,8 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
 
     int uid;
     int gid;
+    int vrid = -1;
+    int vmid;
 
     vm->release_network_leases();
     vm->release_disk_images();
@@ -240,15 +242,35 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     vm->set_state(VirtualMachine::DONE);
     vmpool->update(vm);
 
+    vmid = vm->get_oid();
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     tmpl = vm->clone_template();
+
+    if (vm->is_vrouter())
+    {
+        vrid = vm->get_vrouter_id();
+    }
 
     vm->unlock();
 
     Quotas::vm_del(uid, gid, tmpl);
 
     delete tmpl;
+
+    if (vrid != -1)
+    {
+        VirtualRouter* vr = vrouterpool->get(vrid, true);
+
+        if (vr != 0)
+        {
+            vr->del_vmid(vmid);
+
+            vrouterpool->update(vr);
+
+            vr->unlock();
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
