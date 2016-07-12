@@ -1738,10 +1738,20 @@ int VirtualMachine::update_monitoring(SqlDB * db)
     string error_str;
     char * sql_xml;
 
+    float       cpu = 0;
+    long long   memory = 0;
+
+    obj_template->get("CPU", cpu);
+    obj_template->get("MEMORY", memory);
+
     oss << "<VM>"
         << "<ID>" << oid << "</ID>"
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << monitoring.to_xml(xml_body)
+        << "<TEMPLATE>"
+        <<   "<CPU>"    << cpu << "</CPU>"
+        <<   "<MEMORY>" << memory << "</MEMORY>"
+        << "</TEMPLATE>"
         << "</VM>";
 
     sql_xml = db->escape_str(oss.str().c_str());
