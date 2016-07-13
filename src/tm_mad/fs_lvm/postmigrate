@@ -59,3 +59,5 @@ EOF
 
 ssh_exec_and_log $SRC_HOST "$CMD" \
     "Error running fs_lvm postmigrate"
+
+migrate_other "$@"

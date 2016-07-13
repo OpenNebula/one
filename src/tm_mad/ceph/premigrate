@@ -68,4 +68,6 @@ TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_PATH_DIRNAME --sparse -xf -'"
 
 exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"
 
+migrate_other "$@"
+
 exit 0
