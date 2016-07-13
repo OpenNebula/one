@@ -402,7 +402,7 @@ define(function(require) {
     var id = $(aData[0]).val();
     if (!id) return true;
 
-    Sunstone.showElement(tableObj.tabId, tableObj.resource + ".show", id);
+    Sunstone.showElement(tableObj.tabId, id);
 
     return false;
   }

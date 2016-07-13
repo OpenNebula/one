@@ -25,10 +25,14 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Menu = require('utils/menu');
   var Tips = require('utils/tips');
+  var Navigo = require('Navigo');
+
+  var router;
 
   var TOP_INTERVAL = 10000; //ms
   var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
   var CONFIRM_WITH_SELECT_DIALOG_ID = require('utils/dialogs/confirm-with-select/dialogId');
+  var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
 
   var SunstoneCfg = {
     "actions" : {},
@@ -121,7 +125,7 @@ define(function(require) {
 
   //Inserts all main tabs in the DOM
   var _insertTabs = function() {
-    for (tabName in SunstoneCfg["tabs"]) {
+    for (var tabName in SunstoneCfg["tabs"]) {
       _insertTab(tabName);
       _insertButtonsInTab(tabName);
       _setupDataTable(tabName);
@@ -505,7 +509,7 @@ define(function(require) {
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "button[href='back']", function(e) {
-      $(".navigation-active-li a", $("#navigation")).click();
+      window.history.back();
       e.preventDefault();
     });
   }
@@ -572,6 +576,18 @@ define(function(require) {
   }
 
   var _showTab = function(tabName) {
+    if (_getTab() == tabName && _rightListVisible()){
+      _routerShowTab(tabName);
+    } else {
+      if (router != undefined){
+        router.navigate(tabName);
+      }else{
+        _routerShowTab(tabName);
+      }
+    }
+  }
+
+  var _routerShowTab = function(tabName) {
     $('.labels-tree', '#navigation').remove();
 
     if (!SunstoneCfg['tabs'][tabName]) {
@@ -614,8 +630,28 @@ define(function(require) {
     return $(".tab:visible").attr("id");
   }
 
-  var _showElement = function(tabName, infoAction, elementId) {
-    _showTab(tabName);
+  var _showElement = function(tabName, elementId) {
+    if(!Config.isTabEnabled(tabName)){
+      return;
+    }
+
+    if (router != undefined){
+      router.navigate(tabName + "/" + elementId);
+    }else{
+      _routerShowElement(tabName, elementId);
+    }
+  }
+
+  var _routerShowElement = function(tabName, elementId) {
+    var resource = SunstoneCfg["tabs"][tabName].resource;
+
+    if (resource == undefined){
+      return;
+    }
+
+    var infoAction = resource + ".show";
+
+    _routerShowTab(tabName);
 
     var context = $('#' + tabName);
 
@@ -993,6 +1029,10 @@ define(function(require) {
   }
 
   function _popFormPanelLoading(tabId) {
+    if (!_formPanelVisible($("#"+tabId)) && router != undefined){
+      router.navigate(tabId+"/form");
+    }
+
     var context = $("#" + tabId);
     $(".sunstone-list", context).hide();
     $(".sunstone-info", context).hide();
@@ -1093,6 +1133,36 @@ define(function(require) {
     return dialogInstance;
   }
 
+  var _setupNavigoRoutes = function() {
+    router =  new Navigo(null, true);
+
+    for (var tabName in SunstoneCfg["tabs"]) {
+      router.on(new RegExp("(?:#|/)"+tabName+"/form"), function(){
+      }.bind(tabName));
+
+      router.on(new RegExp("(?:#|/)"+tabName+"/(\\d+)"), function(id){
+        _routerShowElement(this, id)
+      }.bind(tabName));
+
+      router.on(new RegExp("(?:#|/)"+tabName), function(){
+        _routerShowTab(this);
+      }.bind(tabName));
+    }
+
+    router.on(function(){
+      _routerShowTab(DASHBOARD_TAB_ID);
+    });
+
+    $(document).on("click", "a", function(e){
+      if ($(this).attr("href") != undefined &&
+          $(this).attr("href").startsWith("#")){
+        e.preventDefault();
+      }
+    });
+
+    router.resolve();
+  }
+
   var Sunstone = {
     "addMainTabs": _addMainTabs,
     "addDialogs": _addDialogs,
@@ -1128,7 +1198,9 @@ define(function(require) {
 
     "insertButtonsInTab": _insertButtonsInTab,
 
-    "TOP_INTERVAL": TOP_INTERVAL
+    "TOP_INTERVAL": TOP_INTERVAL,
+
+    "setupNavigoRoutes": _setupNavigoRoutes
   }
 
   return Sunstone;

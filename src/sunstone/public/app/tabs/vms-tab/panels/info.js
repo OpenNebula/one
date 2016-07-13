@@ -127,12 +127,7 @@ define(function(require) {
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     $("a.vrid", context).on("click", function(){
-      // TODO: this should be checked internally in showElement,
-      // but it won't work because of bug #4198
-
-      if (Config.isTabEnabled("vrouters-tab")){
-        Sunstone.showElement("vrouters-tab", "VirtualRouter.show", $(this).text());
-      }
+      Sunstone.showElement("vrouters-tab", $(this).text());
     });
 
     // Get rid of the unwanted (for show) SCHED_* keys

@@ -479,6 +479,8 @@ get '/login' do
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         erb :login
+    else
+        redirect to('/')
     end
 end
 

@@ -22,10 +22,12 @@
     "requirejs": "2.1.22",
     "foundation-sites": "6.2.1",
     "jquery": "2.2.3",
-    "datatables": "1.10.12"
+    "datatables": "1.10.12",
+    "navigo": "2.1.1"
   },
   "authors": [
-    "Daniel Molina <dmolina@opennebula.org>"
+    "Daniel Molina <dmolina@opennebula.org>",
+    "Carlos Martin <cmartin@opennebula.org>"
   ],
   "description": "OpenNebula Sunstone",
   "moduleType": [

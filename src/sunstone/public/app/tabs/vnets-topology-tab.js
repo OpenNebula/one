@@ -485,26 +485,11 @@ define(function(require) {
     _network.on("doubleClick", function(params) {
       if (params.nodes.length == 1 && _network.isCluster(params.nodes[0]) == false) {
         if ( params.nodes[0].match(/vm\d+/) ){
-          // TODO: this should be checked internally in showElement,
-          // but it won't work because of bug #4198
-
-          if (Config.isTabEnabled("vms-tab")){
-            Sunstone.showElement("vms-tab", "VM.show", params.nodes[0].split("vm")[1]);
-          }
+          Sunstone.showElement("vms-tab", params.nodes[0].split("vm")[1]);
         } else if ( params.nodes[0].match(/vnet\d+/) ){
-          // TODO: this should be checked internally in showElement,
-          // but it won't work because of bug #4198
-
-          if (Config.isTabEnabled("vnets-tab")){
-            Sunstone.showElement("vnets-tab", "Network.show", params.nodes[0].split("vnet")[1]);
-          }
+          Sunstone.showElement("vnets-tab", params.nodes[0].split("vnet")[1]);
         } else if ( params.nodes[0].match(/vr\d+/) ){
-          // TODO: this should be checked internally in showElement,
-          // but it won't work because of bug #4198
-
-          if (Config.isTabEnabled("vrouters-tab")){
-            Sunstone.showElement("vrouters-tab", "VirtualRouter.show", params.nodes[0].split("vr")[1]);
-          }
+          Sunstone.showElement("vrouters-tab", params.nodes[0].split("vr")[1]);
         }
       }
     });

@@ -27,7 +27,6 @@ define(function(require) {
 
   _setupDataTableSearch();
 
-  var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
   var Sunstone = require('sunstone');
@@ -61,6 +60,7 @@ define(function(require) {
       Menu.insertProvision();
     }else{
       Menu.insert();
+      Sunstone.setupNavigoRoutes();
     }
 
     _setupAccordion();
@@ -69,11 +69,9 @@ define(function(require) {
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);
-      $('#loading').hide();
-    } else if (Config.isTabEnabled(DASHBOARD_TAB_ID)) {
-      Sunstone.showTab(DASHBOARD_TAB_ID);
-      $('#loading').hide();
     }
+
+    $('#loading').hide();
   });
 
   function _setupCloseDropdownsOnClick() {
