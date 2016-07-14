@@ -117,6 +117,7 @@ require.config({
     'app': {
       deps: [
         'foundation',
+        'jquery',
         'tabs/provision-tab',
         'tabs/dashboard-tab',
         'tabs/system-top-tab',
