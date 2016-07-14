@@ -76,7 +76,7 @@ ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 if [ "$TM_MAD" = "ssh" ]; then
-    MONITOR="monitor"
+    MONITOR="ssh"
 else
     MONITOR=""
 fi
