@@ -100,18 +100,19 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
-
-            // Labels are inserted only in the new VM wizard
-            LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
-            var context = $('.labels-dropdown', datatable.closest('#provisionVMInstantiateTemplatesRow'));
-            LabelsUtils.insertLabelsMenu({
-              'context': context,
-              'dataTable': datatable,
-              'labelsColumn': TEMPLATE_LABELS_COLUMN,
-              'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS',
-              'placeholder': Locale.tr("No labels defined")
-            });
           }
+
+          // Labels are inserted only in the new VM wizard
+          LabelsUtils.clearLabelsFilter(datatable, TEMPLATE_LABELS_COLUMN);
+          var context = $('.labels-dropdown', datatable.closest('#provisionVMInstantiateTemplatesRow'));
+          context.html("");
+          LabelsUtils.insertLabelsMenu({
+            'context': context,
+            'dataTable': datatable,
+            'labelsColumn': TEMPLATE_LABELS_COLUMN,
+            'labelsPath': 'VMTEMPLATE.TEMPLATE.LABELS',
+            'placeholder': Locale.tr("No labels defined")
+          });
         },
         error: Notifier.onError
       });

@@ -75,15 +75,17 @@ define(function(require) {
     /*
       Filter datatable when a label in the left menu is clicked
      */
-    context.off('click', '.one-label');
-    context.on('click', '.one-label', function() {
-      if($(this).hasClass("active")){
+    context.off('click', '.labeltree-line');
+    context.on('click', '.labeltree-line', function() {
+      var span = $(".one-label", this);
+
+      if($(span).hasClass("active")){
         if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
           Sunstone.showTab(opts.tabName);
         }
 
         var regExp = [];
-        var label = $(this).attr('one-label-full-name');
+        var label = $(span).attr('one-label-full-name');
         regExp.push('^' + label + '$');
         regExp.push(',' + label + '$');
         regExp.push('^' + label + ',');
@@ -103,15 +105,21 @@ define(function(require) {
     var dataTable = tabTable.dataTable;
     var labelsColumn = tabTable.labelsColumn;
 
+    var labelsDropdown = $('#' + tabName + 'LabelsDropdown');
+
     var labels = _getLabels(dataTable, labelsColumn);
-    $('#' + tabName + 'LabelsDropdown').html(
+    labelsDropdown.html(
       '<div>' +
       '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
-      Tree.html(_makeTree(labels), false) +
+      '<div class="labeltree-container">' +
+        Tree.html(_makeTree(labels), false) +
+      '</div>' +
       '<div class="input-container">' +
         '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
       '</div>' +
       '</div>');
+
+    Tree.setup(labelsDropdown);
 
     /*
       Update Dropdown with selected items
@@ -138,7 +146,6 @@ define(function(require) {
       });
 
       // Set checkboxes (check|minus) depending on the number of items
-      var labelsDropdown = $('#' + tabName + 'LabelsDropdown');
 
       // Reset label checkboxes
       $('.labelsCheckbox', labelsDropdown)
@@ -175,8 +182,8 @@ define(function(require) {
     /*
       Check/Uncheck label & Update Templates
      */
-    $('#' + tabName + 'LabelsDropdown').off('click', 'li:has(.labelsCheckbox)');
-    $('#' + tabName + 'LabelsDropdown').on('click', 'li:has(.labelsCheckbox)', function() {
+    labelsDropdown.off('click', '.labeltree-line');
+    labelsDropdown.on('click', '.labeltree-line', function() {
       var action;
       var that = $(".labelsCheckbox", this);
 
@@ -188,7 +195,7 @@ define(function(require) {
         $(that).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
       }
 
-      var labelName = $('.one-label', $(that).parent('li')).attr('one-label-full-name');
+      var labelName = $('.one-label', $(that).closest('li')).attr('one-label-full-name');
       var labelsArray, labelIndex;
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function(index, resourceId) {
@@ -213,8 +220,8 @@ define(function(require) {
     /*
       Add a new label when ENTER is presed in the input
      */
-    $('#' + tabName + 'LabelsDropdown').off('keypress', '.newLabelInput');
-    $('#' + tabName + 'LabelsDropdown').on('keypress', '.newLabelInput', function(e) {
+    labelsDropdown.off('keypress', '.newLabelInput');
+    labelsDropdown.on('keypress', '.newLabelInput', function(e) {
       var ev = e || window.event;
       var key = ev.keyCode;
       var labelName = $(this).val();

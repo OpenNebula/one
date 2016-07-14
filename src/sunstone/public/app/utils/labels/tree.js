@@ -41,9 +41,9 @@ define(function(require) {
     var html;
 
     if (tree.htmlStr && tree.htmlStr != ""){
-      html = '<ul class="labels-tree menu vertical is-active">'+_innerHtml(tree, collapsed)+'</ul>';
+      html = '<ul class="labels-tree is-active">'+_innerHtml(tree, collapsed)+'</ul>';
     } else {
-      html = '<ul class="labels-tree menu vertical">';
+      html = '<ul class="labels-tree">';
       $.each(tree.subTree, function(){
         html += _innerHtml(this, collapsed);
       });
@@ -58,23 +58,29 @@ define(function(require) {
 
     if (collapsed) {
       if (tree.subTree.length > 0) {
-        html += '<i class="fa fa-fw fa-angle-right"></i> ';
+        html += '<i class="left tree-toggle fa fa-fw fa-angle-right"></i> ';
       } else {
-        html += '<i class="fa fa-fw fa-tag"></i> ';
+        html += '<i class="left fa fa-fw fa-tag"></i> ';
       }
 
+      html += '<div class="labeltree-line">';
+
       html += tree.htmlStr;
-      html += '<ul class="menu vertical is-active" hidden>';
+      html += '</div>';
+      html += '<ul class="is-active" hidden>';
     } else {
       if (tree.subTree.length > 0) {
-        html += '<i class="fa fa-fw fa-angle-down"></i> ';
+        html += '<i class="left tree-toggle fa fa-fw fa-angle-down"></i> ';
       } else {
-        html += '<i class="fa fa-fw fa-tag"></i> ';
+        html += '<i class="left fa fa-fw fa-tag"></i> ';
       }
 
+      html += '<div class="labeltree-line">';
+      html += '<i class="fa fa-fw fa-square-o labelsCheckbox"></i> ';
+
       html += tree.htmlStr;
-      html += '<i class="fa fa-fw fa-square-o labelsCheckbox right"></i> ';
-      html += '<ul class="menu vertical is-active">';
+      html += '</div>';
+      html += '<ul class="is-active">';
     }
 
     $.each(tree.subTree, function(){
@@ -87,24 +93,24 @@ define(function(require) {
 
   function _setup(context){
     context.on('click', '.fa-angle-right', function() {
-      $('ul:first', $(this).parent('li')).show();
+      $('ul:first', $(this).closest('li')).show();
       $(this).removeClass('fa-angle-right');
       $(this).addClass('fa-angle-down');
     });
 
     context.on('click', '.fa-angle-down', function() {
-      $('ul:first', $(this).parent('li')).hide();
+      $('ul:first', $(this).closest('li')).hide();
       $(this).removeClass('fa-angle-down');
       $(this).addClass('fa-angle-right');
     });
 
-    context.on('click', '.one-label', function() {
-      var active = $(this).hasClass('active');
+    context.on('click', '.labeltree-line', function() {
+      var active = $('.one-label',this).hasClass('active');
 
       $('.one-label', context).removeClass('active');
 
       if (!active){
-        $(this).addClass('active');
+        $('.one-label', this).addClass('active');
       }
     });
   }

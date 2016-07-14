@@ -1,15 +1,19 @@
-.labels-tree {
+#menu .labels-tree {
+  max-height: rem-calc(150px);
   margin-left: 1rem;
-  max-height: rem-calc(100px);
-  overflow-y: overlay;
+}
+
+.labeltree-container .labels-tree,
+#provision-tab .labels-tree {
+  max-height: rem-calc(400px);
+  margin-left: 0rem;
+}
+
+.labels-tree {
+  overflow-y: auto;
 
   ul {
     margin-left: 1rem;
-  }
-
-  .one-label {
-    cursor: pointer;
-    padding-right: 2rem;
   }
 
   & > li:last-child {
@@ -19,18 +23,35 @@
   li {
     color: $dark-gray;
     font-weight: normal;
+    list-style-type: none;
 
-    .active {
-      color: $light-black;
-      font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    .labeltree-line {
+      cursor: pointer;
+
+      &:hover {
+        color: $black;
+      }
+
+      .active {
+        color: $light-black;
+        font-weight: bold;
+      }
     }
   }
 
-  .fa-check-square-o,
-  .fa-square-o,
-  .fa-minus-square-o {
-    cursor: pointer;
+  .fa-fw {
     margin-top: 0.3rem;
-    margin-right: 1rem;
+  }
+
+  .tree-toggle {
+    cursor: pointer;
+
+    &:hover {
+      color: $black;
+    }
   }
 }
