@@ -72,7 +72,7 @@ done < <(onevm show -x $VMID| $XPATH \
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 if [ "$TM_MAD" = "ssh" ]; then
-    MONITOR="monitor"
+    MONITOR="ssh"
 else
     MONITOR=""
 fi
