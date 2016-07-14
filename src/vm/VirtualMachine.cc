@@ -1522,6 +1522,27 @@ int VirtualMachine::automatic_requirements(string& error_str)
         }
     }
 
+    vatts.clear();
+
+    // Get cluster id from all PCI attibutes, TYPE = NIC
+    num_vatts = obj_template->get("PCI", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        if ( vatts[i]->vector_value("TYPE") != "NIC" )
+        {
+            continue;
+        }
+
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
+
+        if ( rc != 0 )
+        {
+            incomp_id = i;
+            goto error_pci;
+        }
+    }
+
     if ( !cluster_ids.empty() )
     {
         set<int>::iterator i = cluster_ids.begin();
@@ -1631,6 +1652,20 @@ error_nic:
     {
         oss << "Missing clusters. Network for NIC "<< incomp_id
             << " is not in any cluster";
+    }
+
+    goto error_common;
+
+error_pci:
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in PCI (TYPE=NIC). It is is not the same"
+            << " as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Network for PCI device of TYPE=NIC";
     }
 
     goto error_common;
