@@ -616,17 +616,18 @@ define(function(require) {
               '</div>');
           } else {
             datatable.fnAddData(item_list);
-
-            LabelsUtils.clearLabelsFilter(datatable, FLOW_TEMPLATE_LABELS_COLUMN);
-            var context = $('.labels-dropdown', datatable.closest('#provisionFlowInstantiateTemplatesRow'));
-            LabelsUtils.insertLabelsMenu({
-              'context': context,
-              'dataTable': datatable,
-              'labelsColumn': FLOW_TEMPLATE_LABELS_COLUMN,
-              'labelsPath': 'DOCUMENT.TEMPLATE.LABELS',
-              'placeholder': Locale.tr("No labels defined")
-            });
           }
+
+          LabelsUtils.clearLabelsFilter(datatable, FLOW_TEMPLATE_LABELS_COLUMN);
+          var context = $('.labels-dropdown', datatable.closest('#provisionFlowInstantiateTemplatesRow'));
+          context.html("");
+          LabelsUtils.insertLabelsMenu({
+            'context': context,
+            'dataTable': datatable,
+            'labelsColumn': FLOW_TEMPLATE_LABELS_COLUMN,
+            'labelsPath': 'DOCUMENT.TEMPLATE.LABELS',
+            'placeholder': Locale.tr("No labels defined")
+          });
         },
         error: Notifier.onError
       });

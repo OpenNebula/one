@@ -426,7 +426,7 @@ define(function(require) {
 
       if ($("#" + customId + "labels_buttons button", buttonsRow).length != 0) {
         $('#' + customId + 'labels_buttons').append(
-          '<div id="' + customId + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
+          '<div id="' + customId + 'LabelsDropdown" class="only-sunstone-info only-sunstone-list labels-dropdown dropdown-pane large menu vertical" data-dropdown data-close-on-click="true"></div>').foundation();
       }
 
       //actionBlock.foundationButtons();
