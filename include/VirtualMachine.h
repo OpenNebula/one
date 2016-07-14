@@ -1249,10 +1249,16 @@ public:
     static int release_network_leases(const VectorAttribute * nic, int vmid);
 
     /**
-     * Returns a set of the security group IDs in use in this VM
+     * Returns a set of the security group IDs in use in this VM. VirtualMachine
+     * and static version.
      * @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs) const;
+    void get_security_groups(set<int>& sgs) const
+    {
+        get_security_groups(static_cast<VirtualMachineTemplate *>(obj_template), sgs);
+    }
+
+    static void get_security_groups(VirtualMachineTemplate *tmpl, set<int>& sgs);
 
     /**
      *  Remove the rules associated to the given security group rules
