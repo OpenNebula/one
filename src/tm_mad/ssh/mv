@@ -71,6 +71,11 @@ log "Moving $SRC to $DST"
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
+if [ `lcm_state` -eq 60 ]; then
+    log "Not moving files from $SRC_HOST in FT mode"
+    exit 0
+fi
+
 TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR'"
 TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'"
 
