@@ -280,6 +280,17 @@ class EC2Driver
             end
         end
 
+        index = 0
+
+        while index < 5
+            begin
+                instance.status
+            rescue
+            end
+            sleep 2
+            index = index + 1
+        end
+
         begin
             instance = AWS.ec2.instances.create(opts)
         rescue => e
