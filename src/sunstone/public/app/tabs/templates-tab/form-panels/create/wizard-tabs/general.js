@@ -75,11 +75,15 @@ define(function(require) {
 
   function _onShow(context, panelForm) {
     if (panelForm.action == 'create') {
-      $('#NAME', context).removeAttr('disabled');
-      $('#NAME', context).attr("required", "");
+      $('#NAME', context)
+        .removeAttr('disabled')
+        .attr("required", "")
+        .prop('wizard_field_disabled', false);
     } else if (panelForm.action == 'update') {
-      $('#NAME', context).attr("disabled", "disabled");
-      $('#NAME', context).removeAttr("required");
+      $('#NAME', context)
+        .attr("disabled", "disabled")
+        .removeAttr("required")
+        .prop('wizard_field_disabled', true);
     }
 
     if (panelForm.resource == "VirtualRouterTemplate"){
