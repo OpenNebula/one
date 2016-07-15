@@ -130,6 +130,14 @@
   <fieldset>
     <legend>{{tr "Hardware"}}</legend>
     <div class="row">
+      <div class="small-12 columns">
+        <label>
+          <input type="checkbox" class="pci-type-nic"/>
+          {{tr "PCI passthrough"}}
+        </label>
+      </div>
+    </div>
+    <div class="row nic-model-row">
       <div class="medium-6 columns">
         <label for="MODEL">
           {{tr "Hardware model to emulate"}}
@@ -137,8 +145,24 @@
         <input type="text" wizard_field="MODEL" id="MODEL" name="MODEL" />
       </div>
     </div>
+    <div class="row pci-row">
+      <div class="small-12 columns">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50%">{{tr "Device name"}}</th>
+              <th>{{tr "Vendor"}}</th>
+              <th>{{tr "Device"}}</th>
+              <th>{{tr "Class"}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </fieldset>
-  <br>
   <fieldset>
     <legend>{{tr "Security Groups"}}</legend>
     <div name="str_nic_tab_id" str_nic_tab_id="{{nicTabId}}">

@@ -113,13 +113,24 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {}
     var nicsJSON = [];
-    var nicJSON;
+    var pcisJSON = [];
+
+    var tmpJSON;
     $.each(this.nicTabObjects, function(id, nicTab) {
-      nicJSON = nicTab.retrieve($('#' + nicTab.nicTabId, context))
-      if (!$.isEmptyObject(nicJSON)) {nicsJSON.push(nicJSON)};
+      tmpJSON = nicTab.retrieve($('#' + nicTab.nicTabId, context))
+      if (!$.isEmptyObject(tmpJSON)) {
+        if (tmpJSON["NIC_PCI"] == true){
+          delete tmpJSON["NIC_PCI"];
+          tmpJSON["TYPE"] = "NIC";
+          pcisJSON.push(tmpJSON);
+        } else {
+          nicsJSON.push(tmpJSON);
+        }
+      };
     })
 
     if (nicsJSON.length > 0) { templateJSON['NIC'] = nicsJSON; };
+    if (pcisJSON.length > 0) { templateJSON['NIC_PCI'] = pcisJSON; };
 
     var nicDefault = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
     if (nicDefault) {
@@ -133,25 +144,62 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var that = this;
-    var nics = templateJSON.NIC;
-    if (nics instanceof Array) {
-      $.each(nics, function(nicId, nicJSON) {
-        if (nicId > 0) {
-          that.addNicTab(context);
-        }
+    var nics = [];
 
-        var nicTab = that.nicTabObjects[that.numberOfNics];
-        var nicContext = $('#' + nicTab.nicTabId, context);
-        nicTab.fill(nicContext, nicJSON);
+    if (templateJSON.NIC != undefined){
+      nics = templateJSON.NIC;
+    }
+
+    if (!(nics instanceof Array)) {
+      nics = [nics];
+    }
+
+    if (templateJSON.PCI != undefined){
+      var pcis = templateJSON.PCI;
+
+      if (!(pcis instanceof Array)) {
+        pcis = [pcis];
+      }
+
+      $.each(pcis, function(){
+        if (this["TYPE"] == "NIC"){
+          nics.push(this);
+        }
       });
-    } else if (nics instanceof Object) {
+    }
+
+    $.each(nics, function(nicId, nicJSON) {
+      if (nicId > 0) {
+        that.addNicTab(context);
+      }
+
       var nicTab = that.nicTabObjects[that.numberOfNics];
       var nicContext = $('#' + nicTab.nicTabId, context);
-      nicTab.fill(nicContext, nics);
-    }
+      nicTab.fill(nicContext, nicJSON);
+    });
 
     if (templateJSON.NIC) {
       delete templateJSON.NIC;
+    }
+
+    if (templateJSON.PCI != undefined) {
+      var pcis = templateJSON.PCI;
+
+      if (!(pcis instanceof Array)) {
+        pcis = [pcis];
+      }
+
+      pcis = pcis.filter(function(pci){
+        return pci["TYPE"] != "NIC"
+      });
+
+      delete templateJSON.PCI;
+
+      if (pcis.length == 1){
+        templateJSON.PCI = pcis[0];
+      } else if (pcis.length > 1) {
+        templateJSON.PCI = pcis;
+      }
     }
 
     var nicDefault = templateJSON.NIC_DEFAULT

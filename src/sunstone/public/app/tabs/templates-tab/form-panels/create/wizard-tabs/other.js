@@ -27,13 +27,13 @@ define(function(require) {
   var CustomTagsTable = require('utils/custom-tags-table');
   var OpenNebulaHost = require('opennebula/host');
   var UniqueId = require('utils/unique-id');
+  var CreateUtils = require('./utils');
 
   /*
     TEMPLATES
    */
 
   var TemplateHTML = require('hbs!./other/html');
-  var RowTemplateHTML = require('hbs!./other/pciRow');
 
   /*
     CONSTANTS
@@ -82,65 +82,12 @@ define(function(require) {
 
     context.off("click", ".add_pci");
     context.on("click", ".add_pci", function(){
-      var tr = $(RowTemplateHTML()).appendTo( $(".pci_devices tbody", context) );
+      var tr = $(CreateUtils.pciRowHTML()).appendTo( $(".pci_devices tbody", context) );
 
-      OpenNebulaHost.pciDevices({
-        data : {},
-        timeout: true,
-        success: function (request, pciDevices){
-          var html = "<select>";
-
-          html += '<option device="" class="" vendor="">'+Locale.tr("Please select")+'</option>';
-
-          $.each(pciDevices, function(i,pci){
-            html += '<option device="'+pci['device']+'" '+
-                            'class="'+pci['class']+'" '+
-                            'vendor="'+pci['vendor']+'">'+
-                                pci.device_name+
-                    '</option>';
-          });
-
-          html += '</select>';
-
-          $(".device_name", tr).html(html);
-
-          $("input", tr).trigger("change");
-        },
-        error: function(request, error_json){
-          console.error("There was an error requesting the PCI devices: "+
-                        error_json.error.message);
-
-          $(".device_name", tr).html("");
-        }
-      });
+      CreateUtils.fillPCIRow({tr: tr, remove: true});
     });
 
-    context.on("change", ".pci_devices td.device_name select", function(){
-      var tr = $(this).closest('tr');
-
-      var option = $("option:selected", this);
-
-      $('input[wizard_field="DEVICE"]', tr).val( option.attr("device") );
-      $('input[wizard_field="CLASS"]',  tr).val( option.attr("class") );
-      $('input[wizard_field="VENDOR"]', tr).val( option.attr("vendor") );
-    });
-
-    context.on("change", ".pci_devices tbody input", function(){
-      var tr = $(this).closest('tr');
-
-      var opt =
-        $('option'+
-          '[device="'+$('input[wizard_field="DEVICE"]', tr).val()+'"]'+
-          '[class="'+$('input[wizard_field="CLASS"]',  tr).val()+'"]'+
-          '[vendor="'+$('input[wizard_field="VENDOR"]', tr).val()+'"]', tr);
-
-        opt.attr('selected', 'selected');
-    });
-
-    context.on("click", ".pci_devices i.remove-tab", function(){
-      var tr = $(this).closest('tr');
-      tr.remove();
-    });
+    CreateUtils.setupPCIRows($(".pci_devices", context));
   }
 
   function _retrieve(context) {
