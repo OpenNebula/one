@@ -1237,17 +1237,20 @@ static int check_pci_attributes(VectorAttribute * pci, string& error_str)
 int VirtualMachine::parse_pci(string& error_str)
 {
     vector<VectorAttribute *> array_pci;
-
     vector<VectorAttribute *>::iterator it;
+
+    int pci_id = 0;
 
     user_obj_template->remove("PCI", array_pci);
 
-    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+    for (it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
     {
+        (*it)->replace("PCI_ID", pci_id);
+
         obj_template->set(*it);
     }
 
-    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+    for (it = array_pci.begin(); it !=array_pci.end(); ++it)
     {
         if ( check_pci_attributes(*it, error_str) != 0 )
         {
