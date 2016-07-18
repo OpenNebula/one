@@ -22,16 +22,34 @@
 # A nil filter will retrieve all PCI cards.
 #
 # From lspci help:
-#     -d [<vendor>]:[<device>][:<class>]
+#     -d [<vendor>]:[<device>]
 #
 # For example
 #
-# FILTER = '::0300' # all VGA cards
-# FILTER = '10de::0300' # all NVIDIA VGA cards
-# FILTER = '10de:11bf:0300' # only GK104GL [GRID K2]
-# FILTER = '8086::0300,::0106' # all Intel VGA cards and any SATA controller
+# FILTER = '10de:*' # all NVIDIA VGA cards
+# FILTER = '10de:11bf' # only GK104GL [GRID K2]
+# FILTER = '*:10d3' #Only 82574L Gigabit Network cards
+# FILTER = '*:*' # all devices
+# FILTER = '0:0' # no devices
+#
+# You can also filter by the SHORT_ADDRESS, to add only devices in a given address
+#
+# For example
+#
+# SHORT_ADDRESS = [ "07:00.0", "06:00.0" ]
+#
+# Finally you can match devices by device name patterns, only those devices that
+# the pattern will be added to the list.
+#
+# For example
+#
+# DEVICE_NAME  = [ /Virtual Function/, /Gigabit Network/]
+#
+# Note that these filters, if defined, are all applied
 
-FILTER = "0000:0000"
+FILTER = "0:0"
+SHORT_ADDRESS = []
+DEVICE_NAME   = []
 
 require 'shellwords'
 
@@ -89,6 +107,16 @@ def pval(name, value)
 end
 
 devices.each do |dev|
+    next if !SHORT_ADDRESS.empty? && !SHORT_ADDRESS.include?(dev[:short_address])
+
+    if !DEVICE_NAME.empty?
+        matched = DEVICE_NAME.each { |pattern|
+            break true if !(dev[:device_name] =~ pattern).nil?
+        }
+
+        next if matched != true
+    end
+
     puts "PCI = ["
     values = [
         pval('TYPE', dev[:type]),
@@ -109,6 +137,4 @@ devices.each do |dev|
     puts values.join(",\n")
     puts "]"
 end
-
-
 
