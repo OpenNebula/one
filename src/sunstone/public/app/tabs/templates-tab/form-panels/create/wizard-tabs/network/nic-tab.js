@@ -81,8 +81,18 @@ define(function(require) {
     this.vnetsTable.refreshResourceTableSelect();
   }
 
-  function _setup(context) {
+  /**
+   * @param  {Object}  context  jquery selector
+   * @param  {Object}  options
+   *                   options.hide_pci {bool} true to disable the pci checkbox
+   */
+  function _setup(context, options) {
     var that = this;
+
+    if (options != undefined && options.hide_pci == true){
+      $("input.pci-type-nic", context).attr('disabled', 'disabled');
+    }
+
     that.vnetsTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
