@@ -123,6 +123,7 @@ define(function(require) {
             if (zone != config.zone_id){
               Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
                 header : Locale.tr("Error"),
+                headerTabId: TAB_ID,
                 body : Locale.tr(
                   "This MarketPlace App resides in Zone ") +
                   zone + " (" + OpenNebula.Zone.getName(zone) + ")" +

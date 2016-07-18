@@ -51,6 +51,7 @@ define(function(require) {
           call: function() {
             Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
               //header :
+              headerTabId: TAB_ID,
               body : Locale.tr("This will delete the Template.<br/>You can also delete any Image referenced inside this Template"),
               //question :
               buttons : [
