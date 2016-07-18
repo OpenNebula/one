@@ -145,6 +145,7 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"DNS", "DNS"},
         {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
         {"MTU", "GUEST_MTU"},
+        {"VLAN_ID", "VLAN_ID"},
         {"VROUTER_IP", "VROUTER_IP"},
         {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT"}};
 const int VirtualMachine::NUM_NETWORK_CONTEXT = 10;
@@ -1064,6 +1065,8 @@ int VirtualMachine::parse_context(string& error_str)
     {
         return -1;
     }
+
+	generate_pci_context(context);
 
     // -------------------------------------------------------------------------
     // Parse FILE_DS variables
@@ -4842,7 +4845,6 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
         cvar << "ETH" << nic_id << "_" << vars[i][0];
 
-        cval = context->vector_value(cvar.str().c_str());
         cval = nic->vector_value(vars[i][1]); //Check the NIC
 
         if (cval.empty()) //Will check the AR and VNET
@@ -4859,10 +4861,69 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
+static void parse_pci_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, VectorAttribute * nic)
+{
+    string pci_id = nic->vector_value("PCI_ID");
+
+    for (int i=0; i < num_vars; i++)
+    {
+		ostringstream cvar;
+
+        cvar << "PCI" << pci_id << "_" << vars[i][0];
+
+        string  cval = nic->vector_value(vars[i][1]);
+
+        if (!cval.empty())
+        {
+			context->replace(cvar.str(), cval);
+        }
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
 {
     parse_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,  c, n);
     parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::generate_pci_context(VectorAttribute * context)
+{
+    bool net_context;
+    vector<VectorAttribute *> vatts;
+
+    context->vector_value("NETWORK", net_context);
+
+    int num_vatts = obj_template->get("PCI", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+		if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
+		{
+			parse_pci_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
+					context, vatts[i]);
+			parse_pci_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
+					context, vatts[i]);
+		}
+
+		ostringstream cvar;
+
+		cvar << "PCI" << vatts[i]->vector_value("PCI_ID") << "_ADDRESS";
+
+		string cval = vatts[i]->vector_value("VM_ADDRESS");
+
+		if (!cval.empty())
+		{
+			context->replace(cvar.str(), cval);
+		}
+    }
+
+    return net_context;
 }
 
 /* -------------------------------------------------------------------------- */
