@@ -148,7 +148,7 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"VLAN_ID", "VLAN_ID"},
         {"VROUTER_IP", "VROUTER_IP"},
         {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 10;
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 11;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
@@ -1678,13 +1678,14 @@ error_nic:
 error_pci:
     if (rc == -1)
     {
-        oss << "Incompatible clusters in PCI (TYPE=NIC). It is is not the same"
-            << " as the one used by other VM elements (cluster "
+        oss << "Incompatible clusters in PCI (TYPE=NIC). Network for PCI "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
             << one_util::join(cluster_ids, ',') << ")";
     }
     else
     {
-        oss << "Missing clusters. Network for PCI device of TYPE=NIC";
+        oss << "Missing clusters. Network for PCI "<< incomp_id
+            << " is not in any cluster";
     }
 
     goto error_common;

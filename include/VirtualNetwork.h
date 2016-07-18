@@ -348,19 +348,6 @@ public:
             const vector<string>&   inherit_attrs);
 
     /**
-     * Modifies the given address attribute adding the following attributes:
-     *  * IP:  leased from network
-     *  * MAC: leased from network
-     *  * BRIDGE: for this virtual network
-     *  @param address attribute for the VM template
-     *  @param vid of the VM getting the lease
-     *  @return 0 on success
-     */
-    int address_attribute(
-            VectorAttribute *       addr,
-            int                     vid);
-
-    /**
      * From a Security Group rule that uses this vnet, creates a new rule
      * copy for each AR.
      *
