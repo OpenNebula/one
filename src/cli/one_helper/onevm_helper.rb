@@ -164,6 +164,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm_nics = [vm["TEMPLATE"]['NIC']].flatten
         end
 
+        if !vm["TEMPLATE"]["PCI"].nil?
+            vm_nics = [vm_nics, vm["TEMPLATE"]['PCI']].flatten
+        end
+
         vm_nics.each do |nic|
             ["IP", "IP6_GLOBAL", "IP6_ULA",
              "VROUTER_IP", "VROUTER_IP6_GLOBAL", "VROUTER_IP6_ULA"].each do |attr|
