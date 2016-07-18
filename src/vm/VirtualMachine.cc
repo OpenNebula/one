@@ -1202,12 +1202,14 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int check_pci_attributes(VectorAttribute * pci, string& error_str)
+static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
+		string& error_str)
 {
     static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
     static int num_attrs  = 3;
 
-    bool found = false;
+	string bus;
+    bool   found = false;
 
     for (int i = 0; i < num_attrs; i++)
     {
@@ -1231,6 +1233,12 @@ static int check_pci_attributes(VectorAttribute * pci, string& error_str)
         return -1;
     }
 
+	if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
+	{
+		error_str = "Wrong BUS in PCI attribute";
+		return -1;
+	}
+
     return 0;
 }
 
@@ -1250,9 +1258,14 @@ int VirtualMachine::parse_pci(string& error_str)
         obj_template->set(*it);
     }
 
+	Nebula& nd = Nebula::instance();
+	string  default_bus;
+
+	nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+
     for (it = array_pci.begin(); it !=array_pci.end(); ++it)
     {
-        if ( check_pci_attributes(*it, error_str) != 0 )
+        if ( check_pci_attributes(*it, default_bus, error_str) != 0 )
         {
             return -1;
         }

@@ -184,10 +184,15 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<const VectorAttribute *> pci;
 
-    string  domain          = "";
+    string  domain   = "";
     /* bus is already defined for disks */
-    string  slot            = "";
-    string  func            = "";
+    string  slot     = "";
+    string  func     = "";
+
+    string vm_domain = "";
+    string vm_bus    = "";
+    string vm_slot   = "";
+    string vm_func   = "";
 
     const VectorAttribute * features;
 
@@ -1014,6 +1019,11 @@ int LibVirtDriver::deployment_description_kvm(
         slot    = pci[i]->vector_value("SLOT");
         func    = pci[i]->vector_value("FUNCTION");
 
+        vm_domain  = pci[i]->vector_value("VM_DOMAIN");
+        vm_bus     = pci[i]->vector_value("VM_BUS");
+        vm_slot    = pci[i]->vector_value("VM_SLOT");
+        vm_func    = pci[i]->vector_value("VM_FUNCTION");
+
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
             vm->log("VMM", Log::WARNING,
@@ -1032,6 +1042,17 @@ int LibVirtDriver::deployment_description_kvm(
                  << " function=" << one_util::escape_xml_attr("0x" + func)
              << "/>\n";
         file << "\t\t\t</source>\n";
+
+        if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
+                !vm_func.empty() )
+        {
+            file << "\t\t\t\t<address type='pci'"
+                     << " domain="   << one_util::escape_xml_attr(vm_domain)
+                     << " bus="      << one_util::escape_xml_attr(vm_bus)
+                     << " slot="     << one_util::escape_xml_attr(vm_slot)
+                     << " function=" << one_util::escape_xml_attr(vm_func)
+                 << "/>\n";
+        }
 
         file << "\t\t</hostdev>" << endl;
     }

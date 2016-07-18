@@ -267,6 +267,65 @@ int HostSharePCI::get_pci_value(const char * name,
     return 1;
 }
 
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
+        const string& dbus)
+{
+    string        bus;
+    ostringstream oss;
+
+    unsigned int ibus, slot;
+
+    // ------------------- DOMAIN & FUNCTION -------------------------
+	pci_device->replace("VM_DOMAIN", "0x0000");
+	pci_device->replace("VM_FUNCTION", "0");
+
+    // --------------------------- BUS -------------------------------
+    bus = pci_device->vector_value("VM_BUS");
+
+    if ( bus.empty() )
+    {
+        bus = dbus;
+    }
+
+    istringstream iss(bus);
+
+    iss >> hex >> ibus;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    oss << showbase << internal << setfill('0') << hex << setw(4) << ibus;
+
+    pci_device->replace("VM_BUS", oss.str());
+
+    // --------------------- SLOT (PCI_ID +1) -----------------------
+    oss.str("");
+
+    pci_device->vector_value("PCI_ID", slot);
+
+    slot = slot + 1;
+
+    oss << showbase << internal << setfill('0') << hex << setw(4) << slot;
+
+    pci_device->replace("VM_SLOT", oss.str());
+
+    // ------------------- ADDRESS (BUS:SLOT.0) ---------------------
+    oss.str("");
+
+    oss << noshowbase<<internal<<hex<<setfill('0')<<setw(2) << ibus << ":"
+        << noshowbase<<internal<<hex<<setfill('0')<<setw(2) << slot << ".0";
+
+    pci_device->replace("VM_ADDRESS", oss.str());
+
+    return 0;
+}
+
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 

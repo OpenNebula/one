@@ -117,6 +117,19 @@ public:
     static int get_pci_value(const char * name,
                              const VectorAttribute * pci_device,
                              unsigned int& value);
+    /**
+     *  Sets the PCI device address in the Virtual Machine as follows;
+     *    - VM_DOMAIN: 0x0000
+     *    - VM_BUS: dbus or VM_BUS in PCI attribute
+     *    - VM_SLOT: PCI_ID + 1
+     *    - VM_FUNCTION: 0
+     *    - VM_ADDRESS: BUS:SLOT.0
+     *  @param pci_device to set the address in
+     *  @param default_bus if not set in PCI attribute (PCI_PASSTHROUGH_BUS
+     *   in oned.conf)
+     *  @return -1 if wrong bus 0 on success
+     */
+    static int set_pci_address(VectorAttribute * pci_device, const string& dbus);
 
 private:
     /**
