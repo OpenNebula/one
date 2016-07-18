@@ -24,6 +24,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var UserInputs = require('utils/user-inputs');
+  var Config = require('sunstone-config');
 
   /*
     TEMPLATES
@@ -53,6 +54,10 @@ define(function(require) {
   }
 
   function _setup(context) {
+    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
+      $(".cpu_input_wrapper", context).remove();
+    }
+
     Tips.setup(context);
   }
 
@@ -80,31 +85,33 @@ define(function(require) {
     var attr;
     var input;
 
-    if (userInputs != undefined && userInputs.CPU != undefined){
-      attr = UserInputs.parse("CPU", userInputs.CPU);
-    } else {
-      attr = UserInputs.parse("CPU", "O|number-float|||");
+    if (!Config.isFeatureEnabled("instantiate_hide_cpu")){
+      if (userInputs != undefined && userInputs.CPU != undefined){
+        attr = UserInputs.parse("CPU", userInputs.CPU);
+      } else {
+        attr = UserInputs.parse("CPU", "O|number-float|||");
+      }
+
+      if (element.TEMPLATE.CPU != undefined){
+        attr.initial = element.TEMPLATE.CPU;
+      } else {
+        attr.mandatory = true;
+      }
+
+      attr.step = 0.01;
+
+      if(attr.min == undefined){
+        attr.min = 0.01;
+      }
+
+      input = UserInputs.attributeInput(attr);
+
+      if (attr.type != "range-float"){
+        $("div.cpu_input_wrapper", context).addClass("medium-6");
+      }
+
+      $("div.cpu_input", context).html(input);
     }
-
-    if (element.TEMPLATE.CPU != undefined){
-      attr.initial = element.TEMPLATE.CPU;
-    } else {
-      attr.mandatory = true;
-    }
-
-    attr.step = 0.01;
-
-    if(attr.min == undefined){
-      attr.min = 0.01;
-    }
-
-    input = UserInputs.attributeInput(attr);
-
-    if (attr.type != "range-float"){
-      $("div.cpu_input_wrapper", context).addClass("medium-6");
-    }
-
-    $("div.cpu_input", context).html(input);
 
     if (userInputs != undefined && userInputs.VCPU != undefined){
       attr = UserInputs.parse("VCPU", userInputs.VCPU);
@@ -173,7 +180,15 @@ define(function(require) {
    *                                  - VCPU
    */
   function _retrieve(context) {
-    return WizardFields.retrieve(context);
+    var values = WizardFields.retrieve(context);
+
+    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
+      if(values.VCPU != undefined){
+        values.CPU = values.VCPU;
+      }
+    }
+
+    return values;
   }
 
   /**
@@ -196,6 +211,12 @@ define(function(require) {
         delete templateJSON[field_name];
       }
     });
+
+    if (Config.isFeatureEnabled("instantiate_hide_cpu")){
+      if(templateJSON.VCPU != undefined){
+        templateJSON.CPU = templateJSON.VCPU;
+      }
+    }
 
     return templateJSON;
   }

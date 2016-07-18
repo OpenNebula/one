@@ -39,6 +39,11 @@ features:
     # Allows to change the security groups for each network interface
     # on the VM creation dialog
     secgroups: false
+
+    # True to hide the CPU setting in the VM creation dialog. The CPU setting
+    # will be set to the same value as VCPU, that will still be visible for the
+    # end users
+    instantiate_hide_cpu: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
