@@ -2,7 +2,11 @@
   <a href="#provision_accordion_dd_{{provision_nic_accordion_dd_id}}" class="accordion-title">
     <i class="only-not-active fa fa-chevron-down"/>
     <i class="only-active fa fa-chevron-up"/>
+    {{#if options.pci}}
+    &nbsp;{{tr "PCI interface"}}&nbsp;
+    {{else}}
     &nbsp;{{tr "Interface"}}&nbsp;
+    {{/if}}
     <span class="selected_network">
       {{#if options.nic}}
         {{#if options.nic.NETWORK}}
