@@ -1929,6 +1929,14 @@ private:
     bool generate_network_context(VectorAttribute * context);
 
     /**
+     *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
+     *  is also adds basic network attributes for pass-through NICs
+     *    @param context attribute of the VM
+     *    @return true if the net context was generated.
+     */
+    bool generate_pci_context(VectorAttribute * context);
+
+    /**
      *  Generate the ONE_GATE token & url
      *    @param context attribute of the VM
      *    @param error_str describing the error
