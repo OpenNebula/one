@@ -80,6 +80,7 @@ define(function(require) {
                   <th>' + Locale.tr("Network") + '</th>\
                   <th>' + Locale.tr("IP") + '</th>\
                   <th>' + Locale.tr("MAC") + '</th>\
+                  <th>' + Locale.tr("PCI address") + '</th>\
                   <th>' + Locale.tr("IPv6 ULA") + '</th>\
                   <th>' + Locale.tr("IPv6 Global") + '</th>\
                   <th colspan="">' + Locale.tr("Actions") + '</th>\
@@ -207,15 +208,44 @@ define(function(require) {
     return html;
   }
 
+  function _ipTr(nic, attr){
+    var v = "--";
+
+    if (nic[attr] != undefined){
+      v = nic[attr];
+
+      if (nic["VROUTER_"+attr] != undefined){
+        v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
+      }
+    }
+
+    return v;
+  }
+
   function _setup(context) {
     var that = this;
 
     var nics = []
 
-    if ($.isArray(that.element.TEMPLATE.NIC))
-        nics = that.element.TEMPLATE.NIC
-    else if (!$.isEmptyObject(that.element.TEMPLATE.NIC))
-        nics = [that.element.TEMPLATE.NIC]
+    if ($.isArray(that.element.TEMPLATE.NIC)){
+      nics = that.element.TEMPLATE.NIC;
+    } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC)){
+      nics = [that.element.TEMPLATE.NIC];
+    }
+
+    var pcis = [];
+
+    if ($.isArray(that.element.TEMPLATE.PCI)){
+      pcis = that.element.TEMPLATE.PCI;
+    } else if (!$.isEmptyObject(that.element.TEMPLATE.PCI)){
+      pcis = [that.element.TEMPLATE.PCI];
+    }
+
+    $.each(pcis, function(){
+      if(this.NIC_ID != undefined){
+        nics.push(this);
+      }
+    });
 
     var nic_dt_data = [];
     if (nics.length) {
@@ -224,22 +254,18 @@ define(function(require) {
       for (var i = 0; i < nics.length; i++) {
         var nic = nics[i];
 
-        var actions;
-        // Attach / Detach
-        if (
-           (
-            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
-           (
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC) &&
-           (
-            nic.ATTACH == "YES")
-           ) {
-          actions = Locale.tr("attach/detach in progress")
-        } else {
-          actions = '';
+        var is_pci = (nic.PCI_ID != undefined);
 
-          if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-            if (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE)) {
+        var actions = '';
+        // Attach / Detach
+        if (!is_pci){
+          if ( (that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
+               (that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC) &&
+               (nic.ATTACH == "YES") ) {
+            actions = Locale.tr("attach/detach in progress")
+          } else {
+            if ( (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) &&
+                 (StateActions.enabledStateAction("VM.detachnic", that.element.STATE, that.element.LCM_STATE))) {
               actions += '<a href="VM.detachnic" class="detachnic" ><i class="fa fa-times"/>' + Locale.tr("Detach") + '</a>'
             }
           }
@@ -268,27 +294,16 @@ define(function(require) {
           });
         }
 
-        function ipTr(attr){
-          var v = "--";
-
-          if (nic[attr] != undefined){
-            v = nic[attr];
-
-            if (nic["VROUTER_"+attr] != undefined){
-              v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
-            }
-          }
-
-          return v;
-        }
+        var pci_address = is_pci ? nic.ADDRESS : '';
 
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : nic.NETWORK,
-          IP : ipTr("IP"),
+          IP : _ipTr(nic, "IP"),
           MAC : nic.MAC,
-          IP6_ULA : ipTr("IP6_ULA"),
-          IP6_GLOBAL : ipTr("IP6_GLOBAL"),
+          PCI_ADDRESS: pci_address,
+          IP6_ULA : _ipTr(nic, "IP6_ULA"),
+          IP6_GLOBAL : _ipTr(nic, "IP6_GLOBAL"),
           ACTIONS : actions,
           SECURITY_GROUP_RULES : secgroups
         });
@@ -309,6 +324,7 @@ define(function(require) {
         {"data": "NETWORK",    "defaultContent": ""},
         {"data": "IP",         "defaultContent": "", "class": "nowrap"},
         {"data": "MAC",        "defaultContent": ""},
+        {"data": "PCI_ADDRESS","defaultContent": ""},
         {"data": "IP6_ULA",    "defaultContent": "", "class": "nowrap"},
         {"data": "IP6_GLOBAL", "defaultContent": "", "class": "nowrap"},
         {"data": "ACTIONS",    "defaultContent": "", "orderable": false},

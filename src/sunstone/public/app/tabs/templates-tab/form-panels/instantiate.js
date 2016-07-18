@@ -124,6 +124,8 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
+    var that = this;
+
     if (!this.selected_nodes || this.selected_nodes.length == 0) {
       Notifier.notifyError(Locale.tr("No template selected"));
       Sunstone.hideFormPanelLoading(this.tabId);
@@ -160,9 +162,48 @@ define(function(require) {
         tmp_json.DISK = disks;
       }
 
-      var nics = NicsSection.retrieve($(".nicsContext"  + template_id, context));
+      var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
+
+      var nics = [];
+      var pcis = [];
+
+      $.each(networks, function(){
+        if (this.TYPE == "NIC"){
+          pcis.push(this);
+        }else{
+          nics.push(this);
+        }
+      });
+
       if (nics.length > 0) {
         tmp_json.NIC = nics;
+      }
+
+      // Replace PCIs of type nic only
+      var original_tmpl = that.template_objects[index].VMTEMPLATE;
+
+      var regular_pcis = [];
+
+      if(original_tmpl.TEMPLATE.PCI != undefined){
+        var original_pcis;
+
+        if ($.isArray(original_tmpl.TEMPLATE.PCI)){
+          original_pcis = original_tmpl.TEMPLATE.PCI;
+        } else if (!$.isEmptyObject(original_tmpl.TEMPLATE.PCI)){
+          original_pcis = [original_tmpl.TEMPLATE.PCI];
+        }
+
+        $.each(original_pcis, function(){
+          if(this.TYPE != "NIC"){
+            regular_pcis.push(this);
+          }
+        });
+      }
+
+      pcis = pcis.concat(regular_pcis);
+
+      if (pcis.length > 0) {
+        tmp_json.PCI = pcis;
       }
 
       capacityContext = $(".capacityContext"  + template_id, context);

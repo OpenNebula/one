@@ -26,6 +26,7 @@ define(function(require) {
   var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
+  var CreateUtils = require('../utils');
 
   /*
     TEMPLATES
@@ -41,7 +42,7 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function DiskTab(nicTabId) {
+  function NicTab(nicTabId) {
     this.nicTabId = 'nicTab' + nicTabId + UniqueId.id();
 
     this.vnetsTable = new VNetsTable(this.nicTabId + 'Table', {'select': true});
@@ -55,14 +56,14 @@ define(function(require) {
     this.secgroupsTable = new SecgroupsTable(this.nicTabId + 'SGTable', secgroupSelectOptions);
   }
 
-  DiskTab.prototype.constructor = DiskTab;
-  DiskTab.prototype.html = _html;
-  DiskTab.prototype.setup = _setup;
-  DiskTab.prototype.onShow = _onShow;
-  DiskTab.prototype.retrieve = _retrieve;
-  DiskTab.prototype.fill = _fill;
+  NicTab.prototype.constructor = NicTab;
+  NicTab.prototype.html = _html;
+  NicTab.prototype.setup = _setup;
+  NicTab.prototype.onShow = _onShow;
+  NicTab.prototype.retrieve = _retrieve;
+  NicTab.prototype.fill = _fill;
 
-  return DiskTab;
+  return NicTab;
 
   /*
     FUNCTION DEFINITIONS
@@ -80,8 +81,18 @@ define(function(require) {
     this.vnetsTable.refreshResourceTableSelect();
   }
 
-  function _setup(context) {
+  /**
+   * @param  {Object}  context  jquery selector
+   * @param  {Object}  options
+   *                   options.hide_pci {bool} true to disable the pci checkbox
+   */
+  function _setup(context, options) {
     var that = this;
+
+    if (options != undefined && options.hide_pci == true){
+      $("input.pci-type-nic", context).attr('disabled', 'disabled');
+    }
+
     that.vnetsTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
@@ -99,6 +110,30 @@ define(function(require) {
 
     that.secgroupsTable.initialize();
     that.secgroupsTable.refreshResourceTableSelect();
+
+    $("input.pci-type-nic", context).on("change", function(){
+      var tbody = $(".pci-row tbody", context);
+
+      if ($(this).prop('checked')){
+        $("input[wizard_field=MODEL]", context).prop("disabled", true).prop('wizard_field_disabled', true);
+        $(".nic-model-row", context).hide();
+        $(".pci-row", context).show();
+
+        tbody.html( CreateUtils.pciRowHTML() );
+
+        CreateUtils.fillPCIRow({tr: $('tr', tbody), remove: false});
+      } else {
+        $("input[wizard_field=MODEL]", context).removeAttr('disabled').prop('wizard_field_disabled', false);
+        $(".nic-model-row", context).show();
+        $(".pci-row", context).hide();
+
+        tbody.html("");
+      }
+    });
+
+    CreateUtils.setupPCIRows($(".pci-row", context));
+
+    $("input.pci-type-nic", context).change();
   }
 
   function _retrieve(context) {
@@ -121,6 +156,10 @@ define(function(require) {
     var secgroups = this.secgroupsTable.retrieveResourceTableSelect();
     if (secgroups != undefined && secgroups.length != 0) {
       nicJSON["SECURITY_GROUPS"] = secgroups.join(",");
+    }
+
+    if ($("input.pci-type-nic", context).prop("checked")){
+      nicJSON["NIC_PCI"] = true;
     }
 
     return nicJSON;
@@ -180,6 +219,10 @@ define(function(require) {
       this.secgroupsTable.selectResourceTableSelect(selectedResources);
     } else {
       this.secgroupsTable.refreshResourceTableSelect();
+    }
+
+    if (templateJSON["TYPE"] == "NIC"){
+      $("input.pci-type-nic", context).click();
     }
 
     WizardFields.fill(context, templateJSON);

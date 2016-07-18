@@ -164,6 +164,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm_nics = [vm["TEMPLATE"]['NIC']].flatten
         end
 
+        if !vm["TEMPLATE"]["PCI"].nil?
+            vm_nics = [vm_nics, vm["TEMPLATE"]['PCI']].flatten
+        end
+
         vm_nics.each do |nic|
             ["IP", "IP6_GLOBAL", "IP6_ULA",
              "VROUTER_IP", "VROUTER_IP6_GLOBAL", "VROUTER_IP6_ULA"].each do |attr|
@@ -468,6 +472,8 @@ in the frontend machine.
 
         cluster = nil
 
+        vm_hash = vm.to_hash
+
         if %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
             cluster_id = vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID']
         else
@@ -515,7 +521,7 @@ in the frontend machine.
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
 
-        vm_monitoring = vm.to_hash['VM']['MONITORING']
+        vm_monitoring = vm_hash['VM']['MONITORING']
 
         # Find out if it is a hybrid VM to avoid showing local IPs
         isHybrid=false
@@ -569,11 +575,11 @@ in the frontend machine.
         vm_disks = []
 
         if vm.has_elements?("/VM/TEMPLATE/DISK")
-            vm_disks = [vm.to_hash['VM']['TEMPLATE']['DISK']].flatten
+            vm_disks = [vm_hash['VM']['TEMPLATE']['DISK']].flatten
         end
 
         if vm.has_elements?("/VM/TEMPLATE/CONTEXT")
-            context_disk = vm.to_hash['VM']['TEMPLATE']['CONTEXT']
+            context_disk = vm_hash['VM']['TEMPLATE']['CONTEXT']
 
             context_disk["IMAGE"]     = "CONTEXT"
             context_disk["DATASTORE"] = "-"
@@ -682,16 +688,21 @@ in the frontend machine.
 
         sg_nics = []
 
-        if (vm.has_elements?("/VM/TEMPLATE/NIC/SECURITY_GROUPS"))
-            sg_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+        if (vm.has_elements?("/VM/TEMPLATE/NIC/SECURITY_GROUPS") ||
+            vm.has_elements?("/VM/TEMPLATE/PCI[NIC_ID>-1]/SECURITY_GROUPS"))
 
-            sg_nics.each do |nic|
-                sg = nic["SECURITY_GROUPS"]
+            sg_nics = [vm_hash['VM']['TEMPLATE']['NIC']]
 
-                if sg.nil?
-                    next
+            sg_pcis = [vm_hash['VM']['TEMPLATE']['PCI']].flatten.compact
+
+            sg_pcis.each do |pci|
+                if !pci['NIC_ID'].nil?
+                    sg_nics << pci
                 end
             end
+
+            sg_nics.flatten!
+            sg_nics.compact!
         end
 
         # This variable holds the extra IP's got from monitoring. Right
@@ -710,7 +721,9 @@ in the frontend machine.
 
         extra_ips.uniq!
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC") || !extra_ips.empty?
+        if vm.has_elements?("/VM/TEMPLATE/NIC") ||
+           vm.has_elements?("/VM/TEMPLATE/PCI[NIC_ID>-1]") || !extra_ips.empty?
+
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
@@ -722,7 +735,19 @@ in the frontend machine.
             shown_ips = []
 
             array_id = 0
-            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten.compact
+            vm_nics = [vm_hash['VM']['TEMPLATE']['NIC']]
+
+            vm_pcis = [vm_hash['VM']['TEMPLATE']['PCI']].flatten.compact
+
+            vm_pcis.each do |pci|
+                if !pci['NIC_ID'].nil?
+                    vm_nics << pci
+                end
+            end
+
+            vm_nics.flatten!
+            vm_nics.compact!
+
             vm_nics.each {|nic|
 
                 next if nic.has_key?("CLI_DONE")
@@ -809,6 +834,14 @@ in the frontend machine.
                     end
                 end
 
+                column :PCI_ID, "", :left, :size=>8 do |d|
+                    if d["DOUBLE_ENTRY"]
+                        ""
+                    else
+                        d["PCI_ID"]
+                    end
+                end
+
             end.show(vm_nics,{})
 
             while vm.has_elements?("/VM/TEMPLATE/NIC")
@@ -891,7 +924,7 @@ in the frontend machine.
                     d["RANGE"]
                 end
 
-            end.show([vm.to_hash['VM']['TEMPLATE']['SECURITY_GROUP_RULE']].flatten, {})
+            end.show([vm_hash['VM']['TEMPLATE']['SECURITY_GROUP_RULE']].flatten, {})
 
             while vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE")
                 vm.delete_element("/VM/TEMPLATE/SECURITY_GROUP_RULE")
@@ -920,7 +953,7 @@ in the frontend machine.
                     d["HYPERVISOR_ID"] if !d.nil?
                 end
 
-            end.show([vm.to_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+            end.show([vm_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
 
             vm.delete_element("/VM/TEMPLATE/SNAPSHOT")
         end
@@ -957,7 +990,7 @@ in the frontend machine.
                 column :"MESSAGE", "", :left, :donottruncate, :size=>35 do |d|
                     d["MESSAGE"] if !d.nil?
                 end
-            end.show([vm.to_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
+            end.show([vm_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten, {})
         end
 
         if vm.has_elements?("/VM/USER_TEMPLATE")

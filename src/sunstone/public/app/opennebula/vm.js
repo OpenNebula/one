@@ -675,6 +675,7 @@ define(function(require) {
   function ipsStr(element, divider) {
     var divider = divider || "<br>"
     var nic = element.TEMPLATE.NIC;
+    var pci = element.TEMPLATE.PCI;
     var ips = [];
 
     var monitoring = element.MONITORING;
@@ -695,21 +696,35 @@ define(function(require) {
       })
     }
 
+    if (nic == undefined){
+      nic = [];
+    }
+
+    if (!$.isArray(nic)) {
+      nic = [nic];
+    }
+
+    if (pci != undefined) {
+      if (!$.isArray(pci)) {
+        pci = [pci];
+      }
+
+      $.each(pci, function(){
+        if (this["TYPE"] == "NIC"){
+          nic.push(this);
+        }
+      });
+    }
+
     if(ips.length==0)
     {
-      if (nic != undefined) {
-        if (!$.isArray(nic)) {
-          nic = [nic];
-        }
-
-        $.each(nic, function(index, value) {
-          $.each(NIC_IP_ATTRS, function(j, attr){
-            if (value[attr]) {
-              ips.push(value[attr]);
-            }
-          });
+      $.each(nic, function(index, value) {
+        $.each(NIC_IP_ATTRS, function(j, attr){
+          if (value[attr]) {
+            ips.push(value[attr]);
+          }
         });
-      }
+      });
     }
 
     if (ips.length > 0) {

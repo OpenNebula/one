@@ -38,7 +38,14 @@
     </fieldset>
     <fieldset class="hypervisor only_kvm vm_updateconf_hide">
       <legend>{{tr "PCI Devices"}}</legend>
-      <div>
+      <div class="row">
+        <div class="large-12 columns text-center">
+          <span class="radius secondary label">
+            <i class="fa fa-warning"/> {{tr "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"}}
+          </span>
+        </div>
+      </div>
+      <div class="row">
         <div class="large-12 columns">
           <table class="dataTable pci_devices">
             <thead>

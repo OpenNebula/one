@@ -145,9 +145,10 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"DNS", "DNS"},
         {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
         {"MTU", "GUEST_MTU"},
+        {"VLAN_ID", "VLAN_ID"},
         {"VROUTER_IP", "VROUTER_IP"},
         {"VROUTER_MANAGEMENT", "VROUTER_MANAGEMENT"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 10;
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 11;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
@@ -553,6 +554,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // PCI Devices (Needs to be parsed before network)
+    // ------------------------------------------------------------------------
+
+    rc = parse_pci(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_pci;
+    }
+
+    // ------------------------------------------------------------------------
     // Parse the defaults to merge
     // ------------------------------------------------------------------------
 
@@ -610,17 +622,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     if ( has_cloning_disks())
     {
         state = VirtualMachine::CLONING;
-    }
-
-    // ------------------------------------------------------------------------
-    // PCI Devices
-    // ------------------------------------------------------------------------
-
-    rc = parse_pci(error_str);
-
-    if ( rc != 0 )
-    {
-        goto error_pci;
     }
 
     // -------------------------------------------------------------------------
@@ -706,9 +707,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 error_update:
     goto error_rollback;
 
-error_pci:
-    goto error_rollback;
-
 error_boot_order:
     goto error_rollback;
 
@@ -757,6 +755,7 @@ error_one_vms:
     goto error_common;
 
 error_os:
+error_pci:
 error_defaults:
 error_vrouter:
 error_public:
@@ -1067,6 +1066,8 @@ int VirtualMachine::parse_context(string& error_str)
         return -1;
     }
 
+	generate_pci_context(context);
+
     // -------------------------------------------------------------------------
     // Parse FILE_DS variables
     // -------------------------------------------------------------------------
@@ -1204,60 +1205,71 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
+		string& error_str)
+{
+    static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
+    static int num_attrs  = 3;
+
+	string bus;
+    bool   found = false;
+
+    for (int i = 0; i < num_attrs; i++)
+    {
+        unsigned int val;
+        int rc = HostSharePCI::get_pci_value(attrs[i].c_str(), pci, val);
+
+        if (rc == -1)
+        {
+            error_str = "Wrong Hex value for PCI attribute " + attrs[i];
+            return -1;
+        }
+        else if ( rc != 0 )
+        {
+            found = true;
+        }
+    }
+
+    if (!found)
+    {
+        error_str = "DEVICE, VENDOR or CLASS must be defined for PCI.";
+        return -1;
+    }
+
+	if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
+	{
+		error_str = "Wrong BUS in PCI attribute";
+		return -1;
+	}
+
+    return 0;
+}
+
 int VirtualMachine::parse_pci(string& error_str)
 {
-    VectorAttribute *               pci;
-    vector<Attribute *>             array_pci;
-    vector<Attribute *>::iterator   it;
+    vector<VectorAttribute *> array_pci;
+    vector<VectorAttribute *>::iterator it;
 
-    unsigned int val;
+    int pci_id = 0;
 
     user_obj_template->remove("PCI", array_pci);
 
-    static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
-
-    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+    for (it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
     {
+        (*it)->replace("PCI_ID", pci_id);
+
         obj_template->set(*it);
     }
 
-    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+	Nebula& nd = Nebula::instance();
+	string  default_bus;
+
+	nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+
+    for (it = array_pci.begin(); it !=array_pci.end(); ++it)
     {
-        bool found = false;
-
-        pci = dynamic_cast<VectorAttribute * >(*it);
-
-        if ( pci == 0 )
+        if ( check_pci_attributes(*it, default_bus, error_str) != 0 )
         {
-            error_str = "PCI attribute must be a vector attribute";
-            return -1;
-        }
-
-        for (int i=0; i<3; i++)
-        {
-            int rc = HostSharePCI::get_pci_value(attrs[i].c_str(), pci, val);
-
-            if (rc == -1)
-            {
-                ostringstream oss;
-                oss << "Wrong value for PCI/" << attrs[i] << ": "
-                    << pci->vector_value(attrs[i].c_str())
-                    <<". It must be a hex value";
-
-                error_str = oss.str();
-                return -1;
-            }
-            else if ( rc != 0 )
-            {
-                found = true;
-            }
-        }
-
-        if (!found)
-        {
-            error_str = "Missing mandatory attributes inside PCI. "
-                        "Either DEVICE, VENDOR or CLASS must be defined";
-
             return -1;
         }
     }
@@ -1529,6 +1541,27 @@ int VirtualMachine::automatic_requirements(string& error_str)
         }
     }
 
+    vatts.clear();
+
+    // Get cluster id from all PCI attibutes, TYPE = NIC
+    num_vatts = obj_template->get("PCI", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+        if ( vatts[i]->vector_value("TYPE") != "NIC" )
+        {
+            continue;
+        }
+
+        rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
+
+        if ( rc != 0 )
+        {
+            incomp_id = i;
+            goto error_pci;
+        }
+    }
+
     if ( !cluster_ids.empty() )
     {
         set<int>::iterator i = cluster_ids.begin();
@@ -1637,6 +1670,21 @@ error_nic:
     else
     {
         oss << "Missing clusters. Network for NIC "<< incomp_id
+            << " is not in any cluster";
+    }
+
+    goto error_common;
+
+error_pci:
+    if (rc == -1)
+    {
+        oss << "Incompatible clusters in PCI (TYPE=NIC). Network for PCI "<< incomp_id
+            << " is not the same as the one used by other VM elements (cluster "
+            << one_util::join(cluster_ids, ',') << ")";
+    }
+    else
+    {
+        oss << "Missing clusters. Network for PCI "<< incomp_id
             << " is not in any cluster";
     }
 
@@ -3159,6 +3207,23 @@ int VirtualMachine::get_network_leases(string& estr)
         }
     }
 
+    vector<VectorAttribute *> pcis;
+
+    int num_pcis = get_template_attribute("PCI", pcis);
+
+    for (int i = 0; i < num_pcis; ++i)
+    {
+        if ( pcis[i]->vector_value("TYPE") == "NIC" )
+        {
+            rc = vnpool->nic_attribute(PoolObjectSQL::VM, pcis[i], i, uid, oid, estr);
+
+            if ( rc == -1 )
+            {
+                return -1;
+            }
+        }
+    }
+
     get_security_groups(vm_sgs);
 
     sgpool->get_security_group_rules(get_oid(), vm_sgs, sg_rules);
@@ -3191,12 +3256,23 @@ void VirtualMachine::release_network_leases()
     string vnid;
     string ip;
 
-    vector<VectorAttribute const  * > nics;
-    int num_nics = get_template_attribute("NIC",nics);
+    vector<VectorAttribute const *> vatts;
 
-    for(int i=0; i<num_nics; i++)
+    int num = get_template_attribute("NIC", vatts);
+
+    for(int i = 0; i < num; i++)
     {
-        release_network_leases(nics[i], oid);
+        release_network_leases(vatts[i], oid);
+    }
+
+    num = get_template_attribute("PCI", vatts);
+
+    for(int i = 0; i < num; i++)
+    {
+        if ( vatts[i]->vector_value("TYPE") == "NIC" )
+        {
+            release_network_leases(vatts[i], oid);
+        }
     }
 }
 
@@ -3264,15 +3340,26 @@ int VirtualMachine::release_network_leases(const VectorAttribute * nic, int vmid
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_security_groups(set<int>& sgs) const
+void VirtualMachine::get_security_groups(VirtualMachineTemplate *tmpl, set<int>& sgs)
 {
-    vector<VectorAttribute *> ns;
 
-    int num_nics = obj_template->get("NIC", ns);
+    vector<VectorAttribute const *> vatts;
 
-    for(int i=0; i<num_nics; i++)
+    int num = tmpl->get("NIC", vatts);
+
+    for(int i = 0; i < num; i++)
     {
-        get_security_groups(ns[i], sgs);
+        get_security_groups(vatts[i], sgs);
+    }
+
+    num = tmpl->get("PCI", vatts);
+
+    for(int i = 0; i < num; i++)
+    {
+        if ( vatts[i]->vector_value("TYPE") == "NIC" )
+        {
+            get_security_groups(vatts[i], sgs);
+        }
     }
 }
 
@@ -3733,7 +3820,6 @@ void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
                                       VirtualMachineTemplate *tmpl)
 {
-    int num;
     vector<VectorAttribute  *> vectors;
 
     Nebula& nd = Nebula::instance();
@@ -3742,10 +3828,7 @@ void VirtualMachine::set_auth_request(int uid,
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     SecurityGroupPool *  sgpool = nd.get_secgrouppool();
 
-    set<int>        sgroups;
-    SecurityGroup * sgroup;
-
-    num = tmpl->get("DISK", vectors);
+    int num = tmpl->get("DISK", vectors);
 
     for(int i=0; i<num; i++)
     {
@@ -3756,25 +3839,28 @@ void VirtualMachine::set_auth_request(int uid,
 
     num = tmpl->get("NIC", vectors);
 
-    for(int i=0; i<num; i++, sgroups.clear())
+    for(int i=0; i<num; i++)
     {
         vnpool->authorize_nic(PoolObjectSQL::VM, vectors[i], uid, &ar);
+    }
 
-        get_security_groups(vectors[i], sgroups);
+    set<int> sgroups;
 
-        for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
+    get_security_groups(tmpl, sgroups);
+
+    for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
+    {
+        SecurityGroup * sgroup = sgpool->get(*it, true);
+
+        if(sgroup != 0)
         {
-            sgroup = sgpool->get(*it, true);
+            PoolObjectAuth perm;
 
-            if(sgroup != 0)
-            {
-                PoolObjectAuth perm;
-                sgroup->get_permissions(perm);
+            sgroup->get_permissions(perm);
 
-                sgroup->unlock();
+            sgroup->unlock();
 
-                ar.add_auth(AuthRequest::USE, perm);
-            }
+            ar.add_auth(AuthRequest::USE, perm);
         }
     }
 }
@@ -3795,7 +3881,6 @@ void VirtualMachine::disk_extended_info(int uid,
         ipool->disk_attribute(disks[i], i, uid);
     }
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -4761,7 +4846,6 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
         cvar << "ETH" << nic_id << "_" << vars[i][0];
 
-        cval = context->vector_value(cvar.str().c_str());
         cval = nic->vector_value(vars[i][1]); //Check the NIC
 
         if (cval.empty()) //Will check the AR and VNET
@@ -4778,10 +4862,69 @@ static void parse_context_network(const char* vars[][2], int num_vars,
 
 /* -------------------------------------------------------------------------- */
 
+static void parse_pci_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, VectorAttribute * nic)
+{
+    string pci_id = nic->vector_value("PCI_ID");
+
+    for (int i=0; i < num_vars; i++)
+    {
+		ostringstream cvar;
+
+        cvar << "PCI" << pci_id << "_" << vars[i][0];
+
+        string  cval = nic->vector_value(vars[i][1]);
+
+        if (!cval.empty())
+        {
+			context->replace(cvar.str(), cval);
+        }
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::parse_nic_context(VectorAttribute * c, VectorAttribute * n)
 {
     parse_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,  c, n);
     parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, c, n);
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::generate_pci_context(VectorAttribute * context)
+{
+    bool net_context;
+    vector<VectorAttribute *> vatts;
+
+    context->vector_value("NETWORK", net_context);
+
+    int num_vatts = obj_template->get("PCI", vatts);
+
+    for(int i=0; i<num_vatts; i++)
+    {
+		if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
+		{
+			parse_pci_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
+					context, vatts[i]);
+			parse_pci_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
+					context, vatts[i]);
+		}
+
+		ostringstream cvar;
+
+		cvar << "PCI" << vatts[i]->vector_value("PCI_ID") << "_ADDRESS";
+
+		string cval = vatts[i]->vector_value("VM_ADDRESS");
+
+		if (!cval.empty())
+		{
+			context->replace(cvar.str(), cval);
+		}
+    }
+
+    return net_context;
 }
 
 /* -------------------------------------------------------------------------- */

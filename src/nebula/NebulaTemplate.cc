@@ -451,6 +451,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  MAC_PREFIX
 #  VLAN_ID
 #  VXLAN_ID
+#  PCI_PASSTHROUGH_BUS
 #*******************************************************************************
 */
     set_conf_single("MAC_PREFIX", "02:00");
@@ -468,6 +469,8 @@ void OpenNebulaTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("VXLAN_IDS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    set_conf_single("PCI_PASSTHROUGH_BUS", "0x01");
 /*
 #*******************************************************************************
 # Datastore Configuration

@@ -174,6 +174,20 @@ define(function(require) {
       delete templateJSON["VCENTER_PUBLIC_CLOUD"];
     }
 
+    // PCI with TYPE=NIC is not defined in the 'other' tab. Because it is
+    // part of an array, and it is filled in different tabs, the $.extend deep
+    // merge can't work. We define an auxiliary attribute for it.
+
+    if (templateJSON["NIC_PCI"] != undefined) {
+      if (templateJSON['PCI'] == undefined) {
+        templateJSON['PCI'] = [];
+      }
+
+      templateJSON['PCI'] = templateJSON['PCI'].concat(templateJSON["NIC_PCI"]);
+
+      delete templateJSON["NIC_PCI"];
+    }
+
     return templateJSON;
   }
 
