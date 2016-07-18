@@ -55,11 +55,28 @@ define(function(require) {
     try {
       if (OpenNebulaTemplate.isNetworkChangeEnabled(template_json)) {
         var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-        var nics = []
-        if ($.isArray(template_nic))
-            nics = template_nic
-        else if (!$.isEmptyObject(template_nic))
-            nics = [template_nic]
+
+        var nics = [];
+
+        if ($.isArray(template_nic)){
+          nics = template_nic;
+        } else if (!$.isEmptyObject(template_nic)){
+          nics = [template_nic];
+        }
+
+        var pcis = [];
+
+        if ($.isArray(template_json.VMTEMPLATE.TEMPLATE.PCI)){
+          pcis = template_json.VMTEMPLATE.TEMPLATE.PCI;
+        } else if (!$.isEmptyObject(template_json.VMTEMPLATE.TEMPLATE.PCI)){
+          pcis = [template_json.VMTEMPLATE.TEMPLATE.PCI];
+        }
+
+        $.each(pcis, function(){
+          if(this.TYPE == "NIC"){
+            nics.push(this);
+          }
+        });
 
         _generate_provision_network_accordion(
           $(".provision_network_selector", context), options);
@@ -67,6 +84,8 @@ define(function(require) {
         $.each(nics, function(index, nic) {
           var opt = $.extend({}, options);
           opt.nic = nic;
+
+          opt.pci = (nic.TYPE == "NIC");
 
           _generate_provision_network_table(
             $(".provision_nic_accordion", context),
@@ -160,6 +179,7 @@ define(function(require) {
    *                                - management {bool}: true to show the
    *                                management checkbox
    *                                - securityGroups {bool}: true to select SGs
+   *                                - pci {bool}: true if this is a PCI interface
    */
   function _generate_provision_network_table(context, options) {
     context.off();
