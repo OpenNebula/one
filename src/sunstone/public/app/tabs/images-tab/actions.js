@@ -91,6 +91,7 @@ define(function(require) {
             } else {
               Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
                 header : Locale.tr("Error"),
+                headerTabId: TAB_ID,
                 body : Locale.tr("This Image resides in Datastore ") +
                   img.DATASTORE_ID + " (" + img.DATASTORE + ")" +
                   Locale.tr(". The export action is not supported for that Datastore DS_MAD driver."),
