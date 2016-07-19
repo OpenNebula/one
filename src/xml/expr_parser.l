@@ -39,7 +39,7 @@
 %%
    /* --- Tokens --- */
 
-[!&|=><()\*\+/\^-] { return *yytext;}
+[@!&|=><()\*\+/\^-] { return *yytext;}
 
   /* --- Strings, also quoted form --- */
 

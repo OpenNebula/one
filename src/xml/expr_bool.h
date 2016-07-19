@@ -83,5 +83,4 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
-
 #endif /* !YY_EXPR_BOOL_EXPR_BOOL_HH_INCLUDED  */
