@@ -54,12 +54,21 @@ define(function(require) {
   }
 
   function _innerHtml(tree, collapsed){
-    var html = '<li>';
+    var html = "";
 
     if (collapsed) {
       if (tree.subTree.length > 0) {
-        html += '<i class="left tree-toggle fa fa-fw fa-angle-right"></i> ';
+        html = '<li><i class="left tree-toggle fa fa-fw fa-angle-right"></i> ';
       } else {
+        var title = $(tree.htmlStr).attr('title');
+        var color = _labelHue(title);
+
+        if (title != undefined && title != "") {
+          html = '<li style="color:hsl(' + color + ', 90%, 70%);">';
+        } else {
+          html = '<li>';
+        }
+
         html += '<i class="left fa fa-fw fa-tag"></i> ';
       }
 
@@ -70,8 +79,17 @@ define(function(require) {
       html += '<ul class="is-active" hidden>';
     } else {
       if (tree.subTree.length > 0) {
-        html += '<i class="left tree-toggle fa fa-fw fa-angle-down"></i> ';
+        html = '<li><i class="left tree-toggle fa fa-fw fa-angle-down"></i> ';
       } else {
+        var title = $(tree.htmlStr).attr('title');
+        var color = _labelHue(title);
+
+        if (title != undefined && title != "") {
+          html = '<li style="color:hsl(' + color + ', 90%, 70%);">';
+        } else {
+          html = '<li>';
+        }
+
         html += '<i class="left fa fa-fw fa-tag"></i> ';
       }
 
@@ -114,4 +132,16 @@ define(function(require) {
       }
     });
   }
+
+  // http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+  function _labelHue(s) {
+    var hash = 0, i, chr, len;
+    if (s.length === 0) return hash;
+    for (i = 0, len = s.length; i < len; i++) {
+      chr   = s.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return (Math.abs(hash) % 37) * 10;
+  };
 });
