@@ -464,16 +464,6 @@ EOT
 
         return uuid, template
     end
-
-    def self.rbd_pool(pool, auth = nil)
-        @@rbd_pool ||= {}
-
-        if @@rbd_pool[pool].nil?
-            @@rbd_pool[pool] = `rbd #{auth} ls -l -p #{pool} --format xml`
-        end
-
-        @@rbd_pool[pool]
-    end
 end
 
 ################################################################################
