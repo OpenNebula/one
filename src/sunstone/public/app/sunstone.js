@@ -42,16 +42,13 @@ define(function(require) {
   };
 
   var _addMainTabs = function() {
+    _addActions();
+
     $.each(Config.enabledTabs, function(i, tabName){
       var name = './tabs/' + tabName;
       var tabObj = require(name);
       var _tabId = tabObj.tabId;
       SunstoneCfg["tabs"][_tabId] = tabObj;
-
-      var actions = tabObj.actions;
-      if (actions) {
-        _addActions(actions)
-      }
 
       var panels = tabObj.panels;
       if (panels) {
@@ -80,11 +77,18 @@ define(function(require) {
     });
   }
 
-  var _addActions = function(actions) {
-    $.each(actions, function(actionName, action) {
-      SunstoneCfg["actions"][actionName] = action;
-    })
-    return false;
+  var _addActions = function() {
+    $.each(Config.allTabs(), function(i, tabName){
+      var name = './tabs/' + tabName;
+      var tabObj = require(name);
+
+      var actions = tabObj.actions;
+      if (actions) {
+        $.each(actions, function(actionName, action) {
+          SunstoneCfg["actions"][actionName] = action;
+        });
+      }
+    });
   }
 
   var _addDialogs = function(dialogs) {
@@ -999,13 +1003,11 @@ define(function(require) {
    *                        tab will be used
    */
   function _hideFormPanelLoading(tabId) {
-    var context;
-    if (tabId){
-      context = $("#" + tabId);
-    } else {
-      context = $(".tab:visible");  // current tab
-      tabId = context.attr("id");
+    if (tabId == undefined){
+      tabId = _getTab()
     }
+
+    var context = $("#" + tabId);
     //$(".sunstone-form", context).html(content);
 
     $(".loadingForm", context).hide();
@@ -1024,11 +1026,19 @@ define(function(require) {
   }
 
   function _hideFormPanel(tabId) {
+    if (tabId == undefined){
+      tabId = _getTab()
+    }
+
     var context = $("#" + tabId);
     $('[href="back"]', context).trigger("click");
   }
 
   function _popFormPanelLoading(tabId) {
+    if (tabId == undefined){
+      tabId = _getTab()
+    }
+
     if (!_formPanelVisible($("#"+tabId)) && router != undefined){
       router.navigate(tabId+"/form");
     }
@@ -1062,6 +1072,10 @@ define(function(require) {
   }
 
   function _enableFormPanelSubmit(tabId) {
+    if (tabId == undefined){
+      tabId = _getTab()
+    }
+
     var context = $("#" + tabId);
     $(".submit_button", context).
         removeAttr("disabled").
