@@ -21,7 +21,6 @@
   }
 
   li {
-    color: $dark-gray;
     font-weight: normal;
     list-style-type: none;
 
@@ -30,6 +29,7 @@
     overflow: hidden;
 
     .labeltree-line {
+      color: $dark-gray;
       cursor: pointer;
 
       &:hover {
@@ -38,7 +38,6 @@
 
       .active {
         color: $light-black;
-        font-weight: bold;
       }
     }
   }
