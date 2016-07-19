@@ -22,7 +22,7 @@ source $(dirname $0)/../../scripts_common.sh
 DOMAIN=$1
 TARGET_DEVICE=$2
 
-if [[ ! -z "$DOMAIN" ]] && [[ ! -z "$TARGET_DEVICE" ]]
+if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]]
 then
     CMD="virsh --connect $LIBVIRT_URI change-media $DOMAIN $TARGET_DEVICE \
         --eject --force"

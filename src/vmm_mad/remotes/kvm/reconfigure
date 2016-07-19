@@ -23,7 +23,7 @@ DOMAIN=$1
 TARGET_DEVICE=$2
 ISO_PATH=$3
 
-if [[ ! -z "$DOMAIN" ]] && [[ ! -z "$TARGET_DEVICE" ]] && [[ ! -z "$ISO_PATH" ]]
+if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]] && [[ -n "$ISO_PATH" ]]
 then
     CMD="virsh --connect $LIBVIRT_URI \
         change-media $DOMAIN $TARGET_DEVICE $ISO_PATH --insert"
