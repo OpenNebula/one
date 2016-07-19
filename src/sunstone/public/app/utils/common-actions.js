@@ -114,8 +114,8 @@ define(function(require) {
     return {
       type: "multiple",
       call: that.openNebulaResource[actionStr],
-      callback: function (req) {
-        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
+      callback: function (req, response) {
+        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0][0]);
       },
       elements: function(opts) {
         return Sunstone.getDataTable(that.tabId).elements(opts);

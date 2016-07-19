@@ -251,7 +251,7 @@ define(function(require) {
       callback: function(request) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
 
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
       },
       error: Notifier.onError
     }
