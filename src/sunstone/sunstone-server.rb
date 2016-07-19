@@ -382,6 +382,7 @@ before do
 
                 session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
                 session[:zone_name] = env['HTTP_ZONE_NAME']
+                session[:zone_id]   = z.id
             end
          }
 
