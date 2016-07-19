@@ -160,7 +160,7 @@ define(function(require) {
               n_roles_done += 1;
 
               if(n_roles_done == n_roles){
-                Sunstone.enableFormPanelSubmit(TAB_ID);
+                Sunstone.enableFormPanelSubmit();
               }
             },
             error: function(request,error_json, container){

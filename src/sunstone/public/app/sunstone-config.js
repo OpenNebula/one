@@ -145,7 +145,11 @@ define(function(require) {
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
-    'onedConf': _config['oned_conf']
+    'onedConf': _config['oned_conf'],
+
+    "allTabs": function() {
+      return Object.keys(_config['view']['tabs']);
+    }
   }
 
   return Config;

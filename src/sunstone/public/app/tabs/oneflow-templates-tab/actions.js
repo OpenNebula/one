@@ -63,7 +63,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.instantiate,
       callback: function(request, response){
-        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("SERVICE");
 
         Notifier.notifyCustom(Locale.tr("Service created"), " ID: " + response.DOCUMENT.ID, false);
@@ -72,7 +72,7 @@ define(function(require) {
         return Sunstone.getDataTable(TAB_ID).elements(opts);
       },
       error: function(request, response){
-        Sunstone.hideFormPanelLoading(TAB_ID);
+        Sunstone.hideFormPanelLoading();
         Notifier.onError(request, response);
       },
       notify: false

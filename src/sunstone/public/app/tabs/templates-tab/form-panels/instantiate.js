@@ -128,7 +128,7 @@ define(function(require) {
 
     if (!this.selected_nodes || this.selected_nodes.length == 0) {
       Notifier.notifyError(Locale.tr("No template selected"));
-      Sunstone.hideFormPanelLoading(this.tabId);
+      Sunstone.hideFormPanelLoading();
       return false;
     }
 

@@ -153,7 +153,7 @@ define(function(require) {
         type: "multiple",
         call: OpenNebulaResource.instantiate,
         callback: function(request, response) {
-          Sunstone.hideFormPanel(TAB_ID);
+          Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
           Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
@@ -172,7 +172,7 @@ define(function(require) {
         type: "single",
         call: OpenNebulaResource.instantiate,
         callback: function(request, response) {
-          Sunstone.hideFormPanel(TAB_ID);
+          Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
         },
         error: function(request, response){
@@ -198,7 +198,7 @@ define(function(require) {
         type: "single",
         call: OpenNebulaResource.instantiate_persistent,
         callback: function(request, response) {
-          Sunstone.hideFormPanel(TAB_ID);
+          Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
           Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
