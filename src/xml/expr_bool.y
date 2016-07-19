@@ -136,17 +136,14 @@ expr:   STRING '=' INTEGER {
 
             $$ = false;
 
-            if ( $4 != 0 )
-            {
-                oxml->search($1,val);
+            oxml->search($1,val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+            for (it=val.begin(); it != val.end(); ++it)
+            {
+                if ($4 == *it)
                 {
-                    if ($4 == *it)
-                    {
-                        $$ = true;
-                        break;
-                    }
+                    $$ = true;
+                    break;
                 }
             }
         }
@@ -185,17 +182,14 @@ expr:   STRING '=' INTEGER {
 
             $$ = false;
 
-            if ( $4 != 0 )
-            {
-                oxml->search($1,val);
+            oxml->search($1,val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+            for (it=val.begin(); it != val.end(); ++it)
+            {
+                if ($4 == *it)
                 {
-                    if ($4 == *it)
-                    {
-                        $$ = true;
-                        break;
-                    }
+                    $$ = true;
+                    break;
                 }
             }
         }
