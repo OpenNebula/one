@@ -22,7 +22,11 @@ source $(dirname $0)/../../scripts_common.sh
 DOMAIN=$1
 TARGET_DEVICE=$2
 
-CMD="virsh --connect $LIBVIRT_URI change-media $DOMAIN $TARGET_DEVICE --eject --force"
+if [[ ! -z "$DOMAIN" ]] && [[ ! -z "$TARGET_DEVICE" ]]
+then
+    CMD="virsh --connect $LIBVIRT_URI change-media $DOMAIN $TARGET_DEVICE \
+        --eject --force"
 
-exec_and_log "$CMD" "Could not eject CDROM $TARGET_DEVICE"
+    exec_and_log "$CMD" "Could not eject CDROM $TARGET_DEVICE"
+fi
 
