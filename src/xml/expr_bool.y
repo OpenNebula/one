@@ -130,6 +130,27 @@ expr:   STRING '=' INTEGER {
             $$ = (rc == 0 && val < $3);
         }
 
+        | STRING '@''>' INTEGER {
+            std::vector<int> val;
+            std::vector<int>::iterator it;
+
+            $$ = false;
+
+            if ( $4 != 0 )
+            {
+                oxml->search($1,val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ($4 == *it)
+                    {
+                        $$ = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         | STRING '=' FLOAT {
             float val, rc;
 
@@ -155,7 +176,29 @@ expr:   STRING '=' INTEGER {
             float val, rc;
 
             rc = oxml->search($1,val);
-            $$ = (rc == 0 && val < $3);}
+            $$ = (rc == 0 && val < $3);
+        }
+
+        | STRING '@''>' FLOAT {
+            std::vector<float> val;
+            std::vector<float>::iterator it;
+
+            $$ = false;
+
+            if ( $4 != 0 )
+            {
+                oxml->search($1,val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ($4 == *it)
+                    {
+                        $$ = true;
+                        break;
+                    }
+                }
+            }
+        }
 
         | STRING '=' STRING {
             std::string val;
@@ -171,6 +214,27 @@ expr:   STRING '=' INTEGER {
 
             rc = oxml->search($1,val);
             $$ = (rc != 0 || $4==0) ? false : fnmatch($4,val.c_str(),0)!=0;
+        }
+
+        | STRING '@''>' STRING {
+            std::vector<std::string> val;
+            std::vector<std::string>::iterator it;
+
+            $$ = false;
+
+            if ( $4 != 0 )
+            {
+                oxml->search($1,val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ( fnmatch($4, (*it).c_str(), 0) == 0 )
+                    {
+                        $$ = true;
+                        break;
+                    }
+                }
+            }
         }
 
         | expr '&' expr { $$ = $1 && $3; }

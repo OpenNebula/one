@@ -1606,11 +1606,11 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
         set<int>::iterator i = cluster_ids.begin();
 
-        oss << "\"CLUSTERS/ID\" = " << *i;
+        oss << "\"CLUSTERS/ID\" @> " << *i;
 
         for (++i; i != cluster_ids.end(); i++)
         {
-            oss << " | \"CLUSTERS/ID\" = " << *i;
+            oss << " | \"CLUSTERS/ID\" @> " << *i;
         }
 
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());

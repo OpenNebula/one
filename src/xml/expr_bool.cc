@@ -445,18 +445,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  12
+#define YYFINAL  13
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   29
+#define YYLAST   34
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  14
+#define YYNTOKENS  15
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  20
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  29
+#define YYNSTATES  34
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -474,9 +474,9 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     3,     2,     2,     2,     2,     4,     2,
-      12,    13,     2,     2,     2,     2,     2,     2,     2,     2,
+      13,    14,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      11,     9,    10,     2,     2,     2,     2,     2,     2,     2,
+      11,     9,    10,     2,    12,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -503,8 +503,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    97,    97,    98,   101,   110,   119,   126,   133,   140,
-     147,   154,   160,   168,   176,   177,   178,   179
+       0,    97,    97,    98,   101,   110,   119,   126,   133,   154,
+     161,   168,   175,   182,   203,   211,   219,   240,   241,   242,
+     243
 };
 #endif
 
@@ -514,7 +515,8 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "'!'", "'&'", "'|'", "INTEGER", "STRING",
-  "FLOAT", "'='", "'>'", "'<'", "'('", "')'", "$accept", "stmt", "expr", YY_NULLPTR
+  "FLOAT", "'='", "'>'", "'<'", "'@'", "'('", "')'", "$accept", "stmt",
+  "expr", YY_NULLPTR
 };
 #endif
 
@@ -524,7 +526,7 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,    33,    38,   124,   258,   259,   260,    61,
-      62,    60,    40,    41
+      62,    60,    64,    40,    41
 };
 # endif
 
@@ -542,9 +544,10 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -2,    -2,     8,    -2,     3,     4,    -6,    -5,    14,    20,
-      21,     2,    -6,    -2,    -2,    17,    -6,    -6,    -6,    -6,
-      -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6,    -6
+      -2,    -2,     9,    -2,     3,     4,    -6,    -5,    16,    25,
+      26,     0,     2,    -6,    -2,    -2,    19,    -6,    -6,    -6,
+      -6,    -6,    -6,    -6,    22,    -6,    -6,    -6,    -6,    -6,
+      -6,    -6,    -6,    -6
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -552,9 +555,10 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     0,     0,     0,     0,     2,    16,     0,     0,     0,
-       0,     0,     1,     0,     0,     0,     4,    12,     8,     6,
-      10,     7,    11,    17,    14,    15,     5,    13,     9
+       3,     0,     0,     0,     0,     2,    19,     0,     0,     0,
+       0,     0,     0,     1,     0,     0,     0,     4,    14,     9,
+       6,    11,     7,    12,     0,    20,    17,    18,     5,    15,
+      10,     8,    16,    13
 };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -574,39 +578,44 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       6,     1,    11,    12,    15,     2,    13,    14,    13,    14,
-       3,     7,    24,    25,     0,    23,     0,     8,     9,    10,
-      16,    17,    18,    26,    27,    28,    19,    21,    20,    22
+       6,     1,    12,    13,    16,     2,    14,    15,    14,    15,
+      24,     3,     7,    26,    27,     0,    25,     0,     8,     9,
+      10,    11,    17,    18,    19,    28,    29,    30,    31,    32,
+      33,    20,    22,    21,    23
 };
 
 static const yytype_int8 yycheck[] =
 {
        1,     3,     3,     0,     9,     7,     4,     5,     4,     5,
-      12,     3,    13,    14,    -1,    13,    -1,     9,    10,    11,
-       6,     7,     8,     6,     7,     8,     6,     6,     8,     8
+      10,    13,     3,    14,    15,    -1,    14,    -1,     9,    10,
+      11,    12,     6,     7,     8,     6,     7,     8,     6,     7,
+       8,     6,     6,     8,     8
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     7,    12,    15,    16,    16,     3,     9,    10,
-      11,    16,     0,     4,     5,     9,     6,     7,     8,     6,
-       8,     6,     8,    13,    16,    16,     6,     7,     8
+       0,     3,     7,    13,    16,    17,    17,     3,     9,    10,
+      11,    12,    17,     0,     4,     5,     9,     6,     7,     8,
+       6,     8,     6,     8,    10,    14,    17,    17,     6,     7,
+       8,     6,     7,     8
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    14,    15,    15,    16,    16,    16,    16,    16,    16,
-      16,    16,    16,    16,    16,    16,    16,    16
+       0,    15,    16,    16,    17,    17,    17,    17,    17,    17,
+      17,    17,    17,    17,    17,    17,    17,    17,    17,    17,
+      17
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     0,     3,     4,     3,     3,     3,     4,
-       3,     3,     3,     4,     3,     3,     2,     3
+       0,     2,     1,     0,     3,     4,     3,     3,     4,     3,
+       4,     3,     3,     4,     3,     4,     4,     3,     3,     2,
+       3
 };
 
 
@@ -1392,13 +1401,13 @@ yyreduce:
         case 2:
 #line 97 "expr_bool.y" /* yacc.c:1646  */
     { result=(yyvsp[0].val_int);   }
-#line 1396 "expr_bool.cc" /* yacc.c:1646  */
+#line 1405 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 3:
 #line 98 "expr_bool.y" /* yacc.c:1646  */
     { result=true; }
-#line 1402 "expr_bool.cc" /* yacc.c:1646  */
+#line 1411 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 4:
@@ -1411,7 +1420,7 @@ yyreduce:
 
             (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_int));
         }
-#line 1415 "expr_bool.cc" /* yacc.c:1646  */
+#line 1424 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 5:
@@ -1424,7 +1433,7 @@ yyreduce:
 
             (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_int));
         }
-#line 1428 "expr_bool.cc" /* yacc.c:1646  */
+#line 1437 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 6:
@@ -1435,7 +1444,7 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_int));
         }
-#line 1439 "expr_bool.cc" /* yacc.c:1646  */
+#line 1448 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1446,54 +1455,105 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_int));
         }
-#line 1450 "expr_bool.cc" /* yacc.c:1646  */
+#line 1459 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 8:
 #line 133 "expr_bool.y" /* yacc.c:1646  */
+    {
+            std::vector<int> val;
+            std::vector<int>::iterator it;
+
+            (yyval.val_int) = false;
+
+            if ( (yyvsp[0].val_int) != 0 )
+            {
+                oxml->search((yyvsp[-3].val_str),val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ((yyvsp[0].val_int) == *it)
+                    {
+                        (yyval.val_int) = true;
+                        break;
+                    }
+                }
+            }
+        }
+#line 1484 "expr_bool.cc" /* yacc.c:1646  */
+    break;
+
+  case 9:
+#line 154 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_float));
         }
-#line 1461 "expr_bool.cc" /* yacc.c:1646  */
+#line 1495 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
-  case 9:
-#line 140 "expr_bool.y" /* yacc.c:1646  */
+  case 10:
+#line 161 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_float));
         }
-#line 1472 "expr_bool.cc" /* yacc.c:1646  */
+#line 1506 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
-  case 10:
-#line 147 "expr_bool.y" /* yacc.c:1646  */
+  case 11:
+#line 168 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_float));
         }
-#line 1483 "expr_bool.cc" /* yacc.c:1646  */
+#line 1517 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
-  case 11:
-#line 154 "expr_bool.y" /* yacc.c:1646  */
+  case 12:
+#line 175 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
-            (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_float));}
-#line 1493 "expr_bool.cc" /* yacc.c:1646  */
+            (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_float));
+        }
+#line 1528 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
-  case 12:
-#line 160 "expr_bool.y" /* yacc.c:1646  */
+  case 13:
+#line 182 "expr_bool.y" /* yacc.c:1646  */
+    {
+            std::vector<float> val;
+            std::vector<float>::iterator it;
+
+            (yyval.val_int) = false;
+
+            if ( (yyvsp[0].val_float) != 0 )
+            {
+                oxml->search((yyvsp[-3].val_str),val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ((yyvsp[0].val_float) == *it)
+                    {
+                        (yyval.val_int) = true;
+                        break;
+                    }
+                }
+            }
+        }
+#line 1553 "expr_bool.cc" /* yacc.c:1646  */
+    break;
+
+  case 14:
+#line 203 "expr_bool.y" /* yacc.c:1646  */
     {
             std::string val;
             int rc;
@@ -1501,11 +1561,11 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)==0;
         }
-#line 1505 "expr_bool.cc" /* yacc.c:1646  */
+#line 1565 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
-  case 13:
-#line 168 "expr_bool.y" /* yacc.c:1646  */
+  case 15:
+#line 211 "expr_bool.y" /* yacc.c:1646  */
     {
             std::string val;
             int rc;
@@ -1513,35 +1573,60 @@ yyreduce:
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)!=0;
         }
-#line 1517 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 14:
-#line 176 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = (yyvsp[-2].val_int) && (yyvsp[0].val_int); }
-#line 1523 "expr_bool.cc" /* yacc.c:1646  */
-    break;
-
-  case 15:
-#line 177 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = (yyvsp[-2].val_int) || (yyvsp[0].val_int); }
-#line 1529 "expr_bool.cc" /* yacc.c:1646  */
+#line 1577 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 178 "expr_bool.y" /* yacc.c:1646  */
-    { (yyval.val_int) = ! (yyvsp[0].val_int); }
-#line 1535 "expr_bool.cc" /* yacc.c:1646  */
+#line 219 "expr_bool.y" /* yacc.c:1646  */
+    {
+            std::vector<std::string> val;
+            std::vector<std::string>::iterator it;
+
+            (yyval.val_int) = false;
+
+            if ( (yyvsp[0].val_str) != 0 )
+            {
+                oxml->search((yyvsp[-3].val_str),val);
+
+                for (it=val.begin(); it != val.end(); ++it)
+                {
+                    if ( fnmatch((yyvsp[0].val_str), (*it).c_str(), 0) == 0 )
+                    {
+                        (yyval.val_int) = true;
+                        break;
+                    }
+                }
+            }
+        }
+#line 1602 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 179 "expr_bool.y" /* yacc.c:1646  */
+#line 240 "expr_bool.y" /* yacc.c:1646  */
+    { (yyval.val_int) = (yyvsp[-2].val_int) && (yyvsp[0].val_int); }
+#line 1608 "expr_bool.cc" /* yacc.c:1646  */
+    break;
+
+  case 18:
+#line 241 "expr_bool.y" /* yacc.c:1646  */
+    { (yyval.val_int) = (yyvsp[-2].val_int) || (yyvsp[0].val_int); }
+#line 1614 "expr_bool.cc" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 242 "expr_bool.y" /* yacc.c:1646  */
+    { (yyval.val_int) = ! (yyvsp[0].val_int); }
+#line 1620 "expr_bool.cc" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 243 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) =   (yyvsp[-1].val_int); }
-#line 1541 "expr_bool.cc" /* yacc.c:1646  */
+#line 1626 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1545 "expr_bool.cc" /* yacc.c:1646  */
+#line 1630 "expr_bool.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1776,7 +1861,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 182 "expr_bool.y" /* yacc.c:1906  */
+#line 246 "expr_bool.y" /* yacc.c:1906  */
 
 
 extern "C" void expr_bool__error(

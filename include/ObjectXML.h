@@ -188,6 +188,39 @@ public:
     }
 
     /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes.
+     *  @param name of the attribute
+     *  @results vector of attributes that matches the query
+     */
+    template<typename T>
+    void search(const char* name, std::vector<T>& results)
+    {
+
+        if (name[0] == '/')
+        {
+            xpaths(results, name);
+        }
+        else if (num_paths == 0)
+        {
+            results.clear();
+        }
+        else
+        {
+            std::ostringstream  xpath;
+
+            xpath << paths[0] << name;
+
+            for (int i = 1; i < num_paths ; i++)
+            {
+                xpath << '|' << paths[i] << name;
+            }
+
+            xpaths(results, xpath.str().c_str());
+        }
+    }
+
+    /**
      *  Get xml nodes by Xpath
      *    @param xpath_expr the Xpath for the elements
      *    @param content nodes for the given Xpath expression. The nodes are
@@ -326,39 +359,6 @@ private:
     /**
      *  Search the Object for a given attribute in a set of object specific
      *  routes.
-     *  @param name of the attribute
-     *  @results vector of attributes that matches the query
-     */
-    template<typename T>
-    void __search(const char* name, std::vector<T>& results)
-    {
-
-        if (name[0] == '/')
-        {
-            xpaths(results, name);
-        }
-        else if (num_paths == 0)
-        {
-            results.clear();
-        }
-        else
-        {
-            std::ostringstream  xpath;
-
-            xpath << paths[0] << name;
-
-            for (int i = 1; i < num_paths ; i++)
-            {
-                xpath << '|' << paths[i] << name;
-            }
-
-            xpaths(results, xpath.str().c_str());
-        }
-    }
-
-    /**
-     *  Search the Object for a given attribute in a set of object specific
-     *  routes.
      *    @param name of the attribute
      *    @param value of the attribute
      *
@@ -369,7 +369,7 @@ private:
     {
         std::vector<T> results;
 
-        __search(name, results);
+        search(name, results);
 
         if (results.size() != 0)
         {
