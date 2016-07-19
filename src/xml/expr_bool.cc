@@ -503,9 +503,9 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    97,    97,    98,   101,   110,   119,   126,   133,   154,
-     161,   168,   175,   182,   203,   211,   219,   240,   241,   242,
-     243
+       0,    97,    97,    98,   101,   110,   119,   126,   133,   151,
+     158,   165,   172,   179,   197,   205,   213,   234,   235,   236,
+     237
 };
 #endif
 
@@ -1466,94 +1466,88 @@ yyreduce:
 
             (yyval.val_int) = false;
 
-            if ( (yyvsp[0].val_int) != 0 )
-            {
-                oxml->search((yyvsp[-3].val_str),val);
+            oxml->search((yyvsp[-3].val_str),val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+            for (it=val.begin(); it != val.end(); ++it)
+            {
+                if ((yyvsp[0].val_int) == *it)
                 {
-                    if ((yyvsp[0].val_int) == *it)
-                    {
-                        (yyval.val_int) = true;
-                        break;
-                    }
+                    (yyval.val_int) = true;
+                    break;
                 }
             }
         }
-#line 1484 "expr_bool.cc" /* yacc.c:1646  */
+#line 1481 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 154 "expr_bool.y" /* yacc.c:1646  */
+#line 151 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val == (yyvsp[0].val_float));
         }
-#line 1495 "expr_bool.cc" /* yacc.c:1646  */
+#line 1492 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 161 "expr_bool.y" /* yacc.c:1646  */
+#line 158 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc == 0 && val != (yyvsp[0].val_float));
         }
-#line 1506 "expr_bool.cc" /* yacc.c:1646  */
+#line 1503 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 168 "expr_bool.y" /* yacc.c:1646  */
+#line 165 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val > (yyvsp[0].val_float));
         }
-#line 1517 "expr_bool.cc" /* yacc.c:1646  */
+#line 1514 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 175 "expr_bool.y" /* yacc.c:1646  */
+#line 172 "expr_bool.y" /* yacc.c:1646  */
     {
             float val, rc;
 
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc == 0 && val < (yyvsp[0].val_float));
         }
-#line 1528 "expr_bool.cc" /* yacc.c:1646  */
+#line 1525 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 182 "expr_bool.y" /* yacc.c:1646  */
+#line 179 "expr_bool.y" /* yacc.c:1646  */
     {
             std::vector<float> val;
             std::vector<float>::iterator it;
 
             (yyval.val_int) = false;
 
-            if ( (yyvsp[0].val_float) != 0 )
-            {
-                oxml->search((yyvsp[-3].val_str),val);
+            oxml->search((yyvsp[-3].val_str),val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+            for (it=val.begin(); it != val.end(); ++it)
+            {
+                if ((yyvsp[0].val_float) == *it)
                 {
-                    if ((yyvsp[0].val_float) == *it)
-                    {
-                        (yyval.val_int) = true;
-                        break;
-                    }
+                    (yyval.val_int) = true;
+                    break;
                 }
             }
         }
-#line 1553 "expr_bool.cc" /* yacc.c:1646  */
+#line 1547 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 203 "expr_bool.y" /* yacc.c:1646  */
+#line 197 "expr_bool.y" /* yacc.c:1646  */
     {
             std::string val;
             int rc;
@@ -1561,11 +1555,11 @@ yyreduce:
             rc = oxml->search((yyvsp[-2].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)==0;
         }
-#line 1565 "expr_bool.cc" /* yacc.c:1646  */
+#line 1559 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 211 "expr_bool.y" /* yacc.c:1646  */
+#line 205 "expr_bool.y" /* yacc.c:1646  */
     {
             std::string val;
             int rc;
@@ -1573,11 +1567,11 @@ yyreduce:
             rc = oxml->search((yyvsp[-3].val_str),val);
             (yyval.val_int) = (rc != 0 || (yyvsp[0].val_str)==0) ? false : fnmatch((yyvsp[0].val_str),val.c_str(),0)!=0;
         }
-#line 1577 "expr_bool.cc" /* yacc.c:1646  */
+#line 1571 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 219 "expr_bool.y" /* yacc.c:1646  */
+#line 213 "expr_bool.y" /* yacc.c:1646  */
     {
             std::vector<std::string> val;
             std::vector<std::string>::iterator it;
@@ -1598,35 +1592,35 @@ yyreduce:
                 }
             }
         }
-#line 1602 "expr_bool.cc" /* yacc.c:1646  */
+#line 1596 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 240 "expr_bool.y" /* yacc.c:1646  */
+#line 234 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = (yyvsp[-2].val_int) && (yyvsp[0].val_int); }
-#line 1608 "expr_bool.cc" /* yacc.c:1646  */
+#line 1602 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 241 "expr_bool.y" /* yacc.c:1646  */
+#line 235 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = (yyvsp[-2].val_int) || (yyvsp[0].val_int); }
-#line 1614 "expr_bool.cc" /* yacc.c:1646  */
+#line 1608 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 242 "expr_bool.y" /* yacc.c:1646  */
+#line 236 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) = ! (yyvsp[0].val_int); }
-#line 1620 "expr_bool.cc" /* yacc.c:1646  */
+#line 1614 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 243 "expr_bool.y" /* yacc.c:1646  */
+#line 237 "expr_bool.y" /* yacc.c:1646  */
     { (yyval.val_int) =   (yyvsp[-1].val_int); }
-#line 1626 "expr_bool.cc" /* yacc.c:1646  */
+#line 1620 "expr_bool.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1630 "expr_bool.cc" /* yacc.c:1646  */
+#line 1624 "expr_bool.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1861,7 +1855,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 246 "expr_bool.y" /* yacc.c:1906  */
+#line 240 "expr_bool.y" /* yacc.c:1906  */
 
 
 extern "C" void expr_bool__error(
