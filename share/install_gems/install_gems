@@ -18,7 +18,7 @@ else
     $nokogiri='nokogiri'
     DEFAULT = DEFAULT_PRE + %w{hybrid}
     LDAP='net-ldap --version "< 0.13"'
-    ZENDESK_API='zendesk_api'
+    ZENDESK_API='zendesk_api --version "< 1.14.0"'
 end
 
 if !defined?(RUBY_VERSION) || RUBY_VERSION < '2.2.0'
