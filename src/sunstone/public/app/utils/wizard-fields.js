@@ -76,13 +76,14 @@ define(function(require) {
         } else {  // if (field.is("input")){
           switch (field.attr("type")){
           case "radio":
-            var checked = (field.val().toUpperCase() == field_val.toUpperCase());
+            $('input[wizard_field="'+field_name+'"]', context).prop("checked", false);
 
-            field.prop("checked", checked);
+            var input = $('input[wizard_field="'+field_name+'"]', context).filter(function(){
+              return $(this).val().toUpperCase() == field_val.toUpperCase();
+            });
 
-            if (checked) {
-              field.change();
-            }
+            input.prop("checked", true).change();
+
             break;
           case "checkbox":
             var checked = (field.val().toUpperCase() == field_val.toUpperCase());
