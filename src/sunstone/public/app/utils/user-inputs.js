@@ -19,6 +19,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var RangeSlider = require('utils/range-slider');
+  var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./user-inputs/table');
   var RowTemplateHTML = require('hbs!./user-inputs/row');
@@ -266,7 +267,7 @@ define(function(require) {
 
       var vnetsTable;
       $.each(network_attrs, function(index, vnet_attr) {
-        var unique_id = "user_input_" + (vnet_attr.name.replace(/ /g, "_"));
+        var unique_id = "vnet_user_input_" + UniqueId.id();
         vnetsTable = new VNetsTable(unique_id, {'select': true});
 
         $(".instantiate_user_inputs", div).append(
