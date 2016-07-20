@@ -279,6 +279,12 @@ define(function(require) {
     }
 
     Foundation.reflow($('#' + this.dataTableId + 'Search-dropdown'), 'dropdown');
+
+    // For some reason the dropdown forces horizontal and vertical scrollbars,
+    // and breaks the full-screen modal positioning (VNC). It gets fixed once
+    // the dropdown is shown+hidden, so we force it now
+    $('#' + this.dataTableId + 'Search-wrapper button.search-dropdown').click();
+    $('#' + this.dataTableId + 'Search-wrapper button.search-dropdown').click();
   }
 
 
