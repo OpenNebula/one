@@ -60,7 +60,7 @@ tabs:
             VM.disk_snapshot_create: false
             VM.disk_snapshot_revert: false
             VM.disk_snapshot_delete: false
-            VM.save_as_template: true
+            VM.save_as_template: false
         dashboard:
             # Connected user's quotas
             quotas: true
