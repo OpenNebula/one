@@ -1,17 +1,1 @@
-#!/bin/bash
-
-DRIVER_PATH=$(dirname $0)
-
-DISK_COUNT=$(onevm show $4 -x|grep DISK_ID| wc -l)
-TMS=$(onevm show $4 -x|sed -rn 's/[[:space:]]*<TM_MAD><\!\[CDATA\[([^]]*).*/\1/p')
-
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $7"
-
-for i in `seq 1 $DISK_COUNT`; do
-  TM=`echo $TMS|cut -d" " -f$i`
-  DISK_ID=`echo $i-1 | bc`
-  DEV=`ssh $1 "readlink $3/disk.$DISK_ID"`
-  ${DRIVER_PATH}/../$TMS/postmigrate "$1" "$2" "$DEV"
-done
-
-exit 0
+../common/postmigrate
