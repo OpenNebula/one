@@ -83,7 +83,7 @@ static void monitor_action(
 
     if (result != "SUCCESS")
     {
-        oss << "Error monitoring datastore " << id << ": " << info64;
+        oss << "Error monitoring marketplace " << id << ": " << info64;
         NebulaLog::log("MKP", Log::ERROR, oss);
 
         delete info;
