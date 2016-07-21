@@ -17,6 +17,7 @@ NAME=oneflow-server
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
 SCRIPTNAME=/etc/init.d/$NAME
+PID_FILE=/var/run/one/oneflow.pid
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -62,6 +63,17 @@ case "$1" in
         0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
         2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
     esac
+    ;;
+  status)
+    PID=`cat $PID_FILE`
+    kill -0 $PID > /dev/null 2>&1
+    if [ "$?" -eq "0" ]; then
+      log_daemon_msg "$NAME is running"
+      log_end_msg 0
+    else
+      log_daemon_msg "$NAME is not running"
+      log_end_msg 1
+    fi
     ;;
   restart|force-reload)
     #
