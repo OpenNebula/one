@@ -62,6 +62,6 @@ begin
                                          ds_name,
                                          img_path)
 rescue Exception => e
-    STDERR.puts "Error detaching image #{img_path} size. Reason: #{e.message}"
+    STDERR.puts "Error detaching image #{img_path}. Reason: #{e.message}"
     exit -1
 end

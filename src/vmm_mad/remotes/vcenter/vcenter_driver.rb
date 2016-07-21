@@ -2650,6 +2650,7 @@ private
         ds_and_img_name = "[#{ds_name}] #{img_path}"
 
         disk  = vm.config.hardware.device.select { |d| is_disk?(d) &&
+                                 d.backing.respond_to?(:fileName) &&
                                  d.backing.fileName == ds_and_img_name }
 
         raise "Disk #{img_path} not found." if disk.nil?
