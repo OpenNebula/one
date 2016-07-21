@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-23 11:50+0200\n"
-"PO-Revision-Date: 2016-06-22 13:28+0000\n"
-"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
+"POT-Creation-Date: 2016-07-21 16:35+0200\n"
+"PO-Revision-Date: 2016-07-19 10:05+0000\n"
+"Last-Translator: Carlos Martín <cmartin@opennebula.org>\n"
 "Language-Team: Persian (Iran) (http://www.transifex.com/opennebula/one/language/fa_IR/)\n"
 "Language: fa_IR\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgid "Datastores"
 msgstr "فضاهای ذخیره سازی"
 
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:85
 #: ../app/utils/vcenter/images.js:104
@@ -44,6 +44,7 @@ msgstr "فضاهای ذخیره سازی"
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
+#: ../app/tabs/images-tab/datatable/search.hbs:22
 msgid "Datastore"
 msgstr "محیط ذخیره سازی"
 
@@ -58,19 +59,20 @@ msgstr "ساخت گروه"
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
 #: ../app/tabs/templates-tab/form-panels/create-common.js:74
-#: ../app/tabs/vrouters-tab/form-panels/create.js:61
+#: ../app/tabs/vrouters-tab/form-panels/create.js:53
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:45
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:62
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
-#: ../app/tabs/vms-tab/form-panels/create.js:51
+#: ../app/tabs/vms-tab/form-panels/create.js:45
 #: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
 #: ../app/tabs/provision-tab/vms/create.hbs:45
@@ -91,7 +93,7 @@ msgstr "به روز رسانی گروه"
 #: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
-#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/oneflow-templates-tab/buttons.js:33
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:133
 #: ../app/tabs/marketplaces-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/form-panels/create.js:61
@@ -116,17 +118,17 @@ msgid "Quotas"
 msgstr "سهمیه‌ها"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions-common.js:58
+#: ../app/tabs/templates-tab/actions-common.js:59
 #: ../app/tabs/templates-tab/buttons.js:81
-#: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
-#: ../app/tabs/provision-tab/templates/list.js:172
-#: ../app/tabs/provision-tab/templates/list.js:279
+#: ../app/tabs/vrouters-tab/buttons.js:52 ../app/tabs/zones-tab/buttons.js:33
+#: ../app/tabs/provision-tab/templates/list.js:173
+#: ../app/tabs/provision-tab/templates/list.js:280
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
 #: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
-#: ../app/tabs/oneflow-services-tab/buttons.js:52
+#: ../app/tabs/oneflow-services-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
 #: ../app/tabs/marketplaceapps-tab/buttons.js:64
 #: ../app/tabs/clusters-tab/buttons.js:38 ../app/tabs/users-tab/buttons.js:59
@@ -139,24 +141,24 @@ msgid "Delete"
 msgstr "پاک کن"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable-common.js:64
-#: ../app/tabs/vrouters-tab/datatable.js:58
-#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:66
+#: ../app/tabs/vrouters-tab/datatable.js:64
+#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:69
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
-#: ../app/tabs/oneflow-templates-tab/datatable.js:62
-#: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/marketplaces-tab/datatable.js:80
-#: ../app/tabs/oneflow-services-tab/datatable.js:63
-#: ../app/tabs/secgroups-tab/datatable.js:62
-#: ../app/tabs/vnets-tab/datatable.js:64
-#: ../app/tabs/marketplaceapps-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:64
+#: ../app/tabs/datastores-tab/datatable.js:81
+#: ../app/tabs/marketplaces-tab/datatable.js:82
+#: ../app/tabs/oneflow-services-tab/datatable.js:65
+#: ../app/tabs/secgroups-tab/datatable.js:64
+#: ../app/tabs/vnets-tab/datatable.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/clusters-tab/datatable.js:62
-#: ../app/tabs/users-tab/datatable.js:66
+#: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/panels/actions.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable-common.js:62
+#: ../app/tabs/images-tab/datatable-common.js:65
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -187,21 +189,21 @@ msgid "ID"
 msgstr "مشخصه"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable-common.js:67
-#: ../app/tabs/vrouters-tab/datatable.js:61
-#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
-#: ../app/tabs/oneflow-templates-tab/datatable.js:65
-#: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/marketplaces-tab/datatable.js:83
-#: ../app/tabs/oneflow-services-tab/datatable.js:66
-#: ../app/tabs/secgroups-tab/datatable.js:65
-#: ../app/tabs/vnets-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:84
+#: ../app/tabs/templates-tab/datatable-common.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/oneflow-templates-tab/datatable.js:67
+#: ../app/tabs/datastores-tab/datatable.js:84
+#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/oneflow-services-tab/datatable.js:68
+#: ../app/tabs/secgroups-tab/datatable.js:67
+#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
 #: ../app/tabs/clusters-tab/datatable.js:63
-#: ../app/tabs/users-tab/datatable.js:67
+#: ../app/tabs/users-tab/datatable.js:69
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/utils/vcenter/images.js:125 ../app/utils/vcenter/templates.js:138
 #: ../app/utils/vcenter/datastores.js:129 ../app/utils/vcenter/networks.js:137
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
@@ -209,26 +211,39 @@ msgstr "مشخصه"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
+#: ../app/tabs/templates-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:4
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
+#: ../app/tabs/hosts-tab/datatable/search.hbs:4
 #: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:4
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/datastores-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:4
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:4
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:4
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/vnets-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:23
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
+#: ../app/tabs/users-tab/datatable/search.hbs:4
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
+#: ../app/tabs/vms-tab/datatable/search.hbs:4
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
+#: ../app/tabs/images-tab/datatable/search.hbs:4
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -236,8 +251,8 @@ msgstr "نام"
 
 #: ../app/tabs/groups-tab/datatable.js:67
 #: ../app/tabs/groups-tab/panels/users.js:45
-#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:51
-#: ../app/tabs/users-tab.js:55
+#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:52
+#: ../app/tabs/users-tab.js:56
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:22
 msgid "Users"
@@ -248,7 +263,7 @@ msgstr "کاربران"
 #: ../app/tabs/hosts-tab/panels/vms.js:39
 #: ../app/tabs/provision-tab/flows/list.js:420 ../app/tabs/templates-tab.js:47
 #: ../app/tabs/secgroups-tab/panels/vms.js:41
-#: ../app/tabs/users-tab/datatable.js:70 ../app/tabs/vms-tab.js:65
+#: ../app/tabs/users-tab/datatable.js:73 ../app/tabs/vms-tab.js:65
 #: ../app/tabs/vms-tab.js:69 ../app/tabs/images-tab/panels/vms.js:39
 #: ../app/utils/quotas/quota-widgets.js:100 ../app/utils/showback.js:98
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:165
@@ -257,7 +272,7 @@ msgstr "کاربران"
 msgid "VMs"
 msgstr "ماشین های مجازی"
 
-#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:74
 #: ../app/utils/quotas/quota-widgets.js:196
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:21
@@ -267,7 +282,7 @@ msgstr "ماشین های مجازی"
 msgid "Memory"
 msgstr "حافظه"
 
-#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:75
 #: ../app/utils/quotas/quota-widgets.js:148
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:142
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:31
@@ -281,19 +296,20 @@ msgid "CPU"
 msgstr "پردازنده"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable-common.js:69
-#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
-#: ../app/tabs/oneflow-templates-tab/datatable.js:66
-#: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/marketplaces-tab/datatable.js:88
-#: ../app/tabs/oneflow-services-tab/datatable.js:68
-#: ../app/tabs/secgroups-tab/datatable.js:66
-#: ../app/tabs/vnets-tab/datatable.js:73
-#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/templates-tab/datatable-common.js:71
+#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:68
+#: ../app/tabs/datastores-tab/datatable.js:92
+#: ../app/tabs/marketplaces-tab/datatable.js:90
+#: ../app/tabs/oneflow-services-tab/datatable.js:70
+#: ../app/tabs/secgroups-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:76
+#: ../app/tabs/marketplaceapps-tab/datatable.js:94
 #: ../app/tabs/clusters-tab/datatable.js:67
-#: ../app/tabs/users-tab/datatable.js:75
+#: ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/images-tab/datatable-common.js:77
 #: ../app/tabs/provision-tab/vms/create.hbs:78
 #: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
@@ -329,7 +345,7 @@ msgstr "شما گروه‌های زیر را انتخاب کرده‌اید:"
 #: ../app/tabs/vnets-tab/panels/info.js:48
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:50
 #: ../app/tabs/clusters-tab/panels/info.js:46
-#: ../app/tabs/users-tab/panels/info.js:51
+#: ../app/tabs/users-tab/panels/info.js:53
 #: ../app/tabs/vms-tab/panels/info.js:51
 #: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
@@ -346,7 +362,7 @@ msgstr "اطلاعات"
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
-#: ../app/tabs/users-tab/panels/info.js:78
+#: ../app/tabs/users-tab/panels/info.js:80
 #: ../app/tabs/vms-tab/panels/info.js:94
 #: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
@@ -522,19 +538,23 @@ msgstr "نمونه‌سازی از قالب ماشین مجازی"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:58
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
-#: ../app/tabs/oneflow-templates-tab/buttons.js:33
+#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
+#: ../app/tabs/vrouter-templates-tab/buttons.js:30
 msgid "Instantiate"
 msgstr "فورا بساز"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:130
 msgid "No template selected"
 msgstr "هیچ template‌ای انتخاب نشده است"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
-#: ../app/tabs/vrouters-tab/form-panels/create.js:129
-#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
-#: ../app/utils/user-inputs.js:226
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:270
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
+#: ../app/tabs/provision-tab.js:959 ../app/tabs/provision-tab.js:1205
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:194
+#: ../app/utils/user-inputs.js:227
 msgid "Custom Attributes"
 msgstr "ویژگی‌های سفارشی"
 
@@ -579,6 +599,11 @@ msgstr "ورودی/خروجی"
 msgid "Scheduling"
 msgstr "زمانبندی"
 
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
+#: ../app/utils/resource-select.js:50
+msgid "Please select"
+msgstr "لطفا انتخاب کنید"
+
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
 msgstr "بوت سیستم‌عامل"
@@ -622,8 +647,8 @@ msgstr "دیسک"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
 #: ../app/tabs/vms-tab/panels/network.js:49
 #: ../app/tabs/vms-tab/panels/network.js:80
-#: ../app/tabs/vms-tab/panels/network.js:350
-#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
+#: ../app/tabs/vms-tab/panels/network.js:366
+#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:231
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
@@ -632,8 +657,8 @@ msgstr "دیسک"
 msgid "Network"
 msgstr "شبکه"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:177
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:213
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:225
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:261
 msgid "NIC"
 msgstr "NIC"
 
@@ -641,11 +666,6 @@ msgstr "NIC"
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
 msgstr "دیگر"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:93
-#: ../app/utils/resource-select.js:50
-msgid "Please select"
-msgstr "لطفا انتخاب کنید"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:54
 msgid "Hybrid"
@@ -666,43 +686,43 @@ msgstr "ارائه دهنده"
 msgid "General"
 msgstr "عمومی"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:155
 #: ../app/utils/vcenter/templates.js:234
 msgid "Which datastore you want this VM to run on?"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:176
 #: ../app/utils/vcenter/templates.js:255
 msgid "Which resource pool you want this VM to run in?"
 msgstr ""
 
 #: ../app/tabs/templates-tab/actions-common.js:39
-#: ../app/tabs/templates-tab/actions-common.js:227
-#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/templates-tab/actions-common.js:228
+#: ../app/tabs/templates-tab/actions-common.js:239
 #: ../app/tabs/marketplaceapps-tab/actions.js:76
 msgid "VM Template created"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:54
+#: ../app/tabs/templates-tab/actions-common.js:55
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:57
+#: ../app/tabs/templates-tab/actions-common.js:58
 msgid "Delete all images"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:158
-#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/templates-tab/actions-common.js:159
+#: ../app/tabs/templates-tab/actions-common.js:204
 #: ../app/tabs/vms-tab/actions.js:40
 msgid "VM created"
 msgstr ""
 
 #: ../app/tabs/templates-tab/buttons.js:49
-#: ../app/tabs/vrouters-tab/buttons.js:32
+#: ../app/tabs/vrouters-tab/buttons.js:37
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
 #: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
-#: ../app/tabs/oneflow-services-tab/buttons.js:28
+#: ../app/tabs/oneflow-services-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
 #: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
@@ -710,11 +730,11 @@ msgid "Change owner"
 msgstr "تغییر مالک"
 
 #: ../app/tabs/templates-tab/buttons.js:52
-#: ../app/tabs/vrouters-tab/buttons.js:35
+#: ../app/tabs/vrouters-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
-#: ../app/tabs/oneflow-services-tab/buttons.js:30
+#: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
 #: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
@@ -722,11 +742,11 @@ msgid "Select the new owner"
 msgstr "انتخاب مالک جدید"
 
 #: ../app/tabs/templates-tab/buttons.js:56
-#: ../app/tabs/vrouters-tab/buttons.js:39
+#: ../app/tabs/vrouters-tab/buttons.js:44
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
 #: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
-#: ../app/tabs/oneflow-services-tab/buttons.js:35
+#: ../app/tabs/oneflow-services-tab/buttons.js:40
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
 #: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
@@ -734,11 +754,11 @@ msgid "Change group"
 msgstr "تغییر گروه"
 
 #: ../app/tabs/templates-tab/buttons.js:59
-#: ../app/tabs/vrouters-tab/buttons.js:42
+#: ../app/tabs/vrouters-tab/buttons.js:47
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
-#: ../app/tabs/oneflow-services-tab/buttons.js:37
+#: ../app/tabs/oneflow-services-tab/buttons.js:42
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
 #: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
@@ -756,7 +776,7 @@ msgid "Clone"
 msgstr "همانندسازی"
 
 #: ../app/tabs/templates-tab/buttons.js:69
-#: ../app/tabs/provision-tab/templates/list.js:166
+#: ../app/tabs/provision-tab/templates/list.js:167
 msgid "Share"
 msgstr "به اشتراک گذاری"
 
@@ -765,7 +785,7 @@ msgid "The template, along with any image referenced by it, will be shared with 
 msgstr ""
 
 #: ../app/tabs/templates-tab/buttons.js:75
-#: ../app/tabs/provision-tab/templates/list.js:163
+#: ../app/tabs/provision-tab/templates/list.js:164
 msgid "Unshare"
 msgstr "لغو اشتراک‌گذاری"
 
@@ -773,69 +793,92 @@ msgstr "لغو اشتراک‌گذاری"
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr ""
 
-#: ../app/tabs/templates-tab/datatable-common.js:65
-#: ../app/tabs/vrouters-tab/datatable.js:59
-#: ../app/tabs/oneflow-templates-tab/datatable.js:63
-#: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/marketplaces-tab/datatable.js:81
-#: ../app/tabs/oneflow-services-tab/datatable.js:64
-#: ../app/tabs/secgroups-tab/datatable.js:63
-#: ../app/tabs/vnets-tab/datatable.js:65
-#: ../app/tabs/marketplaceapps-tab/datatable.js:82
+#: ../app/tabs/templates-tab/datatable-common.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:65
+#: ../app/tabs/oneflow-templates-tab/datatable.js:65
+#: ../app/tabs/datastores-tab/datatable.js:82
+#: ../app/tabs/marketplaces-tab/datatable.js:83
+#: ../app/tabs/oneflow-services-tab/datatable.js:66
+#: ../app/tabs/secgroups-tab/datatable.js:65
+#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:84
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable-common.js:63
+#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/templates-tab/datatable/search.hbs:10
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:10
+#: ../app/tabs/datastores-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:10
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:10
+#: ../app/tabs/vnets-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:10
+#: ../app/tabs/images-tab/datatable/search.hbs:10
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "مالک"
 
-#: ../app/tabs/templates-tab/datatable-common.js:66
-#: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:66 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
-#: ../app/tabs/oneflow-templates-tab/datatable.js:64
-#: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/marketplaces-tab/datatable.js:82
-#: ../app/tabs/oneflow-services-tab/datatable.js:65
-#: ../app/tabs/secgroups-tab/datatable.js:64
-#: ../app/tabs/vnets-tab/datatable.js:66
-#: ../app/tabs/marketplaceapps-tab/datatable.js:83
-#: ../app/tabs/users-tab/datatable.js:68
+#: ../app/tabs/oneflow-templates-tab/datatable.js:66
+#: ../app/tabs/datastores-tab/datatable.js:83
+#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/oneflow-services-tab/datatable.js:67
+#: ../app/tabs/secgroups-tab/datatable.js:66
+#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/users-tab/datatable.js:70
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/templates-tab/datatable/search.hbs:16
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:16
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:160
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:16
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:16
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:16
+#: ../app/tabs/vnets-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/panels/info/chgrp-tr.hbs:18
+#: ../app/tabs/users-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:16
+#: ../app/tabs/images-tab/datatable/search.hbs:16
 #: ../app/utils/accounting/html.hbs:30 ../app/utils/accounting/html.hbs:40
 #: ../app/utils/panel/permissions-table/permissions.hbs:38
 #: ../app/utils/panel/permissions-table/group.hbs:18
 msgid "Group"
 msgstr "گروه"
 
-#: ../app/tabs/templates-tab/datatable-common.js:68
-#: ../app/tabs/images-tab/datatable-common.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:72
 msgid "Registration time"
 msgstr "زمان ثبت"
 
-#: ../app/tabs/templates-tab/datatable-common.js:75
-#: ../app/tabs/oneflow-templates-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:78
+#: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "Please select a Template from the list"
 msgstr "لطفاً یک template از لیست انتخاب نمایید"
 
-#: ../app/tabs/templates-tab/datatable-common.js:76
-#: ../app/tabs/oneflow-templates-tab/datatable.js:73
+#: ../app/tabs/templates-tab/datatable-common.js:79
+#: ../app/tabs/oneflow-templates-tab/datatable.js:76
 msgid "You selected the following Template:"
 msgstr "شما template زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/templates-tab/datatable-common.js:77
-#: ../app/tabs/oneflow-templates-tab/datatable.js:74
+#: ../app/tabs/templates-tab/datatable-common.js:80
+#: ../app/tabs/oneflow-templates-tab/datatable.js:77
 msgid "Please select one or more Templates from the list"
 msgstr "لطفاً یک یا چند template از لیست انتخاب نمایید"
 
-#: ../app/tabs/templates-tab/datatable-common.js:78
-#: ../app/tabs/oneflow-templates-tab/datatable.js:75
+#: ../app/tabs/templates-tab/datatable-common.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:78
 msgid "You selected the following Templates:"
 msgstr "شما template‌های زیر را انتخاب کرده‌اید:"
 
@@ -843,9 +886,9 @@ msgstr "شما template‌های زیر را انتخاب کرده‌اید:"
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
 #: ../app/tabs/vms-tab/panels/template.js:40
 #: ../app/tabs/vms-tab/panels/template.js:69
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/provision-tab/vms/create.hbs:50
 #: ../app/tabs/provision-tab/flows/create.hbs:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:18
 msgid "Template"
 msgstr "قالب"
 
@@ -854,36 +897,38 @@ msgstr "قالب"
 msgid "System"
 msgstr "سیستم"
 
-#: ../app/tabs/vrouters-tab/actions.js:31
+#: ../app/tabs/vrouters-tab/actions.js:32
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:144
 msgid "Virtual Router created"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:60
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:57
+#: ../app/tabs/vrouters-tab/buttons.js:33
+msgid "Instantiate VMs"
+msgstr ""
+
+#: ../app/tabs/vrouters-tab/form-panels/create.js:52
 msgid "Create Virtual Router"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:199
-msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr ""
-
-#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:75
 msgid "Please select a virtual router from the list"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:76
 msgid "You selected the following virtual router:"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/datatable.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:77
 msgid "Please select one or more virtual routers from the list"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/datatable.js:70
+#: ../app/tabs/vrouters-tab/datatable.js:78
 msgid "You selected the following virtual routers:"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info.js:154
-#: ../app/tabs/vms-tab/panels/network.js:396
+#: ../app/tabs/vms-tab/panels/network.js:412
 msgid "This will detach the nic immediately"
 msgstr ""
 
@@ -953,89 +998,95 @@ msgstr ""
 msgid "Delete host"
 msgstr "میزبان را پاک کن"
 
-#: ../app/tabs/hosts-tab/datatable.js:69
-#: ../app/tabs/datastores-tab/datatable.js:84
-#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/hosts-tab/datatable.js:71
+#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/clusters-tab/panels/info.js:104 ../app/tabs/clusters-tab.js:51
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:29
+#: ../app/tabs/hosts-tab/datatable/search.hbs:10
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:150
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:165
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:40
+#: ../app/tabs/vms-tab/datatable/search.hbs:47
 #: ../app/utils/panel/cluster-tr/html.hbs:18
 msgid "Cluster"
 msgstr "خوشه"
 
-#: ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/hosts-tab/datatable.js:72
 msgid "RVMs"
 msgstr "ماشین های مجازی"
 
-#: ../app/tabs/hosts-tab/datatable.js:71 ../app/tabs/hosts-tab/datatable.js:218
-#: ../app/tabs/vms-tab/panels/capacity.js:120
+#: ../app/tabs/hosts-tab/datatable.js:73 ../app/tabs/hosts-tab/datatable.js:235
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:24
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:71
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:59
 msgid "Real CPU"
 msgstr "پردازنده‌ی واقعی"
 
-#: ../app/tabs/hosts-tab/datatable.js:72 ../app/tabs/hosts-tab/datatable.js:202
+#: ../app/tabs/hosts-tab/datatable.js:74 ../app/tabs/hosts-tab/datatable.js:219
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "پردازنده‌ی تخصیص یافته"
 
-#: ../app/tabs/hosts-tab/datatable.js:73
-#: ../app/tabs/vms-tab/panels/capacity.js:126
+#: ../app/tabs/hosts-tab/datatable.js:75
 msgid "Real MEM"
 msgstr "رم واقعی"
 
-#: ../app/tabs/hosts-tab/datatable.js:74
+#: ../app/tabs/hosts-tab/datatable.js:76
 msgid "Allocated MEM"
 msgstr "رم تخصیص یافته"
 
-#: ../app/tabs/hosts-tab/datatable.js:75
-#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/datastores-tab/datatable.js:91
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable-common.js:71
+#: ../app/tabs/images-tab/datatable-common.js:74
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
+#: ../app/tabs/hosts-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:22
+#: ../app/tabs/vms-tab/datatable/search.hbs:22
+#: ../app/tabs/images-tab/datatable/search.hbs:34
 msgid "Status"
 msgstr "وضعیت"
 
-#: ../app/tabs/hosts-tab/datatable.js:76
+#: ../app/tabs/hosts-tab/datatable.js:78
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:38
+#: ../app/tabs/hosts-tab/datatable/search.hbs:22
 msgid "IM MAD"
 msgstr "IM MAD"
 
-#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:43
+#: ../app/tabs/hosts-tab/datatable/search.hbs:28
 msgid "VM MAD"
 msgstr "VM MAD"
 
-#: ../app/tabs/hosts-tab/datatable.js:78
+#: ../app/tabs/hosts-tab/datatable.js:80
 msgid "Last monitored on"
 msgstr "آخرین زمان نظارت"
 
-#: ../app/tabs/hosts-tab/datatable.js:85
+#: ../app/tabs/hosts-tab/datatable.js:88
 msgid "Please select a Host from the list"
 msgstr "لطفاً یک میزبان از لیست انتخاب کنید"
 
-#: ../app/tabs/hosts-tab/datatable.js:86
+#: ../app/tabs/hosts-tab/datatable.js:89
 msgid "You selected the following Host:"
 msgstr "شما میزبان زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/hosts-tab/datatable.js:87
+#: ../app/tabs/hosts-tab/datatable.js:90
 msgid "Please select one or more hosts from the list"
 msgstr "لطفاً یک یا چند میزبان از لیست انتخاب کنید"
 
-#: ../app/tabs/hosts-tab/datatable.js:88
+#: ../app/tabs/hosts-tab/datatable.js:91
 msgid "You selected the following hosts:"
 msgstr "شما میزبان‌های زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/hosts-tab/datatable.js:234
+#: ../app/tabs/hosts-tab/datatable.js:251
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
 msgid "Allocated Memory"
 msgstr "رم تخصیص یافته"
 
-#: ../app/tabs/hosts-tab/datatable.js:250
+#: ../app/tabs/hosts-tab/datatable.js:267
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:25
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:67
 msgid "Real Memory"
@@ -1049,6 +1100,7 @@ msgstr "ESX"
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
+#: ../app/tabs/vms-tab/datatable/search.hbs:39
 msgid "Host"
 msgstr "میزبان"
 
@@ -1058,11 +1110,15 @@ msgstr "گراف‌ها"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
+#: ../app/tabs/vms-tab/panels/capacity.js:120
+#: ../app/tabs/vms-tab/panels/capacity.js:127
 msgid "Allocated"
 msgstr "تخصیص یافته"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
+#: ../app/tabs/vms-tab/panels/capacity.js:120
+#: ../app/tabs/vms-tab/panels/capacity.js:127
 msgid "Real"
 msgstr "واقعی"
 
@@ -1103,25 +1159,25 @@ msgstr "امکان برقراری ارتباط با سرور نیست: آیا س
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
 #: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
-#: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
+#: ../app/tabs/users-tab.js:59 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "مجموع"
 
-#: ../app/tabs/vrouter-templates-tab.js:44
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/vrouter-templates-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:46
+#: ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
 msgid "Virtual Routers"
 msgstr ""
 
-#: ../app/tabs/vrouter-templates-tab.js:48
+#: ../app/tabs/vrouter-templates-tab.js:49
 msgid "Virtual Router VM Templates"
 msgstr ""
 
-#: ../app/tabs/vrouter-templates-tab.js:49
+#: ../app/tabs/vrouter-templates-tab.js:50
 msgid "Virtual Router VM Template"
 msgstr ""
 
@@ -1135,58 +1191,58 @@ msgid "Templates"
 msgstr "قالب ها"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
-#: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
-#: ../app/tabs/provision-tab.js:1070
+#: ../app/tabs/provision-tab/templates/list.js:147
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:797
+#: ../app/tabs/provision-tab.js:1072
 msgid "There are no templates available"
 msgstr "templateای وجود ندارد"
 
-#: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:627
+#: ../app/tabs/provision-tab/templates/list.js:114
+#: ../app/tabs/provision-tab.js:629
 msgid "No labels defined"
 msgstr ""
 
-#: ../app/tabs/provision-tab/templates/list.js:148
+#: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
 msgstr "ایجاد template با ذخیره‌ی ماشین‌مجازی در حال اجرا"
 
-#: ../app/tabs/provision-tab/templates/list.js:164
+#: ../app/tabs/provision-tab/templates/list.js:165
 msgid "SHARED"
 msgstr "به اشتراک گذاشته شده"
 
-#: ../app/tabs/provision-tab/templates/list.js:252
+#: ../app/tabs/provision-tab/templates/list.js:253
 #: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
 #: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr "همه"
 
-#: ../app/tabs/provision-tab/templates/list.js:273
+#: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
 msgstr ""
 
-#: ../app/tabs/provision-tab/templates/list.js:275
+#: ../app/tabs/provision-tab/templates/list.js:276
 msgid "and the image associated."
 msgstr "و ایمیج تعلق گرفت."
 
-#: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:324
+#: ../app/tabs/provision-tab/templates/list.js:372
 msgid "The template"
 msgstr "تمپلیت"
 
-#: ../app/tabs/provision-tab/templates/list.js:325
+#: ../app/tabs/provision-tab/templates/list.js:326
 msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "و ایمیج وابسته در دسترس قرار خواهد گرفت و همه کاربران قادر به برپایی ماشین مجازی جدید با استفاده از این الگو خواهند بود."
 
-#: ../app/tabs/provision-tab/templates/list.js:329
+#: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
 msgstr "به اشتراک‌گذاری template"
 
-#: ../app/tabs/provision-tab/templates/list.js:373
+#: ../app/tabs/provision-tab/templates/list.js:374
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "و ایمیج وابسته از دسترس خارج خواهد شد و کاربران قادر به برپایی ماشین مجازی جدید با استفاده از این الگو نخواهند بود."
 
-#: ../app/tabs/provision-tab/templates/list.js:377
+#: ../app/tabs/provision-tab/templates/list.js:378
 msgid "Unshare template"
 msgstr "لغو اشتراک‌گذاری template"
 
@@ -1233,7 +1289,7 @@ msgstr "استقرار"
 
 #: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:191
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
@@ -1263,7 +1319,7 @@ msgstr "در حال خاموش شدن"
 #: ../app/tabs/provision-tab/vms/list.js:920
 #: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:204
 msgid "UNKNOWN"
 msgstr "شناخته نشده"
 
@@ -1291,8 +1347,8 @@ msgstr "در حال حذف شدن"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
 #: ../app/tabs/oneflow-templates-tab.js:48
-#: ../app/tabs/oneflow-services-tab.js:46
-#: ../app/tabs/oneflow-services-tab.js:50
+#: ../app/tabs/oneflow-services-tab.js:47
+#: ../app/tabs/oneflow-services-tab.js:51
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
 msgstr "سرویس‌ها"
@@ -1303,7 +1359,7 @@ msgstr "سرویسی وجود ندارد"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:57
-#: ../app/tabs/oneflow-services-tab.js:55
+#: ../app/tabs/oneflow-services-tab.js:56
 msgid "Cannot connect to OneFlow server"
 msgstr "به سرور OneFlow متصل نمی‌شود."
 
@@ -1347,7 +1403,7 @@ msgid "Be careful, this action will immediately shutdown your Service"
 msgstr ""
 
 #: ../app/tabs/provision-tab/flows/list.js:527
-#: ../app/tabs/oneflow-services-tab/buttons.js:43
+#: ../app/tabs/oneflow-services-tab/buttons.js:48
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
 msgstr "خاموش کن"
@@ -1461,9 +1517,11 @@ msgid "Allowed operations"
 msgstr "اعمال مجاز"
 
 #: ../app/tabs/acls-tab/datatable.js:66
-#: ../app/tabs/marketplaces-tab/datatable.js:87 ../app/tabs/zones-tab.js:45
-#: ../app/tabs/marketplaceapps-tab/datatable.js:91
+#: ../app/tabs/marketplaces-tab/datatable.js:89 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 msgid "Zone"
 msgstr "زون"
 
@@ -1516,11 +1574,11 @@ msgstr "زون‌ها"
 #: ../app/tabs/acls-tab/datatable.js:169 ../app/tabs/secgroups-tab.js:45
 #: ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:167
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:167
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:65
+#: ../app/utils/nics-section/dd.hbs:69
 msgid "Security Groups"
 msgstr "گروه‌های امنیتی"
 
@@ -1537,7 +1595,7 @@ msgstr ""
 msgid "Marketplace Apps"
 msgstr ""
 
-#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:56
+#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:57
 #: ../app/utils/accounting.js:349
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:24
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:91
@@ -1563,7 +1621,7 @@ msgid "Service Template created"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
-#: ../app/tabs/oneflow-services-tab/actions.js:34
+#: ../app/tabs/oneflow-services-tab/actions.js:35
 msgid "Service created"
 msgstr ""
 
@@ -1618,8 +1676,8 @@ msgstr "لطفاً یک کلاستر برای این datastore انتخاب نم
 msgid "Import vCenter Datastores"
 msgstr ""
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
-#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/datastores-tab/datatable.js:85 ../app/tabs/provision-tab.js:184
+#: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/vms-tab/panels/capacity.js:52
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
@@ -1629,24 +1687,26 @@ msgstr ""
 msgid "Capacity"
 msgstr "ظرفیت"
 
-#: ../app/tabs/datastores-tab/datatable.js:85
+#: ../app/tabs/datastores-tab/datatable.js:87
 msgid "Basepath"
 msgstr "مسیر پایه"
 
-#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable/search.hbs:32
 msgid "TM MAD"
 msgstr "TM MAD"
 
-#: ../app/tabs/datastores-tab/datatable.js:87
+#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/datastores-tab/datatable/search.hbs:40
 msgid "DS MAD"
 msgstr "DS MAD"
 
-#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable.js:90
 #: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
-#: ../app/tabs/marketplaceapps-tab/datatable.js:88
-#: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable-common.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/vms-tab/panels/network.js:364
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1665,25 +1725,26 @@ msgstr "DS MAD"
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:42
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:35
 #: ../app/tabs/images-tab/panels/info/html.hbs:42
+#: ../app/tabs/images-tab/datatable/search.hbs:28
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/templates/row.hbs:44
 #: ../app/utils/vcenter/templates/row.hbs:69
 #: ../app/utils/vcenter/networks/row.hbs:45
 msgid "Type"
 msgstr "نوع"
 
-#: ../app/tabs/datastores-tab/datatable.js:97
+#: ../app/tabs/datastores-tab/datatable.js:100
 msgid "Please select a datastore from the list"
 msgstr "لطفا یک دیتا استور از لیست انتخاب کنید"
 
-#: ../app/tabs/datastores-tab/datatable.js:98
+#: ../app/tabs/datastores-tab/datatable.js:101
 msgid "You selected the following datastore:"
 msgstr "دیتا استور زیر را انتخاب کرده اید"
 
-#: ../app/tabs/datastores-tab/datatable.js:99
+#: ../app/tabs/datastores-tab/datatable.js:102
 msgid "Please select one or more datastores from the list"
 msgstr "لطفا یک یا چند دیتا استور از لیست انتخاب کنید"
 
-#: ../app/tabs/datastores-tab/datatable.js:100
+#: ../app/tabs/datastores-tab/datatable.js:103
 msgid "You selected the following datastores:"
 msgstr "دیتا استور های زیر را انتخاب کرده اید"
 
@@ -1699,7 +1760,7 @@ msgstr "شمارگان"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
 msgstr "هزینه"
@@ -1709,27 +1770,27 @@ msgstr "هزینه"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
 msgstr "ساعت"
 
-#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
 #: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
 #: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab.js:760 ../app/tabs/provision-tab.js:838
 #: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
 msgstr ""
 
-#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
+#: ../app/tabs/provision-tab.js:991 ../app/tabs/provision-tab.js:1238
 msgid "You must select at least a template configuration"
 msgstr "شما باید حداقل یک قالب پیکربندی را انتخاب کنید."
 
@@ -1761,7 +1822,7 @@ msgstr "لطفاً یک یا چند فایل از لیست زیر انتخاب �
 msgid "You selected the following files:"
 msgstr "شما فایل‌های زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
+#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:362
 msgid "Security Group"
 msgstr "گروه امنیتی"
 
@@ -1850,67 +1911,75 @@ msgstr ""
 msgid "Update MarketPlace"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/marketplaces-tab/datatable.js:87
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
 #: ../app/tabs/marketplaceapps-tab.js:49 ../app/tabs/marketplaceapps-tab.js:53
 msgid "Apps"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/datatable.js:86
+#: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:22
 msgid "Driver"
 msgstr "درایور"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:95
+#: ../app/tabs/marketplaces-tab/datatable.js:98
 msgid "Please select a marketplace from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/datatable.js:96
+#: ../app/tabs/marketplaces-tab/datatable.js:99
 msgid "You selected the following marketplace:"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/datatable.js:97
+#: ../app/tabs/marketplaces-tab/datatable.js:100
 msgid "Please select one or more marketplaces from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaces-tab/datatable.js:98
+#: ../app/tabs/marketplaces-tab/datatable.js:101
 msgid "You selected the following marketplaces:"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:48
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:44
+#: ../app/tabs/provision-tab/flows/create.hbs:20
+msgid "Create Service"
+msgstr "ایجاد سرویس"
+
+#: ../app/tabs/oneflow-services-tab/buttons.js:53
 #: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "بازیابی"
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:54
+#: ../app/tabs/oneflow-services-tab/buttons.js:59
 msgid "This will delete the selected services"
 msgstr "این امکان باعث پاک شدن سرویس انتخاب شده می‌شود"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:87
+#: ../app/tabs/oneflow-services-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:89
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:22
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:22
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "وضعیت"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:74
+#: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Please select a Service from the list"
 msgstr "لطفاً یک سرویس از لیست انتخاب نمایید"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:75
+#: ../app/tabs/oneflow-services-tab/datatable.js:78
 msgid "You selected the following Service:"
 msgstr "شما سرویس زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:76
+#: ../app/tabs/oneflow-services-tab/datatable.js:79
 msgid "Please select one or more Services from the list"
 msgstr "لطفاً یک یا چند سرویس از لیست انتخاب نمایید"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:77
+#: ../app/tabs/oneflow-services-tab/datatable.js:80
 msgid "You selected the following Services:"
 msgstr "شما سرویس‌های زیر را انتخاب کرده‌اید:"
 
@@ -1935,12 +2004,12 @@ msgid "Waiting for the VM to be ready"
 msgstr "منتظر آماده شدن ماشین‌مجازی باشید"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
-#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:163
+#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:168
 msgid "VNC Connection in progress"
 msgstr "اتصال VNC در حال انجام است."
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
-#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:176
+#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:181
 msgid "SPICE Connection in progress"
 msgstr "اتصال SPICE در حال انجام است."
 
@@ -2017,22 +2086,28 @@ msgstr "سهمیه گروه"
 msgid "Select group"
 msgstr "انتخاب گروه"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:51
+#: ../app/tabs/settings-tab/panels/user-config.js:52
 msgid "Config"
 msgstr "تنظیم"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:99
+#: ../app/tabs/settings-tab/panels/user-config.js:109
 msgid "Fill in a new password"
 msgstr "یک رمز عبور جدید وارد کنید"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:104
+#: ../app/tabs/settings-tab/panels/user-config.js:114
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:31
 msgid "Passwords do not match"
 msgstr "رمز‌های عبور همخوانی ندارند"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:118
+#: ../app/tabs/settings-tab/panels/user-config.js:128
 msgid "You have to provide an SSH key"
 msgstr "شما یک کلید SSH ارائه کرده‌اید"
+
+#: ../app/tabs/settings-tab/panels/user-config.js:155
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:215
+#: ../app/tabs/users-tab/panels/info/html.hbs:101
+msgid "Get a login token"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
@@ -2055,19 +2130,19 @@ msgstr "ایجاد گروه امنیتی"
 msgid "Update Security Group"
 msgstr "به روز رسانی گروه امنیتی"
 
-#: ../app/tabs/secgroups-tab/datatable.js:72
+#: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "Please select a security group from the list"
 msgstr "لطفاً یک گروه امنیتی از لیست انتخاب کنید"
 
-#: ../app/tabs/secgroups-tab/datatable.js:73
+#: ../app/tabs/secgroups-tab/datatable.js:76
 msgid "You selected the following security group:"
 msgstr "شما گروه امنیتی زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/secgroups-tab/datatable.js:74
+#: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select one or more security groups from the list"
 msgstr "لطفاً یک یا چند گروه امنیتی از لیست انتخاب کنید"
 
-#: ../app/tabs/secgroups-tab/datatable.js:75
+#: ../app/tabs/secgroups-tab/datatable.js:78
 msgid "You selected the following security groups:"
 msgstr "شما گروه‌های امنیتی زیر را انتخاب کرده‌اید:"
 
@@ -2110,8 +2185,8 @@ msgstr "شروع"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:108
 #: ../app/tabs/vnets-tab/panels/ar.js:310
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:88
+#: ../app/tabs/images-tab/datatable-common.js:70
 #: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:126
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
@@ -2123,6 +2198,7 @@ msgid "Size"
 msgstr "حجم"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:112
+#: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
 msgstr "هر"
 
@@ -2156,16 +2232,16 @@ msgstr "ورود شبکه‌های vCenter"
 msgid "Reserve"
 msgstr "بازگشتی"
 
-#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:71
 msgid "Reservation"
 msgstr "رزرواسیون"
 
-#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/vnets-tab/datatable.js:73
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:65
 msgid "Bridge"
 msgstr "پل ارتباطی"
 
-#: ../app/tabs/vnets-tab/datatable.js:71
+#: ../app/tabs/vnets-tab/datatable.js:74
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
 #: ../app/utils/quotas/quota-widgets.js:585
@@ -2173,29 +2249,30 @@ msgstr "پل ارتباطی"
 msgid "Leases"
 msgstr "اجاره ها"
 
-#: ../app/tabs/vnets-tab/datatable.js:72
+#: ../app/tabs/vnets-tab/datatable.js:75
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:139
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:34
+#: ../app/tabs/vnets-tab/datatable/search.hbs:22
 msgid "VLAN ID"
 msgstr "مشخصه VLAN"
 
-#: ../app/tabs/vnets-tab/datatable.js:80
+#: ../app/tabs/vnets-tab/datatable.js:84
 msgid "Please select a network from the list"
 msgstr "یک شبکه را از لیست انتخاب کنید"
 
-#: ../app/tabs/vnets-tab/datatable.js:81
+#: ../app/tabs/vnets-tab/datatable.js:85
 msgid "You selected the following network:"
 msgstr "شما شبکه‌های زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/vnets-tab/datatable.js:82
+#: ../app/tabs/vnets-tab/datatable.js:86
 msgid "Please select one or more networks from the list"
 msgstr "لطفاً یک یا تعداد بیشتر شبکه از لیست انتخاب کنید"
 
-#: ../app/tabs/vnets-tab/datatable.js:83
+#: ../app/tabs/vnets-tab/datatable.js:87
 msgid "You selected the following networks:"
 msgstr "شما شبکه‌های زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:162
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:173
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:186
@@ -2205,7 +2282,7 @@ msgstr "شما شبکه‌های زیر را انتخاب کرده‌اید:"
 msgid "Yes"
 msgstr "بله"
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:163
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:174
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:187
@@ -2216,6 +2293,7 @@ msgid "No"
 msgstr "خیر"
 
 #: ../app/tabs/vnets-tab/panels/info.js:84
+#: ../app/tabs/vnets-tab/datatable/search.hbs:28
 msgid "Reservation parent"
 msgstr "Reservation parent"
 
@@ -2315,7 +2393,7 @@ msgid "MarketPlace App created"
 msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
-#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
+#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:129
 msgid "Image created"
 msgstr ""
 
@@ -2324,16 +2402,16 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:127
+#: ../app/tabs/marketplaceapps-tab/actions.js:128
 msgid "This MarketPlace App resides in Zone "
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:129
+#: ../app/tabs/marketplaceapps-tab/actions.js:130
 msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:132
-#: ../app/tabs/images-tab/actions.js:99
+#: ../app/tabs/marketplaceapps-tab/actions.js:133
+#: ../app/tabs/images-tab/actions.js:100
 msgid "Ok"
 msgstr ""
 
@@ -2358,37 +2436,39 @@ msgstr ""
 msgid "OpenNebula"
 msgstr "اوپن‌نبولا"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:89
+#: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
 msgstr "فروشگاه"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:99
+#: ../app/tabs/marketplaceapps-tab/datatable.js:102
 msgid "Please select an appliance from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:100
+#: ../app/tabs/marketplaceapps-tab/datatable.js:103
 msgid "You selected the following appliance:"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
+#: ../app/tabs/marketplaceapps-tab/datatable.js:104
 msgid "Please select one or more appliances from the list"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:102
+#: ../app/tabs/marketplaceapps-tab/datatable.js:105
 msgid "You selected the following appliances:"
 msgstr ""
 
-#: ../app/tabs/oneflow-services-tab.js:51
+#: ../app/tabs/oneflow-services-tab.js:52
+#: ../app/tabs/vms-tab/datatable/search.hbs:33
 msgid "Service"
 msgstr ""
 
@@ -2396,8 +2476,16 @@ msgstr ""
 msgid "Instances"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab.js:50
+#: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/datatable/search.hbs:32
 msgid "Virtual Router"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:57
+msgid "Instantiate Virtual Router Template"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:162
+msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
 msgstr ""
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
@@ -2452,13 +2540,15 @@ msgstr ""
 msgid "Create User"
 msgstr "ایجاد کاربر"
 
-#: ../app/tabs/users-tab/buttons.js:33
+#: ../app/tabs/users-tab/buttons.js:33 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/users-tab/panels/info.js:134
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:60
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:28
-#: ../app/tabs/users-tab/panels/info/html.hbs:43
+#: ../app/tabs/users-tab/panels/info/html.hbs:82
+#: ../app/tabs/users-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:25
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:28
 msgid "Password"
@@ -2476,39 +2566,49 @@ msgstr ""
 msgid "This will change the primary group of the selected users. Select the new group"
 msgstr ""
 
-#: ../app/tabs/users-tab/datatable.js:69
+#: ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/users-tab/datatable/search.hbs:22
 msgid "Auth driver"
 msgstr "Auth driver"
 
-#: ../app/tabs/users-tab/datatable.js:73
+#: ../app/tabs/users-tab/datatable.js:76
 msgid "Group ID"
 msgstr "مشخصه گروه"
 
-#: ../app/tabs/users-tab/datatable.js:74
+#: ../app/tabs/users-tab/datatable.js:77
 msgid "Hidden User Data"
 msgstr "داده پنهان کاربر"
 
-#: ../app/tabs/users-tab/datatable.js:81
+#: ../app/tabs/users-tab/datatable.js:85
 msgid "Please select a User from the list"
 msgstr "لطفاً کاربری از لیست انتخاب کنید"
 
-#: ../app/tabs/users-tab/datatable.js:82
+#: ../app/tabs/users-tab/datatable.js:86
 msgid "You selected the following User:"
 msgstr "شما کاربر زیر را انتخاب کرده‌اید"
 
-#: ../app/tabs/users-tab/datatable.js:83
+#: ../app/tabs/users-tab/datatable.js:87
 msgid "Please select one or more users from the list"
 msgstr "یک یا چند کاربر از لیست انتخاب کنید"
 
-#: ../app/tabs/users-tab/datatable.js:84
+#: ../app/tabs/users-tab/datatable.js:88
 msgid "You selected the following users:"
 msgstr "شما کاربران زیر را انتخاب کرده‌اید"
 
-#: ../app/tabs/users-tab/panels/info.js:165
+#: ../app/tabs/users-tab/panels/info.js:136
+msgid "Current password"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info.js:140
+#: ../app/utils/tab-datatable/search-input.hbs:35
+msgid "Close"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info.js:198
 msgid "ascending"
 msgstr "صعودی"
 
-#: ../app/tabs/users-tab/panels/info.js:166
+#: ../app/tabs/users-tab/panels/info.js:199
 msgid "descending"
 msgstr "نزولی"
 
@@ -2532,13 +2632,13 @@ msgstr "فایل‌ها"
 msgid "File"
 msgstr "فایل"
 
-#: ../app/tabs/settings-tab.js:50 ../app/tabs/settings-tab.js:51
+#: ../app/tabs/settings-tab.js:51 ../app/tabs/settings-tab.js:52
 #: ../app/sunstone/user_and_zone.hbs:30
 msgid "Settings"
 msgstr "تنظیمات"
 
 #: ../app/tabs/vms-tab.js:70 ../app/tabs/vms-tab/dialogs/migrate.js:138
-#: ../app/tabs/vnets-topology-tab.js:542
+#: ../app/tabs/vnets-topology-tab.js:527
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
@@ -2553,7 +2653,7 @@ msgstr "فعال"
 msgid "FAILED"
 msgstr "شکست خورد"
 
-#: ../app/tabs/vms-tab/form-panels/create.js:50
+#: ../app/tabs/vms-tab/form-panels/create.js:44
 #: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "یک ماشین مجازی بساز"
@@ -2634,26 +2734,26 @@ msgstr "VNC"
 msgid "SPICE"
 msgstr "SPICE"
 
-#: ../app/tabs/vms-tab/datatable.js:72
+#: ../app/tabs/vms-tab/datatable.js:74
 msgid "Please select a VM from the list"
 msgstr "لطفاً یک ماشین مجازی از لیست انتخاب کنید"
 
-#: ../app/tabs/vms-tab/datatable.js:73
+#: ../app/tabs/vms-tab/datatable.js:75
 msgid "You selected the following VM:"
 msgstr "شما ماشین‌های مجازی زیر را انتخاب کرده‌اید:"
 
-#: ../app/tabs/vms-tab/datatable.js:74
+#: ../app/tabs/vms-tab/datatable.js:76
 msgid "Please select one or more VMs from the list"
 msgstr "لطفاً یک یا چند ماشین مجازی از لیست انتخاب کنید"
 
-#: ../app/tabs/vms-tab/datatable.js:75
+#: ../app/tabs/vms-tab/datatable.js:77
 msgid "You selected the following VMs:"
 msgstr "شما ماشین‌های مجازی زیر را انتخاب کرده‌اید:"
 
 #: ../app/tabs/vms-tab/panels/actions.js:42
 #: ../app/tabs/vms-tab/panels/actions.js:72
 #: ../app/tabs/vms-tab/panels/snapshots.js:75
-#: ../app/tabs/vms-tab/panels/network.js:85
+#: ../app/tabs/vms-tab/panels/network.js:86
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:49
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:29
 msgid "Actions"
@@ -2860,7 +2960,7 @@ msgid "Save as in progress"
 msgstr "در حال ذخیره‌سازی"
 
 #: ../app/tabs/vms-tab/panels/storage.js:204
-#: ../app/tabs/vms-tab/panels/network.js:237
+#: ../app/tabs/vms-tab/panels/network.js:265
 msgid "attach/detach in progress"
 msgstr "اتصال/انفصال در حال انجام است"
 
@@ -2871,7 +2971,7 @@ msgid "Save as"
 msgstr "ذخیره بعنوان"
 
 #: ../app/tabs/vms-tab/panels/storage.js:222
-#: ../app/tabs/vms-tab/panels/network.js:243
+#: ../app/tabs/vms-tab/panels/network.js:269
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
 msgstr "جدا سازی"
@@ -2920,76 +3020,80 @@ msgid "MAC"
 msgstr "آدرس فیزیکی شبکه"
 
 #: ../app/tabs/vms-tab/panels/network.js:83
+msgid "PCI address"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:40
 msgid "IPv6 ULA"
 msgstr "IPv6 ULA"
 
-#: ../app/tabs/vms-tab/panels/network.js:84
+#: ../app/tabs/vms-tab/panels/network.js:85
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 Global"
 msgstr "IPv6 Global"
 
-#: ../app/tabs/vms-tab/panels/network.js:94
-#: ../app/tabs/vms-tab/panels/network.js:97
+#: ../app/tabs/vms-tab/panels/network.js:95
+#: ../app/tabs/vms-tab/panels/network.js:98
 msgid "Attach nic"
 msgstr "nic جدید را اضافه کنید"
 
-#: ../app/tabs/vms-tab/panels/network.js:117
+#: ../app/tabs/vms-tab/panels/network.js:118
 msgid "Network Monitoring Attributes"
 msgstr "صفات مانیتورینگ شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:141
+#: ../app/tabs/vms-tab/panels/network.js:142
 msgid "NET RX"
 msgstr "NET RX"
 
-#: ../app/tabs/vms-tab/panels/network.js:157
+#: ../app/tabs/vms-tab/panels/network.js:158
 msgid "NET TX"
 msgstr "NET TX"
 
-#: ../app/tabs/vms-tab/panels/network.js:173
+#: ../app/tabs/vms-tab/panels/network.js:174
 msgid "NET DOWNLOAD SPEED"
 msgstr "سرعت دانلود شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:189
+#: ../app/tabs/vms-tab/panels/network.js:190
 msgid "NET UPLOAD SPEED"
 msgstr "سرعت آپلود شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:278
+#: ../app/tabs/vms-tab/panels/network.js:218
 msgid " (VRouter)"
 msgstr ""
 
-#: ../app/tabs/vms-tab/panels/network.js:347
+#: ../app/tabs/vms-tab/panels/network.js:363
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr "پرتوکل"
 
-#: ../app/tabs/vms-tab/panels/network.js:349
+#: ../app/tabs/vms-tab/panels/network.js:365
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 msgid "Range"
 msgstr "محدوده"
 
-#: ../app/tabs/vms-tab/panels/network.js:351
+#: ../app/tabs/vms-tab/panels/network.js:367
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr "نوع ICMP"
 
-#: ../app/tabs/vms-tab/panels/network.js:425
+#: ../app/tabs/vms-tab/panels/network.js:441
 msgid "Network reception"
 msgstr "دریافت شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:432
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission"
 msgstr "نقل و انتقال شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:439
+#: ../app/tabs/vms-tab/panels/network.js:455
 msgid "Network reception speed"
 msgstr "سرعت دریافت شبکه"
 
-#: ../app/tabs/vms-tab/panels/network.js:448
+#: ../app/tabs/vms-tab/panels/network.js:464
 msgid "Network transmission speed"
 msgstr "سرعت نقل و انتقال شبکه"
 
@@ -3039,11 +3143,11 @@ msgstr "Data Center مجازی"
 msgid "Please select one (and just one) Image to export."
 msgstr ""
 
-#: ../app/tabs/images-tab/actions.js:94
+#: ../app/tabs/images-tab/actions.js:95
 msgid "This Image resides in Datastore "
 msgstr ""
 
-#: ../app/tabs/images-tab/actions.js:96
+#: ../app/tabs/images-tab/actions.js:97
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ""
 
@@ -3084,7 +3188,7 @@ msgstr "ماندگارش کن"
 msgid "Make non persistent"
 msgstr "غیر ماندگارش کن"
 
-#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:73
 #: ../app/tabs/provision-tab/vms/create.hbs:40
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:28
@@ -3092,11 +3196,11 @@ msgstr "غیر ماندگارش کن"
 msgid "Persistent"
 msgstr "ماندگار"
 
-#: ../app/tabs/images-tab/datatable-common.js:72
+#: ../app/tabs/images-tab/datatable-common.js:75
 msgid "#VMS"
 msgstr "# ماشین مجازی"
 
-#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/images-tab/datatable-common.js:76
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:25
 msgid "Target"
 msgstr "هدف"
@@ -3167,16 +3271,16 @@ msgstr ""
 msgid "Network Topology"
 msgstr ""
 
-#: ../app/tabs/vnets-topology-tab.js:545
+#: ../app/tabs/vnets-topology-tab.js:530
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
 msgstr "شبکه مجازی"
 
-#: ../app/sunstone.js:913 ../app/sunstone.js:914
+#: ../app/sunstone.js:957 ../app/sunstone.js:958
 msgid "Submitting..."
 msgstr "ارسال کردن"
 
-#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
+#: ../app/sunstone.js:1055 ../app/sunstone.js:1056
 msgid "Loading..."
 msgstr "در حال بارگذاری"
 
@@ -3228,70 +3332,70 @@ msgstr "خطای_استقرارسازی"
 msgid "FAILED_SCALING"
 msgstr "خطا در توزین"
 
-#: ../app/opennebula/vm.js:186
+#: ../app/opennebula/vm.js:188
 msgid "LCM_INIT"
 msgstr "LCM_INIT"
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
-#: ../app/opennebula/vm.js:217
+#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:219
 msgid "PROLOG"
 msgstr "سرآغاز"
 
-#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
-#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
-#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:223
 msgid "BOOT"
 msgstr "راه‌اندازی"
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:192 ../app/opennebula/vm.js:196
+#: ../app/opennebula/vm.js:231 ../app/opennebula/vm.js:233
+#: ../app/opennebula/vm.js:248
 msgid "MIGRATE"
 msgstr "مهاجرت"
 
-#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
-#: ../app/opennebula/vm.js:193
+#: ../app/opennebula/vm.js:193 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:195
 msgid "SAVE"
 msgstr "ذخیره"
 
-#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:218
 msgid "EPILOG"
 msgstr "اختتام"
 
-#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
-#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:217
 msgid "SHUTDOWN"
 msgstr "خاموش"
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
-#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:224
 #: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
 #: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
-#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
-#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:230
+#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:234
 #: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:247
+#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
+#: ../app/opennebula/vm.js:249
 msgid "FAILURE"
 msgstr "شکست خورده"
 
-#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
 msgid "CLEANUP"
 msgstr "پاکسازی"
 
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
-#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
-#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:216 ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:222
 msgid "HOTPLUG"
 msgstr "اتصال داغ"
 
-#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
-#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:239
 #: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
 #: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
 #: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:246 ../app/opennebula/vm.js:247
 msgid "SNAPSHOT"
 msgstr "اسنپ‌شات"
 
@@ -3351,7 +3455,7 @@ msgstr ""
 msgid "LOCKED_USED_PERS"
 msgstr ""
 
-#: ../app/utils/nics-section.js:309
+#: ../app/utils/nics-section.js:329
 msgid "There are no networks available."
 msgstr "هیچ شبکه‌ای موجود نیست."
 
@@ -3472,19 +3576,19 @@ msgstr "شبکه در دسترس نیست: آیا OpenNebula در حال اجر�
 msgid "Unauthorized"
 msgstr "غیرمجاز"
 
-#: ../app/utils/tab-datatable.js:105
+#: ../app/utils/tab-datatable.js:107
 msgid "Please select a resource from the list"
 msgstr "یک منبع از لیست انتخاب کنید."
 
-#: ../app/utils/tab-datatable.js:109
+#: ../app/utils/tab-datatable.js:111
 msgid "You selected the following resource:"
 msgstr "شما منابع زیر را انتخاب کرده‌اید:"
 
-#: ../app/utils/labels/utils.js:109
+#: ../app/utils/labels/utils.js:113
 msgid "Edit Labels"
 msgstr ""
 
-#: ../app/utils/labels/utils.js:112
+#: ../app/utils/labels/utils.js:118
 msgid "Add Label"
 msgstr ""
 
@@ -3508,7 +3612,7 @@ msgstr ""
 msgid "Image state: "
 msgstr ""
 
-#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "شما باید این اقدام را تایید کنید"
@@ -3618,12 +3722,12 @@ msgstr ""
 msgid "Host created successfully"
 msgstr "میزبان با موفقیت ساخته شد!"
 
-#: ../app/utils/user-inputs.js:510
+#: ../app/utils/user-inputs.js:511
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
 msgid "MB"
 msgstr "مگابایت"
 
-#: ../app/utils/user-inputs.js:511
+#: ../app/utils/user-inputs.js:512
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:37
 msgid "GB"
 msgstr "گیگابایت"
@@ -3672,7 +3776,8 @@ msgid "Group Admins"
 msgstr "مدیران گروه"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:93
-#: ../app/tabs/users-tab/panels/info/html.hbs:69
+#: ../app/tabs/users-tab/panels/info/html.hbs:56
+#: ../app/tabs/users-tab/panels/info/html.hbs:85
 msgid "View"
 msgstr "دید"
 
@@ -3755,7 +3860,7 @@ msgid "Apply changes"
 msgstr "تغییرات را اعمال کن"
 
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
@@ -3769,6 +3874,7 @@ msgstr "تغییرات را اعمال کن"
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:58
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
@@ -3795,7 +3901,6 @@ msgstr "قالب VDC را اینجا بنویسید"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:34
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
@@ -3803,6 +3908,7 @@ msgstr "قالب VDC را اینجا بنویسید"
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:34
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:29
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:27
 #: ../app/utils/user-inputs/row.hbs:23
 msgid "Description"
@@ -4399,9 +4505,33 @@ msgstr "مقدار بله/خیر را برای اجبار IPv4 برای این I
 msgid "Hardware"
 msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:136
+msgid "PCI passthrough"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
 msgid "Hardware model to emulate"
 msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:153
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:53
+msgid "Device name"
+msgstr "نام وسیله"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:54
+msgid "Vendor"
+msgstr "فروشنده"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:155
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:55
+msgid "Device"
+msgstr "دستگاه"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:156
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:56
+msgid "Class"
+msgstr "کلاس"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -4835,23 +4965,11 @@ msgstr "داده‌های خامی که مستقیماً به هایپروایز
 msgid "PCI Devices"
 msgstr "دستگاه‌های PCI"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-msgid "Device name"
-msgstr "نام وسیله"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:44
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
-msgid "Vendor"
-msgstr "فروشنده"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:48
-msgid "Device"
-msgstr "دستگاه"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:49
-msgid "Class"
-msgstr "کلاس"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:69
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:76
 msgid "Custom Tags"
 msgstr "برچسب‌های سفارشی"
 
@@ -4875,12 +4993,12 @@ msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs,
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:48
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
 msgid "Number of instances"
 msgstr "تعداد نمونه‌ها"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:56
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:85
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:41
 msgid "Start on hold"
 msgstr ""
 
@@ -4917,32 +5035,26 @@ msgstr ""
 msgid "Clone with Images"
 msgstr ""
 
+#: ../app/tabs/templates-tab/datatable/search.hbs:26
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
+#: ../app/tabs/vms-tab/datatable/search.hbs:57
+#: ../app/tabs/images-tab/datatable/search.hbs:44
+msgid "Created after"
+msgstr ""
+
+#: ../app/tabs/templates-tab/datatable/search.hbs:32
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
+#: ../app/tabs/vms-tab/datatable/search.hbs:63
+#: ../app/tabs/images-tab/datatable/search.hbs:50
+msgid "Created before"
+msgstr ""
+
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
 msgstr ""
 
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-msgid "Keepalive service ID"
-msgstr ""
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-msgid "Keepalive password"
-msgstr ""
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-msgid "Virtual machine name"
-msgstr ""
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:71
-msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
-msgstr ""
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-msgid "Number of VM instances"
-msgstr ""
-
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:43
+#: ../app/utils/nics-section/dd.hbs:47
 msgid "Floating IP"
 msgstr ""
 
@@ -4955,7 +5067,7 @@ msgid "Floating IPv6 Global"
 msgstr ""
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:54
+#: ../app/utils/nics-section/dd.hbs:58
 msgid "Management Interface"
 msgstr ""
 
@@ -5199,10 +5311,6 @@ msgstr ""
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr "یک سرویس شکست خورده را بازسازی می‌کند، در حال پاک‌سازی ماشین‌های مجازی شکست خورده"
 
-#: ../app/tabs/provision-tab/flows/create.hbs:20
-msgid "Create Service"
-msgstr "ایجاد سرویس"
-
 #: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr "نام سرویس"
@@ -5321,11 +5429,11 @@ msgstr ""
 msgid "Advanced service parameters"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Service name"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:21
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr ""
 
@@ -5866,62 +5974,82 @@ msgstr "اجبار"
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr "شمارگان جدید را اعمال کن، حتی اگر فراتر از محدوده باشد"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:34
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
 msgid "Change Language"
 msgstr "تغییر زبان"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:46
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
 msgid "Update Language"
 msgstr "به‌روزرسانی زبان"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:74
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
 msgid "Change Password"
 msgstr "تغییر رمز عبور"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:81
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
 msgid "New Password"
 msgstr "رمزعبور جدید"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:86
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 msgid "Confirm Password"
 msgstr "تأیید کردن رمزعبور"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:91
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 msgid "Update Password"
 msgstr "به روز رسانی رمزعبور"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:123
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
 msgid "Change view"
 msgstr "تغییر دید"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:135
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
 msgid "Update view"
 msgstr "به‌روزرسانی دید"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:164
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:188
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 msgid "Add SSH Key"
 msgstr "اضافه کردن کلید SSH"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:189
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
 msgid "Update SSH Key"
 msgstr "به‌روزرسانی کلید SSH"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:171
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
 msgstr "یک  کلید عمومی به حسابتان اضافه کنید!"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:173
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:178
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:155
 msgid "You will be able to access your Virtual Machines without password"
 msgstr "شما قادرید به ماشین‌های مجازیتان بدون رمز عبور دست بیابید."
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:176
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:153
 msgid "Update your public SSH key!"
 msgstr "کلید SSHتان را به‌روز کنید!"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
+msgid "Login Token"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:201
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:204
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:36
+msgid "Current login token, valid until"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:210
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:48
+msgid "Getting a new token will invalidate the current one"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Security Group template here"
@@ -6272,27 +6400,52 @@ msgstr ""
 msgid "Format"
 msgstr "Format"
 
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:37
+msgid "Keepalive service ID"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+msgid "Keepalive password"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+msgid "Virtual machine name"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
+msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:34
+msgid "Number of VM instances"
+msgstr ""
+
 #: ../app/tabs/users-tab/panels/info/html.hbs:38
-msgid "Authentication driver"
-msgstr "درایور احراز هویت"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:46
-msgid "Update password"
-msgstr "آپدیت کردن رمز عبور"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:51
 msgid "Table Order"
 msgstr "ترتیب جدول"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:60
+#: ../app/tabs/users-tab/panels/info/html.hbs:47
 msgid "Language"
 msgstr "زبان"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:84
+#: ../app/tabs/users-tab/panels/info/html.hbs:73
+#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
+msgid "Authentication"
+msgstr "احراز هویت"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:78
+msgid "Authentication driver"
+msgstr "درایور احراز هویت"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:98
+msgid "Login token"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:116
 msgid "Public SSH Key"
 msgstr "کلید SSH عمومی"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:98
+#: ../app/tabs/users-tab/panels/info/html.hbs:131
 msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr "شما می‌توانید با کلیک بر روی دکمه‌ی ویرایش یک کلید SSH برای این کاربر ارائه کنید"
 
@@ -6304,13 +6457,13 @@ msgstr ""
 msgid "Change authentication"
 msgstr "تغییر رویه احراز هویت"
 
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:55
+msgid "Get a new token"
+msgstr ""
+
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
 msgid "Username"
 msgstr "نام کاربری"
-
-#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
-msgid "Authentication"
-msgstr "احراز هویت"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -6347,7 +6500,7 @@ msgstr "هزینه / CPU"
 msgid "Resize"
 msgstr "تغییر اندازه"
 
-#: ../app/tabs/vms-tab/panels/capacity/html.hbs:75
+#: ../app/tabs/vms-tab/panels/capacity/html.hbs:78
 msgid "Real memory"
 msgstr ""
 
@@ -6466,6 +6619,14 @@ msgstr "شناسه اسنپ‌شات"
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
 msgstr "نام image جدید"
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:28
+msgid "VM type"
+msgstr ""
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:31
+msgid "Regular VM"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
 msgid "Get Images"
@@ -6627,9 +6788,14 @@ msgid "Comma-separated list of options for the drop-down select input"
 msgstr ""
 
 #: ../app/utils/tab-datatable/table.hbs:30
-#: ../app/utils/tab-datatable/search-input.hbs:17
+#: ../app/utils/tab-datatable/search-input.hbs:19
+#: ../app/utils/tab-datatable/search-input.hbs:41
 msgid "Search"
 msgstr "جستجو"
+
+#: ../app/utils/tab-datatable/search-input.hbs:32
+msgid "Clear search"
+msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
 msgid "There is no data available"
@@ -6697,31 +6863,35 @@ msgstr "مالکیت"
 msgid "Network Interface"
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:5
+#: ../app/utils/nics-section/dd.hbs:6
+msgid "PCI interface"
+msgstr ""
+
+#: ../app/utils/nics-section/dd.hbs:8
 msgid "Interface"
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:14
+#: ../app/utils/nics-section/dd.hbs:18
 msgid "Select a Network"
 msgstr "یک شبکه انتخاب کنید"
 
-#: ../app/utils/nics-section/dd.hbs:27
+#: ../app/utils/nics-section/dd.hbs:31
 msgid "Force IPv4:"
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:29
+#: ../app/utils/nics-section/dd.hbs:33
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:45
+#: ../app/utils/nics-section/dd.hbs:49
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:56
+#: ../app/utils/nics-section/dd.hbs:60
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr ""
 
-#: ../app/utils/nics-section/dd.hbs:67
+#: ../app/utils/nics-section/dd.hbs:71
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr ""
 
