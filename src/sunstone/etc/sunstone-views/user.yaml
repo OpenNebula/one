@@ -85,13 +85,14 @@ tabs:
             - 2         # Name
             - 3         # Group
             - 4         # Auth driver
-            - 5         # VMs
-            - 6         # Memory
-            - 7         # CPU
-            #- 8         # Group ID
-            #- 9         # Hidden User Data
-            #- 10        # Labels
-            #- 11        # Search data
+            #- 5         # Password
+            - 6         # VMs
+            - 7         # Memory
+            - 8         # CPU
+            #- 9         # Group ID
+            #- 10        # Hidden User Data
+            #- 11        # Labels
+            #- 12        # Search data
         actions:
             User.refresh: true
             User.create_dialog: true

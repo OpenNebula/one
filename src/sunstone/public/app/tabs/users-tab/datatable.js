@@ -35,8 +35,8 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 10;
-  var SEARCH_COLUMN = 11;
+  var LABELS_COLUMN = 11;
+  var SEARCH_COLUMN = 12;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -56,9 +56,9 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          { "bSortable": false, "aTargets": ["check",5,6,7] },
+          { "bSortable": false, "aTargets": ["check",6,7,8] },
           {"sWidth": "35px", "aTargets": [0]},
-          { "sWidth": "150px", "aTargets": [5,6,7] },
+          { "sWidth": "150px", "aTargets": [6,7,8] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
@@ -69,6 +69,7 @@ define(function(require) {
       Locale.tr("Name"),
       Locale.tr("Group"),
       Locale.tr("Auth driver"),
+      Locale.tr("Password"),
       Locale.tr("VMs"),
       Locale.tr("Memory"),
       Locale.tr("CPU"),
@@ -155,6 +156,7 @@ define(function(require) {
       element.NAME,
       element.GNAME,
       element.AUTH_DRIVER,
+      element.PASSWORD,
       vms,
       memory,
       cpu,
