@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-23 11:50+0200\n"
-"PO-Revision-Date: 2016-06-22 13:28+0000\n"
-"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
+"POT-Creation-Date: 2016-07-21 16:25+0200\n"
+"PO-Revision-Date: 2016-07-19 10:05+0000\n"
+"Last-Translator: Carlos Martín <cmartin@opennebula.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/opennebula/one/language/zh_CN/)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgid "Datastores"
 msgstr "数据仓库"
 
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:85
 #: ../app/utils/vcenter/images.js:104
@@ -44,6 +44,7 @@ msgstr "数据仓库"
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
+#: ../app/tabs/images-tab/datatable/search.hbs:22
 msgid "Datastore"
 msgstr "数据仓库"
 
@@ -58,19 +59,20 @@ msgstr "创建群组"
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
 #: ../app/tabs/templates-tab/form-panels/create-common.js:74
-#: ../app/tabs/vrouters-tab/form-panels/create.js:61
+#: ../app/tabs/vrouters-tab/form-panels/create.js:53
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:45
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:62
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
-#: ../app/tabs/vms-tab/form-panels/create.js:51
+#: ../app/tabs/vms-tab/form-panels/create.js:45
 #: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
 #: ../app/tabs/provision-tab/vms/create.hbs:45
@@ -91,7 +93,7 @@ msgstr "更新群组"
 #: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
-#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/oneflow-templates-tab/buttons.js:33
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:133
 #: ../app/tabs/marketplaces-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/form-panels/create.js:61
@@ -116,17 +118,17 @@ msgid "Quotas"
 msgstr "配额"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions-common.js:58
+#: ../app/tabs/templates-tab/actions-common.js:59
 #: ../app/tabs/templates-tab/buttons.js:81
-#: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
-#: ../app/tabs/provision-tab/templates/list.js:172
-#: ../app/tabs/provision-tab/templates/list.js:279
+#: ../app/tabs/vrouters-tab/buttons.js:52 ../app/tabs/zones-tab/buttons.js:33
+#: ../app/tabs/provision-tab/templates/list.js:173
+#: ../app/tabs/provision-tab/templates/list.js:280
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
 #: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
-#: ../app/tabs/oneflow-services-tab/buttons.js:52
+#: ../app/tabs/oneflow-services-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
 #: ../app/tabs/marketplaceapps-tab/buttons.js:64
 #: ../app/tabs/clusters-tab/buttons.js:38 ../app/tabs/users-tab/buttons.js:59
@@ -139,24 +141,24 @@ msgid "Delete"
 msgstr "删除"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable-common.js:64
-#: ../app/tabs/vrouters-tab/datatable.js:58
-#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:66
+#: ../app/tabs/vrouters-tab/datatable.js:64
+#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:69
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
-#: ../app/tabs/oneflow-templates-tab/datatable.js:62
-#: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/marketplaces-tab/datatable.js:80
-#: ../app/tabs/oneflow-services-tab/datatable.js:63
-#: ../app/tabs/secgroups-tab/datatable.js:62
-#: ../app/tabs/vnets-tab/datatable.js:64
-#: ../app/tabs/marketplaceapps-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:64
+#: ../app/tabs/datastores-tab/datatable.js:81
+#: ../app/tabs/marketplaces-tab/datatable.js:82
+#: ../app/tabs/oneflow-services-tab/datatable.js:65
+#: ../app/tabs/secgroups-tab/datatable.js:64
+#: ../app/tabs/vnets-tab/datatable.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/clusters-tab/datatable.js:62
-#: ../app/tabs/users-tab/datatable.js:66
+#: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/panels/actions.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable-common.js:62
+#: ../app/tabs/images-tab/datatable-common.js:65
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -187,21 +189,21 @@ msgid "ID"
 msgstr "ID"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable-common.js:67
-#: ../app/tabs/vrouters-tab/datatable.js:61
-#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
-#: ../app/tabs/oneflow-templates-tab/datatable.js:65
-#: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/marketplaces-tab/datatable.js:83
-#: ../app/tabs/oneflow-services-tab/datatable.js:66
-#: ../app/tabs/secgroups-tab/datatable.js:65
-#: ../app/tabs/vnets-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:84
+#: ../app/tabs/templates-tab/datatable-common.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/oneflow-templates-tab/datatable.js:67
+#: ../app/tabs/datastores-tab/datatable.js:84
+#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/oneflow-services-tab/datatable.js:68
+#: ../app/tabs/secgroups-tab/datatable.js:67
+#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
 #: ../app/tabs/clusters-tab/datatable.js:63
-#: ../app/tabs/users-tab/datatable.js:67
+#: ../app/tabs/users-tab/datatable.js:69
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/utils/vcenter/images.js:125 ../app/utils/vcenter/templates.js:138
 #: ../app/utils/vcenter/datastores.js:129 ../app/utils/vcenter/networks.js:137
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
@@ -209,26 +211,39 @@ msgstr "ID"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
+#: ../app/tabs/templates-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:4
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
+#: ../app/tabs/hosts-tab/datatable/search.hbs:4
 #: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:4
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/datastores-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:4
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:4
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:4
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/vnets-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:23
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
+#: ../app/tabs/users-tab/datatable/search.hbs:4
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
+#: ../app/tabs/vms-tab/datatable/search.hbs:4
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
+#: ../app/tabs/images-tab/datatable/search.hbs:4
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -236,8 +251,8 @@ msgstr "名称"
 
 #: ../app/tabs/groups-tab/datatable.js:67
 #: ../app/tabs/groups-tab/panels/users.js:45
-#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:51
-#: ../app/tabs/users-tab.js:55
+#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:52
+#: ../app/tabs/users-tab.js:56
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:22
 msgid "Users"
@@ -248,7 +263,7 @@ msgstr "用户管理"
 #: ../app/tabs/hosts-tab/panels/vms.js:39
 #: ../app/tabs/provision-tab/flows/list.js:420 ../app/tabs/templates-tab.js:47
 #: ../app/tabs/secgroups-tab/panels/vms.js:41
-#: ../app/tabs/users-tab/datatable.js:70 ../app/tabs/vms-tab.js:65
+#: ../app/tabs/users-tab/datatable.js:73 ../app/tabs/vms-tab.js:65
 #: ../app/tabs/vms-tab.js:69 ../app/tabs/images-tab/panels/vms.js:39
 #: ../app/utils/quotas/quota-widgets.js:100 ../app/utils/showback.js:98
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:165
@@ -257,7 +272,7 @@ msgstr "用户管理"
 msgid "VMs"
 msgstr "虚拟机"
 
-#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:74
 #: ../app/utils/quotas/quota-widgets.js:196
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:21
@@ -267,7 +282,7 @@ msgstr "虚拟机"
 msgid "Memory"
 msgstr "内存"
 
-#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:75
 #: ../app/utils/quotas/quota-widgets.js:148
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:142
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:31
@@ -281,19 +296,20 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable-common.js:69
-#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
-#: ../app/tabs/oneflow-templates-tab/datatable.js:66
-#: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/marketplaces-tab/datatable.js:88
-#: ../app/tabs/oneflow-services-tab/datatable.js:68
-#: ../app/tabs/secgroups-tab/datatable.js:66
-#: ../app/tabs/vnets-tab/datatable.js:73
-#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/templates-tab/datatable-common.js:71
+#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:68
+#: ../app/tabs/datastores-tab/datatable.js:92
+#: ../app/tabs/marketplaces-tab/datatable.js:90
+#: ../app/tabs/oneflow-services-tab/datatable.js:70
+#: ../app/tabs/secgroups-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:76
+#: ../app/tabs/marketplaceapps-tab/datatable.js:94
 #: ../app/tabs/clusters-tab/datatable.js:67
-#: ../app/tabs/users-tab/datatable.js:75
+#: ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/images-tab/datatable-common.js:77
 #: ../app/tabs/provision-tab/vms/create.hbs:78
 #: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
@@ -329,7 +345,7 @@ msgstr "您选择以下的群组："
 #: ../app/tabs/vnets-tab/panels/info.js:48
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:50
 #: ../app/tabs/clusters-tab/panels/info.js:46
-#: ../app/tabs/users-tab/panels/info.js:51
+#: ../app/tabs/users-tab/panels/info.js:53
 #: ../app/tabs/vms-tab/panels/info.js:51
 #: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
@@ -346,7 +362,7 @@ msgstr "信息"
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
-#: ../app/tabs/users-tab/panels/info.js:78
+#: ../app/tabs/users-tab/panels/info.js:80
 #: ../app/tabs/vms-tab/panels/info.js:94
 #: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
@@ -510,11 +526,11 @@ msgstr "更新虚拟机模版"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
 msgid "Create Virtual Router VM Template"
-msgstr ""
+msgstr "创建虚拟路由器 VM 模板"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr ""
+msgstr "更新虚拟路由器 VM 模板"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -522,19 +538,23 @@ msgstr "基于VM模板创建实例"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:58
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
-#: ../app/tabs/oneflow-templates-tab/buttons.js:33
+#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
+#: ../app/tabs/vrouter-templates-tab/buttons.js:30
 msgid "Instantiate"
 msgstr "创建实例"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:130
 msgid "No template selected"
 msgstr "无模版可选"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
-#: ../app/tabs/vrouters-tab/form-panels/create.js:129
-#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
-#: ../app/utils/user-inputs.js:226
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:270
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
+#: ../app/tabs/provision-tab.js:959 ../app/tabs/provision-tab.js:1205
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:194
+#: ../app/utils/user-inputs.js:227
 msgid "Custom Attributes"
 msgstr "自定义属性"
 
@@ -579,6 +599,11 @@ msgstr "输入/输出"
 msgid "Scheduling"
 msgstr "调度"
 
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
+#: ../app/utils/resource-select.js:50
+msgid "Please select"
+msgstr "请选择"
+
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
 msgstr "OS 引导"
@@ -622,8 +647,8 @@ msgstr "磁盘"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
 #: ../app/tabs/vms-tab/panels/network.js:49
 #: ../app/tabs/vms-tab/panels/network.js:80
-#: ../app/tabs/vms-tab/panels/network.js:350
-#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
+#: ../app/tabs/vms-tab/panels/network.js:366
+#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:231
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
@@ -632,8 +657,8 @@ msgstr "磁盘"
 msgid "Network"
 msgstr "网络"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:177
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:213
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:225
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:261
 msgid "NIC"
 msgstr "网卡"
 
@@ -641,11 +666,6 @@ msgstr "网卡"
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
 msgstr "其他"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:93
-#: ../app/utils/resource-select.js:50
-msgid "Please select"
-msgstr "请选择"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:54
 msgid "Hybrid"
@@ -666,43 +686,43 @@ msgstr "提供商"
 msgid "General"
 msgstr "常规"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:155
 #: ../app/utils/vcenter/templates.js:234
 msgid "Which datastore you want this VM to run on?"
 msgstr "你想在哪个数据仓库中运行这个虚拟机？"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:176
 #: ../app/utils/vcenter/templates.js:255
 msgid "Which resource pool you want this VM to run in?"
 msgstr "你想在哪个资源池中运行这个虚拟机？"
 
 #: ../app/tabs/templates-tab/actions-common.js:39
-#: ../app/tabs/templates-tab/actions-common.js:227
-#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/templates-tab/actions-common.js:228
+#: ../app/tabs/templates-tab/actions-common.js:239
 #: ../app/tabs/marketplaceapps-tab/actions.js:76
 msgid "VM Template created"
 msgstr "VM 模板已创建"
 
-#: ../app/tabs/templates-tab/actions-common.js:54
+#: ../app/tabs/templates-tab/actions-common.js:55
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr "此操作将删除该模板。 <br/>您也可以删除任何在此模板中引用的映像文件"
 
-#: ../app/tabs/templates-tab/actions-common.js:57
+#: ../app/tabs/templates-tab/actions-common.js:58
 msgid "Delete all images"
 msgstr "删除所有映像文件"
 
-#: ../app/tabs/templates-tab/actions-common.js:158
-#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/templates-tab/actions-common.js:159
+#: ../app/tabs/templates-tab/actions-common.js:204
 #: ../app/tabs/vms-tab/actions.js:40
 msgid "VM created"
 msgstr "VM 已创建"
 
 #: ../app/tabs/templates-tab/buttons.js:49
-#: ../app/tabs/vrouters-tab/buttons.js:32
+#: ../app/tabs/vrouters-tab/buttons.js:37
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
 #: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
-#: ../app/tabs/oneflow-services-tab/buttons.js:28
+#: ../app/tabs/oneflow-services-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
 #: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
@@ -710,11 +730,11 @@ msgid "Change owner"
 msgstr "变更所有者"
 
 #: ../app/tabs/templates-tab/buttons.js:52
-#: ../app/tabs/vrouters-tab/buttons.js:35
+#: ../app/tabs/vrouters-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
-#: ../app/tabs/oneflow-services-tab/buttons.js:30
+#: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
 #: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
@@ -722,11 +742,11 @@ msgid "Select the new owner"
 msgstr "选择新的所有者"
 
 #: ../app/tabs/templates-tab/buttons.js:56
-#: ../app/tabs/vrouters-tab/buttons.js:39
+#: ../app/tabs/vrouters-tab/buttons.js:44
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
 #: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
-#: ../app/tabs/oneflow-services-tab/buttons.js:35
+#: ../app/tabs/oneflow-services-tab/buttons.js:40
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
 #: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
@@ -734,11 +754,11 @@ msgid "Change group"
 msgstr "变更群组"
 
 #: ../app/tabs/templates-tab/buttons.js:59
-#: ../app/tabs/vrouters-tab/buttons.js:42
+#: ../app/tabs/vrouters-tab/buttons.js:47
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
-#: ../app/tabs/oneflow-services-tab/buttons.js:37
+#: ../app/tabs/oneflow-services-tab/buttons.js:42
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
 #: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
@@ -756,7 +776,7 @@ msgid "Clone"
 msgstr "克隆"
 
 #: ../app/tabs/templates-tab/buttons.js:69
-#: ../app/tabs/provision-tab/templates/list.js:166
+#: ../app/tabs/provision-tab/templates/list.js:167
 msgid "Share"
 msgstr "共享"
 
@@ -765,7 +785,7 @@ msgid "The template, along with any image referenced by it, will be shared with 
 msgstr "该模板以及它所引用的任何映像文件，将与该组的用户共享。权限更改：组使用"
 
 #: ../app/tabs/templates-tab/buttons.js:75
-#: ../app/tabs/provision-tab/templates/list.js:163
+#: ../app/tabs/provision-tab/templates/list.js:164
 msgid "Unshare"
 msgstr "非共享"
 
@@ -773,69 +793,92 @@ msgstr "非共享"
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr "该模板将和所有被其引用的镜像一起停止共享给群组中所有用户。 权限状态变更为：GROUP USE"
 
-#: ../app/tabs/templates-tab/datatable-common.js:65
-#: ../app/tabs/vrouters-tab/datatable.js:59
-#: ../app/tabs/oneflow-templates-tab/datatable.js:63
-#: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/marketplaces-tab/datatable.js:81
-#: ../app/tabs/oneflow-services-tab/datatable.js:64
-#: ../app/tabs/secgroups-tab/datatable.js:63
-#: ../app/tabs/vnets-tab/datatable.js:65
-#: ../app/tabs/marketplaceapps-tab/datatable.js:82
+#: ../app/tabs/templates-tab/datatable-common.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:65
+#: ../app/tabs/oneflow-templates-tab/datatable.js:65
+#: ../app/tabs/datastores-tab/datatable.js:82
+#: ../app/tabs/marketplaces-tab/datatable.js:83
+#: ../app/tabs/oneflow-services-tab/datatable.js:66
+#: ../app/tabs/secgroups-tab/datatable.js:65
+#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:84
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable-common.js:63
+#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/templates-tab/datatable/search.hbs:10
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:10
+#: ../app/tabs/datastores-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:10
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:10
+#: ../app/tabs/vnets-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:10
+#: ../app/tabs/images-tab/datatable/search.hbs:10
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "所有者"
 
-#: ../app/tabs/templates-tab/datatable-common.js:66
-#: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:66 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
-#: ../app/tabs/oneflow-templates-tab/datatable.js:64
-#: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/marketplaces-tab/datatable.js:82
-#: ../app/tabs/oneflow-services-tab/datatable.js:65
-#: ../app/tabs/secgroups-tab/datatable.js:64
-#: ../app/tabs/vnets-tab/datatable.js:66
-#: ../app/tabs/marketplaceapps-tab/datatable.js:83
-#: ../app/tabs/users-tab/datatable.js:68
+#: ../app/tabs/oneflow-templates-tab/datatable.js:66
+#: ../app/tabs/datastores-tab/datatable.js:83
+#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/oneflow-services-tab/datatable.js:67
+#: ../app/tabs/secgroups-tab/datatable.js:66
+#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/users-tab/datatable.js:70
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/templates-tab/datatable/search.hbs:16
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:16
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:160
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:16
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:16
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:16
+#: ../app/tabs/vnets-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/panels/info/chgrp-tr.hbs:18
+#: ../app/tabs/users-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:16
+#: ../app/tabs/images-tab/datatable/search.hbs:16
 #: ../app/utils/accounting/html.hbs:30 ../app/utils/accounting/html.hbs:40
 #: ../app/utils/panel/permissions-table/permissions.hbs:38
 #: ../app/utils/panel/permissions-table/group.hbs:18
 msgid "Group"
 msgstr "群组"
 
-#: ../app/tabs/templates-tab/datatable-common.js:68
-#: ../app/tabs/images-tab/datatable-common.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:72
 msgid "Registration time"
 msgstr "注册时间"
 
-#: ../app/tabs/templates-tab/datatable-common.js:75
-#: ../app/tabs/oneflow-templates-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:78
+#: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "Please select a Template from the list"
 msgstr "请从列表中选择一个模版"
 
-#: ../app/tabs/templates-tab/datatable-common.js:76
-#: ../app/tabs/oneflow-templates-tab/datatable.js:73
+#: ../app/tabs/templates-tab/datatable-common.js:79
+#: ../app/tabs/oneflow-templates-tab/datatable.js:76
 msgid "You selected the following Template:"
 msgstr "你选择的模版是："
 
-#: ../app/tabs/templates-tab/datatable-common.js:77
-#: ../app/tabs/oneflow-templates-tab/datatable.js:74
+#: ../app/tabs/templates-tab/datatable-common.js:80
+#: ../app/tabs/oneflow-templates-tab/datatable.js:77
 msgid "Please select one or more Templates from the list"
 msgstr "请从列表中选择一个或多个模版"
 
-#: ../app/tabs/templates-tab/datatable-common.js:78
-#: ../app/tabs/oneflow-templates-tab/datatable.js:75
+#: ../app/tabs/templates-tab/datatable-common.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:78
 msgid "You selected the following Templates:"
 msgstr "你选择的模版是："
 
@@ -843,9 +886,9 @@ msgstr "你选择的模版是："
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
 #: ../app/tabs/vms-tab/panels/template.js:40
 #: ../app/tabs/vms-tab/panels/template.js:69
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/provision-tab/vms/create.hbs:50
 #: ../app/tabs/provision-tab/flows/create.hbs:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:18
 msgid "Template"
 msgstr "模版"
 
@@ -854,36 +897,38 @@ msgstr "模版"
 msgid "System"
 msgstr "系统设置"
 
-#: ../app/tabs/vrouters-tab/actions.js:31
+#: ../app/tabs/vrouters-tab/actions.js:32
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:144
 msgid "Virtual Router created"
 msgstr "虚拟路由器已创建"
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:60
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:57
+#: ../app/tabs/vrouters-tab/buttons.js:33
+msgid "Instantiate VMs"
+msgstr "VMs 实例化"
+
+#: ../app/tabs/vrouters-tab/form-panels/create.js:52
 msgid "Create Virtual Router"
 msgstr "创建虚拟路由器"
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:199
-msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr "创建虚拟机失败，虚拟路由器可能需要手动删除"
-
-#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:75
 msgid "Please select a virtual router from the list"
 msgstr "请从列表中选择一个虚拟路由器"
 
-#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:76
 msgid "You selected the following virtual router:"
 msgstr "你选择了以下的虚拟路由器："
 
-#: ../app/tabs/vrouters-tab/datatable.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:77
 msgid "Please select one or more virtual routers from the list"
 msgstr "请从列表中选择更多的虚拟路由器"
 
-#: ../app/tabs/vrouters-tab/datatable.js:70
+#: ../app/tabs/vrouters-tab/datatable.js:78
 msgid "You selected the following virtual routers:"
 msgstr "你选择了以下的虚拟路由器："
 
 #: ../app/tabs/vrouters-tab/panels/info.js:154
-#: ../app/tabs/vms-tab/panels/network.js:396
+#: ../app/tabs/vms-tab/panels/network.js:412
 msgid "This will detach the nic immediately"
 msgstr "这将会立即卸载网卡"
 
@@ -953,24 +998,26 @@ msgstr "离线"
 msgid "Delete host"
 msgstr "删除主机"
 
-#: ../app/tabs/hosts-tab/datatable.js:69
-#: ../app/tabs/datastores-tab/datatable.js:84
-#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/hosts-tab/datatable.js:71
+#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/clusters-tab/panels/info.js:104 ../app/tabs/clusters-tab.js:51
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:29
+#: ../app/tabs/hosts-tab/datatable/search.hbs:10
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:150
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:165
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:40
+#: ../app/tabs/vms-tab/datatable/search.hbs:47
 #: ../app/utils/panel/cluster-tr/html.hbs:18
 msgid "Cluster"
 msgstr "集群"
 
-#: ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/hosts-tab/datatable.js:72
 msgid "RVMs"
 msgstr "运行VM数量"
 
-#: ../app/tabs/hosts-tab/datatable.js:71 ../app/tabs/hosts-tab/datatable.js:218
+#: ../app/tabs/hosts-tab/datatable.js:73 ../app/tabs/hosts-tab/datatable.js:235
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:24
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:71
@@ -978,64 +1025,70 @@ msgstr "运行VM数量"
 msgid "Real CPU"
 msgstr "实际CPU"
 
-#: ../app/tabs/hosts-tab/datatable.js:72 ../app/tabs/hosts-tab/datatable.js:202
+#: ../app/tabs/hosts-tab/datatable.js:74 ../app/tabs/hosts-tab/datatable.js:219
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "已分配CPU"
 
-#: ../app/tabs/hosts-tab/datatable.js:73
+#: ../app/tabs/hosts-tab/datatable.js:75
 #: ../app/tabs/vms-tab/panels/capacity.js:126
 msgid "Real MEM"
 msgstr "实际内存"
 
-#: ../app/tabs/hosts-tab/datatable.js:74
+#: ../app/tabs/hosts-tab/datatable.js:76
 msgid "Allocated MEM"
 msgstr "已分配内存"
 
-#: ../app/tabs/hosts-tab/datatable.js:75
-#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/datastores-tab/datatable.js:91
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable-common.js:71
+#: ../app/tabs/images-tab/datatable-common.js:74
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
+#: ../app/tabs/hosts-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:22
+#: ../app/tabs/vms-tab/datatable/search.hbs:22
+#: ../app/tabs/images-tab/datatable/search.hbs:34
 msgid "Status"
 msgstr "状态"
 
-#: ../app/tabs/hosts-tab/datatable.js:76
+#: ../app/tabs/hosts-tab/datatable.js:78
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:38
+#: ../app/tabs/hosts-tab/datatable/search.hbs:22
 msgid "IM MAD"
 msgstr "资源监控中间件"
 
-#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:43
+#: ../app/tabs/hosts-tab/datatable/search.hbs:28
 msgid "VM MAD"
 msgstr "虚拟机控制中间件"
 
-#: ../app/tabs/hosts-tab/datatable.js:78
+#: ../app/tabs/hosts-tab/datatable.js:80
 msgid "Last monitored on"
 msgstr "上次监测时间"
 
-#: ../app/tabs/hosts-tab/datatable.js:85
+#: ../app/tabs/hosts-tab/datatable.js:88
 msgid "Please select a Host from the list"
 msgstr "请从列表中选择一个主机"
 
-#: ../app/tabs/hosts-tab/datatable.js:86
+#: ../app/tabs/hosts-tab/datatable.js:89
 msgid "You selected the following Host:"
 msgstr "您选中了如下主机："
 
-#: ../app/tabs/hosts-tab/datatable.js:87
+#: ../app/tabs/hosts-tab/datatable.js:90
 msgid "Please select one or more hosts from the list"
 msgstr "请从列表中选择一个或者多个主机"
 
-#: ../app/tabs/hosts-tab/datatable.js:88
+#: ../app/tabs/hosts-tab/datatable.js:91
 msgid "You selected the following hosts:"
 msgstr "您选中了如下主机："
 
-#: ../app/tabs/hosts-tab/datatable.js:234
+#: ../app/tabs/hosts-tab/datatable.js:251
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
 msgid "Allocated Memory"
 msgstr "分配的内存"
 
-#: ../app/tabs/hosts-tab/datatable.js:250
+#: ../app/tabs/hosts-tab/datatable.js:267
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:25
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:67
 msgid "Real Memory"
@@ -1049,6 +1102,7 @@ msgstr "ESX"
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
+#: ../app/tabs/vms-tab/datatable/search.hbs:39
 msgid "Host"
 msgstr "主机"
 
@@ -1078,7 +1132,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombies"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1103,27 +1157,27 @@ msgstr "无法连接到服务器：请确认服务器运行状态或者网络连
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
 #: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
-#: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
+#: ../app/tabs/users-tab.js:59 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "总计"
 
-#: ../app/tabs/vrouter-templates-tab.js:44
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/vrouter-templates-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:46
+#: ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
 msgid "Virtual Routers"
 msgstr "虚拟路由器"
 
-#: ../app/tabs/vrouter-templates-tab.js:48
-msgid "Virtual Router VM Templates"
-msgstr ""
-
 #: ../app/tabs/vrouter-templates-tab.js:49
+msgid "Virtual Router VM Templates"
+msgstr "虚拟路由器 VM 模板"
+
+#: ../app/tabs/vrouter-templates-tab.js:50
 msgid "Virtual Router VM Template"
-msgstr ""
+msgstr "虚拟路由器 VM 模板"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1135,58 +1189,58 @@ msgid "Templates"
 msgstr "模版管理"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
-#: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
-#: ../app/tabs/provision-tab.js:1070
+#: ../app/tabs/provision-tab/templates/list.js:147
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:797
+#: ../app/tabs/provision-tab.js:1072
 msgid "There are no templates available"
 msgstr "没有可用的模板"
 
-#: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:627
+#: ../app/tabs/provision-tab/templates/list.js:114
+#: ../app/tabs/provision-tab.js:629
 msgid "No labels defined"
 msgstr "没有定义的标签"
 
-#: ../app/tabs/provision-tab/templates/list.js:148
+#: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
 msgstr "通过运行的虚拟机创建一个模板"
 
-#: ../app/tabs/provision-tab/templates/list.js:164
+#: ../app/tabs/provision-tab/templates/list.js:165
 msgid "SHARED"
 msgstr "共享的"
 
-#: ../app/tabs/provision-tab/templates/list.js:252
+#: ../app/tabs/provision-tab/templates/list.js:253
 #: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
 #: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr "所有"
 
-#: ../app/tabs/provision-tab/templates/list.js:273
+#: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
 msgstr "小心！！这个动作将会立刻删除模板"
 
-#: ../app/tabs/provision-tab/templates/list.js:275
+#: ../app/tabs/provision-tab/templates/list.js:276
 msgid "and the image associated."
 msgstr "与磁盘映像相关联的。"
 
-#: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:324
+#: ../app/tabs/provision-tab/templates/list.js:372
 msgid "The template"
 msgstr "模板"
 
-#: ../app/tabs/provision-tab/templates/list.js:325
+#: ../app/tabs/provision-tab/templates/list.js:326
 msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "和本磁盘映像相关联的将共享并且所有的用户可以使用此模板实例化新的虚拟机。"
 
-#: ../app/tabs/provision-tab/templates/list.js:329
+#: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
 msgstr "共享模板"
 
-#: ../app/tabs/provision-tab/templates/list.js:373
+#: ../app/tabs/provision-tab/templates/list.js:374
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "和本磁盘映像相关联的将不能共享并且用户将不能使用此模板实例化新的虚拟机。"
 
-#: ../app/tabs/provision-tab/templates/list.js:377
+#: ../app/tabs/provision-tab/templates/list.js:378
 msgid "Unshare template"
 msgstr "非共享的模板"
 
@@ -1233,7 +1287,7 @@ msgstr "正在部署"
 
 #: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:191
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
@@ -1263,7 +1317,7 @@ msgstr "关闭电源"
 #: ../app/tabs/provision-tab/vms/list.js:920
 #: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:204
 msgid "UNKNOWN"
 msgstr "未知"
 
@@ -1291,8 +1345,8 @@ msgstr "正在删除"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
 #: ../app/tabs/oneflow-templates-tab.js:48
-#: ../app/tabs/oneflow-services-tab.js:46
-#: ../app/tabs/oneflow-services-tab.js:50
+#: ../app/tabs/oneflow-services-tab.js:47
+#: ../app/tabs/oneflow-services-tab.js:51
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
 msgstr "服务"
@@ -1303,7 +1357,7 @@ msgstr "没有服务"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:57
-#: ../app/tabs/oneflow-services-tab.js:55
+#: ../app/tabs/oneflow-services-tab.js:56
 msgid "Cannot connect to OneFlow server"
 msgstr "不能连接到 OneFlow 服务器"
 
@@ -1347,7 +1401,7 @@ msgid "Be careful, this action will immediately shutdown your Service"
 msgstr "小心！！这个动作将立即关闭你的服务"
 
 #: ../app/tabs/provision-tab/flows/list.js:527
-#: ../app/tabs/oneflow-services-tab/buttons.js:43
+#: ../app/tabs/oneflow-services-tab/buttons.js:48
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
 msgstr "关机"
@@ -1461,9 +1515,11 @@ msgid "Allowed operations"
 msgstr "可用的操作"
 
 #: ../app/tabs/acls-tab/datatable.js:66
-#: ../app/tabs/marketplaces-tab/datatable.js:87 ../app/tabs/zones-tab.js:45
-#: ../app/tabs/marketplaceapps-tab/datatable.js:91
+#: ../app/tabs/marketplaces-tab/datatable.js:89 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 msgid "Zone"
 msgstr "区域"
 
@@ -1516,11 +1572,11 @@ msgstr "区域管理"
 #: ../app/tabs/acls-tab/datatable.js:169 ../app/tabs/secgroups-tab.js:45
 #: ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:167
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:167
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:65
+#: ../app/utils/nics-section/dd.hbs:69
 msgid "Security Groups"
 msgstr "安全规则组"
 
@@ -1537,7 +1593,7 @@ msgstr "应用市场"
 msgid "Marketplace Apps"
 msgstr "应用市场 Apps"
 
-#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:56
+#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:57
 #: ../app/utils/accounting.js:349
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:24
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:91
@@ -1563,7 +1619,7 @@ msgid "Service Template created"
 msgstr "服务模板已创建"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
-#: ../app/tabs/oneflow-services-tab/actions.js:34
+#: ../app/tabs/oneflow-services-tab/actions.js:35
 msgid "Service created"
 msgstr "服务已创建"
 
@@ -1618,8 +1674,8 @@ msgstr "请为此数据仓库选择一个集群"
 msgid "Import vCenter Datastores"
 msgstr "导入 vCenter 数据仓库"
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
-#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/datastores-tab/datatable.js:85 ../app/tabs/provision-tab.js:184
+#: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/vms-tab/panels/capacity.js:52
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
@@ -1629,24 +1685,26 @@ msgstr "导入 vCenter 数据仓库"
 msgid "Capacity"
 msgstr "容量"
 
-#: ../app/tabs/datastores-tab/datatable.js:85
+#: ../app/tabs/datastores-tab/datatable.js:87
 msgid "Basepath"
 msgstr "Base路径"
 
-#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable/search.hbs:32
 msgid "TM MAD"
 msgstr "传输组件"
 
-#: ../app/tabs/datastores-tab/datatable.js:87
+#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/datastores-tab/datatable/search.hbs:40
 msgid "DS MAD"
 msgstr "数据仓库组件"
 
-#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable.js:90
 #: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
-#: ../app/tabs/marketplaceapps-tab/datatable.js:88
-#: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable-common.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/vms-tab/panels/network.js:364
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1665,25 +1723,26 @@ msgstr "数据仓库组件"
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:42
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:35
 #: ../app/tabs/images-tab/panels/info/html.hbs:42
+#: ../app/tabs/images-tab/datatable/search.hbs:28
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/templates/row.hbs:44
 #: ../app/utils/vcenter/templates/row.hbs:69
 #: ../app/utils/vcenter/networks/row.hbs:45
 msgid "Type"
 msgstr "类型"
 
-#: ../app/tabs/datastores-tab/datatable.js:97
+#: ../app/tabs/datastores-tab/datatable.js:100
 msgid "Please select a datastore from the list"
 msgstr "请从列表中选择一个数据仓库"
 
-#: ../app/tabs/datastores-tab/datatable.js:98
+#: ../app/tabs/datastores-tab/datatable.js:101
 msgid "You selected the following datastore:"
 msgstr "您选中了如下数据仓库："
 
-#: ../app/tabs/datastores-tab/datatable.js:99
+#: ../app/tabs/datastores-tab/datatable.js:102
 msgid "Please select one or more datastores from the list"
 msgstr "请从列表中选择一个或者多个datastore"
 
-#: ../app/tabs/datastores-tab/datatable.js:100
+#: ../app/tabs/datastores-tab/datatable.js:103
 msgid "You selected the following datastores:"
 msgstr "您选中了下列数据仓库："
 
@@ -1699,7 +1758,7 @@ msgstr "基数"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
 msgstr "成本"
@@ -1709,27 +1768,27 @@ msgstr "成本"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
 msgstr "小时"
 
-#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
 #: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr "mine"
 
-#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
 #: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
 msgstr "群组"
 
-#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab.js:760 ../app/tabs/provision-tab.js:838
 #: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
 msgstr "系统"
 
-#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
+#: ../app/tabs/provision-tab.js:991 ../app/tabs/provision-tab.js:1238
 msgid "You must select at least a template configuration"
 msgstr "您必须至少选择一个模板配置"
 
@@ -1761,7 +1820,7 @@ msgstr "请从列表中选一个或多个文件"
 msgid "You selected the following files:"
 msgstr "您选中了如下文件："
 
-#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
+#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:362
 msgid "Security Group"
 msgstr "安全规则组"
 
@@ -1850,67 +1909,75 @@ msgstr "创建应用市场"
 msgid "Update MarketPlace"
 msgstr "更新应用市场"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/marketplaces-tab/datatable.js:87
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
 #: ../app/tabs/marketplaceapps-tab.js:49 ../app/tabs/marketplaceapps-tab.js:53
 msgid "Apps"
 msgstr "Apps"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:86
+#: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:22
 msgid "Driver"
 msgstr "驱动程序"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:95
+#: ../app/tabs/marketplaces-tab/datatable.js:98
 msgid "Please select a marketplace from the list"
 msgstr "请从列表中选择一个应用市场"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:96
+#: ../app/tabs/marketplaces-tab/datatable.js:99
 msgid "You selected the following marketplace:"
 msgstr "你选择了下列应用市场："
 
-#: ../app/tabs/marketplaces-tab/datatable.js:97
+#: ../app/tabs/marketplaces-tab/datatable.js:100
 msgid "Please select one or more marketplaces from the list"
 msgstr "请从列表中选择多个应用市场"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:98
+#: ../app/tabs/marketplaces-tab/datatable.js:101
 msgid "You selected the following marketplaces:"
 msgstr "你选择了下列应用市场："
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:48
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:44
+#: ../app/tabs/provision-tab/flows/create.hbs:20
+msgid "Create Service"
+msgstr "创建服务"
+
+#: ../app/tabs/oneflow-services-tab/buttons.js:53
 #: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "恢复"
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:54
+#: ../app/tabs/oneflow-services-tab/buttons.js:59
 msgid "This will delete the selected services"
 msgstr "选中的服务将会被删除"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:87
+#: ../app/tabs/oneflow-services-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:89
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:22
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:22
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "状态"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:74
+#: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Please select a Service from the list"
 msgstr "请从列表中选择一项服务"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:75
+#: ../app/tabs/oneflow-services-tab/datatable.js:78
 msgid "You selected the following Service:"
 msgstr "你选择了下列服务："
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:76
+#: ../app/tabs/oneflow-services-tab/datatable.js:79
 msgid "Please select one or more Services from the list"
 msgstr "请从列表中选择多个服务"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:77
+#: ../app/tabs/oneflow-services-tab/datatable.js:80
 msgid "You selected the following Services:"
 msgstr "你选择了下列服务"
 
@@ -1935,12 +2002,12 @@ msgid "Waiting for the VM to be ready"
 msgstr "等待虚拟机变为正常"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
-#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:163
+#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:168
 msgid "VNC Connection in progress"
 msgstr "VNC 连接中"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
-#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:176
+#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:181
 msgid "SPICE Connection in progress"
 msgstr "SPICE 连接中"
 
@@ -2017,22 +2084,28 @@ msgstr "群组配额"
 msgid "Select group"
 msgstr "选择群组"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:51
+#: ../app/tabs/settings-tab/panels/user-config.js:52
 msgid "Config"
 msgstr "配置"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:99
+#: ../app/tabs/settings-tab/panels/user-config.js:109
 msgid "Fill in a new password"
 msgstr "填写一个新的密码"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:104
+#: ../app/tabs/settings-tab/panels/user-config.js:114
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:31
 msgid "Passwords do not match"
 msgstr "密码不匹配"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:118
+#: ../app/tabs/settings-tab/panels/user-config.js:128
 msgid "You have to provide an SSH key"
 msgstr "您必须提供一个SSH密钥"
+
+#: ../app/tabs/settings-tab/panels/user-config.js:155
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:215
+#: ../app/tabs/users-tab/panels/info/html.hbs:101
+msgid "Get a login token"
+msgstr "获取一个登陆令牌"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
@@ -2055,19 +2128,19 @@ msgstr "创建安全规则组"
 msgid "Update Security Group"
 msgstr "更新安全规则组"
 
-#: ../app/tabs/secgroups-tab/datatable.js:72
+#: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "Please select a security group from the list"
 msgstr "请从列表中选择一个安全群组"
 
-#: ../app/tabs/secgroups-tab/datatable.js:73
+#: ../app/tabs/secgroups-tab/datatable.js:76
 msgid "You selected the following security group:"
 msgstr "您选择了以下的安全群组："
 
-#: ../app/tabs/secgroups-tab/datatable.js:74
+#: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select one or more security groups from the list"
 msgstr "请从列表中选择一个或多个安全群组"
 
-#: ../app/tabs/secgroups-tab/datatable.js:75
+#: ../app/tabs/secgroups-tab/datatable.js:78
 msgid "You selected the following security groups:"
 msgstr "您选择了以下的安全群组："
 
@@ -2110,8 +2183,8 @@ msgstr "起始"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:108
 #: ../app/tabs/vnets-tab/panels/ar.js:310
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:88
+#: ../app/tabs/images-tab/datatable-common.js:70
 #: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:126
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
@@ -2123,6 +2196,7 @@ msgid "Size"
 msgstr "大小"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:112
+#: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
 msgstr "Any"
 
@@ -2156,16 +2230,16 @@ msgstr "导入 vCenter 网络"
 msgid "Reserve"
 msgstr "保留"
 
-#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:71
 msgid "Reservation"
 msgstr "保留"
 
-#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/vnets-tab/datatable.js:73
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:65
 msgid "Bridge"
 msgstr "网桥"
 
-#: ../app/tabs/vnets-tab/datatable.js:71
+#: ../app/tabs/vnets-tab/datatable.js:74
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
 #: ../app/utils/quotas/quota-widgets.js:585
@@ -2173,29 +2247,30 @@ msgstr "网桥"
 msgid "Leases"
 msgstr "租用"
 
-#: ../app/tabs/vnets-tab/datatable.js:72
+#: ../app/tabs/vnets-tab/datatable.js:75
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:139
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:34
+#: ../app/tabs/vnets-tab/datatable/search.hbs:22
 msgid "VLAN ID"
 msgstr "VLAN ID"
 
-#: ../app/tabs/vnets-tab/datatable.js:80
+#: ../app/tabs/vnets-tab/datatable.js:84
 msgid "Please select a network from the list"
 msgstr "请从列表中选择一个网络"
 
-#: ../app/tabs/vnets-tab/datatable.js:81
+#: ../app/tabs/vnets-tab/datatable.js:85
 msgid "You selected the following network:"
 msgstr "您选中了如下网络："
 
-#: ../app/tabs/vnets-tab/datatable.js:82
+#: ../app/tabs/vnets-tab/datatable.js:86
 msgid "Please select one or more networks from the list"
 msgstr "请从列表中选择一个或多个网络"
 
-#: ../app/tabs/vnets-tab/datatable.js:83
+#: ../app/tabs/vnets-tab/datatable.js:87
 msgid "You selected the following networks:"
 msgstr "您选中了如下网络："
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:162
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:173
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:186
@@ -2205,7 +2280,7 @@ msgstr "您选中了如下网络："
 msgid "Yes"
 msgstr "是"
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:163
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:174
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:187
@@ -2216,6 +2291,7 @@ msgid "No"
 msgstr "否"
 
 #: ../app/tabs/vnets-tab/panels/info.js:84
+#: ../app/tabs/vnets-tab/datatable/search.hbs:28
 msgid "Reservation parent"
 msgstr "上级保留"
 
@@ -2315,7 +2391,7 @@ msgid "MarketPlace App created"
 msgstr "应用市场 App 已创建"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
-#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
+#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:129
 msgid "Image created"
 msgstr "映像已创建"
 
@@ -2324,16 +2400,16 @@ msgstr "映像已创建"
 msgid "Error"
 msgstr "错误"
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:127
+#: ../app/tabs/marketplaceapps-tab/actions.js:128
 msgid "This MarketPlace App resides in Zone "
 msgstr "这个市场应用程序驻留在区域中"
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:129
+#: ../app/tabs/marketplaceapps-tab/actions.js:130
 msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr "你需要从区域选择器的右上角切换到该区域去删除它"
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:132
-#: ../app/tabs/images-tab/actions.js:99
+#: ../app/tabs/marketplaceapps-tab/actions.js:133
+#: ../app/tabs/images-tab/actions.js:100
 msgid "Ok"
 msgstr "OK"
 
@@ -2358,37 +2434,39 @@ msgstr "下载"
 msgid "OpenNebula"
 msgstr "OpenNebula"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
 msgstr "版本"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:89
+#: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
 msgstr "注册时间"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
 msgstr "应用市场"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:99
+#: ../app/tabs/marketplaceapps-tab/datatable.js:102
 msgid "Please select an appliance from the list"
 msgstr "请从列表中选择一个应用"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:100
+#: ../app/tabs/marketplaceapps-tab/datatable.js:103
 msgid "You selected the following appliance:"
 msgstr "你选择了下列应用："
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
+#: ../app/tabs/marketplaceapps-tab/datatable.js:104
 msgid "Please select one or more appliances from the list"
 msgstr "请从列表中选择多个应用"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:102
+#: ../app/tabs/marketplaceapps-tab/datatable.js:105
 msgid "You selected the following appliances:"
 msgstr "你选择了下列应用："
 
-#: ../app/tabs/oneflow-services-tab.js:51
+#: ../app/tabs/oneflow-services-tab.js:52
+#: ../app/tabs/vms-tab/datatable/search.hbs:33
 msgid "Service"
 msgstr "服务"
 
@@ -2396,9 +2474,17 @@ msgstr "服务"
 msgid "Instances"
 msgstr "实例"
 
-#: ../app/tabs/vrouters-tab.js:50
+#: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/datatable/search.hbs:32
 msgid "Virtual Router"
 msgstr "虚拟路由器"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:57
+msgid "Instantiate Virtual Router Template"
+msgstr "实例化虚拟路由器模板"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:162
+msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
+msgstr "创建虚拟机失败，虚拟路由器可能需要手动删除"
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -2452,13 +2538,15 @@ msgstr "用户已创建"
 msgid "Create User"
 msgstr "创建用户"
 
-#: ../app/tabs/users-tab/buttons.js:33
+#: ../app/tabs/users-tab/buttons.js:33 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/users-tab/panels/info.js:134
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:60
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:28
-#: ../app/tabs/users-tab/panels/info/html.hbs:43
+#: ../app/tabs/users-tab/panels/info/html.hbs:82
+#: ../app/tabs/users-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:25
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:28
 msgid "Password"
@@ -2476,39 +2564,49 @@ msgstr "更改主组"
 msgid "This will change the primary group of the selected users. Select the new group"
 msgstr "这将更改所选用户的主组，请选择新组"
 
-#: ../app/tabs/users-tab/datatable.js:69
+#: ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/users-tab/datatable/search.hbs:22
 msgid "Auth driver"
 msgstr "认证方式"
 
-#: ../app/tabs/users-tab/datatable.js:73
+#: ../app/tabs/users-tab/datatable.js:76
 msgid "Group ID"
 msgstr "群组ID"
 
-#: ../app/tabs/users-tab/datatable.js:74
+#: ../app/tabs/users-tab/datatable.js:77
 msgid "Hidden User Data"
 msgstr "隐藏的用户数据"
 
-#: ../app/tabs/users-tab/datatable.js:81
+#: ../app/tabs/users-tab/datatable.js:85
 msgid "Please select a User from the list"
 msgstr "请从列表中选择用户"
 
-#: ../app/tabs/users-tab/datatable.js:82
+#: ../app/tabs/users-tab/datatable.js:86
 msgid "You selected the following User:"
 msgstr "您选择了以下用户："
 
-#: ../app/tabs/users-tab/datatable.js:83
+#: ../app/tabs/users-tab/datatable.js:87
 msgid "Please select one or more users from the list"
 msgstr "请从列表中选择一个或多个用户"
 
-#: ../app/tabs/users-tab/datatable.js:84
+#: ../app/tabs/users-tab/datatable.js:88
 msgid "You selected the following users:"
 msgstr "您选择的以下的用户："
 
-#: ../app/tabs/users-tab/panels/info.js:165
+#: ../app/tabs/users-tab/panels/info.js:136
+msgid "Current password"
+msgstr "当前的密码"
+
+#: ../app/tabs/users-tab/panels/info.js:140
+#: ../app/utils/tab-datatable/search-input.hbs:35
+msgid "Close"
+msgstr "关闭"
+
+#: ../app/tabs/users-tab/panels/info.js:198
 msgid "ascending"
 msgstr "正序"
 
-#: ../app/tabs/users-tab/panels/info.js:166
+#: ../app/tabs/users-tab/panels/info.js:199
 msgid "descending"
 msgstr "倒序"
 
@@ -2532,7 +2630,7 @@ msgstr "文件"
 msgid "File"
 msgstr "文件"
 
-#: ../app/tabs/settings-tab.js:50 ../app/tabs/settings-tab.js:51
+#: ../app/tabs/settings-tab.js:51 ../app/tabs/settings-tab.js:52
 #: ../app/sunstone/user_and_zone.hbs:30
 msgid "Settings"
 msgstr "设置"
@@ -2553,7 +2651,7 @@ msgstr "运行"
 msgid "FAILED"
 msgstr "失败"
 
-#: ../app/tabs/vms-tab/form-panels/create.js:50
+#: ../app/tabs/vms-tab/form-panels/create.js:44
 #: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "创建虚拟机"
@@ -2579,12 +2677,12 @@ msgstr "live"
 #: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
 #: ../app/tabs/vms-tab/buttons.js:114
 msgid "Keeps allocated Host resources. The resume operation happens quickly"
-msgstr ""
+msgstr "保持分配的主机资源。恢复操作发生迅速"
 
 #: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
 #: ../app/tabs/vms-tab/buttons.js:126
 msgid "Frees Host resources. The resume operation may take long"
-msgstr ""
+msgstr "释放主机资源，恢复操作可能要花很长时间"
 
 #: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
 #: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
@@ -2637,26 +2735,26 @@ msgstr "VNC"
 msgid "SPICE"
 msgstr "SPICE"
 
-#: ../app/tabs/vms-tab/datatable.js:72
+#: ../app/tabs/vms-tab/datatable.js:74
 msgid "Please select a VM from the list"
 msgstr "请从列表中选择一台虚拟机"
 
-#: ../app/tabs/vms-tab/datatable.js:73
+#: ../app/tabs/vms-tab/datatable.js:75
 msgid "You selected the following VM:"
 msgstr "你选择的虚拟机是："
 
-#: ../app/tabs/vms-tab/datatable.js:74
+#: ../app/tabs/vms-tab/datatable.js:76
 msgid "Please select one or more VMs from the list"
 msgstr "请从列表中选择一台或多台虚拟机"
 
-#: ../app/tabs/vms-tab/datatable.js:75
+#: ../app/tabs/vms-tab/datatable.js:77
 msgid "You selected the following VMs:"
 msgstr "你选择的虚拟机是："
 
 #: ../app/tabs/vms-tab/panels/actions.js:42
 #: ../app/tabs/vms-tab/panels/actions.js:72
 #: ../app/tabs/vms-tab/panels/snapshots.js:75
-#: ../app/tabs/vms-tab/panels/network.js:85
+#: ../app/tabs/vms-tab/panels/network.js:86
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:49
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:29
 msgid "Actions"
@@ -2856,14 +2954,14 @@ msgstr "DS Rank"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
 msgid "User template"
-msgstr ""
+msgstr "用户模板"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
 msgstr "正在保存"
 
 #: ../app/tabs/vms-tab/panels/storage.js:204
-#: ../app/tabs/vms-tab/panels/network.js:237
+#: ../app/tabs/vms-tab/panels/network.js:265
 msgid "attach/detach in progress"
 msgstr "正在挂载／卸载"
 
@@ -2874,7 +2972,7 @@ msgid "Save as"
 msgstr "另存为"
 
 #: ../app/tabs/vms-tab/panels/storage.js:222
-#: ../app/tabs/vms-tab/panels/network.js:243
+#: ../app/tabs/vms-tab/panels/network.js:269
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
 msgstr "卸载"
@@ -2923,76 +3021,80 @@ msgid "MAC"
 msgstr "MAC"
 
 #: ../app/tabs/vms-tab/panels/network.js:83
+msgid "PCI address"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:40
 msgid "IPv6 ULA"
 msgstr "IPv6 ULA"
 
-#: ../app/tabs/vms-tab/panels/network.js:84
+#: ../app/tabs/vms-tab/panels/network.js:85
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 Global"
 msgstr "IPv6 Global"
 
-#: ../app/tabs/vms-tab/panels/network.js:94
-#: ../app/tabs/vms-tab/panels/network.js:97
+#: ../app/tabs/vms-tab/panels/network.js:95
+#: ../app/tabs/vms-tab/panels/network.js:98
 msgid "Attach nic"
 msgstr "挂载网卡"
 
-#: ../app/tabs/vms-tab/panels/network.js:117
+#: ../app/tabs/vms-tab/panels/network.js:118
 msgid "Network Monitoring Attributes"
 msgstr "网络监控属性"
 
-#: ../app/tabs/vms-tab/panels/network.js:141
+#: ../app/tabs/vms-tab/panels/network.js:142
 msgid "NET RX"
 msgstr "网络接收"
 
-#: ../app/tabs/vms-tab/panels/network.js:157
+#: ../app/tabs/vms-tab/panels/network.js:158
 msgid "NET TX"
 msgstr "网络发送"
 
-#: ../app/tabs/vms-tab/panels/network.js:173
+#: ../app/tabs/vms-tab/panels/network.js:174
 msgid "NET DOWNLOAD SPEED"
 msgstr "网络下载速度"
 
-#: ../app/tabs/vms-tab/panels/network.js:189
+#: ../app/tabs/vms-tab/panels/network.js:190
 msgid "NET UPLOAD SPEED"
 msgstr "网络上载速度"
 
-#: ../app/tabs/vms-tab/panels/network.js:278
+#: ../app/tabs/vms-tab/panels/network.js:218
 msgid " (VRouter)"
 msgstr "(VRouter)"
 
-#: ../app/tabs/vms-tab/panels/network.js:347
+#: ../app/tabs/vms-tab/panels/network.js:363
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr "协议"
 
-#: ../app/tabs/vms-tab/panels/network.js:349
+#: ../app/tabs/vms-tab/panels/network.js:365
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 msgid "Range"
 msgstr "范围"
 
-#: ../app/tabs/vms-tab/panels/network.js:351
+#: ../app/tabs/vms-tab/panels/network.js:367
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr "ICMP Type"
 
-#: ../app/tabs/vms-tab/panels/network.js:425
+#: ../app/tabs/vms-tab/panels/network.js:441
 msgid "Network reception"
 msgstr "网络接收"
 
-#: ../app/tabs/vms-tab/panels/network.js:432
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission"
 msgstr "网络发送"
 
-#: ../app/tabs/vms-tab/panels/network.js:439
+#: ../app/tabs/vms-tab/panels/network.js:455
 msgid "Network reception speed"
 msgstr "网络接收速度"
 
-#: ../app/tabs/vms-tab/panels/network.js:448
+#: ../app/tabs/vms-tab/panels/network.js:464
 msgid "Network transmission speed"
 msgstr "网络发送速度"
 
@@ -3042,11 +3144,11 @@ msgstr "虚拟数据中心"
 msgid "Please select one (and just one) Image to export."
 msgstr "请选择一个（只有一个）映像导出"
 
-#: ../app/tabs/images-tab/actions.js:94
+#: ../app/tabs/images-tab/actions.js:95
 msgid "This Image resides in Datastore "
 msgstr "这个映像驻留在数据仓库"
 
-#: ../app/tabs/images-tab/actions.js:96
+#: ../app/tabs/images-tab/actions.js:97
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr "数据仓库 DS_MAD驱动不支持导出的操作"
 
@@ -3087,7 +3189,7 @@ msgstr "设定为持久性"
 msgid "Make non persistent"
 msgstr "设定为非持久性"
 
-#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:73
 #: ../app/tabs/provision-tab/vms/create.hbs:40
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:28
@@ -3095,11 +3197,11 @@ msgstr "设定为非持久性"
 msgid "Persistent"
 msgstr "持久性"
 
-#: ../app/tabs/images-tab/datatable-common.js:72
+#: ../app/tabs/images-tab/datatable-common.js:75
 msgid "#VMS"
 msgstr "VM数量"
 
-#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/images-tab/datatable-common.js:76
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:25
 msgid "Target"
 msgstr "目标设备名称"
@@ -3175,11 +3277,11 @@ msgstr "网络拓扑"
 msgid "VNet"
 msgstr "虚拟网络"
 
-#: ../app/sunstone.js:913 ../app/sunstone.js:914
+#: ../app/sunstone.js:921 ../app/sunstone.js:922
 msgid "Submitting..."
 msgstr "提交中..."
 
-#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
+#: ../app/sunstone.js:1015 ../app/sunstone.js:1016
 msgid "Loading..."
 msgstr "加载中..."
 
@@ -3231,70 +3333,70 @@ msgstr "失败—部署"
 msgid "FAILED_SCALING"
 msgstr "失败—扩展"
 
-#: ../app/opennebula/vm.js:186
+#: ../app/opennebula/vm.js:188
 msgid "LCM_INIT"
 msgstr "LCM_INIT"
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
-#: ../app/opennebula/vm.js:217
+#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:219
 msgid "PROLOG"
 msgstr "PROLOG"
 
-#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
-#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
-#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:223
 msgid "BOOT"
 msgstr "BOOT"
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:192 ../app/opennebula/vm.js:196
+#: ../app/opennebula/vm.js:231 ../app/opennebula/vm.js:233
+#: ../app/opennebula/vm.js:248
 msgid "MIGRATE"
 msgstr "迁移"
 
-#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
-#: ../app/opennebula/vm.js:193
+#: ../app/opennebula/vm.js:193 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:195
 msgid "SAVE"
 msgstr "保存"
 
-#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:218
 msgid "EPILOG"
 msgstr "EPILOG"
 
-#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
-#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:217
 msgid "SHUTDOWN"
 msgstr "关机"
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
-#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:224
 #: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
 #: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
-#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
-#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:230
+#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:234
 #: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:247
+#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
+#: ../app/opennebula/vm.js:249
 msgid "FAILURE"
 msgstr "失败"
 
-#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
 msgid "CLEANUP"
 msgstr "清除"
 
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
-#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
-#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:216 ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:222
 msgid "HOTPLUG"
 msgstr "热插拔"
 
-#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
-#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:239
 #: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
 #: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
 #: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:246 ../app/opennebula/vm.js:247
 msgid "SNAPSHOT"
 msgstr "SNAPSHOT"
 
@@ -3354,7 +3456,7 @@ msgstr "锁定_已使用"
 msgid "LOCKED_USED_PERS"
 msgstr "锁定_已使用_持久"
 
-#: ../app/utils/nics-section.js:309
+#: ../app/utils/nics-section.js:329
 msgid "There are no networks available."
 msgstr "没有可用的网络。"
 
@@ -3475,19 +3577,19 @@ msgstr "网络连接失败：请确认OpenNebula是否仍在运行?"
 msgid "Unauthorized"
 msgstr "未经授权"
 
-#: ../app/utils/tab-datatable.js:105
+#: ../app/utils/tab-datatable.js:107
 msgid "Please select a resource from the list"
 msgstr "请从列表中选择一个资源"
 
-#: ../app/utils/tab-datatable.js:109
+#: ../app/utils/tab-datatable.js:111
 msgid "You selected the following resource:"
 msgstr "您选择了下列资源："
 
-#: ../app/utils/labels/utils.js:109
+#: ../app/utils/labels/utils.js:113
 msgid "Edit Labels"
 msgstr "编辑标签"
 
-#: ../app/utils/labels/utils.js:112
+#: ../app/utils/labels/utils.js:118
 msgid "Add Label"
 msgstr "添加标签"
 
@@ -3511,7 +3613,7 @@ msgstr "非持久化映像。一旦虚拟机关闭虚拟机上所做更改将丢
 msgid "Image state: "
 msgstr "映像状态"
 
-#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "您需要对此操作进行确认"
@@ -3621,12 +3723,12 @@ msgstr "在数据中心中没有找到新的集群"
 msgid "Host created successfully"
 msgstr "主机创建成功"
 
-#: ../app/utils/user-inputs.js:510
+#: ../app/utils/user-inputs.js:511
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
 msgid "MB"
 msgstr "MB"
 
-#: ../app/utils/user-inputs.js:511
+#: ../app/utils/user-inputs.js:512
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:37
 msgid "GB"
 msgstr "GB"
@@ -3675,7 +3777,8 @@ msgid "Group Admins"
 msgstr "管理员组"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:93
-#: ../app/tabs/users-tab/panels/info/html.hbs:69
+#: ../app/tabs/users-tab/panels/info/html.hbs:56
+#: ../app/tabs/users-tab/panels/info/html.hbs:85
 msgid "View"
 msgstr "视图"
 
@@ -3758,7 +3861,7 @@ msgid "Apply changes"
 msgstr "应用变更"
 
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
@@ -3772,6 +3875,7 @@ msgstr "应用变更"
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:58
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
@@ -3798,7 +3902,6 @@ msgstr "在这里写VDC模板"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:34
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
@@ -3806,6 +3909,7 @@ msgstr "在这里写VDC模板"
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:34
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:29
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:27
 #: ../app/utils/user-inputs/row.hbs:23
 msgid "Description"
@@ -4402,9 +4506,33 @@ msgstr "Override force IPv4 for this IPv6 network. Values: Yes or No."
 msgid "Hardware"
 msgstr "硬件"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:136
+msgid "PCI passthrough"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
 msgid "Hardware model to emulate"
 msgstr "硬件模型来模拟"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:153
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:53
+msgid "Device name"
+msgstr "设备名称"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:54
+msgid "Vendor"
+msgstr "Vendor"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:155
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:55
+msgid "Device"
+msgstr "Device"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:156
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:56
+msgid "Class"
+msgstr "Class"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -4780,11 +4908,11 @@ msgstr "增加一个文件（token.txt）到Context容器中，这个令牌会�
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
 msgid "  Report Ready to OneGate"
-msgstr ""
+msgstr "向 OneGate 报告已准备好"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
 msgid "Sends READY=YES to OneGate, useful for OneFlow"
-msgstr ""
+msgstr "向 OneGate 发送 READY=YES，可用于 OneFlow"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
 msgid "Start script"
@@ -4838,23 +4966,11 @@ msgstr "直接传递给hypervisor的原始数据"
 msgid "PCI Devices"
 msgstr "PCI 设备"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-msgid "Device name"
-msgstr "设备名称"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:44
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
-msgid "Vendor"
-msgstr "Vendor"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:48
-msgid "Device"
-msgstr "Device"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:49
-msgid "Class"
-msgstr "Class"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:69
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:76
 msgid "Custom Tags"
 msgstr "定制标签"
 
@@ -4878,12 +4994,12 @@ msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs,
 msgstr "当创建几个虚拟机时，默认的 'template name-<vmid>' 为空，通配符%i将被替换成从0开始的数字"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:48
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
 msgid "Number of instances"
 msgstr "实例的数量"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:56
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:85
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:41
 msgid "Start on hold"
 msgstr "从保持状态启动"
 
@@ -4920,32 +5036,26 @@ msgstr "你也能克隆任意映像引用到这个模板中，它们将克隆成
 msgid "Clone with Images"
 msgstr "克隆映像"
 
+#: ../app/tabs/templates-tab/datatable/search.hbs:26
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
+#: ../app/tabs/vms-tab/datatable/search.hbs:57
+#: ../app/tabs/images-tab/datatable/search.hbs:44
+msgid "Created after"
+msgstr "之后创建的"
+
+#: ../app/tabs/templates-tab/datatable/search.hbs:32
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
+#: ../app/tabs/vms-tab/datatable/search.hbs:63
+#: ../app/tabs/images-tab/datatable/search.hbs:50
+msgid "Created before"
+msgstr "之前创建的"
+
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
 msgstr "在此输入虚拟路由器的模板"
 
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-msgid "Keepalive service ID"
-msgstr "保持服务 ID"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-msgid "Keepalive password"
-msgstr "保持密码"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-msgid "Virtual machine name"
-msgstr "虚拟机名称"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:71
-msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
-msgstr "当创建多个虚拟机时，%i是被集合中虚拟机的数量替换的"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-msgid "Number of VM instances"
-msgstr "虚拟机实例的数量"
-
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:43
+#: ../app/utils/nics-section/dd.hbs:47
 msgid "Floating IP"
 msgstr "浮动 IP"
 
@@ -4958,7 +5068,7 @@ msgid "Floating IPv6 Global"
 msgstr "浮动 IPv6 全球化"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:54
+#: ../app/utils/nics-section/dd.hbs:58
 msgid "Management Interface"
 msgstr "管理接口"
 
@@ -5202,10 +5312,6 @@ msgstr "发送关机信号并终结"
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr "恢复失败的服务，清除失败的虚拟机"
 
-#: ../app/tabs/provision-tab/flows/create.hbs:20
-msgid "Create Service"
-msgstr "创建服务"
-
 #: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr "服务名称"
@@ -5324,11 +5430,11 @@ msgstr "等待 VMs 报告它们已经准备好，通过OneGate来考虑他们在
 msgid "Advanced service parameters"
 msgstr "高级服务参数"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Service name"
 msgstr "服务名称"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:21
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr "当创建几个服务时，通配符%i将被替换成从0开始的数字"
 
@@ -5869,62 +5975,82 @@ msgstr "强制"
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr "强制使用新的基数，即使该基数已经超出了限制"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:34
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
 msgid "Change Language"
 msgstr "变更语言"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:46
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
 msgid "Update Language"
 msgstr "更新语言"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:74
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
 msgid "Change Password"
 msgstr "变更密码"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:81
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
 msgid "New Password"
 msgstr "新密码"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:86
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 msgid "Confirm Password"
 msgstr "密码验证"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:91
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 msgid "Update Password"
 msgstr "更新密码"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:123
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
 msgid "Change view"
 msgstr "变更web界面"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:135
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
 msgid "Update view"
 msgstr "更新web界面"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:164
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:188
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 msgid "Add SSH Key"
 msgstr "添加 SSH 密钥"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:189
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
 msgid "Update SSH Key"
 msgstr "更新 SSH 密钥"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:171
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
 msgstr "添加一个SSH 公钥到你的账户"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:173
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:178
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:155
 msgid "You will be able to access your Virtual Machines without password"
 msgstr "您将能够访问您的虚拟机而无需密码"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:176
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:153
 msgid "Update your public SSH key!"
 msgstr "更新你的 SSH 公钥"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
+msgid "Login Token"
+msgstr "登陆令牌"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:201
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
+msgstr "登录令牌作为密码，可以在Sunstone、CLI 或 API中用来进行身份验证"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:204
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:36
+msgid "Current login token, valid until"
+msgstr "当前的登陆令牌，有效期直到"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:210
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:48
+msgid "Getting a new token will invalidate the current one"
+msgstr "获取新的令牌将使当前的令牌无效"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Security Group template here"
@@ -5967,7 +6093,7 @@ msgstr "第一个IP地址"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
 msgid "Add rule"
-msgstr ""
+msgstr "添加规则"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -6072,15 +6198,15 @@ msgstr "IP spoofing 过滤器"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
 msgid "Automatic VLAN ID"
-msgstr ""
+msgstr "自动分配 VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
 msgid "No VLAN network"
-msgstr ""
+msgstr "无 VLAN 网络"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
 msgid "Manual VLAN ID"
-msgstr ""
+msgstr "手动分配 VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6275,27 +6401,52 @@ msgstr "你能提供一个将要创建的关联到资源的虚拟机模板"
 msgid "Format"
 msgstr "格式"
 
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:37
+msgid "Keepalive service ID"
+msgstr "保持服务 ID"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+msgid "Keepalive password"
+msgstr "保持密码"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+msgid "Virtual machine name"
+msgstr "虚拟机名称"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
+msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
+msgstr "当创建多个虚拟机时，%i是被集合中虚拟机的数量替换的"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:34
+msgid "Number of VM instances"
+msgstr "虚拟机实例的数量"
+
 #: ../app/tabs/users-tab/panels/info/html.hbs:38
-msgid "Authentication driver"
-msgstr "认证方式"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:46
-msgid "Update password"
-msgstr "更新密码"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:51
 msgid "Table Order"
 msgstr "表顺序"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:60
+#: ../app/tabs/users-tab/panels/info/html.hbs:47
 msgid "Language"
 msgstr "语言"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:84
+#: ../app/tabs/users-tab/panels/info/html.hbs:73
+#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
+msgid "Authentication"
+msgstr "认证方式"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:78
+msgid "Authentication driver"
+msgstr "认证方式"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:98
+msgid "Login token"
+msgstr "登陆令牌"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:116
 msgid "Public SSH Key"
 msgstr "Public SSH Key"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:98
+#: ../app/tabs/users-tab/panels/info/html.hbs:131
 msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr "点击 edit 按钮你可以提供这个用户的SSH Key"
 
@@ -6307,13 +6458,13 @@ msgstr "选择第二个群组"
 msgid "Change authentication"
 msgstr "修改认证方式"
 
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:55
+msgid "Get a new token"
+msgstr "获取一个新的令牌"
+
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
 msgid "Username"
 msgstr "帐号"
-
-#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
-msgid "Authentication"
-msgstr "认证方式"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -6469,6 +6620,14 @@ msgstr "快照ID"
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
 msgstr "新镜像名称"
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:28
+msgid "VM type"
+msgstr "VM 类型"
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:31
+msgid "Regular VM"
+msgstr "常规 VM"
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
 msgid "Get Images"
@@ -6630,9 +6789,14 @@ msgid "Comma-separated list of options for the drop-down select input"
 msgstr "逗号分隔的下拉选项列表选择输入"
 
 #: ../app/utils/tab-datatable/table.hbs:30
-#: ../app/utils/tab-datatable/search-input.hbs:17
+#: ../app/utils/tab-datatable/search-input.hbs:19
+#: ../app/utils/tab-datatable/search-input.hbs:41
 msgid "Search"
 msgstr "搜索"
+
+#: ../app/utils/tab-datatable/search-input.hbs:32
+msgid "Clear search"
+msgstr "清除搜索"
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
 msgid "There is no data available"
@@ -6700,31 +6864,35 @@ msgstr "所有者"
 msgid "Network Interface"
 msgstr "网络接口"
 
-#: ../app/utils/nics-section/dd.hbs:5
+#: ../app/utils/nics-section/dd.hbs:6
+msgid "PCI interface"
+msgstr ""
+
+#: ../app/utils/nics-section/dd.hbs:8
 msgid "Interface"
 msgstr "接口"
 
-#: ../app/utils/nics-section/dd.hbs:14
+#: ../app/utils/nics-section/dd.hbs:18
 msgid "Select a Network"
 msgstr "选择一个网络"
 
-#: ../app/utils/nics-section/dd.hbs:27
+#: ../app/utils/nics-section/dd.hbs:31
 msgid "Force IPv4:"
 msgstr "强制 IPv4"
 
-#: ../app/utils/nics-section/dd.hbs:29
+#: ../app/utils/nics-section/dd.hbs:33
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "可选项，你能强制把IP分配到网络接口"
 
-#: ../app/utils/nics-section/dd.hbs:45
+#: ../app/utils/nics-section/dd.hbs:49
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "如果选中此选项，每个虚拟机将会有一个浮动的 ip 地址添加到其网络接口。"
 
-#: ../app/utils/nics-section/dd.hbs:56
+#: ../app/utils/nics-section/dd.hbs:60
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "如果选中，此网络接口将成为一个虚拟路由器的管理接口。流量不会被转发。"
 
-#: ../app/utils/nics-section/dd.hbs:67
+#: ../app/utils/nics-section/dd.hbs:71
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "在虚拟网络中定义。所有安全组 Id 相结合，并应用于虚拟机实例。"
 

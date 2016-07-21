@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-23 11:50+0200\n"
-"PO-Revision-Date: 2016-06-22 13:28+0000\n"
-"Last-Translator: Carlos Martín <carlos.martin.sanchez@gmail.com>\n"
+"POT-Creation-Date: 2016-07-21 16:25+0200\n"
+"PO-Revision-Date: 2016-07-19 10:05+0000\n"
+"Last-Translator: Carlos Martín <cmartin@opennebula.org>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/opennebula/one/language/cs_CZ/)\n"
 "Language: cs_CZ\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgid "Datastores"
 msgstr "Datová úložiště"
 
 #: ../app/tabs/datastores-tab.js:51 ../app/tabs/vms-tab/panels/placement.js:68
-#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/images-tab/datatable-common.js:69
 #: ../app/utils/quotas/quota-widgets.js:413
 #: ../app/utils/quotas/quota-widgets.js:1166 ../app/utils/vcenter/images.js:85
 #: ../app/utils/vcenter/images.js:104
@@ -44,6 +44,7 @@ msgstr "Datová úložiště"
 #: ../app/tabs/images-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:51
 #: ../app/tabs/images-tab/panels/info/html.hbs:32
+#: ../app/tabs/images-tab/datatable/search.hbs:22
 msgid "Datastore"
 msgstr "Datové úložiště"
 
@@ -58,19 +59,20 @@ msgstr "Vytvoření skupiny"
 #: ../app/tabs/groups-tab/form-panels/create.js:54
 #: ../app/tabs/vdcs-tab/form-panels/create.js:60
 #: ../app/tabs/templates-tab/form-panels/create-common.js:74
-#: ../app/tabs/vrouters-tab/form-panels/create.js:61
+#: ../app/tabs/vrouters-tab/form-panels/create.js:53
 #: ../app/tabs/hosts-tab/form-panels/create.js:55
 #: ../app/tabs/acls-tab/form-panels/create.js:52
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:53
 #: ../app/tabs/datastores-tab/form-panels/create.js:55
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:128
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:45
 #: ../app/tabs/secgroups-tab/form-panels/create.js:56
 #: ../app/tabs/vnets-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:57
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:62
 #: ../app/tabs/clusters-tab/form-panels/create.js:53
 #: ../app/tabs/users-tab/form-panels/create.js:51
-#: ../app/tabs/vms-tab/form-panels/create.js:51
+#: ../app/tabs/vms-tab/form-panels/create.js:45
 #: ../app/tabs/images-tab/form-panels/create-common.js:60
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:37
 #: ../app/tabs/provision-tab/vms/create.hbs:45
@@ -91,7 +93,7 @@ msgstr "Úprava skupiny"
 #: ../app/tabs/templates-tab/form-panels/create-common.js:79
 #: ../app/tabs/templates-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:58
-#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/oneflow-templates-tab/buttons.js:33
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:133
 #: ../app/tabs/marketplaces-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/form-panels/create.js:61
@@ -116,17 +118,17 @@ msgid "Quotas"
 msgstr "Kvóty"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions-common.js:58
+#: ../app/tabs/templates-tab/actions-common.js:59
 #: ../app/tabs/templates-tab/buttons.js:81
-#: ../app/tabs/vrouters-tab/buttons.js:47 ../app/tabs/zones-tab/buttons.js:33
-#: ../app/tabs/provision-tab/templates/list.js:172
-#: ../app/tabs/provision-tab/templates/list.js:279
+#: ../app/tabs/vrouters-tab/buttons.js:52 ../app/tabs/zones-tab/buttons.js:33
+#: ../app/tabs/provision-tab/templates/list.js:173
+#: ../app/tabs/provision-tab/templates/list.js:280
 #: ../app/tabs/provision-tab/flows/list.js:506
 #: ../app/tabs/acls-tab/buttons.js:32
 #: ../app/tabs/oneflow-templates-tab/buttons.js:61
 #: ../app/tabs/datastores-tab/buttons.js:57
 #: ../app/tabs/marketplaces-tab/buttons.js:51
-#: ../app/tabs/oneflow-services-tab/buttons.js:52
+#: ../app/tabs/oneflow-services-tab/buttons.js:57
 #: ../app/tabs/secgroups-tab/buttons.js:62 ../app/tabs/vnets-tab/buttons.js:72
 #: ../app/tabs/marketplaceapps-tab/buttons.js:64
 #: ../app/tabs/clusters-tab/buttons.js:38 ../app/tabs/users-tab/buttons.js:59
@@ -139,24 +141,24 @@ msgid "Delete"
 msgstr "Smazat"
 
 #: ../app/tabs/groups-tab/datatable.js:65 ../app/tabs/vdcs-tab/datatable.js:65
-#: ../app/tabs/templates-tab/datatable-common.js:64
-#: ../app/tabs/vrouters-tab/datatable.js:58
-#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:67
+#: ../app/tabs/templates-tab/datatable-common.js:66
+#: ../app/tabs/vrouters-tab/datatable.js:64
+#: ../app/tabs/zones-tab/datatable.js:62 ../app/tabs/hosts-tab/datatable.js:69
 #: ../app/tabs/acls-tab/datatable.js:61 ../app/tabs/acls-tab/datatable.js:232
-#: ../app/tabs/oneflow-templates-tab/datatable.js:62
-#: ../app/tabs/datastores-tab/datatable.js:79
-#: ../app/tabs/marketplaces-tab/datatable.js:80
-#: ../app/tabs/oneflow-services-tab/datatable.js:63
-#: ../app/tabs/secgroups-tab/datatable.js:62
-#: ../app/tabs/vnets-tab/datatable.js:64
-#: ../app/tabs/marketplaceapps-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:64
+#: ../app/tabs/datastores-tab/datatable.js:81
+#: ../app/tabs/marketplaces-tab/datatable.js:82
+#: ../app/tabs/oneflow-services-tab/datatable.js:65
+#: ../app/tabs/secgroups-tab/datatable.js:64
+#: ../app/tabs/vnets-tab/datatable.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:83
 #: ../app/tabs/clusters-tab/datatable.js:62
-#: ../app/tabs/users-tab/datatable.js:66
+#: ../app/tabs/users-tab/datatable.js:68
 #: ../app/tabs/vms-tab/panels/actions.js:67
 #: ../app/tabs/vms-tab/panels/snapshots.js:72
 #: ../app/tabs/vms-tab/panels/network.js:79
 #: ../app/tabs/vms-tab/utils/datatable-common.js:30
-#: ../app/tabs/images-tab/datatable-common.js:62
+#: ../app/tabs/images-tab/datatable-common.js:65
 #: ../app/utils/quotas/quota-widgets.js:276
 #: ../app/utils/quotas/quota-widgets.js:417
 #: ../app/utils/quotas/quota-widgets.js:584
@@ -187,21 +189,21 @@ msgid "ID"
 msgstr "ID"
 
 #: ../app/tabs/groups-tab/datatable.js:66 ../app/tabs/vdcs-tab/datatable.js:66
-#: ../app/tabs/templates-tab/datatable-common.js:67
-#: ../app/tabs/vrouters-tab/datatable.js:61
-#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:68
-#: ../app/tabs/oneflow-templates-tab/datatable.js:65
-#: ../app/tabs/datastores-tab/datatable.js:82
-#: ../app/tabs/marketplaces-tab/datatable.js:83
-#: ../app/tabs/oneflow-services-tab/datatable.js:66
-#: ../app/tabs/secgroups-tab/datatable.js:65
-#: ../app/tabs/vnets-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:84
+#: ../app/tabs/templates-tab/datatable-common.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/zones-tab/datatable.js:63 ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/oneflow-templates-tab/datatable.js:67
+#: ../app/tabs/datastores-tab/datatable.js:84
+#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/oneflow-services-tab/datatable.js:68
+#: ../app/tabs/secgroups-tab/datatable.js:67
+#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/marketplaceapps-tab/datatable.js:86
 #: ../app/tabs/clusters-tab/datatable.js:63
-#: ../app/tabs/users-tab/datatable.js:67
+#: ../app/tabs/users-tab/datatable.js:69
 #: ../app/tabs/vms-tab/panels/snapshots.js:73
 #: ../app/tabs/vms-tab/utils/datatable-common.js:33
-#: ../app/tabs/images-tab/datatable-common.js:65
+#: ../app/tabs/images-tab/datatable-common.js:68
 #: ../app/utils/vcenter/images.js:125 ../app/utils/vcenter/templates.js:138
 #: ../app/utils/vcenter/datastores.js:129 ../app/utils/vcenter/networks.js:137
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:27
@@ -209,26 +211,39 @@ msgstr "ID"
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:29
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:19
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:33
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:23
+#: ../app/tabs/templates-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:4
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:25
+#: ../app/tabs/hosts-tab/datatable/search.hbs:4
 #: ../app/tabs/provision-tab/vms/list.hbs:54
 #: ../app/tabs/provision-tab/flows/list.hbs:47
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:33
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:4
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/datastores-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaces-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:4
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:48
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:4
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/secgroups-tab/dialogs/clone/html.hbs:34
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:4
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:47
+#: ../app/tabs/vnets-tab/datatable/search.hbs:4
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:20
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:20
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:4
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:23
 #: ../app/tabs/clusters-tab/form-panels/create/wizard.hbs:20
 #: ../app/tabs/users-tab/panels/info/html.hbs:32
+#: ../app/tabs/users-tab/datatable/search.hbs:4
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:34
+#: ../app/tabs/vms-tab/datatable/search.hbs:4
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:25
+#: ../app/tabs/images-tab/datatable/search.hbs:4
 #: ../app/utils/user-inputs/row.hbs:3 ../app/utils/panel/rename-tr/html.hbs:18
 #: ../app/utils/showback/html.hbs:87
 msgid "Name"
@@ -236,8 +251,8 @@ msgstr "Jméno"
 
 #: ../app/tabs/groups-tab/datatable.js:67
 #: ../app/tabs/groups-tab/panels/users.js:45
-#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:51
-#: ../app/tabs/users-tab.js:55
+#: ../app/tabs/acls-tab/datatable.js:151 ../app/tabs/users-tab.js:52
+#: ../app/tabs/users-tab.js:56
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:93
 #: ../app/tabs/dashboard-tab/users.hbs:22
 msgid "Users"
@@ -248,7 +263,7 @@ msgstr "Uživatelé"
 #: ../app/tabs/hosts-tab/panels/vms.js:39
 #: ../app/tabs/provision-tab/flows/list.js:420 ../app/tabs/templates-tab.js:47
 #: ../app/tabs/secgroups-tab/panels/vms.js:41
-#: ../app/tabs/users-tab/datatable.js:70 ../app/tabs/vms-tab.js:65
+#: ../app/tabs/users-tab/datatable.js:73 ../app/tabs/vms-tab.js:65
 #: ../app/tabs/vms-tab.js:69 ../app/tabs/images-tab/panels/vms.js:39
 #: ../app/utils/quotas/quota-widgets.js:100 ../app/utils/showback.js:98
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:165
@@ -257,7 +272,7 @@ msgstr "Uživatelé"
 msgid "VMs"
 msgstr "Virt. stroje"
 
-#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/groups-tab/datatable.js:69 ../app/tabs/users-tab/datatable.js:74
 #: ../app/utils/quotas/quota-widgets.js:196
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:135
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:21
@@ -267,7 +282,7 @@ msgstr "Virt. stroje"
 msgid "Memory"
 msgstr "Paměť"
 
-#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/groups-tab/datatable.js:70 ../app/tabs/users-tab/datatable.js:75
 #: ../app/utils/quotas/quota-widgets.js:148
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:142
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:31
@@ -281,19 +296,20 @@ msgid "CPU"
 msgstr "CPU"
 
 #: ../app/tabs/groups-tab/datatable.js:71 ../app/tabs/vdcs-tab/datatable.js:72
-#: ../app/tabs/templates-tab/datatable-common.js:69
-#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:79
-#: ../app/tabs/oneflow-templates-tab/datatable.js:66
-#: ../app/tabs/datastores-tab/datatable.js:90
-#: ../app/tabs/marketplaces-tab/datatable.js:88
-#: ../app/tabs/oneflow-services-tab/datatable.js:68
-#: ../app/tabs/secgroups-tab/datatable.js:66
-#: ../app/tabs/vnets-tab/datatable.js:73
-#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/templates-tab/datatable-common.js:71
+#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/zones-tab/datatable.js:65 ../app/tabs/hosts-tab/datatable.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:68
+#: ../app/tabs/datastores-tab/datatable.js:92
+#: ../app/tabs/marketplaces-tab/datatable.js:90
+#: ../app/tabs/oneflow-services-tab/datatable.js:70
+#: ../app/tabs/secgroups-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:76
+#: ../app/tabs/marketplaceapps-tab/datatable.js:94
 #: ../app/tabs/clusters-tab/datatable.js:67
-#: ../app/tabs/users-tab/datatable.js:75
+#: ../app/tabs/users-tab/datatable.js:78
 #: ../app/tabs/vms-tab/utils/datatable-common.js:42
-#: ../app/tabs/images-tab/datatable-common.js:74
+#: ../app/tabs/images-tab/datatable-common.js:77
 #: ../app/tabs/provision-tab/vms/create.hbs:78
 #: ../app/tabs/provision-tab/flows/create.hbs:58
 msgid "Labels"
@@ -329,7 +345,7 @@ msgstr "Zvolil jste následující skupiny:"
 #: ../app/tabs/vnets-tab/panels/info.js:48
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:50
 #: ../app/tabs/clusters-tab/panels/info.js:46
-#: ../app/tabs/users-tab/panels/info.js:51
+#: ../app/tabs/users-tab/panels/info.js:53
 #: ../app/tabs/vms-tab/panels/info.js:51
 #: ../app/tabs/images-tab/panels/info-common.js:42
 msgid "Info"
@@ -346,7 +362,7 @@ msgstr "Info"
 #: ../app/tabs/vnets-tab/panels/info.js:75
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
-#: ../app/tabs/users-tab/panels/info.js:78
+#: ../app/tabs/users-tab/panels/info.js:80
 #: ../app/tabs/vms-tab/panels/info.js:94
 #: ../app/tabs/images-tab/panels/info-common.js:61
 msgid "Attributes"
@@ -510,11 +526,11 @@ msgstr "Úprava šablony virt. stroje"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:67
 msgid "Create Virtual Router VM Template"
-msgstr ""
+msgstr "Vytvoření šablony virt. stroje pro virt. router"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:68
 msgid "Update Virtual Router VM Template"
-msgstr ""
+msgstr "Úprava šablony virt. stoje pro virt. router"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:53
 msgid "Instantiate VM Template"
@@ -522,19 +538,23 @@ msgstr "Spuštění virt. stroje ze šablony"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:54
 #: ../app/tabs/templates-tab/buttons.js:45
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:58
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
-#: ../app/tabs/oneflow-templates-tab/buttons.js:33
+#: ../app/tabs/oneflow-templates-tab/buttons.js:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
+#: ../app/tabs/vrouter-templates-tab/buttons.js:30
 msgid "Instantiate"
 msgstr "Spustit"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:128
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:130
 msgid "No template selected"
 msgstr "Nebyla vybraná žádná šablona"
 
-#: ../app/tabs/templates-tab/form-panels/instantiate.js:229
-#: ../app/tabs/vrouters-tab/form-panels/create.js:129
-#: ../app/tabs/provision-tab.js:957 ../app/tabs/provision-tab.js:1203
-#: ../app/utils/user-inputs.js:226
+#: ../app/tabs/templates-tab/form-panels/instantiate.js:270
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
+#: ../app/tabs/provision-tab.js:959 ../app/tabs/provision-tab.js:1205
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:194
+#: ../app/utils/user-inputs.js:227
 msgid "Custom Attributes"
 msgstr "Vlastní atributy"
 
@@ -579,6 +599,11 @@ msgstr "Vstup/Výstup"
 msgid "Scheduling"
 msgstr "Plánování"
 
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
+#: ../app/utils/resource-select.js:50
+msgid "Please select"
+msgstr "Vyberte prosím"
+
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:147
 msgid "OS Booting"
 msgstr "Boot OS"
@@ -622,8 +647,8 @@ msgstr "Disk"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:55
 #: ../app/tabs/vms-tab/panels/network.js:49
 #: ../app/tabs/vms-tab/panels/network.js:80
-#: ../app/tabs/vms-tab/panels/network.js:350
-#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:230
+#: ../app/tabs/vms-tab/panels/network.js:366
+#: ../app/utils/quotas/quota-widgets.js:580 ../app/utils/user-inputs.js:231
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:44
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:134
@@ -632,8 +657,8 @@ msgstr "Disk"
 msgid "Network"
 msgstr "Síť"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:177
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:213
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:225
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:261
 msgid "NIC"
 msgstr "Síť. adaptér"
 
@@ -641,11 +666,6 @@ msgstr "Síť. adaptér"
 #: ../app/utils/panel/permissions-table/permissions.hbs:50
 msgid "Other"
 msgstr "Ostatní"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:93
-#: ../app/utils/resource-select.js:50
-msgid "Please select"
-msgstr "Vyberte prosím"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:54
 msgid "Hybrid"
@@ -666,43 +686,43 @@ msgstr "Poskytovatel"
 msgid "General"
 msgstr "Obecné"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:151
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:155
 #: ../app/utils/vcenter/templates.js:234
 msgid "Which datastore you want this VM to run on?"
 msgstr "Na kterém dat. úložišti chcete virt. stroj spustit?"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:172
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:176
 #: ../app/utils/vcenter/templates.js:255
 msgid "Which resource pool you want this VM to run in?"
 msgstr "Na které skupině zdrojů chcete virt. stroj spustit?"
 
 #: ../app/tabs/templates-tab/actions-common.js:39
-#: ../app/tabs/templates-tab/actions-common.js:227
-#: ../app/tabs/templates-tab/actions-common.js:238
+#: ../app/tabs/templates-tab/actions-common.js:228
+#: ../app/tabs/templates-tab/actions-common.js:239
 #: ../app/tabs/marketplaceapps-tab/actions.js:76
 msgid "VM Template created"
 msgstr "Šablona virt. stroje vytvořena"
 
-#: ../app/tabs/templates-tab/actions-common.js:54
+#: ../app/tabs/templates-tab/actions-common.js:55
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr "Tímto smažete šablonu.<br/>Také můžete smazat všechny obrazy odkazované ze šablony"
 
-#: ../app/tabs/templates-tab/actions-common.js:57
+#: ../app/tabs/templates-tab/actions-common.js:58
 msgid "Delete all images"
 msgstr "Smazat všechny obrazy"
 
-#: ../app/tabs/templates-tab/actions-common.js:158
-#: ../app/tabs/templates-tab/actions-common.js:203
+#: ../app/tabs/templates-tab/actions-common.js:159
+#: ../app/tabs/templates-tab/actions-common.js:204
 #: ../app/tabs/vms-tab/actions.js:40
 msgid "VM created"
 msgstr "Virt. stroj vytvořen"
 
 #: ../app/tabs/templates-tab/buttons.js:49
-#: ../app/tabs/vrouters-tab/buttons.js:32
+#: ../app/tabs/vrouters-tab/buttons.js:37
 #: ../app/tabs/oneflow-templates-tab/buttons.js:42
 #: ../app/tabs/datastores-tab/buttons.js:43
 #: ../app/tabs/marketplaces-tab/buttons.js:37
-#: ../app/tabs/oneflow-services-tab/buttons.js:28
+#: ../app/tabs/oneflow-services-tab/buttons.js:33
 #: ../app/tabs/secgroups-tab/buttons.js:37 ../app/tabs/vnets-tab/buttons.js:55
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
 #: ../app/tabs/vms-tab/buttons.js:34 ../app/tabs/images-tab/buttons.js:42
@@ -710,11 +730,11 @@ msgid "Change owner"
 msgstr "Změnit vlastníka"
 
 #: ../app/tabs/templates-tab/buttons.js:52
-#: ../app/tabs/vrouters-tab/buttons.js:35
+#: ../app/tabs/vrouters-tab/buttons.js:40
 #: ../app/tabs/oneflow-templates-tab/buttons.js:45
 #: ../app/tabs/datastores-tab/buttons.js:46
 #: ../app/tabs/marketplaces-tab/buttons.js:40
-#: ../app/tabs/oneflow-services-tab/buttons.js:30
+#: ../app/tabs/oneflow-services-tab/buttons.js:35
 #: ../app/tabs/secgroups-tab/buttons.js:40 ../app/tabs/vnets-tab/buttons.js:58
 #: ../app/tabs/marketplaceapps-tab/buttons.js:43
 #: ../app/tabs/vms-tab/buttons.js:37 ../app/tabs/images-tab/buttons.js:45
@@ -722,11 +742,11 @@ msgid "Select the new owner"
 msgstr "Vyberte nového vlastníka"
 
 #: ../app/tabs/templates-tab/buttons.js:56
-#: ../app/tabs/vrouters-tab/buttons.js:39
+#: ../app/tabs/vrouters-tab/buttons.js:44
 #: ../app/tabs/oneflow-templates-tab/buttons.js:49
 #: ../app/tabs/datastores-tab/buttons.js:50
 #: ../app/tabs/marketplaces-tab/buttons.js:44
-#: ../app/tabs/oneflow-services-tab/buttons.js:35
+#: ../app/tabs/oneflow-services-tab/buttons.js:40
 #: ../app/tabs/secgroups-tab/buttons.js:44 ../app/tabs/vnets-tab/buttons.js:63
 #: ../app/tabs/marketplaceapps-tab/buttons.js:47
 #: ../app/tabs/vms-tab/buttons.js:41 ../app/tabs/images-tab/buttons.js:49
@@ -734,11 +754,11 @@ msgid "Change group"
 msgstr "Změnit skupinu"
 
 #: ../app/tabs/templates-tab/buttons.js:59
-#: ../app/tabs/vrouters-tab/buttons.js:42
+#: ../app/tabs/vrouters-tab/buttons.js:47
 #: ../app/tabs/oneflow-templates-tab/buttons.js:52
 #: ../app/tabs/datastores-tab/buttons.js:53
 #: ../app/tabs/marketplaces-tab/buttons.js:47
-#: ../app/tabs/oneflow-services-tab/buttons.js:37
+#: ../app/tabs/oneflow-services-tab/buttons.js:42
 #: ../app/tabs/secgroups-tab/buttons.js:47 ../app/tabs/vnets-tab/buttons.js:66
 #: ../app/tabs/marketplaceapps-tab/buttons.js:50
 #: ../app/tabs/vms-tab/buttons.js:44 ../app/tabs/images-tab/buttons.js:52
@@ -756,7 +776,7 @@ msgid "Clone"
 msgstr "Klonovat"
 
 #: ../app/tabs/templates-tab/buttons.js:69
-#: ../app/tabs/provision-tab/templates/list.js:166
+#: ../app/tabs/provision-tab/templates/list.js:167
 msgid "Share"
 msgstr "Sdílet"
 
@@ -765,7 +785,7 @@ msgid "The template, along with any image referenced by it, will be shared with 
 msgstr "Šablona a všechny odkazované obrazy budou nasdíleny s uživateli skupiny. Změněná práva: GROUP USE"
 
 #: ../app/tabs/templates-tab/buttons.js:75
-#: ../app/tabs/provision-tab/templates/list.js:163
+#: ../app/tabs/provision-tab/templates/list.js:164
 msgid "Unshare"
 msgstr "Zrušit sdílení"
 
@@ -773,69 +793,92 @@ msgstr "Zrušit sdílení"
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
 msgstr "Šabloně a všem odkazovaným obrazům bude zrušeno sdílení s uživateli skupiny. Změněná práva: GROUP USE"
 
-#: ../app/tabs/templates-tab/datatable-common.js:65
-#: ../app/tabs/vrouters-tab/datatable.js:59
-#: ../app/tabs/oneflow-templates-tab/datatable.js:63
-#: ../app/tabs/datastores-tab/datatable.js:80
-#: ../app/tabs/marketplaces-tab/datatable.js:81
-#: ../app/tabs/oneflow-services-tab/datatable.js:64
-#: ../app/tabs/secgroups-tab/datatable.js:63
-#: ../app/tabs/vnets-tab/datatable.js:65
-#: ../app/tabs/marketplaceapps-tab/datatable.js:82
+#: ../app/tabs/templates-tab/datatable-common.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:65
+#: ../app/tabs/oneflow-templates-tab/datatable.js:65
+#: ../app/tabs/datastores-tab/datatable.js:82
+#: ../app/tabs/marketplaces-tab/datatable.js:83
+#: ../app/tabs/oneflow-services-tab/datatable.js:66
+#: ../app/tabs/secgroups-tab/datatable.js:65
+#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:84
 #: ../app/tabs/vms-tab/utils/datatable-common.js:31
-#: ../app/tabs/images-tab/datatable-common.js:63
+#: ../app/tabs/images-tab/datatable-common.js:66
+#: ../app/tabs/templates-tab/datatable/search.hbs:10
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:10
+#: ../app/tabs/datastores-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:10
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:10
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:10
+#: ../app/tabs/vnets-tab/datatable/search.hbs:10
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:10
+#: ../app/tabs/images-tab/datatable/search.hbs:10
 #: ../app/utils/panel/permissions-table/permissions.hbs:26
 #: ../app/utils/panel/permissions-table/owner.hbs:18
 #: ../app/utils/showback/html.hbs:88
 msgid "Owner"
 msgstr "Vlastník"
 
-#: ../app/tabs/templates-tab/datatable-common.js:66
-#: ../app/tabs/vrouters-tab/datatable.js:60 ../app/tabs/groups-tab.js:53
+#: ../app/tabs/templates-tab/datatable-common.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:66 ../app/tabs/groups-tab.js:53
 #: ../app/tabs/acls-tab/datatable.js:236
-#: ../app/tabs/oneflow-templates-tab/datatable.js:64
-#: ../app/tabs/datastores-tab/datatable.js:81
-#: ../app/tabs/marketplaces-tab/datatable.js:82
-#: ../app/tabs/oneflow-services-tab/datatable.js:65
-#: ../app/tabs/secgroups-tab/datatable.js:64
-#: ../app/tabs/vnets-tab/datatable.js:66
-#: ../app/tabs/marketplaceapps-tab/datatable.js:83
-#: ../app/tabs/users-tab/datatable.js:68
+#: ../app/tabs/oneflow-templates-tab/datatable.js:66
+#: ../app/tabs/datastores-tab/datatable.js:83
+#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/oneflow-services-tab/datatable.js:67
+#: ../app/tabs/secgroups-tab/datatable.js:66
+#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/users-tab/datatable.js:70
 #: ../app/tabs/vms-tab/utils/datatable-common.js:32
-#: ../app/tabs/images-tab/datatable-common.js:64 ../app/utils/accounting.js:362
+#: ../app/tabs/images-tab/datatable-common.js:67 ../app/utils/accounting.js:362
+#: ../app/tabs/templates-tab/datatable/search.hbs:16
+#: ../app/tabs/vrouters-tab/datatable/search.hbs:16
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:44
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:146
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:160
+#: ../app/tabs/oneflow-templates-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:16
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:16
+#: ../app/tabs/secgroups-tab/datatable/search.hbs:16
+#: ../app/tabs/vnets-tab/datatable/search.hbs:16
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/panels/info/chgrp-tr.hbs:18
+#: ../app/tabs/users-tab/datatable/search.hbs:10
+#: ../app/tabs/vms-tab/datatable/search.hbs:16
+#: ../app/tabs/images-tab/datatable/search.hbs:16
 #: ../app/utils/accounting/html.hbs:30 ../app/utils/accounting/html.hbs:40
 #: ../app/utils/panel/permissions-table/permissions.hbs:38
 #: ../app/utils/panel/permissions-table/group.hbs:18
 msgid "Group"
 msgstr "Skupina"
 
-#: ../app/tabs/templates-tab/datatable-common.js:68
-#: ../app/tabs/images-tab/datatable-common.js:69
+#: ../app/tabs/templates-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:72
 msgid "Registration time"
 msgstr "Čas registrace"
 
-#: ../app/tabs/templates-tab/datatable-common.js:75
-#: ../app/tabs/oneflow-templates-tab/datatable.js:72
+#: ../app/tabs/templates-tab/datatable-common.js:78
+#: ../app/tabs/oneflow-templates-tab/datatable.js:75
 msgid "Please select a Template from the list"
 msgstr "Vyberte prosím ze seznamu šablonu"
 
-#: ../app/tabs/templates-tab/datatable-common.js:76
-#: ../app/tabs/oneflow-templates-tab/datatable.js:73
+#: ../app/tabs/templates-tab/datatable-common.js:79
+#: ../app/tabs/oneflow-templates-tab/datatable.js:76
 msgid "You selected the following Template:"
 msgstr "Vybral jste následující šablonu:"
 
-#: ../app/tabs/templates-tab/datatable-common.js:77
-#: ../app/tabs/oneflow-templates-tab/datatable.js:74
+#: ../app/tabs/templates-tab/datatable-common.js:80
+#: ../app/tabs/oneflow-templates-tab/datatable.js:77
 msgid "Please select one or more Templates from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více šablon"
 
-#: ../app/tabs/templates-tab/datatable-common.js:78
-#: ../app/tabs/oneflow-templates-tab/datatable.js:75
+#: ../app/tabs/templates-tab/datatable-common.js:81
+#: ../app/tabs/oneflow-templates-tab/datatable.js:78
 msgid "You selected the following Templates:"
 msgstr "Vybral jste následující šablony:"
 
@@ -843,9 +886,9 @@ msgstr "Vybral jste následující šablony:"
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
 #: ../app/tabs/vms-tab/panels/template.js:40
 #: ../app/tabs/vms-tab/panels/template.js:69
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:60
 #: ../app/tabs/provision-tab/vms/create.hbs:50
 #: ../app/tabs/provision-tab/flows/create.hbs:38
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:18
 msgid "Template"
 msgstr "Šablona"
 
@@ -854,36 +897,38 @@ msgstr "Šablona"
 msgid "System"
 msgstr "Systém"
 
-#: ../app/tabs/vrouters-tab/actions.js:31
+#: ../app/tabs/vrouters-tab/actions.js:32
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:144
 msgid "Virtual Router created"
 msgstr "Virtuální router vytvořen"
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:60
+#: ../app/tabs/vrouters-tab/form-panels/instantiate.js:57
+#: ../app/tabs/vrouters-tab/buttons.js:33
+msgid "Instantiate VMs"
+msgstr ""
+
+#: ../app/tabs/vrouters-tab/form-panels/create.js:52
 msgid "Create Virtual Router"
 msgstr "Vytvoření virtuálního routeru"
 
-#: ../app/tabs/vrouters-tab/form-panels/create.js:199
-msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
-msgstr "Nepodařilo se vytvořit virt. stroje. Virt. router může být potřeba zrušit ručně."
-
-#: ../app/tabs/vrouters-tab/datatable.js:67
+#: ../app/tabs/vrouters-tab/datatable.js:75
 msgid "Please select a virtual router from the list"
 msgstr "Vyberte prosím ze seznamu virtuální router"
 
-#: ../app/tabs/vrouters-tab/datatable.js:68
+#: ../app/tabs/vrouters-tab/datatable.js:76
 msgid "You selected the following virtual router:"
 msgstr "Vybral jste následující virtuální router:"
 
-#: ../app/tabs/vrouters-tab/datatable.js:69
+#: ../app/tabs/vrouters-tab/datatable.js:77
 msgid "Please select one or more virtual routers from the list"
 msgstr "Vyberte prosím ze seznamu jeden nebo více virtuálních routerů"
 
-#: ../app/tabs/vrouters-tab/datatable.js:70
+#: ../app/tabs/vrouters-tab/datatable.js:78
 msgid "You selected the following virtual routers:"
 msgstr "Vybral jste následující virtuální routery:"
 
 #: ../app/tabs/vrouters-tab/panels/info.js:154
-#: ../app/tabs/vms-tab/panels/network.js:396
+#: ../app/tabs/vms-tab/panels/network.js:412
 msgid "This will detach the nic immediately"
 msgstr "Tímto se okamžitě odpojí síť. adaptér"
 
@@ -953,24 +998,26 @@ msgstr "Zakázat"
 msgid "Delete host"
 msgstr "Smazat hostitele"
 
-#: ../app/tabs/hosts-tab/datatable.js:69
-#: ../app/tabs/datastores-tab/datatable.js:84
-#: ../app/tabs/vnets-tab/datatable.js:69
+#: ../app/tabs/hosts-tab/datatable.js:71
+#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/vnets-tab/datatable.js:72
 #: ../app/tabs/clusters-tab/panels/info.js:104 ../app/tabs/clusters-tab.js:51
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:29
+#: ../app/tabs/hosts-tab/datatable/search.hbs:10
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:150
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:165
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:20
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:40
+#: ../app/tabs/vms-tab/datatable/search.hbs:47
 #: ../app/utils/panel/cluster-tr/html.hbs:18
 msgid "Cluster"
 msgstr "Cluster"
 
-#: ../app/tabs/hosts-tab/datatable.js:70
+#: ../app/tabs/hosts-tab/datatable.js:72
 msgid "RVMs"
 msgstr "VSTROJŮ"
 
-#: ../app/tabs/hosts-tab/datatable.js:71 ../app/tabs/hosts-tab/datatable.js:218
+#: ../app/tabs/hosts-tab/datatable.js:73 ../app/tabs/hosts-tab/datatable.js:235
 #: ../app/tabs/vms-tab/panels/capacity.js:120
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:24
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:71
@@ -978,64 +1025,70 @@ msgstr "VSTROJŮ"
 msgid "Real CPU"
 msgstr "Reálné CPU"
 
-#: ../app/tabs/hosts-tab/datatable.js:72 ../app/tabs/hosts-tab/datatable.js:202
+#: ../app/tabs/hosts-tab/datatable.js:74 ../app/tabs/hosts-tab/datatable.js:219
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
 msgid "Allocated CPU"
 msgstr "Alokovaná CPU"
 
-#: ../app/tabs/hosts-tab/datatable.js:73
+#: ../app/tabs/hosts-tab/datatable.js:75
 #: ../app/tabs/vms-tab/panels/capacity.js:126
 msgid "Real MEM"
 msgstr "Reálná paměť"
 
-#: ../app/tabs/hosts-tab/datatable.js:74
+#: ../app/tabs/hosts-tab/datatable.js:76
 msgid "Allocated MEM"
 msgstr "Alokovaná paměť"
 
-#: ../app/tabs/hosts-tab/datatable.js:75
-#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/datastores-tab/datatable.js:91
 #: ../app/tabs/vms-tab/utils/datatable-common.js:34
-#: ../app/tabs/images-tab/datatable-common.js:71
+#: ../app/tabs/images-tab/datatable-common.js:74
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:23
+#: ../app/tabs/hosts-tab/datatable/search.hbs:16
+#: ../app/tabs/datastores-tab/datatable/search.hbs:22
+#: ../app/tabs/vms-tab/datatable/search.hbs:22
+#: ../app/tabs/images-tab/datatable/search.hbs:34
 msgid "Status"
 msgstr "Stav"
 
-#: ../app/tabs/hosts-tab/datatable.js:76
+#: ../app/tabs/hosts-tab/datatable.js:78
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:38
+#: ../app/tabs/hosts-tab/datatable/search.hbs:22
 msgid "IM MAD"
 msgstr "IM MAD"
 
-#: ../app/tabs/hosts-tab/datatable.js:77
+#: ../app/tabs/hosts-tab/datatable.js:79
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:43
+#: ../app/tabs/hosts-tab/datatable/search.hbs:28
 msgid "VM MAD"
 msgstr "VM MAD"
 
-#: ../app/tabs/hosts-tab/datatable.js:78
+#: ../app/tabs/hosts-tab/datatable.js:80
 msgid "Last monitored on"
 msgstr "Naposledy monitorováno"
 
-#: ../app/tabs/hosts-tab/datatable.js:85
+#: ../app/tabs/hosts-tab/datatable.js:88
 msgid "Please select a Host from the list"
 msgstr "Vyberte prosím ze seznamu hostitele"
 
-#: ../app/tabs/hosts-tab/datatable.js:86
+#: ../app/tabs/hosts-tab/datatable.js:89
 msgid "You selected the following Host:"
 msgstr "Vybraný hostitel:"
 
-#: ../app/tabs/hosts-tab/datatable.js:87
+#: ../app/tabs/hosts-tab/datatable.js:90
 msgid "Please select one or more hosts from the list"
 msgstr "Vyberte prosím ze seznamu jednoho či více hostitelů"
 
-#: ../app/tabs/hosts-tab/datatable.js:88
+#: ../app/tabs/hosts-tab/datatable.js:91
 msgid "You selected the following hosts:"
 msgstr "Vybraní hostitelé:"
 
-#: ../app/tabs/hosts-tab/datatable.js:234
+#: ../app/tabs/hosts-tab/datatable.js:251
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
 msgid "Allocated Memory"
 msgstr "Alokovaná paměť"
 
-#: ../app/tabs/hosts-tab/datatable.js:250
+#: ../app/tabs/hosts-tab/datatable.js:267
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:25
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:67
 msgid "Real Memory"
@@ -1049,6 +1102,7 @@ msgstr "ESX"
 #: ../app/tabs/vms-tab/panels/placement.js:67
 #: ../app/tabs/vms-tab/utils/datatable-common.js:37
 #: ../app/tabs/vms-tab/panels/info/html.hbs:42
+#: ../app/tabs/vms-tab/datatable/search.hbs:39
 msgid "Host"
 msgstr "Hostitel"
 
@@ -1078,7 +1132,7 @@ msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombie"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:49
 msgid "Wilds"
@@ -1103,27 +1157,27 @@ msgstr "Nemůžu kontaktovat server: je spuštěn a dostupný?"
 
 #: ../app/tabs/groups-tab.js:55 ../app/tabs/vnets-tab.js:58
 #: ../app/tabs/hosts-tab.js:57 ../app/tabs/vms-tab.js:71
-#: ../app/tabs/users-tab.js:58 ../app/tabs/vdcs-tab.js:52
+#: ../app/tabs/users-tab.js:59 ../app/tabs/vdcs-tab.js:52
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:27
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:27
 msgid "TOTAL"
 msgstr "CELKEM"
 
-#: ../app/tabs/vrouter-templates-tab.js:44
-#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:45
-#: ../app/tabs/vrouters-tab.js:49
+#: ../app/tabs/vrouter-templates-tab.js:45
+#: ../app/tabs/acls-tab/datatable.js:175 ../app/tabs/vrouters-tab.js:46
+#: ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:168
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:121
 msgid "Virtual Routers"
 msgstr "Virtuální routery"
 
-#: ../app/tabs/vrouter-templates-tab.js:48
-msgid "Virtual Router VM Templates"
-msgstr ""
-
 #: ../app/tabs/vrouter-templates-tab.js:49
+msgid "Virtual Router VM Templates"
+msgstr "Šablony virt. strojů pro virt. router"
+
+#: ../app/tabs/vrouter-templates-tab.js:50
 msgid "Virtual Router VM Template"
-msgstr ""
+msgstr "Šablona virt. stroje pro virt. router"
 
 #: ../app/tabs/provision-tab/templates/list.js:55
 #: ../app/tabs/templates-top-tab.js:23
@@ -1135,58 +1189,58 @@ msgid "Templates"
 msgstr "Šablony"
 
 #: ../app/tabs/provision-tab/templates/list.js:98
-#: ../app/tabs/provision-tab/templates/list.js:146
-#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:795
-#: ../app/tabs/provision-tab.js:1070
+#: ../app/tabs/provision-tab/templates/list.js:147
+#: ../app/tabs/provision-tab.js:614 ../app/tabs/provision-tab.js:797
+#: ../app/tabs/provision-tab.js:1072
 msgid "There are no templates available"
 msgstr "Nejsou k dispozici žádné šablony"
 
-#: ../app/tabs/provision-tab/templates/list.js:112
-#: ../app/tabs/provision-tab.js:627
+#: ../app/tabs/provision-tab/templates/list.js:114
+#: ../app/tabs/provision-tab.js:629
 msgid "No labels defined"
 msgstr "Žádné štítky nenastaveny"
 
-#: ../app/tabs/provision-tab/templates/list.js:148
+#: ../app/tabs/provision-tab/templates/list.js:149
 msgid "Create a template by saving a running Virtual Machine"
 msgstr "Vytvoření šablony uložením běžícího virtuálního stroje"
 
-#: ../app/tabs/provision-tab/templates/list.js:164
+#: ../app/tabs/provision-tab/templates/list.js:165
 msgid "SHARED"
 msgstr "SDÍLENÝ"
 
-#: ../app/tabs/provision-tab/templates/list.js:252
+#: ../app/tabs/provision-tab/templates/list.js:253
 #: ../app/tabs/provision-tab/vms/list.js:235
 #: ../app/tabs/provision-tab/flows/list.js:249
 #: ../app/tabs/provision-tab/vms/create.hbs:71
 msgid "ALL"
 msgstr "VŠECHNO"
 
-#: ../app/tabs/provision-tab/templates/list.js:273
+#: ../app/tabs/provision-tab/templates/list.js:274
 msgid "Handle with care! This action will immediately destroy the template"
 msgstr "Buďte opatrní! Tato operace okamžitě smaže šablonu"
 
-#: ../app/tabs/provision-tab/templates/list.js:275
+#: ../app/tabs/provision-tab/templates/list.js:276
 msgid "and the image associated."
 msgstr "a související obraz."
 
-#: ../app/tabs/provision-tab/templates/list.js:323
-#: ../app/tabs/provision-tab/templates/list.js:371
+#: ../app/tabs/provision-tab/templates/list.js:324
+#: ../app/tabs/provision-tab/templates/list.js:372
 msgid "The template"
 msgstr "Šablona"
 
-#: ../app/tabs/provision-tab/templates/list.js:325
+#: ../app/tabs/provision-tab/templates/list.js:326
 msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "a související obraz budou nasdíleny. Všichni uživatelé budou moci z této šablony spustit virt. stroj."
 
-#: ../app/tabs/provision-tab/templates/list.js:329
+#: ../app/tabs/provision-tab/templates/list.js:330
 msgid "Share template"
 msgstr "Nasdílet šabnlonu"
 
-#: ../app/tabs/provision-tab/templates/list.js:373
+#: ../app/tabs/provision-tab/templates/list.js:374
 msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "a související obraz přestanou být sdílené. Uživatelé již nebudou moci z této šablony spustit virt. stroj."
 
-#: ../app/tabs/provision-tab/templates/list.js:377
+#: ../app/tabs/provision-tab/templates/list.js:378
 msgid "Unshare template"
 msgstr "Zrušit sdílení šablony"
 
@@ -1233,7 +1287,7 @@ msgstr "SPOUŠŤENÍ"
 
 #: ../app/tabs/provision-tab/vms/list.js:838
 #: ../app/tabs/provision-tab/flows/list.js:657 ../app/opennebula/role.js:46
-#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:189
+#: ../app/opennebula/service.js:28 ../app/opennebula/vm.js:191
 #: ../app/tabs/provision-tab/dashboard/vms.hbs:46
 #: ../app/tabs/provision-tab/dashboard/group-vms.hbs:46
 msgid "RUNNING"
@@ -1263,7 +1317,7 @@ msgstr "VYPÍNÁNÍ"
 #: ../app/tabs/provision-tab/vms/list.js:920
 #: ../app/tabs/provision-tab/vms/list.js:988
 #: ../app/tabs/provision-tab/flows/list.js:673
-#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:202
+#: ../app/opennebula/marketplaceapp.js:32 ../app/opennebula/vm.js:204
 msgid "UNKNOWN"
 msgstr "NEZNÁMÝ"
 
@@ -1291,8 +1345,8 @@ msgstr "VÝMAZ"
 
 #: ../app/tabs/provision-tab/flows/list.js:57
 #: ../app/tabs/oneflow-templates-tab.js:48
-#: ../app/tabs/oneflow-services-tab.js:46
-#: ../app/tabs/oneflow-services-tab.js:50
+#: ../app/tabs/oneflow-services-tab.js:47
+#: ../app/tabs/oneflow-services-tab.js:51
 #: ../app/utils/menu/provision-top-row.hbs:42
 msgid "Services"
 msgstr "Služby"
@@ -1303,7 +1357,7 @@ msgstr "Nejsou žádné služby"
 
 #: ../app/tabs/provision-tab/flows/list.js:110
 #: ../app/tabs/oneflow-templates-tab.js:57
-#: ../app/tabs/oneflow-services-tab.js:55
+#: ../app/tabs/oneflow-services-tab.js:56
 msgid "Cannot connect to OneFlow server"
 msgstr "Připojení k OneFlow serveru se nepodařilo"
 
@@ -1347,7 +1401,7 @@ msgid "Be careful, this action will immediately shutdown your Service"
 msgstr "Buďte opatrní. Tato akci okamžitě zastaví Vaši službu"
 
 #: ../app/tabs/provision-tab/flows/list.js:527
-#: ../app/tabs/oneflow-services-tab/buttons.js:43
+#: ../app/tabs/oneflow-services-tab/buttons.js:48
 #: ../app/tabs/provision-tab/flows/info.hbs:52
 msgid "Shutdown"
 msgstr "Vypnout a zrušit"
@@ -1461,9 +1515,11 @@ msgid "Allowed operations"
 msgstr "Povolené operace"
 
 #: ../app/tabs/acls-tab/datatable.js:66
-#: ../app/tabs/marketplaces-tab/datatable.js:87 ../app/tabs/zones-tab.js:45
-#: ../app/tabs/marketplaceapps-tab/datatable.js:91
+#: ../app/tabs/marketplaces-tab/datatable.js:89 ../app/tabs/zones-tab.js:45
+#: ../app/tabs/marketplaceapps-tab/datatable.js:93
 #: ../app/tabs/vdcs-tab/utils/resources-tab/html.hbs:19
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:28
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:34
 msgid "Zone"
 msgstr "Zóna"
 
@@ -1516,11 +1572,11 @@ msgstr "Zóny"
 #: ../app/tabs/acls-tab/datatable.js:169 ../app/tabs/secgroups-tab.js:45
 #: ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:167
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:167
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:97
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
-#: ../app/utils/nics-section/dd.hbs:65
+#: ../app/utils/nics-section/dd.hbs:69
 msgid "Security Groups"
 msgstr "Bezp. skupiny"
 
@@ -1537,7 +1593,7 @@ msgstr "Marketplacy"
 msgid "Marketplace Apps"
 msgstr "Marketplace appliance"
 
-#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:56
+#: ../app/tabs/acls-tab/datatable.js:214 ../app/tabs/users-tab.js:57
 #: ../app/utils/accounting.js:349
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:24
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:91
@@ -1563,7 +1619,7 @@ msgid "Service Template created"
 msgstr "Šablona služby vytvořena"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:69
-#: ../app/tabs/oneflow-services-tab/actions.js:34
+#: ../app/tabs/oneflow-services-tab/actions.js:35
 msgid "Service created"
 msgstr "Služby vytvořena"
 
@@ -1618,8 +1674,8 @@ msgstr "Vyberte prosím cluster pro toto úložiště"
 msgid "Import vCenter Datastores"
 msgstr "Import dat. úložišť z vCenter"
 
-#: ../app/tabs/datastores-tab/datatable.js:83 ../app/tabs/provision-tab.js:184
-#: ../app/tabs/marketplaces-tab/datatable.js:84
+#: ../app/tabs/datastores-tab/datatable.js:85 ../app/tabs/provision-tab.js:184
+#: ../app/tabs/marketplaces-tab/datatable.js:86
 #: ../app/tabs/vms-tab/panels/capacity.js:52
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:29
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:54
@@ -1629,24 +1685,26 @@ msgstr "Import dat. úložišť z vCenter"
 msgid "Capacity"
 msgstr "Kapacita"
 
-#: ../app/tabs/datastores-tab/datatable.js:85
+#: ../app/tabs/datastores-tab/datatable.js:87
 msgid "Basepath"
 msgstr "Cesta"
 
-#: ../app/tabs/datastores-tab/datatable.js:86
+#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable/search.hbs:32
 msgid "TM MAD"
 msgstr "TM MAD"
 
-#: ../app/tabs/datastores-tab/datatable.js:87
+#: ../app/tabs/datastores-tab/datatable.js:89
+#: ../app/tabs/datastores-tab/datatable/search.hbs:40
 msgid "DS MAD"
 msgstr "DS MAD"
 
-#: ../app/tabs/datastores-tab/datatable.js:88
+#: ../app/tabs/datastores-tab/datatable.js:90
 #: ../app/tabs/vnets-tab/panels/ar.js:305
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:60
-#: ../app/tabs/marketplaceapps-tab/datatable.js:88
-#: ../app/tabs/vms-tab/panels/network.js:348
-#: ../app/tabs/images-tab/datatable-common.js:68
+#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/vms-tab/panels/network.js:364
+#: ../app/tabs/images-tab/datatable-common.js:71
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:81
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:87
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:110
@@ -1665,25 +1723,26 @@ msgstr "DS MAD"
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:42
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:35
 #: ../app/tabs/images-tab/panels/info/html.hbs:42
+#: ../app/tabs/images-tab/datatable/search.hbs:28
 #: ../app/utils/user-inputs/row.hbs:9 ../app/utils/vcenter/templates/row.hbs:44
 #: ../app/utils/vcenter/templates/row.hbs:69
 #: ../app/utils/vcenter/networks/row.hbs:45
 msgid "Type"
 msgstr "Typ"
 
-#: ../app/tabs/datastores-tab/datatable.js:97
+#: ../app/tabs/datastores-tab/datatable.js:100
 msgid "Please select a datastore from the list"
 msgstr "Vyberte prosím ze seznamu datové úložiště"
 
-#: ../app/tabs/datastores-tab/datatable.js:98
+#: ../app/tabs/datastores-tab/datatable.js:101
 msgid "You selected the following datastore:"
 msgstr "Vybrané datové úložiště:"
 
-#: ../app/tabs/datastores-tab/datatable.js:99
+#: ../app/tabs/datastores-tab/datatable.js:102
 msgid "Please select one or more datastores from the list"
 msgstr "Vyberte prosím ze seznamu jedno nebo více datových úložišť"
 
-#: ../app/tabs/datastores-tab/datatable.js:100
+#: ../app/tabs/datastores-tab/datatable.js:103
 msgid "You selected the following datastores:"
 msgstr "Vybraná datová úložiště:"
 
@@ -1699,7 +1758,7 @@ msgstr "Kardinalita"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "COST"
 msgstr "NÁKLADY"
@@ -1709,27 +1768,27 @@ msgstr "NÁKLADY"
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:32
 #: ../app/tabs/provision-tab/vms/create.hbs:23
 #: ../app/tabs/provision-tab/flows/create.hbs:23
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:35
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:40
 #: ../app/utils/disks-resize/html.hbs:22
 msgid "HOUR"
 msgstr "HODINA"
 
-#: ../app/tabs/provision-tab.js:754 ../app/tabs/provision-tab.js:832
+#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
 #: ../app/tabs/provision-tab/vms/create.hbs:72
 msgid "mine"
 msgstr "moje"
 
-#: ../app/tabs/provision-tab.js:756 ../app/tabs/provision-tab.js:834
+#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
 #: ../app/tabs/provision-tab/vms/create.hbs:73
 msgid "group"
 msgstr "skupina"
 
-#: ../app/tabs/provision-tab.js:758 ../app/tabs/provision-tab.js:836
+#: ../app/tabs/provision-tab.js:760 ../app/tabs/provision-tab.js:838
 #: ../app/tabs/provision-tab/vms/create.hbs:74
 msgid "system"
 msgstr "systém"
 
-#: ../app/tabs/provision-tab.js:989 ../app/tabs/provision-tab.js:1236
+#: ../app/tabs/provision-tab.js:991 ../app/tabs/provision-tab.js:1238
 msgid "You must select at least a template configuration"
 msgstr "Musíte vybrat alespoň šablonu konfigurace"
 
@@ -1761,7 +1820,7 @@ msgstr "Vyberte prosím ze seznamu jeden nebo více souborů"
 msgid "You selected the following files:"
 msgstr "Vybral jste nasledující soubory:"
 
-#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:346
+#: ../app/tabs/secgroups-tab.js:50 ../app/tabs/vms-tab/panels/network.js:362
 msgid "Security Group"
 msgstr "Bezpečnostní skupina"
 
@@ -1850,67 +1909,75 @@ msgstr "Vytvoření marketplace"
 msgid "Update MarketPlace"
 msgstr "Úprava marketplace"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:85
+#: ../app/tabs/marketplaces-tab/datatable.js:87
 #: ../app/tabs/marketplaces-tab/panels/apps.js:38
 #: ../app/tabs/marketplaceapps-tab.js:49 ../app/tabs/marketplaceapps-tab.js:53
 msgid "Apps"
 msgstr "Appliance"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:86
+#: ../app/tabs/marketplaces-tab/datatable.js:88
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
+#: ../app/tabs/marketplaces-tab/datatable/search.hbs:22
 msgid "Driver"
 msgstr "Ovladač"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:95
+#: ../app/tabs/marketplaces-tab/datatable.js:98
 msgid "Please select a marketplace from the list"
 msgstr "Vyberte prosím ze seznamu marketplace"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:96
+#: ../app/tabs/marketplaces-tab/datatable.js:99
 msgid "You selected the following marketplace:"
 msgstr "Vybral jste následující marketplace:"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:97
+#: ../app/tabs/marketplaces-tab/datatable.js:100
 msgid "Please select one or more marketplaces from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více možností"
 
-#: ../app/tabs/marketplaces-tab/datatable.js:98
+#: ../app/tabs/marketplaces-tab/datatable.js:101
 msgid "You selected the following marketplaces:"
 msgstr "Vybral jste následující možnosti:"
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:48
+#: ../app/tabs/oneflow-services-tab/form-panels/create.js:44
+#: ../app/tabs/provision-tab/flows/create.hbs:20
+msgid "Create Service"
+msgstr "Vytvoření služby"
+
+#: ../app/tabs/oneflow-services-tab/buttons.js:53
 #: ../app/tabs/vms-tab/buttons.js:156
 msgid "Recover"
 msgstr "Opravit"
 
-#: ../app/tabs/oneflow-services-tab/buttons.js:54
+#: ../app/tabs/oneflow-services-tab/buttons.js:59
 msgid "This will delete the selected services"
 msgstr "Tímto smažete vybrané služby"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:67
-#: ../app/tabs/marketplaceapps-tab/datatable.js:87
+#: ../app/tabs/oneflow-services-tab/datatable.js:69
+#: ../app/tabs/marketplaceapps-tab/datatable.js:89
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:33
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:32
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:42
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:50
+#: ../app/tabs/oneflow-services-tab/datatable/search.hbs:22
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:51
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:22
 #: ../app/tabs/vms-tab/panels/info/html.hbs:32
 #: ../app/tabs/images-tab/panels/info/html.hbs:74
 msgid "State"
 msgstr "Stav"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:74
+#: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Please select a Service from the list"
 msgstr "Vyberte prosím ze seznamu službu"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:75
+#: ../app/tabs/oneflow-services-tab/datatable.js:78
 msgid "You selected the following Service:"
 msgstr "Vybral jste následující službu:"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:76
+#: ../app/tabs/oneflow-services-tab/datatable.js:79
 msgid "Please select one or more Services from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více služeb"
 
-#: ../app/tabs/oneflow-services-tab/datatable.js:77
+#: ../app/tabs/oneflow-services-tab/datatable.js:80
 msgid "You selected the following Services:"
 msgstr "Vybral jste následující služby:"
 
@@ -1935,12 +2002,12 @@ msgid "Waiting for the VM to be ready"
 msgstr "Čeká se, až bude virtuální stroj připravený"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:255
-#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:163
+#: ../app/tabs/vms-tab/actions.js:152 ../app/tabs/vms-tab/datatable.js:168
 msgid "VNC Connection in progress"
 msgstr "Probíhá připojení přes VNC"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:269
-#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:176
+#: ../app/tabs/vms-tab/actions.js:180 ../app/tabs/vms-tab/datatable.js:181
 msgid "SPICE Connection in progress"
 msgstr "Probíhá připojení přes SPICE"
 
@@ -2017,22 +2084,28 @@ msgstr "Skupinové kvóty"
 msgid "Select group"
 msgstr "Vyberte skupinu"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:51
+#: ../app/tabs/settings-tab/panels/user-config.js:52
 msgid "Config"
 msgstr "Konfig."
 
-#: ../app/tabs/settings-tab/panels/user-config.js:99
+#: ../app/tabs/settings-tab/panels/user-config.js:109
 msgid "Fill in a new password"
 msgstr "Zadejte nové heslo"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:104
+#: ../app/tabs/settings-tab/panels/user-config.js:114
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:31
 msgid "Passwords do not match"
 msgstr "Hesla neodpovídají"
 
-#: ../app/tabs/settings-tab/panels/user-config.js:118
+#: ../app/tabs/settings-tab/panels/user-config.js:128
 msgid "You have to provide an SSH key"
 msgstr "Musíte poskytnout SSH klíč"
+
+#: ../app/tabs/settings-tab/panels/user-config.js:155
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:215
+#: ../app/tabs/users-tab/panels/info/html.hbs:101
+msgid "Get a login token"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
@@ -2055,19 +2128,19 @@ msgstr "Vytvoření bezpečnostní skupiny"
 msgid "Update Security Group"
 msgstr "Úprava bezpečnostní skupiny"
 
-#: ../app/tabs/secgroups-tab/datatable.js:72
+#: ../app/tabs/secgroups-tab/datatable.js:75
 msgid "Please select a security group from the list"
 msgstr "Vyberte prosím ze seznamu bezpečnostní skupinu"
 
-#: ../app/tabs/secgroups-tab/datatable.js:73
+#: ../app/tabs/secgroups-tab/datatable.js:76
 msgid "You selected the following security group:"
 msgstr "Vybral jste následující bezpečnostní skupinu:"
 
-#: ../app/tabs/secgroups-tab/datatable.js:74
+#: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select one or more security groups from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více bezpečnostních skupin"
 
-#: ../app/tabs/secgroups-tab/datatable.js:75
+#: ../app/tabs/secgroups-tab/datatable.js:78
 msgid "You selected the following security groups:"
 msgstr "Vybral jste následující bezpečnostní skupiny:"
 
@@ -2110,8 +2183,8 @@ msgstr "Začátek"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:108
 #: ../app/tabs/vnets-tab/panels/ar.js:310
-#: ../app/tabs/marketplaceapps-tab/datatable.js:86
-#: ../app/tabs/images-tab/datatable-common.js:67
+#: ../app/tabs/marketplaceapps-tab/datatable.js:88
+#: ../app/tabs/images-tab/datatable-common.js:70
 #: ../app/utils/quotas/quota-widgets.js:419 ../app/utils/vcenter/images.js:126
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:106
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
@@ -2123,6 +2196,7 @@ msgid "Size"
 msgstr "Velikost"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:112
+#: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
 msgstr "Libovolná"
 
@@ -2156,16 +2230,16 @@ msgstr "Import sítí z vCenter"
 msgid "Reserve"
 msgstr "Rezervovat"
 
-#: ../app/tabs/vnets-tab/datatable.js:68
+#: ../app/tabs/vnets-tab/datatable.js:71
 msgid "Reservation"
 msgstr "Rezervace"
 
-#: ../app/tabs/vnets-tab/datatable.js:70
+#: ../app/tabs/vnets-tab/datatable.js:73
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:65
 msgid "Bridge"
 msgstr "Bridge"
 
-#: ../app/tabs/vnets-tab/datatable.js:71
+#: ../app/tabs/vnets-tab/datatable.js:74
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
 #: ../app/utils/quotas/quota-widgets.js:585
@@ -2173,29 +2247,30 @@ msgstr "Bridge"
 msgid "Leases"
 msgstr "Přidělení"
 
-#: ../app/tabs/vnets-tab/datatable.js:72
+#: ../app/tabs/vnets-tab/datatable.js:75
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:139
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:34
+#: ../app/tabs/vnets-tab/datatable/search.hbs:22
 msgid "VLAN ID"
 msgstr "VLAN ID"
 
-#: ../app/tabs/vnets-tab/datatable.js:80
+#: ../app/tabs/vnets-tab/datatable.js:84
 msgid "Please select a network from the list"
 msgstr "Vyberte prosím ze seznamu síť"
 
-#: ../app/tabs/vnets-tab/datatable.js:81
+#: ../app/tabs/vnets-tab/datatable.js:85
 msgid "You selected the following network:"
 msgstr "Vybral jste následující síť:"
 
-#: ../app/tabs/vnets-tab/datatable.js:82
+#: ../app/tabs/vnets-tab/datatable.js:86
 msgid "Please select one or more networks from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více sítí"
 
-#: ../app/tabs/vnets-tab/datatable.js:83
+#: ../app/tabs/vnets-tab/datatable.js:87
 msgid "You selected the following networks:"
 msgstr "Vybral jste následující sítě:"
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:162
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:173
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:186
@@ -2205,7 +2280,7 @@ msgstr "Vybral jste následující sítě:"
 msgid "Yes"
 msgstr "Ano"
 
-#: ../app/tabs/vnets-tab/datatable.js:131
+#: ../app/tabs/vnets-tab/datatable.js:152
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:163
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:174
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os/html.hbs:187
@@ -2216,6 +2291,7 @@ msgid "No"
 msgstr "Ne"
 
 #: ../app/tabs/vnets-tab/panels/info.js:84
+#: ../app/tabs/vnets-tab/datatable/search.hbs:28
 msgid "Reservation parent"
 msgstr "Rezervováno ze sítě"
 
@@ -2315,7 +2391,7 @@ msgid "MarketPlace App created"
 msgstr "Marketplace appliance vytvořena"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:66
-#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:128
+#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:129
 msgid "Image created"
 msgstr "Obraz vytvořen"
 
@@ -2324,16 +2400,16 @@ msgstr "Obraz vytvořen"
 msgid "Error"
 msgstr "Chyba"
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:127
+#: ../app/tabs/marketplaceapps-tab/actions.js:128
 msgid "This MarketPlace App resides in Zone "
 msgstr "Tato marketplace appliance je v zóně"
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:129
+#: ../app/tabs/marketplaceapps-tab/actions.js:130
 msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr ". Pro výmaz se musíte do této zóny přepnout výběrem v pravém horním rohu."
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:132
-#: ../app/tabs/images-tab/actions.js:99
+#: ../app/tabs/marketplaceapps-tab/actions.js:133
+#: ../app/tabs/images-tab/actions.js:100
 msgid "Ok"
 msgstr "Ok"
 
@@ -2358,37 +2434,39 @@ msgstr "Stáhnout"
 msgid "OpenNebula"
 msgstr "OpenNebula"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:85
+#: ../app/tabs/marketplaceapps-tab/datatable.js:87
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
 msgid "Version"
 msgstr "Verze"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:89
+#: ../app/tabs/marketplaceapps-tab/datatable.js:91
 msgid "Registration Time"
 msgstr "Čas registrace"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:90
+#: ../app/tabs/marketplaceapps-tab/datatable.js:92
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
 msgstr "Marketplace"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:99
+#: ../app/tabs/marketplaceapps-tab/datatable.js:102
 msgid "Please select an appliance from the list"
 msgstr "Vyberte prosím ze seznamu applianci"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:100
+#: ../app/tabs/marketplaceapps-tab/datatable.js:103
 msgid "You selected the following appliance:"
 msgstr "Vybral jste následující applianci:"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:101
+#: ../app/tabs/marketplaceapps-tab/datatable.js:104
 msgid "Please select one or more appliances from the list"
 msgstr "Vyberte prosím ze seznamu jednu nebo více appliancí"
 
-#: ../app/tabs/marketplaceapps-tab/datatable.js:102
+#: ../app/tabs/marketplaceapps-tab/datatable.js:105
 msgid "You selected the following appliances:"
 msgstr "Vybral jste následující appliance:"
 
-#: ../app/tabs/oneflow-services-tab.js:51
+#: ../app/tabs/oneflow-services-tab.js:52
+#: ../app/tabs/vms-tab/datatable/search.hbs:33
 msgid "Service"
 msgstr "Služba"
 
@@ -2396,9 +2474,17 @@ msgstr "Služba"
 msgid "Instances"
 msgstr "Instance"
 
-#: ../app/tabs/vrouters-tab.js:50
+#: ../app/tabs/vrouters-tab.js:51 ../app/tabs/vms-tab/datatable/search.hbs:32
 msgid "Virtual Router"
 msgstr "Virtuální router"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:57
+msgid "Instantiate Virtual Router Template"
+msgstr ""
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:162
+msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
+msgstr "Nepodařilo se vytvořit virt. stroje. Virt. router může být potřeba zrušit ručně."
 
 #: ../app/tabs/dashboard-tab.js:233 ../app/tabs/dashboard-tab.js:234
 #: ../app/utils/menu/provision-top-row.hbs:25
@@ -2452,13 +2538,15 @@ msgstr "Uživatel vytvořen"
 msgid "Create User"
 msgstr "Vytvoření uživatele"
 
-#: ../app/tabs/users-tab/buttons.js:33
+#: ../app/tabs/users-tab/buttons.js:33 ../app/tabs/users-tab/datatable.js:72
+#: ../app/tabs/users-tab/panels/info.js:134
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:60
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:28
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:28
-#: ../app/tabs/users-tab/panels/info/html.hbs:43
+#: ../app/tabs/users-tab/panels/info/html.hbs:82
+#: ../app/tabs/users-tab/datatable/search.hbs:16
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:25
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:28
 msgid "Password"
@@ -2476,39 +2564,49 @@ msgstr "Změnit primární skupinu"
 msgid "This will change the primary group of the selected users. Select the new group"
 msgstr "Tímto změníte vybraným uživatelům primární skupinu. Vyberte novou skupinu"
 
-#: ../app/tabs/users-tab/datatable.js:69
+#: ../app/tabs/users-tab/datatable.js:71
+#: ../app/tabs/users-tab/datatable/search.hbs:22
 msgid "Auth driver"
 msgstr "Aut. ovladač"
 
-#: ../app/tabs/users-tab/datatable.js:73
+#: ../app/tabs/users-tab/datatable.js:76
 msgid "Group ID"
 msgstr "Skupina č."
 
-#: ../app/tabs/users-tab/datatable.js:74
+#: ../app/tabs/users-tab/datatable.js:77
 msgid "Hidden User Data"
 msgstr "Skrytá uživatelská data"
 
-#: ../app/tabs/users-tab/datatable.js:81
+#: ../app/tabs/users-tab/datatable.js:85
 msgid "Please select a User from the list"
 msgstr "Vyberte prosím ze seznamu uživatele"
 
-#: ../app/tabs/users-tab/datatable.js:82
+#: ../app/tabs/users-tab/datatable.js:86
 msgid "You selected the following User:"
 msgstr "Vybral jste následujícího uživatele:"
 
-#: ../app/tabs/users-tab/datatable.js:83
+#: ../app/tabs/users-tab/datatable.js:87
 msgid "Please select one or more users from the list"
 msgstr "Vyberte prosím ze seznamu jednoho nebo více uživatelů"
 
-#: ../app/tabs/users-tab/datatable.js:84
+#: ../app/tabs/users-tab/datatable.js:88
 msgid "You selected the following users:"
 msgstr "Vybral jste následující uživatele:"
 
-#: ../app/tabs/users-tab/panels/info.js:165
+#: ../app/tabs/users-tab/panels/info.js:136
+msgid "Current password"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info.js:140
+#: ../app/utils/tab-datatable/search-input.hbs:35
+msgid "Close"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info.js:198
 msgid "ascending"
 msgstr "vzestupně"
 
-#: ../app/tabs/users-tab/panels/info.js:166
+#: ../app/tabs/users-tab/panels/info.js:199
 msgid "descending"
 msgstr "sestupně"
 
@@ -2532,7 +2630,7 @@ msgstr "Soubory"
 msgid "File"
 msgstr "Soubor"
 
-#: ../app/tabs/settings-tab.js:50 ../app/tabs/settings-tab.js:51
+#: ../app/tabs/settings-tab.js:51 ../app/tabs/settings-tab.js:52
 #: ../app/sunstone/user_and_zone.hbs:30
 msgid "Settings"
 msgstr "Nastavení"
@@ -2553,7 +2651,7 @@ msgstr "AKTIVNÍ"
 msgid "FAILED"
 msgstr "CHYBA"
 
-#: ../app/tabs/vms-tab/form-panels/create.js:50
+#: ../app/tabs/vms-tab/form-panels/create.js:44
 #: ../app/tabs/provision-tab/vms/create.hbs:20
 msgid "Create Virtual Machine"
 msgstr "Vytvoření virtuálního stroje"
@@ -2579,12 +2677,12 @@ msgstr "zaživa"
 #: ../app/tabs/vms-tab/buttons.js:78 ../app/tabs/vms-tab/buttons.js:108
 #: ../app/tabs/vms-tab/buttons.js:114
 msgid "Keeps allocated Host resources. The resume operation happens quickly"
-msgstr ""
+msgstr "Zdroje hostitele zůstanou alokované. Opětovné spuštění proběhne rychle"
 
 #: ../app/tabs/vms-tab/buttons.js:90 ../app/tabs/vms-tab/buttons.js:120
 #: ../app/tabs/vms-tab/buttons.js:126
 msgid "Frees Host resources. The resume operation may take long"
-msgstr ""
+msgstr "Zdroje hostitele se uvolní. Opětovné spuštění může trvat déle"
 
 #: ../app/tabs/vms-tab/buttons.js:102 ../app/tabs/vms-tab/buttons.js:114
 #: ../app/tabs/vms-tab/buttons.js:126 ../app/tabs/vms-tab/buttons.js:138
@@ -2634,26 +2732,26 @@ msgstr "VNC"
 msgid "SPICE"
 msgstr "SPICE"
 
-#: ../app/tabs/vms-tab/datatable.js:72
+#: ../app/tabs/vms-tab/datatable.js:74
 msgid "Please select a VM from the list"
 msgstr "Vyberte prosím ze seznamu virtuální stroj"
 
-#: ../app/tabs/vms-tab/datatable.js:73
+#: ../app/tabs/vms-tab/datatable.js:75
 msgid "You selected the following VM:"
 msgstr "Vybral jste následující virtuální stroj:"
 
-#: ../app/tabs/vms-tab/datatable.js:74
+#: ../app/tabs/vms-tab/datatable.js:76
 msgid "Please select one or more VMs from the list"
 msgstr "Vyberte prosím ze seznamu jeden nebo více virtuálních strojů"
 
-#: ../app/tabs/vms-tab/datatable.js:75
+#: ../app/tabs/vms-tab/datatable.js:77
 msgid "You selected the following VMs:"
 msgstr "Vybral jste následující virtuální stroje:"
 
 #: ../app/tabs/vms-tab/panels/actions.js:42
 #: ../app/tabs/vms-tab/panels/actions.js:72
 #: ../app/tabs/vms-tab/panels/snapshots.js:75
-#: ../app/tabs/vms-tab/panels/network.js:85
+#: ../app/tabs/vms-tab/panels/network.js:86
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:49
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:29
 msgid "Actions"
@@ -2853,14 +2951,14 @@ msgstr "Seřazení dat. úložišť"
 
 #: ../app/tabs/vms-tab/panels/template.js:61
 msgid "User template"
-msgstr ""
+msgstr "Šablona uživatele"
 
 #: ../app/tabs/vms-tab/panels/storage.js:193
 msgid "Save as in progress"
 msgstr "Probíhá ukládání jako"
 
 #: ../app/tabs/vms-tab/panels/storage.js:204
-#: ../app/tabs/vms-tab/panels/network.js:237
+#: ../app/tabs/vms-tab/panels/network.js:265
 msgid "attach/detach in progress"
 msgstr "probíhá připojování/odpojování"
 
@@ -2871,7 +2969,7 @@ msgid "Save as"
 msgstr "Uložit jako"
 
 #: ../app/tabs/vms-tab/panels/storage.js:222
-#: ../app/tabs/vms-tab/panels/network.js:243
+#: ../app/tabs/vms-tab/panels/network.js:269
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:71
 msgid "Detach"
 msgstr "Odpojit"
@@ -2920,76 +3018,80 @@ msgid "MAC"
 msgstr "MAC"
 
 #: ../app/tabs/vms-tab/panels/network.js:83
+msgid "PCI address"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/network.js:84
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:40
 msgid "IPv6 ULA"
 msgstr "IPv6 ULA"
 
-#: ../app/tabs/vms-tab/panels/network.js:84
+#: ../app/tabs/vms-tab/panels/network.js:85
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 Global"
 msgstr "IPv6 Global"
 
-#: ../app/tabs/vms-tab/panels/network.js:94
-#: ../app/tabs/vms-tab/panels/network.js:97
+#: ../app/tabs/vms-tab/panels/network.js:95
+#: ../app/tabs/vms-tab/panels/network.js:98
 msgid "Attach nic"
 msgstr "Připojit síť. adaptér"
 
-#: ../app/tabs/vms-tab/panels/network.js:117
+#: ../app/tabs/vms-tab/panels/network.js:118
 msgid "Network Monitoring Attributes"
 msgstr "Atributy monitorování sítě"
 
-#: ../app/tabs/vms-tab/panels/network.js:141
+#: ../app/tabs/vms-tab/panels/network.js:142
 msgid "NET RX"
 msgstr "PŘIJATO"
 
-#: ../app/tabs/vms-tab/panels/network.js:157
+#: ../app/tabs/vms-tab/panels/network.js:158
 msgid "NET TX"
 msgstr "ODESLÁNO"
 
-#: ../app/tabs/vms-tab/panels/network.js:173
+#: ../app/tabs/vms-tab/panels/network.js:174
 msgid "NET DOWNLOAD SPEED"
 msgstr "RYCHLOST STAHOVÁNÍ"
 
-#: ../app/tabs/vms-tab/panels/network.js:189
+#: ../app/tabs/vms-tab/panels/network.js:190
 msgid "NET UPLOAD SPEED"
 msgstr "RYCHLOST ODESÍLÁNÍ"
 
-#: ../app/tabs/vms-tab/panels/network.js:278
+#: ../app/tabs/vms-tab/panels/network.js:218
 msgid " (VRouter)"
 msgstr "(V. router)"
 
-#: ../app/tabs/vms-tab/panels/network.js:347
+#: ../app/tabs/vms-tab/panels/network.js:363
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:131
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:50
 msgid "Protocol"
 msgstr "Protokol"
 
-#: ../app/tabs/vms-tab/panels/network.js:349
+#: ../app/tabs/vms-tab/panels/network.js:365
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 msgid "Range"
 msgstr "Rozsah"
 
-#: ../app/tabs/vms-tab/panels/network.js:351
+#: ../app/tabs/vms-tab/panels/network.js:367
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:56
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:135
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:54
 msgid "ICMP Type"
 msgstr "Typ ICMP"
 
-#: ../app/tabs/vms-tab/panels/network.js:425
+#: ../app/tabs/vms-tab/panels/network.js:441
 msgid "Network reception"
 msgstr "Přijato"
 
-#: ../app/tabs/vms-tab/panels/network.js:432
+#: ../app/tabs/vms-tab/panels/network.js:448
 msgid "Network transmission"
 msgstr "Odesláno"
 
-#: ../app/tabs/vms-tab/panels/network.js:439
+#: ../app/tabs/vms-tab/panels/network.js:455
 msgid "Network reception speed"
 msgstr "Rychlost stahování"
 
-#: ../app/tabs/vms-tab/panels/network.js:448
+#: ../app/tabs/vms-tab/panels/network.js:464
 msgid "Network transmission speed"
 msgstr "Rychlost odesílání"
 
@@ -3039,11 +3141,11 @@ msgstr "Virtuální datacentrum"
 msgid "Please select one (and just one) Image to export."
 msgstr "Vyberte prosím jeden (právě jeden) obraz k exportu."
 
-#: ../app/tabs/images-tab/actions.js:94
+#: ../app/tabs/images-tab/actions.js:95
 msgid "This Image resides in Datastore "
 msgstr "Tento obraz je v datové úložišti"
 
-#: ../app/tabs/images-tab/actions.js:96
+#: ../app/tabs/images-tab/actions.js:97
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ". Možnost exportovat není podporována pro DS_MAD ovladač tohoto datového úložiště."
 
@@ -3084,7 +3186,7 @@ msgstr "Nastavit perzistenci"
 msgid "Make non persistent"
 msgstr "Zrušit perzistenci"
 
-#: ../app/tabs/images-tab/datatable-common.js:70
+#: ../app/tabs/images-tab/datatable-common.js:73
 #: ../app/tabs/provision-tab/vms/create.hbs:40
 #: ../app/tabs/provision-tab/vms/confirm_save_as_template.hbs:32
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:28
@@ -3092,11 +3194,11 @@ msgstr "Zrušit perzistenci"
 msgid "Persistent"
 msgstr "Perzistentní"
 
-#: ../app/tabs/images-tab/datatable-common.js:72
+#: ../app/tabs/images-tab/datatable-common.js:75
 msgid "#VMS"
 msgstr "VSTROJŮ"
 
-#: ../app/tabs/images-tab/datatable-common.js:73
+#: ../app/tabs/images-tab/datatable-common.js:76
 #: ../app/tabs/vms-tab/panels/storage/html.hbs:25
 msgid "Target"
 msgstr "Cíl"
@@ -3172,11 +3274,11 @@ msgstr "Síťová topologie"
 msgid "VNet"
 msgstr "Virt. síť"
 
-#: ../app/sunstone.js:913 ../app/sunstone.js:914
+#: ../app/sunstone.js:921 ../app/sunstone.js:922
 msgid "Submitting..."
 msgstr "Ukládám ..."
 
-#: ../app/sunstone.js:1001 ../app/sunstone.js:1002
+#: ../app/sunstone.js:1015 ../app/sunstone.js:1016
 msgid "Loading..."
 msgstr "Nahrávám..."
 
@@ -3228,70 +3330,70 @@ msgstr "CHYBA_SPOUŠTĚNÍ"
 msgid "FAILED_SCALING"
 msgstr "CHYBA_ŠKÁLOVÁNÍ"
 
-#: ../app/opennebula/vm.js:186
+#: ../app/opennebula/vm.js:188
 msgid "LCM_INIT"
 msgstr "LCM_INIT"
 
-#: ../app/opennebula/vm.js:187 ../app/opennebula/vm.js:195
-#: ../app/opennebula/vm.js:217
+#: ../app/opennebula/vm.js:189 ../app/opennebula/vm.js:197
+#: ../app/opennebula/vm.js:219
 msgid "PROLOG"
 msgstr "KOPÍROVÁNÍ"
 
-#: ../app/opennebula/vm.js:188 ../app/opennebula/vm.js:205
-#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:207
-#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:218
-#: ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:207
+#: ../app/opennebula/vm.js:208 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:223
 msgid "BOOT"
 msgstr "BOOT"
 
-#: ../app/opennebula/vm.js:190 ../app/opennebula/vm.js:194
-#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:231
-#: ../app/opennebula/vm.js:246
+#: ../app/opennebula/vm.js:192 ../app/opennebula/vm.js:196
+#: ../app/opennebula/vm.js:231 ../app/opennebula/vm.js:233
+#: ../app/opennebula/vm.js:248
 msgid "MIGRATE"
 msgstr "MIGRACE"
 
-#: ../app/opennebula/vm.js:191 ../app/opennebula/vm.js:192
-#: ../app/opennebula/vm.js:193
+#: ../app/opennebula/vm.js:193 ../app/opennebula/vm.js:194
+#: ../app/opennebula/vm.js:195
 msgid "SAVE"
 msgstr "ÚKLÁDÁNÍ"
 
-#: ../app/opennebula/vm.js:196 ../app/opennebula/vm.js:197
-#: ../app/opennebula/vm.js:216
+#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
+#: ../app/opennebula/vm.js:218
 msgid "EPILOG"
 msgstr "ODKOPÍROVÁNÍ"
 
-#: ../app/opennebula/vm.js:198 ../app/opennebula/vm.js:199
-#: ../app/opennebula/vm.js:204 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:201
+#: ../app/opennebula/vm.js:206 ../app/opennebula/vm.js:217
 msgid "SHUTDOWN"
 msgstr "VYPÍNÁNÍ"
 
-#: ../app/opennebula/vm.js:200 ../app/opennebula/vm.js:222
-#: ../app/opennebula/vm.js:223 ../app/opennebula/vm.js:224
+#: ../app/opennebula/vm.js:202 ../app/opennebula/vm.js:224
 #: ../app/opennebula/vm.js:225 ../app/opennebula/vm.js:226
 #: ../app/opennebula/vm.js:227 ../app/opennebula/vm.js:228
-#: ../app/opennebula/vm.js:230 ../app/opennebula/vm.js:232
-#: ../app/opennebula/vm.js:233 ../app/opennebula/vm.js:234
+#: ../app/opennebula/vm.js:229 ../app/opennebula/vm.js:230
+#: ../app/opennebula/vm.js:232 ../app/opennebula/vm.js:234
 #: ../app/opennebula/vm.js:235 ../app/opennebula/vm.js:236
-#: ../app/opennebula/vm.js:247
+#: ../app/opennebula/vm.js:237 ../app/opennebula/vm.js:238
+#: ../app/opennebula/vm.js:249
 msgid "FAILURE"
 msgstr "CHYBA"
 
-#: ../app/opennebula/vm.js:201 ../app/opennebula/vm.js:209
+#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
 msgid "CLEANUP"
 msgstr "ÚKLID"
 
-#: ../app/opennebula/vm.js:203 ../app/opennebula/vm.js:211
-#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:213
-#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:219
-#: ../app/opennebula/vm.js:220
+#: ../app/opennebula/vm.js:205 ../app/opennebula/vm.js:213
+#: ../app/opennebula/vm.js:214 ../app/opennebula/vm.js:215
+#: ../app/opennebula/vm.js:216 ../app/opennebula/vm.js:221
+#: ../app/opennebula/vm.js:222
 msgid "HOTPLUG"
 msgstr "PŘI/ODPOJOVÁNÍ"
 
-#: ../app/opennebula/vm.js:210 ../app/opennebula/vm.js:237
-#: ../app/opennebula/vm.js:238 ../app/opennebula/vm.js:239
+#: ../app/opennebula/vm.js:212 ../app/opennebula/vm.js:239
 #: ../app/opennebula/vm.js:240 ../app/opennebula/vm.js:241
 #: ../app/opennebula/vm.js:242 ../app/opennebula/vm.js:243
 #: ../app/opennebula/vm.js:244 ../app/opennebula/vm.js:245
+#: ../app/opennebula/vm.js:246 ../app/opennebula/vm.js:247
 msgid "SNAPSHOT"
 msgstr "SNÍMKOVÁNÍ"
 
@@ -3351,7 +3453,7 @@ msgstr "ZAMČENÝ_POUŽÍVANÝ"
 msgid "LOCKED_USED_PERS"
 msgstr "ZAMČENÝ_POUŽÍVANÝ_PERZ"
 
-#: ../app/utils/nics-section.js:309
+#: ../app/utils/nics-section.js:329
 msgid "There are no networks available."
 msgstr "Nejsou k dispozici žádné sítě"
 
@@ -3472,19 +3574,19 @@ msgstr "Síť je nedostupná: je OpenNebula spuštěna?"
 msgid "Unauthorized"
 msgstr "Neautorizovaný"
 
-#: ../app/utils/tab-datatable.js:105
+#: ../app/utils/tab-datatable.js:107
 msgid "Please select a resource from the list"
 msgstr "Vyberte prosím ze seznamu zdroj"
 
-#: ../app/utils/tab-datatable.js:109
+#: ../app/utils/tab-datatable.js:111
 msgid "You selected the following resource:"
 msgstr "Vybral jste následující zdroj:"
 
-#: ../app/utils/labels/utils.js:109
+#: ../app/utils/labels/utils.js:113
 msgid "Edit Labels"
 msgstr "Úprava štítků"
 
-#: ../app/utils/labels/utils.js:112
+#: ../app/utils/labels/utils.js:118
 msgid "Add Label"
 msgstr "Přidat štítek"
 
@@ -3508,7 +3610,7 @@ msgstr "Neperzistentní disk. Po vypnutí virt. stroje se o změny přijde"
 msgid "Image state: "
 msgstr "Stav obrazu:"
 
-#: ../app/utils/dialogs/confirm.js:70
+#: ../app/utils/dialogs/confirm.js:79
 #: ../app/utils/dialogs/confirm-with-select.js:118
 msgid "You have to confirm this action"
 msgstr "Tuto akci musíte potvrdit"
@@ -3618,12 +3720,12 @@ msgstr "Nebyly nalezeny nové clustery v tomto datacentru"
 msgid "Host created successfully"
 msgstr "Hostitel úspěšně vytvořen"
 
-#: ../app/utils/user-inputs.js:510
+#: ../app/utils/user-inputs.js:511
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:36
 msgid "MB"
 msgstr "MB"
 
-#: ../app/utils/user-inputs.js:511
+#: ../app/utils/user-inputs.js:512
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:37
 msgid "GB"
 msgstr "GB"
@@ -3672,7 +3774,8 @@ msgid "Group Admins"
 msgstr "Správci skupiny"
 
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:93
-#: ../app/tabs/users-tab/panels/info/html.hbs:69
+#: ../app/tabs/users-tab/panels/info/html.hbs:56
+#: ../app/tabs/users-tab/panels/info/html.hbs:85
 msgid "View"
 msgstr "Pohled"
 
@@ -3755,7 +3858,7 @@ msgid "Apply changes"
 msgstr "Aplikovat změny"
 
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:33
-#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:48
+#: ../app/tabs/templates-tab/dialogs/clone/html.hbs:47
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:38
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:39
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:41
@@ -3769,6 +3872,7 @@ msgstr "Aplikovat změny"
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/auth-driver/html.hbs:33
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:33
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:58
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:41
 #: ../app/tabs/vms-tab/dialogs/resize/html.hbs:43
 #: ../app/tabs/vms-tab/dialogs/spice/html.hbs:34
@@ -3795,7 +3899,6 @@ msgstr "Zde vložte šablonu VDC"
 
 #: ../app/tabs/vdcs-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:34
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:31
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:45
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:32
@@ -3803,6 +3906,7 @@ msgstr "Zde vložte šablonu VDC"
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:25
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:55
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:34
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:29
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:27
 #: ../app/utils/user-inputs/row.hbs:23
 msgid "Description"
@@ -4399,9 +4503,33 @@ msgstr "Vynutit nastavení IPv4 pro tuto IPv6 síť. Hodnoty: Ano nebo Ne"
 msgid "Hardware"
 msgstr "Hardware"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:135
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:136
+msgid "PCI passthrough"
+msgstr ""
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:143
 msgid "Hardware model to emulate"
 msgstr "Model emulovaného hardware"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:153
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:53
+msgid "Device name"
+msgstr "Jméno zařízení"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:154
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:54
+msgid "Vendor"
+msgstr "Výrobce"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:155
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:55
+msgid "Device"
+msgstr "Zařízení"
+
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:156
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:56
+msgid "Class"
+msgstr "Třída"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -4777,11 +4905,11 @@ msgstr "Přidá do kontextu soubor (token.txt) s klíčem, se kterým je možné
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:98
 msgid "  Report Ready to OneGate"
-msgstr ""
+msgstr "Ohlásit připravenost přes OneGate"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:99
 msgid "Sends READY=YES to OneGate, useful for OneFlow"
-msgstr ""
+msgstr "Odešle READY=YES přes OneGate, uživatečné pro OneFlow"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context/html.hbs:108
 msgid "Start script"
@@ -4835,23 +4963,11 @@ msgstr "Surová data předaná přímo hypervizoru"
 msgid "PCI Devices"
 msgstr "PCI zařízení"
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:46
-msgid "Device name"
-msgstr "Jméno zařízení"
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:44
+msgid "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"
+msgstr ""
 
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:47
-msgid "Vendor"
-msgstr "Výrobce"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:48
-msgid "Device"
-msgstr "Zařízení"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:49
-msgid "Class"
-msgstr "Třída"
-
-#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:69
+#: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:76
 msgid "Custom Tags"
 msgstr "Vlastní štítky"
 
@@ -4875,12 +4991,12 @@ msgid "Defaults to 'template name-<vmid>' when empty. When creating several VMs,
 msgstr "Pokud je prázdný, použije se 'template name-<vmid>'. Pokud se vytváří více virt. strojů, %i bude u každého z nich nahrazen různým číslem počínaje od 0"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:48
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:31
 msgid "Number of instances"
 msgstr "Počet instancí"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/html.hbs:56
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:85
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:41
 msgid "Start on hold"
 msgstr "Spustit a pozdržet"
 
@@ -4917,32 +5033,26 @@ msgstr "Můžete také zklonovat jakýkoliv obraz odkazovaný z šablony. Ty bud
 msgid "Clone with Images"
 msgstr "Klonovat s obrazy"
 
+#: ../app/tabs/templates-tab/datatable/search.hbs:26
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:44
+#: ../app/tabs/vms-tab/datatable/search.hbs:57
+#: ../app/tabs/images-tab/datatable/search.hbs:44
+msgid "Created after"
+msgstr ""
+
+#: ../app/tabs/templates-tab/datatable/search.hbs:32
+#: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:50
+#: ../app/tabs/vms-tab/datatable/search.hbs:63
+#: ../app/tabs/images-tab/datatable/search.hbs:50
+msgid "Created before"
+msgstr ""
+
 #: ../app/tabs/vrouters-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Router template here"
 msgstr "Zde vložte šablonu virtuálního routeru"
 
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:39
-msgid "Keepalive service ID"
-msgstr "Keepalive služba č."
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:45
-msgid "Keepalive password"
-msgstr "Keepalive heslo"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:69
-msgid "Virtual machine name"
-msgstr "Jméno virtuálního stroje"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:71
-msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
-msgstr "Při vytváření více virt. strojů, %i bude nahrazen číslem virt. stroje ve skupině"
-
-#: ../app/tabs/vrouters-tab/form-panels/create/wizard.hbs:78
-msgid "Number of VM instances"
-msgstr "Počet instancí virt. strojů"
-
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:45
-#: ../app/utils/nics-section/dd.hbs:43
+#: ../app/utils/nics-section/dd.hbs:47
 msgid "Floating IP"
 msgstr "Plovoucí IP"
 
@@ -4955,7 +5065,7 @@ msgid "Floating IPv6 Global"
 msgstr "Plovoucí IPv6 Global"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:48
-#: ../app/utils/nics-section/dd.hbs:54
+#: ../app/utils/nics-section/dd.hbs:58
 msgid "Management Interface"
 msgstr "Management adaptér"
 
@@ -5199,10 +5309,6 @@ msgstr "Odeslat signál k vypnutí a zrušit virt. stroj"
 msgid "Recover a failed service, cleaning the failed VMs"
 msgstr "Opraví chybující službu vyčištěním od zhavarovaných virt. strojů"
 
-#: ../app/tabs/provision-tab/flows/create.hbs:20
-msgid "Create Service"
-msgstr "Vytvoření služby"
-
 #: ../app/tabs/provision-tab/flows/create.hbs:30
 msgid "Service Name"
 msgstr "Jméno služby"
@@ -5321,11 +5427,11 @@ msgstr "Počkat na virt. stroje, než ohlásí svou připravenost přes OneGate.
 msgid "Advanced service parameters"
 msgstr "Pokročilé volby služby"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:20
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Service name"
 msgstr "Jméno služby"
 
-#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:21
+#: ../app/tabs/oneflow-templates-tab/form-panels/instantiate/html.hbs:26
 msgid "When creating several Services, the wildcard %i will be replaced with a number starting from 0"
 msgstr "Při vytváření více služeb, %i bude nahrazen číslem počínaje od 0"
 
@@ -5866,62 +5972,82 @@ msgstr "Vynutit"
 msgid "Force the new cardinality even if it is outside the limits"
 msgstr "Vynutit novou kardinalitu, i když by byla mimo limity"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:34
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:29
 msgid "Change Language"
 msgstr "Změnit jazyk"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:46
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
 msgid "Update Language"
 msgstr "Upravit jazyk"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:74
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
 msgid "Change Password"
 msgstr "Změnit heslo"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:81
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:70
 msgid "New Password"
 msgstr "Nové heslo"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:86
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:75
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:29
 msgid "Confirm Password"
 msgstr "Potvrzení hesla"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:91
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:80
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 msgid "Update Password"
 msgstr "Úprava hesla"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:123
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:104
 msgid "Change view"
 msgstr "Změnit pohled"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:135
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:116
 msgid "Update view"
 msgstr "Upravit pohled"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:164
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:188
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:141
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
 msgid "Add SSH Key"
 msgstr "Přidat SSH klíč"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:165
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:189
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:142
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:166
 msgid "Update SSH Key"
 msgstr "Upravit SSH klíč"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:171
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:148
 msgid "Add a public SSH key to your account!"
 msgstr "Přidejte ke svému účtu veřejný SSH klíč!"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:173
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:178
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:155
 msgid "You will be able to access your Virtual Machines without password"
 msgstr "Budete schopni přistupovat k virtuálnímu stroji bez hesla"
 
-#: ../app/tabs/settings-tab/panels/user-config/html.hbs:176
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:153
 msgid "Update your public SSH key!"
 msgstr "Zaktualizujte u svého účtu SSH klíč!"
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:194
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
+msgid "Login Token"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:201
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:29
+msgid "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:204
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:36
+msgid "Current login token, valid until"
+msgstr ""
+
+#: ../app/tabs/settings-tab/panels/user-config/html.hbs:210
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:48
+msgid "Getting a new token will invalidate the current one"
+msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Security Group template here"
@@ -5964,7 +6090,7 @@ msgstr "První IP adresa"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:122
 msgid "Add rule"
-msgstr ""
+msgstr "Přidat pravidlo"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:133
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:52
@@ -6069,15 +6195,15 @@ msgstr "Filtr podvržených IP"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:141
 msgid "Automatic VLAN ID"
-msgstr ""
+msgstr "Automatické VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:142
 msgid "No VLAN network"
-msgstr ""
+msgstr "Žádná VLAN síť"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:143
 msgid "Manual VLAN ID"
-msgstr ""
+msgstr "Ručně nastavené VLAN ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:150
 msgid "Physical device"
@@ -6272,27 +6398,52 @@ msgstr "Můžete vložit šablonu virt. stroje vztaženého ke zdroji, který bu
 msgid "Format"
 msgstr "Formát"
 
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:37
+msgid "Keepalive service ID"
+msgstr "Keepalive služba č."
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/wizard.hbs:43
+msgid "Keepalive password"
+msgstr "Keepalive heslo"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:25
+msgid "Virtual machine name"
+msgstr "Jméno virtuálního stroje"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:27
+msgid "When creating multiple VMs, %i is replaces by the VM number in the set"
+msgstr "Při vytváření více virt. strojů, %i bude nahrazen číslem virt. stroje ve skupině"
+
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:34
+msgid "Number of VM instances"
+msgstr "Počet instancí virt. strojů"
+
 #: ../app/tabs/users-tab/panels/info/html.hbs:38
-msgid "Authentication driver"
-msgstr "Autentizační ovladač"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:46
-msgid "Update password"
-msgstr "Upravit heslo"
-
-#: ../app/tabs/users-tab/panels/info/html.hbs:51
 msgid "Table Order"
 msgstr "Seřazení tabulek"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:60
+#: ../app/tabs/users-tab/panels/info/html.hbs:47
 msgid "Language"
 msgstr "Jazyk"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:84
+#: ../app/tabs/users-tab/panels/info/html.hbs:73
+#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
+msgid "Authentication"
+msgstr "Autentizace"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:78
+msgid "Authentication driver"
+msgstr "Autentizační ovladač"
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:98
+msgid "Login token"
+msgstr ""
+
+#: ../app/tabs/users-tab/panels/info/html.hbs:116
 msgid "Public SSH Key"
 msgstr "Veřejný SSH klíč"
 
-#: ../app/tabs/users-tab/panels/info/html.hbs:98
+#: ../app/tabs/users-tab/panels/info/html.hbs:131
 msgid "You can provide a SSH Key for this User clicking on the edit button"
 msgstr "Klikem na tlačítko pro úpravu můžete tomuto uživateli nastavit SSH klíč"
 
@@ -6304,13 +6455,13 @@ msgstr "Vyberte sekundární skupiny"
 msgid "Change authentication"
 msgstr "Změnit autentizaci"
 
+#: ../app/tabs/users-tab/dialogs/login-token/html.hbs:55
+msgid "Get a new token"
+msgstr ""
+
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:19
 msgid "Username"
 msgstr "Uživatelské jméno"
-
-#: ../app/tabs/users-tab/utils/user-creation/html.hbs:36
-msgid "Authentication"
-msgstr "Autentizace"
 
 #: ../app/tabs/users-tab/utils/user-creation/html.hbs:38
 msgid "core"
@@ -6466,6 +6617,14 @@ msgstr "Snímek č."
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:38
 msgid "New Image name"
 msgstr "Nové jméno obrazu"
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:28
+msgid "VM type"
+msgstr ""
+
+#: ../app/tabs/vms-tab/datatable/search.hbs:31
+msgid "Regular VM"
+msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:38
 msgid "Get Images"
@@ -6627,9 +6786,14 @@ msgid "Comma-separated list of options for the drop-down select input"
 msgstr "Čárkou oddělený seznam možností pro výběr z roletky"
 
 #: ../app/utils/tab-datatable/table.hbs:30
-#: ../app/utils/tab-datatable/search-input.hbs:17
+#: ../app/utils/tab-datatable/search-input.hbs:19
+#: ../app/utils/tab-datatable/search-input.hbs:41
 msgid "Search"
 msgstr "Hledat"
+
+#: ../app/utils/tab-datatable/search-input.hbs:32
+msgid "Clear search"
+msgstr ""
 
 #: ../app/utils/tab-datatable/empty-table.hbs:24
 msgid "There is no data available"
@@ -6697,31 +6861,35 @@ msgstr "Vlastník"
 msgid "Network Interface"
 msgstr "Síťový adaptér"
 
-#: ../app/utils/nics-section/dd.hbs:5
+#: ../app/utils/nics-section/dd.hbs:6
+msgid "PCI interface"
+msgstr ""
+
+#: ../app/utils/nics-section/dd.hbs:8
 msgid "Interface"
 msgstr "Adaptér"
 
-#: ../app/utils/nics-section/dd.hbs:14
+#: ../app/utils/nics-section/dd.hbs:18
 msgid "Select a Network"
 msgstr "Vyberte síť"
 
-#: ../app/utils/nics-section/dd.hbs:27
+#: ../app/utils/nics-section/dd.hbs:31
 msgid "Force IPv4:"
 msgstr "Vynutit IPv4:"
 
-#: ../app/utils/nics-section/dd.hbs:29
+#: ../app/utils/nics-section/dd.hbs:33
 msgid "Optionally, you can force the IP assigned to the network interface."
 msgstr "Volitelně můžete vynutit IP přiřazenou síťovému adaptéru."
 
-#: ../app/utils/nics-section/dd.hbs:45
+#: ../app/utils/nics-section/dd.hbs:49
 msgid "If checked, each Virtual Machine will have a floating IP added to its network interface."
 msgstr "Pokud je nastaveno, každý virtuální stroj bude mít plovoucí IP na svém síťovém adaptéru."
 
-#: ../app/utils/nics-section/dd.hbs:56
+#: ../app/utils/nics-section/dd.hbs:60
 msgid "If checked, this network interface will be a Virtual Router management interface. Traffic will not be forwarded."
 msgstr "Pokud je nastaveno, tento síťový adaptér bude managementový pro virt. router. Provoz na něj nebude směrován."
 
-#: ../app/utils/nics-section/dd.hbs:67
+#: ../app/utils/nics-section/dd.hbs:71
 msgid "You can add Security Groups to this network interface. These IDs do not overwrite the ones defined in the Virtual Network. All the Security Group IDs are combined, and applied to the Virtual Machine instance."
 msgstr "Na tento síťový adaptér můžete přidat bezp. skupiny. Tyto nepřepisují bezp. skupiny definovené u virtuální sítě. Všechny bezp. skupiny jsou sloučené a nastavené instanci virtuálního stroje."
 
