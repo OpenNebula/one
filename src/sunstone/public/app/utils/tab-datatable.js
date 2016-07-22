@@ -355,7 +355,7 @@ define(function(require) {
         }
 
         try {
-          var values = JSON.parse(atob(data[that.searchColumn]));
+          var values = JSON.parse( decodeURIComponent(escape(atob(data[that.searchColumn]))) );
 
           var match = true;
 
@@ -616,7 +616,7 @@ define(function(require) {
 
             if(that.searchColumn != undefined){
               try{
-                var values = JSON.parse(atob(item[that.searchColumn]));
+                var values = JSON.parse( decodeURIComponent(escape(atob(item[that.searchColumn]))) );
 
                 that.searchFields.forEach(function(name){
                   that.searchSets[name].add(values[name]);

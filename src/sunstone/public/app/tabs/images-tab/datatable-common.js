@@ -128,7 +128,7 @@ define(function(require) {
       element.RUNNING_VMS,
       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--',
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(JSON.stringify(search))
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 });
