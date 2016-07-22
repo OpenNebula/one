@@ -155,7 +155,7 @@ define(function(require) {
       ProgressBar.html(element.USED_LEASES, total_size),
       element.VLAN_ID.length ? element.VLAN_ID : "-",
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(JSON.stringify(search))
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 

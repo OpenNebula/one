@@ -181,7 +181,7 @@ define(function(require) {
         element.VM_MAD,
         Humanize.prettyTime(element.LAST_MON_TIME),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-        btoa(JSON.stringify(search))
+        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 

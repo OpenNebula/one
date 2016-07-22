@@ -118,7 +118,7 @@ define(function(require) {
         element.NAME,
         state,
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-        btoa(JSON.stringify(search))
+        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 });

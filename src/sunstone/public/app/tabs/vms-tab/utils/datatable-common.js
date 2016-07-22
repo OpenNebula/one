@@ -126,7 +126,7 @@ define(function(require) {
       vncIcon,
       TemplateUtils.templateToString(element),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(JSON.stringify(search))
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 

@@ -120,7 +120,7 @@ define(function(require) {
         element.NAME,
         Humanize.prettyTime(element.REGTIME),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-        btoa(JSON.stringify(search))
+        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 

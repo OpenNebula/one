@@ -163,7 +163,7 @@ define(function(require) {
       element.GID,
       hidden_template,
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(JSON.stringify(search))
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 
