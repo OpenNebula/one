@@ -2423,8 +2423,8 @@ private
             vm.config.hardware.device.select { |d|
                 if is_disk?(d)
                    disks.each{|disk|
-                      if d.backing.respond_to? fileName &&
-                         disk.elements["SOURCE"].text == d.backing.fileName
+                      if d.backing.respond_to?(:fileName) &&
+                         disk.elements["SOURCE"].text == d.backing.fileName &&
                          disks.delete(disk)
                       end
                    }
@@ -2708,7 +2708,7 @@ private
         disks.each{ |disk|
           ds_and_img_name = "[#{disk['DATASTORE']}] #{disk['SOURCE']}"
           vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) &&
-                                    d.backing.respond_to? fileName &&
+                                    d.backing.respond_to?(:fileName) &&
                                     d.backing.fileName == ds_and_img_name }[0]
            spec[:deviceChange] <<  {
                 :operation => :remove,
