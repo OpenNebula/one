@@ -122,7 +122,6 @@ tabs:
             - 5         # Memory
             - 6         # CPU
             #- 7         # Labels
-            #- 8        # Search data
         actions:
             Group.refresh: true
             Group.create_dialog: true
@@ -147,7 +146,6 @@ tabs:
             - 6         # VNets
             - 7         # Datastores
             #- 8         # Labels
-            #- 9        # Search data
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
@@ -186,7 +184,7 @@ tabs:
             - 4         # Name
             - 5         # Registration time
             #- 6         # Labels
-            #- 7        # Search data
+            #- 7         # Search data
         actions:
             Template.refresh: true
             Template.create_dialog: true
@@ -252,7 +250,7 @@ tabs:
             - 4         # Name
             - 5         # Registration time
             #- 6         # Labels
-            #- 7        # Search data
+            #- 7         # Search data
         actions:
             VirtualRouterTemplate.refresh: true
             VirtualRouterTemplate.create_dialog: true
@@ -309,7 +307,7 @@ tabs:
             - 11      # VNC
             #- 12      # Hidden Template
             #- 13      # Labels
-            #- 14        # Search data
+            #- 14      # Search data
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -410,6 +408,30 @@ tabs:
             Service.delete: true
             Service.edit_labels: true
             Service.menu_labels: true
+    vrouters-tab:
+        panel_tabs:
+            virtual_router_info_tab: true
+            virtual_router_vms_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            #- 5        # Labels
+            #- 6        # Search data
+        actions:
+            VirtualRouter.refresh: true
+            VirtualRouter.create_dialog: true
+            VirtualRouter.rename: true
+            VirtualRouter.chown: true
+            VirtualRouter.chgrp: true
+            VirtualRouter.chmod: true
+            VirtualRouter.delete: true
+            VirtualRouter.attachnic: true
+            VirtualRouter.detachnic: true
+            VirtualRouter.edit_labels: true
+            VirtualRouter.menu_labels: true
     infrastructure-top-tab:
         panel_tabs:
         actions:
@@ -548,8 +570,8 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
-            Image.upload_marketplace_dialog: false
             Image.import_dialog: true
+            Image.upload_marketplace_dialog: false
             Image.rename: true
             Image.chown: true
             Image.chgrp: true
@@ -699,30 +721,6 @@ tabs:
             Network.update_ar: true
             Network.edit_labels: true
             Network.menu_labels: true
-    vrouters-tab:
-        panel_tabs:
-            virtual_router_info_tab: true
-            virtual_router_vms_tab: true
-        table_columns:
-            - 0         # Checkbox
-            - 1         # ID
-            - 2         # Owner
-            - 3         # Group
-            - 4         # Name
-            #- 5        # Labels
-            #- 6        # Search data
-        actions:
-            VirtualRouter.refresh: true
-            VirtualRouter.create_dialog: true
-            VirtualRouter.rename: true
-            VirtualRouter.chown: true
-            VirtualRouter.chgrp: true
-            VirtualRouter.chmod: true
-            VirtualRouter.delete: true
-            VirtualRouter.attachnic: true
-            VirtualRouter.detachnic: true
-            VirtualRouter.edit_labels: true
-            VirtualRouter.menu_labels: true
     vnets-topology-tab:
         panel_tabs:
         actions:
