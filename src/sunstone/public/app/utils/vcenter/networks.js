@@ -302,8 +302,10 @@ define(function(require) {
         network_tmpl += ar_array.join(",\n")
         network_tmpl += "]"
 
-        if ($(".vlaninfo", network_context)) {
-          network_tmpl += "VLAN_ID=" + $(".vlaninfo", network_context).val() + "\n";
+        var vlaninfo = $(".vlaninfo", network_context).text();
+
+        if ( vlaninfo != undefined && vlaninfo != "" ) {
+          network_tmpl += "\nVLAN_ID=" + vlaninfo + "\n";
         }
 
         var vnet_json = {
