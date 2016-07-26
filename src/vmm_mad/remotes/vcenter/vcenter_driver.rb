@@ -310,18 +310,22 @@ class VIClient
     def find_vm_template(uuid)
         version = @vim.serviceContent.about.version
 
-        if version.split(".").first.to_i >= 6
-            @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
-        else
-            vms = VIClient.get_entities(@dc.vmFolder, 'VirtualMachine')
+        found_vm = nil
 
-            return vms.find do |v|
-                begin
-                    v.config && v.config.uuid == uuid
-                rescue RbVmomi::VIM::ManagedObjectNotFound
-                    false
-                end
-            end
+        if version.split(".").first.to_i >= 6
+           found_vm = @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
+        end
+
+        return found_vm if found_vm
+
+        vms = VIClient.get_entities(@dc.vmFolder, 'VirtualMachine')
+
+        return vms.find do |v|
+             begin
+                 v.config && v.config.uuid == uuid
+             rescue RbVmomi::VIM::ManagedObjectNotFound
+                 false
+             end
         end
     end
 
