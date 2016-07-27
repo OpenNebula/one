@@ -126,8 +126,6 @@ int PoolSQL::allocate(
         do_hooks(objsql, Hook::ALLOCATE);
     }
 
-    objsql->unlock();
-
     delete objsql;
 
     if( rc != -1 )
@@ -219,6 +217,8 @@ PoolObjectSQL * PoolSQL::get(
 
         if ( rc != 0 )
         {
+            objectsql->lock();
+
             delete objectsql;
 
             unlock();
@@ -237,12 +237,13 @@ PoolObjectSQL * PoolSQL::get(
 
             if ( name_index != name_pool.end() )
             {
-                name_index->second->lock();
-
                 PoolObjectSQL * tmp_ptr  = name_index->second;
 
                 name_pool.erase(okey);
+
                 pool.erase(tmp_ptr->oid);
+
+                tmp_ptr->lock();
 
                 delete tmp_ptr;
             }
@@ -323,13 +324,13 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
     {
         if ( index != name_pool.end() && index->second->isValid() == false )
         {
-            index->second->lock();
-
             PoolObjectSQL * tmp_ptr  = index->second;
             string          tmp_okey = key(tmp_ptr->name,tmp_ptr->uid);
 
             pool.erase(tmp_ptr->oid);
             name_pool.erase(tmp_okey);
+
+            tmp_ptr->lock();
 
             delete tmp_ptr;
         }
@@ -340,6 +341,8 @@ PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
 
         if ( rc != 0 )
         {
+            objectsql->lock();
+
             delete objectsql;
 
             unlock();
@@ -456,6 +459,7 @@ void PoolSQL::replace()
             delete tmp_ptr;
 
             oid_queue.pop();
+
             removed = true;
         }
     }
