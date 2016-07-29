@@ -493,4 +493,71 @@ std::string * one_util::zlib_decompress(const std::string& in, bool base64)
     return new std::string(oss.str());
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+extern "C" void one_util::sslmutex_lock_callback(int mode, int type, char *file,
+    int line)
+{
+    pthread_mutex_t * pm = SSLMutex::ssl_mutex->vmutex[type];
+
+    if (mode & CRYPTO_LOCK)
+    {
+        pthread_mutex_lock(pm);
+    }
+    else
+    {
+        pthread_mutex_unlock(pm);
+    }
+}
+
+extern "C" unsigned long one_util::sslmutex_id_callback()
+{
+    return (unsigned long) pthread_self();
+}
+
+one_util::SSLMutex * one_util::SSLMutex::ssl_mutex;
+
+std::vector<pthread_mutex_t *> one_util::SSLMutex::vmutex;
+
+void one_util::SSLMutex::initialize()
+{
+    if ( ssl_mutex == 0 )
+    {
+        ssl_mutex = new SSLMutex();
+    }
+};
+
+void one_util::SSLMutex::finalize()
+{
+    delete ssl_mutex;
+}
+
+one_util::SSLMutex::SSLMutex()
+{
+    pthread_mutex_t * pm;
+    for (int i=0; i<CRYPTO_num_locks(); i++)
+    {
+        pm = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
+        pthread_mutex_init(pm, NULL);
+
+        vmutex.push_back(pm);
+    }
+
+    CRYPTO_set_id_callback((unsigned long (*)()) sslmutex_id_callback);
+
+    CRYPTO_set_locking_callback(
+        (void (*)(int, int, const char*, int))sslmutex_lock_callback);
+}
+
+one_util::SSLMutex::~SSLMutex()
+{
+    for (int i=0; i<CRYPTO_num_locks(); i++)
+    {
+        pthread_mutex_destroy(vmutex[i]);
+        free(vmutex[i]);
+    }
+
+    CRYPTO_set_locking_callback(NULL);
+}
 
