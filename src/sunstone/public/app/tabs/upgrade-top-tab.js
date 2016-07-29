@@ -33,7 +33,7 @@ define(function(require) {
       var upgrade_url = config['upgrade']['url'];
 
       if (redirect_port) {
-        window.location = document.URL.replace(/(https?:\/\/)([^:\/]+).*$/,"$1$2:"+redirect_port)
+        window.location = document.URL.replace(/(https?:\/\/)([^:\/]+).*$/,"http://$2:"+redirect_port)
       } else {
         window.location = upgrade_url
       }
