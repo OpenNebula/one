@@ -407,6 +407,8 @@ void Nebula::start(bool bootstrap_only)
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
+    one_util::SSLMutex::initialize();
+
     // -----------------------------------------------------------
     //Managers
     // -----------------------------------------------------------
@@ -993,6 +995,8 @@ void Nebula::start(bool bootstrap_only)
 
     //XML Library
     xmlCleanupParser();
+
+    one_util::SSLMutex::finalize();
 
     NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 

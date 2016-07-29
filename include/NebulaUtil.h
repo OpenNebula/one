@@ -23,6 +23,8 @@
 #include <set>
 #include <algorithm>
 
+#include <openssl/crypto.h>
+
 namespace one_util
 {
     std::string& toupper(std::string& st);
@@ -256,6 +258,31 @@ namespace one_util
      *    of error
      */
 	std::string * zlib_decompress(const std::string& in, bool base64);
+
+	extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
+		int line);
+
+	extern "C" unsigned long sslmutex_id_callback();
+
+	class SSLMutex
+	{
+	public:
+		static void initialize();
+
+		static void finalize();
+
+	private:
+		friend void sslmutex_lock_callback(int mode, int type, char *file,
+			int line);
+
+		SSLMutex();
+
+		~SSLMutex();
+
+		static SSLMutex * ssl_mutex;
+
+		static std::vector<pthread_mutex_t *> vmutex;
+	};
 };
 
 #endif /* _NEBULA_UTIL_H_ */
