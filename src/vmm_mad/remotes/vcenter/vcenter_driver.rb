@@ -2319,7 +2319,7 @@ private
             onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
             if onegate_token_flag and
                onegate_token_flag.text == "YES" and
-               !newvm
+               newvm
                 # Create the OneGate token string
                 vmid_str  = xml.root.elements["/VM/ID"].text
                 stime_str = xml.root.elements["/VM/STIME"].text
