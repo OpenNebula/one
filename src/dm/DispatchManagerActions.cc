@@ -58,18 +58,14 @@ int DispatchManager::deploy (
         goto error;
     }
 
-    vm->unlock();
-
     return 0;
 
 error:
-
     oss.str("");
     oss << "Could not deploy VM " << vid
         << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
     return -1;
 }
 
@@ -127,8 +123,6 @@ int DispatchManager::import (
 
     vmpool->update_history(vm);
 
-    vm->unlock();
-
     return 0;
 }
 
@@ -164,8 +158,6 @@ int DispatchManager::migrate(
         goto error;
     }
 
-    vm->unlock();
-
     return 0;
 
 error:
@@ -174,7 +166,6 @@ error:
         << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
     return -1;
 }
 
@@ -207,8 +198,6 @@ int DispatchManager::live_migrate(
         goto error;
     }
 
-    vm->unlock();
-
     return 0;
 
 error:
@@ -217,7 +206,6 @@ error:
         << ", wrong state " << vm->state_str() << ".";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
     return -1;
 }
 
