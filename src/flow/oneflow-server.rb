@@ -460,7 +460,7 @@ post '/service_template/:id/action' do
                     if role["user_inputs_values"]
                         role["vm_template_contents"] ||= ""
                         role["user_inputs_values"].each{ |key, value|
-                            role["vm_template_contents"] += "\n#{key}=#{value}"
+                            role["vm_template_contents"] += "\n#{key}=\"#{value}\""
                         }
                     end
                 }
