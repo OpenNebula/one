@@ -1067,7 +1067,6 @@ void Scheduler::dispatch()
     vector<VectorAttribute *> pci;
 
     int hid, dsid, cid;
-    bool test_cap_result;
 
     unsigned int dispatched_vms = 0;
 
@@ -1192,33 +1191,36 @@ void Scheduler::dispatch()
                 }
 
                 //--------------------------------------------------------------
-                // Test datastore capacity, but not for migrations
+                // Test datastore capacity
+                //   - Shared DS does not need to check capacity if VM is
+                //     migrated or resumed
+                //   - Non-shared DS will always check host capacity
                 //--------------------------------------------------------------
+                bool ds_capacity = false;
 
-                if (!vm->is_resched())
+                if (ds->is_shared())
                 {
-                    if (ds->is_shared() && ds->is_monitored())
+                    if (!ds->is_monitored())
                     {
-                        // A resume action tests DS capacity only
-                        // for non-shared system DS
-                        if (vm->is_resume())
-                        {
-                            test_cap_result = true;
-                        }
-                        else
-                        {
-                            test_cap_result = ds->test_capacity(dsk);
-                        }
+                        ds_capacity = false;
+                    }
+                    else if (vm->is_resched() || vm->is_resume())
+                    {
+                        ds_capacity = true;
                     }
                     else
                     {
-                        test_cap_result = host->test_ds_capacity(ds->get_oid(), dsk);
+                        ds_capacity =  ds->test_capacity(dsk);
                     }
+                }
+                else
+                {
+                    ds_capacity = host->test_ds_capacity(ds->get_oid(), dsk);
+                }
 
-                    if (test_cap_result != true)
-                    {
-                        continue;
-                    }
+                if (!ds_capacity)
+                {
+                    continue;
                 }
 
                 //--------------------------------------------------------------
@@ -1229,7 +1231,7 @@ void Scheduler::dispatch()
                 break;
             }
 
-            if (dsid == -1 && !host->is_public_cloud())//No system DS for this host
+            if (dsid == -1 && !host->is_public_cloud())
             {
                 continue;
             }
@@ -1244,14 +1246,13 @@ void Scheduler::dispatch()
 
             dss << "\t" << vm_it->first << "\t" << hid << "\t" << dsid << "\n";
 
-            // DS capacity is only added for new deployments, not for migrations
-            // It is also omitted for VMs deployed in public cloud hosts
-            if (!vm->is_resched() && !host->is_public_cloud())
+            // DS capacity skip VMs deployed in public cloud hosts
+            if (!host->is_public_cloud())
             {
-                if (ds->is_shared() && ds->is_monitored())
+                // ------------ Add system DS usage -------------
+                if (ds->is_shared())
                 {
-                    // Resumed VMs do not add to shared system DS capacity
-                    if (!vm->is_resume())
+                    if (!vm->is_resched() && !vm->is_resume())
                     {
                         ds->add_capacity(dsk);
                     }
@@ -1261,7 +1262,11 @@ void Scheduler::dispatch()
                     host->add_ds_capacity(ds->get_oid(), dsk);
                 }
 
-                vm->add_image_datastore_capacity(img_dspool);
+                // ---------- Add image DS usage (i.e. clone = self) ----------
+                if (!vm->is_resched())
+                {
+                    vm->add_image_datastore_capacity(img_dspool);
+                }
             }
 
             host->add_capacity(vm->get_oid(), cpu, mem, pci);
