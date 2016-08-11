@@ -71,11 +71,14 @@ log "Moving $SRC to $DST"
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
-TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR'"
-TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'"
+TAR_SSH=$(cat <<EOF
+set -e
 
-exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"
+$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'
+rm -rf $SRC_PATH
+EOF
+)
 
-exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"
+ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
 
 exit 0
