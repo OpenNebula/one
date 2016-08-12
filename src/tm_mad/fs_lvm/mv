@@ -54,7 +54,7 @@ SRC_VM_DIR=`basename $SRC_PATH`
 # Activate the disk in the target host
 if [ `is_disk $DST_PATH` -eq 1 ]; then
     CMD=$(cat <<EOF
-        set -ex
+        set -ex -o pipefail
         if [ -L "$DST_PATH" ]; then
             DEVICE=\$(readlink "$DST_PATH")
             $SUDO $SYNC

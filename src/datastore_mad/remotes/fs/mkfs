@@ -77,7 +77,7 @@ fi
 MKFS_CMD=`mkfs_command $DST $FSTYPE $SIZE`
 
 REMOTE_REGISTER_CMD=$(cat <<EOF
-    set -e
+    set -e -o pipefail
     export PATH=/usr/sbin:/sbin:\$PATH
 
     mkdir -p $BASE_PATH

@@ -415,7 +415,7 @@ EOF
 function ssh_make_path
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
-set -e
+set -e -o pipefail
 if [ ! -d $2 ]; then
    mkdir -p $2
 

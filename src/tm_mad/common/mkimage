@@ -54,7 +54,7 @@ ssh_make_path $DST_HOST $DST_DIR
 MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
 
 MKSCRIPT=$(cat <<EOF
-set -e
+set -e -o pipefail
 export PATH=/usr/sbin:/sbin:\$PATH
 $MKFS_CMD
 EOF

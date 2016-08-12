@@ -43,7 +43,7 @@ fi
 . $TMCOMMON
 
 CMD=$(cat <<EOF
-    set -ex
+    set -ex -o pipefail
     $SUDO $SYNC
     $SUDO $LVSCAN
 

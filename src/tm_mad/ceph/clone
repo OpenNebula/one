@@ -95,7 +95,7 @@ CLONE_CMD=$(cat <<EOF
 
     rbd_make_snap $SRC_PATH
 
-    set -e
+    set -e -o pipefail
 
     if [ "\$(rbd_format $SRC_PATH)" = "2" ]; then
         $RBD clone "$SRC_PATH@snap" $RBD_DST

@@ -79,7 +79,7 @@ SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
 SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
 
 SNAP_CMD=$(cat <<EOT
-set -ex
+set -ex -o pipefail
 
 mkdir -p "${SNAP_DIR}"
 

@@ -94,7 +94,7 @@ if [ "$type" == "application/x-iso9660-image" ]; then
     CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
 else
     CMD=$(cat <<EOT
-set -ex
+set -ex -o pipefail
 
 mkdir -p "${SNAP_DIR}"
 

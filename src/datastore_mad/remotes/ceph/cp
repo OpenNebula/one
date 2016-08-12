@@ -139,7 +139,7 @@ if [ "$RBD_FORMAT" = "2" ]; then
 fi
 
 REGISTER_CMD=$(cat <<EOF
-    set -e
+    set -e -o pipefail
 
     FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}')
 

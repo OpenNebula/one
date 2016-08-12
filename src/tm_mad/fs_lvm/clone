@@ -91,7 +91,7 @@ VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
 CLONE_CMD=$(cat <<EOF
-    set -e
+    set -e -o pipefail
     mkdir -p $DST_DIR
 
     $SUDO $LVCREATE -L${SIZE}M -n $LV_NAME $VG_NAME

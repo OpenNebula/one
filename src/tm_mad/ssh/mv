@@ -72,7 +72,7 @@ ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
 TAR_SSH=$(cat <<EOF
-set -e
+set -e -o pipefail
 
 $TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'
 rm -rf $SRC_PATH

@@ -69,7 +69,7 @@ SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH=${DISK_PATH}
 
 CMD=$(cat <<EOT
-set -ex
+set -ex -o pipefail
 
 if [ ! -d "${SNAP_DIR}" ]; then
     mkdir "${SNAP_DIR}"
