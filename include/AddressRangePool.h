@@ -82,14 +82,16 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<VectorAttribute *> ars, bool keep_restricted, string& error_msg);
-
+    int update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
+            string& error_msg);
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
      *  needs to be initialized. Only the AR_ID is set.
+     *    @param ipam_mad sets the type of AddressRange to be created: internal,
+     *    IPAM...
      *    @return the new address range.
      */
-    AddressRange * allocate_ar();
+    AddressRange * allocate_ar(const string& ipam_mad);
 
     /**
      *  Adds a new address range to the pool. It should be allocated by the
@@ -369,6 +371,16 @@ private:
      *  Used addresses
      */
     unsigned int used_addr;
+
+    /**
+     *  Allocates a new *empty* address range. It is not added to the pool as it
+     *  needs to be initialized.
+     *    @param ipam_mad sets the type of AddressRange to be created: internal,
+     *    IPAM...
+     *    @param ar_id for the AddressRange
+     *    @return the new address range.
+     */
+    AddressRange * allocate_ar(const string& ipam_mad, unsigned int ar_id);
 };
 
 #endif
