@@ -936,6 +936,27 @@ EOT
 
         objects.each do |obj|
             obj, *extra_attributes = obj.split(":")
+
+            # When extra attributes do not contain = character include
+            # them in the previous value. Fixes adding MAC addresses. These
+            # contain ":" character also used as extra attributes separator.
+            #
+            # It may be needed to strip the value from start and end quotes
+            # as the value could be written as this:
+            #
+            # --nic 'some_net:mac="00:0A:12:34:56:78"'
+            #
+            attrs = []
+            extra_attributes.each do |str|
+                if str.include?("=")
+                    attrs << str
+                else
+                    attrs.last << ":#{str}"
+               end
+            end
+
+            extra_attributes = attrs
+
             res=parse_user_object(obj)
             return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
             user, object=*res
