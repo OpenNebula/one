@@ -33,6 +33,7 @@ define(function(require) {
   var TemplateHTML = require('hbs!./hybrid/html');
   var EC2HTML = require('hbs!./hybrid/ec2');
   var AzureHTML = require('hbs!./hybrid/azure');
+  var OpenNebulaHTML = require('hbs!./hybrid/opennebula');
 
   /*
     CONSTANTS
@@ -52,6 +53,19 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
+
+    this.oneEnabled = false;
+
+    var mads = Config.onedConf.VM_MAD;
+    if (! (mads instanceof Array)){
+      mads = [mads];
+    }
+
+    var i = 0;
+    while (!this.oneEnabled && i < mads.length){
+      this.oneEnabled = mads[i].NAME == "opennebula";
+      i++;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -107,6 +121,10 @@ define(function(require) {
             hash["TYPE"] = hybrid.toUpperCase();
             publicCloudJSON.push(hash);
             break;
+          case 'opennebula':
+            hash["TYPE"] = "opennebula";
+            publicCloudJSON.push(hash);
+            break;
         }
       };
     });
@@ -139,12 +157,19 @@ define(function(require) {
   function _addProviderTab(provider_id, context) {
     var htmlId  = 'provider' + provider_id + UniqueId.id();
 
+    var oneInput = "";
+
+    if (this.oneEnabled){
+      oneInput = '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="opennebula" id="opennebulaRadio' + htmlId + '"><label for="opennebulaRadio' + htmlId + '">' + Locale.tr("Remote OpenNebula") + '</label>';
+    }
+
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<div id="' + htmlId + 'Tab" class="provider wizard_internal_tab tabs-panel">' +
       '<div class="row">' +
         '<div class="large-12 columns">' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="ec2" id="amazonRadio' + htmlId + '"><label for="amazonRadio' + htmlId + '">Amazon EC2</label>' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="azure" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
+          oneInput +
         '</div>' +
       '</div>' +
       '<div class="row hybrid_inputs vm_param">' +
@@ -190,8 +215,10 @@ define(function(require) {
 
       if (this.value == "ec2"){
         $(".hybrid_inputs", providerSection).append(EC2HTML());
-      } else {
+      } else if (this.value == "azure"){
         $(".hybrid_inputs", providerSection).append(AzureHTML());
+      } else if (this.value == "opennebula"){
+        $(".hybrid_inputs", providerSection).append(OpenNebulaHTML());
       }
 
       Tips.setup(providerSection);
