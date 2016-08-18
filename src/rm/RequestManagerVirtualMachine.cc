@@ -990,12 +990,15 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     PoolObjectAuth * auth_ds_perms;
 
     int    c_hid;
-    int    c_cluster_id;
     int    c_ds_id;
     string c_tm_mad, tm_mad;
     bool   c_is_public_cloud;
 
+    set<int> cluster_ids;
+    string   tmp_str;
+
     bool auth = false;
+    bool ds_migr;
 
     string error;
 
@@ -1153,9 +1156,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    vm->get_cluster_requirements(cluster_ids, tmp_str);
+
     vm->unlock();
 
-    // Check we are in the same cluster
+    // Check we are migrating to a compatible cluster
     Host * host = nd.get_hpool()->get(c_hid, true);
 
     if (host == 0)
@@ -1165,20 +1170,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         failure_response(NO_EXISTS, att);
     }
 
-    c_cluster_id = host->get_cluster_id();
-
     c_is_public_cloud = host->is_public_cloud();
 
     host->unlock();
 
-    if ( c_cluster_id != cluster_id )
+    if (cluster_ids.count(cluster_id) == 0)
     {
         ostringstream oss;
 
-        oss << "Cannot migrate to a different cluster. VM running in a host"
-            << " in " << object_name(PoolObjectSQL::CLUSTER) << " ["
-            << c_cluster_id << "] , and new host is in "
-            << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id << "]";
+        oss << "Cannot migrate to host [" << hid << "]. Host is in cluster ["
+            << cluster_id << "], and VM requires to be placed on cluster ["
+            << one_util::join(cluster_ids, ',') << "]";
 
         att.resp_msg = oss.str();
         failure_response(ACTION, att);
@@ -1196,8 +1198,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
-        bool ds_migr;
-
         if ( c_ds_id != ds_id && live )
         {
             att.resp_msg = "A migration to a different system datastore "
@@ -1218,22 +1218,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        if (ds_cluster_ids.count(c_cluster_id) == 0)
-        {
-            ostringstream oss;
-
-            oss << "Cannot migrate to a different cluster. VM running in a host"
-                << " in " << object_name(PoolObjectSQL::CLUSTER)
-                << " [" << c_cluster_id << "] , and new system datastore is in "
-                << object_name(PoolObjectSQL::CLUSTER)
-                << " [" << one_util::join(ds_cluster_ids, ',') << "]";
-
-            att.resp_msg = oss.str();
-            failure_response(ACTION, att);
-
-            return;
-        }
-
         if (c_tm_mad != tm_mad)
         {
             att.resp_msg = "Cannot migrate to a system datastore with a different TM driver";
@@ -1245,7 +1229,25 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     else
     {
         ds_id  = c_ds_id;
-        tm_mad = c_tm_mad;
+
+        if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
+        {
+            return;
+        }
+    }
+
+    if (ds_cluster_ids.count(cluster_id) == 0)
+    {
+        ostringstream oss;
+
+        oss << "Cannot migrate to host [" << hid << "] and system datastore [" << ds_id << "]. Host is in cluster ["
+            << cluster_id << "], and the datastore is in cluster ["
+            << one_util::join(ds_cluster_ids, ',') << "]";
+
+        att.resp_msg = oss.str();
+        failure_response(ACTION, att);
+
+        return;
     }
 
     // ------------------------------------------------------------------------

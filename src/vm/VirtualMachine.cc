@@ -1475,18 +1475,11 @@ static int check_and_set_cluster_id(
 
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::automatic_requirements(string& error_str)
+int VirtualMachine::get_cluster_requirements(set<int>& cluster_ids, string& error_str)
 {
-    int num_vatts;
-    vector<const VectorAttribute  *> vatts;
-
     ostringstream   oss;
-    string          requirements;
-    set<int>        cluster_ids;
-
-    set<string> clouds;
-
-    int num_public = get_public_clouds(clouds);
+    int             num_vatts;
+    vector<const VectorAttribute  *> vatts;
 
     int incomp_id;
     int rc;
@@ -1561,61 +1554,6 @@ int VirtualMachine::automatic_requirements(string& error_str)
             goto error_pci;
         }
     }
-
-    if ( !cluster_ids.empty() )
-    {
-        set<int>::iterator i = cluster_ids.begin();
-
-        oss << "(CLUSTER_ID = " << *i;
-
-        for (++i; i != cluster_ids.end(); i++)
-        {
-            oss << " | CLUSTER_ID = " << *i;
-        }
-
-        oss << ") & !(PUBLIC_CLOUD = YES)";
-    }
-    else
-    {
-        oss << "!(PUBLIC_CLOUD = YES)";
-    }
-
-    if (num_public != 0)
-    {
-        set<string>::iterator it = clouds.begin();
-
-        oss << " | (PUBLIC_CLOUD = YES & (";
-
-        oss << "HYPERVISOR = " << *it ;
-
-        for (++it; it != clouds.end() ; ++it)
-        {
-            oss << " | HYPERVISOR = " << *it;
-        }
-
-        oss << "))";
-    }
-
-    obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
-
-    // Set automatic System DS requirements
-
-    if ( !cluster_ids.empty() )
-    {
-        oss.str("");
-
-        set<int>::iterator i = cluster_ids.begin();
-
-        oss << "\"CLUSTERS/ID\" @> " << *i;
-
-        for (++i; i != cluster_ids.end(); i++)
-        {
-            oss << " | \"CLUSTERS/ID\" @> " << *i;
-        }
-
-        obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
-    }
-
 
     return 0;
 
@@ -1694,6 +1632,81 @@ error_common:
     error_str = oss.str();
 
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::automatic_requirements(string& error_str)
+{
+    ostringstream   oss;
+    set<int>        cluster_ids;
+    set<string>     clouds;
+
+    int rc = get_cluster_requirements(cluster_ids, error_str);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    if ( !cluster_ids.empty() )
+    {
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "(CLUSTER_ID = " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | CLUSTER_ID = " << *i;
+        }
+
+        oss << ") & !(PUBLIC_CLOUD = YES)";
+    }
+    else
+    {
+        oss << "!(PUBLIC_CLOUD = YES)";
+    }
+
+    int num_public = get_public_clouds(clouds);
+
+    if (num_public != 0)
+    {
+        set<string>::iterator it = clouds.begin();
+
+        oss << " | (PUBLIC_CLOUD = YES & (";
+
+        oss << "HYPERVISOR = " << *it ;
+
+        for (++it; it != clouds.end() ; ++it)
+        {
+            oss << " | HYPERVISOR = " << *it;
+        }
+
+        oss << "))";
+    }
+
+    obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
+
+    // Set automatic System DS requirements
+
+    if ( !cluster_ids.empty() )
+    {
+        oss.str("");
+
+        set<int>::iterator i = cluster_ids.begin();
+
+        oss << "\"CLUSTERS/ID\" @> " << *i;
+
+        for (++i; i != cluster_ids.end(); i++)
+        {
+            oss << " | \"CLUSTERS/ID\" @> " << *i;
+        }
+
+        obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
+    }
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

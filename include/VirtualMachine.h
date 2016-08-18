@@ -1209,6 +1209,16 @@ public:
             vector<VectorAttribute *>& pci_dev);
 
     /**
+     * Returns the list of Cluster IDs where the VM can be deployed, based
+     * on the Datastores and VirtualNetworks requested
+     *
+     * @param cluster_ids set of Cluster IDs
+     * @param error_str Returns the error reason, if any
+     * @return 0 on success
+     */
+    int get_cluster_requirements(set<int>& cluster_ids, string& error_str);
+
+    /**
      *  Checks if the resize parameters are valid
      *    @param cpu New CPU. 0 means unchanged.
      *    @param memory New MEMORY. 0 means unchanged.
