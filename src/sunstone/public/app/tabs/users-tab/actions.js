@@ -93,7 +93,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(request) {
-        var reqId = request.request.data[0][0];
+        var reqId = request.request.data[0];
 
         Sunstone.runAction(RESOURCE+'.show',reqId);
 
@@ -119,7 +119,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.append,
       callback: function(request) {
-        var reqId = request.request.data[0][0];
+        var reqId = request.request.data[0];
 
         Sunstone.runAction(RESOURCE+'.show',reqId);
 
@@ -145,7 +145,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.append,
       callback: function(request) {
-        var reqId = request.request.data[0][0];
+        var reqId = request.request.data[0];
 
         if (reqId == config['user_id'] || reqId == "-1") {
           $.ajax({
@@ -251,7 +251,7 @@ define(function(require) {
       callback: function(request) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
 
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
     }

@@ -74,7 +74,7 @@ define(function(require) {
       call : OpenNebulaResource.addhost,
       callback : function (req) {
         OpenNebulaAction.clear_cache("HOST");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     },
@@ -84,7 +84,7 @@ define(function(require) {
       call : OpenNebulaResource.delhost,
       callback : function (req) {
         OpenNebulaAction.clear_cache("HOST");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     },
@@ -94,7 +94,7 @@ define(function(require) {
       call : OpenNebulaResource.adddatastore,
       callback : function (req) {
         OpenNebulaAction.clear_cache("DATASTORE");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     },
@@ -104,7 +104,7 @@ define(function(require) {
       call : OpenNebulaResource.deldatastore,
       callback : function (req) {
         OpenNebulaAction.clear_cache("DATASTORE");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     },
@@ -114,7 +114,7 @@ define(function(require) {
       call : OpenNebulaResource.addvnet,
       callback : function (req) {
         OpenNebulaAction.clear_cache("VNET");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     },
@@ -124,7 +124,7 @@ define(function(require) {
       call : OpenNebulaResource.delvnet,
       callback : function (req) {
         OpenNebulaAction.clear_cache("VNET");
-        Sunstone.runAction('Cluster.show',req.request.data[0][0]);
+        Sunstone.runAction('Cluster.show',req.request.data[0]);
       },
       error : Notifier.onError
     }

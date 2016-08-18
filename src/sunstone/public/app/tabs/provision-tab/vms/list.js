@@ -502,7 +502,7 @@ define(function(require) {
           timeout: false,
           success: function(request, response){
             OpenNebula.Action.clear_cache("VMTEMPLATE");
-            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
+            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + request.request.data[1].name + ' ' + Locale.tr("saved successfully"))
             update_provision_vm_info(vm_id, context);
             button.removeAttr("disabled");
           },
