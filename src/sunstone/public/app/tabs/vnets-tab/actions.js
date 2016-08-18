@@ -71,7 +71,7 @@ define(function(require) {
         Sunstone.getDialog(ADD_AR_DIALOG_ID).hide();
         Sunstone.getDialog(ADD_AR_DIALOG_ID).reset();
 
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show",req.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -81,7 +81,7 @@ define(function(require) {
       call: OpenNebulaResource.rm_ar,
       callback: function(req) {
         OpenNebulaAction.clear_cache("VNET");
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show",req.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -94,7 +94,7 @@ define(function(require) {
         Sunstone.getDialog(UPDATE_AR_DIALOG_ID).hide();
         Sunstone.getDialog(UPDATE_AR_DIALOG_ID).reset();
 
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show",req.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -125,7 +125,7 @@ define(function(require) {
         Sunstone.getDialog(RESERVE_DIALOG_ID).reset();
 
         OpenNebulaAction.clear_cache("VNET");
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show",req.request.data[0]);
       },
       error: Notifier.onError
     },

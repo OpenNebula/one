@@ -87,7 +87,7 @@ define(function(require) {
       callback: function(request) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
 
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -96,7 +96,7 @@ define(function(require) {
       type: "single",
       call : OpenNebulaResource.add_admin,
       callback : function (req) {
-        Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',req.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -105,7 +105,7 @@ define(function(require) {
       type: "single",
       call : OpenNebulaResource.del_admin,
       callback : function (req) {
-        Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',req.request.data[0]);
       },
       error: Notifier.onError
     }

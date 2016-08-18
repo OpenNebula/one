@@ -80,7 +80,7 @@ define(function(require) {
           type: "multiple",
           call: OpenNebulaResource.delete_recursive,
           callback : function(request, response) {
-            var elementId = request.request.data[0][0].toString();
+            var elementId = request.request.data[0].toString();
             Sunstone.getDataTable(TAB_ID).deleteElement(elementId);
           },
           elements: function(opts) {
@@ -105,7 +105,7 @@ define(function(require) {
             Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
           },
           callback : function(request, response) {
-            Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
+            Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
           },
           elements: function(opts) {
             return Sunstone.getDataTable(TAB_ID).elements(opts);
@@ -126,7 +126,7 @@ define(function(require) {
             Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
           },
           callback : function(request, response) {
-            Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
+            Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
           },
           elements: function(opts) {
             return Sunstone.getDataTable(TAB_ID).elements(opts);

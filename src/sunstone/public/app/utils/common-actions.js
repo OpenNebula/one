@@ -115,7 +115,7 @@ define(function(require) {
       type: "multiple",
       call: that.openNebulaResource[actionStr],
       callback: function (req, response) {
-        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0][0]);
+        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
       },
       elements: function(opts) {
         return Sunstone.getDataTable(that.tabId).elements(opts);
@@ -131,7 +131,7 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource[actionStr],
       callback: function (req) {
-        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0][0]);
+        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
       },
       elements: function(opts) {
         return Sunstone.getDataTable(that.tabId).elements(opts);
@@ -245,7 +245,7 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource.update,
       callback: function(request) {
-        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
+        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0]);
       },
       error: Notifier.onError
     }
@@ -257,7 +257,7 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource.append,
       callback: function(request) {
-        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
+        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0]);
       },
       error: Notifier.onError
     }

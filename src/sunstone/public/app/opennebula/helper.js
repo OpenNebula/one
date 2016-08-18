@@ -36,7 +36,7 @@ define(function(require) {
         }
       }
       if (data) {
-        if (typeof(data) != "array") {
+        if (!(data instanceof Array)) {
           data = [data];
         }
         r.request.data = data;
