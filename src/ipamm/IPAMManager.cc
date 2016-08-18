@@ -174,6 +174,7 @@ const IPAMManagerDriver * IPAMManager::setup_request(IPAMRequest * ir)
 
 void IPAMManager::register_address_range_action(IPAMRequest * ir)
 {
+    std::string action_data;
     const IPAMManagerDriver * ipammd = setup_request(ir);
 
     if (ipammd == 0)
@@ -181,13 +182,14 @@ void IPAMManager::register_address_range_action(IPAMRequest * ir)
         return;
     }
 
-    ipammd->register_address_range(ir->id, ir->params);
+    ipammd->register_address_range(ir->id, ir->to_xml64(action_data));
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::get_address_action(IPAMRequest * ir)
 {
+    std::string action_data;
     const IPAMManagerDriver * ipammd = setup_request(ir);
 
     if (ipammd == 0)
@@ -195,13 +197,14 @@ void IPAMManager::get_address_action(IPAMRequest * ir)
         return;
     }
 
-    ipammd->get_address(ir->id, ir->params);
+    ipammd->get_address(ir->id, ir->to_xml64(action_data));
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::allocate_address_action(IPAMRequest * ir)
 {
+    std::string action_data;
     const IPAMManagerDriver * ipammd = setup_request(ir);
 
     if (ipammd == 0)
@@ -209,13 +212,14 @@ void IPAMManager::allocate_address_action(IPAMRequest * ir)
         return;
     }
 
-    ipammd->allocate_address(ir->id, ir->params);
+    ipammd->allocate_address(ir->id, ir->to_xml64(action_data));
 }
 
 /* -------------------------------------------------------------------------- */
 
 void IPAMManager::free_address_action(IPAMRequest * ir)
 {
+    std::string action_data;
     const IPAMManagerDriver * ipammd = setup_request(ir);
 
     if (ipammd == 0)
@@ -223,7 +227,7 @@ void IPAMManager::free_address_action(IPAMRequest * ir)
         return;
     }
 
-    ipammd->free_address(ir->id, ir->params);
+    ipammd->free_address(ir->id, ir->to_xml64(action_data));
 }
 
 /* ************************************************************************** */

@@ -388,6 +388,114 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
+        ostringstream& oss) const
+{
+    unsigned int new_mac[2];
+    string       ip6_s;
+
+    new_mac[0] = mac[0] + index;
+    new_mac[1] = mac[1];
+
+    oss << "<ADDRESS>"
+        << "<MAC>" << mac_to_s(new_mac) << "</MAC>";
+
+    if ( ip != 0 )
+    {
+        oss << "<IP>" << ip_to_s(ip + index) << "</IP>";
+    }
+
+    if (ula6[1] != 0 || ula6[0] != 0 )
+    {
+        oss << "<IP6_ULA>" << ip6_to_s(ula6, new_mac, ip6_s) << "</IP6_ULA>";
+    }
+
+    if (global6[1] != 0 || global6[0] != 0)
+    {
+        oss << "<IP6_GLOBAL>" << ip6_to_s(global6, new_mac, ip6_s)
+            << "</IP6_GLOBAL>";
+    }
+
+    oss << "<SIZE>" << rsize << "</SIZE>"
+        << "</ADDRESS>";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::to_xml(ostringstream &oss) const
+{
+    const map<string,string>& ar_attrs = attr->value();
+    map<string,string>::const_iterator it;
+
+    string       aux_st;
+    unsigned int mac_end[2];
+
+    oss << "<AR>";
+
+    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    {
+        if ( it->first == "ALLOCATED" )
+        {
+            continue;
+        }
+
+        oss << "<" << it->first << ">"
+            << one_util::escape_xml(it->second)
+            << "</"<< it->first << ">";
+    }
+
+    mac_end[1] = mac[1];
+    mac_end[0] = (mac[0] + size - 1);
+
+    oss << "<MAC_END>" << one_util::escape_xml(mac_to_s(mac_end))<<"</MAC_END>";
+
+    aux_st = attr->vector_value("IP");
+
+    if (aux_st != "")
+    {
+        unsigned int ip_i;
+
+        if (ip_to_i(aux_st, ip_i) == 0)
+        {
+            oss << "<IP_END>" << one_util::escape_xml(ip_to_s(ip_i + size - 1))
+                << "</IP_END>";
+        }
+    }
+
+    if (type & 0x00000004)
+    {
+        string ip6_s;
+
+        if (ula6[1] != 0 || ula6[0] != 0 )
+        {
+            ip6_to_s(ula6, mac, ip6_s);
+            oss << "<IP6_ULA>" << one_util::escape_xml(ip6_s) << "</IP6_ULA>";
+
+            ip6_to_s(ula6, mac_end, ip6_s);
+            oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s)
+                << "</IP6_ULA_END>";
+        }
+
+        if (global6[1] != 0 || global6[0] != 0 )
+        {
+            ip6_to_s(global6, mac, ip6_s);
+            oss << "<IP6_GLOBAL>" << one_util::escape_xml(ip6_s)
+                << "</IP6_GLOBAL>";
+
+            ip6_to_s(global6, mac_end, ip6_s);
+            oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s)
+                << "</IP6_GLOBAL_END>";
+        }
+    }
+
+    oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
+    oss << "</AR>";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         const vector<int>& vns, const vector<int>& vrs) const
 {

@@ -32,31 +32,44 @@ public:
     virtual ~AddressRangeIPAM(){};
 
     /* ---------------------------------------------------------------------- */
-    /* AddressRange Interface **TODO contact IPAM**                           */
+    /* AddressRange Interface                                                 */
     /* ---------------------------------------------------------------------- */
-    int from_vattr(VectorAttribute * attr, std::string& error_msg)
-    {
-        error_msg = "Not Implemented";
-        return -1;
-    };
+    /**
+     *  Init an Address Range based on a vector attribute.
+     *    @param attr the description of the AddressRange
+     *    @param error_msg description if error
+     *    @return 0 on success
+     */
+    int from_vattr(VectorAttribute * attr, std::string& error_msg);
 
-    int allocate_addr(unsigned int index, unsigned int size, string& error_msg)
-    {
-        error_msg = "Not Implemented";
-        return -1;
-    };
+    /**
+     *  Sets the given range of addresses (by index) as used
+     *    @param index the first address to set as used
+     *    @param sz number of addresses to set
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    int allocate_addr(unsigned int index, unsigned int rsize, string& error_msg);
 
-    int get_addr(unsigned int& index, unsigned int rsize, string& error_msg)
-    {
-        error_msg = "Not Implemented";
-        return -1;
-    };
+    /**
+     *  Gets a range of free addresses
+     *    @param index the first address in the range
+     *    @param size number of addresses requested in the range
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    int get_addr(unsigned int& index, unsigned int rsize, string& error_msg);
 
-    int free_addr(unsigned int index, string& error_msg)
-    {
-        error_msg = "Not Implemented";
-        return -1;
-    };
+    /**
+     *  Sets the given address (by index) as free
+     *    @param index of the address
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    int free_addr(unsigned int index, string& msg);
 };
 
 #endif

@@ -34,7 +34,6 @@ public:
     /* ---------------------------------------------------------------------- */
     /* AddressRange Interface                                                 */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  Init an Address Range based on a vector attribute.
      *    @param attr the description of the AddressRange
@@ -54,7 +53,7 @@ public:
      *
      *    @return 0 if success
      */
-    int allocate_addr(unsigned int index, unsigned int size, string& error_msg)
+    int allocate_addr(unsigned int index, unsigned int rsize, string& error_msg)
     {
         return 0;
     }

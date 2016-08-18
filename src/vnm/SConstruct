@@ -26,6 +26,7 @@ source_files=[
     'VirtualNetworkPool.cc',
     'AddressRange.cc',
     'AddressRangeInternal.cc',
+    'AddressRangeIPAM.cc',
     'AddressRangePool.cc',
     'VirtualNetworkTemplate.cc'
 ]

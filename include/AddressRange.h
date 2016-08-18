@@ -128,6 +128,12 @@ public:
     void to_xml(ostringstream &oss, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const;
 
+    /**
+     *  Same as above but without the LEASES section
+     */
+    void to_xml(ostringstream &oss) const;
+
+
     // *************************************************************************
     // Address allocation functions
     // *************************************************************************
@@ -364,6 +370,18 @@ protected:
      */
     int from_attr(VectorAttribute * attr, string& error_msg);
 
+    /**
+     *  Builds an address request representation in XML form:
+     *  <ADDRESS>
+     *    <IP>
+     *    <MAC>
+     *    <IP6_ULA>
+     *    <IP6_GLOBAL>
+     *    <SIZE>
+     */
+    void addr_to_xml(unsigned int index, unsigned int size,
+            ostringstream& oss) const;
+
     /* ---------------------------------------------------------------------- */
     /* Implementation specific address management interface                   */
     /* ---------------------------------------------------------------------- */
@@ -415,7 +433,6 @@ private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  MAC to binary (48 bits)
      *    @param mac in string form 00:02:01:02:03:04
@@ -458,12 +475,12 @@ private:
      * @param ip6_s Will contain the resulting IPv6 string
      * @return 0 on success
      */
-    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const;
+    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
+        string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  Check if the given MAC is valid for this address range by verifying:
      *    - Correct : notation
@@ -523,7 +540,6 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Address index map helper functions                                     */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  This function generates a string representation of the in-memory allocated
      *  addresses. It'll be stored along side the AR vector attribute in the

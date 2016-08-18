@@ -17,38 +17,61 @@
 #ifndef IPAM_REQUEST_H_
 #define IPAM_REQUEST_H_
 
-#include <time.h>
-#include <set>
-
-#include "ActionManager.h"
-#include "IPAMManager.h"
+#include "SyncRequest.h"
 #include "NebulaUtil.h"
 
-#include "SyncRequest.h"
-
-using namespace std;
-
 /**
- *  The IPAMRequest class is used to pass an Authorization or Authentication
+ *  The IPAMRequest class represents a request for the IPAM driver. The request
+ *  is in the form
  *  request to the AuthManager. The result of the request will be stored
  *  in the result and message attributes of this class.
  */
 class IPAMRequest : public SyncRequest
 {
 public:
-    IPAMRequest(string _params): params(_params){};
+    /* ---------------------------------------------------------------------- */
+    /* IPAM Request constructors                                              */
+    /* ---------------------------------------------------------------------- */
+    IPAMRequest(const std::string& _ar_xml) :
+        ar_xml(_ar_xml), address_xml("<ADDRESS></MAC></IP></IP6_GLOBAL>"
+                "</IP6_ULA></SIZE></ADDRESS>"){};
 
-    ~IPAMRequest(){};
+    IPAMRequest(const std::string& _ar_xml, const std::string& _address_xml) :
+        ar_xml(_ar_xml), address_xml(_address_xml){};
+
+    virtual ~IPAMRequest(){};
+
+    /* ---------------------------------------------------------------------- */
+    /* Driver message formatting and processing                               */
+    /* ---------------------------------------------------------------------- */
+    std::string& to_xml64(std::string& action_data) const
+    {
+        std::ostringstream oss;
+        std::string * aux_str;
+
+        oss << "<IPAM_DRIVER_ACTION_DATA>"
+            << ar_xml
+            << address_xml
+            << "</IPAM_DRIVER_ACTION_DATA>";
+
+        aux_str     = one_util::base64_encode(oss.str());
+        action_data = *aux_str;
+
+        free(aux_str);
+
+        return action_data;
+    }
 
 private:
-
-    friend class IPAMManager;
+    /**
+     *  XML representation for this request <AR>...</AR>
+     */
+    string ar_xml;
 
     /**
-     *  The params for this request
+     * Address request representation
      */
-    string    params;
-
+    string address_xml;
 };
 
 #endif

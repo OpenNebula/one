@@ -1,0 +1,151 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+#include "AddressRangeIPAM.h"
+#include "IPAMRequest.h"
+#include "IPAMManager.h"
+
+#include "Nebula.h"
+#include "NebulaUtil.h"
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
+{
+    IPAMManager * ipamm = Nebula::instance().get_ipamm();
+    std::string * ar_xml= attr->to_xml();
+
+    IPAMRequest ir(*ar_xml);
+
+    free(ar_xml);
+
+    ipamm->trigger(IPAMManager::REGISTER_ADDRESS_RANGE, &ir);
+
+    ir.wait();
+
+    if (ir.result != true)
+    {
+        error_msg = ir.message;
+        return -1;
+    }
+
+    //attr <----> from ir.message
+    return AddressRange::from_attr(attr, error_msg);
+}
+
+int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
+    std::string& error_msg)
+{
+    IPAMManager *      ipamm = Nebula::instance().get_ipamm();
+    std::ostringstream oss;
+
+    std::string ar_xml;
+    std::string address_xml;
+
+    to_xml(oss);
+
+    ar_xml = oss.str();
+
+    oss.str("");
+
+    addr_to_xml(index, rsize, oss);
+
+    address_xml = oss.str();
+
+    IPAMRequest ir(ar_xml, address_xml);
+
+    ipamm->trigger(IPAMManager::ALLOCATE_ADDRESS, &ir);
+
+    ir.wait();
+
+    if (ir.result != true)
+    {
+        error_msg = ir.message;
+        return -1;
+    }
+
+    return 0;
+}
+
+int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
+    std::string& error_msg)
+{
+    IPAMManager *      ipamm = Nebula::instance().get_ipamm();
+    std::ostringstream oss;
+
+    std::string ar_xml;
+    std::string address_xml;
+
+    to_xml(oss);
+
+    ar_xml = oss.str();
+
+    oss.str("");
+
+    addr_to_xml(index, rsize, oss);
+
+    address_xml = oss.str();
+
+    IPAMRequest ir(ar_xml, address_xml);
+
+    ipamm->trigger(IPAMManager::GET_ADDRESS, &ir);
+
+    ir.wait();
+
+    if (ir.result != true)
+    {
+        error_msg = ir.message;
+        return -1;
+    }
+
+    //index <----> from ir.message
+    return 0;
+}
+
+int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
+{
+    IPAMManager *      ipamm = Nebula::instance().get_ipamm();
+    std::ostringstream oss;
+
+    std::string ar_xml;
+    std::string address_xml;
+
+    to_xml(oss);
+
+    ar_xml = oss.str();
+
+    oss.str("");
+
+    addr_to_xml(index, 1, oss);
+
+    address_xml = oss.str();
+
+    IPAMRequest ir(ar_xml, address_xml);
+
+    ipamm->trigger(IPAMManager::FREE_ADDRESS, &ir);
+
+    ir.wait();
+
+    if (ir.result != true)
+    {
+        error_msg = ir.message;
+        return -1;
+    }
+
+    return 0;
+}
+
