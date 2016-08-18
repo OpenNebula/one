@@ -90,7 +90,7 @@ define(function(require) {
       if ($("#selected_resource_id_migrate_vm", context).val()) {
           extra_info['host_id'] = $("#selected_resource_id_migrate_vm", context).val();
       } else {
-          notifyError(Locale.tr("You have not selected a host"));
+          Notifier.notifyError(Locale.tr("You have not selected a host"));
           return false;
       }
 
