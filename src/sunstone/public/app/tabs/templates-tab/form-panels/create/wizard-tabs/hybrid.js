@@ -25,6 +25,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var UniqueId = require('utils/unique-id');
+  var CustomTagsTable = require('utils/custom-tags-table');
 
   /*
     TEMPLATES
@@ -95,20 +96,23 @@ define(function(require) {
     var publicCloudJSON = [];
 
     $('.provider', context).each(function() {
-      var hash  = WizardFields.retrieve(this);
-      if (!$.isEmptyObject(hash)) {
-        var hybrid = $("input.hybridRadio:checked", this).val();
-        switch (hybrid) {
-          case 'ec2':
-            hash["TYPE"] = "ec2";
-            publicCloudJSON.push(hash);
-            break;
-          case 'azure':
-            hash["TYPE"] = hybrid.toUpperCase();
-            publicCloudJSON.push(hash);
-            break;
+      var hypervisor = $("input.hybridRadio:checked", this).val();
+
+      var hash;
+
+      if (hypervisor == "custom"){
+        hash = CustomTagsTable.retrieve(this);
+      } else {
+        hash  = WizardFields.retrieve(this);
+
+        if (!$.isEmptyObject(hash)) {
+          hash["TYPE"] = hypervisor;
         }
-      };
+      }
+
+      if (!$.isEmptyObject(hash)) {
+        publicCloudJSON.push(hash);
+      }
     });
 
     if (!$.isEmptyObject(publicCloudJSON)) { templateJSON['PUBLIC_CLOUD'] = publicCloudJSON; };
@@ -125,10 +129,10 @@ define(function(require) {
       if (providers instanceof Array) {
         $.each(providers, function(index, provider) {
           clickButton = index > 0;
-          that.fillProviderTab(context, provider, provider.TYPE.toLowerCase(), clickButton);
+          that.fillProviderTab(context, provider, provider.TYPE, clickButton);
         });
       } else if (providers instanceof Object) {
-        that.fillProviderTab(context, providers, providers.TYPE.toLowerCase(), clickButton);
+        that.fillProviderTab(context, providers, providers.TYPE, clickButton);
         clickButton = true;
       }
 
@@ -144,7 +148,8 @@ define(function(require) {
       '<div class="row">' +
         '<div class="large-12 columns">' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="ec2" id="amazonRadio' + htmlId + '"><label for="amazonRadio' + htmlId + '">Amazon EC2</label>' +
-          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="azure" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
+          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="AZURE" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
+          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="custom" id="customRadio' + htmlId + '"><label for="customRadio' + htmlId + '">' + Locale.tr("Custom") + '</label>' +
         '</div>' +
       '</div>' +
       '<div class="row hybrid_inputs vm_param">' +
@@ -190,8 +195,11 @@ define(function(require) {
 
       if (this.value == "ec2"){
         $(".hybrid_inputs", providerSection).append(EC2HTML());
-      } else {
+      } else if (this.value == "AZURE"){
         $(".hybrid_inputs", providerSection).append(AzureHTML());
+      } else { // "custom"
+        $(".hybrid_inputs", providerSection).append(CustomTagsTable.html());
+        CustomTagsTable.setup(providerSection);
       }
 
       Tips.setup(providerSection);
@@ -209,7 +217,15 @@ define(function(require) {
     }
 
     var providerContext = $(".provider", context).last();
-    $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
-    WizardFields.fill(providerContext, provider);
+    var input = $("input.hybridRadio[value='" + providerType + "']", providerContext);
+
+    if (input.length != 0){
+      input.trigger("click");
+      WizardFields.fill(providerContext, provider);
+    } else {
+      input = $("input.hybridRadio[value='custom']", providerContext);
+      input.trigger("click");
+      CustomTagsTable.fill(providerContext, provider);
+    }
   }
 });
