@@ -141,6 +141,7 @@ define(function(require) {
         break;
       case OpenNebulaHost.STATES.DISABLED:
       case OpenNebulaHost.STATES.MONITORING_DISABLED:
+      case OpenNebulaHost.STATES.OFFLINE:
         this.offHosts++;
         break;
       default:
