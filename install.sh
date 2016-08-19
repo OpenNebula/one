@@ -288,7 +288,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ldap \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
-          $VAR_LOCATION/remotes/auth/dummy"
+          $VAR_LOCATION/remotes/auth/dummy \
+          $VAR_LOCATION/remotes/ipam/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -404,6 +405,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
+    IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
@@ -629,7 +631,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/datastore_mad/one_datastore.rb \
               src/datastore_mad/one_datastore \
               src/market_mad/one_market.rb \
-              src/market_mad/one_market"
+              src/market_mad/one_market \
+              src/ipamm_mad/one_ipam \
+              src/ipamm_mad/one_ipam.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib files, used by some VMM Drivers, to be installed in
@@ -830,6 +834,14 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb"
+
+#-------------------------------------------------------------------------------
+# IPAM drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
+               src/ipamm_mad/remotes/dummy/allocate_address \
+               src/ipamm_mad/remotes/dummy/get_address \
+               src/ipamm_mad/remotes/dummy/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

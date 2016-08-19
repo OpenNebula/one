@@ -54,6 +54,9 @@ int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
     return AddressRange::from_attr(attr, error_msg);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
     std::string& error_msg)
 {
@@ -88,6 +91,9 @@ int AddressRangeIPAM::allocate_addr(unsigned int index, unsigned int rsize,
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
     std::string& error_msg)
 {
@@ -103,7 +109,7 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     oss.str("");
 
-    addr_to_xml(index, rsize, oss);
+    oss << "<ADDRESS><SIZE>" << rsize << "</SIZE></ADDRESS>";
 
     address_xml = oss.str();
 
@@ -133,6 +139,9 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int AddressRangeIPAM::free_addr(unsigned int index, std::string& error_msg)
 {
