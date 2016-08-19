@@ -27,11 +27,14 @@
 int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
 {
     IPAMManager * ipamm = Nebula::instance().get_ipamm();
-    std::string * ar_xml= attr->to_xml();
 
-    IPAMRequest ir(*ar_xml);
+    std::string * ar_xml   = attr->to_xml();
+    std::string * ar_xml64 = one_util::base64_encode(*ar_xml);
+
+    IPAMRequest ir(*ar_xml64);
 
     free(ar_xml);
+    free(ar_xml64);
 
     ipamm->trigger(IPAMManager::REGISTER_ADDRESS_RANGE, &ir);
 
@@ -43,7 +46,11 @@ int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
         return -1;
     }
 
-    //attr <----> from ir.message
+    if (ir.get_ar(attr, error_msg) != 0)
+    {
+        return -1;
+    }
+
     return AddressRange::from_attr(attr, error_msg);
 }
 
@@ -112,7 +119,18 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
         return -1;
     }
 
-    //index <----> from ir.message
+    std::string ip;
+
+    if ( ir.get_ip(ip, error_msg) != 0 )
+    {
+        return -1;
+    }
+
+    if ( !is_valid_ip(index, ip, false) )
+    {
+        return -1;
+    }
+
     return 0;
 }
 

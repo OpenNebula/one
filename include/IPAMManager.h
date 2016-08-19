@@ -46,10 +46,10 @@ public:
 
     enum Actions
     {
-        REGISTER_ADDRESS_RANGE,
-        ALLOCATE_ADDRESS,
-        GET_ADDRESS,
-        FREE_ADDRESS,
+        REGISTER_ADDRESS_RANGE, /**< Register/Request a new IP network    */
+        ALLOCATE_ADDRESS,       /**< Request a specific IP (or range)     */
+        GET_ADDRESS,            /**< Request any free  IP (or range)      */
+        FREE_ADDRESS,           /**< Frees a previously requested IP      */
         FINALIZE
     };
 

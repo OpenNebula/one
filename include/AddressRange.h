@@ -365,6 +365,9 @@ protected:
      */
     AddressRange(unsigned int _id):id(_id){};
 
+    /* ---------------------------------------------------------------------- */
+    /* Address/AR helper functions to build/parse driver messages             */
+    /* ---------------------------------------------------------------------- */
     /**
      * Builds the AddressRange from its vector attribute representation
      */
@@ -378,9 +381,40 @@ protected:
      *    <IP6_ULA>
      *    <IP6_GLOBAL>
      *    <SIZE>
+     *
+     *    @param index for the address
+     *    @param size number of addresses in this request
+     *    @param oss string stream to write the request to
      */
     void addr_to_xml(unsigned int index, unsigned int size,
             ostringstream& oss) const;
+
+    /**
+     *  Check if the given MAC is valid for this address range by verifying:
+     *    - Correct : notation
+     *    - Part of the AR
+     *
+     *    @param index of the MAC in the AR
+     *    @param mac_s string representation of the MAC in : notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the MAC is valid
+     */
+    bool is_valid_mac(unsigned int& index, const string& mac_s, bool check_free);
+
+    /**
+     *  Check if the given IP is valid for this address range by verifying:
+     *    - AR is of type IP4 or IP4_6
+     *    - Correct . notation
+     *    - Part of the AR
+     *
+     *    @param index of the IP in the AR
+     *    @param ip_s string representation of the IP in . notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the IP is valid
+     */
+    bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
 
     /* ---------------------------------------------------------------------- */
     /* Implementation specific address management interface                   */
@@ -481,32 +515,6 @@ private:
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
     /* ---------------------------------------------------------------------- */
-    /**
-     *  Check if the given MAC is valid for this address range by verifying:
-     *    - Correct : notation
-     *    - Part of the AR
-     *
-     *    @param index of the MAC in the AR
-     *    @param mac_s string representation of the MAC in : notation
-     *    @param check_free apart from previous checks
-     *
-     *    @return true if the MAC is valid
-     */
-    bool is_valid_mac(unsigned int& index, const string& mac_s, bool check_free);
-
-    /**
-     *  Check if the given IP is valid for this address range by verifying:
-     *    - AR is of type IP4 or IP4_6
-     *    - Correct . notation
-     *    - Part of the AR
-     *
-     *    @param index of the IP in the AR
-     *    @param ip_s string representation of the IP in . notation
-     *    @param check_free apart from previous checks
-     *
-     *    @return true if the IP is valid
-     */
-    bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
 
     /**
      *  Writes MAC address to the given NIC attribute

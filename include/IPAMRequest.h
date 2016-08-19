@@ -44,6 +44,30 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Driver message formatting and processing                               */
     /* ---------------------------------------------------------------------- */
+    /**
+     *  Builds an base64 encoded XML string with the request for the driver:
+     *    <IPAM_DRIVER_ACTION_DATA>
+     *      <AR>
+     *        <TYPE>
+     *        <IP>
+     *        <MAC>
+     *        <SIZE>
+     *        ...
+     *      </AR>
+     *      <ADDRESS>
+     *        <MAC>
+     *        <IP>
+     *        <IP6_ULA>
+     *        <IP6_GLOBAL>
+     *        <SIZE>
+     *      </ADDRESS>
+     *    </IPAM_DRIVER_ACTION_DATA>
+     *
+     *  <AR> Element with the network description for this request:
+     *    - Maybe incomplete for REQUEST_ADDRESS_RANGE
+     *  <ADDRESS> Lease request
+     *    - Will not be present for REQUEST_ADDRESS_RANGE
+     */
     std::string& to_xml64(std::string& action_data) const
     {
         std::ostringstream oss;
@@ -62,6 +86,71 @@ public:
         return action_data;
     }
 
+    /**
+     *  Response from drivers is a base64 template with the AR definition
+     *  (only for REQUEST_ADDRESS_RANGE) and ADDRESS for GET/ALLOCATE/FREE
+     *  requests.
+     *
+     *  AR = [
+     *    TYPE = ...,
+     *    IP   = ...,
+     *    ...
+     *  ]
+     *
+     *  ADDRESS = [
+     *    MAC =
+     *    IP  =
+     *    ...
+     *  ]
+     *
+     *  NOTE: XML syntax should be also valid
+     *
+     *  The following functions are helpers to get the response IP and AR
+     *    @param error description if any
+     *    @return 0 on success
+     */
+    int get_ar(VectorAttribute * vattr, std::string& error) const
+    {
+        Template response;
+
+        if ( parse_response(response, error) != 0 )
+        {
+            return -1;
+        }
+
+        VectorAttribute * new_ar = response.get("AR");
+
+        if ( new_ar == 0 )
+        {
+            error = "AR not found in IPAM driver response";
+        }
+
+        vattr->replace(new_ar->value());
+
+        return 0;
+    }
+
+    int get_ip(std::string& ip, std::string& error) const
+    {
+        Template response;
+
+        if ( parse_response(response, error) != 0 )
+        {
+            return -1;
+        }
+
+        VectorAttribute * addr = response.get("ADDRESS");
+
+        if ( addr == 0 )
+        {
+            error = "ADDRESS not found in IPAM driver response";
+        }
+
+        ip = addr->vector_value("IP");
+
+        return 0;
+    }
+
 private:
     /**
      *  XML representation for this request <AR>...</AR>
@@ -72,6 +161,31 @@ private:
      * Address request representation
      */
     string address_xml;
+
+    /**
+     *  Parse a response from an IPAM driver OpenNebula template or XML
+     *  base64 encoded message.
+     *    @param response Template with the parsed response
+     *    @param error description if any
+     *    @return 0 on success
+     *
+     */
+    int parse_response(Template& response, std::string& error) const
+    {
+        std::string * msg = one_util::base64_decode(message);
+
+        if ( msg == 0 )
+        {
+            error = "Error decoding base64 IPAM driver response";
+            return -1;
+        }
+
+        int rc = response.parse_str_or_xml(*msg, error);
+
+        free(msg);
+
+        return rc;
+    }
 };
 
 #endif
