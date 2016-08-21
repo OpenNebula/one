@@ -33,8 +33,8 @@ public:
     /* IPAM Request constructors                                              */
     /* ---------------------------------------------------------------------- */
     IPAMRequest(const std::string& _ar_xml) :
-        ar_xml(_ar_xml), address_xml("<ADDRESS></MAC></IP></IP6_GLOBAL>"
-                "</IP6_ULA></SIZE></ADDRESS>"){};
+        ar_xml(_ar_xml), address_xml("<ADDRESS><MAC/><IP/><IP6_GLOBAL/>"
+                "<IP6_ULA/><SIZE/></ADDRESS>"){};
 
     IPAMRequest(const std::string& _ar_xml, const std::string& _address_xml) :
         ar_xml(_ar_xml), address_xml(_address_xml){};

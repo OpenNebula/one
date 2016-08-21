@@ -31,6 +31,7 @@ $: << RUBY_LIB_LOCATION
 
 require 'scripts_common'
 require 'OpenNebulaDriver'
+require 'rexml/document'
 require 'getoptlong'
 require 'shellwords'
 
@@ -99,7 +100,20 @@ class IPAMDriver < OpenNebulaDriver
     end
     private
 
-    def do_ipam_action(id, ipam, action, arguments)
+    def do_ipam_action(id, action, arguments)
+        begin
+            message = Base64.decode64(arguments)
+            xml_doc = REXML::Document.new(message)
+
+            xml_doc.root
+            ipam = xml_doc.elements['IPAM_DRIVER_ACTION_DATA/AR/IPAM_MAD'].text.strip
+            raise if ipam.empty?
+        rescue
+            send_message(ACTION[action], RESULT[:failure], id,
+                "Cannot perform #{action}, cannot find ipman driver")
+            return
+        end
+
         return if not is_available?(ipam, id, action)
 
         path = File.join(@local_scripts_path, ipam)

@@ -37,11 +37,11 @@ extern "C" void * ipamm_action_loop(void *arg)
 
     ipamm = static_cast<IPAMManager *>(arg);
 
-    NebulaLog::log("IpamM",Log::INFO,"IPAM Manager started.");
+    NebulaLog::log("IPM",Log::INFO,"IPAM Manager started.");
 
     ipamm->am.loop(ipamm->timer_period, 0);
 
-    NebulaLog::log("IpamM",Log::INFO,"IPAM Manager stopped.");
+    NebulaLog::log("IPM",Log::INFO,"IPAM Manager stopped.");
 
     return 0;
 }

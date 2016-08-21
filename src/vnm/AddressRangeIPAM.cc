@@ -29,12 +29,10 @@ int AddressRangeIPAM::from_vattr(VectorAttribute * attr, std::string& error_msg)
     IPAMManager * ipamm = Nebula::instance().get_ipamm();
 
     std::string * ar_xml   = attr->to_xml();
-    std::string * ar_xml64 = one_util::base64_encode(*ar_xml);
 
-    IPAMRequest ir(*ar_xml64);
+    IPAMRequest ir(*ar_xml);
 
     free(ar_xml);
-    free(ar_xml64);
 
     ipamm->trigger(IPAMManager::REGISTER_ADDRESS_RANGE, &ir);
 

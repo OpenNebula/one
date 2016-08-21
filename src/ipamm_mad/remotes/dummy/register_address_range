@@ -107,7 +107,7 @@ SIZE="${XPATH_ELEMENTS[i++]}"
 # IPAM should be contact here. As an example we just "echo" the IP sent by
 # OpenNebula or return a fixed sample network
 #-------------------------------------------------------------------------------
-if [ -n $IP ]; then
+if [ "x$IP" != "x" ]; then
     AR=$(cat <<EOF
         AR=[
           TYPE="IP4",
@@ -115,21 +115,21 @@ if [ -n $IP ]; then
           IP="$IP",
           IPAM_MAD="dummy"
         ]
-    EOF
-    )
+EOF
+)
 else
     AR=$(cat <<EOF
         AR=[
           TYPE="IP4",
-          IP  ="10.0.0.10"
+          IP  ="10.0.0.10",
           SIZE="100",
           NETWORK_MASK="255.255.255.0",
           GATEWAY="10.0.0.1",
           DNS="10.0.0.1",
           IPAM_MAD="dummy"
         ]
-    EOF
-    )
+EOF
+)
 fi
 
 echo "$AR"
