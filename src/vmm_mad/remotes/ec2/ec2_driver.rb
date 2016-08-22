@@ -28,7 +28,7 @@ end
 EC2_DRIVER_CONF = "#{ETC_LOCATION}/ec2_driver.conf"
 EC2_DRIVER_DEFAULT = "#{ETC_LOCATION}/ec2_driver.default"
 
-gem 'aws-sdk', '=1.66'
+gem 'aws-sdk', '>= 2.0'
 
 # Load EC2 credentials and environment
 require 'yaml'
@@ -196,14 +196,15 @@ class EC2Driver
 
     # EC2 attributes that will be retrieved in a polling action
     EC2_POLL_ATTRS = [
-        :dns_name,
+        :public_dns_name,
         :private_dns_name,
         :key_name,
-        :availability_zone,
+        # not available as a method, should get placement/availability_zone
+        # :availability_zone,
         :platform,
         :vpc_id,
         :private_ip_address,
-        :ip_address,
+        :public_ip_address,
         :subnet_id,
         :security_groups,
         :instance_type,
@@ -229,16 +230,17 @@ class EC2Driver
         raise "secret_access_key not defined for #{host}" if @region['secret_access_key'].nil?
         raise "region_name not defined for #{host}" if @region['region_name'].nil?
 
-        AWS.config(
-            'access_key_id'     => @region['access_key_id'],
-            'secret_access_key' => @region['secret_access_key'],
-            'region'            => @region['region_name'])
+        Aws.config.merge!({
+            :access_key_id      => @region['access_key_id'],
+            :secret_access_key  => @region['secret_access_key'],
+            :region             => @region['region_name']
+        })
 
         if (proxy_uri = public_cloud_ec2_conf['proxy_uri'])
-            AWS.config(:proxy_uri => proxy_uri)
+            Aws.config(:proxy_uri => proxy_uri)
         end
 
-        @ec2 = AWS.ec2
+        @ec2 = Aws::EC2::Resource.new
     end
 
     # DEPLOY action, also sets ports and ip if needed
@@ -280,40 +282,49 @@ class EC2Driver
             end
         end
 
+        begin
+            instances = @ec2.create_instances(opts)
+            instance = instances.first
+        rescue => e
+            STDERR.puts(e.message)
+            exit(-1)
+        end
+
         index = 0
 
         while index < 5
             begin
-                instance.status
+                instance.state
+                break
             rescue
             end
             sleep 2
             index = index + 1
         end
 
+        tags = generate_options(:tags, ec2_info)['tags'] || {}
+
+        tags['ONE_ID'] = id
+
+        tag_array = []
+        tags.each{ |key,value|
+            tag_array << {
+                :key => key,
+                :value => value
+            }
+        }
+
         begin
-            instance = AWS.ec2.instances.create(opts)
+            instance.create_tags(:tags => tag_array)
         rescue => e
             STDERR.puts(e.message)
             exit(-1)
         end
 
-        tags = generate_options(:tags, ec2_info)['tags'] || {}
-
-        tags['ONE_ID'] = id
-        tags.each{ |key,value|
-            begin
-                instance.add_tag(key, :value => value)
-            rescue => e
-                STDERR.puts(e.message)
-                exit(-1)
-            end
-        }
-
         if ec2_value(ec2_info, 'ELASTICIP')
             begin
                 start_time = Time.now
-                while instance.status == :pending
+                while instance.state.name == 'pending'
                     break if Time.now - start_time > @state_change_timeout
                     sleep 5
                 end
@@ -421,12 +432,13 @@ class EC2Driver
         vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
 
         begin
-            AWS.ec2.instances.each do |i|
-                next if i.status != :pending && i.status != :running
+            @ec2.instances.each do |i|
+                next if i.state.name != 'pending' && i.state.name != 'running'
 
-                one_id = i.tags['ONE_ID']
+                one_id = i.tags.find {|t| t.key == 'ONE_ID' }
+                one_id = one_id.value if one_id
 
-                poll_data=parse_poll(i, onevm_info[i.instance_id],do_cw, cw_mon_time)
+                poll_data=parse_poll(i, onevm_info[i.id], do_cw, cw_mon_time)
 
                 vm_template_to_one = vm_to_one(i)
                 vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
@@ -521,19 +533,23 @@ private
     # Retrieve the vm information from the EC2 instance
     def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
-            onevm.info
-            if onevm && do_cw
-              cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
-                                                       onevm,
-                                                       cw_mon_time)
-            else
-              previous_cpu   = onevm["/VM/MONITORING/CPU"] ? onevm["/VM/MONITORING/CPU"] : 0
-              previous_netrx = onevm["/VM/MONITORING/NETRX"] ? onevm["/VM/MONITORING/NETRX"] : 0
-              previous_nettx = onevm["/VM/MONITORING/NETTX"] ? onevm["/VM/MONITORING/NETTX"] : 0
+            if onevm
+                if do_cw
+                    onevm.info
+                    cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
+                                                           onevm,
+                                                           cw_mon_time)
+                else
+                  previous_cpu   = onevm["/VM/MONITORING/CPU"] || 0
+                  previous_netrx = onevm["/VM/MONITORING/NETRX"] || 0
+                  previous_nettx = onevm["/VM/MONITORING/NETTX"] || 0
 
-              cloudwatch_str = "CPU=#{previous_cpu} "\
-                               "NETTX=#{previous_nettx} "\
-                               "NETRX=#{previous_netrx} "
+                  cloudwatch_str = "CPU=#{previous_cpu} "\
+                                   "NETTX=#{previous_nettx} "\
+                                   "NETRX=#{previous_netrx} "
+                end
+            else
+                cloudwatch_str = ""
             end
 
             info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
@@ -542,12 +558,12 @@ private
             if !instance.exists?
                 state = VM_STATE[:deleted]
             else
-                state = case instance.status
-                when :pending
+                state = case instance.state.name
+                when 'pending'
                     VM_STATE[:active]
-                when :running
+                when 'running'
                     VM_STATE[:active]
-                when :'shutting-down', :terminated
+                when 'shutting-down', 'terminated'
                     VM_STATE[:deleted]
                 else
                     VM_STATE[:unknown]
@@ -560,7 +576,7 @@ private
                 if !value.nil? && !value.empty?
                     if value.is_a?(Array)
                         value = value.map {|v|
-                            v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
+                            v.group_id if v.is_a?(Aws::EC2::Types::GroupIdentifier)
                         }.join(",")
                     end
 
@@ -602,7 +618,8 @@ private
                 if str
                     tmp = opts
                     last_key = nil
-                    v[:opt].split('/').each { |k|
+                    v[:opt].split('/').each { |key|
+                        k = key.to_sym
                         tmp = tmp[last_key] if last_key
                         tmp[k] = {}
                         last_key = k
@@ -642,7 +659,7 @@ private
     def load_default_template_values
         @defaults = Hash.new
 
-        if File.exists?(EC2_DRIVER_DEFAULT)
+        if File.exist?(EC2_DRIVER_DEFAULT)
             fd  = File.new(EC2_DRIVER_DEFAULT)
             xml = REXML::Document.new fd
             fd.close()
@@ -656,7 +673,7 @@ private
             EC2.each {|action, hash|
                 if hash[:args]
                     hash[:args].each { |key, value|
-                        @defaults[key] = value_from_xml(ec2, key)
+                        @defaults[key.to_sym] = value_from_xml(ec2, key)
                     }
                 end
             }
@@ -666,7 +683,7 @@ private
     # Retrive the instance from EC2
     def get_instance(id)
         begin
-            instance = AWS.ec2.instances[id]
+            instance = @ec2.instance(id)
             if instance.exists?
                 return instance
             else
@@ -706,7 +723,7 @@ private
     # Extract monitoring information from Cloud Watch
     # CPU, NETTX and NETRX
     def cloudwatch_monitor_info(id, onevm, cw_mon_time)
-        cw=AWS::CloudWatch::Client.new
+        cw=Aws::CloudWatch::Client.new
 
         # CPU
         begin
