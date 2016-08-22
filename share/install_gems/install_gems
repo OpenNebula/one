@@ -39,7 +39,7 @@ GROUPS={
     :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
     :oneflow    => ['sinatra', TREETOP, 'parse-cron'],
-    :ec2_hybrid => 'aws-sdk --version "= 1.66"',
+    :ec2_hybrid => 'aws-sdk --version "~> 2.5"',
     :oca        => 'ox',
     :market     => 'aws-sdk',
     :onedb      => "mysql"
