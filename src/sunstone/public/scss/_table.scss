@@ -50,6 +50,10 @@ table {
       cursor: pointer;
     }
   }
+
+  .value_td {
+    word-break: break-all;
+  }
 }
 
 .dataTables_info {
