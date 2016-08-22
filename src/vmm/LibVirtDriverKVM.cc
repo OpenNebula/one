@@ -970,7 +970,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 get_default("SPICE_OPTIONS", spice_options);
 
-                if (spice_options.empty())
+                if (!spice_options.empty())
                 {
                     file << "\t\t" << spice_options << endl;
                 }
