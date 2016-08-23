@@ -1613,7 +1613,7 @@ EOT
                     # IP
                     first_ip = nil
                     if (!ar.at_xpath("IP").nil?)
-                        first_ip = IPAddr.new(ar.at_xpath("IP").text, Socket::AF_INET)
+                        first_ip = IPAddr.new(ar.at_xpath("IP").text.strip, Socket::AF_INET)
                     end
 
                     # IP6
@@ -1715,7 +1715,18 @@ EOT
                 # IP
                 first_ip = nil
                 if !net_ar.at_xpath("IP").nil?
-                    first_ip = IPAddr.new(net_ar.at_xpath("IP").text, Socket::AF_INET)
+                    first_ip_st = net_ar.at_xpath("IP").text
+
+                    if (first_ip_st != first_ip_st.strip)
+                        log_error("VNet #{oid} AR #{ar_id} "<<
+                            "IP \"#{first_ip_st}\" contains whitespaces")
+
+                        first_ip_st.strip!
+
+                        net_ar.at_xpath("IP").content = first_ip_st
+                    end
+
+                    first_ip = IPAddr.new(first_ip_st, Socket::AF_INET)
                 end
 
                 # IP6
