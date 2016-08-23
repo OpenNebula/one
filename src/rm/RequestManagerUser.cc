@@ -210,14 +210,45 @@ void UserEditGroup::
 
     string gname;
     string uname;
+    string auth_driver;
 
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname,true);
+    const VectorAttribute* auth_conf;
+    bool driver_managed_groups;
 
-    if ( rc == -1 )
+    User* user;
+
+    if ((user = upool->get(user_id,true)) == 0 )
     {
+        att.resp_obj = PoolObjectSQL::USER;
+        att.resp_id  = user_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    user->get_permissions(uperms);
+
+    uname = user->get_name();
+
+    auth_driver = user->get_auth_driver();
+
+    user->unlock();
+
+    driver_managed_groups = false;
+
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+    }
+
+    if (driver_managed_groups)
+    {
+        att.resp_msg =
+            "Groups cannot be manually managed for auth driver "+auth_driver;
+        failure_response(ACTION, att);
         return;
     }
 
