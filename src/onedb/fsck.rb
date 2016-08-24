@@ -1960,6 +1960,21 @@ EOT
                     "VNet #{oid}, but it could not be matched to any AR", false)
             end
 
+            vn_mad_e = doc.root.at_xpath("VN_MAD")
+            if vn_mad_e.nil?
+                log_error("VNet #{oid} VN_MAD element is missing", false)
+            else
+                vn_mad = vn_mad_e.text
+                vn_mad_tmpl_e = doc.root.at_xpath("TEMPLATE/VN_MAD")
+
+                if (vn_mad_tmpl_e.nil? || vn_mad_tmpl_e.text != vn_mad)
+                    log_error("VNet #{oid} VN_MAD element is missing from the TEMPLATE")
+
+                    doc.root.at_xpath("TEMPLATE").add_child(
+                        doc.create_element("VN_MAD")).content = vn_mad
+                end
+            end
+
             row[:body] = doc.root.to_s
 
             # commit
