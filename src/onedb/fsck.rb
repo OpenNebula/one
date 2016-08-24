@@ -2070,6 +2070,97 @@ EOT
 
         log_time()
 
+        ########################################################################
+        # VM Templates
+        #
+        # TEMPLATE/OS/BOOT
+        ########################################################################
+
+        templates_fix = {}
+
+        @db.transaction do
+        @db[:template_pool].each do |row|
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            boot = doc.root.at_xpath("TEMPLATE/OS/BOOT")
+
+            if boot.nil? || boot.text.downcase.match(/fd|hd|cdrom|network/).nil?
+              next
+            end
+
+            # Note: this code assumes that disks are ordered in the same order as
+            # their target, and may break boot order if the target is not left
+            # completely to oned.
+            # If, for example, the third disk ends with target="vda",
+            # boot="hd" should be updated to boot="disk2", but it is not
+
+            devs = []
+
+            hd_i      = 0
+            cdrom_i   = 0
+            network_i = 0
+
+            error = false
+
+            boot.text.split(",").each do |dev|
+                dev.downcase!
+
+                case dev
+                when "hd", "cdrom"
+                    index = nil
+                    if dev == "hd"
+                        index = hd_i
+                        hd_i += 1
+                    else
+                        index = cdrom_i
+                        cdrom_i += 1
+                    end
+
+                    id = get_disk_id(dev, index, doc)
+                    if id.nil?
+                        log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", but DISK ##{index} of type #{dev} could not be found to fix it automatically", false)
+                        error = true
+                    end
+                    devs.push("disk#{id}")
+
+                when "network"
+                    devs.push("nic#{network_i}")
+                    network_i += 1
+
+                when "fd"
+                    log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", but \"fd\" is not supported anymore and can't be fixed automatically", false)
+                    error = true
+
+                else
+                    log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", but it can't be parsed to be fixed automatically", false)
+                    error = true
+
+                end
+            end
+
+            if error
+                next
+            end
+
+            new_boot = devs.join(",")
+
+            log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", is was updated to #{new_boot}")
+
+            boot.content = new_boot
+
+            templates_fix[row[:oid]] = doc.root.to_s
+        end
+        end
+
+
+        @db.transaction do
+            templates_fix.each do |id, body|
+                @db[:template_pool].where(:oid => id).update(:body => body)
+            end
+        end
+
+        log_time()
+
         log_total_errors()
 
         return true
@@ -2462,4 +2553,99 @@ EOT
         return lease[:ip].nil? ? lease[:mac].to_s : lease[:ip].to_s
     end
 
+    # Returns the ID of the # disk of a type
+    # Params:
+    # +type+:: type name of the disk, can be “hd” or “cdrom”
+    # +doc+:: Nokogiri::XML::Node describing the VM template
+    def get_disk_id(type, index, doc)
+        found_i = -1
+
+        doc.root.xpath("TEMPLATE/DISK").each_with_index do |disk, disk_i|
+            id = disk.at_xpath("IMAGE_ID")
+            if ! id.nil?
+                image = get_image_from_id(id.content)
+            else
+                image = get_image_from_name(disk)
+            end
+
+            next if image.nil?
+
+            if is_image_type_matching?(image, type)
+                found_i += 1
+
+                if (found_i == index)
+                    return disk_i
+                end
+            end
+        end
+
+        return nil
+    end
+
+    # Returns a Nokogiri::XML::Node describing an image
+    # Params:
+    # +id+:: ID of the image
+    def get_image_from_id(id)
+        row = @db.fetch("SELECT body from image_pool where oid=#{id}").first
+        # No image found, so unable to get image TYPE
+        return nil if row.nil?
+
+        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        return image
+    end
+
+    # Returns a Nokogiri::XML::Node describing an image
+    # Params:
+    # +disk+:: Nokogiri::XML::Node describing a disk used by a template
+    def get_image_from_name(disk)
+      name = disk.at_xpath("IMAGE").content # always defined
+      uid = disk.at_xpath("IMAGE_UID")
+      uname = disk.at_xpath("IMAGE_UNAME")
+
+      if ! name.nil? and (! uid.nil? or ! uname.nil?)
+        if uid.nil?
+          uid = get_user_id(uname.content)
+        else
+          uid = uid.content
+        end
+
+        return nil if uid.nil?
+
+        row = @db.fetch("SELECT body from image_pool where name=\"#{name}\" and uid=#{uid}").first
+        # No image found, so unable to get image TYPE
+        return nil if row.nil?
+
+        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        return image
+      end
+
+      return nil
+    end
+
+    # Returns the ID of a user name
+    # Params:
+    # +name+:: name of a user
+    def get_user_id(name)
+        row = @db.fetch("SELECT uid from user_pool WHERE name=\"#{name}\"").first
+
+        return nil if row.nil?
+
+        return row[:uid]
+    end
+
+    # Check if an image type match the type used in template BOOT
+    # Params:
+    # +image_type+:: doc
+    # +wanted_type+:: string type extracted from VM template BOOT
+    def is_image_type_matching?(image, wanted_type)
+        return false if image.nil? || image.at_xpath("IMAGE/TYPE").nil?
+
+        img_type = OpenNebula::Image::IMAGE_TYPES[image.at_xpath("IMAGE/TYPE").text.to_i]
+
+        if wanted_type == "hd"
+            return img_type == "OS" || img_type == "DATABLOCK"
+        else
+            return img_type == "CDROM"
+        end
+    end
 end
