@@ -137,7 +137,9 @@ private:
      *  Sets a the defaults for a Auth drivers
      */
     void set_conf_auth(const std::string& name,
-                       const std::string& change_password);
+                       const std::string& change_password,
+                       const std::string& drvier_managed_groups,
+                       const std::string& max_token_time);
 };
 
 

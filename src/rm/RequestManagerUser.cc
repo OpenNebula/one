@@ -210,14 +210,45 @@ void UserEditGroup::
 
     string gname;
     string uname;
+    string auth_driver;
 
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, uperms, uname,true);
+    const VectorAttribute* auth_conf;
+    bool driver_managed_groups;
 
-    if ( rc == -1 )
+    User* user;
+
+    if ((user = upool->get(user_id,true)) == 0 )
     {
+        att.resp_obj = PoolObjectSQL::USER;
+        att.resp_id  = user_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    user->get_permissions(uperms);
+
+    uname = user->get_name();
+
+    auth_driver = user->get_auth_driver();
+
+    user->unlock();
+
+    driver_managed_groups = false;
+
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+    }
+
+    if (driver_managed_groups)
+    {
+        att.resp_msg =
+            "Groups cannot be manually managed for auth driver "+auth_driver;
+        failure_response(ACTION, att);
         return;
     }
 
@@ -387,6 +418,9 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     User * user;
     string error_str;
+    string auth_driver;
+    time_t max_token_time;
+    const VectorAttribute* auth_conf;
 
     PoolObjectAuth perms;
 
@@ -423,6 +457,44 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    auth_driver = user->get_auth_driver();
+    max_token_time = -1;
+
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("MAX_TOKEN_TIME", max_token_time);
+    }
+
+    if (max_token_time == 0)
+    {
+        att.resp_msg = "Login tokens are disabled for driver '"+
+                        user->get_auth_driver()+"'";
+        failure_response(ACTION,  att);
+
+        // Reset token
+        user->login_token.reset();
+        pool->update(user);
+        user->unlock();
+
+        return;
+    }
+    else if (max_token_time > 0)
+    {
+        valid = max(valid, max_token_time);
+
+        if (max_token_time < valid)
+        {
+            valid = max_token_time;
+
+            ostringstream oss;
+
+            oss << "Req:" << att.req_id << " " << method_name
+                << " Token time has been overwritten with the MAX_TOKEN_TIME of "
+                << max_token_time << " set in oned.conf";
+            NebulaLog::log("ReM",Log::WARNING,oss);
+        }
     }
 
     if (valid == 0) //Reset token

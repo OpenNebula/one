@@ -397,8 +397,23 @@ bool UserPool::authenticate_internal(User *        user,
     string auth_driver;
     string username;
 
+    bool driver_managed_groups = false;
+    bool update_groups;
+    const VectorAttribute* auth_conf;
+    int      new_gid = -1;
+    set<int> new_group_ids;
+
+    set<int> groups_remove;
+    set<int> groups_add;
+    set<int>::iterator it;
+
+    int     rc;
+
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
+
+    Group* group;
+    GroupPool* gpool = nd.get_gpool();
 
     username = user->name;
     password = user->password;
@@ -430,6 +445,11 @@ bool UserPool::authenticate_internal(User *        user,
         return true;
     }
 
+    if (nd.get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+    }
+
     AuthRequest ar(user_id, group_ids);
 
     if ( auth_driver == UserPool::CORE_AUTH )
@@ -457,10 +477,51 @@ bool UserPool::authenticate_internal(User *        user,
         {
             goto auth_failure_driver;
         }
+
+        if (driver_managed_groups)
+        {
+            //------------------------------------------------------------------
+            // Parse driver response
+            //------------------------------------------------------------------
+
+            string   driver_name;
+            string   mad_name;
+            string   mad_pass;
+            string   error_str;
+
+            rc = parse_auth_msg(ar, new_gid, new_group_ids,
+                    driver_name, mad_name, mad_pass, error_str);
+
+            if (rc != 0)
+            {
+                oss << "An error ocurred parsing the driver message. "
+                    << error_str;
+                NebulaLog::log("AuM",Log::WARNING,oss);
+
+                oss.str("");
+            }
+        }
     }
     else
     {
         goto auth_failure_nodriver;
+    }
+
+    update_groups = (driver_managed_groups &&
+                     (new_gid != -1) && (new_group_ids != group_ids));
+
+    if (update_groups && (new_group_ids.count(group_id) == 0))
+    {
+        // Old primary group disappears from the list of new groups
+        group = gpool->get(new_gid, true);
+
+        if (group != 0)
+        {
+            group_id = new_gid;
+            gname    = group->get_name();
+
+            group->unlock();
+        }
     }
 
     user = get(user_id, true);
@@ -468,7 +529,87 @@ bool UserPool::authenticate_internal(User *        user,
     if (user != 0)
     {
         user->session.set(token, _session_expiration_time);
+
+        if (update_groups)
+        {
+            // Previous groups that were not returned this time
+            std::set_difference(group_ids.begin(), group_ids.end(),
+                    new_group_ids.begin(), new_group_ids.end(),
+                    std::inserter(groups_remove, groups_remove.end()));
+
+            // New groups
+            std::set_difference(new_group_ids.begin(), new_group_ids.end(),
+                    group_ids.begin(), group_ids.end(),
+                    std::inserter(groups_add, groups_add.end()));
+
+            // Set main group
+            user->set_group(group_id, gname);
+
+            // Add secondary group ids in the user object
+            for(it = groups_add.begin(); it != groups_add.end(); it++)
+            {
+                if (gpool->get(*it, false) != 0)
+                {
+                    user->add_group(*it);
+                }
+                else
+                {
+                    oss << "Driver " << auth_driver
+                        << " returned the non-existing group ID " << *it
+                        << " for user " << uname;
+                    NebulaLog::log("AuM",Log::WARNING,oss);
+
+                    oss.str("");
+                }
+            }
+
+            // Remove secondary group ids from the user object
+            for(it = groups_remove.begin(); it != groups_remove.end(); it++)
+            {
+                user->del_group(*it);
+            }
+
+            // Update the list of groups to return
+            group_ids = user->get_groups();
+
+            update(user);
+        }
+
         user->unlock();
+    }
+
+    // Add/remove user ID from the group objects
+
+    for(it = groups_add.begin(); it != groups_add.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if (group == 0)
+        {
+            continue;
+        }
+
+        group->add_user(user_id);
+
+        gpool->update(group);
+
+        group->unlock();
+    }
+
+    for(it = groups_remove.begin(); it != groups_remove.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if (group == 0)
+        {
+            continue;
+        }
+
+        group->del_user(user_id);
+
+        gpool->update(group);
+
+        group->unlock();
     }
 
     return true;
@@ -650,66 +791,23 @@ auth_failure:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate_external(const string&  username,
-                                     const string&  token,
-                                     string&        password,
-                                     int&           user_id,
-                                     int&           group_id,
-                                     string&        uname,
-                                     string&        gname,
-                                     set<int>&      group_ids,
-                                     int&           umask)
+int UserPool::parse_auth_msg(
+    AuthRequest &ar,
+    int         &gid,
+    set<int>    &group_ids,
+    string      &driver_name,
+    string      &mad_name,
+    string      &mad_pass,
+    string      &error_str)
 {
-    ostringstream oss;
     istringstream is;
-
-    string driver_name;
-    string mad_name;
-    string mad_pass;
-    string error_str;
-    string tmp_str;
-    string default_auth;
-
-    Nebula&     nd      = Nebula::instance();
-    AuthManager * authm = nd.get_authm();
-    GroupPool *   gpool = nd.get_gpool();
-
-    User*   user;
-    Group*  group;
-
-    int     gid = -1;
-
-    set<int>::iterator it;
-    set<int> empty_set;
-
-    AuthRequest ar(-1,empty_set);
-
-    if (authm == 0)
-    {
-        goto auth_failure_nodriver;
-    }
-
-    //Initialize authentication request and call the driver
-    nd.get_configuration_attribute("DEFAULT_AUTH",default_auth);
-
-    ar.add_authenticate(default_auth, username,"-",token);
-
-    authm->trigger(AuthManager::AUTHENTICATE, &ar);
-    ar.wait();
-
-    if (ar.result != true) //User was not authenticated
-    {
-        goto auth_failure_driver;
-    }
-
-    is.str(ar.message);
-
-    user_id = -1;
 
     //--------------------------------------------------------------------------
     // Parse driver response format is:
     // <driver> <username> <passwd> [gid...]
     //--------------------------------------------------------------------------
+
+    is.str(ar.message);
 
     if ( is.good() )
     {
@@ -735,13 +833,13 @@ bool UserPool::authenticate_external(const string&  username,
         if ( is.fail() )
         {
             error_str = "One or more group IDs are malformed";
-            goto auth_failure_user;
+            return -1;
         }
 
-        if ( gpool->get(tmp_gid, false) == 0 )
+        if ( Nebula::instance().get_gpool()->get(tmp_gid, false) == 0 )
         {
             error_str = "One or more group IDs do not exist";
-            goto auth_failure_user;
+            return -1;
         }
 
         if ( gid == -1 ) //Keep the first id for primary group
@@ -750,6 +848,78 @@ bool UserPool::authenticate_external(const string&  username,
         }
 
         group_ids.insert(tmp_gid);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool UserPool::authenticate_external(const string&  username,
+                                     const string&  token,
+                                     string&        password,
+                                     int&           user_id,
+                                     int&           group_id,
+                                     string&        uname,
+                                     string&        gname,
+                                     set<int>&      group_ids,
+                                     int&           umask)
+{
+    ostringstream oss;
+
+    string driver_name;
+    string mad_name;
+    string mad_pass;
+    string error_str;
+    string tmp_str;
+    string default_auth;
+
+    Nebula&     nd      = Nebula::instance();
+    AuthManager * authm = nd.get_authm();
+    GroupPool *   gpool = nd.get_gpool();
+
+    User*   user;
+    Group*  group;
+
+    int     gid = -1;
+    int     rc;
+
+    set<int>::iterator it;
+    set<int> empty_set;
+
+    AuthRequest ar(-1,empty_set);
+
+    if (authm == 0)
+    {
+        goto auth_failure_nodriver;
+    }
+
+    //Initialize authentication request and call the driver
+    nd.get_configuration_attribute("DEFAULT_AUTH",default_auth);
+
+    ar.add_authenticate(default_auth, username,"-",token);
+
+    authm->trigger(AuthManager::AUTHENTICATE, &ar);
+    ar.wait();
+
+    if (ar.result != true) //User was not authenticated
+    {
+        goto auth_failure_driver;
+    }
+
+    user_id = -1;
+
+    //--------------------------------------------------------------------------
+    // Parse driver response
+    //--------------------------------------------------------------------------
+
+    rc = parse_auth_msg(ar, gid, group_ids,
+            driver_name, mad_name, mad_pass, error_str);
+
+    if (rc != 0)
+    {
+        goto auth_failure_user;
     }
 
     //--------------------------------------------------------------------------
@@ -780,17 +950,14 @@ bool UserPool::authenticate_external(const string&  username,
         group->unlock();
     }
 
-    if ( !is.fail() )
-    {
-        allocate(&user_id,
-                 group_id,
-                 mad_name,
-                 gname,
-                 mad_pass,
-                 driver_name,
-                 true,
-                 error_str);
-    }
+    allocate(&user_id,
+             group_id,
+             mad_name,
+             gname,
+             mad_pass,
+             driver_name,
+             true,
+             error_str);
 
     if ( user_id == -1 )
     {

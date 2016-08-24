@@ -251,6 +251,16 @@ private:
                                string&          gname,
                                set<int>&        group_ids,
                                int&             umask);
+
+    int parse_auth_msg(
+            AuthRequest &ar,
+            int         &gid,
+            set<int>    &group_ids,
+            string      &driver_name,
+            string      &mad_name,
+            string      &mad_pass,
+            string      &error_str);
+
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User
