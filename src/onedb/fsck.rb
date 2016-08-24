@@ -803,6 +803,7 @@ EOT
         cluster_vnc = {}
 
         # Aggregate information of the RUNNING vms
+        @db.transaction do
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
             vm_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
@@ -946,6 +947,29 @@ EOT
                 counters_host[:cpu]    += cpu
                 counters_host[:rvms].add(row[:oid])
             end
+
+            @db.fetch("SELECT * FROM history WHERE vid=#{row[:oid]}") do |hrow|
+                hdoc = Nokogiri::XML(hrow[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                found = false
+
+                # Rename VMMMAD -> VM_MAD and TMMAD -> TM_MAD
+                hdoc.root.xpath("VMMMAD").each {|e|
+                    e.name = "VM_MAD"
+                    found = true
+                }
+
+                hdoc.root.xpath("TMMAD").each  {|e|
+                    e.name = "TM_MAD"
+                    found = true
+                }
+
+                if found
+                    @db[:history].where(:vid => hrow[:vid], :seq => hrow[:seq]).update(
+                        :body => hdoc.root.to_s)
+                end
+            end
+        end
         end
 
         @db.transaction do
