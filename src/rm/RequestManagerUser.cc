@@ -418,6 +418,9 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     User * user;
     string error_str;
+    string auth_driver;
+    time_t max_token_time;
+    const VectorAttribute* auth_conf;
 
     PoolObjectAuth perms;
 
@@ -454,6 +457,44 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    auth_driver = user->get_auth_driver();
+    max_token_time = -1;
+
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    {
+        auth_conf->vector_value("MAX_TOKEN_TIME", max_token_time);
+    }
+
+    if (max_token_time == 0)
+    {
+        att.resp_msg = "Login tokens are disabled for driver '"+
+                        user->get_auth_driver()+"'";
+        failure_response(ACTION,  att);
+
+        // Reset token
+        user->login_token.reset();
+        pool->update(user);
+        user->unlock();
+
+        return;
+    }
+    else if (max_token_time > 0)
+    {
+        valid = max(valid, max_token_time);
+
+        if (max_token_time < valid)
+        {
+            valid = max_token_time;
+
+            ostringstream oss;
+
+            oss << "Req:" << att.req_id << " " << method_name
+                << " Token time has been overwritten with the MAX_TOKEN_TIME of "
+                << max_token_time << " set in oned.conf";
+            NebulaLog::log("ReM",Log::WARNING,oss);
+        }
     }
 
     if (valid == 0) //Reset token
