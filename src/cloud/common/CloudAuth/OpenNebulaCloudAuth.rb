@@ -35,21 +35,44 @@ module OpenNebulaCloudAuth
         if auth.provided? && auth.basic?
             username, password = auth.credentials
 
-            if @conf[:encode_user_password]
+            authenticated = false
+
+            invalid_chars =
+                (User::INVALID_NAME_CHARS.any? {|char| username.include?(char) } ||
+                 User::INVALID_PASS_CHARS.any? {|char| password.include?(char) } )
+
+            # Try to authenticate the user with plain user:password. This step
+            # is skipped if an invalid character is found, since it's not possible
+            # for the authentication to succeed
+            if !invalid_chars
+                client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
+                user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
+
+                rc = user.info
+
+                authenticated = !OpenNebula.is_error?(rc)
+            end
+
+            # Either the plain user:password auth failed, or the strings contain
+            # invalid chars. In both cases, try to authenticate encoding the
+            # strings. Some drivers such as ldap need this to work with chars
+            # that oned rejects
+            if !authenticated
                 if defined?(URI::Parser)
                     parser=URI::Parser.new
                 else
                     parser=URI
                 end
 
-                username=parser.escape(username)
-                password=parser.escape(password)
+                username = parser.escape(username)
+                password = parser.escape(password)
+
+                client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
+                user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
+
+                rc = user.info
             end
 
-            client = OpenNebula::Client.new("#{username}:#{password}", @conf[:one_xmlrpc])
-            user   = OpenNebula::User.new_with_id(OpenNebula::User::SELF, client)
-
-            rc = user.info
             if OpenNebula.is_error?(rc)
                 if logger
                     logger.error{ "User #{username} could not be authenticated"}
@@ -58,7 +81,7 @@ module OpenNebulaCloudAuth
                 return nil
             end
 
-            return username
+            return user.name
         end
 
         return nil

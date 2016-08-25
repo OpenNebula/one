@@ -54,6 +54,10 @@ module OpenNebula
         # Driver name for x509 proxy authentication
         X509_PROXY_AUTH = "x509_proxy"
 
+        # Same as User.cc
+        INVALID_NAME_CHARS = [" ", ":", "\t", "\n", "\v", "\f", "\r"]
+        INVALID_PASS_CHARS = [" ", "\t", "\n", "\v", "\f", "\r"]
+
         # Creates a User description with just its identifier
         # this method should be used to create plain User objects.
         # +id+ the id of the user
