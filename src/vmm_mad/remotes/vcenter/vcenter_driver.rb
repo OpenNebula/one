@@ -2276,10 +2276,14 @@ private
         vmid        = xml.root.elements["/VM/ID"].text
         context     = xml.root.elements["/VM/TEMPLATE/CONTEXT"]
 
-        # Read existing context if it is not a new VM
-        if !newvm
-            old_context = vm.config.extraConfig.select{|val|
-                       val[:key]=="guestinfo.opennebula.context"}
+        token = vm.config.extraConfig.select do |val|
+            val[:key] == "opennebula.token"
+        end
+
+        if token && !token.empty?
+            token = token.first[:value]
+        else
+            token = nil
         end
 
         # Add VMID to VM's extraConfig
@@ -2317,60 +2321,56 @@ private
 
             # OneGate
             onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
-            if onegate_token_flag and
-               onegate_token_flag.text == "YES" and
-               newvm
-                # Create the OneGate token string
-                vmid_str  = xml.root.elements["/VM/ID"].text
-                stime_str = xml.root.elements["/VM/STIME"].text
-                str_to_encrypt = "#{vmid_str}:#{stime_str}"
 
-                user_id = xml.root.elements['//CREATED_BY'].text
+            if onegate_token_flag and onegate_token_flag.text == "YES"
+                if token
+                    onegate_token_64 = token
+                else
+                    # Create the OneGate token string
+                    vmid_str  = xml.root.elements["/VM/ID"].text
+                    stime_str = xml.root.elements["/VM/STIME"].text
+                    str_to_encrypt = "#{vmid_str}:#{stime_str}"
 
-                if user_id.nil?
-                    STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
-                        " in the VM TEMPLATE"}
-                    return nil
+                    user_id = xml.root.elements['//CREATED_BY'].text
+
+                    if user_id.nil?
+                        STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
+                            " in the VM TEMPLATE"}
+                        return nil
+                    end
+
+                    user = OpenNebula::User.new_with_id(user_id,
+                                                        OpenNebula::Client.new)
+                    rc   = user.info
+
+                    if OpenNebula.is_error?(rc)
+                        STDERR.puts {"VMID:#{vmid} user.info" \
+                            " error: #{rc.message}"}
+                        return nil
+                    end
+
+                    token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+                    if token_password.nil?
+                        STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                            " in the USER:#{user_id} TEMPLATE"}
+                        return nil
+                    end
+
+                    cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                    cipher.encrypt
+                    cipher.key = token_password
+                    onegate_token = cipher.update(str_to_encrypt)
+                    onegate_token << cipher.final
+
+                    onegate_token_64 = Base64.encode64(onegate_token).chop
+                    config_array << {
+                        :key    => 'opennebula.token',
+                        :value  => onegate_token_64
+                    }
                 end
-
-                user = OpenNebula::User.new_with_id(user_id,
-                                                    OpenNebula::Client.new)
-                rc   = user.info
-
-                if OpenNebula.is_error?(rc)
-                    STDERR.puts {"VMID:#{vmid} user.info" \
-                        " error: #{rc.message}"}
-                    return nil
-                end
-
-                token_password = user['TEMPLATE/TOKEN_PASSWORD']
-
-                if token_password.nil?
-                    STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
-                        " in the USER:#{user_id} TEMPLATE"}
-                    return nil
-                end
-
-                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
-                cipher.encrypt
-                cipher.key = token_password
-                onegate_token = cipher.update(str_to_encrypt)
-                onegate_token << cipher.final
-
-                onegate_token_64 = Base64.encode64(onegate_token).chop
 
                 context_text += "ONEGATE_TOKEN='#{onegate_token_64}'\n"
-            end
-
-            # If there is an old VM, we need to honor the existing ONEGATE_TOKEN
-            if !newvm
-                onegate_token =
-                    Base64.decode64(old_context[0][:value]).split("\n").
-                    select{|line| line.start_with?("ONEGATE_TOKEN")}[0]
-
-                if onegate_token
-                  context_text += onegate_token
-                end
             end
 
             context_text = Base64.encode64(context_text.chop)
@@ -2586,13 +2586,13 @@ private
         end
 
         controller = nil
-       
+
         vm.config.hardware.device.each { |device|
           (controller = device ; break) if device.deviceInfo.label == available_controller_label
         }
-      
+
         new_unit_number =  available_numbers.sort[0]
-      
+
         return controller, new_unit_number
     end
 
