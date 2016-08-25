@@ -324,7 +324,7 @@ define(function(require) {
     this.setHeader(element);
     this.resourceId = element.ID;
 
-    $("#default_sg_warning").hide();
+    $("#default_sg_warning", context).hide();
     // Populates the Avanced mode Tab
     $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
@@ -380,7 +380,7 @@ define(function(require) {
     CustomTagsTable.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
 
     // Remove the first AR added in initialize_
-    $("#vnetCreateARTab i.remove-tab", context).trigger("click");
+    $("#vnetCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
     $("#vnetCreateARTab #vnetCreateARTabUpdate", context).show();
     $("#vnetCreateARTab #vnetCreateARTabCreate", context).hide();
   }

@@ -80,8 +80,9 @@ define(function(require) {
           type: "multiple",
           call: OpenNebulaResource.delete_recursive,
           callback : function(request, response) {
-            var elementId = request.request.data[0].toString();
-            Sunstone.getDataTable(TAB_ID).deleteElement(elementId);
+            if (Sunstone.getTab() == TAB_ID) {
+              Sunstone.showTab(TAB_ID);
+            }
           },
           elements: function(opts) {
             return Sunstone.getDataTable(TAB_ID).elements(opts);

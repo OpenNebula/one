@@ -160,7 +160,6 @@ define(function(require) {
     'tableCheckboxesListener': _tableCheckboxesListener,
     'onlyOneCheckboxListener': _onlyOneCheckboxListener,
     'infoListener': _infoListener,
-    'deleteElement': _deleteElement,
     'updateElement': _updateElement,
     'elements': _elements,
     'updateView': _updateView,
@@ -434,19 +433,6 @@ define(function(require) {
 
       return true;
     });
-  }
-
-  //deletes an element with id 'elementId' from a dataTable
-  function _deleteElement(elementId) {
-    var tag = '#' + this.resource.toLowerCase() + '_' + elementId;
-    var tr = $(tag, this.dataTable).parents('tr')[0];
-    this.dataTable.fnDeleteRow(tr);
-    this.recountCheckboxes();
-
-    var tab = this.dataTable.parents(".tab");
-    if (Sunstone.rightInfoVisible(tab)) {
-      $("a[href='back']", tab).click();
-    }
   }
 
   //Add a listener to the check-all box of a datatable, enabling it to

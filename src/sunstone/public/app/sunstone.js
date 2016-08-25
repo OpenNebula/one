@@ -1031,7 +1031,10 @@ define(function(require) {
     }
 
     var context = $("#" + tabId);
-    $('[href="back"]', context).trigger("click");
+
+    if (_formPanelVisible(context)){
+      $('[href="back"]', context).trigger("click");
+    }
   }
 
   function _popFormPanelLoading(tabId) {

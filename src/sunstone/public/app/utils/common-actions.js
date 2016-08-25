@@ -98,8 +98,11 @@ define(function(require) {
       type: "multiple",
       call : that.openNebulaResource.del,
       callback : function(request, response) {
-        var elementId = request.request.data.toString();
-        Sunstone.getDataTable(that.tabId).deleteElement(elementId);
+        var tab = $('#' + that.tabId);
+
+        if (Sunstone.getTab() == that.tabId) {
+          Sunstone.showTab(that.tabId);
+        }
       },
       elements: function(opts) {
         return Sunstone.getDataTable(that.tabId).elements(opts);
