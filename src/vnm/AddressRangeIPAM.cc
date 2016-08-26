@@ -132,7 +132,19 @@ int AddressRangeIPAM::get_addr(unsigned int& index, unsigned int rsize,
 
     if ( !is_valid_ip(index, ip, false) )
     {
+        error_msg = "Address returned by IPAM is not valid: " + ip;
         return -1;
+    }
+
+    unsigned int ar_size = get_size();
+
+    for (unsigned int j=0, i=index; j<rsize; j++, i++)
+    {
+        if ( allocated.count(i) != 0 || i >= ar_size )
+        {
+            error_msg = "Address returned by IPAM are not within AR or in use";
+            return -1;
+        }
     }
 
     return 0;

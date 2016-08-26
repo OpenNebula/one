@@ -661,11 +661,6 @@ private:
     set<int> security_groups;
 
     /**
-     *  The name of the IPAM driver (internal for OpenNebula built-in)
-     */
-    string ipam_mad;
-
-    /**
      *  The Address Range attributes as a Template VectorAttribute. This is
      *  used to generate XML or a template representation of the AR.
      */

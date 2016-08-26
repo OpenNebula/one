@@ -17,6 +17,7 @@
 #include "AddressRange.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
+#include "NebulaLog.h"
 #include "NebulaUtil.h"
 
 #include <arpa/inet.h>
@@ -222,6 +223,15 @@ int AddressRange::update_attributes(
     /* --------------- Copy non-update attributes ----------------- */
 
     vup->replace("TYPE", attr->vector_value("TYPE"));
+
+    vup->replace("MAC", attr->vector_value("MAC"));
+
+    string ipam_mad = attr->vector_value("IPAM_MAD");
+
+    if ( !ipam_mad.empty() )
+    {
+        vup->replace("IPAM_MAD", ipam_mad);
+    }
 
     vup->replace("MAC", attr->vector_value("MAC"));
 
@@ -1151,6 +1161,7 @@ int AddressRange::allocate_addr(
 
     if ( get_addr(index, 1, error_msg) != 0 )
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1179,6 +1190,7 @@ int AddressRange::allocate_by_mac(
 
     if (allocate_addr(index, 1, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1207,6 +1219,7 @@ int AddressRange::allocate_by_ip(
 
     if (allocate_addr(index, 1, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1235,6 +1248,7 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     if (free_addr(index, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1400,6 +1414,7 @@ int AddressRange::hold_by_ip(const string& ip_s)
 
     if (allocate_addr(index, 1, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1423,6 +1438,7 @@ int AddressRange::hold_by_mac(const string& mac_s)
 
     if (allocate_addr(index, 1, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1446,6 +1462,7 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     if ( get_addr(first_index, rsize, error_msg) != 0 )
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1465,6 +1482,8 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
     }
 
     new_ar->replace("SIZE",rsize);
+
+    new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
 
@@ -1493,6 +1512,7 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
 
     if (allocate_addr(sindex, rsize, error_msg) != 0)
     {
+        NebulaLog::log("IPM", Log::ERROR, error_msg);
         return -1;
     }
 
@@ -1514,6 +1534,8 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     }
 
     new_ar->replace("SIZE",rsize);
+
+    new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
 
