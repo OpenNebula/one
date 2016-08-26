@@ -68,6 +68,7 @@ define(function(require) {
   WizardTab.prototype.fill = _fill;
   WizardTab.prototype.renameTabLinks = _renameTabLinks;
   WizardTab.prototype.addNicTab = _addNicTab;
+  WizardTab.prototype.notify = _notify;
 
   return WizardTab;
 
@@ -263,6 +264,20 @@ define(function(require) {
 
     if(this.listener != undefined){
       this.listener.notify();
+    }
+  }
+
+  function _notify(context, templateJSON) {
+    if (templateJSON.VROUTER == "YES"){
+      while($("i.remove-tab", context).length > 0){
+        $("i.remove-tab", context).click();
+      }
+
+      $("#tf_btn_nics", context).hide();
+      $(".vrouter_no_nics", context).show();
+    } else {
+      $("#tf_btn_nics", context).show();
+      $(".vrouter_no_nics", context).hide();
     }
   }
 });

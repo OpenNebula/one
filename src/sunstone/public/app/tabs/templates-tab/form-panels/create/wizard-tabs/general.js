@@ -51,6 +51,10 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");
+
+    if(opts.listener != undefined){
+      this.listener = opts.listener;
+    }
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -94,6 +98,8 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+
     $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
       //context.foundation('slider', 'reflow');
     });
@@ -114,6 +120,12 @@ define(function(require) {
     });
 
     CapacityCreate.setup($("div.capacityCreate", context));
+
+    if(that.listener != undefined){
+      $(context).on("change", "input[wizard_field=VROUTER]", function(){
+        that.listener.notify();
+      });
+    }
   }
 
   function _retrieve(context) {
