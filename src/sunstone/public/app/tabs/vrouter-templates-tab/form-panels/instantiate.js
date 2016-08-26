@@ -192,6 +192,8 @@ define(function(require) {
             inputs_div,
             template_json,
             {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+
+        $("span.template_name", context).text(template_json.VMTEMPLATE.NAME);
       },
       error: Notifier.onError
     });

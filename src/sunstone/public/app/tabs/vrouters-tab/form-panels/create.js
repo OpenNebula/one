@@ -84,6 +84,7 @@ define(function(require) {
 
     $(".selectTemplateTable", context).html(this.templatesTable.dataTableHTML);
     $(".table_wrapper", context).show();
+    $(".no_table_wrapper", context).hide();
 
     this.templatesTable.initialize();
 
