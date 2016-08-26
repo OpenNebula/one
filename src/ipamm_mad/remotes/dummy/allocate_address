@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register an IP address as used. The IP will be used
+# by an OpenNebula VM and should not be allocated to any other host in the
+# network.
+#
+# This scripts MUST exit 0 if the address is free.
+#
+# Input Arguments:
+#  $1 - Base64 encoded XML with the AR description and the address request
+#  $2 - Request ID
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#  <AR>
+#    <TYPE>IP4</TYPE>
+#    <IP> First IP in the network in '.' notation
+#    <MAC> First MAC in the network in ':' notation
+#    <SIZE>Number of IPs in the network
+#    <NETWORK_ADDRESS> Base network address
+#    <NETWORK_MASK> Network mask
+#    <GATEWAY> Default gateway for the network
+#    <DNS> DNS servers, a space separated list of servers
+#    <GUEST_MTU> Sets the MTU for the NICs in this network
+#    <SEARCH_DOMAIN> for DNS client
+# <ADDRESS>
+#   <IP>
+#   <SIZE> Number of IPs to allocate
+#   <MAC> MAC is optional
+#
+################################################################################
+
+# ----------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+
+# --------------- Get IPAM attributes from OpenNebula core --------------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /IPAM_DRIVER_ACTION_DATA/AR/TYPE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/MAC \
+                    /IPAM_DRIVER_ACTION_DATA/AR/IP \
+                    /IPAM_DRIVER_ACTION_DATA/AR/SIZE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/NETWORK_MASK \
+                    /IPAM_DRIVER_ACTION_DATA/ADDRESS/IP \
+                    /IPAM_DRIVER_ACTION_DATA/ADDRESS/SIZE)
+unset i
+
+AR_TYPE="${XPATH_ELEMENTS[i++]}"
+AR_MAC="${XPATH_ELEMENTS[i++]}"
+AR_IP="${XPATH_ELEMENTS[i++]}"
+AR_SIZE="${XPATH_ELEMENTS[i++]}"
+AR_NETWORK_MASK="${XPATH_ELEMENTS[i++]}"
+ADDR_IP="${XPATH_ELEMENTS[i++]}"
+ADDR_SIZE="${XPATH_ELEMENTS[i++]}"
+
+# NOTE: Custom attributes can be get from the AR, and set when defining the
+# network in the register_address_range action
+
+#-------------------------------------------------------------------------------
+# IPAM should be contact here to check if ADDR_IP can be allocated in the
+# network. Note that several continous addresses can be requested
+#-------------------------------------------------------------------------------
+
+exit 0

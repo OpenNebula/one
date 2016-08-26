@@ -254,6 +254,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             puts str % ["SIZE", ar["SIZE"]]
             puts str % ["LEASES", ar["USED_LEASES"]]
             puts str % ["VN_MAD", ar["VN_MAD"]] if ar["VN_MAD"]
+            puts str % ["IPAM_MAD", ar["IPAM_MAD"]] if ar["IPAM_MAD"]
             puts
 
             format = "%-10s %34s %34s"

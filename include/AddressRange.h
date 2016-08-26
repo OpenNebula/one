@@ -35,8 +35,6 @@ class AddressRange
 {
 public:
 
-    AddressRange(unsigned int _id):id(_id),next(0),used_addr(0){};
-
     virtual ~AddressRange(){};
 
     // *************************************************************************
@@ -103,8 +101,12 @@ public:
      *            SIZE = 1024,
      *            ULA_PREFIX    = "fd00:0:0:1::",
      *            GLOBAL_PREFIX = "2001::"]
+     *
+     * NOTE: This function is part of the AddressRange interface. The AR
+     * implementation may contact an external IPAM to complete or validate
+     * the AR allocation request.
      */
-    int from_vattr(VectorAttribute * attr, string& error_msg);
+    virtual int from_vattr(VectorAttribute * attr, string& error_msg) = 0;
 
     /**
      *  Builds an Address Range from a vector attribute stored in the DB
@@ -125,6 +127,12 @@ public:
      */
     void to_xml(ostringstream &oss, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const;
+
+    /**
+     *  Same as above but without the LEASES section
+     */
+    void to_xml(ostringstream &oss) const;
+
 
     // *************************************************************************
     // Address allocation functions
@@ -276,7 +284,7 @@ public:
      */
     unsigned int get_used_addr() const
     {
-        return used_addr;
+        return allocated.size();
     }
 
     /**
@@ -284,7 +292,7 @@ public:
      */
     unsigned int get_free_addr() const
     {
-        return size - used_addr;
+        return size - allocated.size();
     }
 
     /**
@@ -331,6 +339,11 @@ public:
             string&             error_msg);
 
     /**
+     *  Helper function to initialize restricte attributes of an AddressRange
+     */
+    static void set_restricted_attributes(vector<const SingleAttribute *>& ras);
+
+    /**
      *  Get the security groups for this AR.
      *    @return a reference to the security group set
      */
@@ -345,13 +358,115 @@ public:
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
 
-    static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs);
+protected:
+    /**
+     *  Base constructor it cannot be called directly but from the
+     *  AddressRange factory constructor.
+     */
+    AddressRange(unsigned int _id):id(_id){};
+
+    /* ---------------------------------------------------------------------- */
+    /* Address/AR helper functions to build/parse driver messages             */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * Builds the AddressRange from its vector attribute representation
+     */
+    int from_attr(VectorAttribute * attr, string& error_msg);
+
+    /**
+     *  Builds an address request representation in XML form:
+     *  <ADDRESS>
+     *    <IP>
+     *    <MAC>
+     *    <IP6_ULA>
+     *    <IP6_GLOBAL>
+     *    <SIZE>
+     *
+     *    @param index for the address
+     *    @param size number of addresses in this request
+     *    @param oss string stream to write the request to
+     */
+    void addr_to_xml(unsigned int index, unsigned int size,
+            ostringstream& oss) const;
+
+    /**
+     *  Check if the given MAC is valid for this address range by verifying:
+     *    - Correct : notation
+     *    - Part of the AR
+     *
+     *    @param index of the MAC in the AR
+     *    @param mac_s string representation of the MAC in : notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the MAC is valid
+     */
+    bool is_valid_mac(unsigned int& index, const string& mac_s, bool check_free);
+
+    /**
+     *  Check if the given IP is valid for this address range by verifying:
+     *    - AR is of type IP4 or IP4_6
+     *    - Correct . notation
+     *    - Part of the AR
+     *
+     *    @param index of the IP in the AR
+     *    @param ip_s string representation of the IP in . notation
+     *    @param check_free apart from previous checks
+     *
+     *    @return true if the IP is valid
+     */
+    bool is_valid_ip(unsigned int& index, const string& ip_s, bool check_free);
+
+    /* ---------------------------------------------------------------------- */
+    /* Implementation specific address management interface                   */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Sets the given range of addresses (by index) as used
+     *    @param index the first address to set as used
+     *    @param sz number of addresses to set
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    virtual int allocate_addr(unsigned int index, unsigned int sz, string& msg) = 0;
+    /**
+     *  Gets a range of free addresses
+     *    @param index the first address in the range
+     *    @param size number of addresses requested in the range
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    virtual int get_addr(unsigned int& index, unsigned int sz, string& msg) = 0;
+
+    /**
+     *  Sets the given address (by index) as free
+     *    @param index of the address
+     *    @param msg describing the error if any
+     *
+     *    @return 0 if success
+     */
+    virtual int free_addr(unsigned int index, string& msg) = 0;
+
+    /* ---------------------------------------------------------------------- */
+    /* Allocated addresses                                                    */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Map to store the allocated address indexed by the address index relative
+     *  to the mac/ip values. It contains also the type and id of the object
+     *  owning the address.
+     *
+     *              +--------------------+--------------------+
+     *  index ----> | ObjectType(32bits) | Object ID (32bits) |
+     *              +--------------------+--------------------+
+     *
+     *  Address = First Address + index
+     */
+    map<unsigned int, long long> allocated;
 
 private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  MAC to binary (48 bits)
      *    @param mac in string form 00:02:01:02:03:04
@@ -394,11 +509,13 @@ private:
      * @param ip6_s Will contain the resulting IPv6 string
      * @return 0 on success
      */
-    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const;
+    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
+        string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
     /* ---------------------------------------------------------------------- */
+
     /**
      *  Writes MAC address to the given NIC attribute
      *    @param addr_index internal index for the lease
@@ -431,7 +548,6 @@ private:
     /* ---------------------------------------------------------------------- */
     /* Address index map helper functions                                     */
     /* ---------------------------------------------------------------------- */
-
     /**
      *  This function generates a string representation of the in-memory allocated
      *  addresses. It'll be stored along side the AR vector attribute in the
@@ -450,13 +566,29 @@ private:
     /**
      *  Adds a new allocated address to the map. Updates the ALLOCATED attribute
      */
-    void allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
+    void set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
         unsigned int addr_index);
+
+    /**
+     *  Sets the address lease as used and fills a NIC attribute with the
+     *  configuration parameters from the address range.
+     *    @param index of the lease in the address range
+     *    @param ot the type of the object allocating the address
+     *    @param obid the id of the object
+     *    @param nic the VM NIC attribute
+     *    @param inherit attributes to be added to the NIC attribute
+     *    @return 0 if success
+     */
+    void allocate_by_index(unsigned int index,
+        PoolObjectSQL::ObjectType ot,
+        int                       obid,
+        VectorAttribute*          nic,
+        const vector<string>&     inherit);
 
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute
      */
-    int free_addr(PoolObjectSQL::ObjectType ot, int obid,
+    int free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
         unsigned int addr_index);
 
     /**
@@ -533,20 +665,6 @@ private:
      *  used to generate XML or a template representation of the AR.
      */
     VectorAttribute * attr;
-
-    /* ---------------------------------------------------------------------- */
-    /* Allocated address & control                                            */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Map to store the allocated address indexed by the address index relative
-     *  to the mac/ip values. It contains also the type and id of the object
-     *  owning the address ObjectType(32bits) | Object ID (32)
-     */
-    map<unsigned int, long long> allocated;
-
-    unsigned int next;
-
-    unsigned int used_addr;
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes                                                  */

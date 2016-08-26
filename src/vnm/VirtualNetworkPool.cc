@@ -498,7 +498,7 @@ AddressRange * VirtualNetworkPool::allocate_ar(int rid, string &err)
         return 0;
     }
 
-    AddressRange *ar = rvn->allocate_ar();
+    AddressRange *ar = rvn->allocate_ar("internal");
 
     update(rvn);
 

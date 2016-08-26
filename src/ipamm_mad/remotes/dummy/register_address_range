@@ -1,0 +1,136 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
+#
+# Input Arguments:
+#  $1 - Base64 encoded XML with AR request
+#  $2 - Request ID
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#  <AR>
+#    <TYPE>IP4</TYPE>
+#    <IP> First IP in the network in '.' notation
+#    <MAC> First MAC in the network in ':' notation
+#    <SIZE>Number of IPs in the network
+#    <NETWORK_ADDRESS> Base network address
+#    <NETWORK_MASK> Network mask
+#    <GATEWAY> Default gateway for the network
+#    <DNS> DNS servers, a space separated list of servers
+#    <GUEST_MTU> Sets the MTU for the NICs in this network
+#    <SEARCH_DOMAIN> for DNS client
+#
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "dummy",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255"
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "dummy",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
+################################################################################
+
+# ----------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+
+# --------------- Get IPAM attributes from OpenNebula core --------------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /IPAM_DRIVER_ACTION_DATA/AR/TYPE \
+                    /IPAM_DRIVER_ACTION_DATA/AR/MAC \
+                    /IPAM_DRIVER_ACTION_DATA/AR/IP \
+                    /IPAM_DRIVER_ACTION_DATA/AR/SIZE)
+
+unset i
+
+TYPE="${XPATH_ELEMENTS[i++]}"
+MAC="${XPATH_ELEMENTS[i++]}"
+IP="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
+
+#-------------------------------------------------------------------------------
+# IPAM should be contact here. As an example we just "echo" the IP sent by
+# OpenNebula or return a fixed sample network
+#-------------------------------------------------------------------------------
+if [ "x$IP" != "x" ]; then
+    AR=$(cat <<EOF
+        AR=[
+          TYPE="IP4",
+          SIZE="$SIZE",
+          IP="$IP",
+          IPAM_MAD="dummy"
+        ]
+EOF
+)
+else
+    AR=$(cat <<EOF
+        AR=[
+          TYPE="IP4",
+          IP  ="10.0.0.10",
+          SIZE="100",
+          NETWORK_MASK="255.255.255.0",
+          GATEWAY="10.0.0.1",
+          DNS="10.0.0.1",
+          IPAM_MAD="dummy"
+        ]
+EOF
+)
+fi
+
+echo "$AR"
+exit 0

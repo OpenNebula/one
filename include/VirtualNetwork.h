@@ -158,9 +158,9 @@ public:
      *  ar_pool
      *    @return pointer to the new address range
      */
-    AddressRange * allocate_ar()
+    AddressRange * allocate_ar(const string& ipam_mad)
     {
-        return ar_pool.allocate_ar();
+        return ar_pool.allocate_ar(ipam_mad);
     }
 
     /**
