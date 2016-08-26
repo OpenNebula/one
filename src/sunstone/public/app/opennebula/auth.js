@@ -35,11 +35,12 @@ define(function(require) {
         type: "POST",
         data: {remember: remember},
         beforeSend : function(req) {
-          var token = username + ':' + password;
-          var authString = 'Basic ';
-
-          authString += btoa(unescape(encodeURIComponent(token)));
-          req.setRequestHeader("Authorization", authString);
+          if (username && password) {
+              var token = username + ':' + password;
+              var authString = 'Basic ';
+              authString += btoa(unescape(encodeURIComponent(token)));
+              req.setRequestHeader("Authorization", authString);
+          }
         },
         success: function(response) {
           return callback ? callback(request, response) : null;
