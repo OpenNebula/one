@@ -288,7 +288,9 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/ldap \
           $VAR_LOCATION/remotes/auth/server_x509 \
           $VAR_LOCATION/remotes/auth/server_cipher \
-          $VAR_LOCATION/remotes/auth/dummy"
+          $VAR_LOCATION/remotes/auth/dummy \
+          $VAR_LOCATION/remotes/ipam \
+          $VAR_LOCATION/remotes/ipam/dummy"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -379,6 +381,7 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
+    IPAM_DUMMY_FILES:$VAR_LOCATION/remotes/ipam/dummy
     VMM_EXEC_LIB_FILES:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
@@ -629,7 +632,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/datastore_mad/one_datastore.rb \
               src/datastore_mad/one_datastore \
               src/market_mad/one_market.rb \
-              src/market_mad/one_market"
+              src/market_mad/one_market \
+              src/ipamm_mad/one_ipam.rb \
+              src/ipamm_mad/one_ipam"
 
 #-------------------------------------------------------------------------------
 # VMM Lib files, used by some VMM Drivers, to be installed in
@@ -779,6 +784,15 @@ AUTH_SSH_FILES="src/authm_mad/remotes/ssh/authenticate"
 AUTH_DUMMY_FILES="src/authm_mad/remotes/dummy/authenticate"
 
 AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
+
+#-------------------------------------------------------------------------------
+# IPAM Manager drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+
+IPAM_DUMMY_FILES="src/ipamm_mad/remotes/dummy/get_used_addr \
+                  src/ipamm_mad/remotes/dummy/get_free_addr_range \
+                  src/ipamm_mad/remotes/dummy/register_addr_range \
+                  src/ipamm_mad/remotes/dummy/free_addr"
 
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm

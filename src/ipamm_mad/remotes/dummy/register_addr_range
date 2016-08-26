@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# register_addr_range addrtype subnet start_addr rsize
+#   Allocates "rsize" consecutive ip addresses in given subnet
+#   beginning from start_addr
+#   with:
+#     addrtype: IP4 or IP6
+#     subnet: subnet where the range is located ; example: 172.16.0.0/16
+#     start_addr: first address to allocate ; example: 172.16.0.1
+#     rsize: reservation size, number of consecutive address to allocate; example: 3
+#
+ADDRTYPE="$1"
+SUBNET="$2"
+START_ADDR="$3"
+RSIZE="$4"
+
+exit -1

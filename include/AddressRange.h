@@ -35,7 +35,7 @@ class AddressRange
 {
 public:
 
-    AddressRange(unsigned int _id):id(_id),next(0),used_addr(0){};
+    AddressRange(string _ipam_mad, unsigned int _id):ipam_mad(_ipam_mad),id(_id),next(0),used_addr(0){};
 
     virtual ~AddressRange(){};
 
@@ -72,6 +72,14 @@ public:
     // *************************************************************************
     // Address Range initialization functions
     // *************************************************************************
+
+    /**
+     *  Return an AddressRangeInternal or AddressRangeIPAM
+     *    @param ipam_mad the driver name
+     *    @next_ar id of the next address range
+     *    @return the new address range
+     */
+    static AddressRange * new_ar_by_type(string ipam_mad, unsigned int next_ar); 
 
     /**
      *  Init an Address Range based on a vector attribute the following
@@ -274,7 +282,12 @@ public:
     /**
      *  Return the number of used addresses
      */
-    unsigned int get_used_addr() const
+    virtual int get_used_addr(unsigned int &_used_addr) const = 0;
+
+    /**
+     * Return the number of used addresses in allocated map
+     */
+    unsigned int get_one_used_addr() const
     {
         return used_addr;
     }
@@ -282,10 +295,7 @@ public:
     /**
      *  Return the number of free addresses
      */
-    unsigned int get_free_addr() const
-    {
-        return size - used_addr;
-    }
+    int get_unused_addr(unsigned int &_unused_addr) const;
 
     /**
      *  Return the total number of addresses
@@ -293,6 +303,14 @@ public:
     unsigned int get_size() const
     {
         return size;
+    }
+
+    /**
+     *  Return the IPAM_MAD
+     */
+    string get_ipam_mad() const
+    {
+        return ipam_mad;
     }
 
     /**
@@ -347,7 +365,7 @@ public:
 
     static void set_restricted_attributes(vector<const SingleAttribute *>& rattrs);
 
-private:
+protected:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */
     /* ---------------------------------------------------------------------- */
@@ -364,6 +382,27 @@ private:
      *    @param mac in array form
      */
     string mac_to_s(const unsigned int mac[]) const;
+
+    /**
+     *  IP4_SUBNET prefix conversion
+     *  @param subnet in string form 192.168.0.0/24
+     *  @param i_ip4_subnet unsigned int array
+     *  @return 0 on success
+     */
+    int ip4_subnet_to_i(const string& subnet, unsigned int i_ip4_subnet[]) const;
+
+    /**
+     *  IP4_SUBNET to string
+     *  @param i_ip4_subnet unsigned int array
+     *  @return string notation
+     */
+    string ip4_subnet_to_s(const unsigned int i_ip4_subnet[]) const;
+
+    /**
+     *  Checks that address range fit in the IPv4 subnet
+     */
+    int check_ip4_subnet() const;
+    int check_ip4_subnet(unsigned int size) const;
 
     /**
      *  IP version 4 to binary (32 bits)
@@ -448,6 +487,43 @@ private:
     int  attr_to_allocated(const string& allocated_s);
 
     /**
+     * Get a free address 
+     * @param index the index
+     * @return 0 on success
+     */
+    virtual int get_free_addr(unsigned int &index) = 0;
+
+    /**
+     * Get a free address range
+     * @param index the index
+     * @param rsize the size of the range
+     * @return 0 on success
+     */
+    virtual int get_free_addr_range(unsigned int &index, unsigned int rsize) = 0;
+
+    /**
+     * Register an address
+     * @param index the index
+     * @return 0 on success
+     */
+    virtual int register_addr(unsigned int index) = 0;
+
+    /**
+     * Register an address range
+     * @param index the index
+     * @param rsize the size of the range
+     * @return 0 on success
+     */
+    virtual int register_addr_range(unsigned int index, unsigned int rsize) = 0;
+
+    /**
+     * Free an address
+     * @param index the index
+     * @return 0 on success
+     */
+    virtual int free_addr(unsigned int index) = 0;
+
+    /**
      *  Adds a new allocated address to the map. Updates the ALLOCATED attribute
      */
     void allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
@@ -458,6 +534,9 @@ private:
      */
     int free_addr(PoolObjectSQL::ObjectType ot, int obid,
         unsigned int addr_index);
+
+    void reserve_addr_range(int vid, unsigned int rsize,
+        unsigned int sindex, AddressRange *rar);
 
     /**
      *  Reserve a set of addresses from an starting one
@@ -486,6 +565,14 @@ private:
     void remove_all_except_restricted(VectorAttribute* va);
 
     /* ---------------------------------------------------------------------- */
+    /* IPAM                                                                   */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * IPAM driver name
+     */
+    string ipam_mad;
+
+    /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */
     /* ---------------------------------------------------------------------- */
     /**
@@ -497,6 +584,11 @@ private:
      *  ID for this range, unique within the Virtual Network
      */
     unsigned int id;
+
+    /**
+     *  IPv4 subnet for this range
+     */
+    unsigned int ip4_subnet[2];
 
     /**
      *  Number of addresses in the range

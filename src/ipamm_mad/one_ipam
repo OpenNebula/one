@@ -1,7 +1,7 @@
-# SConstruct for src/vnm
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,21 +16,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('env')
+if [ -z "${ONE_LOCATION}" ]; then
+    DRIVERRC=/etc/one/ipam/ipamrc
+    MADCOMMON=/usr/lib/one/mads/madcommon.sh
+    VAR_LOCATION=/var/lib/one
+else
+    DRIVERRC=$ONE_LOCATION/etc/ipam/ipamrc
+    MADCOMMON=$ONE_LOCATION/lib/mads/madcommon.sh
+    VAR_LOCATION=$ONE_LOCATION/var
+fi
 
-lib_name='nebula_vnm'
+. $MADCOMMON
 
-# Sources to generate the library
-source_files=[
-    'VirtualNetwork.cc',
-    'VirtualNetworkPool.cc',
-    'AddressRange.cc',
-    'AddressRangeIPAM.cc',
-    'AddressRangeInternal.cc',
-    'AddressRangePool.cc',
-    'VirtualNetworkTemplate.cc'
-]
+# Export the vmm_mad specific rc
+export_rc_vars $DRIVERRC
 
-# Build library
-env.StaticLibrary(lib_name, source_files)
+# Go to ONE_LOCATION
+cd $VAR_LOCATION
+
+# Execute the actual MAD
+execute_mad $*
 

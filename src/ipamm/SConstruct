@@ -1,7 +1,7 @@
-# SConstruct for src/nebula
+# SConstruct for src/vnm
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,63 +16,16 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-import os
 Import('env')
 
-lib_name='nebula_core'
+lib_name='nebula_ipamm'
 
 # Sources to generate the library
 source_files=[
-    'SystemDB.cc',
-    'Nebula.cc',
-    'NebulaTemplate.cc'
+    'IPAMManager.cc',
+    'IPAMManagerDriver.cc'
 ]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)
 
-# Build daemon
-env.Prepend(LIBS=[
-    'nebula_core',
-    'nebula_vmm',
-    'nebula_lcm',
-    'nebula_im',
-    'nebula_rm',
-    'nebula_dm',
-    'nebula_tm',
-    'nebula_um',
-    'nebula_datastore',
-    'nebula_group',
-    'nebula_authm',
-    'nebula_acl',
-    'nebula_mad',
-    'nebula_template',
-    'nebula_image',
-    'nebula_pool',
-    'nebula_host',
-    'nebula_cluster',
-    'nebula_vnm',
-    'nebula_vm',
-    'nebula_vmtemplate',
-    'nebula_document',
-    'nebula_zone',
-    'nebula_hm',
-    'nebula_common',
-    'nebula_sql',
-    'nebula_log',
-    'nebula_client',
-    'nebula_xml',
-    'nebula_secgroup',
-    'nebula_vdc',
-    'nebula_vrouter',
-    'nebula_marketplace',
-    'nebula_ipamm',
-    'crypto',
-    'xml2'
-])
-
-if not env.GetOption('clean'):
-    env.ParseConfig(("LDFLAGS='%s' ../../share/scons/get_xmlrpc_config"+
-        " server") % (os.environ['LDFLAGS'],))
-
-env.Program('oned.cc')

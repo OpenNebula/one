@@ -383,7 +383,7 @@ int VirtualNetworkDelete::drop(PoolObjectSQL * object, bool recursive,
 	int oid= object->get_oid();
     VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
 
-    if ( vnet->get_used() > 0 )
+    if ( vnet->get_one_used() > 0 )
     {
         att.resp_msg = "Can not remove a virtual network with leases in use";
 

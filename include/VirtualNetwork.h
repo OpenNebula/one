@@ -421,12 +421,21 @@ public:
     // Formatting & Helper functions
     // *************************************************************************
     /**
-     *    Gets used leases
+     *    Gets used leases 
      *    @return number of network leases in used
      */
     unsigned int get_used()
     {
         return ar_pool.get_used_addr();
+    };
+
+    /**
+     *    Gets used leases handled by OpenNebula
+     *    @return number of network leases in used
+     */
+    unsigned int get_one_used()
+    {
+        return ar_pool.get_one_used_addr();
     };
 
     /**

@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AddressRange.h"
+#include "AddressRangeIPAM.h"
+#include "AddressRangeInternal.h"
 #include "Attribute.h"
 #include "VirtualNetworkPool.h"
 #include "NebulaUtil.h"
@@ -70,13 +72,44 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+AddressRange * AddressRange::new_ar_by_type(string ipam_mad, unsigned int next_ar)
+{
+    if ( ipam_mad.empty() || ipam_mad == "internal" )
+    {
+        return new AddressRangeInternal("internal", next_ar);
+    }
+
+    return new AddressRangeIPAM(ipam_mad, next_ar);
+}
+
+int AddressRange::get_unused_addr(unsigned int &_unused_addr) const
+{
+    unsigned int _used_addr = 0;
+
+    if (get_used_addr(_used_addr) != 0)
+    {
+        return -1;
+    }
+
+    _unused_addr = size - _used_addr;
+
+    return 0;
+}
+
 int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 {
     string value;
 
     attr = vattr;
 
-    /* ------------------------- AR Type & Size ---------------------------- */
+    /* --------------------- IPAM_MAD, AR Type & Size ----------------------- */
+
+    value = vattr->vector_value("IPAM_MAD");
+
+    if (value.empty())
+    {
+        vattr->replace("IPAM_MAD", "internal");
+    }
 
     value = vattr->vector_value("TYPE");
     type  = str_to_type(value);
@@ -137,6 +170,22 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
                 error_msg = "Wrong or empty IP attribute";
                 return -1;
             }
+
+            value = vattr->vector_value("IP4_SUBNET");
+
+            if (ip4_subnet_to_i(value, ip4_subnet) == -1)
+            {
+                error_msg = "Wrong IP4_SUBNET attribute";
+                return -1;
+            }
+
+            if (check_ip4_subnet() == -1)
+            {
+                error_msg = "Address range outside IP4_SUBNET";
+                return -1;
+            }
+
+            vattr->replace("IP4_SUBNET", ip4_subnet_to_s(ip4_subnet));
 
             if (do_mac)
             {
@@ -221,14 +270,27 @@ int AddressRange::update_attributes(
 
     /* --------------- Copy non-update attributes ----------------- */
 
+    string _ipam_mad = attr->vector_value("IPAM_MAD");
+
+    if (_ipam_mad.empty())
+    {
+        _ipam_mad = "internal";
+    }
+
+    vup->replace("IPAM_MAD", _ipam_mad);
+
     vup->replace("TYPE", attr->vector_value("TYPE"));
 
     vup->replace("MAC", attr->vector_value("MAC"));
+
+    vup->remove("IP4_SUBNET");
 
     vup->remove("IP");
 
     if (type & 0x00000002)
     {
+        vup->replace("IP4_SUBNET", attr->vector_value("IP4_SUBNET"));
+
         vup->replace("IP", attr->vector_value("IP"));
     }
 
@@ -291,6 +353,12 @@ int AddressRange::update_attributes(
             error_msg = "New SIZE cannot be applied. There are used leases"
                     " that would fall outside the range.";
 
+            return -1;
+        }
+        
+        if (check_ip4_subnet(new_size) == -1)
+        {
+            error_msg = "The new SIZE does not fit in the IP4_SUBNET.";
             return -1;
         }
 
@@ -361,6 +429,7 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 
     if (type & 0x00000002)
     {
+        rc += ip4_subnet_to_i(vattr->vector_value("IP4_SUBNET"), ip4_subnet);
         rc += ip_to_i(vattr->vector_value("IP"), ip);
     }
 
@@ -461,7 +530,14 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         }
     }
 
-    oss << "<USED_LEASES>" << used_addr << "</USED_LEASES>";
+    unsigned int _used_addr = 0;
+
+    if (get_used_addr(_used_addr) != 0)
+    {
+        _used_addr = -1;
+    }
+
+    oss << "<USED_LEASES>" << _used_addr << "</USED_LEASES>";
 
     if (allocated.empty())
     {
@@ -616,6 +692,89 @@ string AddressRange::mac_to_s(const unsigned int i_mac[]) const
     }
 
     return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int AddressRange::ip4_subnet_to_i(const string& subnet, unsigned int i_ip4_subnet[]) const
+{
+    if (subnet.empty())
+    {
+      i_ip4_subnet[0] = i_ip4_subnet[1] = 0;
+      return 0;
+    }
+
+    std::size_t pos = subnet.find("/");      
+    if ( pos == std::string::npos ) 
+    {
+        return -1;
+    }
+    
+    string network = subnet.substr(0, pos);
+    if ( ip_to_i(network, i_ip4_subnet[0]) == -1 )
+    {
+        return -1;
+    }
+
+    string mask = subnet.substr(pos+1);
+    istringstream s(mask);
+    s >> i_ip4_subnet[1];
+
+    if (i_ip4_subnet[1] > 32)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+string AddressRange::ip4_subnet_to_s(const unsigned int i_ip4_subnet[]) const
+{
+    ostringstream oss;
+
+    oss << ip_to_s(i_ip4_subnet[0]) << "/" << i_ip4_subnet[1];
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int AddressRange::check_ip4_subnet() const
+{
+    unsigned int maskb = 0;
+    if (ip4_subnet[1] != 0)
+    {
+      maskb = (0xFFFFFFFF << (32 - ip4_subnet[1])) & 0xFFFFFFFF;
+    }
+
+    unsigned int ip_start = ip4_subnet[0] & maskb;
+    unsigned int ip_end = ip4_subnet[0] | (~maskb);
+
+    if ( ip < ip_start || (ip + size) > ip_end )
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+int AddressRange::check_ip4_subnet(unsigned int new_size) const
+{
+    unsigned int maskb = 0;
+    if (ip4_subnet[1] != 0)
+    {
+      maskb = (0xFFFFFFFF << (32 - ip4_subnet[1])) & 0xFFFFFFFF;
+    }
+
+    unsigned int ip_start = ip4_subnet[0] & maskb;
+    unsigned int ip_end = ip4_subnet[0] | (~maskb);
+
+    if ( ip < ip_start || (ip + new_size) > ip_end )
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -931,15 +1090,18 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     map<unsigned int, long long>::iterator it;
 
     it = allocated.find(addr_index);
-
+    
     if (it != allocated.end() && it->second == (ot|lobid))
     {
-        allocated.erase(it);
-        allocated_to_attr();
+        if (free_addr(addr_index) == 0)
+        {
+            allocated.erase(it);
+            allocated_to_attr();
 
-        used_addr--;
+            used_addr--;
 
-        return 0;
+            return 0;
+        }
     }
 
     return -1;
@@ -954,33 +1116,33 @@ int AddressRange::allocate_addr(
     VectorAttribute*          nic,
     const vector<string>&     inherit)
 {
-    if ( used_addr >= size )
+    unsigned int index = 0;
+    unsigned int _used_addr = 0;
+
+    if ( get_used_addr(_used_addr) != 0 || _used_addr >= size )
     {
         return -1;
     }
 
-    for ( unsigned int i=0; i<size; i++, next = (next+1)%size )
-    {
-        if ( allocated.count(next) == 0 )
+    if (get_free_addr(index) == 0)
+    {  
+        set_mac(index, nic);
+    
+        if (type & 0x00000002)
         {
-            set_mac(next, nic);
-
-            if (type & 0x00000002 )
-            {
-                set_ip(next, nic);
-            }
-
-            if (type & 0x00000004)
-            {
-                set_ip6(next, nic);
-            }
-
-            set_vnet(nic, inherit);
-
-            allocate_addr(ot, obid, next);
-
-            return 0;
+            set_ip(index, nic);
         }
+
+        if (type & 0x00000004)
+        {
+            set_ip6(index, nic);
+        }
+   
+        set_vnet(nic, inherit);
+        
+        allocate_addr(ot, obid, index); 
+
+        return 0;
     }
 
     return -1;
@@ -1010,28 +1172,28 @@ int AddressRange::allocate_by_mac(
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if ((allocated.count(index) != 0) || (index >= size))
+    if (register_addr(index) == 0) 
     {
-        return -1;
+        set_mac(index, nic);
+    
+        if (type & 0x00000002)
+        {
+            set_ip(index, nic);
+        }
+    
+        if (type & 0x00000004)
+        {
+            set_ip6(index, nic);
+        }
+    
+        set_vnet(nic, inherit);
+    
+        allocate_addr(ot, obid, index);
+
+        return 0;
     }
 
-    set_mac(index, nic);
-
-    if (type & 0x00000002 )
-    {
-        set_ip(index, nic);
-    }
-
-    if (type & 0x00000004)
-    {
-        set_ip6(index, nic);
-    }
-
-    set_vnet(nic, inherit);
-
-    allocate_addr(ot, obid, index);
-
-    return 0;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1063,28 +1225,28 @@ int AddressRange::allocate_by_ip(
 
     unsigned int index = ip_i - ip;
 
-    if (allocated.count(index) != 0 || index >= size )
+    if (register_addr(index) == 0)
     {
-        return -1;
+        set_mac(index, nic);
+
+        if (type & 0x00000002)
+        {
+            set_ip(index, nic);
+        }
+
+        if (type & 0x00000004)
+        {
+            set_ip6(index, nic);
+        }
+
+        set_vnet(nic, inherit);
+
+        allocate_addr(ot, obid, index);
+        
+        return 0;
     }
 
-    set_mac(index, nic);
-
-    if (type & 0x00000002 )
-    {
-        set_ip(index, nic);
-    }
-
-    if (type & 0x00000004)
-    {
-        set_ip6(index, nic);
-    }
-
-    set_vnet(nic, inherit);
-
-    allocate_addr(ot, obid, index);
-
-    return 0;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1152,11 +1314,14 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
         {
             map<unsigned int, long long>::iterator prev_it = it++;
 
-            allocated.erase(prev_it);
+            if (free_addr(prev_it->first) == 0)
+            {
+                allocated.erase(prev_it);
 
-            used_addr--;
+                used_addr--;
 
-            freed++;
+                freed++;
+            }
         }
         else
         {
@@ -1200,11 +1365,14 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
             {
                 map<unsigned int, long long>::iterator prev_it = it++;
 
-                allocated.erase(prev_it);
+                if (free_addr(prev_it->first) == 0)
+                {
+                    allocated.erase(prev_it);
 
-                used_addr--;
+                    used_addr--;
 
-                freed++;
+                    freed++;
+                }
             }
             else
             {
@@ -1267,14 +1435,14 @@ int AddressRange::hold_by_ip(const string& ip_s)
 
     unsigned int index = ip_i - ip;
 
-    if (allocated.count(index) != 0 || index >= size )
-    {
-        return -1;
+    if (register_addr(index) == 0)
+    { 
+        allocate_addr(PoolObjectSQL::VM, -1, index);
+
+        return 0;
     }
 
-    allocate_addr(PoolObjectSQL::VM, -1, index);
-
-    return 0;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1296,107 +1464,25 @@ int AddressRange::hold_by_mac(const string& mac_s)
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if ((allocated.count(index) != 0) || (index >= size))
+    if (register_addr(index) == 0)
     {
-        return -1;
+        allocate_addr(PoolObjectSQL::VM, -1, index);
+
+        return 0;
     }
 
-    allocate_addr(PoolObjectSQL::VM, -1, index);
-
-    return 0;
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
-{
-    unsigned int first_index;
-
-    if (rsize > (size - used_addr))
-    {
-        return -1; //reservation dosen't fit
-    }
-
-    // --------------- Look for a continuos range of addresses -----------------
-
-    bool valid = true;
-
-    for (unsigned int i=0; i<size; i++)
-    {
-        if ( allocated.count(i) != 0 )
-        {
-            continue;
-        }
-
-        valid = true;
-
-        for (unsigned int j=0; j<rsize; j++, i++)
-        {
-            if ( allocated.count(i) != 0  || i >= size )
-            {
-                valid = false;
-                break;
-            }
-        }
-
-        if (valid == true)
-        {
-            i -= rsize;
-            first_index = i;
-
-            for (unsigned int j=0; j<rsize; j++, i++)
-            {
-                allocate_addr(PoolObjectSQL::NET, vid, i);
-            }
-
-            break;
-        }
-    }
-
-    if (valid == false)
-    {
-        return -1; //This address range has not a continuos range big enough
-    }
-
-    VectorAttribute * new_ar = attr->clone();
-    string            errmsg;
-
-    set_mac(first_index, new_ar);
-
-    if (type & 0x00000002 )
-    {
-        set_ip(first_index, new_ar);
-    }
-
-    new_ar->replace("SIZE",rsize);
-
-    rar->from_vattr(new_ar, errmsg);
-
-    new_ar->replace("PARENT_NETWORK_AR_ID",id);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
+void AddressRange::reserve_addr_range(int vid, unsigned int rsize,
     unsigned int sindex, AddressRange *rar)
 {
-    /* ----------------- Allocate the new AR from sindex -------------------- */
-
-    for (unsigned int j=sindex; j< (sindex+rsize) ; j++)
+    for (unsigned int i=sindex; i<(sindex+rsize); i++)
     {
-        if (allocated.count(j) != 0)
-        {
-            return -1;
-        }
-    }
-
-    for (unsigned int j=sindex; j< (sindex+rsize); j++)
-    {
-        allocate_addr(PoolObjectSQL::NET, vid, j);
+        allocate_addr(PoolObjectSQL::NET, vid, i);
     }
 
     /* ------------------------- Initialize the new AR ---------------------- */
@@ -1411,11 +1497,52 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
         set_ip(sindex, new_ar);
     }
 
-    new_ar->replace("SIZE",rsize);
+    new_ar->replace("SIZE", rsize);
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("PARENT_NETWORK_AR_ID",id);
+    new_ar->replace("IPAM_MAD", "internal");
+
+    new_ar->replace("PARENT_NETWORK_AR_ID", id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
+{
+    unsigned int first_index;
+    unsigned int _used_addr = 0;
+
+    if (get_used_addr(_used_addr) != 0 || (rsize > (size - _used_addr)))
+    {
+        return -1; //reservation dosen't fit
+    }
+
+    if (get_free_addr_range(first_index, rsize) != 0)
+    {
+        return -1; //can't find a continious range of addresses
+    }
+    
+    reserve_addr_range(vid, rsize, first_index, rar);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
+    unsigned int sindex, AddressRange *rar)
+{
+    /* ----------------- Allocate the new AR from sindex -------------------- */
+
+    if (register_addr_range(sindex, rsize) != 0)
+    {
+        return -1;
+    }
+
+    reserve_addr_range(vid, rsize, sindex, rar);
 
     return 0;
 }
@@ -1445,11 +1572,6 @@ int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
 
     unsigned int sindex = ip_i - ip;
 
-    if (sindex >= size )
-    {
-        return -1;
-    }
-
     return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
@@ -1472,11 +1594,6 @@ int AddressRange::reserve_addr_by_mac(int vid, unsigned int rsize,
     }
 
     unsigned int sindex = mac_i[0] - mac[0];
-
-    if (sindex >= size)
-    {
-        return -1;
-    }
 
     return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
