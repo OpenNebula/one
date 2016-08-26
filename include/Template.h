@@ -512,11 +512,11 @@ private:
 
         multimap<string, Attribute *>::const_iterator i;
 
-        int j;
+        int j = 0;
 
         index = attributes.equal_range(name);
 
-        for (i = index.first, j = 0 ; i != index.second ; i++, j++)
+        for (i = index.first; i != index.second ; i++)
         {
             const T * vatt = dynamic_cast<const T *>(i->second);
 
@@ -526,6 +526,7 @@ private:
             }
 
             values.push_back(vatt);
+            j++;
         }
 
         return j;
@@ -540,11 +541,11 @@ private:
 
         multimap<string, Attribute *>::iterator i;
 
-        int j;
+        int j = 0;
 
         index = attributes.equal_range(name);
 
-        for (i = index.first, j = 0 ; i != index.second ; i++, j++)
+        for (i = index.first; i != index.second ; i++)
         {
             T * vatt = dynamic_cast<T *>(i->second);
 
@@ -554,6 +555,7 @@ private:
             }
 
             values.push_back(vatt);
+            j++;
         }
 
         return j;
