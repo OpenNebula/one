@@ -103,8 +103,8 @@ define(function(require) {
       $(".service_networks tbody").append(
         '<tr>\
           <td>\
-            <input class="service_network_name" type="text" pattern="[a-z]*"/>\
-            <small class="form-error">'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
+            <input class="service_network_name" type="text" pattern="^\\w+$"/>\
+            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters")+'</small>\
           </td>\
           <td>\
             <textarea class="service_network_description"/>\
