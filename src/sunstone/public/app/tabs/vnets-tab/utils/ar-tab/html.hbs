@@ -23,9 +23,22 @@
   </div>
 </div>
 <div class="row">
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6 type_ip6">
+    <label for="{{str_ar_tab_id}}_ipam_mad">{{tr "IPAM Driver"}}</label>
+    <input wizard_field="IPAM_MAD" type="text" name="IPAM_MAD" id="{{str_ar_tab_id}}_ipam_mad"/>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 columns ar_input type_ip4 type_ip4_6">
+    <label for="{{str_ar_tab_id}}_ip4_subnet">{{tr "IPv4 Subnet"}}
+    </label>
+    <input wizard_field="IP4_SUBNET" type="text" name="IP4_SUBNET" id="{{str_ar_tab_id}}_ip4_subnet"/>
+  </div>
+</div>
+<div class="row">
   <div class="medium-6 columns">
     <div class="row collapse ar_input type_ip4 type_ip4_6">
-      <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IP address"}}
+      <label for="{{str_ar_tab_id}}_ip_start">{{tr "First IPv4 address"}}
       </label>
       <input wizard_field="IP" type="text" name="IP" id="{{str_ar_tab_id}}_ip_start"/>
     </div>
