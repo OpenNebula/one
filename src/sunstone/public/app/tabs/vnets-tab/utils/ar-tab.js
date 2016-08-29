@@ -182,7 +182,6 @@ define(function(require) {
 
     $('input[name$="ar_type"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="IPAM_MAD"]',this.ar_section).prop("disabled", true);
-    $('input[wizard_field="IP4_SUBNET"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="IP"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="MAC"]',this.ar_section).prop("disabled", true);
   }
