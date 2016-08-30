@@ -1475,25 +1475,94 @@ static int check_and_set_cluster_id(
 
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::get_cluster_requirements(set<int>& cluster_ids, string& error_str)
+void update_os_file(VectorAttribute *  os,
+                    const string&      base_name)
+{
+    ClusterPool *   clpool = Nebula::instance().get_clpool();
+    int             ds_id;
+    set<int>        cluster_ids;
+
+    string base_name_ds_id   = base_name + "_DS_DSID";
+    string base_name_cluster = base_name + "_DS_CLUSTER_ID";
+
+    if (os->vector_value(base_name_ds_id, ds_id) != 0)
+    {
+        return;
+    }
+
+    clpool->query_datastore_clusters(ds_id, cluster_ids);
+
+    os->replace(base_name_cluster, one_util::join(cluster_ids, ','));
+}
+
+/* ------------------------------------------------------------------------ */
+
+void update_disk_cluster_id(VectorAttribute* disk)
+{
+    ClusterPool *   clpool = Nebula::instance().get_clpool();
+    int             ds_id;
+    set<int>        cluster_ids;
+
+    if (disk->vector_value("DATASTORE_ID", ds_id) != 0)
+    {
+        return;
+    }
+
+    clpool->query_datastore_clusters(ds_id, cluster_ids);
+
+    disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
+}
+
+/* ------------------------------------------------------------------------ */
+
+void update_nic_cluster_id(VectorAttribute* nic)
+{
+    ClusterPool *   clpool = Nebula::instance().get_clpool();
+    int             vn_id;
+    set<int>        cluster_ids;
+
+    if (nic->vector_value("NETWORK_ID", vn_id) != 0)
+    {
+        return;
+    }
+
+    clpool->query_vnet_clusters(vn_id, cluster_ids);
+
+    nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
+}
+
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::get_cluster_requirements(
+        set<int>& cluster_ids, bool refresh, string& error_str)
 {
     ostringstream   oss;
     int             num_vatts;
-    vector<const VectorAttribute  *> vatts;
+    vector<VectorAttribute*> vatts;
 
     int incomp_id;
     int rc;
 
     // Get cluster id from the KERNEL and INITRD (FILE Datastores)
-    const VectorAttribute * osatt = obj_template->get("OS");
+    VectorAttribute * osatt = obj_template->get("OS");
 
     if ( osatt != 0 )
     {
+        if (refresh)
+        {
+            update_os_file(osatt, "KERNEL");
+        }
+
         rc = check_and_set_cluster_id("KERNEL_DS_CLUSTER_ID", osatt, cluster_ids);
 
         if ( rc != 0 )
         {
             goto error_kernel;
+        }
+
+        if (refresh)
+        {
+            update_os_file(osatt, "INITRD");
         }
 
         rc = check_and_set_cluster_id("INITRD_DS_CLUSTER_ID", osatt, cluster_ids);
@@ -1509,6 +1578,11 @@ int VirtualMachine::get_cluster_requirements(set<int>& cluster_ids, string& erro
 
     for(int i=0; i<num_vatts; i++)
     {
+        if (refresh)
+        {
+            update_disk_cluster_id(vatts[i]);
+        }
+
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
@@ -1525,6 +1599,11 @@ int VirtualMachine::get_cluster_requirements(set<int>& cluster_ids, string& erro
 
     for(int i=0; i<num_vatts; i++)
     {
+        if (refresh)
+        {
+            update_nic_cluster_id(vatts[i]);
+        }
+
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
@@ -1546,6 +1625,11 @@ int VirtualMachine::get_cluster_requirements(set<int>& cluster_ids, string& erro
             continue;
         }
 
+        if (refresh)
+        {
+            update_nic_cluster_id(vatts[i]);
+        }
+
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
         if ( rc != 0 )
@@ -1561,8 +1645,8 @@ error_disk:
     if (rc == -1)
     {
         oss << "Incompatible clusters in DISK. Datastore for DISK "<< incomp_id
-            << " is not the same as the one used by other VM elements (cluster "
-            << one_util::join(cluster_ids, ',') << ")";
+            << " is not in the same cluster as the one used by other VM elements "
+            << "(cluster " << one_util::join(cluster_ids, ',') << ")";
     }
     else
     {
@@ -1602,8 +1686,8 @@ error_nic:
     if (rc == -1)
     {
         oss << "Incompatible clusters in NIC. Network for NIC "<< incomp_id
-            << " is not the same as the one used by other VM elements (cluster "
-            << one_util::join(cluster_ids, ',') << ")";
+            << " is not in the same cluster as the one used by other VM elements "
+            << "(cluster " << one_util::join(cluster_ids, ',') << ")";
     }
     else
     {
@@ -1617,8 +1701,8 @@ error_pci:
     if (rc == -1)
     {
         oss << "Incompatible clusters in PCI (TYPE=NIC). Network for PCI "<< incomp_id
-            << " is not the same as the one used by other VM elements (cluster "
-            << one_util::join(cluster_ids, ',') << ")";
+            << " is not in the same cluster as the one used by other VM elements "
+            << "(cluster " << one_util::join(cluster_ids, ',') << ")";
     }
     else
     {
@@ -1643,7 +1727,10 @@ int VirtualMachine::automatic_requirements(string& error_str)
     set<int>        cluster_ids;
     set<string>     clouds;
 
-    int rc = get_cluster_requirements(cluster_ids, error_str);
+    obj_template->erase("AUTOMATIC_REQUIREMENTS");
+    obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
+
+    int rc = get_cluster_requirements(cluster_ids, true, error_str);
 
     if (rc != 0)
     {

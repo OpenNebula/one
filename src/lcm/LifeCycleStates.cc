@@ -2188,6 +2188,8 @@ void LifeCycleManager::disk_lock_success(int vid)
         }
         else
         {
+            // Automatic requirements are not recalculated on purpose
+
             vm->set_state(VirtualMachine::PENDING);
         }
     }

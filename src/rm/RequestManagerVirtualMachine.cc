@@ -979,6 +979,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     DispatchManager *   dm = nd.get_dm();
     DatastorePool * dspool = nd.get_dspool();
 
+    VirtualMachinePool * vmpool = nd.get_vmpool();
     VirtualMachine * vm;
 
     string hostname;
@@ -995,7 +996,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool   c_is_public_cloud;
 
     set<int> cluster_ids;
-    string   tmp_str;
+    string   error_str;
 
     bool auth = false;
     bool ds_migr;
@@ -1156,7 +1157,20 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    vm->get_cluster_requirements(cluster_ids, tmp_str);
+    int rc = vm->automatic_requirements(error_str);
+
+    vmpool->update(vm);
+
+    if (rc != 0)
+    {
+        vm->unlock();
+
+        att.resp_msg = error_str;
+        failure_response(ACTION, att);
+        return;
+    }
+
+    vm->get_cluster_requirements(cluster_ids, false, error_str);
 
     vm->unlock();
 

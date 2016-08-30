@@ -522,20 +522,40 @@ int DispatchManager::release(
 
     if (vm->get_state() == VirtualMachine::HOLD)
     {
+        int rc = vm->automatic_requirements(error_str);
+
+        if (rc != 0)
+        {
+            vmpool->update(vm);
+
+            goto error_requirements;
+        }
+
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
     }
     else
     {
-        goto error;
+        goto error_state;
     }
 
     vm->unlock();
 
     return 0;
 
-error:
+error_requirements:
+    oss.str("");
+    oss << "Could not release VM " << vid
+        << ", error updating requirements. " << error_str;
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    error_str = oss.str();
+
+    vm->unlock();
+    return -2;
+
+error_state:
     oss.str("");
     oss << "Could not release VM " << vid
         << ", wrong state " << vm->state_str() << ".";
@@ -666,6 +686,15 @@ int DispatchManager::resume(
     if (vm->get_state() == VirtualMachine::STOPPED ||
         vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
+        int rc = vm->automatic_requirements(error_str);
+
+        if (rc != 0)
+        {
+            vmpool->update(vm);
+
+            goto error_requirements;
+        }
+
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
@@ -682,14 +711,25 @@ int DispatchManager::resume(
     }
     else
     {
-        goto error;
+        goto error_state;
     }
 
     vm->unlock();
 
     return 0;
 
-error:
+error_requirements:
+    oss.str("");
+    oss << "Could not resume VM " << vid
+        << ", error updating requirements. " << error_str;
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    error_str = oss.str();
+
+    vm->unlock();
+    return -2;
+
+error_state:
     oss.str("");
     oss << "Could not resume VM " << vid
         << ", wrong state " << vm->state_str() << ".";
@@ -787,19 +827,42 @@ int DispatchManager::resched(
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
+        if (do_resched)
+        {
+            int rc = vm->automatic_requirements(error_str);
+
+            if (rc != 0)
+            {
+                vmpool->update(vm);
+
+                goto error_requirements;
+            }
+        }
+
         vm->set_resched(do_resched);
         vmpool->update(vm);
     }
     else
     {
-        goto error;
+        goto error_state;
     }
 
     vm->unlock();
 
     return 0;
 
-error:
+error_requirements:
+    oss.str("");
+    oss << "Could not set rescheduling flag for VM " << vid
+        << ", error updating requirements. " << error_str;
+    NebulaLog::log("DiM",Log::ERROR,oss);
+
+    error_str = oss.str();
+
+    vm->unlock();
+    return -2;
+
+error_state:
     oss.str("");
     oss << "Could not set rescheduling flag for VM " << vid
         << ", wrong state " << vm->state_str() << ".";
@@ -1027,6 +1090,8 @@ int DispatchManager::delete_recreate(VirtualMachine * vm, string& error)
                 vm->set_action(History::DELETE_RECREATE_ACTION);
                 vmpool->update_history(vm);
             }
+
+            // Automatic requirements are not recalculated on purpose
 
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);

@@ -304,6 +304,8 @@ void  DispatchManager::resubmit_action(int vid)
 
     if (vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT)
     {
+        // Automatic requirements are not recalculated on purpose
+
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vm->set_state(VirtualMachine::PENDING);

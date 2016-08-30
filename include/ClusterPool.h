@@ -230,6 +230,23 @@ public:
      */
     static void cluster_acl_filter(ostringstream& filter,
             PoolObjectSQL::ObjectType auth_object, const vector<int>& cids);
+
+    /**
+     * Returns the Datastore Clusters performing a DB query
+     * @param oid Datastore ID
+     * @param cluster_ids Will contain the Cluster IDs
+     * @return 0 on success
+     */
+    int query_datastore_clusters(int oid, set<int> &cluster_ids);
+
+    /**
+     * Returns the VNet Clusters performing a DB query
+     * @param oid VNet ID
+     * @param cluster_ids Will contain the Cluster IDs
+     * @return 0 on success
+     */
+    int query_vnet_clusters(int oid, set<int> &cluster_ids);
+
 private:
     /**
      *  VNC configuration for clusters
@@ -244,6 +261,11 @@ private:
     {
         return new Cluster(-1,"",0, &vnc_conf);
     };
+
+
+    int get_clusters_cb(
+            void * _cluster_ids, int num, char **values, char **names);
+
 };
 
 #endif /*CLUSTER_POOL_H_*/
