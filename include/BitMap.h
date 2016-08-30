@@ -335,8 +335,6 @@ private:
 
     void set_reserved_bit(std::string& reserved)
     {
-        ostringstream oss;
-
         std::vector<std::string> strings;
         std::vector<std::string> range;
         std::vector<std::string>::const_iterator it;
