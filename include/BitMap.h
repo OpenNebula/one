@@ -46,7 +46,7 @@ public:
 
         if (!reserved.empty())
         {
-            one_util::split_unique(reserved, ',', reserved_bit);
+            set_reserved_bit(reserved);
         }
     };
 
@@ -325,6 +325,66 @@ private:
         db->free_str(ezipped64);
 
         return rc;
+    }
+
+    /**
+     * The reserved bit string is separated by ',' for each element
+     * and by ':' for ranges.
+     *   @param string with reserved bits
+     */
+
+    void set_reserved_bit(std::string& reserved)
+    {
+        std::vector<std::string> strings;
+        std::vector<std::string> range;
+        std::vector<std::string>::const_iterator it;
+
+        std::istringstream iss;
+
+        unsigned int bit, bit_start, bit_end;
+
+        strings = one_util::split(reserved, ',', true);
+
+        for (it = strings.begin(); it != strings.end(); it++)
+        {
+            // Try to split it by ':'
+            range = one_util::split(*it, ':', true);
+
+            iss.clear();
+            iss.str(range[0]);
+            iss >> bit_start;
+
+            if ( iss.fail() )
+            {
+                continue;
+            }
+
+            if (range.size() == 1)
+            {
+                bit_end = bit_start;
+            }
+            else if (range.size() == 2)
+            {
+                iss.clear();
+                iss.str(range[1]);
+                iss >> bit_end;
+
+                if ( iss.fail() )
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
+
+            for (bit = bit_start; bit <= bit_end; bit++)
+            {
+                reserved_bit.insert(bit);
+            }
+        }
+
     }
 };
 
