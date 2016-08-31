@@ -97,7 +97,8 @@ module Migrator
       log_time()
 
       @db.transaction do
-      @db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
+      #@db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
+      @db.fetch("SELECT * FROM old_vm_pool") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
         update_monitoring(doc.root.at_xpath("/VM"))
@@ -132,7 +133,8 @@ module Migrator
       log_time()
 
       @db.transaction do
-      @db.fetch("SELECT * FROM old_history WHERE etime=0") do |row|
+      #@db.fetch("SELECT * FROM old_history WHERE etime=0") do |row|
+      @db.fetch("SELECT * FROM old_history") do |row|
         doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
         elem = doc.root.at_xpath("/HISTORY/VM")
