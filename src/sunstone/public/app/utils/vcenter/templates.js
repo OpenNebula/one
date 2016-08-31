@@ -81,7 +81,7 @@ define(function(require) {
         $.each(response, function(datacenter_name, templates){
           var content;
           if (templates.length == 0) {
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
@@ -100,7 +100,7 @@ define(function(require) {
             $(".vcenter_datacenter_list", context).append(content);
           } else {
             var tableId = "vcenter_template_table_" + UniqueId.id();
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
@@ -118,11 +118,6 @@ define(function(require) {
                         '<input type="checkbox" class="expand_all"/>' +
                          Locale.tr("Expand Advanced Sections") +
                       '</label>' +
-                    '</li>' +
-                    '<li> ' +
-                      '<button class="button small success import_selected">' +
-                         Locale.tr("Import Selected Templates") +
-                      '</button>' +
                     '</li>' +
                     '<li> ' +
                       '<button class="button small secondary clear_imported">' +
@@ -175,13 +170,6 @@ define(function(require) {
               });
 
             templatesTable.addData(templates);
-
-            context.off('click', '.import_selected');
-            context.on('click', '.import_selected', function() {
-              tableContext = $(this).closest('fieldset');
-              _import(tableContext);
-              return false;
-            });
 
             context.off('click', '.clear_imported');
             context.on('click', '.clear_imported', function() {
@@ -260,7 +248,7 @@ define(function(require) {
             userInputs.push('RESOURCE_POOL="' + rpUserInputs + '"');
           }
         }
-        
+
         // Append new attrs and user inputs if necessary
         var template = $(this).data("one_template");
 

@@ -80,7 +80,7 @@ define(function(require) {
         $.each(response, function(datacenter_name, networks) {
           var content;
           if (networks.length == 0) {
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
@@ -99,7 +99,7 @@ define(function(require) {
             $(".vcenter_datacenter_list", context).append(content);
           } else {
             var tableId = "vcenter_network_table_" + UniqueId.id();
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
@@ -117,11 +117,6 @@ define(function(require) {
                         '<input type="checkbox" class="expand_all"/>' +
                          Locale.tr("Expand Advanced Sections") +
                       '</label>' +
-                    '</li>' +
-                    '<li> ' +
-                      '<button class="button small success import_selected">' +
-                         Locale.tr("Import Selected Networks") +
-                      '</button>' +
                     '</li>' +
                     '<li> ' +
                       '<button class="button small secondary clear_imported">' +
@@ -165,13 +160,6 @@ define(function(require) {
               });
 
             networksTable.addData(networks);
-
-            context.off('click', '.import_selected');
-            context.on('click', '.import_selected', function() {
-              tableContext = $(this).closest('fieldset');
-              _import(tableContext);
-              return false;
-            });
 
             context.off('click', '.clear_imported');
             context.on('click', '.clear_imported', function() {

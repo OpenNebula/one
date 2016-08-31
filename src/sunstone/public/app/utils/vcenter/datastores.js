@@ -81,7 +81,7 @@ define(function(require) {
         $.each(response, function(datacenter_name, datastores){
           var content;
           if (datastores.length == 0) {
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
@@ -100,17 +100,12 @@ define(function(require) {
             $(".vcenter_datacenter_list", context).append(content);
           } else {
             var tableId = "vcenter_datastore_table" + UniqueId.id();
-            content = 
+            content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
                     '<li> ' +
                       datacenter_name + ' ' + Locale.tr("DataCenter") +
-                    '</li>' +
-                    '<li> ' +
-                      '<button class="button small success import_selected">' +
-                         Locale.tr("Import Selected Datastores") +
-                      '</button>' +
                     '</li>' +
                     '<li> ' +
                       '<button class="button small secondary clear_imported">' +
@@ -193,13 +188,6 @@ define(function(require) {
 
             $(".check_item", newdiv).on('change', function(){
               _recountCheckboxes($('table', newdiv));
-            });
-
-            context.off('click', '.import_selected');
-            context.on('click', '.import_selected', function() {
-              tableContext = $(this).closest('fieldset');
-              _import(tableContext);
-              return false;
             });
 
             context.off('click', '.clear_imported');

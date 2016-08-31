@@ -108,7 +108,6 @@ define(function(require) {
     var that = this;
 
     Sunstone.hideFormPanelLoading(TAB_ID);
-    Sunstone.disableFormPanelSubmit(TAB_ID);
 
     this.vCenterDatastores.import(context);
 

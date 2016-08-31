@@ -43,7 +43,7 @@ define(function(require) {
   }
 
   /*
-    Retrieve the list of images from a vCenter DS and fill 
+    Retrieve the list of images from a vCenter DS and fill
     the container with them
 
     opts = {
@@ -77,7 +77,7 @@ define(function(require) {
         $(".vcenter_datacenter_list", context).html("");
 
         if (response.length == 0) {
-          content = 
+          content =
             '<fieldset>' +
               '<legend>' +
                 '<ul class="menu simple">' +
@@ -96,17 +96,12 @@ define(function(require) {
           $(".vcenter_datacenter_list", context).append(content);
         } else {
           var tableId = "vcenter_image_table_" + UniqueId.id();
-          content = 
+          content =
             '<fieldset>' +
               '<legend>' +
                 '<ul class="menu simple">' +
                   '<li> ' +
                     opts.vcenter_datastore + ' ' + Locale.tr("Datastore") +
-                  '</li>' +
-                  '<li> ' +
-                    '<button class="button small success import_selected">' +
-                       Locale.tr("Import Selected Images") +
-                    '</button>' +
                   '</li>' +
                   '<li> ' +
                     '<button class="button small secondary clear_imported">' +
@@ -148,7 +143,7 @@ define(function(require) {
 
               $(".check_item", trow).data("datastore_id", image.dsid)
               $(".check_item", trow).data("one_template", image.one)
-            
+
             });
 
           var imageDataTable = new DomDataTable(
@@ -183,13 +178,6 @@ define(function(require) {
 
           $(".check_item", newdiv).on('change', function() {
               _recountCheckboxes($('table', newdiv));
-            });
-
-          context.off('click', '.import_selected');
-          context.on('click', '.import_selected', function() {
-              tableContext = $(this).closest('fieldset');
-              _import(tableContext);
-              return false;
             });
 
           context.off('click', '.clear_imported');
@@ -256,7 +244,7 @@ define(function(require) {
             {
                 error_message_str =  error_message_str + ". Please disable DATASTORE_CAPACITY_CHECK in /etc/one/oned.conf and restart OpenNebula "
             }
-            
+
             $(".vcenter_image_result", image_context).html('<p style="font-size:12px" class="error-color">' +
                   (error_message_str || Locale.tr("Cannot contact server: is it running and reachable?")) +
                 '</p>');
