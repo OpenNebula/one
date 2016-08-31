@@ -51,7 +51,7 @@ class EbtablesVLAN < VNMMAD::VNMDriver
                         "-o #{tap} -j DROP"
                 out_rule="FORWARD -s ! #{iface_mac} -i #{tap} -j DROP"
 
-                ebtables(in_rule)
+                ebtables(in_rule) if nic[:filter_mac_spoofing] =~ /yes/i
                 ebtables(out_rule)
             end
         end
