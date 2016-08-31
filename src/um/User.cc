@@ -237,7 +237,7 @@ string& User::to_xml_extended(string& xml, bool extended) const
          "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
          "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
-        login_token.to_xml(token_xml) <<
+        login_tokens.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);
 
     if (extended)
@@ -285,7 +285,7 @@ int User::from_xml(const string& xml)
 
     if (!content.empty())
     {
-        login_token.from_xml_node(content[0]);
+        login_tokens.from_xml_node(content);
     }
 
     ObjectXML::free_nodes(content);
@@ -355,7 +355,7 @@ int User::set_password(const string& passwd, string& error_str)
 
         session.reset();
 
-        login_token.reset();
+        login_tokens.reset();
     }
     else
     {

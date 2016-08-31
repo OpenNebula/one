@@ -59,33 +59,28 @@ int UserChangePassword::user_action(int     user_id,
 {
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
-    User * user;
 
-    string driver;
-    bool   allowed = false;
-    const VectorAttribute* auth_conf;
-
-    user = static_cast<User *>(pool->get(user_id,true));
+    User * user = static_cast<User *>(pool->get(user_id,true));
 
     if ( user == 0 )
     {
         return -1;
     }
 
-    driver = user->get_auth_driver();
+    string driver = user->get_auth_driver();
+    bool allowed  = false;
 
-    if (Nebula::instance().get_auth_conf_attribute(driver, auth_conf) == 0)
+    if ( Nebula::instance().get_auth_conf_attribute(driver, "PASSWORD_CHANGE",
+            allowed) != 0)
     {
-        auth_conf->vector_value("PASSWORD_CHANGE", allowed);
+        allowed = false;
     }
 
-    if (!allowed &&
-        att.uid != UserPool::ONEADMIN_ID &&
+    if (!allowed && att.uid != UserPool::ONEADMIN_ID &&
         att.gid != GroupPool::ONEADMIN_ID)
     {
-        error_str = "Password for driver '"+user->get_auth_driver()+
-                    "' cannot be changed.";
-
+        error_str = "Password for driver " + user->get_auth_driver() +
+                    " cannot be changed.";
         user->unlock();
         return -1;
     }
@@ -215,12 +210,9 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    const VectorAttribute* auth_conf;
-    bool driver_managed_groups;
+    User* user = upool->get(user_id,true);
 
-    User* user;
-
-    if ((user = upool->get(user_id,true)) == 0 )
+    if ( user == 0 )
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = user_id;
@@ -237,17 +229,18 @@ void UserEditGroup::
 
     user->unlock();
 
-    driver_managed_groups = false;
+    bool driver_managed_groups;
 
-    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver,
+            "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0)
     {
-        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+        driver_managed_groups = false;
     }
 
     if (driver_managed_groups)
     {
-        att.resp_msg =
-            "Groups cannot be manually managed for auth driver "+auth_driver;
+        att.resp_msg = "Groups cannot be manually managed for auth driver " +
+            auth_driver;
         failure_response(ACTION, att);
         return;
     }
@@ -412,21 +405,27 @@ int UserDelGroup::secondary_group_action(
 void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
                     RequestAttributes& att)
 {
+    User * user;
+    string error_str;
+
+    /* ---------------------------------------------------------------------- */
+    /* Parse request attributes and authorize request                         */
+    /* ---------------------------------------------------------------------- */
     string uname = xmlrpc_c::value_string(paramList.getString(1));
     string token = xmlrpc_c::value_string(paramList.getString(2));
     time_t valid = xmlrpc_c::value_int(paramList.getInt(3));
+    int    egid  = -1;
 
-    User * user;
-    string error_str;
-    string auth_driver;
-    time_t max_token_time;
-    const VectorAttribute* auth_conf;
-
-    PoolObjectAuth perms;
+    if ( paramList.size() > 4 )
+    {
+        egid = xmlrpc_c::value_int(paramList.getInt(4));
+    }
 
     if (att.uid != 0)
     {
-        user = static_cast<UserPool *>(pool)->get(uname,true);
+        PoolObjectAuth perms;
+
+        user = static_cast<UserPool *>(pool)->get(uname, true);
 
         if ( user == 0 )
         {
@@ -437,7 +436,6 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         user->get_permissions(perms);
 
         user->unlock();
-
 
         AuthRequest ar(att.uid, att.group_ids);
 
@@ -451,7 +449,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    user = static_cast<UserPool *>(pool)->get(uname,true);
+    user = static_cast<UserPool *>(pool)->get(uname, true);
 
     if ( user == 0 )
     {
@@ -459,22 +457,25 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    auth_driver = user->get_auth_driver();
-    max_token_time = -1;
+    /* ---------------------------------------------------------------------- */
+    /* Build login attributes                                                 */
+    /* ---------------------------------------------------------------------- */
+    string auth_driver = user->get_auth_driver();
+    time_t max_token_time;
 
-    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver,"MAX_TOKEN_TIME",
+        max_token_time) != 0)
     {
-        auth_conf->vector_value("MAX_TOKEN_TIME", max_token_time);
+        max_token_time = -1;
     }
 
     if (max_token_time == 0)
     {
-        att.resp_msg = "Login tokens are disabled for driver '"+
-                        user->get_auth_driver()+"'";
+        att.resp_msg = "Login tokens are disabled for driver " + auth_driver;
         failure_response(ACTION,  att);
 
-        // Reset token
-        user->login_token.reset();
+        // Reset any active token
+        user->login_tokens.reset();
         pool->update(user);
         user->unlock();
 
@@ -487,25 +488,31 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         if (max_token_time < valid)
         {
             valid = max_token_time;
-
-            ostringstream oss;
-
-            oss << "Req:" << att.req_id << " " << method_name
-                << " Token time has been overwritten with the MAX_TOKEN_TIME of "
-                << max_token_time << " set in oned.conf";
-            NebulaLog::log("ReM",Log::WARNING,oss);
         }
     }
 
     if (valid == 0) //Reset token
     {
-        user->login_token.reset();
+        if ( user->login_tokens.reset(token) != 0 )
+        {
+            att.resp_msg = "Could not find token: " + token;
+            failure_response(XML_RPC_API,  att);
 
-        token = "";
+            user->unlock();
+            return;
+        }
     }
     else if (valid > 0 || valid == -1)
     {
-        token = user->login_token.set(token, valid);
+        if ( user->login_tokens.set(token, valid, egid) != 0 )
+        {
+            att.resp_msg = "Max number of tokens limit reached.";
+            failure_response(XML_RPC_API,  att);
+
+            user->unlock();
+            return;
+
+        };
     }
     else
     {

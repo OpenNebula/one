@@ -96,7 +96,8 @@ public:
         enabled = false;
 
         session.reset();
-        login_token.reset();
+
+        login_tokens.reset();
     };
 
     /**
@@ -234,13 +235,13 @@ public:
     };
 
     // *************************************************************************
-    // Login token
+    // Login tokens
     // *************************************************************************
 
     /**
      * The login token object, provides the set & reset interface for the token
      */
-    LoginToken login_token;
+    LoginTokenPool login_tokens;
 
 private:
     // -------------------------------------------------------------------------
@@ -274,10 +275,9 @@ private:
     ObjectCollection groups;
 
     // *************************************************************************
-    // Authentication session (Private)
+    // Authentication session used to cache authentication calls
     // *************************************************************************
-
-    LoginToken session;
+    SessionToken session;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -400,7 +400,6 @@ protected:
         string error_str;
         return insert_replace(db, true, error_str);
     };
-
 };
 
 #endif /*USER_H_*/

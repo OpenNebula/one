@@ -399,7 +399,7 @@ bool UserPool::authenticate_internal(User *        user,
 
     bool driver_managed_groups = false;
     bool update_groups;
-    const VectorAttribute* auth_conf;
+
     int      new_gid = -1;
     set<int> new_group_ids;
 
@@ -429,7 +429,9 @@ bool UserPool::authenticate_internal(User *        user,
     auth_driver = user->auth_driver;
 
     //Check if token is a login token
-    result = user->login_token.is_valid(token);
+    int egid;
+
+    result = user->login_tokens.is_valid(token, egid);
 
     if (!result) //Not a login token check if the token is a session token
     {
@@ -445,9 +447,10 @@ bool UserPool::authenticate_internal(User *        user,
         return true;
     }
 
-    if (nd.get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUPS",
+            driver_managed_groups) != 0)
     {
-        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+        driver_managed_groups = false;
     }
 
     AuthRequest ar(user_id, group_ids);
@@ -671,8 +674,8 @@ bool UserPool::authenticate_server(User *        user,
     string target_username;
     string second_token;
 
-    Nebula&     nd      = Nebula::instance();
-    AuthManager * authm = nd.get_authm();
+    Nebula& nd         = Nebula::instance();
+    AuthManager* authm = nd.get_authm();
 
     server_username = user->name;
     server_password = user->password;
@@ -710,7 +713,7 @@ bool UserPool::authenticate_server(User *        user,
 
     result = user->session.is_valid(second_token);
 
-    umask = user->get_umask();
+    umask  = user->get_umask();
 
     user->unlock();
 

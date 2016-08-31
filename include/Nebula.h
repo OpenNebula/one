@@ -417,8 +417,7 @@ public:
     /**
      *  Gets a DS configuration attribute
      */
-    int get_ds_conf_attribute(
-        const std::string& ds_name,
+    int get_ds_conf_attribute(const std::string& ds_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("DS_MAD_CONF", ds_name, value);
@@ -427,8 +426,7 @@ public:
     /**
      *  Gets a TM configuration attribute
      */
-    int get_tm_conf_attribute(
-        const string& tm_name,
+    int get_tm_conf_attribute(const string& tm_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("TM_MAD_CONF", tm_name, value);
@@ -437,8 +435,7 @@ public:
     /**
      *  Gets a Market configuration attribute
      */
-    int get_market_conf_attribute(
-        const string& mk_name,
+    int get_market_conf_attribute( const string& mk_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
@@ -447,11 +444,11 @@ public:
     /**
      *  Gets an Auth driver configuration attribute
      */
-    int get_auth_conf_attribute(
-        const string& driver_name,
-        const VectorAttribute* &value) const
+    template<typename T>
+    int get_auth_conf_attribute(const string& driver, const string& attribute,
+        T& value) const
     {
-        return get_conf_attribute("AUTH_MAD_CONF", driver_name, value);
+        return get_conf_attribute("AUTH_MAD_CONF", driver, attribute, value);
     };
 
     /**
@@ -756,12 +753,34 @@ private:
      *  @param value Value of the specific configuration parameter
      *  @return a reference to the generated string
      */
-
     int get_conf_attribute(
         const std::string& key,
         const std::string& name,
         const VectorAttribute* &value) const;
 
+    /**
+     *  Gets a Generic configuration attribute
+     *  @param key String that identifies the configuration parameter group name
+     *  @param name Name of the specific configuration parameter
+     *  @param value Value of the specific configuration parameter
+     *  @return a reference to the generated string
+     */
+    template<typename T>
+    int get_conf_attribute(
+        const std::string& key,
+        const std::string& name,
+        const std::string& vname,
+        T& value) const
+    {
+        const VectorAttribute* vattr;
+
+        if ( get_conf_attribute(key, name, vattr) != 0 )
+        {
+            return -1;
+        }
+
+        return vattr->vector_value(vname, value);
+    }
 };
 
 #endif /*NEBULA_H_*/
