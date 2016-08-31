@@ -504,6 +504,15 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (valid > 0 || valid == -1)
     {
+        if ( egid != -1 && user->get_groups().count(egid) == 0 )
+        {
+            att.resp_msg = "EGID is not in user group list";
+            failure_response(XML_RPC_API,  att);
+
+            user->unlock();
+            return;
+        }
+
         if ( user->login_tokens.set(token, valid, egid) != 0 )
         {
             att.resp_msg = "Max number of tokens limit reached.";
