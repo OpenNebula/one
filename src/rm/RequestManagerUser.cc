@@ -504,7 +504,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else if (valid > 0 || valid == -1)
     {
-        if ( egid != -1 && user->get_groups().count(egid) == 0 )
+        if ( egid != -1 && !user->is_in_group(egid) )
         {
             att.resp_msg = "EGID is not in user group list";
             failure_response(XML_RPC_API,  att);

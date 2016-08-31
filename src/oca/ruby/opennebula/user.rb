@@ -202,7 +202,7 @@ module OpenNebula
         # @return [String, OpenNebula::Error] token in case of success, Error
         #   otherwise
         def login(uname, token, expire, egid = -1)
-            return @client.call(USER_METHODS[:login], uname, token, expire, egi)
+            return @client.call(USER_METHODS[:login], uname, token, expire, egid)
         end
 
         #######################################################################

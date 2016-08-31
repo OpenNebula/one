@@ -112,6 +112,29 @@ public:
     };
 
     /**
+     *  Returns the name of a group
+     *    @param id of the group
+     *    @return name of the group
+     */
+    const string& get_name(int gid)
+    {
+        static string error_str = "";
+
+        Group * group = get(gid, true);
+
+        if ( group == 0 )
+        {
+            return error_str;
+        }
+
+        const string& gname = group->get_name();
+
+        group->unlock();
+
+        return gname;
+    }
+
+    /**
      * Update a particular Group. This method does not update the group's quotas
      *    @param user pointer to Group
      *    @return 0 on success

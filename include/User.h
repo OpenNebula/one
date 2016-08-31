@@ -215,6 +215,15 @@ public:
         return groups.del(group_id);
     }
 
+    /**
+     *  Check if user is in this group
+     *    @param gid id of group
+     */
+    bool is_in_group(int _group_id) const
+    {
+        return groups.contains(_group_id);
+    }
+
     // *************************************************************************
     // Quotas
     // *************************************************************************
