@@ -59,7 +59,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             arp_cache_poisoning if CONF[:arp_cache_poisoning] && @nic[:ip]
 
             # Prevent Mac-spoofing
-            mac_spoofing
+            mac_spoofing if nic[:filter_mac_spoofing] =~ /yes/i
 
             # Apply Firewall
             configure_fw if FIREWALL_PARAMS & @nic.keys != []
