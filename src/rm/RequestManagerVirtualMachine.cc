@@ -448,8 +448,6 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
                                        int              ds_id,
                                        RequestAttributes& att)
 {
-    string  vmdir;
-
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
     vm->add_history(hid, cid, hostname, vmm_mad, tm_mad, ds_id);

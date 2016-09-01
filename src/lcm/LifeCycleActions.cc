@@ -1141,18 +1141,14 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success)
         //----------------------------------------------------------------------
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_MIGRATE:
-        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY:
         case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
-        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
-        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
             if (success)
             {
                 lcm_action = LifeCycleManager::PROLOG_SUCCESS;
@@ -1162,6 +1158,71 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success)
                 lcm_action = LifeCycleManager::PROLOG_FAILURE;
             }
         break;
+
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::PROLOG_SUCCESS;
+            }
+            else
+            {
+                int cpu, mem, disk;
+                vector<VectorAttribute *> pci;
+
+                time_t t = time(0);
+
+                // Close current history record
+                vm->set_prolog_etime(t);
+                vm->set_etime(t);
+                vm->set_reason(History::ERROR);
+                vm->set_action(History::MIGRATE_ACTION);
+
+                vm->set_vm_info();
+
+                vmpool->update_history(vm);
+
+                vm->get_requirements(cpu, mem, disk, pci);
+                hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
+                // Clone previous history record into a new one
+                vm->cp_previous_history();
+
+                vm->set_stime(t);
+
+                vm->set_prolog_stime(t);
+
+                vm->set_last_poll(0);
+
+                switch (vm->get_lcm_state())
+                {
+                    case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+                        vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+                        break;
+                    case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+                        vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+                        break;
+                    case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+                        vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+                        break;
+                    case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+                        vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
+                        break;
+                    default:
+                        break;
+                }
+
+                vmpool->update(vm); //update last_seq & state
+                vmpool->update_history(vm);
+
+                hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+
+                lcm_action = LifeCycleManager::PROLOG_SUCCESS;
+            }
+        break;
+
 
         case VirtualMachine::EPILOG:
         case VirtualMachine::EPILOG_STOP:
