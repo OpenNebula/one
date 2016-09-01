@@ -93,7 +93,7 @@ int LoginTokenPool::reset(const std::string& utk)
 
 bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
 {
-	std::map<std::string, LoginToken *>::const_iterator it;
+	std::map<std::string, LoginToken *>::iterator it;
 
 	egid = -1;
 	it   = tokens.find(utk);
