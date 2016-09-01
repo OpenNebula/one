@@ -32,6 +32,7 @@ require 'one_helper/oneuser_helper'
 require 'one_helper/onequota_helper'
 
 require 'uri'
+require 'uuidtools'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
@@ -140,8 +141,56 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Force one_auth file rewrite"
     }
 
+    GROUP = {
+        :name   => "group",
+        :large  => "--group id|name" ,
+        :description => "Effective GID to use with this token.",
+        :format => String,
+        :proc   => lambda { |o, options|
+            OpenNebulaHelper.rname_to_id(o, "GROUP")
+        }
+    }
+
+    TOKEN_CREATE = {
+        :name => "create",
+        :large => "--create",
+        :description => "Create a new token"
+    }
+
+    TOKEN_DELETE = {
+        :name => "delete",
+        :large => "--delete token",
+        :format => String,
+        :description => "Delete a token"
+    }
+
+    TOKEN_SET = {
+        :name => "set",
+        :large => "--set token",
+        :format => String,
+        :description => "Set a token"
+    }
+
+    STDIN_PASSWORD = {
+        :name => "stdin_password",
+        :large => "--stdin_password",
+        :description => "enable stdin password"
+    }
+
     create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
-    login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME, FORCE]
+
+    login_options  = [SSH,
+                      X509,
+                      X509_PROXY,
+                      KEY,
+                      CERT,
+                      PROXY,
+                      TIME,
+                      FORCE,
+                      GROUP,
+                      STDIN_PASSWORD]
+
+    token_options = login_options + [TOKEN_CREATE, TOKEN_DELETE, TOKEN_SET]
 
     ########################################################################
     # Formatters for arguments
@@ -349,7 +398,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :login, login_desc, :username, :options=>login_options do
-
         options[:time] ||= 36000
 
         helper.login(args[0], options)
@@ -529,5 +577,85 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         options[:filter] = ["AUTH=#{args[0]}", "PASSWORD=#{args[1]}"]
 
         helper.list_pool(options)
+    end
+
+    token_desc = <<-EOT.unindent
+        Manages user tokens. Tokens may be created, removed or set.
+    EOT
+
+    command :token, token_desc, :options=>token_options do
+        user = helper.retrieve_resource(OpenNebula::User::SELF)
+        rc   = user.info
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit_with_code 1, rc.message
+        end
+
+        if options[:set]
+            token = helper.find_token(user, options[:set])
+            if token.count > 1
+                exit_with_code 1, "More than one token starting with '#{options[:set]}' found."
+            elsif token.count == 0
+                exit_with_code 1, "No valid tokens found."
+            end
+
+            token = token[0]
+
+            egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
+
+            # The token will be written to a file in $HOME/.one/<uuid>.token
+
+            # generate a random uuid
+            uuid = UUIDTools::UUID.random_create.to_s
+
+            auth_file = ENV['HOME'] + "/.one/#{uuid}.token"
+            begin
+                FileUtils.mkdir_p(File.dirname(auth_file))
+            rescue Errno::EEXIST
+            end
+
+            file = File.open(auth_file, "w")
+            file.write("#{user['NAME']}:#{token}")
+            file.close
+
+            File.chmod(0600, auth_file)
+
+            msg ="export ONE_AUTH=" + ENV['HOME'] + "/.one/#{uuid}.token"
+            msg << "; export ONE_EGID=#{egid}" if egid
+
+            exit_with_code 0, msg
+        elsif options[:delete]
+            token = helper.find_token(user, options[:delete], true)
+
+            if token.count > 1
+                exit_with_code 1, "More than one token starting with '#{options[:delete]}' found."
+            elsif token.count == 0
+                exit_with_code 1, "No tokens found."
+            end
+
+            token = token[0]
+            rc = user.login(user['NAME'], token, 0)
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit_with_code 1, rc.message
+            else
+                exit_with_code 0, "Token removed."
+            end
+
+            # Remove the token files
+            Dir[ENV['HOME'] + "/.one/*.token"].each do |f|
+                auth = File.read(f).strip
+                if auth == "#{user['NAME']}:#{token}"
+                    puts "Removing #{f}"
+                    File.unlink(f)
+                end
+            end
+
+            0
+        else
+            options[:time] ||= 36000
+            helper.login(user['NAME'], options)
+        end
     end
 end

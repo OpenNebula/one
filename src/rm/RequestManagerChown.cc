@@ -362,7 +362,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth uperms;
     PoolObjectAuth ngperms;
 
-    const VectorAttribute* auth_conf;
     bool driver_managed_groups;
     bool new_group;
 
@@ -387,21 +386,20 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     uname = user->get_name();
 
     auth_driver = user->get_auth_driver();
-    new_group = user->get_groups().count(ngid) != 1;
+    new_group   = user->get_groups().count(ngid) != 1;
 
     user->unlock();
 
-    driver_managed_groups = false;
-
-    if (Nebula::instance().get_auth_conf_attribute(auth_driver, auth_conf) == 0)
+    if ( Nebula::instance().get_auth_conf_attribute(auth_driver,
+            "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0 )
     {
-        auth_conf->vector_value("DRIVER_MANAGED_GROUPS", driver_managed_groups);
+        driver_managed_groups = false;
     }
 
     if (driver_managed_groups && new_group)
     {
-        att.resp_msg =
-            "Groups cannot be manually managed for auth driver "+auth_driver;
+        att.resp_msg = "Groups cannot be manually managed for auth driver " +
+            auth_driver;
         failure_response(ACTION, att);
         return;
     }

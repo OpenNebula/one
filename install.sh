@@ -416,6 +416,7 @@ INSTALL_FILES=(
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
+    ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
@@ -1230,6 +1231,7 @@ HOOK_FT_FILES="share/hooks/host_error.rb"
 #-------------------------------------------------------------------------------
 
 INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
+ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 #-------------------------------------------------------------------------------
 # OCA Files

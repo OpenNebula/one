@@ -130,7 +130,7 @@ public:
 class UserLogin : public Request
 {
 public:
-    UserLogin(): Request("UserLogin", "A:sssi", "Generates or sets a login token")
+    UserLogin(): Request("UserLogin", "A:sssii", "Generates or sets a login token")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();

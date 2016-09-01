@@ -22,16 +22,154 @@
 
 using namespace std;
 
-bool LoginToken::is_valid(const string& user_token) const
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* LoginTokenPool class                                                       */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const int LoginTokenPool::MAX_TOKENS = 10;
+
+/* -------------------------------------------------------------------------- */
+
+LoginTokenPool::~LoginTokenPool()
+{
+    reset();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void LoginTokenPool::reset()
+{
+	std::map<std::string, LoginToken *>::iterator it;
+
+	for (it = tokens.begin() ; it != tokens.end() ; ++it)
+	{
+		delete it->second;
+	}
+
+	tokens.clear();
+}
+
+/* -------------------------------------------------------------------------- */
+
+int LoginTokenPool::set(std::string& utk, time_t valid, int egid)
+{
+	if (tokens.size() >= MAX_TOKENS || valid < -1 || valid == 0)
+	{
+		return -1;
+	}
+
+	LoginToken * tk = new LoginToken;
+
+	utk = tk->set(utk, valid, egid);
+
+	tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int LoginTokenPool::reset(const std::string& utk)
+{
+	std::map<std::string, LoginToken *>::iterator it;
+
+	it = tokens.find(utk);
+
+	if ( it == tokens.end() )
+	{
+		return -1;
+	}
+
+	delete it->second;
+
+	tokens.erase(it);
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
+{
+	std::map<std::string, LoginToken *>::const_iterator it;
+
+	egid = -1;
+	it   = tokens.find(utk);
+
+	if ( it == tokens.end() )
+	{
+		return false;
+	}
+
+	if ( it->second->is_valid(utk, egid) == true)
+	{
+		return true;
+	}
+
+	delete it->second;
+
+	tokens.erase(it);
+
+	return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void LoginTokenPool::from_xml_node(const std::vector<xmlNodePtr>& content)
+{
+	std::vector<xmlNodePtr>::const_iterator it;
+
+	for (it = content.begin(); it != content.end(); ++it)
+	{
+		LoginToken * tk = new LoginToken;
+		std::string utk = tk->from_xml_node(*it);
+
+		tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+
+std::string& LoginTokenPool::to_xml(std::string& xml) const
+{
+	std::map<std::string, LoginToken *>::const_iterator it;
+	std::ostringstream oss;
+
+	for ( it = tokens.begin() ; it != tokens.end() ; ++it)
+	{
+		it->second->to_xml(oss);
+	}
+
+	xml = oss.str();
+
+	return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* LoginToken class                                                           */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool SessionToken::is_valid(const string& user_token) const
 {
     return ((user_token == token) &&
             ((expiration_time == -1) || (time(0) < expiration_time)));
 }
 
 /* -------------------------------------------------------------------------- */
+
+void SessionToken::reset()
+{
+    token.clear();
+    expiration_time = 0;
+}
+
 /* -------------------------------------------------------------------------- */
 
-const std::string& LoginToken::set(const std::string& user_token, time_t valid)
+const std::string& SessionToken::set(const std::string& user_token, time_t valid)
 {
     if (valid == -1)
     {
@@ -40,10 +178,6 @@ const std::string& LoginToken::set(const std::string& user_token, time_t valid)
     else if (valid > 0 )
     {
         expiration_time = time(0) + valid;
-    }
-    else
-    {
-        expiration_time = 0;
     }
 
     if (!user_token.empty())
@@ -59,45 +193,29 @@ const std::string& LoginToken::set(const std::string& user_token, time_t valid)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-void LoginToken::reset()
+void LoginToken::to_xml(std::ostringstream& xml) const
 {
-    token.clear();
-    expiration_time = 0;
+	xml << "<LOGIN_TOKEN>"
+		<< "<TOKEN>" << token << "</TOKEN>"
+		<< "<EXPIRATION_TIME>" << expiration_time << "</EXPIRATION_TIME>"
+		<< "<EGID>" << egid << "</EGID>"
+		<< "</LOGIN_TOKEN>";
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-std::string& LoginToken::to_xml(std::string& sxml) const
-{
-    std::ostringstream xml;
-
-    if ( expiration_time == 0 )
-    {
-        xml << "<LOGIN_TOKEN/>";
-    }
-    else
-    {
-        xml << "<LOGIN_TOKEN>"
-            << "<TOKEN>" << token << "</TOKEN>"
-            << "<EXPIRATION_TIME>" << expiration_time << "</EXPIRATION_TIME>"
-            << "</LOGIN_TOKEN>";
-    }
-
-    sxml = xml.str();
-
-    return sxml;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LoginToken::from_xml_node(const xmlNodePtr node)
+const std::string& LoginToken::from_xml_node(const xmlNodePtr node)
 {
     ObjectXML oxml(node);
 
     oxml.xpath(token, "/LOGIN_TOKEN/TOKEN", "");
     oxml.xpath<time_t>(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0);
+    oxml.xpath<int>(egid, "/LOGIN_TOKEN/EGID", -1);
+
+	return token;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

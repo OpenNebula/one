@@ -192,15 +192,17 @@ module OpenNebula
 
         # Sets the LOGIN_TOKEN for the user
         #
-        # @param username [String] of the user
+        # @param uname [String] of the user
         # @param token [String] the login token, if empty OpenNebula will
         #   generate one
         # @param expire [String] valid period of the token in secs. If <= 0
         #   the token will be reset
+        # @param egid [Integer] Effective GID to use with this token. To use
+        # the current GID and user groups set it to -1
         # @return [String, OpenNebula::Error] token in case of success, Error
         #   otherwise
-        def login(username, token, expire)
-            return @client.call(USER_METHODS[:login], username, token, expire)
+        def login(uname, token, expire, egid = -1)
+            return @client.call(USER_METHODS[:login], uname, token, expire, egid)
         end
 
         #######################################################################

@@ -1118,7 +1118,9 @@ int Nebula::get_conf_attribute(
     std::vector<const VectorAttribute*>::const_iterator it;
     std::vector<const VectorAttribute*> values;
     std::string template_name;
-    std::string name_upper;
+    std::string name_upper = name;
+
+    one_util::toupper(name_upper);
 
     nebula_configuration->get(key, values);
 
@@ -1126,12 +1128,10 @@ int Nebula::get_conf_attribute(
     {
         value         = *it;
         template_name = (*it)->vector_value("NAME");
-        name_upper    = name;
 
-        one_util::toupper(name_upper);
         one_util::toupper(template_name);
 
-        if ( template_name == name_upper)
+        if ( template_name == name_upper )
         {
             return 0;
         }

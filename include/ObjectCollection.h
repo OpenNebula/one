@@ -109,7 +109,7 @@ public:
      * @param id ID to search
      * @return true if the collection contains the given id
      */
-    bool contains(int id)
+    bool contains(int id) const
     {
         return collection_set.count(id) > 0;
     }
