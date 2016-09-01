@@ -35,7 +35,7 @@ define(function(require) {
     ["VM.resume", "VM.deploy", "VM.terminate_hard", "VM.recover"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.SUSPENDED] =
-    ["VM.resume", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.stop", "VM.terminate_hard", "VM.recover"];
+    ["VM.resume", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.stop", "VM.terminate_hard", "VM.recover", "VM.migrate"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.DONE] =
     [];
