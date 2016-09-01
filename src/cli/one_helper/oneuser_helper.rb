@@ -104,7 +104,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     # Generates a token and stores it in ONE_AUTH path as defined in this class
     ############################################################################
     def login(username, options)
-
         #-----------------------------------------------------------------------
         # Init the associated Authentication class to generate the token.
         #-----------------------------------------------------------------------
@@ -172,14 +171,21 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             sync = true
         end
 
-        token        = auth.login_token(username, options[:time])
+        if options[:stdin_password]
+            token = STDIN.read.strip
+        else
+            token = auth.login_token(username, options[:time])
+        end
+
         login_client = OpenNebula::Client.new("#{username}:#{token}",
                                               nil,
                                               :sync => sync)
 
         user = OpenNebula::User.new(User.build_xml, login_client)
 
-        token_oned = user.login(username, "", options[:time])
+        egid = options[:group] || -1
+
+        token_oned = user.login(username, "", options[:time], egid)
 
         return -1, token_oned.message if OpenNebula.is_error?(token_oned)
 
@@ -378,6 +384,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    def find_token(user, token, show_expired=false)
+        user_hash = user.to_hash
+
+        valid_tokens = [user_hash["USER"]["LOGIN_TOKEN"]].flatten.map do |e|
+            next unless e["TOKEN"].start_with?(token)
+
+            if !show_expired
+                next unless Time.at(e["EXPIRATION_TIME"].to_i) > Time.now
+            end
+
+            e["TOKEN"]
+        end.compact
+    end
+
     private
 
     def factory(id=nil)
@@ -409,30 +429,63 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
-
-        if !user['LOGIN_TOKEN/TOKEN'].nil?
-            puts str % ["LOGIN_TOKEN", user['LOGIN_TOKEN/TOKEN']]
-
-            etime = user['LOGIN_TOKEN/EXPIRATION_TIME']
-
-            validity_str = case etime
-                when nil  then ""
-                when "-1" then "forever"
-                else "not after #{Time.at(etime.to_i)}"
-            end
-
-            puts str % ["TOKEN VALIDITY", validity_str ]
-        end
-
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
+        puts
+
+        user_hash = user.to_hash
+        client    = @client
+
+        gid = user['GID']
+        tokens = [user_hash['USER']['LOGIN_TOKEN']].flatten.compact
+
+        CLIHelper.print_header(str_h1 % "TOKENS",false)
+        if tokens && !tokens.empty?
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>7 do |d|
+                    d["TOKEN"]
+               end
+
+                column :EGID, "", :left, :size=>5 do |d|
+                    d["EGID"].to_i == -1 ? "*" + gid : d["EGID"]
+                end
+
+                column :EGROUP, "", :left, :size=>10 do |d|
+                    client = OpenNebulaHelper::OneHelper.get_client
+
+                    egid = d["EGID"].to_i == -1 ? gid : d["EGID"]
+
+                    group = Group.new_with_id(egid, client)
+                    rc = group.info
+
+                    if OpenNebula.is_error?(rc)
+                        "-"
+                    else
+                        group['NAME']
+                    end
+                end
+
+                column :EXPIRATION, "", :left, :size=>20 do |d|
+                    etime = d["EXPIRATION_TIME"]
+                    expired = Time.now >= Time.at(d["EXPIRATION_TIME"].to_i)
+                    case etime
+                    when nil  then ""
+                    when "-1" then "forever"
+                    else
+                        if expired
+                            "expired"
+                        else
+                            Time.at(etime.to_i).to_s
+                        end
+                    end
+                end
+            end.show(tokens,{})
+        end
 
         puts
 
         CLIHelper.print_header(str_h1 % "USER TEMPLATE",false)
         puts user.template_str
-
-        user_hash = user.to_hash
 
         default_quotas = nil
 
@@ -443,4 +496,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
+
+
 end
