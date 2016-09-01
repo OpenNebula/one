@@ -201,7 +201,7 @@ void SysLog::log(
                 << "[" << error_names[type] << "]: "
                 << line;
 
-            syslog(slevel, oss.str().c_str());
+            syslog(slevel, "%s", oss.str().c_str());
         }
     }
 }
