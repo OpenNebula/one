@@ -480,12 +480,6 @@ bool UserPool::authenticate_internal(User *        user,
     // -------------------------------------------------------------------------
     // Initialize authentication variables
     // -------------------------------------------------------------------------
-    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUPS",
-            driver_managed_groups) != 0)
-    {
-        driver_managed_groups = false;
-    }
-
     username = user->name;
     password = user->password;
 
@@ -500,6 +494,12 @@ bool UserPool::authenticate_internal(User *        user,
     umask = user->get_umask();
 
     auth_driver = user->auth_driver;
+
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUPS",
+            driver_managed_groups) != 0)
+    {
+        driver_managed_groups = false;
+    }
 
     AuthRequest ar(user_id, group_ids);
 
