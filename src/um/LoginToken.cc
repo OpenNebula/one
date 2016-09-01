@@ -41,110 +41,110 @@ LoginTokenPool::~LoginTokenPool()
 
 void LoginTokenPool::reset()
 {
-	std::map<std::string, LoginToken *>::iterator it;
+    std::map<std::string, LoginToken *>::iterator it;
 
-	for (it = tokens.begin() ; it != tokens.end() ; ++it)
-	{
-		delete it->second;
-	}
+    for (it = tokens.begin() ; it != tokens.end() ; ++it)
+    {
+        delete it->second;
+    }
 
-	tokens.clear();
+    tokens.clear();
 }
 
 /* -------------------------------------------------------------------------- */
 
 int LoginTokenPool::set(std::string& utk, time_t valid, int egid)
 {
-	if (tokens.size() >= MAX_TOKENS || valid < -1 || valid == 0)
-	{
-		return -1;
-	}
+    if (tokens.size() >= MAX_TOKENS || valid < -1 || valid == 0)
+    {
+        return -1;
+    }
 
-	LoginToken * tk = new LoginToken;
+    LoginToken * tk = new LoginToken;
 
-	utk = tk->set(utk, valid, egid);
+    utk = tk->set(utk, valid, egid);
 
-	tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
+    tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
 int LoginTokenPool::reset(const std::string& utk)
 {
-	std::map<std::string, LoginToken *>::iterator it;
+    std::map<std::string, LoginToken *>::iterator it;
 
-	it = tokens.find(utk);
+    it = tokens.find(utk);
 
-	if ( it == tokens.end() )
-	{
-		return -1;
-	}
+    if ( it == tokens.end() )
+    {
+        return -1;
+    }
 
-	delete it->second;
+    delete it->second;
 
-	tokens.erase(it);
+    tokens.erase(it);
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
 bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
 {
-	std::map<std::string, LoginToken *>::iterator it;
+    std::map<std::string, LoginToken *>::iterator it;
 
-	egid = -1;
-	it   = tokens.find(utk);
+    egid = -1;
+    it   = tokens.find(utk);
 
-	if ( it == tokens.end() )
-	{
-		return false;
-	}
+    if ( it == tokens.end() )
+    {
+        return false;
+    }
 
-	if ( it->second->is_valid(utk, egid) == true)
-	{
-		return true;
-	}
+    if ( it->second->is_valid(utk, egid) == true)
+    {
+        return true;
+    }
 
-	delete it->second;
+    delete it->second;
 
-	tokens.erase(it);
+    tokens.erase(it);
 
-	return false;
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */
 
 void LoginTokenPool::from_xml_node(const std::vector<xmlNodePtr>& content)
 {
-	std::vector<xmlNodePtr>::const_iterator it;
+    std::vector<xmlNodePtr>::const_iterator it;
 
-	for (it = content.begin(); it != content.end(); ++it)
-	{
-		LoginToken * tk = new LoginToken;
-		std::string utk = tk->from_xml_node(*it);
+    for (it = content.begin(); it != content.end(); ++it)
+    {
+        LoginToken * tk = new LoginToken;
+        std::string utk = tk->from_xml_node(*it);
 
-		tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
-	}
+        tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 std::string& LoginTokenPool::to_xml(std::string& xml) const
 {
-	std::map<std::string, LoginToken *>::const_iterator it;
-	std::ostringstream oss;
+    std::map<std::string, LoginToken *>::const_iterator it;
+    std::ostringstream oss;
 
-	for ( it = tokens.begin() ; it != tokens.end() ; ++it)
-	{
-		it->second->to_xml(oss);
-	}
+    for ( it = tokens.begin() ; it != tokens.end() ; ++it)
+    {
+        it->second->to_xml(oss);
+    }
 
-	xml = oss.str();
+    xml = oss.str();
 
-	return xml;
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -196,11 +196,11 @@ const std::string& SessionToken::set(const std::string& user_token, time_t valid
 
 void LoginToken::to_xml(std::ostringstream& xml) const
 {
-	xml << "<LOGIN_TOKEN>"
-		<< "<TOKEN>" << token << "</TOKEN>"
-		<< "<EXPIRATION_TIME>" << expiration_time << "</EXPIRATION_TIME>"
-		<< "<EGID>" << egid << "</EGID>"
-		<< "</LOGIN_TOKEN>";
+    xml << "<LOGIN_TOKEN>"
+        << "<TOKEN>" << token << "</TOKEN>"
+        << "<EXPIRATION_TIME>" << expiration_time << "</EXPIRATION_TIME>"
+        << "<EGID>" << egid << "</EGID>"
+        << "</LOGIN_TOKEN>";
 }
 
 /* -------------------------------------------------------------------------- */
@@ -213,7 +213,7 @@ const std::string& LoginToken::from_xml_node(const xmlNodePtr node)
     oxml.xpath<time_t>(expiration_time, "/LOGIN_TOKEN/EXPIRATION_TIME", 0);
     oxml.xpath<int>(egid, "/LOGIN_TOKEN/EGID", -1);
 
-	return token;
+    return token;
 }
 
 /* -------------------------------------------------------------------------- */
