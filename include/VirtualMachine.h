@@ -1209,23 +1209,12 @@ public:
             vector<VectorAttribute *>& pci_dev);
 
     /**
-     * Returns the list of Cluster IDs where the VM can be deployed, based
-     * on the Datastores and VirtualNetworks requested
-     *
-     * @param cluster_ids set of Cluster IDs
-     * @param refresh update the Cluster IDs from the source DS or VNet
-     * @param error_str Returns the error reason, if any
-     * @return 0 on success
-     */
-    int get_cluster_requirements(set<int>& cluster_ids, bool refresh, string& error_str);
-
-    /**
      * Adds automatic placement requirements: Datastore and Cluster
-     *
+     *    @param cluster_ids set of viable clusters for this VM
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(string& error_str);
+    int automatic_requirements(set<int>& cluster_ids, string& error_str);
 
     /**
      *  Checks if the resize parameters are valid

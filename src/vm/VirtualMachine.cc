@@ -415,6 +415,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     string value;
     int    ivalue;
     float  fvalue;
+    set<int> cluster_ids;
 
     ostringstream oss;
 
@@ -653,7 +654,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    rc = automatic_requirements(error_str);
+    rc = automatic_requirements(cluster_ids, error_str);
 
     if ( rc != 0 )
     {
@@ -1497,7 +1498,7 @@ void update_os_file(VectorAttribute *  os,
 
 /* ------------------------------------------------------------------------ */
 
-void update_disk_cluster_id(VectorAttribute* disk)
+static void update_disk_cluster_id(VectorAttribute* disk)
 {
     ClusterPool *   clpool = Nebula::instance().get_clpool();
     int             ds_id;
@@ -1515,7 +1516,7 @@ void update_disk_cluster_id(VectorAttribute* disk)
 
 /* ------------------------------------------------------------------------ */
 
-void update_nic_cluster_id(VectorAttribute* nic)
+static void update_nic_cluster_id(VectorAttribute* nic)
 {
     ClusterPool *   clpool = Nebula::instance().get_clpool();
     int             vn_id;
@@ -1533,8 +1534,17 @@ void update_nic_cluster_id(VectorAttribute* nic)
 
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::get_cluster_requirements(
-        set<int>& cluster_ids, bool refresh, string& error_str)
+/**
+ * Returns the list of Cluster IDs where the VM can be deployed, based
+ * on the Datastores and VirtualNetworks requested
+ *
+ * @param tmpl of the VirtualMachine
+ * @param cluster_ids set of Cluster IDs
+ * @param error_str Returns the error reason, if any
+ * @return 0 on success
+ */
+static int get_cluster_requirements(Template *tmpl, set<int>& cluster_ids,
+        string& error_str)
 {
     ostringstream   oss;
     int             num_vatts;
@@ -1544,14 +1554,11 @@ int VirtualMachine::get_cluster_requirements(
     int rc;
 
     // Get cluster id from the KERNEL and INITRD (FILE Datastores)
-    VectorAttribute * osatt = obj_template->get("OS");
+    VectorAttribute * osatt = tmpl->get("OS");
 
     if ( osatt != 0 )
     {
-        if (refresh)
-        {
-            update_os_file(osatt, "KERNEL");
-        }
+        update_os_file(osatt, "KERNEL");
 
         rc = check_and_set_cluster_id("KERNEL_DS_CLUSTER_ID", osatt, cluster_ids);
 
@@ -1560,10 +1567,7 @@ int VirtualMachine::get_cluster_requirements(
             goto error_kernel;
         }
 
-        if (refresh)
-        {
-            update_os_file(osatt, "INITRD");
-        }
+        update_os_file(osatt, "INITRD");
 
         rc = check_and_set_cluster_id("INITRD_DS_CLUSTER_ID", osatt, cluster_ids);
 
@@ -1574,14 +1578,11 @@ int VirtualMachine::get_cluster_requirements(
     }
 
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
-    num_vatts = obj_template->get("DISK",vatts);
+    num_vatts = tmpl->get("DISK",vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
-        if (refresh)
-        {
-            update_disk_cluster_id(vatts[i]);
-        }
+        update_disk_cluster_id(vatts[i]);
 
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
@@ -1595,14 +1596,11 @@ int VirtualMachine::get_cluster_requirements(
     vatts.clear();
 
     // Get cluster id from all NIC vector attributes
-    num_vatts = obj_template->get("NIC", vatts);
+    num_vatts = tmpl->get("NIC", vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
-        if (refresh)
-        {
-            update_nic_cluster_id(vatts[i]);
-        }
+        update_nic_cluster_id(vatts[i]);
 
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
@@ -1616,7 +1614,7 @@ int VirtualMachine::get_cluster_requirements(
     vatts.clear();
 
     // Get cluster id from all PCI attibutes, TYPE = NIC
-    num_vatts = obj_template->get("PCI", vatts);
+    num_vatts = tmpl->get("PCI", vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
@@ -1625,10 +1623,7 @@ int VirtualMachine::get_cluster_requirements(
             continue;
         }
 
-        if (refresh)
-        {
-            update_nic_cluster_id(vatts[i]);
-        }
+        update_nic_cluster_id(vatts[i]);
 
         rc = check_and_set_cluster_id("CLUSTER_ID", vatts[i], cluster_ids);
 
@@ -1659,8 +1654,8 @@ error_disk:
 error_kernel:
     if (rc == -1)
     {
-        oss << "Incompatible cluster in KERNEL datastore, it should be in cluster "
-            << one_util::join(cluster_ids, ',') << ".";
+        oss<<"Incompatible cluster in KERNEL datastore, it should be in cluster "
+           << one_util::join(cluster_ids, ',') << ".";
     }
     else
     {
@@ -1672,8 +1667,8 @@ error_kernel:
 error_initrd:
     if (rc == -1)
     {
-        oss << "Incompatible cluster in INITRD datastore, it should be in cluster "
-            << one_util::join(cluster_ids, ',') << ".";
+        oss<<"Incompatible cluster in INITRD datastore, it should be in cluster "
+           << one_util::join(cluster_ids, ',') << ".";
     }
     else
     {
@@ -1700,7 +1695,8 @@ error_nic:
 error_pci:
     if (rc == -1)
     {
-        oss << "Incompatible clusters in PCI (TYPE=NIC). Network for PCI "<< incomp_id
+        oss << "Incompatible clusters in PCI (TYPE=NIC). Network for PCI "
+            << incomp_id
             << " is not in the same cluster as the one used by other VM elements "
             << "(cluster " << one_util::join(cluster_ids, ',') << ")";
     }
@@ -1721,16 +1717,16 @@ error_common:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::automatic_requirements(string& error_str)
+int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
+    string& error_str)
 {
     ostringstream   oss;
-    set<int>        cluster_ids;
     set<string>     clouds;
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
 
-    int rc = get_cluster_requirements(cluster_ids, true, error_str);
+    int rc = get_cluster_requirements(obj_template, cluster_ids, error_str);
 
     if (rc != 0)
     {

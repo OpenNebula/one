@@ -522,7 +522,8 @@ int DispatchManager::release(
 
     if (vm->get_state() == VirtualMachine::HOLD)
     {
-        int rc = vm->automatic_requirements(error_str);
+        set<int> cluster_ids;
+        int rc = vm->automatic_requirements(cluster_ids, error_str);
 
         if (rc != 0)
         {
@@ -686,7 +687,8 @@ int DispatchManager::resume(
     if (vm->get_state() == VirtualMachine::STOPPED ||
         vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
-        int rc = vm->automatic_requirements(error_str);
+        set<int> cluster_ids;
+        int rc = vm->automatic_requirements(cluster_ids, error_str);
 
         if (rc != 0)
         {
@@ -829,7 +831,8 @@ int DispatchManager::resched(
     {
         if (do_resched)
         {
-            int rc = vm->automatic_requirements(error_str);
+            set<int> cluster_ids;
+            int rc = vm->automatic_requirements(cluster_ids, error_str);
 
             if (rc != 0)
             {

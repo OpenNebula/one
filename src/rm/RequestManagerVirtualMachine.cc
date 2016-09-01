@@ -1157,7 +1157,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    int rc = vm->automatic_requirements(error_str);
+    int rc = vm->automatic_requirements(cluster_ids, error_str);
 
     vmpool->update(vm);
 
@@ -1169,8 +1169,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         failure_response(ACTION, att);
         return;
     }
-
-    vm->get_cluster_requirements(cluster_ids, false, error_str);
 
     vm->unlock();
 
