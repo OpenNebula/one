@@ -706,7 +706,7 @@ static void monitor_action(istringstream& is,
             continue;
         }
 
-        VirtualMachineManagerDriver::process_poll(vm_id, poll_info);
+        VirtualMachineManagerDriver::process_poll(vm_id, poll_info, false);
     }
 
     oss << "Datastore " << ds_name << " (" << id << ") successfully monitored.";

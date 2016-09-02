@@ -645,7 +645,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             string monitor_str;
             getline(is, monitor_str);
 
-            process_poll(vm, monitor_str);
+            process_poll(vm, monitor_str, true);
         }
         else
         {
@@ -670,7 +670,8 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 
 void VirtualMachineManagerDriver::process_poll(
         int id,
-        const string &monitor_str)
+        const string &monitor_str,
+        bool update_db)
 {
     // Get the VM from the pool
     VirtualMachine* vm = Nebula::instance().get_vmpool()->get(id,true);
@@ -680,7 +681,7 @@ void VirtualMachineManagerDriver::process_poll(
         return;
     }
 
-    process_poll(vm, monitor_str);
+    process_poll(vm, monitor_str, update_db);
 
     vm->unlock();
 }
@@ -690,7 +691,8 @@ void VirtualMachineManagerDriver::process_poll(
 
 void VirtualMachineManagerDriver::process_poll(
         VirtualMachine* vm,
-        const string&   monitor_str)
+        const string&   monitor_str,
+        bool            update_db)
 {
     char state;
 
@@ -705,14 +707,19 @@ void VirtualMachineManagerDriver::process_poll(
 
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
-        if (vm->update_info(monitor_str) == 0)
+        int rc = vm->update_info(monitor_str);
+
+        if ( update_db )
         {
-            vmpool->update_history(vm);
+            if ( rc == 0)
+            {
+                vmpool->update_history(vm);
 
-            vmpool->update_monitoring(vm);
+                vmpool->update_monitoring(vm);
+            }
+
+            vmpool->update(vm);
         }
-
-        vmpool->update(vm);
 
         VirtualMachineMonitorInfo &minfo = vm->get_info();
 
