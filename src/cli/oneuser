@@ -593,6 +593,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         if options[:set]
             token = helper.find_token(user, options[:set])
+
             if token.count > 1
                 exit_with_code 1, "More than one token starting with '#{options[:set]}' found."
             elsif token.count == 0

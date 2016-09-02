@@ -387,7 +387,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
     def find_token(user, token, show_expired=false)
         user_hash = user.to_hash
 
-        valid_tokens = [user_hash["USER"]["LOGIN_TOKEN"]].flatten.map do |e|
+        valid_tokens = [user_hash["USER"]["LOGIN_TOKEN"]].flatten.compact
+
+        return [] if valid_tokens.empty?
+
+        valid_tokens.map do |e|
             next unless e["TOKEN"].start_with?(token)
 
             if !show_expired
@@ -395,7 +399,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             end
 
             e["TOKEN"]
-        end.compact
+        end.compact if !valid_tokens.empty?
     end
 
     private
