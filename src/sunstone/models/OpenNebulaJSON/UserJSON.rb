@@ -90,9 +90,10 @@ module OpenNebulaJSON
         def login(params=Hash.new)
             username = params['username'].nil? ? "" : params['username']
             token   = params['token'].nil? ? "" : params['token']
-            expire  = params['expire'].nil? ? 36000 : params['expire']
+            expire  = params['expire'].nil? ? 36000 : params['expire'].to_i
+            egid    = params['egid'].nil? ? -1 : params['egid'].to_i
 
-            super(username, token, expire)
+            super(username, token, expire, egid)
         end
 
     end

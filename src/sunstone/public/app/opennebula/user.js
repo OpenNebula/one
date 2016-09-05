@@ -79,7 +79,8 @@ define(function(require) {
     "login": function(params) {
       var action_obj = {"username": params.data.username,
                         "token": params.data.token,
-                        "expire": params.data.expire};
+                        "expire": params.data.expire,
+                        "egid": params.data.egid};
 
       OpenNebulaAction.simple_action(params, RESOURCE, "login", action_obj);
     },

@@ -25,7 +25,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var OpenNebula = require('opennebula');
-  //var Config = require('sunstone-config');
+  var ResourceSelect = require('utils/resource-select');
 
   /*
     CONSTANTS
@@ -95,6 +95,13 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    ResourceSelect.insert({
+      context: $('.token-group-selector', context),
+      resourceName: 'Group',
+      initValue: '-1',
+      extraOptions: '<option value="-1">' + Locale.tr("None") + '</option>'
+    });
+
     context.on("click", "i.remove-tab", function(){
       var tr = $(this).closest('tr');
 
@@ -121,20 +128,25 @@ define(function(require) {
             }
           });
         },
-        error: Notifier.onError
+        error: function(request, error_json){
+          Sunstone.getDialog(DIALOG_ID).hide();
+          Notifier.onError(request, error_json);
+        }
       });
     });
 
     $("#token_btn", context).click(function(){
-
       $("#token_btn", context).html('<i class="fa fa-spinner fa-spin"/>')
+
+      var expire = $(".token-expiration", context).val();
+      var egid   = $(".token-group-selector .resource_list_select").val();
 
       OpenNebula.User.login({
         data : {
           id: "-1",
           'username': that.element.NAME,
-          //token
-          //expire
+          'expire': expire,
+          'egid': egid
         },
         success: function(req, response){
           OpenNebula.User.show({
@@ -148,7 +160,10 @@ define(function(require) {
             }
           });
         },
-        error: Notifier.onError
+        error: function(request, error_json){
+          Sunstone.getDialog(DIALOG_ID).hide();
+          Notifier.onError(request, error_json);
+        }
       });
     });
 

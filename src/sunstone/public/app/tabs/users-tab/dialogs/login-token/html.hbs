@@ -36,7 +36,7 @@
         <table>
           <thead>
             <tr>
-              <th>{{tr "Expiration"}}</th>
+              <th>{{tr "Valid until"}}</th>
               <th>{{tr "Target Group"}}</th>
               <th>{{tr "Token"}}</th>
               <th></th>
@@ -58,10 +58,26 @@
       </div>
     </div>
     {{/if}}
+    <br/>
     <div class="row">
-      <button id="token_btn" type="button" class="button radius right">
-        {{tr "Get a new token"}}
-      </button>
+      <div class="large-4 medium-6 columns">
+        <label>
+          {{tr "Expiration, in seconds"}}
+          <input class="token-expiration" type="number" value="36000"/>
+        </labe>
+      </div>
+      <div class="large-4 medium-6 columns end">
+        <label>
+          {{tr "Group"}}
+          <div class="token-group-selector"/>
+        </labe>
+      </div>
+      <div class="large-4 medium-6 columns end">
+        <label>&nbsp;</label>
+        <button id="token_btn" type="button" class="button radius">
+          {{tr "Get a new token"}}
+        </button>
+      </div>
     </div>
     <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
       <span aria-hidden="true">&times;</span>
