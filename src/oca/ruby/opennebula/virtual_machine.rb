@@ -218,6 +218,27 @@ module OpenNebula
             'SL_PRIMARYIPADDRESS'
         ]
 
+        # VirtualMachineDriver constants
+        module Driver
+            POLL_ATTRIBUTE = {
+                :memory          => "MEMORY",
+                :cpu             => "CPU",
+                :nettx           => "NETTX",
+                :netrx           => "NETRX",
+                :state           => "STATE",
+                :disk_size       => "DISK_SIZE",
+                :snapshot_size   => "SNAPSHOT_SIZE"
+            }
+
+            VM_STATE = {
+                :active  => 'a',
+                :paused  => 'p',
+                :error   => 'e',
+                :deleted => 'd',
+                :unknown => '-'
+            }
+        end
+
         # Creates a VirtualMachine description with just its identifier
         # this method should be used to create plain VirtualMachine objects.
         # +id+ the id of the vm

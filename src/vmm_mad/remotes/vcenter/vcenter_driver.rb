@@ -42,7 +42,6 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
-require 'VirtualMachineDriver'
 
 ################################################################################
 # Monkey patch rbvmomi library with some extra functions
@@ -1361,8 +1360,8 @@ end
 class VCenterVm
     attr_reader :vm
 
-    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
-    VM_STATE        = VirtualMachineDriver::VM_STATE
+    POLL_ATTRIBUTE  = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
+    VM_STATE        = OpenNebula::VirtualMachine::Driver::VM_STATE
 
     ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object

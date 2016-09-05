@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+require 'opennebula'
 require "OpenNebulaDriver"
 require "CommandManager"
 require 'base64'
@@ -52,23 +53,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :update_sg   => "UPDATESG"
     }
 
-    POLL_ATTRIBUTE = {
-        :memory          => "MEMORY",
-        :cpu             => "CPU",
-        :nettx           => "NETTX",
-        :netrx           => "NETRX",
-        :state           => "STATE",
-        :disk_size       => "DISK_SIZE",
-        :snapshot_size   => "SNAPSHOT_SIZE"
-    }
-
-    VM_STATE = {
-        :active  => 'a',
-        :paused  => 'p',
-        :error   => 'e',
-        :deleted => 'd',
-        :unknown => '-'
-    }
+    POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
+    VM_STATE = OpenNebula::VirtualMachine::Driver::VM_STATE
 
     HOST_ARG = 1
 
