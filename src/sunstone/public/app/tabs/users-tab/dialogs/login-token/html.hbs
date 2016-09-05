@@ -14,7 +14,7 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<div id="{{dialogId}}" class="reveal" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="large reveal" role="dialog" data-reveal >
   <div class="row">
     <div class="large-12 columns">
       <h3 class="subheader">{{tr "Login Token"}}</h3>
@@ -30,26 +30,34 @@
         </p>
       </div>
     </div>
-    {{#if element.LOGIN_TOKEN.TOKEN}}
+    {{#if tokens}}
     <div class="row">
       <div class="large-12 columns">
-        <p>{{tr "Current login token, valid until"}} {{humanizeTime element.LOGIN_TOKEN.EXPIRATION_TIME}}</p>
-        <br/>
-        <pre class="text-center">{{element.LOGIN_TOKEN.TOKEN}}</pre>
-        <br/>
-        <br/>
+        <table>
+          <thead>
+            <tr>
+              <th>{{tr "Expiration"}}</th>
+              <th>{{tr "Target Group"}}</th>
+              <th>{{tr "Token"}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          {{#each tokens}}
+            <tr>
+              <td>{{humanizeTime EXPIRATION_TIME}}</td>
+              <td>{{EGROUP}}</td>
+              <td class="token-text"><pre>{{TOKEN}}</pre></td>
+              <td>
+                <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+              </td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
       </div>
     </div>
     {{/if}}
-    <div class="row">
-      <div class="large-12 columns">
-        {{#if element.LOGIN_TOKEN.TOKEN}}
-        <p class="label secondary radius right">
-          <i class="fa fa-warning"/> {{tr "Getting a new token will invalidate the current one"}}
-        </p>
-        {{/if}}
-      </div>
-    </div>
     <div class="row">
       <button id="token_btn" type="button" class="button radius right">
         {{tr "Get a new token"}}

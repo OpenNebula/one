@@ -42,6 +42,7 @@ define(function(require) {
   var PANEL_ID = require('./user-config/panelId');
   var RESOURCE = "User";
   var XML_ROOT = "USER";
+  var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
 
   /*
     CONSTRUCTOR
@@ -92,14 +93,13 @@ define(function(require) {
 
     $('#provision_user_views_select option[value="' + config['user_config']["default_view"] + '"]', context).attr('selected', 'selected');
 
-    var login_token = this.element.LOGIN_TOKEN.TOKEN;
-    if (login_token && login_token.length) {
-      $(".provision_login_token_current", context).show();
-      $(".provision_login_token_valid", context).text(Humanize.prettyTime(this.element.LOGIN_TOKEN.EXPIRATION_TIME));
-      $(".provision_login_token_value", context).text(this.element.LOGIN_TOKEN.TOKEN);
-    } else {
-      $(".provision_login_token_current", context).hide();
-    }
+    // Login token button
+    context.off("click", ".provision_login_token_button");
+    context.on("click", ".provision_login_token_button", function(){
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
+      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).show();
+    });
 
     $("#provision_change_password_form").submit(function() {
       var pw = $('#provision_new_password', this).val();
@@ -132,37 +132,6 @@ define(function(require) {
       var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes(keypair)+'"';
 
       Sunstone.runAction("User.append_template", "-1", template_str);
-
-      return false;
-    });
-
-    $("#provision_login_token_form", context).submit(function() {
-      $(".provision_login_token_button", context).html('<i class="fa fa-spinner fa-spin"/>')
-
-      OpenNebula.User.login({
-        data : {
-          id: "-1",
-          'username': that.element.NAME,
-          //token
-          //expire
-        },
-        success: function(req, response){
-          OpenNebula.User.show({
-            data : {
-              id: that.element.ID
-            },
-            success: function(request, user_json){
-              $(".provision_login_token_button", context).text(Locale.tr("Get a login token"));
-
-              $(".provision_login_token_current", context).show();
-              $(".provision_login_token_valid", context).text(Humanize.prettyTime(user_json.USER.LOGIN_TOKEN.EXPIRATION_TIME));
-              $(".provision_login_token_value", context).text(user_json.USER.LOGIN_TOKEN.TOKEN);
-            },
-            error: Notifier.onError
-          });
-        },
-        error: Notifier.onError
-      });
 
       return false;
     });

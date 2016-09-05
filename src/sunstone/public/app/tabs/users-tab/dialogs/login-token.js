@@ -51,6 +51,7 @@ define(function(require) {
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
   Dialog.prototype.setParams = _setParams;
+  Dialog.prototype.loginSuccess = _loginSuccess;
 
   return Dialog;
 
@@ -67,14 +68,62 @@ define(function(require) {
   }
 
   function _html() {
+    var tokens = [];
+
+    if (this.element != undefined && this.element.LOGIN_TOKEN != undefined){
+      if ($.isArray(this.element.LOGIN_TOKEN)){
+        tokens = this.element.LOGIN_TOKEN;
+      } else {
+        tokens = [this.element.LOGIN_TOKEN];
+      }
+    }
+
+    $.each(tokens, function(){
+      if (this.EGID == -1){
+        this.EGROUP = Locale.tr("None");
+      } else {
+        this.EGROUP = OpenNebula.Group.getName(this.EGID);
+      }
+    });
+
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'element': this.element
+      'tokens': tokens
     });
   }
 
   function _setup(context) {
     var that = this;
+
+    context.on("click", "i.remove-tab", function(){
+      var tr = $(this).closest('tr');
+
+      $(this).closest('td').html('<i class="fa fa-spinner fa-spin"/>')
+
+      var token = $(".token-text", tr).text();
+
+      OpenNebula.User.login({
+        data : {
+          id: "-1",
+          'username': that.element.NAME,
+          'token': token,
+          'expire': 0
+        },
+        success: function(req, response){
+          OpenNebula.User.show({
+            data : {
+              id: that.element.ID
+            },
+            success: that.loginSuccess.bind(that),
+            error: function(request, error_json){
+              Sunstone.getDialog(DIALOG_ID).hide();
+              Notifier.onError(request, error_json);
+            }
+          });
+        },
+        error: Notifier.onError
+      });
+    });
 
     $("#token_btn", context).click(function(){
 
@@ -92,18 +141,7 @@ define(function(require) {
             data : {
               id: that.element.ID
             },
-            success: function(request, user_json){
-              Sunstone.getDialog(DIALOG_ID).hide();
-              Sunstone.getDialog(DIALOG_ID).setParams({element: user_json.USER});
-              Sunstone.getDialog(DIALOG_ID).reset();
-              Sunstone.getDialog(DIALOG_ID).show();
-
-              if (Sunstone.getTab() == USERS_TAB_ID){
-                Sunstone.runAction('User.refresh');
-              } else {
-                Sunstone.runAction('Settings.refresh');
-              }
-            },
+            success: that.loginSuccess.bind(that),
             error: function(request, error_json){
               Sunstone.getDialog(DIALOG_ID).hide();
               Notifier.onError(request, error_json);
@@ -115,6 +153,32 @@ define(function(require) {
     });
 
     return false;
+  }
+
+  function _loginSuccess(req, response){
+    var that = this;
+
+    OpenNebula.User.show({
+      data : {
+        id: that.element.ID
+      },
+      success: function(request, user_json){
+        Sunstone.getDialog(DIALOG_ID).hide();
+        Sunstone.getDialog(DIALOG_ID).setParams({element: user_json.USER});
+        Sunstone.getDialog(DIALOG_ID).reset();
+        Sunstone.getDialog(DIALOG_ID).show();
+
+        if (Sunstone.getTab() == USERS_TAB_ID){
+          Sunstone.runAction('User.refresh');
+        } else {
+          Sunstone.runAction('Settings.refresh');
+        }
+      },
+      error: function(request, error_json){
+        Sunstone.getDialog(DIALOG_ID).hide();
+        Notifier.onError(request, error_json);
+      }
+    });
   }
 
   function _onShow(context) {

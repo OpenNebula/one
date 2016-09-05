@@ -194,28 +194,15 @@
               {{tr "Login Token"}}
             </a>
             <div id="provision_login_token_accordion" class="accordion-content" data-tab-content>
-              <br>
-              <form id="provision_login_token_form">
-                <br/>
-                <p>
-                  {{tr "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"}}
-                </p>
-                <div class="provision_login_token_current">
-                  <p>{{tr "Current login token, valid until"}} <span class="provision_login_token_valid"></span></p>
-                  <br/>
-                  <pre class="text-center provision_login_token_value"></pre>
-                  <br/>
-                  <br/>
-                  <p class="label secondary radius float-center text-center">
-                    <i class="fa fa-warning"/> {{tr "Getting a new token will invalidate the current one"}}
-                  </p>
+              <br/>
+              <p>
+                {{tr "A login token acts as a password and can be used to authenticate with OpenNebula through Sunstone, the CLI, or the API"}}
+              </p>
+              <div class="row">
+                <div class="large-12 columns">
+                  <button href"#" type="submit" class="button large radius large-12 small-12 provision_login_token_button">{{tr "Manage login tokens"}}</button>
                 </div>
-                <div class="row">
-                  <div class="large-12 columns">
-                    <button href"#" type="submit" class="button large radius large-12 small-12 provision_login_token_button">{{tr "Get a login token"}}</button>
-                  </div>
-                </div>
-              </form>
+              </div>
             </div>
           </dd>
         </dl>

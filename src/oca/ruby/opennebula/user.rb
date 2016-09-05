@@ -195,7 +195,7 @@ module OpenNebula
         # @param uname [String] of the user
         # @param token [String] the login token, if empty OpenNebula will
         #   generate one
-        # @param expire [String] valid period of the token in secs. If <= 0
+        # @param expire [String] valid period of the token in secs. If == 0
         #   the token will be reset
         # @param egid [Integer] Effective GID to use with this token. To use
         # the current GID and user groups set it to -1

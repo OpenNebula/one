@@ -660,6 +660,7 @@ define(function(require) {
     require('./vms-tab/dialogs/vnc'),
     require('./vms-tab/dialogs/spice'),
     //require('./vms-tab/dialogs/saveas-template')
+    require('./users-tab/dialogs/login-token')
   ];
 
   var Actions = require('./vms-tab/actions');
