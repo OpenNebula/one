@@ -481,14 +481,9 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
         return;
     }
-    else if (max_token_time > 0)
+    else if (max_token_time > 0 && ( valid > max_token_time || valid == -1))
     {
-        valid = max(valid, max_token_time);
-
-        if (max_token_time < valid)
-        {
-            valid = max_token_time;
-        }
+        valid = max_token_time;
     }
 
     if (valid == 0) //Reset token
