@@ -17,6 +17,7 @@
 require 'pp'
 require 'open3'
 require 'stringio'
+require 'timeout'
 
 # Generic command executor that holds the code shared by all the command
 # executors.
@@ -45,8 +46,8 @@ class GenericCommand
     attr_reader :code, :stdout, :stderr, :command
 
     # Creates a command and runs it
-    def self.run(command, logger=nil, stdin=nil)
-        cmd = self.new(command, logger, stdin)
+    def self.run(command, logger=nil, stdin=nil, timeout=nil)
+        cmd = self.new(command, logger, stdin, timeout)
         cmd.run
         cmd
     end
@@ -54,10 +55,11 @@ class GenericCommand
     # Creates the new command:
     # +command+: string with the command to be executed
     # +logger+: proc that takes a message parameter and logs it
-    def initialize(command, logger=nil, stdin=nil)
+    def initialize(command, logger=nil, stdin=nil, timeout=nil)
         @command = command
         @logger  = logger
         @stdin   = stdin
+        @timeout = timeout
     end
 
     # Sends a log message to the logger proc
@@ -65,31 +67,57 @@ class GenericCommand
         @logger.call(message, all) if @logger
     end
 
+    def kill(pid)
+        # executed processes now have its own process group to be able
+        # to kill all children
+        pgid = Process.getpgid(pid)
+
+        # Kill all processes belonging to process group
+        Process.kill("HUP", pgid * -1)
+    end
+
     # Runs the command
     def run
-        std = execute
+        std = nil
+        process = Proc.new do
+            std = execute
 
-        # Close standard IO descriptors
-        if @stdin
-            std[0] << @stdin
-            std[0].flush
+            # Close standard IO descriptors
+            if @stdin
+                std[0] << @stdin
+                std[0].flush
+            end
+            std[0].close if !std[0].closed?
+
+            @stdout=std[1].read
+            std[1].close if !std[1].closed?
+
+            @stderr=std[2].read
+            std[2].close if !std[2].closed?
+
+            @code=get_exit_code(@stderr)
+
+            if @code!=0
+                log("Command execution fail: #{command}")
+                log(@stderr)
+            end
         end
 
-        std[0].close if !std[0].closed?
+        begin
+            if @timeout
+                Timeout.timeout(@timeout, nil, &process)
+            else
+                process.call
+            end
+        rescue Timeout::Error
+            log("Timeout executing #{command}")
 
-        @stdout = std[1].read
-        std[1].close if !std[1].closed?
+            3.times {|n| std[n].close if !std[n].closed? }
 
-        @stderr = std[2].read
-        std[2].close if !std[2].closed?
+            pid = std[-1].pid
+            self.kill(pid)
 
-        @code = get_exit_code(@stderr)
-
-        if @code != 0
-            log(@stderr)
-            log("Command execution fail: #{command}")
-        else
-            log(@stderr, false)
+            @code = 255
         end
 
         return @code
@@ -127,7 +155,8 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.popen3("#{command} ; echo ExitCode: $? 1>&2")
+        Open3.popen3("#{command} ; echo ExitCode: $? 1>&2",
+                        :pgroup => true)
     end
 end
 
@@ -137,26 +166,28 @@ class SSHCommand < GenericCommand
     attr_accessor :host
 
     # Creates a command and runs it
-    def self.run(command, host, logger=nil, stdin=nil)
-        cmd=self.new(command, host, logger, stdin)
+    def self.run(command, host, logger=nil, stdin=nil, timeout=nil)
+        cmd=self.new(command, host, logger, stdin, timeout)
         cmd.run
         cmd
     end
 
     # This one takes another parameter. +host+ is the machine
     # where the command is going to be executed
-    def initialize(command, host, logger=nil, stdin=nil)
+    def initialize(command, host, logger=nil, stdin=nil, timeout=nil)
         @host=host
-        super(command, logger, stdin)
+        super(command, logger, stdin, timeout)
     end
 
 private
 
     def execute
         if @stdin
-            Open3.popen3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2")
+            Open3.popen3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+                            :pgroup => true)
         else
-            Open3.popen3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2")
+            Open3.popen3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+                            :pgroup => true)
         end
     end
 end
@@ -164,13 +195,13 @@ end
 class RemotesCommand < SSHCommand
 
     # Creates a command and runs it
-    def self.run(command, host, remote_dir, logger=nil, stdin=nil, retries=0)
+    def self.run(command, host, remote_dir, logger=nil, stdin=nil, retries=0, timeout=nil)
         cmd_file = command.split(' ')[0]
 
         cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
                               exit #{MAGIC_RC}; fi'"
 
-        cmd = self.new(cmd_string, host, logger, stdin)
+        cmd = self.new(cmd_string, host, logger, stdin, timeout)
         cmd.run
 
         while cmd.code != 0 and retries != 0
