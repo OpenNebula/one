@@ -74,19 +74,21 @@ class GenericCommand
             std[0] << @stdin
             std[0].flush
         end
+
         std[0].close if !std[0].closed?
 
-        @stdout=std[1].read
+        @stdout = std[1].read
         std[1].close if !std[1].closed?
 
-        @stderr=std[2].read
+        @stderr = std[2].read
         std[2].close if !std[2].closed?
 
-        @code=get_exit_code(@stderr)
+        @code = get_exit_code(@stderr)
 
-        if @code!=0
+        log(@stderr)
+
+        if @code != 0
             log("Command execution fail: #{command}")
-            log(@stderr)
         end
 
         return @code
