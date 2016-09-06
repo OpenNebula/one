@@ -61,8 +61,8 @@ class GenericCommand
     end
 
     # Sends a log message to the logger proc
-    def log(message)
-        @logger.call(message) if @logger
+    def log(message, all=true)
+        @logger.call(message, all) if @logger
     end
 
     # Runs the command
@@ -85,10 +85,11 @@ class GenericCommand
 
         @code = get_exit_code(@stderr)
 
-        log(@stderr)
-
         if @code != 0
+            log(@stderr)
             log("Command execution fail: #{command}")
+        else
+            log(@stderr, false)
         end
 
         return @code

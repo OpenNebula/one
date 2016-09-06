@@ -108,12 +108,11 @@ module DriverExecHelper
 
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
-    def log(number, message)
+    def log(number, message, all=true)
         in_error_message=false
         msg=message.strip
         msg.each_line {|line|
-            severity='I'
-
+            severity=all ? 'I' : nil
             l=line.strip
 
             if l=='ERROR MESSAGE --8<------'
@@ -134,21 +133,19 @@ module DriverExecHelper
                         severity='D'
                     when 'INFO'
                         severity='I'
-                    else
-                        severity='I'
                     end
                 end
             end
 
-            send_message("LOG", severity, number, line.strip)
+            send_message("LOG", severity, number, line.strip) if severity
         }
     end
 
     # Generates a proc with that calls log with a hardcoded number. It will
     # be used to add loging to command actions
     def log_method(num)
-        lambda {|message|
-            log(num, message)
+        lambda {|message, all=true|
+            log(num, message, all)
         }
     end
 
