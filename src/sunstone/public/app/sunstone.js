@@ -1155,6 +1155,10 @@ define(function(require) {
 
     for (var tabName in SunstoneCfg["tabs"]) {
       router.on(new RegExp("(?:#|/)"+tabName+"/form"), function(){
+        if(_getTab() == undefined){
+          // This will happen if the user opens sunstone directly in a /form url
+          _showTab(this);
+        }
       }.bind(tabName));
 
       router.on(new RegExp("(?:#|/)"+tabName+"/(\\d+)"), function(id){
