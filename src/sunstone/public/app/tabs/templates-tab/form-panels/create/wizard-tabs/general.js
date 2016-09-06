@@ -116,6 +116,11 @@ define(function(require) {
       $(".hypervisor").hide();
       $(".only_" + this.value).show();
 
+      if (this.value == "vcenter"){
+        $("#vcenter_template_uuid", context).attr("required", "");
+      } else {
+        $("#vcenter_template_uuid", context).removeAttr("required");
+      }
       // There is another listener in context.js setup
     });
 
