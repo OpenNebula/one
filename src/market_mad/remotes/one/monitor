@@ -38,7 +38,7 @@ class OneMarket
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port) {|http|
+        response = Net::HTTP.start(uri.hostname, uri.port, :ENV) {|http|
             http.request(req)
         }
 

@@ -58,6 +58,28 @@ function execute_mad
     fi
 }
 
+function set_proxy
+{
+    local proxy_found proxy arg
+
+    proxy_found=false
+
+    for arg in $*; do
+        echo "arg: |${arg}|" >> /tmp/proxy
+        if $proxy_found ; then
+            proxy=$arg
+            break
+        else
+            if [ "$arg" = "--proxy" ]; then
+                proxy_found=true
+            fi
+        fi
+    done
+
+    if [ -n "$proxy" ]; then
+        export http_proxy=$proxy
+    fi
+}
 
 # Set global environment
 if [ -z "${ONE_LOCATION}" ]; then
@@ -89,3 +111,5 @@ if [ $? = 0 ]; then
     RUBYLIB="${RUBYLIB}$(echo $VENDOR/*/lib | tr ' ' ':')"
 fi
 
+# Set the proxy if defined
+set_proxy "$@"

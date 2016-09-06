@@ -281,7 +281,8 @@ end
 
 opts = GetoptLong.new(
     [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--proxy'                , GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 mp_type = nil
