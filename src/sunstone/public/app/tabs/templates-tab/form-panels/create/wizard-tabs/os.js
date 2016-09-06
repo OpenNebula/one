@@ -431,6 +431,8 @@ define(function(require) {
           pos += 1;
         }
       });
+
+      _refreshBootValue(context);
     }
   }
 });
