@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  return 'user_config_tab';
+  return 'settings_config_tab';
 });

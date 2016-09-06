@@ -19,28 +19,52 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BasePanel = require('tabs/users-tab/panels/quotas-common');
+  var Locale = require('utils/locale');
+  var Config = require('sunstone-config');
+  var Showback = require('utils/showback');
 
   /*
     CONSTANTS
    */
-
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./quotas/panelId');
+  var RESOURCE = "User";
+  var XML_ROOT = "USER";
 
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
-    this.tabId = TAB_ID;
+    this.title = Locale.tr("Showback");
+    this.icon = "fa-money";
 
-    return BasePanel.call(this, info);
-  };
+    this.element = info[XML_ROOT];
 
-  Panel.PANEL_ID = PANEL_ID;
-  Panel.prototype = Object.create(BasePanel.prototype);
-  Panel.prototype.constructor = Panel;
+    if (!Config.isFeatureEnabled("showback")) {
+      throw "Showback is disabled in the configuration";
+    }
+
+    return this;
+  }
+
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
 
   return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    return Showback.html();
+  }
+
+  function _setup(context) {
+    Showback.setup(
+      context,
+      { fixed_user: this.element.ID,
+        fixed_group: ""
+      }
+    );
+  }
 });

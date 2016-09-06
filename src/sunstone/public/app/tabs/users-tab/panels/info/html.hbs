@@ -86,14 +86,14 @@
                 </button>
               </td>
               <td class="value_td">
-                {{#isTabActionEnabled "users-tab" "User.update_password"}}
+                {{#isTabActionEnabled tabId "User.update_password"}}
                 <div>
                   <a id="update_password" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
                 </div>
                 {{/isTabActionEnabled}}
               </td>
             </tr>
-            {{#isTabActionEnabled "users-tab" "User.login_token"}}
+            {{#isTabActionEnabled tabId "User.login_token"}}
             <tr class="login_token">
               <td class="key_td">{{tr "Login token"}}</td>
               <td class="value_td">

@@ -14,33 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  /*
-    DEPENDENCIES
-   */
-
-  var BasePanel = require('tabs/users-tab/panels/quotas-common');
-
-  /*
-    CONSTANTS
-   */
-
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./quotas/panelId');
-
-  /*
-    CONSTRUCTOR
-   */
-
-  function Panel(info) {
-    this.tabId = TAB_ID;
-
-    return BasePanel.call(this, info);
-  };
-
-  Panel.PANEL_ID = PANEL_ID;
-  Panel.prototype = Object.create(BasePanel.prototype);
-  Panel.prototype.constructor = Panel;
-
-  return Panel;
-});
+define(function(require){
+  return 'settings_quotas_tab';
+})

@@ -19,28 +19,47 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BasePanel = require('tabs/users-tab/panels/quotas-common');
+  var Locale = require('utils/locale');
+  var Accounting = require('utils/accounting');
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./quotas/panelId');
+  var RESOURCE = "User";
+  var XML_ROOT = "USER";
 
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
-    this.tabId = TAB_ID;
+    this.title = Locale.tr("Accounting");
+    this.icon = "fa-bar-chart-o";
 
-    return BasePanel.call(this, info);
-  };
+    this.element = info[XML_ROOT];
 
-  Panel.PANEL_ID = PANEL_ID;
-  Panel.prototype = Object.create(BasePanel.prototype);
-  Panel.prototype.constructor = Panel;
+    return this;
+  }
+
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
 
   return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    return Accounting.html();
+  }
+
+  function _setup(context) {
+    Accounting.setup(
+      context,
+      { fixed_user: this.element.ID,
+        init_group_by: "vm"
+      });
+  }
 });

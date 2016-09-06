@@ -21,7 +21,6 @@ define(function(require) {
   var _actions = require('./users-tab/actions');
 
   var TAB_ID = require('./settings-tab/tabId');
-  var USERS_TAB_ID = require('tabs/users-tab/tabId');
 
   _actions["Settings.refresh"] = {
     type: "custom",
@@ -34,12 +33,12 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('tabs/users-tab/panels/info'),
+    require('tabs/settings-tab/panels/info'),
     require('tabs/settings-tab/panels/user-config'),
-    require('tabs/users-tab/panels/quotas'),
+    require('tabs/settings-tab/panels/quotas'),
     require('tabs/settings-tab/panels/group-quotas'),
-    require('tabs/users-tab/panels/accounting'),
-    require('tabs/users-tab/panels/showback')
+    require('tabs/settings-tab/panels/accounting'),
+    require('tabs/settings-tab/panels/showback')
   ];
 
   var _formPanels = [

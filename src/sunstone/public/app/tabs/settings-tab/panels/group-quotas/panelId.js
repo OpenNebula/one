@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'group_quotas_tab';
+  return 'settings_group_quotas_tab';
 });

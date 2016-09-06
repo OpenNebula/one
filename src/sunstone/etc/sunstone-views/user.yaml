@@ -767,24 +767,23 @@ tabs:
             Support.create_dialog: true
     settings-tab:
         panel_tabs:
-            user_info_tab: true
-            user_config_tab: false
-            user_quotas_tab: true
-            group_quotas_tab: true
-            user_accounting_tab: true
-            user_showback_tab: true
+            settings_info_tab: true
+            settings_config_tab: false
+            settings_quotas_tab: true
+            settings_group_quotas_tab: true
+            settings_accounting_tab: true
+            settings_showback_tab: true
         actions:
-            # The buttons inside the settings-tab panel user_info_tab are
-            # configured with users-tab/actions; User.update_password and
-            # User.login_token
-            #
-            # Buttons for user_config_tab
+            # Buttons for settings_info_tab
+            User.update_password: true
+            User.login_token: true
+            # Buttons for settings_config_tab
             Settings.change_language: true
             Settings.change_password: true
             Settings.change_view: true
             Settings.ssh_key: true
             Settings.login_token: true
-            # Edit button in user_quotas_tab
+            # Edit button in settings_quotas_tab
             User.quotas_dialog: false
     upgrade-top-tab:
         panel_tabs:
