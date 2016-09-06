@@ -120,22 +120,47 @@ define(function(require) {
           break;
       }
     });
+
+    $('input[name="custom_disk_dev_prefix"]',context).parent().hide();
+    $('select#disk_dev_prefix',context).change(function(){
+      if ($(this).val() == "custom"){
+        $('input[name="custom_disk_dev_prefix"]',context).parent().show();
+      } else {
+        $('input[name="custom_disk_dev_prefix"]',context).parent().hide();
+      }
+    });
   }
 
   function _retrieve(context) {
+    var selectedContext;
 
-    var volatileContext = $("div.volatile",  context);
-    var volatileType   = $("select#TYPE", volatileContext).val();
+    if ($("input[name='" + this.diskTabId + "']:checked", context).val() == "image"){
+      selectedContext = $("div.image",  context);
+    } else {
+      selectedContext = $("div.volatile",  context);
 
-    if (volatileType == "swap")
-    {
-      $("select#FORMAT").val("");
+      if ($("select#TYPE", selectedContext).val() == "swap")
+      {
+        $("select#FORMAT", selectedContext).val("");
+      }
     }
 
-    return WizardFields.retrieve(context);
+    var tmpl = WizardFields.retrieve(selectedContext);
+
+    var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
+    if (dev_prefix != undefined && dev_prefix.length) {
+      if (dev_prefix == "custom") {
+        dev_prefix = WizardFields.retrieveInput($('#custom_disk_dev_prefix', selectedContext));
+      }
+      tmpl["DEV_PREFIX"] = dev_prefix;
+    }
+
+    return tmpl;
   }
 
   function _fill(context, templateJSON) {
+    var selectedContext;
+
     if (templateJSON.IMAGE_ID || templateJSON.IMAGE) {
       $('input#' + this.diskTabId + 'radioImage', context).click();
 
@@ -156,11 +181,24 @@ define(function(require) {
         this.imageTable.selectResourceTableSelect(selectedResources);
       }
 
-      WizardFields.fill($(".image", context), templateJSON);
+      selectedContext = $(".image", context);
     } else {
       $('input#' + this.diskTabId + 'radioVolatile', context).click();
-      WizardFields.fill($(".volatile", context), templateJSON);
+
+      selectedContext = $(".volatile", context);
     }
 
+    WizardFields.fill(selectedContext, templateJSON);
+
+    var dev_prefix = templateJSON["DEV_PREFIX"];
+    if (dev_prefix != undefined && dev_prefix.length) {
+      WizardFields.fillInput($('#disk_dev_prefix', selectedContext), dev_prefix);
+
+      var val = $('#disk_dev_prefix', selectedContext).val();
+      if (val == "" || val == undefined){
+        $('#disk_dev_prefix', selectedContext).val("custom").change();
+        WizardFields.fillInput($('#custom_disk_dev_prefix', selectedContext), dev_prefix);
+      }
+    }
   }
 });

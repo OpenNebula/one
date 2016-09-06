@@ -1,7 +1,7 @@
 <div class="row">
   <div class="medium-6 columns">
     <label for="TARGET">
-      {{tr "Device target"}}
+      {{tr "Target device"}}
       {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
@@ -21,11 +21,19 @@
 </div>
 <div class="row">
   <div class="medium-6 columns">
-    <label for="DEV_PREFIX">
-      {{tr "Device prefix"}}
-      {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used.")}}}
+    <label>
+      {{tr "BUS"}}
+      <select id="disk_dev_prefix" name="disk_dev_prefix">
+        <option value="" selected="selected"></option>
+        <option value="vd">Virtio</option>
+        <option value="sd">SCSI</option>
+        <option value="hd">Parallel ATA (IDE)</option>
+        <option value="custom">custom</option>
+      </select>
     </label>
-    <input type="text" wizard_field="DEV_PREFIX" id="DEV_PREFIX" name="DEV_PREFIX" placeholder="qcow2"/>
+    <div>
+      <input type="text" id="custom_disk_dev_prefix" name="custom_disk_dev_prefix" />
+    </div>
   </div>
   <div class="medium-6 columns">
     <label for="READONLY">
