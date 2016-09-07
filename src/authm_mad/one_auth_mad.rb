@@ -28,7 +28,6 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-
 require 'scripts_common'
 require 'OpenNebulaDriver'
 require 'getoptlong'
@@ -44,7 +43,6 @@ class AuthDriver < OpenNebulaDriver
         :authN => "AUTHENTICATE",
         :authZ => "AUTHORIZE"
     }
-
 
     # Initialize an AuthDriver
     #
@@ -85,13 +83,12 @@ class AuthDriver < OpenNebulaDriver
         end
     end
 
-
     # Works the same as log_method but changes the password by '****'.
     # The last word is the password for authentication.
     def log_method_no_password(num, secret)
-        lambda {|message|
+        lambda {|message, all=true|
             m=message.gsub(/ #{Regexp.escape(secret)}$/, ' ****')
-            log(num, m)
+            log(num, m, all)
         }
     end
 
@@ -128,7 +125,7 @@ class AuthDriver < OpenNebulaDriver
         rc = LocalCommand.run(command,
             log_method_no_password(request_id, Shellwords.escape(secret)))
 
-        result , info = get_info_from_execution(rc)
+        result, info = get_info_from_execution(rc)
 
         send_message(ACTION[:authN], result, request_id, info)
     end
