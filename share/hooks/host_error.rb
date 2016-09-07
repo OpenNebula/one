@@ -187,7 +187,7 @@ if repeat > 0
     end
 
     # If the host came back, exit! avoid duplicated VMs
-    if host.state != 3
+    if host.state != 3 && host.state != 5
         log "Exiting. Host came back after waiting."
         exit 0
     end
