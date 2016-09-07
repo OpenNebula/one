@@ -110,7 +110,9 @@ class SshStream
         end
     end
 
-    def wait_for_command
+    def wait_for_command(timeout = nil)
+        @timeout = timeout if timeout
+
         done_out = false
         done_err = false
         time_start = Time.now.to_i
