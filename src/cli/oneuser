@@ -641,12 +641,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 puts rc.message
                 exit_with_code 1, rc.message
             else
-                exit_with_code 0, "Token removed."
+                puts "Token removed."
             end
 
             # Remove the token files
             Dir[ENV['HOME'] + "/.one/*.token"].each do |f|
                 auth = File.read(f).strip
+
                 if auth == "#{user['NAME']}:#{token}"
                     puts "Removing #{f}"
                     File.unlink(f)

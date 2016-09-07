@@ -394,8 +394,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         valid_tokens.map do |e|
             next unless e["TOKEN"].start_with?(token)
 
+            exp_time = e["EXPIRATION_TIME"].to_i
+
             if !show_expired
-                next unless Time.at(e["EXPIRATION_TIME"].to_i) > Time.now
+                next if exp_time != -1 && Time.now > Time.at(exp_time)
             end
 
             e["TOKEN"]
