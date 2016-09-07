@@ -1063,7 +1063,8 @@ opts = GetoptLong.new(
     [ '--threads',           '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--local',             '-l', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--shell',             '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--parallel',          '-p', GetoptLong::NO_ARGUMENT ]
+    [ '--parallel',          '-p', GetoptLong::NO_ARGUMENT ],
+    [ '--timeout',           '-w', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 hypervisor         = ''
@@ -1072,6 +1073,7 @@ threads            = 15
 shell              = 'bash'
 local_actions      = {}
 single_host        = true
+timeout            = nil
 
 begin
     opts.each do |opt, arg|
@@ -1086,6 +1088,8 @@ begin
                 shell = arg
             when '--parallel'
                 single_host = false
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
@@ -1103,6 +1107,7 @@ exec_driver = ExecDriver.new(hypervisor,
                 :retries            => retries,
                 :local_actions      => local_actions,
                 :shell              => shell,
-                :single_host        => single_host)
+                :single_host        => single_host,
+                :timeout            => timeout)
 
 exec_driver.start_driver

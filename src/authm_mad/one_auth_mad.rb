@@ -50,12 +50,19 @@ class AuthDriver < OpenNebulaDriver
     #        built-in ACL engine
     # @param [Array] authentication modules enabled, nil will use any
     #        any method existing in remotes directory
-    def initialize(authZ, authN, nthreads)
+    # @param [Numeric] number of threads
+    # @param [Hash] extra options
+    def initialize(authZ, authN, nthreads, options = {})
         super(
             "auth",
-            :concurrency   => nthreads,
-            :threaded      => nthreads > 0,
-            :local_actions => {ACTION[:authN] => nil, ACTION[:authZ] => nil}
+            options.merge({
+                :concurrency   => nthreads,
+                :threaded      => nthreads > 0,
+                :local_actions => {
+                    ACTION[:authN] => nil,
+                    ACTION[:authZ] => nil
+                }
+            })
         )
 
         register_action(ACTION[:authN].to_sym, method("authN"))
@@ -170,12 +177,14 @@ end
 opts = GetoptLong.new(
     [ '--threads',    '-t', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--authz',      '-z', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--authn',      '-n', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--authn',      '-n', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 threads = 15
 authz   = nil
 authn   = nil
+timeout = nil
 
 begin
     opts.each do |opt, arg|
@@ -186,12 +195,15 @@ begin
                 authz   = arg
             when '--authn'
                 authn   = arg.split(',').map {|a| a.strip }
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-auth_driver = AuthDriver.new(authz, authn, threads)
+auth_driver = AuthDriver.new(authz, authn, threads,
+                             :timeout => timeout)
 
 auth_driver.start_driver

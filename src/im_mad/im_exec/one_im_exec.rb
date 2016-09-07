@@ -109,7 +109,8 @@ opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--local',      '-l', GetoptLong::NO_ARGUMENT ],
-    [ '--force-copy', '-c', GetoptLong::NO_ARGUMENT ]
+    [ '--force-copy', '-c', GetoptLong::NO_ARGUMENT ],
+    [ '--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 hypervisor      = ''
@@ -117,6 +118,7 @@ retries         = 0
 threads         = 15
 local_actions   = {}
 force_copy      = false
+timeout         = nil
 
 begin
     opts.each do |opt, arg|
@@ -129,6 +131,8 @@ begin
                 local_actions={ 'MONITOR' => nil }
             when '--force-copy'
                 force_copy=true
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
@@ -140,9 +144,10 @@ if ARGV.length >= 1
 end
 
 im = InformationManagerDriver.new(hypervisor,
-    :concurrency => threads,
-    :retries => retries,
-    :local_actions => local_actions,
-    :force_copy => force_copy)
+                                  :concurrency      => threads,
+                                  :retries          => retries,
+                                  :local_actions    => local_actions,
+                                  :force_copy       => force_copy,
+                                  :timeout          => timeout)
 
 im.start_driver

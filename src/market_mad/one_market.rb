@@ -282,11 +282,13 @@ end
 opts = GetoptLong.new(
     [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--proxy'                , GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 mp_type = nil
 threads = 15
+timeout = nil
 
 begin
     opts.each do |opt, arg|
@@ -295,12 +297,16 @@ begin
                 threads = arg.to_i
             when '--market-types'
                 mp_type = arg.split(',').map {|a| a.strip }
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-mp_driver = MarketPlaceDriver.new(mp_type, :concurrency => threads)
+mp_driver = MarketPlaceDriver.new(mp_type,
+                                  :concurrency  => threads,
+                                  :timeout      => timeout)
 mp_driver.start_driver
 

@@ -146,10 +146,12 @@ end
 opts = GetoptLong.new(
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--ipam-types', '-i', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 i_types = nil
 threads = 1
+timeout = 1
 
 begin
     opts.each do |opt, arg|
@@ -158,12 +160,16 @@ begin
                 i_types = arg.split(',').map {|a| a.strip }
             when '--threads'
                 threads = arg.to_i
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-ipam_driver = IPAMDriver.new(i_types, :concurrency => threads)
+ipam_driver = IPAMDriver.new(i_types,
+                             :concurrency   => threads,
+                             :timeout       => timeout)
 ipam_driver.start_driver
 

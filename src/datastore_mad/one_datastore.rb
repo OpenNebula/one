@@ -237,12 +237,14 @@ end
 opts = GetoptLong.new(
     [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT ]
+    [ '--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ]
 )
 
 ds_type     = nil
 sys_ds_type = nil
 threads     = 15
+timeout     = nil
 
 begin
     opts.each do |opt, arg|
@@ -253,11 +255,15 @@ begin
                 ds_type = arg.split(',').map {|a| a.strip }
             when '--system-ds-types'
                 sys_ds_type = arg.split(',').map {|a| a.strip }
+            when '--timeout'
+                timeout = arg
         end
     end
 rescue Exception => e
     exit(-1)
 end
 
-ds_driver = DatastoreDriver.new(ds_type, sys_ds_type, :concurrency => threads)
+ds_driver = DatastoreDriver.new(ds_type, sys_ds_type,
+                                :concurrency    => threads,
+                                :timeout        => timeout)
 ds_driver.start_driver

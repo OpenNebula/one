@@ -148,11 +148,13 @@ end
 if __FILE__ == $0
     opts = GetoptLong.new(
         [ '--threads',  '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-        [ '--tm-types', '-d', GetoptLong::OPTIONAL_ARGUMENT ]
+        [ '--tm-types', '-d', GetoptLong::OPTIONAL_ARGUMENT ],
+        [ '--timeout',  '-w', GetoptLong::OPTIONAL_ARGUMENT ]
     )
 
     tm_type = nil
     threads = 15
+    timeout = 15
 
     begin
         opts.each do |opt, arg|
@@ -161,12 +163,16 @@ if __FILE__ == $0
                     threads = arg.to_i
                 when '--tm-types'
                     tm_type = arg.split(',').map {|a| a.strip }
+                when '--timeout'
+                    timeout = arg
             end
         end
     rescue Exception => e
         exit(-1)
     end
 
-    tm_driver = TransferManagerDriver.new(tm_type, :concurrency => threads)
+    tm_driver = TransferManagerDriver.new(tm_type,
+                                          :concurrency  => threads,
+                                          :timeout      => timeout)
     tm_driver.start_driver
 end
