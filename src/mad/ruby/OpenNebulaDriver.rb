@@ -53,12 +53,14 @@ class OpenNebulaDriver < ActionManager
             :concurrency => 10,
             :threaded    => true,
             :retries     => 0,
-            :local_actions => {}
+            :local_actions => {},
+            :timeout     => nil
         }.merge!(options)
 
         super(@options[:concurrency], @options[:threaded])
 
         @retries = @options[:retries]
+        @timeout = @options[:timeout]
 
         #Set default values
         initialize_helper(directory, @options)
@@ -94,7 +96,11 @@ class OpenNebulaDriver < ActionManager
         command = action_command_line(aname, params, options[:script_name])
 
         if action_is_local?(aname)
-            execution = LocalCommand.run(command, log_method(id), Base64::encode64(options[:stdin].to_s.gsub("\n","")))
+            stdin = Base64::encode64(options[:stdin].to_s.gsub("\n",""))
+            execution = LocalCommand.run(command,
+                                         log_method(id),
+                                         stdin,
+                                         @timeout)
         elsif options[:ssh_stream]
             if options[:stdin]
                 cmdin = "cat << EOT | #{command}"
@@ -104,15 +110,19 @@ class OpenNebulaDriver < ActionManager
                 stdin = nil
             end
 
-            execution = options[:ssh_stream].run(cmdin, stdin, command)
+            execution = options[:ssh_stream].run(cmdin,
+                                                 stdin,
+                                                 command,
+                                                 @timeout)
 
         else
             execution = RemotesCommand.run(command,
-                                         host,
-                                         @remote_scripts_base_path,
-                                         log_method(id),
-                                         options[:stdin],
-                                         @retries)
+                                           host,
+                                           @remote_scripts_base_path,
+                                           log_method(id),
+                                           options[:stdin],
+                                           @retries,
+                                           @timeout)
         end
 
         result, info = get_info_from_execution(execution)
