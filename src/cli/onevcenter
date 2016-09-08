@@ -35,6 +35,25 @@ require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
 require 'vcenter_driver'
 
+def connection_options(object_name, options)
+    if  options[:vuser].nil? ||
+        options[:vcenter].nil?
+        STDERR.puts "vCenter connection parameters are mandatory to import"\
+                    " #{object_name}:\n"\
+                    "\t --vcenter vCenter hostname\n"\
+                    "\t --vuser username to login in vcenter"
+        exit -1
+    end
+
+    password = options[:vpass] || OpenNebulaHelper::OneHelper.get_password
+
+    {
+       :user     => options[:vuser],
+       :password => password,
+       :host     => options[:vcenter]
+    }
+end
+
 cmd=CommandParser::CmdParser.new(ARGV) do
 
     usage "`onevcenter` <command> [<args>] [<options>]"
@@ -82,24 +101,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS ] do
-        if  options[:vuser].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " host:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"
-            exit -1
-        end
-
-        password = options[:vpass] || OpenNebulaHelper::OneHelper.get_password
+        con_ops = connection_options("Hosts", options)
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => password,
-                    :host     => options[:vcenter])
+            vc = VCenterDriver::VIClient.new_connection(con_ops)
 
             STDOUT.print "done!\n\n"
 
@@ -149,24 +156,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :templates, templates_desc, :options=>[ VCENTER, USER, PASS ] do
-        if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " VM templates:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
-            exit -1
-        end
+        con_ops = connection_options("VM Templates", options)
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => options[:vpass],
-                    :host     => options[:vcenter])
+            vc = VCenterDriver::VIClient.new_connection(con_ops)
 
             STDOUT.print "done!\n\n"
 
@@ -373,24 +368,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :networks, network_desc, :options=>[ VCENTER, USER, PASS ] do
-        if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " vCenter networks:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
-            exit -1
-        end
+        con_ops = connection_options("Networks", options)
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => options[:vpass],
-                    :host     => options[:vcenter])
+            vc = VCenterDriver::VIClient.new_connection(con_ops)
 
             STDOUT.print "done!\n\n"
 
@@ -516,24 +499,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS ] do
-        if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " Datastores:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
-            exit -1
-        end
+        con_ops = connection_options("Datastores", options)
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => options[:vpass],
-                    :host     => options[:vcenter])
+            vc = VCenterDriver::VIClient.new_connection(con_ops)
 
             STDOUT.print "done!\n\n"
 
@@ -600,24 +571,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit -1
         end
 
-        if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " Datastores:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
-            exit -1
-        end
+        con_ops = connection_options("Images", options)
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => options[:vpass],
-                    :host     => options[:vcenter])
+            vc = VCenterDriver::VIClient.new_connection(con_ops)
 
             STDOUT.print "done!\n\n"
 
