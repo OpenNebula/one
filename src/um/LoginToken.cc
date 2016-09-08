@@ -55,6 +55,8 @@ void LoginTokenPool::reset()
 
 int LoginTokenPool::set(std::string& utk, time_t valid, int egid)
 {
+    reset_expired(); // Expired token collector
+
     if (tokens.size() >= MAX_TOKENS || valid < -1 || valid == 0)
     {
         return -1;
@@ -87,6 +89,33 @@ int LoginTokenPool::reset(const std::string& utk)
     tokens.erase(it);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void LoginTokenPool::reset_expired()
+{
+    std::map<std::string, LoginToken *>::iterator it, tmp_it;
+
+    for (it = tokens.begin(); it != tokens.end(); )
+    {
+        if ((it->second)->is_expired())
+        {
+            tmp_it = it;
+
+            ++tmp_it;
+
+            delete it->second;
+
+            tokens.erase(it);
+
+            it = tmp_it;
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -157,6 +186,13 @@ bool SessionToken::is_valid(const string& user_token) const
 {
     return ((user_token == token) &&
             ((expiration_time == -1) || (time(0) < expiration_time)));
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool SessionToken::is_expired() const
+{
+    return ((time(0) > expiration_time) && (expiration_time != -1));
 }
 
 /* -------------------------------------------------------------------------- */

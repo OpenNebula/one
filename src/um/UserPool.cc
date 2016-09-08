@@ -511,6 +511,9 @@ bool UserPool::authenticate_internal(User *        user,
         if ( egid != -1 && !user->is_in_group(egid) )
         {
             user->login_tokens.reset(token);
+
+            update(user);
+
             user->unlock();
 
             goto auth_failure_egid;

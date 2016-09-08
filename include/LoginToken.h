@@ -53,6 +53,13 @@ public:
     bool is_valid(const std::string& utk) const;
 
     /**
+     *  Check if the token has expired
+     *
+     *    @return true if the token has expired
+     */
+    bool is_expired() const;
+
+    /**
      *  Register a new token, if not provided OpenNebula will generate one.
      *    @param utk if provided externally (e.g. by an auth driver)
      *    @param valid time in seconds that the token will be considered valid
@@ -164,6 +171,11 @@ public:
      *  Clears all tokens
      */
     void reset();
+
+    /**
+     *  Clears all expired tokens
+     */
+    void reset_expired();
 
     /**
      *  Adds a new token to the user token pool
