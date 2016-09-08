@@ -13,78 +13,86 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-<div class="accordion_advanced vcenter_row">
-  <div class="row">
-    <div class="large-12 columns">
-      <label class="inline">
-        <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
-        </a>
-        {{data.name}}
-      </label>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-11 large-centered columns">
-      <div id="{{data.uuid}}Advanced" class="content" hidden>
-        {{#if datastore}}
-        <div class="vcenter_datastore_input row">
-          <div class="medium-3 columns">
-            <label>
-              {{tr "Default Datastore"}}
-              <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
-            </label>
-          </div>
-          <div class="medium-3 columns">
-            <label>
-              {{tr "Type"}}
-              <select class="modify_datastore">
-                <option value="fixed">{{tr "Fixed"}}</option>
-                <option value="list">{{tr "Provide on instantiation"}}</option>
-              </select>
-            </label>
-          </div>
-          <div class="medium-4 columns end">
-            <label>
-              {{tr "Available Datastores"}}
-              <input type="text" class="available_datastores" value="{{datastore.params}}"/>
-            </label>
+
+<tr>
+  <td>
+    <input type="checkbox" class="check_item"/>
+  </td>
+  <td>
+    <div class="accordion_advanced vcenter_row">
+      <div class="row">
+        <div class="large-12 columns">
+          <label class="inline">
+            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            </a>
+            {{data.name}}
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-11 large-centered columns">
+          <div id="{{data.uuid}}Advanced" class="content" hidden>
+            {{#if datastore}}
+            <div class="vcenter_datastore_input row">
+              <div class="medium-3 columns">
+                <label>
+                  {{tr "Default Datastore"}}
+                  <input type="text" class="initial_datastore" value="{{datastore.initial}}"/>
+                </label>
+              </div>
+              <div class="medium-3 columns">
+                <label>
+                  {{tr "Type"}}
+                  <select class="modify_datastore">
+                    <option value="fixed">{{tr "Fixed"}}</option>
+                    <option value="list">{{tr "Provide on instantiation"}}</option>
+                  </select>
+                </label>
+              </div>
+              <div class="medium-4 columns end">
+                <label>
+                  {{tr "Available Datastores"}}
+                  <input type="text" class="available_datastores" value="{{datastore.params}}"/>
+                </label>
+              </div>
+            </div>
+            {{/if}}
+            {{#if resourcePool}}
+            <div class="vcenter_rp_input row">
+              <div class="medium-3 columns">
+                <label>
+                  {{tr "Default Resource Pool"}}
+                  <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
+                </label>
+              </div>
+              <div class="medium-3 columns">
+                <label>
+                  {{tr "Type"}}
+                  <select class="modify_rp">
+                    <option value="fixed">{{tr "Fixed"}}</option>
+                    <option value="list">{{tr "Provide on instantiation"}}</option>
+                  </select>
+                </label>
+              </div>
+              <div class="medium-4 columns end">
+                <label>
+                  {{tr "Available Resource Pools"}}
+                  <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
+                </label>
+              </div>
+            </div>
+            {{/if}}
           </div>
         </div>
-        {{/if}}
-        {{#if resourcePool}}
-        <div class="vcenter_rp_input row">
-          <div class="medium-3 columns">
-            <label>
-              {{tr "Default Resource Pool"}}
-              <input type="text" class="initial_rp" value="{{resourcePool.initial}}"/>
-            </label>
-          </div>
-          <div class="medium-3 columns">
-            <label>
-              {{tr "Type"}}
-              <select class="modify_rp">
-                <option value="fixed">{{tr "Fixed"}}</option>
-                <option value="list">{{tr "Provide on instantiation"}}</option>
-              </select>
-            </label>
-          </div>
-          <div class="medium-4 columns end">
-            <label>
-              {{tr "Available Resource Pools"}}
-              <input type="text" class="available_rps" value="{{resourcePool.params}}"/>
-            </label>
-          </div>
+      </div>
+      <div class="row vcenter_import_result_row" style="display:none">
+        <div class="large-11 large-centered columns">
+          <span class="vcenter_import_result">
+          </span>&nbsp;
+          <span class="vcenter_import_response">
+          </span>
         </div>
-        {{/if}}
       </div>
     </div>
-  </div>
-  <div class="row vcenter_import_result_row" style="display:none">
-    <div class="large-11 large-centered columns">
-      <span class="vcenter_import_result">
-      </span>&nbsp;
-      <span class="vcenter_import_response">
-      </span>
-    </div>
-  </div>
-</div>
+  </td>
+</tr>
