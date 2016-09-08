@@ -54,7 +54,9 @@ done < <($XPATH     /VMM_DRIVER_ACTION_DATA/VM/ID \
                     $DISK_XPATH/ISCSI_HOST \
                     $DISK_XPATH/ISCSI_USAGE \
                     $DISK_XPATH/ISCSI_USER \
-                    $DISK_XPATH/ISCSI_IQN)
+                    $DISK_XPATH/ISCSI_IQN \
+                    $DISK_XPATH/DISK_TYPE \
+                    $DISK_XPATH/POOL_NAME)
 
 VMID="${XPATH_ELEMENTS[j++]}"
 DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -72,6 +74,8 @@ ISCSI_HOST="${XPATH_ELEMENTS[j++]}"
 ISCSI_USAGE="${XPATH_ELEMENTS[j++]}"
 ISCSI_USER="${XPATH_ELEMENTS[j++]}"
 ISCSI_IQN="${XPATH_ELEMENTS[j++]}"
+DISK_TYPE="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
 TYPE=$(echo "$TYPE"|tr A-Z a-z)
 
@@ -133,9 +137,32 @@ rbd*)
     ;;
 *)
     #NOTE: This includes TYPE=FS and TYPE=SWAP
-    TYPE_SOURCE="file"
-    TYPE_XML="file"
-    DEVICE="disk"
+    case "$DISK_TYPE" in
+    RBD)
+        TYPE_SOURCE="protocol"
+        TYPE_XML="network"
+        SOURCE="rbd"
+        DEVICE="disk"
+
+        RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
+
+        SOURCE_ARGS="name='${RBD_SOURCE}'"
+
+        SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+
+        if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
+            AUTH="<auth username='$CEPH_USER'>\
+                    <secret type='ceph' uuid='$CEPH_SECRET'/>\
+                  </auth>"
+        fi
+        ;;
+    *)
+        TYPE_SOURCE="file"
+        TYPE_XML="file"
+        DEVICE="disk"
+        ;;
+    esac
+
     ;;
 esac
 
