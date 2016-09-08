@@ -22,6 +22,7 @@ define(function(require) {
   var DomDataTable = require('utils/dom-datatable');
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
+  var Humanize = require('utils/humanize');
 
   var TemplateHTML = require('hbs!./images/html');
 
@@ -39,7 +40,7 @@ define(function(require) {
   return VCenterImages;
 
   function _html() {
-    return '<div class="vcenter_images hidden"></div>';
+    return '<div class="vcenter_import hidden"></div>';
   }
 
   /*
@@ -59,7 +60,7 @@ define(function(require) {
   function _fillVCenterImages(opts) {
     var path = '/vcenter/images/' + opts.vcenter_datastore;
 
-    var context = $(".vcenter_images", opts.container);
+    var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML({}));
     context.show();
 
@@ -75,7 +76,7 @@ define(function(require) {
       },
       success: function(response) {
         $(".vcenter_datacenter_list", context).html("");
-
+        var content;
         if (response.length == 0) {
           content =
             '<fieldset>' +
@@ -95,7 +96,7 @@ define(function(require) {
 
           $(".vcenter_datacenter_list", context).append(content);
         } else {
-          var tableId = "vcenter_image_table_" + UniqueId.id();
+          var tableId = "vcenter_import_table_" + UniqueId.id();
           content =
             '<fieldset>' +
               '<legend>' +
@@ -111,8 +112,21 @@ define(function(require) {
                 '</ul>' +
               '</legend>' +
               '<div class="row">' +
+                '<div class="large-12 columns text-center">' +
+                  '<p>' +
+                    '<span class="vcenter-table-header-text">' +
+                    '</span>  ' +
+                    '<a class="vcenter-table-select-all">' +
+                    '</a>' +
+                    '<a class="vcenter-table-deselect-all">' +
+                      Locale.tr("Clear selection") +
+                    '</a>' +
+                  '</p>' +
+                '</div>' +
+              '</div>' +
+              '<div class="row">' +
                 '<div class="large-12 columns">' +
-                  '<table class="dataTable vcenter_image_table" id="' + tableId + '">' +
+                  '<table class="dataTable vcenter_import_table hover" id="' + tableId + '">' +
                     '<thead>' +
                       '<th class="check">' +
                         '<input type="checkbox" class="check_all"/>' +
@@ -120,33 +134,35 @@ define(function(require) {
                       '<th>' + Locale.tr("Name") + '</th>' +
                       '<th>' + Locale.tr("Size") + '</th>' +
                       '<th/>' +
-                      '<th/>' +
                     '</thead>' +
                     '<tbody/>' +
                   '</table>' +
                 '</div>' +
               '</div>';
-          '</fieldset>';
+            '</fieldset>';
 
           var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
           var tbody = $('#' + tableId + ' tbody', context);
 
-          $.each(response, function(id, image) {
+          $.each(response, function(id, element) {
               var trow = $(
-                '<tr class="vcenter_image">' +
+                '<tr>' +
                   '<td><input type="checkbox" class="check_item"/></td>' +
-                  '<td>' + image.name + '</td>' +
-                  '<td>' + image.size + ' MB</td>' +
-                  '<td><div class="vcenter_image_response"/></td>' +
-                  '<td><div class="vcenter_image_result"/></td>' +
+                  '<td>' + element.name + '</td>' +
+                  '<td>' + Humanize.sizeFromMB(element.size) + '</td>' +
+                  '<td>' +
+                    '<span class="vcenter_import_result">' +
+                    '</span>&nbsp;' +
+                    '<span class="vcenter_import_response">' +
+                    '</span>' +
+                  '</td>' +
                 '</tr>').appendTo(tbody);
 
-              $(".check_item", trow).data("datastore_id", image.dsid)
-              $(".check_item", trow).data("one_template", image.one)
-
+              $(".check_item", trow).data("datastore_id", element.dsid);
+              $(".check_item", trow).data("one_template", element.one);
             });
 
-          var imageDataTable = new DomDataTable(
+          var elementsTable = new DomDataTable(
               tableId,
               {
                 actions: false,
@@ -155,13 +171,20 @@ define(function(require) {
                   "bAutoWidth": false,
                   "bSortClasses" : false,
                   "bDeferRender": false,
-                  "ordering": false,
+                  //"ordering": false,
                   "aoColumnDefs": [
+                    {"bSortable": false, "aTargets": [0,2,3]},
+                    {"bSortable": true, "aTargets": [1]},
+                    {"sWidth": "35px", "aTargets": [0]},
                   ]
                 }
               });
 
-          imageDataTable.initialize();
+          elementsTable.initialize();
+
+          $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Images", response.length));
+
+          _recountCheckboxes($('table', newdiv));
 
           newdiv.on("change", '.check_all', function() {
               var table = $(this).closest('table');
@@ -176,9 +199,17 @@ define(function(require) {
               _recountCheckboxes(this);
             });
 
-          $(".check_item", newdiv).on('change', function() {
+          $(newdiv).on('change', ".check_item", function() {
               _recountCheckboxes($('table', newdiv));
             });
+
+          $(".vcenter-table-select-all", newdiv).on("click", function(){
+            $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", true).change();
+          });
+
+          $(".vcenter-table-deselect-all", newdiv).on("click", function(){
+            $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", false).change();
+          });
 
           context.off('click', '.clear_imported');
           context.on('click', '.clear_imported', function() {
@@ -195,17 +226,41 @@ define(function(require) {
   }
 
   function _recountCheckboxes(table) {
+    // Counters for the whole table, all pages
+    var dt = $(table).DataTable();
+    var total = dt.$(".check_item").length;
+    var selected = dt.$(".check_item:checked").length;
+
+    if (selected == total){
+      $(".vcenter-table-header-text").text(Locale.tr("All %1$s Images selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").hide();
+      $("a.vcenter-table-deselect-all").show();
+    } else if (selected == 0){
+      $(".vcenter-table-header-text").hide();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    } else {
+      $(".vcenter-table-header-text").text(Locale.tr("%1$s Images selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    }
+
+    // Counters for the current visible page
     var total_length = $('input.check_item', table).length;
     var checked_length = $('input.check_item:checked', table).length;
     $('.check_all', table).prop('checked', (total_length == checked_length));
   }
 
   function _import(context) {
-    $.each($("table.vcenter_image_table", context), function() {
+    $.each($("table.vcenter_import_table", context), function() {
       $.each($(this).DataTable().$(".check_item:checked"), function() {
-        var image_context = $(this).closest(".vcenter_image");
+        var row_context = $(this).closest("tr");
 
-        $(".vcenter_image_result:not(.success)", image_context).html(
+        $(".vcenter_import_result:not(.success)", row_context).html(
             '<span class="fa-stack" style="color: #dfdfdf">' +
               '<i class="fa fa-cloud fa-stack-2x"></i>' +
               '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
@@ -222,32 +277,31 @@ define(function(require) {
           timeout: true,
           data: image_json,
           success: function(request, response) {
-            $(".vcenter_image_result", image_context).addClass("success").html(
-                '<span class="fa-stack" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).addClass("success").html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x running-color"></i>' +
+                '<i class="fa fa-check fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            $(".vcenter_image_result", image_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("Image created successfully") + ' ID:' + response.IMAGE.ID +
-                '</p>');
+            $(".vcenter_import_response", row_context).html(
+              Locale.tr("Image created successfully") + '. ID: ' + response.IMAGE.ID);
           },
           error: function (request, error_json) {
-            $(".vcenter_image_result", image_context).html('<span class="fa-stack" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x error-color"></i>' +
+                '<i class="fa fa-warning fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            error_message_str = error_json.error.message
+            var error_message_str = error_json.error.message
 
-            if(error_message_str=="[ImageAllocate] Not enough space in datastore")
-            {
-                error_message_str =  error_message_str + ". Please disable DATASTORE_CAPACITY_CHECK in /etc/one/oned.conf and restart OpenNebula "
+            if(error_message_str=="[ImageAllocate] Not enough space in datastore"){
+              error_message_str =  error_message_str + ". "+
+                Locale.tr("Please disable DATASTORE_CAPACITY_CHECK in /etc/one/oned.conf and restart OpenNebula");
             }
 
-            $(".vcenter_image_result", image_context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_message_str || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
+            $(".vcenter_import_response", row_context).addClass("error-color").html(
+              (error_message_str || Locale.tr("Cannot contact server: is it running and reachable?")));
           }
         });
       });

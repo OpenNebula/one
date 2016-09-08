@@ -20,13 +20,11 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
-  var CustomLayoutDataTable = require('utils/custom-layout-table');
   var UserInputs = require('utils/user-inputs');
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./templates/html');
-  var EmptyTableTemplate = require('hbs!./templates/empty-table');
   var RowTemplate = require('hbs!./templates/row');
 
   function VCenterTemplates() {
@@ -43,7 +41,7 @@ define(function(require) {
   return VCenterTemplates;
 
   function _html() {
-    return '<div class="vcenter_templates" hidden></div>';
+    return '<div class="vcenter_import" hidden></div>';
   }
 
   /*
@@ -61,7 +59,7 @@ define(function(require) {
   function _fillVCenterTemplates(opts) {
     var path = '/vcenter/templates';
 
-    var context = $(".vcenter_templates", opts.container);
+    var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML());
     context.show();
 
@@ -78,9 +76,9 @@ define(function(require) {
       success: function(response){
         $(".vcenter_datacenter_list", context).html("");
 
-        $.each(response, function(datacenter_name, templates){
+        $.each(response, function(datacenter_name, elements){
           var content;
-          if (templates.length == 0) {
+          if (elements.length == 0) {
             content =
               '<fieldset>' +
                 '<legend>' +
@@ -99,25 +97,13 @@ define(function(require) {
 
             $(".vcenter_datacenter_list", context).append(content);
           } else {
-            var tableId = "vcenter_template_table_" + UniqueId.id();
+            var tableId = "vcenter_import_table_" + UniqueId.id();
             content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
                     '<li> ' +
                       datacenter_name + ' ' + Locale.tr("DataCenter") +
-                    '</li>' +
-                    '<li> ' +
-                      '<label class="inline">' +
-                        '<input type="checkbox" class="check_all"/>' +
-                        Locale.tr("Select All") +
-                      '</label>' +
-                    '</li>' +
-                    '<li> ' +
-                      '<label class="inline">' +
-                        '<input type="checkbox" class="expand_all"/>' +
-                         Locale.tr("Expand Advanced Sections") +
-                      '</label>' +
                     '</li>' +
                     '<li> ' +
                       '<button class="button small secondary clear_imported">' +
@@ -127,10 +113,29 @@ define(function(require) {
                   '</ul>' +
                 '</legend>' +
                 '<div class="row">' +
+                  '<div class="large-12 columns text-center">' +
+                    '<p>' +
+                      '<span class="vcenter-table-header-text">' +
+                      '</span>  ' +
+                      '<a class="vcenter-table-select-all">' +
+                      '</a>' +
+                      '<a class="vcenter-table-deselect-all">' +
+                        Locale.tr("Clear selection") +
+                      '</a>' +
+                      '&emsp;|&emsp;<a class="vcenter-table-toggle-advanced">' +
+                        Locale.tr("Toggle advanced sections") +
+                      '</a>' +
+                    '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="row">' +
                   '<div class="large-12 columns">' +
-                    '<table class="dataTable vcenter_template_table" id="' + tableId + '">' +
+                    '<table class="dataTable vcenter_import_table" id="' + tableId + '">' +
                       '<thead>' +
-                        '<th>' + Locale.tr("Name") + '</th>' +
+                        '<th class="check">' +
+                          '<input type="checkbox" class="check_all"/>' +
+                        '</th>' +
+                        '<th>' + Locale.tr("Template") + '</th>' +
                       '</thead>' +
                       '<tbody/>' +
                     '</table>' +
@@ -138,38 +143,87 @@ define(function(require) {
                 '</div>';
               '</fieldset>';
 
-            $(".vcenter_datacenter_list", context).append(content);
+            var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
+            var tbody = $('#' + tableId + ' tbody', context);
 
-            var preDrawCallback = function (settings) {
-                $('#' + tableId).html(EmptyTableTemplate());
-              }
-            var rowCallback = function(row, data, index) {
-                var opts = {};
-                if (data.ds && data.ds !== '') {
-                  opts.datastore = UserInputs.unmarshall(data.ds);
-                }
-
-                if (data.rp && data.rp !== '') {
-                  opts.resourcePool = UserInputs.unmarshall(data.rp);
-                }
-
-                opts.data = data;
-
-                var templateRow = $(RowTemplate(opts)).appendTo($('#' + tableId));
-                $('.check_item', templateRow).data("template_name", data.name)
-                $('.check_item', templateRow).data("one_template", data.one);
-
-                return row;
+            $.each(elements, function(id, element) {
+              var opts = {};
+              if (element.ds && element.ds !== '') {
+                opts.datastore = UserInputs.unmarshall(element.ds);
               }
 
-            var templatesTable = new CustomLayoutDataTable({
-                tableId: '#' + tableId,
-                columns: ['name'],
-                preDrawCallback: preDrawCallback,
-                rowCallback: rowCallback
+              if (element.rp && element.rp !== '') {
+                opts.resourcePool = UserInputs.unmarshall(element.rp);
+              }
+
+              opts.data = element;
+
+              var trow = $(
+                '<tr>' +
+                '<td><input type="checkbox" class="check_item"/></td>' +
+                '<td>'+RowTemplate(opts)+'</td>' +
+                '</tr>').appendTo(tbody);
+
+              $('.check_item', trow).data("import_data", element);
+            });
+
+            var elementsTable = new DomDataTable(
+              tableId,
+              {
+                actions: false,
+                info: false,
+                dataTableOptions: {
+                  "bAutoWidth": false,
+                  "bSortClasses" : false,
+                  "bDeferRender": false,
+                  "ordering": false,
+                  "aoColumnDefs": [
+                  {"sWidth": "35px", "aTargets": [0]},
+                  ],
+                },
+                "customTrListener": function(tableObj, tr){ return false; }
               });
 
-            templatesTable.addData(templates);
+            elementsTable.initialize();
+
+            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Templates", elements.length));
+
+            _recountCheckboxes($('table', newdiv));
+
+            newdiv.on("change", '.check_all', function() {
+              var table = $(this).closest('table');
+              if ($(this).is(":checked")) { //check all
+                $('tbody input.check_item', table).prop('checked', true).change();
+              } else { //uncheck all
+                $('tbody input.check_item', table).prop('checked', false).change();
+              }
+            });
+
+            $('table', newdiv).on('draw.dt', function() {
+              _recountCheckboxes(this);
+            });
+
+            $(newdiv).on('change', ".check_item", function() {
+              _recountCheckboxes($('table', newdiv));
+            });
+
+            $(".vcenter-table-select-all", newdiv).on("click", function(){
+              $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", true).change();
+            });
+
+            $(".vcenter-table-deselect-all", newdiv).on("click", function(){
+              $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", false).change();
+            });
+
+            $(".vcenter-table-toggle-advanced", newdiv).on("click", function(){
+              var unactive_n = $(".accordion_advanced_toggle:not(.active)", newdiv).length;
+
+              if (unactive_n > 0){
+                $(".accordion_advanced_toggle:not(.active)", newdiv).click();
+              } else {
+                $(".accordion_advanced_toggle", newdiv).click();
+              }
+            });
 
             context.off('click', '.clear_imported');
             context.on('click', '.clear_imported', function() {
@@ -187,28 +241,53 @@ define(function(require) {
   }
 
   function _recountCheckboxes(table) {
+    // Counters for the whole table, all pages
+    var dt = $(table).DataTable();
+    var total = dt.$(".check_item").length;
+    var selected = dt.$(".check_item:checked").length;
+
+    if (selected == total){
+      $(".vcenter-table-header-text").text(Locale.tr("All %1$s Templates selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").hide();
+      $("a.vcenter-table-deselect-all").show();
+    } else if (selected == 0){
+      $(".vcenter-table-header-text").hide();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    } else {
+      $(".vcenter-table-header-text").text(Locale.tr("%1$s Templates selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    }
+
+    // Counters for the current visible page
     var total_length = $('input.check_item', table).length;
     var checked_length = $('input.check_item:checked', table).length;
     $('.check_all', table).prop('checked', (total_length == checked_length));
   }
 
   function _import(context) {
-    $.each($(".vcenter_template_table", context), function() {
-      $.each($(".check_item:checked", this), function() {
-        var template_context = $(this).closest(".vcenter_row");
+    $.each($(".vcenter_import_table", context), function() {
+      $.each($(this).DataTable().$(".check_item:checked"), function() {
+        var row_context = $(this).closest("tr");
 
-        $(".vcenter_template_result:not(.success)", template_context).html(
-            '<span class="fa-stack" style="color: #dfdfdf">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-            '</span>');
+        $(".vcenter_import_result:not(.success)", row_context).html(
+          '<span class="fa-stack" style="color: #dfdfdf">' +
+            '<i class="fa fa-cloud fa-stack-2x"></i>' +
+            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+          '</span>');
 
+        $(".vcenter_import_result_row", row_context).show();
 
         var attrs = [];
         var userInputs = [];
 
         // Retrieve Datastore Attribute
-        var dsInput = $(".vcenter_datastore_input", template_context);
+        var dsInput = $(".vcenter_datastore_input", row_context);
         if (dsInput.length > 0) {
           var dsModify = $('.modify_datastore', dsInput).val();
           var dsInitial = $('.initial_datastore', dsInput).val();
@@ -229,7 +308,7 @@ define(function(require) {
         }
 
         // Retrieve Resource Pool Attribute
-        var rpInput = $(".vcenter_rp_input", template_context);
+        var rpInput = $(".vcenter_rp_input", row_context);
         if (rpInput.length > 0) {
           var rpModify = $('.modify_rp', rpInput).val();
           var rpInitial = $('.initial_rp', rpInput).val();
@@ -250,7 +329,7 @@ define(function(require) {
         }
 
         // Append new attrs and user inputs if necessary
-        var template = $(this).data("one_template");
+        var template = $(this).data("import_data").one;
 
         if (attrs.length > 0) {
           template += "\n" + attrs.join("\n");
@@ -270,25 +349,24 @@ define(function(require) {
           timeout: true,
           data: template_json,
           success: function(request, response) {
-            $(".vcenter_template_result", template_context).addClass("success").html(
-                '<span class="fa-stack" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).addClass("success").html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x running-color"></i>' +
+                '<i class="fa fa-check fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("Template created successfully") + ' ID:' + response.VMTEMPLATE.ID +
-                '</p>');
+            $(".vcenter_import_response", row_context).html(
+              Locale.tr("Template created successfully") + '. ID: ' + response.VMTEMPLATE.ID);
           },
           error: function (request, error_json) {
-            $(".vcenter_template_result", template_context).html('<span class="fa-stack" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x error-color"></i>' +
+                '<i class="fa fa-warning fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
+            $(".vcenter_import_response", row_context).addClass("error-color").html(
+              (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")));
           }
         });
       });

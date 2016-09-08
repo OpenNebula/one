@@ -20,12 +20,10 @@ define(function(require) {
   var OpenNebulaNetwork = require('opennebula/network');
   var OpenNebulaError = require('opennebula/error');
   var DomDataTable = require('utils/dom-datatable');
-  var CustomLayoutDataTable = require('utils/custom-layout-table');
   var Notifier = require('utils/notifier');
   var UniqueId = require('utils/unique-id');
 
   var TemplateHTML = require('hbs!./networks/html');
-  var EmptyTableTemplate = require('hbs!./networks/empty-table');
   var RowTemplate = require('hbs!./networks/row');
 
   function VCenterNetworks() {
@@ -42,7 +40,7 @@ define(function(require) {
   return VCenterNetworks;
 
   function _html() {
-    return '<div class="vcenter_networks" hidden></div>';
+    return '<div class="vcenter_import" hidden></div>';
   }
 
   /*
@@ -60,7 +58,7 @@ define(function(require) {
   function _fillVCenterNetworks(opts) {
     var path = '/vcenter/networks';
 
-    var context = $(".vcenter_networks", opts.container);
+    var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML());
     context.show();
 
@@ -77,9 +75,9 @@ define(function(require) {
       success: function(response) {
         $(".vcenter_datacenter_list", context).html("");
 
-        $.each(response, function(datacenter_name, networks) {
+        $.each(response, function(datacenter_name, elements) {
           var content;
-          if (networks.length == 0) {
+          if (elements.length == 0) {
             content =
               '<fieldset>' +
                 '<legend>' +
@@ -98,25 +96,13 @@ define(function(require) {
 
             $(".vcenter_datacenter_list", context).append(content);
           } else {
-            var tableId = "vcenter_network_table_" + UniqueId.id();
+            var tableId = "vcenter_import_table_" + UniqueId.id();
             content =
               '<fieldset>' +
                 '<legend>' +
                   '<ul class="menu simple">' +
                     '<li> ' +
                       datacenter_name + ' ' + Locale.tr("DataCenter") +
-                    '</li>' +
-                    '<li> ' +
-                      '<label class="inline">' +
-                        '<input type="checkbox" class="check_all"/>' +
-                        Locale.tr("Select All") +
-                      '</label>' +
-                    '</li>' +
-                    '<li> ' +
-                      '<label class="inline">' +
-                        '<input type="checkbox" class="expand_all"/>' +
-                         Locale.tr("Expand Advanced Sections") +
-                      '</label>' +
                     '</li>' +
                     '<li> ' +
                       '<button class="button small secondary clear_imported">' +
@@ -126,40 +112,107 @@ define(function(require) {
                   '</ul>' +
                 '</legend>' +
                 '<div class="row">' +
+                  '<div class="large-12 columns text-center">' +
+                    '<p>' +
+                      '<span class="vcenter-table-header-text">' +
+                      '</span>  ' +
+                      '<a class="vcenter-table-select-all">' +
+                      '</a>' +
+                      '<a class="vcenter-table-deselect-all">' +
+                        Locale.tr("Clear selection") +
+                      '</a>' +
+                      '&emsp;|&emsp;<a class="vcenter-table-toggle-advanced">' +
+                        Locale.tr("Toggle advanced sections") +
+                      '</a>' +
+                    '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="row">' +
                   '<div class="large-12 columns">' +
-                    '<table class="dataTable vcenter_network_table" id="' + tableId + '">' +
+                    '<table class="dataTable vcenter_import_table" id="' + tableId + '">' +
                       '<thead>' +
-                        '<th>' + Locale.tr("Name") + '</th>' +
+                        '<th class="check">' +
+                          '<input type="checkbox" class="check_all"/>' +
+                        '</th>' +
+                        '<th>' + Locale.tr("Network") + '</th>' +
                       '</thead>' +
                       '<tbody/>' +
                     '</table>' +
                   '</div>' +
                 '</div>';
-            '</fieldset>';
+              '</fieldset>';
 
-            $(".vcenter_datacenter_list", context).append(content);
+            var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
+            var tbody = $('#' + tableId + ' tbody', context);
 
-            var preDrawCallback = function (settings) {
-                $('#' + tableId).html(EmptyTableTemplate());
-              }
-            var rowCallback = function(row, data, index) {
-                opts.data = data;
+            $.each(elements, function(id, element) {
+              var opts = { data: element };
+              var trow = $(
+                '<tr>' +
+                  '<td><input type="checkbox" class="check_item"/></td>' +
+                  '<td>'+RowTemplate(opts)+'</td>' +
+                '</tr>').appendTo(tbody);
 
-                var networkRow = $(RowTemplate(opts)).appendTo($('#' + tableId));
-                $('.check_item', networkRow).data("network_name", data.name)
-                $('.check_item', networkRow).data("one_network", data.one);
+              $('.check_item', trow).data("import_data", element);
+            });
 
-                return row;
-              }
-
-            var networksTable = new CustomLayoutDataTable({
-                tableId: '#' + tableId,
-                columns: ['name'],
-                preDrawCallback: preDrawCallback,
-                rowCallback: rowCallback
+            var elementsTable = new DomDataTable(
+              tableId,
+              {
+                actions: false,
+                info: false,
+                dataTableOptions: {
+                  "bAutoWidth": false,
+                  "bSortClasses" : false,
+                  "bDeferRender": false,
+                  "ordering": false,
+                  "aoColumnDefs": [
+                  {"sWidth": "35px", "aTargets": [0]},
+                  ],
+                },
+                "customTrListener": function(tableObj, tr){ return false; }
               });
 
-            networksTable.addData(networks);
+            elementsTable.initialize();
+
+            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Networks", elements.length));
+
+            _recountCheckboxes($('table', newdiv));
+
+            newdiv.on("change", '.check_all', function() {
+              var table = $(this).closest('table');
+              if ($(this).is(":checked")) { //check all
+                $('tbody input.check_item', table).prop('checked', true).change();
+              } else { //uncheck all
+                $('tbody input.check_item', table).prop('checked', false).change();
+              }
+            });
+
+            $('table', newdiv).on('draw.dt', function() {
+              _recountCheckboxes(this);
+            });
+
+            $(newdiv).on('change', ".check_item", function() {
+              _recountCheckboxes($('table', newdiv));
+            });
+
+            $(".vcenter-table-select-all", newdiv).on("click", function(){
+              $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", true).change();
+            });
+
+            $(".vcenter-table-deselect-all", newdiv).on("click", function(){
+              $("table.vcenter_import_table", newdiv).DataTable().$(".check_item").prop("checked", false).change();
+            });
+
+            $(".vcenter-table-toggle-advanced", newdiv).on("click", function(){
+              var unactive_n = $(".accordion_advanced_toggle:not(.active)", newdiv).length;
+
+              if (unactive_n > 0){
+                $(".accordion_advanced_toggle:not(.active)", newdiv).click();
+              } else {
+                $(".accordion_advanced_toggle", newdiv).click();
+              }
+            });
 
             context.off('click', '.clear_imported');
             context.on('click', '.clear_imported', function() {
@@ -169,7 +222,7 @@ define(function(require) {
 
             context.off('change', '.type_select');
             context.on("change", '.type_select', function() {
-              var network_context = $(this).closest(".vcenter_row");
+              var row_context = $(this).closest(".vcenter_row");
               var type = $(this).val();
 
               var net_form_str = ''
@@ -203,7 +256,7 @@ define(function(require) {
                         '<input type="text" class="six_global_net" placeholder="' + Locale.tr("Optional") + '"/>' +
                       '</label>' +
                     '</div>' +
-                    '<div class="large-4 medium-6 columns end">' +
+                    '<div class="large-4 medium-6 columns">' +
                       '<label>' + Locale.tr("MAC") +
                         '<input type="text" class="eth_mac_net"/>' +
                       '</label>' +
@@ -216,7 +269,7 @@ define(function(require) {
                   break;
               }
 
-              $('.net_options', network_context).html(net_form_str);
+              $('.net_options', row_context).html(net_form_str);
             });
           }
         });
@@ -228,20 +281,52 @@ define(function(require) {
     });
   }
 
+  function _recountCheckboxes(table) {
+    // Counters for the whole table, all pages
+    var dt = $(table).DataTable();
+    var total = dt.$(".check_item").length;
+    var selected = dt.$(".check_item:checked").length;
+
+    if (selected == total){
+      $(".vcenter-table-header-text").text(Locale.tr("All %1$s Networks selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").hide();
+      $("a.vcenter-table-deselect-all").show();
+    } else if (selected == 0){
+      $(".vcenter-table-header-text").hide();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    } else {
+      $(".vcenter-table-header-text").text(Locale.tr("%1$s Networks selected.", selected));
+
+      $(".vcenter-table-header-text").show();
+      $("a.vcenter-table-select-all").show();
+      $("a.vcenter-table-deselect-all").hide();
+    }
+
+    // Counters for the current visible page
+    var total_length = $('input.check_item', table).length;
+    var checked_length = $('input.check_item:checked', table).length;
+    $('.check_all', table).prop('checked', (total_length == checked_length));
+  }
+
   function _import(context) {
-    $.each($(".vcenter_network_table", context), function() {
-      $.each($(".check_item:checked", this), function() {
-        var network_context = $(this).closest(".vcenter_row");
+    $.each($(".vcenter_import_table", context), function() {
+      $.each($(this).DataTable().$(".check_item:checked"), function() {
+        var row_context = $(this).closest("tr");
 
-        $(".vcenter_network_result:not(.success)", network_context).html(
-            '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-            '</span>');
+        $(".vcenter_import_result:not(.success)", row_context).html(
+          '<span class="fa-stack" style="color: #dfdfdf">' +
+            '<i class="fa fa-cloud fa-stack-2x"></i>' +
+            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+          '</span>');
 
-        var network_size = $(".netsize", network_context).val();
-        var network_tmpl = $(this).data("one_network");
-        var type         = $('.type_select', network_context).val();
+        $(".vcenter_import_result_row", row_context).show();
+
+        var network_size = $(".netsize", row_context).val();
+        var network_tmpl = $(this).data("import_data").one;
+        var type         = $('.type_select', row_context).val();
 
         var ar_array = [];
         ar_array.push("TYPE=" + type);
@@ -249,7 +334,7 @@ define(function(require) {
 
         switch (type) {
           case 'ETHER':
-            var mac = $('.eth_mac_net', network_context).val();
+            var mac = $('.eth_mac_net', row_context).val();
 
             if (mac) {
               ar_array.push("MAC=" + mac);
@@ -257,8 +342,8 @@ define(function(require) {
 
             break;
           case 'IP4':
-            var mac = $('.four_mac_net', network_context).val();
-            var ip = $('.four_ip_net', network_context).val();
+            var mac = $('.four_mac_net', row_context).val();
+            var ip = $('.four_ip_net', row_context).val();
 
             if (mac) {
               ar_array.push("MAC=" + mac);
@@ -269,9 +354,9 @@ define(function(require) {
 
             break;
           case 'IP6':
-            var mac = $('.six_mac_net', network_context).val();
-            var gp = $('.six_global_net', network_context).val();
-            var ula = $('.six_mac_net', network_context).val();
+            var mac = $('.six_mac_net', row_context).val();
+            var gp = $('.six_global_net', row_context).val();
+            var ula = $('.six_mac_net', row_context).val();
 
             if (mac) {
               ar_array.push("MAC=" + mac);
@@ -290,7 +375,7 @@ define(function(require) {
         network_tmpl += ar_array.join(",\n")
         network_tmpl += "]"
 
-        var vlaninfo = $(".vlaninfo", network_context).text();
+        var vlaninfo = $(".vlaninfo", row_context).text();
 
         if ( vlaninfo != undefined && vlaninfo != "" ) {
           network_tmpl += "\nVLAN_ID=" + vlaninfo + "\n";
@@ -306,25 +391,24 @@ define(function(require) {
           timeout: true,
           data: vnet_json,
           success: function(request, response) {
-            $(".vcenter_network_result", network_context).addClass("success").html(
-                '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).addClass("success").html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x running-color"></i>' +
+                '<i class="fa fa-check fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            $(".vcenter_network_response", network_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("Virtual Network created successfully") + ' ID:' + response.VNET.ID +
-                '</p>');
+            $(".vcenter_import_response", row_context).html(
+              Locale.tr("Virtual Network created successfully") + '. ID: ' + response.VNET.ID);
           },
           error: function (request, error_json) {
-            $(".vcenter_network_result", network_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
+            $(".vcenter_import_result", row_context).html(
+              '<span class="fa-stack" style="color: #dfdfdf">' +
+                '<i class="fa fa-cloud fa-stack-2x error-color"></i>' +
+                '<i class="fa fa-warning fa-stack-1x fa-inverse"></i>' +
+              '</span>');
 
-            $(".vcenter_network_response", network_context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
+            $(".vcenter_import_response", row_context).addClass("error-color").html(
+              (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")));
           }
         });
       });
