@@ -53,6 +53,8 @@ fi
 
 #--------------------------------------------------------------------------------
 
+migrate_other "$@"
+
 exec_and_log "$SSH $SRC_HOST rm -rf $DST_PATH"
 
 exit 0
