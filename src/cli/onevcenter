@@ -83,22 +83,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS ] do
         if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
             options[:vcenter].nil?
             STDERR.puts "vCenter connection parameters are mandatory to import"\
                         " host:\n"\
                         "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
+                        "\t --vuser username to login in vcenter\n"
             exit -1
         end
+
+        password = options[:vpass] || OpenNebulaHelper::OneHelper.get_password
 
         begin
             STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
             vc = VCenterDriver::VIClient.new_connection(
                     :user     => options[:vuser],
-                    :password => options[:vpass],
+                    :password => password,
                     :host     => options[:vcenter])
 
             STDOUT.print "done!\n\n"
