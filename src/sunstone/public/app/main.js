@@ -110,7 +110,10 @@ require.config({
     'vis': '../bower_components/vis/dist/vis.min',
 
     /* navigo */
-    'Navigo': '../bower_components/navigo/lib/navigo.min'
+    'Navigo': '../bower_components/navigo/lib/navigo.min',
+
+    /* sprintf */
+    'sprintf': '../bower_components/sprintf/dist/sprintf.min'
   },
   shim: {
     /* Tabs */

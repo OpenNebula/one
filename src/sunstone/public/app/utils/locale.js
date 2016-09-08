@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+  var sprintf = require("sprintf").sprintf;
+
   var LANGUAGE_OPTIONS =
     '<option value="en_US">English (en_US)</option>\
     <option value="ca">Catalan (ca)</option>\
@@ -47,7 +49,12 @@ define(function(require) {
     if (tmp == null || tmp == "") {
       tmp = str;
     }
-    return tmp;
+
+    if (arguments.length == 1){
+      return tmp;
+    }
+
+    return sprintf.apply(this, Array.prototype.slice.call(arguments));
   };
 
   return {
