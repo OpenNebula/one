@@ -488,7 +488,11 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (valid == 0) //Reset token
     {
-        if ( user->login_tokens.reset(token) != 0 )
+        if ( token.empty() )
+        {
+            user->login_tokens.reset();
+        }
+        else if ( user->login_tokens.reset(token) != 0 )
         {
             att.resp_msg = "Could not find token: " + token;
             failure_response(XML_RPC_API,  att);
