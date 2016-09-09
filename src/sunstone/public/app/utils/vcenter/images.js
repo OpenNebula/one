@@ -70,9 +70,9 @@ define(function(require) {
       data: {timeout: false},
       dataType: "json",
       headers: {
-        "X_VCENTER_USER": opts.vcenter_user,
-        "X_VCENTER_PASSWORD": opts.vcenter_password,
-        "X_VCENTER_HOST": opts.vcenter_host
+        "X-VCENTER-USER": opts.vcenter_user,
+        "X-VCENTER-PASSWORD": opts.vcenter_password,
+        "X-VCENTER-HOST": opts.vcenter_host
       },
       success: function(response) {
         $(".vcenter_datacenter_list", context).html("");
