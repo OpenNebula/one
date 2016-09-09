@@ -354,7 +354,37 @@ def run_command(cmd)
     end
 end
 
-def install_gems(packages)
+def bundler_install
+    rc = system("bundler install --system --gemfile='#{$gemfile}'")
+
+    if !rc
+        STDERR.puts "Error installing gems"
+        exit(-1)
+    end
+end
+
+def bundler_check
+    rc = system("bundler check --gemfile='#{$gemfile}'")
+
+    if !rc
+        exit(-1)
+    end
+end
+
+def install_bundler_gem
+    require "rubygems"
+    gems = Gem::Dependency.new("bundler")
+
+    if gems.matching_specs.empty?
+        rc = system("gem install bundler")
+        if !rc
+            STDERR.new("Error installing bundler")
+            exit(-1)
+        end
+    end
+end
+
+def install_gems(packages, bundler = false)
     gems_list=get_gems(packages)
 
     if gems_list.empty?
@@ -373,6 +403,11 @@ def install_gems(packages)
     end
 
     install_dependencies(gems_list, dist)
+
+    if bundler
+        bundler_install
+        return
+    end
 
     packages_string=gems_list.join(' ')
 
@@ -432,7 +467,12 @@ def show_allpackages(packages)
     puts deps.join("\n")
 end
 
-def check_gems(packages)
+def check_gems(packages, bundler = false)
+    if bundler
+        bundler_check
+        return
+    end
+
     list=get_gems(packages).compact
     gems=list.map {|g| g.strip.split(/\s+/).first }
 
@@ -453,6 +493,25 @@ def check_gems(packages)
         puts "* "+not_installed.join("\n* ")
         exit(-1)
     end
+end
+
+def find_gemfile_path
+    paths = []
+    paths << "#{Dir.pwd}/Gemfile"
+    paths << "#{ENV["ONE_LOCATION"]}/share/install_gems/Gemfile" \
+             if ENV["ONE_LOCATION"]
+    paths << "/usr/share/one/install_gems/Gemfile"
+
+    path = nil
+
+    paths.each do |p|
+        if File.exist?(p)
+            path = p
+            break
+        end
+    end
+
+    path
 end
 
 try_library :rubygems, <<-EOT.unindent
@@ -481,9 +540,24 @@ install_rubygems
 command=''
 params=ARGV
 
+bundler = true
+
 if params.include?('--no-nokogiri')
     params-=['--no-nokogiri']
     $nokogiri=nil
+end
+
+if params.include?('--no-bundler')
+    params-=['--no-bundler']
+    bundler = false
+else
+    install_bundler_gem
+    $gemfile = find_gemfile_path
+
+    if !$gemfile
+       STDERR.puts "Can not find Gemfile"
+       exit(-1)
+    end
 end
 
 if params.include?('-h')
@@ -518,11 +592,11 @@ when 'help'
     help
     exit(0)
 when 'check'
-    check_gems(packages)
+    check_gems(packages, bundler)
 when 'showallgems'
     show_allgems(packages)
 when 'showallpackages'
     show_allpackages(packages)
 when 'install'
-    install_gems(packages)
+    install_gems(packages, bundler)
 end
