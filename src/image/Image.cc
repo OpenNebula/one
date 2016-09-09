@@ -570,7 +570,7 @@ void Image::disk_attribute( VectorAttribute *       disk,
         disk->replace("PERSISTENT", "YES");
         disk->replace("CLONE", "NO");
 
-        if ( template_ptype == "IMMUTABLE" )
+        if ( type == CDROM || template_ptype == "IMMUTABLE" )
         {
             disk->replace("SAVE", "NO");
         }
