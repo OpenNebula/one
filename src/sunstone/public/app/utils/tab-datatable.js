@@ -176,7 +176,7 @@ define(function(require) {
     'updateFn': _updateFn,
     'list': _list,
     'clearLabelsFilter': _clearLabelsFilter,
-    'setLabelsFilter': _setLabelsFilter
+    'getLabelsFilter': _getLabelsFilter,
   }
 
   return TabDatatable;
@@ -226,6 +226,8 @@ define(function(require) {
 
       $("a.advanced-search-clear", context).on('click', function(){
         $("input,select", context).val("").trigger("input");
+
+        that.clearLabelsFilter();
 
         $("button.advanced-search", context).click();
       });
@@ -336,6 +338,16 @@ define(function(require) {
         if(!empty){
           break;
         }
+      }
+
+      var label = that.getLabelsFilter();
+      var empty_label = (label == undefined || label == "");
+      empty = (empty && empty_label);
+
+      if (empty_label){
+        $("span.advanced-search-label", context).text("-");
+      } else {
+        $("span.advanced-search-label", context).text(label);
       }
 
       if(empty){
@@ -683,7 +695,7 @@ define(function(require) {
 
           if(dlist.length > 0){
             that.searchSets[name].forEach(function(val){
-              st += '<option value="' + val + '">';
+              st += '<option value="' + val + '"></option>';
             });
 
             dlist.html(st);
@@ -1232,11 +1244,12 @@ define(function(require) {
     });
   }
 
-  function _setLabelsFilter(regExp) {
-    LabelsUtils.setLabelsFilter(this.dataTable, this.labelsColumn, regExp);
-  }
-
   function _clearLabelsFilter() {
     LabelsUtils.clearLabelsFilter(this.dataTable, this.labelsColumn);
+    LabelsUtils.insertLabelsMenu({'tabName': this.tabId});
+  }
+
+  function _getLabelsFilter() {
+    return LabelsUtils.getLabelsFilter(this.dataTable);
   }
 })

@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
+  var TemplateUtils = require('utils/template-utils');
 
   var LABELS_ATTR = 'LABELS';
 
@@ -33,6 +34,7 @@ define(function(require) {
     'insertLabelsDropdown': _insertLabelsDropdown,
     'clearLabelsFilter': _clearLabelsFilter,
     'setLabelsFilter': _setLabelsFilter,
+    'getLabelsFilter': _getLabelsFilter,
     'getLabels': _getLabels,
     'getLabel': _getLabel
   };
@@ -69,7 +71,14 @@ define(function(require) {
       }
     } else {
       context.append(Tree.html(_makeTree(labels), true));
+
+      context.off('click', '.labeltree-line');
+
       Tree.setup($('.labels-tree', context));
+
+      var currentLabel = $('span[one-label-full-name="'+_getLabelsFilter(dataTable)+'"]', context);
+      currentLabel.parent(".labeltree-line").click();
+      currentLabel.parentsUntil(".labels-tree", "li").children(".tree-toggle").click();
     }
 
     /*
@@ -84,13 +93,9 @@ define(function(require) {
           Sunstone.showTab(opts.tabName);
         }
 
-        var regExp = [];
         var label = $(span).attr('one-label-full-name');
-        regExp.push('^' + label + '$');
-        regExp.push(',' + label + '$');
-        regExp.push('^' + label + ',');
-        regExp.push(',' + label + ',');
-        _setLabelsFilter(dataTable, labelsColumn, regExp.join('|'));
+
+        _setLabelsFilter(dataTable, labelsColumn, label);
       } else {
         _clearLabelsFilter(dataTable, labelsColumn);
       }
@@ -306,24 +311,27 @@ define(function(require) {
     return indexedLabels;
   }
 
-  function _makeTree(indexedLabels) {
+  function _makeTree(indexedLabels, currentLabel) {
     var treeRoot = {
       htmlStr : '',
       subTree : []
     };
 
-    $.each(indexedLabels, function(folderName, childs) {
-      treeRoot.subTree.push(_makeSubTree('', folderName, childs));
-    });
+    var keys = Object.keys(indexedLabels).sort();
+    for (var i = 0; i < keys.length; i++){
+      var folderName = keys[i];
+      var childs = indexedLabels[folderName];
+      treeRoot.subTree.push(_makeSubTree('', folderName, childs, currentLabel));
+    }
 
     return treeRoot;
   }
 
-  function _makeSubTree(parentName, folderName, childs) {
+  function _makeSubTree(parentName, folderName, childs, currentLabel) {
     var fullName = parentName + folderName;
     var htmlStr =
-      '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
-        folderName +
+      '<span class="secondary one-label" title="' + TemplateUtils.htmlEncode(fullName) + '" one-label-full-name="' + TemplateUtils.htmlEncode(fullName) + '">' +
+        TemplateUtils.htmlEncode(folderName) +
       '</span>';
 
     var tree = {
@@ -331,9 +339,12 @@ define(function(require) {
       subTree: []
     };
 
-    $.each(childs, function(subFolderName, subChilds) {
-      tree.subTree.push(_makeSubTree(fullName + '/', subFolderName, subChilds));
-    });
+    var keys = Object.keys(childs).sort();
+    for (var i = 0; i < keys.length; i++){
+      var subFolderName = keys[i];
+      var subChilds = childs[subFolderName];
+      tree.subTree.push(_makeSubTree(fullName + '/', subFolderName, subChilds, currentLabel));
+    }
 
     return tree;
   }
@@ -342,12 +353,24 @@ define(function(require) {
     dataTable Filters
    */
 
-  function _setLabelsFilter(dataTable, labelsColumn, regExp) {
+  function _setLabelsFilter(dataTable, labelsColumn, label) {
+
+    var regExp =  '^' + label + '$|'+
+                  ',' + label + '$|'+
+                  '^' + label + ',|'+
+                  ',' + label + ','
+
+    dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
   }
 
   function _clearLabelsFilter(dataTable, labelsColumn) {
+    dataTable.removeData("sunstone-label-filter");
     dataTable.fnFilter('', labelsColumn, true, false);
+  }
+
+  function _getLabelsFilter(dataTable) {
+    return dataTable.data("sunstone-label-filter");
   }
 
   function _getLabels(dataTable, labelsColumn, labelsPath) {

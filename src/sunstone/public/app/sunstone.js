@@ -618,9 +618,6 @@ define(function(require) {
 
     var dataTable = SunstoneCfg['tabs'][tabName]['dataTable'];
     if (dataTable) {
-      if (dataTable.clearLabelsFilter) {
-        dataTable.clearLabelsFilter();
-      }
       dataTable.recountCheckboxes();
     }
 
