@@ -1184,7 +1184,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     host->unlock();
 
-    if (cluster_ids.count(cluster_id) == 0)
+    if (!cluster_ids.empty() && cluster_ids.count(cluster_id) == 0)
     {
         ostringstream oss;
 
@@ -1246,7 +1246,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         }
     }
 
-    if (ds_cluster_ids.count(cluster_id) == 0)
+    if (!ds_cluster_ids.empty() && ds_cluster_ids.count(cluster_id) == 0)
     {
         ostringstream oss;
 
