@@ -42,11 +42,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         "User password"
     end
 
-    def self.auth_file(auth_string)
-        auth_filename = Digest::MD5.hexdigest(auth_string)
-        ENV['HOME'] + "/.one/#{auth_filename}.token"
-    end
-
     def self.password_to_str(arg, options)
         if options[:read_file]
             begin
@@ -107,10 +102,12 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, auth.password
     end
 
-    ############################################################################
-    # Generates a token and stores it in ONE_AUTH path as defined in this class
-    ############################################################################
-    def login(username, options)
+    def auth_file(auth_string)
+        auth_filename = Digest::MD5.hexdigest(auth_string)
+        ENV['HOME'] + "/.one/#{auth_filename}.token"
+    end
+
+    def get_login_client(username, options)
         #-----------------------------------------------------------------------
         # Init the associated Authentication class to generate the token.
         #-----------------------------------------------------------------------
@@ -184,9 +181,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             token = auth.login_token(username, options[:time])
         end
 
-        login_client = OpenNebula::Client.new("#{username}:#{token}",
-                                              nil,
-                                              :sync => sync)
+        OpenNebula::Client.new("#{username}:#{token}", nil, :sync => sync)
+    end
+
+    ############################################################################
+    # Generates a token and stores it in ONE_AUTH path as defined in this class
+    ############################################################################
+    def login(username, options, use_client=false)
+        if use_client
+            login_client = OpenNebulaHelper::OneHelper.get_client
+        else
+            login_client = self.get_login_client(username, options)
+        end
 
         user = OpenNebula::User.new(User.build_xml, login_client)
 
@@ -411,6 +417,31 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end.compact if !valid_tokens.empty?
     end
 
+    def get_client_user
+        user = self.retrieve_resource(OpenNebula::User::SELF)
+        rc   = user.info
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit_with_code 1, rc.message
+        end
+        user
+    end
+
+    def token_create(args, options)
+        options[:time] ||= 36000
+
+        if args[0]
+            username = args[0]
+            use_client = false
+        else
+            user = self.get_client_user
+            username = user['NAME']
+            use_client = true
+        end
+
+        self.login(username, options, use_client)
+    end
+
     private
 
     def factory(id=nil)
@@ -509,4 +540,5 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
+
 end

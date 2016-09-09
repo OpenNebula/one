@@ -150,26 +150,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         }
     }
 
-    TOKEN_CREATE = {
-        :name => "create",
-        :large => "--create",
-        :description => "Create a new token"
-    }
-
-    TOKEN_DELETE = {
-        :name => "delete",
-        :large => "--delete token",
-        :format => String,
-        :description => "Delete a token"
-    }
-
-    TOKEN_SET = {
-        :name => "set",
-        :large => "--set token",
-        :format => String,
-        :description => "Set a token"
-    }
-
     STDIN_PASSWORD = {
         :name => "stdin_password",
         :large => "--stdin_password",
@@ -188,8 +168,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                       FORCE,
                       GROUP,
                       STDIN_PASSWORD]
-
-    token_options = login_options + [TOKEN_CREATE, TOKEN_DELETE, TOKEN_SET]
 
     ########################################################################
     # Formatters for arguments
@@ -376,30 +354,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     login_desc = <<-EOT.unindent
-        Creates the login token for authentication. The token can be used
-        together with any authentication driver. The token will be stored in
-        $HOME/.one/one_auth, and can be used subsequently to authenticate with
-        oned through API, CLI or Sunstone.
-
-        Example, request a valid token for a generic driver (e.g. core auth, LDAP...):
-          oneuser login my_user --time 3600
-
-        Example, generate and set a token for SSH based authentication:
-          oneuser login my_user --ssh --key /tmp/id_rsa --time 72000
-
-        Example, same using X509 certificates:
-          oneuser login my_user --x509 --cert /tmp/my_cert.pem
-                                --key /tmp/my_key.pk --time 72000
-
-        Example, now with a X509 proxy certificate
-          oneuser login my_user --x509_proxy --proxy /tmp/my_cert.pem
-                                --time 72000
+        Alias of token-create.
     EOT
 
-    command :login, login_desc, :username, :options=>login_options do
-        options[:time] ||= 36000
-
-        helper.login(args[0], options)
+    command :login, login_desc, [:username, nil], :options=>login_options do
+        helper.token_create(args, options)
     end
 
     key_desc = <<-EOT.unindent
@@ -578,80 +537,182 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_pool(options)
     end
 
-    token_desc = <<-EOT.unindent
-        Manages user tokens. Tokens may be created, removed or set.
+    token_add_desc = <<-EOT.unindent
+        Creates the login token for authentication. The token can be used
+        together with any authentication driver. The token will be stored in
+        $HOME/.one/one_auth, and can be used subsequently to authenticate with
+        oned through API, CLI or Sunstone.
+
+        If <username> is ommited, it will infer it from the ONE_AUTH file.
+
+        Example, request a valid token for a generic driver (e.g. core auth, LDAP...):
+          oneuser token-create my_user --time 3600
+
+        Example, request a group spefici token (new resources will be created in that
+        group and only resources that belong to that group will be listed):
+          oneuser token-create my_user --group <id|group>
+
+        Example, generate and set a token for SSH based authentication:
+          oneuser token-create my_user --ssh --key /tmp/id_rsa --time 72000
+
+        Example, same using X509 certificates:
+          oneuser token-create my_user --x509 --cert /tmp/my_cert.pem
+                                --key /tmp/my_key.pk --time 72000
+
+        Example, now with a X509 proxy certificate
+          oneuser token-create my_user --x509_proxy --proxy /tmp/my_cert.pem
+                                --time 72000
     EOT
 
-    command :token, token_desc, :options=>token_options do
+    command :"token-create", token_add_desc, [:username, nil],
+            :options=>login_options do
+
+        helper.token_create(args, options)
+    end
+
+    token_set_desc = <<-EOT.unindent
+        Generates a ONE_AUTH file that contains the token. You can use the shortest
+        string to select the token. As long as the token starts with that string and
+        there is no other token that does, it will select the token.
+
+        You can omit the username and use only one argument, the token, it will infer
+        the user from the ONE_AUTH file.
+
+        Example, set a token:
+          $ oneuser token-set my_user 1d47
+          export ONE_AUTH=/var/lib/one/.one/<file>.token; export ONE_EGID=-1
+
+        You can copy & paste the output of the command and will load the proper
+        environment variables.
+
+    EOT
+
+    command :"token-set", token_set_desc, [:username, nil], :token,
+            :options=>login_options do
+
+        if args.length == 1
+            token = args[0]
+        else
+            username, token = args
+
+            if username =~ /^\d+$/
+                exit_with_code 1, "The argument should be the username, not the ID."
+            end
+
+            helper.client = helper.get_login_client(username, options)
+        end
+
         user = helper.retrieve_resource(OpenNebula::User::SELF)
-        rc   = user.info
+
+        rc = user.info
         if OpenNebula.is_error?(rc)
             puts rc.message
             exit_with_code 1, rc.message
         end
 
-        if options[:set]
-            token = helper.find_token(user, options[:set])
+        token = helper.find_token(user, token)
 
-            if token.count > 1
-                exit_with_code 1, "More than one token starting with '#{options[:set]}' found."
-            elsif token.count == 0
-                exit_with_code 1, "No valid tokens found."
-            end
+        if token.count > 1
+            exit_with_code 1, "More than one token starting with '#{options[:set]}' found."
+        elsif token.count == 0
+            exit_with_code 1, "No valid tokens found."
+        end
 
-            token = token[0]
-            egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
+        token = token[0]
+        egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
 
-            auth_string = "#{user['NAME']}:#{token}"
-            auth_file   = OneUserHelper::auth_file(auth_string)
+        auth_string = "#{user['NAME']}:#{token}"
+        auth_file   = helper.auth_file(auth_string)
 
-            begin
-                FileUtils.mkdir_p(File.dirname(auth_file))
-            rescue Errno::EEXIST
-            end
+        begin
+            FileUtils.mkdir_p(File.dirname(auth_file))
+        rescue Errno::EEXIST
+        end
 
-            file = File.open(auth_file, "w")
-            file.write(auth_string)
-            file.close
+        file = File.open(auth_file, "w")
+        file.write(auth_string)
+        file.close
 
-            File.chmod(0600, auth_file)
+        File.chmod(0600, auth_file)
 
-            msg ="export ONE_AUTH=" + auth_file
-            msg << "; export ONE_EGID=#{egid}" if egid
+        msg ="export ONE_AUTH=" + auth_file
+        msg << "; export ONE_EGID=#{egid}" if egid
 
-            exit_with_code 0, msg
-        elsif options[:delete]
-            token = helper.find_token(user, options[:delete], true)
+        exit_with_code 0, msg
+    end
 
-            auth_string = "#{user['NAME']}:#{token}"
-            auth_file   = OneUserHelper::auth_file(auth_string)
+    token_delete_desc = <<-EOT.unindent
+        Expires a token and removes the associated ONE_AUTH file if present.
+    EOT
 
-            if token.count > 1
-                exit_with_code 1, "More than one token starting with '#{options[:delete]}' found."
-            elsif token.count == 0
-                exit_with_code 1, "No tokens found."
-            end
+    command :"token-delete", token_delete_desc, [:username, nil], :token,
+            :options=>login_options do
 
-            token = token[0]
-            rc = user.login(user['NAME'], token, 0)
-
-            if OpenNebula.is_error?(rc)
-                puts rc.message
-                exit_with_code 1, rc.message
-            else
-                puts "Token removed."
-            end
-
-            begin
-                File.unlink(auth_file)
-                puts "Removing #{auth_file}"
-            rescue Errno::ENOENT
-            end
-
-            0
+        if args.length == 1
+            token = args[0]
         else
-            options[:time] ||= 36000
-            helper.login(user['NAME'], options)
+            username, token = args
+        end
+
+        if username
+            helper.client = helper.get_login_client(username, options)
+        end
+
+        user = helper.retrieve_resource(OpenNebula::User::SELF)
+
+        rc = user.info
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit_with_code 1, rc.message
+        end
+
+        token = helper.find_token(user, token, true)
+
+        if token.count > 1
+            exit_with_code 1, "More than one token starting with '#{options[:delete]}' found."
+        elsif token.count == 0
+            exit_with_code 1, "No tokens found."
+        end
+
+        token = token[0]
+
+        rc = user.login(user['NAME'], token, 0)
+
+        if OpenNebula.is_error?(rc)
+            puts rc.message
+            exit_with_code 1, rc.message
+        else
+            puts "Token removed."
+        end
+
+        auth_string = "#{user['NAME']}:#{token}"
+        auth_file   = helper.auth_file(auth_string)
+
+        begin
+            File.unlink(auth_file)
+            puts "Removing #{auth_file}"
+        rescue Errno::ENOENT
+        end
+
+        0
+    end
+
+    token_delete_all = <<-EOT.unindent
+        Delete all the tokens of a user. This command is intented to be executed by a
+        user that has MANAGE permissions of the target user.
+    EOT
+
+    command :"token-delete-all", token_delete_all, :username,
+            :options=>login_options do
+
+        username = args[0]
+
+        if username =~ /^\d+$/
+            exit_with_code 1, "The argument should be the username, not the ID."
+        end
+
+        helper.perform_action(username, options, "Tokens expired") do |user|
+            user.login(username, "", 0)
         end
     end
 end
