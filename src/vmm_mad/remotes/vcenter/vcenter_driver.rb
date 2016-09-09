@@ -559,8 +559,6 @@ class VIClient
             vcenter_networks[dc.name] = one_nets
         }
 
-File.open("/tmp/vcenter.txt", "w"){|f| f.puts vcenter_networks.to_yaml }
-
         return vcenter_networks
     end
 

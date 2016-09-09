@@ -96,9 +96,8 @@ end
 
 get '/vcenter/networks' do
     begin
-        networks = YAML.load_file('/home/cmartin/trabajo/opennebula/one/test/vcenter-networks.yaml')
-        #networks = vcenter_client.vcenter_networks(
-        #    $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
+        networks = vcenter_client.vcenter_networks(
+            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
         if networks.nil?
             msg = "No datacenter found"
             logger.error("[vCenter] " + msg)
