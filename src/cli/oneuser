@@ -32,7 +32,6 @@ require 'one_helper/oneuser_helper'
 require 'one_helper/onequota_helper'
 
 require 'uri'
-require 'uuidtools'
 
 cmd=CommandParser::CmdParser.new(ARGV) do
     usage "`oneuser` <command> [<args>] [<options>]"
@@ -601,32 +600,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             token = token[0]
-
             egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
 
-            # The token will be written to a file in $HOME/.one/<uuid>.token
+            auth_string = "#{user['NAME']}:#{token}"
+            auth_file   = OneUserHelper::auth_file(auth_string)
 
-            # generate a random uuid
-            uuid = UUIDTools::UUID.random_create.to_s
-
-            auth_file = ENV['HOME'] + "/.one/#{uuid}.token"
             begin
                 FileUtils.mkdir_p(File.dirname(auth_file))
             rescue Errno::EEXIST
             end
 
             file = File.open(auth_file, "w")
-            file.write("#{user['NAME']}:#{token}")
+            file.write(auth_string)
             file.close
 
             File.chmod(0600, auth_file)
 
-            msg ="export ONE_AUTH=" + ENV['HOME'] + "/.one/#{uuid}.token"
+            msg ="export ONE_AUTH=" + auth_file
             msg << "; export ONE_EGID=#{egid}" if egid
 
             exit_with_code 0, msg
         elsif options[:delete]
             token = helper.find_token(user, options[:delete], true)
+
+            auth_string = "#{user['NAME']}:#{token}"
+            auth_file   = OneUserHelper::auth_file(auth_string)
 
             if token.count > 1
                 exit_with_code 1, "More than one token starting with '#{options[:delete]}' found."
@@ -644,14 +642,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 puts "Token removed."
             end
 
-            # Remove the token files
-            Dir[ENV['HOME'] + "/.one/*.token"].each do |f|
-                auth = File.read(f).strip
-
-                if auth == "#{user['NAME']}:#{token}"
-                    puts "Removing #{f}"
-                    File.unlink(f)
-                end
+            begin
+                File.unlink(auth_file)
+                puts "Removing #{auth_file}"
+            rescue Errno::ENOENT
             end
 
             0

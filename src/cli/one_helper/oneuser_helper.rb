@@ -17,6 +17,8 @@
 require 'one_helper'
 require 'one_helper/onequota_helper'
 
+require 'digest/md5'
+
 # Interface for OpenNebula generated tokens.
 class TokenAuth
     def login_token(username, expire)
@@ -26,7 +28,7 @@ end
 
 class OneUserHelper < OpenNebulaHelper::OneHelper
 
-    ONE_AUTH     = ENV['HOME']+'/.one/one_auth'
+    ONE_AUTH = ENV['HOME']+'/.one/one_auth'
 
     def self.rname
         "USER"
@@ -38,6 +40,11 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
     def self.password_to_str_desc
         "User password"
+    end
+
+    def self.auth_file(auth_string)
+        auth_filename = Digest::MD5.hexdigest(auth_string)
+        ENV['HOME'] + "/.one/#{auth_filename}.token"
     end
 
     def self.password_to_str(arg, options)
@@ -502,6 +509,4 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         helper = OneQuotaHelper.new
         helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
-
-
 end
