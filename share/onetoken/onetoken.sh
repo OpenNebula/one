@@ -1,11 +1,18 @@
 onetokenset(){
-    USER=$1
-    TOKEN=$2
-    PASSWORD=$3
+    local PASSWORD
 
-    if [ -z "$USER" -o -z "$TOKEN" ]; then
-        echo "Usage: $0 <id|user> <token> [<password>]" >&2
-        exit 1
+    if [ -n "$PASSWORD_ARG" ]; then
+        PASSWORD=$1
+        shift
+    fi
+
+    USER=$1
+    shift
+
+    if [ -z "$USER" -o "${USER:0:1}" = "-" ]; then
+        echo "Usage: $0 <user> [options]" >&2
+        echo "  Any option understood by 'oneuser token-set' is valid." >&2
+        return 1
     fi
 
     if [ -z "$PASSWORD" ]; then
@@ -16,7 +23,7 @@ onetokenset(){
         echo
     fi
 
-    OUT=$(echo "$PASSWORD" | oneuser token-set --stdin_password $USER $TOKEN)
+    OUT=$(echo "$PASSWORD" | oneuser token-set --stdin_password $USER $*)
 
     if echo $OUT | grep -q export; then
         eval "$OUT"
@@ -30,11 +37,14 @@ onetokenset(){
 }
 
 onetokencreate(){
+    local PASSWORD PASSWORD_ARG
+
     USER=$1
 
     if [ -z "$USER" ]; then
-        echo "Usage: $0 <id|user>" >&2
-        exit 1
+        echo "Usage: $0 <user> [options]" >&2
+        echo "  Any option understood by 'oneuser token-create' is valid." >&2
+        return 1
     fi
 
     shift
@@ -51,7 +61,7 @@ onetokencreate(){
     if echo $OUT | grep -q "Authentication Token"; then
         TOKEN=$(echo $OUT|tail -n1|cut -d: -f2)
         if [ -n "$TOKEN" ]; then
-            onetokenset $USER $TOKEN $PASSWORD
+            PASSWORD_ARG=true onetokenset $PASSWORD $USER --token $TOKEN
         else
             echo "Invalid token."
             return 1

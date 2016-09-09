@@ -140,6 +140,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Force one_auth file rewrite"
     }
 
+    TOKEN = {
+        :name => "token",
+        :large => "--token token_hint",
+        :format => String,
+        :description => "The Token to be loaded."
+    }
+
     GROUP = {
         :name   => "group",
         :large  => "--group id|name" ,
@@ -148,6 +155,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :proc   => lambda { |o, options|
             OpenNebulaHelper.rname_to_id(o, "GROUP")
         }
+    }
+
+    GLOBAL = {
+        :name   => "global",
+        :large  => "--global" ,
+        :description => "Find a global Token."
     }
 
     STDIN_PASSWORD = {
@@ -168,6 +181,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                       FORCE,
                       GROUP,
                       STDIN_PASSWORD]
+
+    set_options = [TOKEN, GLOBAL]
 
     ########################################################################
     # Formatters for arguments
@@ -381,7 +396,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         exit_with_code 0
     end
 
-
     delete_desc = <<-EOT.unindent
         Deletes the given User
     EOT
@@ -571,30 +585,35 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     token_set_desc = <<-EOT.unindent
-        Generates a ONE_AUTH file that contains the token. You can use the shortest
-        string to select the token. As long as the token starts with that string and
-        there is no other token that does, it will select the token.
+        Generates a ONE_AUTH file that contains the token.
 
-        You can omit the username and use only one argument, the token, it will infer
-        the user from the ONE_AUTH file.
+        You must provide one (and only one) of the following options:
+
+        --token <token>    searches for a token that starts with that string. It must be
+                           unique
+
+        --group <id|group> returns the most durable token that provides access to that
+                           specific group.
+
+        --global           returns the most durable global token (non group specific).
+
+        The argument 'username' is optional, if omitted it is inferred from the ONE_AUTH
+        file.
 
         Example, set a token:
-          $ oneuser token-set my_user 1d47
+          $ oneuser token-set my_user --token 1d47
           export ONE_AUTH=/var/lib/one/.one/<file>.token; export ONE_EGID=-1
 
         You can copy & paste the output of the command and will load the proper
         environment variables.
-
     EOT
 
-    command :"token-set", token_set_desc, [:username, nil], :token,
-            :options=>login_options do
+    command :"token-set", token_set_desc, [:username, nil],
+            :options=>login_options+set_options do
 
-        if args.length == 1
-            token = args[0]
-        else
-            username, token = args
+        username = args[0]
 
+        if username
             if username =~ /^\d+$/
                 exit_with_code 1, "The argument should be the username, not the ID."
             end
@@ -610,15 +629,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit_with_code 1, rc.message
         end
 
-        token = helper.find_token(user, token)
+        # Process the options
+        if options[:token]
+            token_hint = options[:token]
+            group = nil
+        elsif options[:group]
+            token_hint = nil
+            group = options[:group]
+        elsif options[:global]
+            token_hint = nil
+            group = -1
+        else
+            exit_with_code 1, "One of these options must be supplied:\n" <<
+            "[--token <token>] [--group <id|group>] [--global]"
+        end
 
-        if token.count > 1
-            exit_with_code 1, "More than one token starting with '#{options[:set]}' found."
-        elsif token.count == 0
+        tokens = helper.find_token(user, token_hint, group, false)
+
+        if tokens.length == 0
             exit_with_code 1, "No valid tokens found."
         end
 
-        token = token[0]
+        if token_hint && tokens.length > 1
+            msg = "More than one token starting with '#{token_hint}' found."
+            exit_with_code 1, msg
+        end
+
+        token = tokens[0]["TOKEN"]
+
         egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
 
         auth_string = "#{user['NAME']}:#{token}"
@@ -649,9 +687,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             :options=>login_options do
 
         if args.length == 1
-            token = args[0]
+            token_hint = args[0]
         else
-            username, token = args
+            username, token_hint = args
         end
 
         if username
@@ -666,15 +704,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit_with_code 1, rc.message
         end
 
-        token = helper.find_token(user, token, true)
+        token = helper.find_token(user, token_hint, nil, true)
 
         if token.count > 1
-            exit_with_code 1, "More than one token starting with '#{options[:delete]}' found."
+            exit_with_code 1, "More than one token starting with '#{token_hint}' found."
         elsif token.count == 0
             exit_with_code 1, "No tokens found."
         end
 
-        token = token[0]
+        token = token[0]["TOKEN"]
 
         rc = user.login(user['NAME'], token, 0)
 

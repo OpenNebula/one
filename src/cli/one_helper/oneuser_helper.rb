@@ -397,24 +397,45 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         table
     end
 
-    def find_token(user, token, show_expired=false)
+    def find_token(user, token, group=nil, show_expired=false)
         user_hash = user.to_hash
 
         valid_tokens = [user_hash["USER"]["LOGIN_TOKEN"]].flatten.compact
 
         return [] if valid_tokens.empty?
 
-        valid_tokens.map do |e|
-            next unless e["TOKEN"].start_with?(token)
+        valid_tokens.map! do |e|
+            if token
+                next if !e["TOKEN"].start_with?(token)
+            end
 
             exp_time = e["EXPIRATION_TIME"].to_i
+            if group
+                next if e["EGID"].to_i != group.to_i
+            end
 
             if !show_expired
                 next if exp_time != -1 && Time.now > Time.at(exp_time)
             end
 
-            e["TOKEN"]
-        end.compact if !valid_tokens.empty?
+            e
+        end.compact!
+
+        # Sort the tokens so it returns first the one that will expire the
+        # latest.
+
+        valid_tokens.sort! do |a,b|
+            a_exp = a["EXPIRATION_TIME"].to_i
+            b_exp = b["EXPIRATION_TIME"].to_i
+
+            if a_exp == -1 || b_exp == -1
+                a_exp <=> b_exp
+            else
+                b_exp <=> a_exp
+            end
+        end
+
+        valid_tokens
     end
 
     def get_client_user
