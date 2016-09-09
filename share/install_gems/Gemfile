@@ -1,0 +1,38 @@
+source 'https://rubygems.org'
+
+if RUBY_VERSION < '1.9.0'
+    gem 'nokogiri', '< 1.6.0'
+    gem 'net-ldap', '< 0.9'
+    gem 'zendesk_api', '< 1.5'
+else
+    gem 'nokogiri'
+    gem 'net-ldap', '< 0.13'
+    gem 'zendesk_api', '< 1.14.0'
+end
+
+if RUBY_VERSION < '2.2.0'
+    gem 'rack', '< 2.0.0'
+else
+    gem 'rack'
+end
+
+gem 'sqlite3'               # quota, onedb
+gem 'treetop', '>= 1.6.3'   # oneflow
+gem 'sequel'                # quota, oneb
+gem 'sinatra'               # sunstone, cloud, oneflow
+gem 'thin'                  # sunstone, cloud
+gem 'memcache-client'       # sunstone
+gem 'amazon-ec2'            # cloud
+gem 'uuidtools'             # cloud
+gem 'curb'                  # cloud
+gem 'configparser'          # hybrid
+gem 'azure'                 # hybrid
+gem 'builder'               # vmware
+gem 'trollop'               # vmware
+gem 'parse-cron'            # oneflow
+gem 'aws-sdk', '~> 2.5'     # ec2_hybrid
+gem 'ox'                    # oca
+gem 'mysql'                 # onedb
+
+
+
