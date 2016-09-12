@@ -207,6 +207,18 @@ SLAVE_BACKUP={
     :format => String
 }
 
+###############################################################################
+# Extra options
+###############################################################################
+
+EXTRA={
+    :name => "extra",
+    :large => "--extra arg",
+    :description => "Extra args",
+    :format => Array
+}
+
+
 cmd=CommandParser::CmdParser.new(ARGV) do
     description <<-EOT.unindent
         This command enables the user to manage the OpenNebula database. It
@@ -347,7 +359,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Applies a database patch file
     EOT
 
-    command :patch , patch_desc, :file, :options=>[BACKUP] do
+    command :patch , patch_desc, :file, :options=>[BACKUP, EXTRA] do
         begin
             helper = OneDB.new(options)
             helper.patch(args[0], options)
