@@ -192,7 +192,9 @@ class SshStreamCommand < RemotesCommand
         @stream     = SshStream.new(host, shell, timeout)
     end
 
-    def run(command, stdin=nil, base_cmd = nil)
+    def run(command, stdin=nil, base_cmd = nil, timeout = nil)
+        @timeout = timeout if timeout
+
         @stream.open unless @stream.opened?
 
         if base_cmd #Check if base command is on remote host
