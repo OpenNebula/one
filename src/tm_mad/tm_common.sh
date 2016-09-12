@@ -112,3 +112,48 @@ function lcm_state
 
     echo $LCM_STATE
 }
+
+function migrate_other
+{
+    DRIVER_PATH=$(dirname $0)
+    MAD=${DRIVER_PATH##*/}
+
+    XPATH="$DRIVER_PATH/../../datastore/xpath.rb"
+
+    unset i
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done< <("$XPATH" -b "$6" \
+            /VM/TEMPLATE/CONTEXT/DISK_ID \
+            %m%/VM/TEMPLATE/DISK/DISK_ID \
+            %m%/VM/TEMPLATE/DISK/CLONE \
+            %m%/VM/TEMPLATE/DISK/TM_MAD)
+
+    unset i
+    CONTEXT_DISK_ID="${XPATH_ELEMENTS[i++]}"
+    DISK_IDS="${XPATH_ELEMENTS[i++]}"
+    CLONES="${XPATH_ELEMENTS[i++]}"
+    TM_MADS="${XPATH_ELEMENTS[i++]}"
+    DISK_ID_ARRAY=($DISK_IDS)
+    CLONE_ARRAY=($CLONES)
+    TM_MAD_ARRAY=($TM_MADS)
+
+    if [ -n "$7" ]; then
+        return 0
+    fi
+
+    for i in ${!TM_MAD_ARRAY[@]}; do
+        TM="${TM_MAD_ARRAY[i]}"
+
+        if [ "$TM" = "$MAD" ]; then
+            continue
+        fi
+        if [ "${PROCESSED/ $TM /}" = "$PROCESSED" ]; then
+            # call the other TM_MADs with same arguments
+            # but mark that it is not SYSTEM_DS
+            log "Call $TM/${0##*/}"
+            "${DRIVER_PATH}/../$TM/${0##*/}" "$@" "$MAD"
+            PROCESSED+=" $TM "
+        fi
+    done
+}
