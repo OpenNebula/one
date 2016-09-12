@@ -472,6 +472,18 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Check for EMULATOR attribute
+    // ------------------------------------------------------------------------
+
+    user_obj_template->get("EMULATOR", value);
+
+    if (!value.empty())
+    {
+        user_obj_template->erase("EMULATOR");
+        obj_template->add("EMULATOR", value);
+    }
+
+    // ------------------------------------------------------------------------
     // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 

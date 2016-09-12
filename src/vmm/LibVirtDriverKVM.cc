@@ -379,11 +379,15 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
 
-    get_default("EMULATOR",emulator_path);
-
+    vm->get_template_attribute("EMULATOR", emulator_path);
     if(emulator_path.empty())
     {
-        emulator_path = "/usr/bin/kvm";
+        get_default("EMULATOR",emulator_path);
+
+        if(emulator_path.empty())
+        {
+            emulator_path = "/usr/bin/kvm";
+        }
     }
 
     file << "\t\t<emulator>" << one_util::escape_xml(emulator_path)
