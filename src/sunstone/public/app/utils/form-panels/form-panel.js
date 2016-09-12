@@ -70,7 +70,7 @@ define(function(require) {
     $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
       .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
 
-    Foundation.reInit($("form", context));
+    Foundation.reInit($('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context));
 
     $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
       .on('forminvalid.zf.abide', function(ev, frm) {

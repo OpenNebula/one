@@ -14,28 +14,32 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
-  <div class="row vcenter_credentials">
-    <div class="large-3 medium-6 columns">
-      <label for="vcenter_host">{{tr "Hostname"}}</label>
-      <input type="text" name="vcenter_host" id="vcenter_host" />
+<div id="import_templates_form_wrapper">
+  <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
+  </form>
+  <form data-abide novalidate class="vcenter_credentials" action="">
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <label for="vcenter_host">{{tr "Hostname"}}</label>
+        <input type="text" name="vcenter_host" id="vcenter_host" required />
+      </div>
+      <div class="large-3 medium-6 columns">
+        <label for="vcenter_user">{{tr "User"}}</label>
+        <input type="text" name="vcenter_user" id="vcenter_user" required />
+      </div>
+      <div class="large-3 medium-6 columns">
+        <label for="vcenter_password">{{tr "Password"}}</label>
+        <input type="password" name="vcenter_password" id="vcenter_password" required />
+      </div>
+      <div class="large-3 medium-6 columns">
+        <label>&nbsp;</label>
+        <button type="submit" class="button radius">
+          {{tr "Get VM Templates"}}
+        </button>
+      </div>
     </div>
-    <div class="large-3 medium-6 columns">
-      <label for="vcenter_user">{{tr "User"}}</label>
-      <input type="text" name="vcenter_user" id="vcenter_user" />
-    </div>
-    <div class="large-3 medium-6 columns">
-      <label for="vcenter_password">{{tr "Password"}}</label>
-      <input type="password" name="vcenter_password" id="vcenter_password" />
-    </div>
-    <div class="large-3 medium-6 columns">
-      <br>
-      <a class="button" id="get_vcenter_templates">
-        {{tr "Get VM Templates"}}
-      </a>
-    </div>
-  </div>
+  </form>
   <div class="row collapse">
     {{{vCenterTemplatesHTML}}}
   </div>
-</form>
+</div>

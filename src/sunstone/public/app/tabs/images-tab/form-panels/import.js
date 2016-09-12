@@ -82,26 +82,34 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    Sunstone.disableFormPanelSubmit(TAB_ID);
+    $("form.vcenter_credentials", context)
+      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
 
-    $("#get_vcenter_images", context).on("click", function(){
-      Sunstone.enableFormPanelSubmit(TAB_ID);
+    Foundation.reInit($("form.vcenter_credentials", context));
 
-      var vcenter_user      = $("#vcenter_user", context).val();
-      var vcenter_password  = $("#vcenter_password", context).val();
-      var vcenter_host      = $("#vcenter_host", context).val();
-      var vcenter_datastore = $("#vcenter_datastore", context).val();
+    $("form.vcenter_credentials", context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        Sunstone.enableFormPanelSubmit(TAB_ID);
 
-      that.vCenterImages.insert({
-        container: context,
-        vcenter_user: vcenter_user,
-        vcenter_password: vcenter_password,
-        vcenter_host: vcenter_host,
-        vcenter_datastore: vcenter_datastore
+        var vcenter_user      = $("#vcenter_user", context).val();
+        var vcenter_password  = $("#vcenter_password", context).val();
+        var vcenter_host      = $("#vcenter_host", context).val();
+        var vcenter_datastore = $("#vcenter_datastore", context).val();
+
+        that.vCenterImages.insert({
+          container: context,
+          vcenter_user: vcenter_user,
+          vcenter_password: vcenter_password,
+          vcenter_host: vcenter_host,
+          vcenter_datastore: vcenter_datastore
+        });
+
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
       });
-
-      return false;
-    });
 
     return false;
   }
@@ -110,9 +118,8 @@ define(function(require) {
     var that = this;
 
     Sunstone.hideFormPanelLoading(TAB_ID);
-    Sunstone.disableFormPanelSubmit(TAB_ID);
 
-    this.vCenterImages.import();
+    this.vCenterImages.import(context.closest("#import_images_form_wrapper"));
 
     return false;
   }

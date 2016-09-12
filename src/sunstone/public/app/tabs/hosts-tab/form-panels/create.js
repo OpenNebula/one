@@ -140,33 +140,38 @@ define(function(require) {
 
     $("#host_type_mad", context).change();
 
-    $("#get_vcenter_clusters", context).on("click", function() {
-      // TODO notify if credentials empty
+    $("form.vcenter_credentials", context)
+      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
 
-      var vcenter_user = $("#vcenter_user", context).val();
-      var vcenter_password = $("#vcenter_password", context).val();
-      var vcenter_host = $("#vcenter_host", context).val();
+    Foundation.reInit($("form.vcenter_credentials", context));
 
-      that.vCenterClusters.insert({
-        container: context,
-        vcenter_user: vcenter_user,
-        vcenter_password: vcenter_password,
-        vcenter_host: vcenter_host,
-        success: function(){
-          $("#vcenter_user", context).attr("disabled", "disabled");
-          $("#vcenter_password", context).attr("disabled", "disabled");
-          $("#vcenter_host", context).attr("disabled", "disabled");
-          $("#get_vcenter_clusters", context).hide();
-          $(".import_vcenter_clusters_div", context).show();
-        }
+    $("form.vcenter_credentials", context)
+      .on('forminvalid.zf.abide', function(ev, frm) {
+      })
+      .on('formvalid.zf.abide', function(ev, frm) {
+        var vcenter_user = $("#vcenter_user", context).val();
+        var vcenter_password = $("#vcenter_password", context).val();
+        var vcenter_host = $("#vcenter_host", context).val();
+
+        that.vCenterClusters.insert({
+          container: context,
+          vcenter_user: vcenter_user,
+          vcenter_password: vcenter_password,
+          vcenter_host: vcenter_host,
+          success: function(){
+            $("#vcenter_user", context).attr("disabled", "disabled");
+            $("#vcenter_password", context).attr("disabled", "disabled");
+            $("#vcenter_host", context).attr("disabled", "disabled");
+            $("#get_vcenter_clusters", context).hide();
+            $(".import_vcenter_clusters_div", context).show();
+          }
+        })
+      })
+      .on("submit", function(ev) {
+        ev.preventDefault();
       });
 
-      return false;
-    });
-
     $("#import_vcenter_clusters", context).on("click", function() {
-      $(this).hide();
-
       var cluster_id = $('#host_cluster_id .resource_list_select', context).val();
       if (!cluster_id) cluster_id = "-1";
 
@@ -192,14 +197,6 @@ define(function(require) {
       else
           $('input[name="custom_im_mad"]').parent().hide();
     });
-
-    $('#create_host_form').on("keyup keypress", function(e) {
-          var code = e.keyCode || e.which;
-          if (code  == 13) {
-            e.preventDefault();
-            return false;
-          }
-        });
 
     Tips.setup();
     return false;
