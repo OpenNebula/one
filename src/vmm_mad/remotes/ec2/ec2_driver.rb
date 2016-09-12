@@ -44,6 +44,14 @@ require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'opennebula'
 
+begin
+    PUBLIC_CLOUD_EC2_CONF = YAML::load(File.read(EC2_DRIVER_CONF))
+rescue Exception => e
+    STDERR.puts "Unable to read '#{EC2_DRIVER_CONF}'. Invalid YAML syntax:\n" <<
+                e.message
+    exit 1
+end
+
 # The main class for the EC2 driver
 class EC2Driver
     ACTION          = VirtualMachineDriver::ACTION
@@ -216,13 +224,11 @@ class EC2Driver
         @host    = host
         @host_id = host_id
 
-        public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
+        @state_change_timeout = PUBLIC_CLOUD_EC2_CONF['state_wait_timeout_seconds'].to_i
 
-        @state_change_timeout = public_cloud_ec2_conf['state_wait_timeout_seconds'].to_i
+        @instance_types = PUBLIC_CLOUD_EC2_CONF['instance_types']
 
-        @instance_types = public_cloud_ec2_conf['instance_types']
-
-        regions = public_cloud_ec2_conf['regions']
+        regions = PUBLIC_CLOUD_EC2_CONF['regions']
         @region = regions[host] || regions["default"]
 
         #sanitize region data
@@ -236,7 +242,7 @@ class EC2Driver
             :region             => @region['region_name']
         })
 
-        if (proxy_uri = public_cloud_ec2_conf['proxy_uri'])
+        if (proxy_uri = PUBLIC_CLOUD_EC2_CONF['proxy_uri'])
             Aws.config(:proxy_uri => proxy_uri)
         end
 
