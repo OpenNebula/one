@@ -415,7 +415,7 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
-    INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
+    INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
@@ -1231,7 +1231,8 @@ HOOK_FT_FILES="share/hooks/host_error.rb \
 # Installation scripts, to be installed under $SHARE_LOCATION
 #-------------------------------------------------------------------------------
 
-INSTALL_GEMS_SHARE_FILE="share/install_gems/install_gems"
+INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
+                          share/install_gems/Gemfile"
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 #-------------------------------------------------------------------------------
