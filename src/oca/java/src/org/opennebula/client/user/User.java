@@ -237,7 +237,28 @@ public class User extends PoolElement{
                                     String token,
                                     int expire)
     {
-        return client.call(LOGIN, username, token, expire);
+        return login(client, username, token, expire, -1);
+    }
+
+    /**
+     * Sets the LOGIN_TOKEN for the user
+     *
+     * @param username of the user
+     * @param token the login token, if empty OpenNebula will
+     *   generate one
+     * @param expire valid period of the token in secs. If &lt;= 0
+     *   the token will be reset
+     * @param egid effective GID to use with this token. To use the
+     *   current GID and user groups set it to -1
+     * @return token in case of success, Error otherwise
+     */
+    public static OneResponse login(Client client,
+                                    String username,
+                                    String token,
+                                    int expire,
+                                    int egid)
+    {
+        return client.call(LOGIN, username, token, expire, egid);
     }
 
     // =================================
@@ -383,6 +404,22 @@ public class User extends PoolElement{
     public OneResponse login(String token, int expire)
     {
         return client.call(LOGIN, getName(), token, expire);
+    }
+
+    /**
+     * Sets the LOGIN_TOKEN for the user. The method info() must be called before.
+     *
+     * @param token the login token, if empty OpenNebula will
+     *   generate one
+     * @param expire valid period of the token in secs. If &lt;= 0
+     *   the token will be reset
+     * @param egid effective GID to use with this token. To use the
+     *   current GID and user groups set it to -1
+     * @return token in case of success, Error otherwise
+     */
+    public OneResponse login(String token, int expire, int egid)
+    {
+        return client.call(LOGIN, getName(), token, expire, egid);
     }
 
     // =================================
