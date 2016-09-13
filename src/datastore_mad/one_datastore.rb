@@ -256,7 +256,7 @@ begin
             when '--system-ds-types'
                 sys_ds_type = arg.split(',').map {|a| a.strip }
             when '--timeout'
-                timeout = arg
+                timeout = arg.to_i
         end
     end
 rescue Exception => e

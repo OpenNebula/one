@@ -151,7 +151,7 @@ opts = GetoptLong.new(
 
 i_types = nil
 threads = 1
-timeout = 1
+timeout = nil
 
 begin
     opts.each do |opt, arg|
@@ -161,7 +161,7 @@ begin
             when '--threads'
                 threads = arg.to_i
             when '--timeout'
-                timeout = arg
+                timeout = arg.to_i
         end
     end
 rescue Exception => e

@@ -132,7 +132,7 @@ begin
             when '--force-copy'
                 force_copy=true
             when '--timeout'
-                timeout = arg
+                timeout = arg.to_i
         end
     end
 rescue Exception => e

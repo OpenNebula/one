@@ -1089,7 +1089,7 @@ begin
             when '--parallel'
                 single_host = false
             when '--timeout'
-                timeout = arg
+                timeout = arg.to_i
         end
     end
 rescue Exception => e
