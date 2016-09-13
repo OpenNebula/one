@@ -33,12 +33,25 @@ class OneMarket
     end
 
     def get(path)
+
+        # Get proxy params (needed for ruby 1.9.3)
+        http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+
+        if http_proxy
+            p_uri   = URI(http_proxy)
+            p_host  = p_uri.host
+            p_port  = p_uri.port
+        else
+            p_host  = nil
+            p_port  = nil
+        end
+
         uri = URI(@url + path)
         req = Net::HTTP::Get.new(uri.request_uri)
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port, :ENV) {|http|
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port) {|http|
             http.request(req)
         }
 
