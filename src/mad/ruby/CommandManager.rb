@@ -43,6 +43,9 @@ require 'timeout'
 
 
 class GenericCommand
+    ERROR_OPEN  = "ERROR MESSAGE --8<------"
+    ERROR_CLOSE = "ERROR MESSAGE ------>8--"
+
     attr_reader :code, :stdout, :stderr, :command
 
     # Creates a command and runs it
@@ -110,7 +113,10 @@ class GenericCommand
                 process.call
             end
         rescue Timeout::Error
-            log("Timeout executing #{command}")
+            error_message = "Timeout executing #{command}"
+            log(error_message)
+
+            @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
 
             3.times {|n| std[n].close if !std[n].closed? }
 
@@ -125,7 +131,7 @@ class GenericCommand
 
     # Parses error message from +stderr+ output
     def get_error_message
-        tmp=@stderr.scan(/^ERROR MESSAGE --8<------\n(.*?)ERROR MESSAGE ------>8--$/m)
+        tmp=@stderr.scan(/^#{ERROR_OPEN}\n(.*?)#{ERROR_CLOSE}$/m)
         return "-" if !tmp[0]
         tmp[0].join(' ').strip
     end
