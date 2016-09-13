@@ -59,3 +59,14 @@
 - :UMEM
 - :HOST
 - :TIME
+
+:default_conf:
+  :user:
+    - :ID
+    - :NAME
+    - :STAT
+    - :UCPU
+    - :UMEM
+    - :HOST
+    - :IP
+    - :TIME
