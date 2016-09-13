@@ -544,53 +544,39 @@ void Image::disk_attribute( VectorAttribute *       disk,
     disk->replace("IMAGE_STATE", state);
 
     //--------------------------------------------------------------------------
-    //   READONLY attribute
+    //  READONLY, CLONE & SAVE attributes
     //--------------------------------------------------------------------------
     if ( type == CDROM || template_ptype == "IMMUTABLE" )
     {
-        disk->replace("READONLY", "YES");
-    }
-    else if ( disk->vector_value("READONLY", ro) != 0 )
-    {
-        if ( get_template_attribute("READONLY", ro) )
-        {
-            disk->replace("READONLY", ro);
-        }
-        else
-        {
-            disk->replace("READONLY", false);
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    //   CLONE & SAVE attributes
-    //--------------------------------------------------------------------------
-    if ( persistent_img )
-    {
-        disk->replace("PERSISTENT", "YES");
+        disk->replace("SAVE", "NO");
         disk->replace("CLONE", "NO");
-
-        if ( template_ptype == "IMMUTABLE" )
-        {
-            disk->replace("SAVE", "NO");
-        }
-        else
-        {
-            disk->replace("SAVE", "YES");
-        }
+        disk->replace("READONLY", "YES");
     }
     else
     {
-        if ( type == CDROM )
+        if ( disk->vector_value("READONLY", ro) != 0 )
         {
+            if ( get_template_attribute("READONLY", ro) )
+            {
+                disk->replace("READONLY", ro);
+            }
+            else
+            {
+                disk->replace("READONLY", false);
+            }
+        }
+
+        if ( persistent_img )
+        {
+            disk->replace("PERSISTENT", "YES");
             disk->replace("CLONE", "NO");
+            disk->replace("SAVE", "YES");
         }
         else
         {
             disk->replace("CLONE", "YES");
+            disk->replace("SAVE", "NO");
         }
-
-        disk->replace("SAVE", "NO");
     }
 
     //--------------------------------------------------------------------------
