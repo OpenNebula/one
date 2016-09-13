@@ -1059,9 +1059,8 @@ int VirtualMachine::parse_context(string& error_str)
     // -------------------------------------------------------------------------
     // Add network context and parse variables
     // -------------------------------------------------------------------------
-    generate_network_context(context);
-
-    if (parse_context_variables(&context, error_str) == -1)
+    if (parse_context_variables(&context, error_str) == -1 ||
+            generate_network_context(context, error_str) == -1 )
     {
         return -1;
     }
@@ -3408,7 +3407,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         const string& token_password)
 {
     ofstream file;
-    string   files_ds;
+    string   files_ds, error_str;
 
     vector<const VectorAttribute*> attrs;
 
@@ -3431,20 +3430,14 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     }
 
     //Generate dynamic context attributes
-    if ( generate_network_context(context) )
+    if ( generate_network_context(context, error_str) != 0 )
     {
-        string error;
+        ostringstream oss;
 
-        if (parse_context_variables(&context, error) == -1)
-        {
-            ostringstream oss;
-
-            oss << "Cannot parse network context:: " << error;
-            log("VM", Log::ERROR, oss);
-            return -1;
-        }
+        oss << "Cannot parse network context:: " << error_str;
+        log("VM", Log::ERROR, oss);
+        return -1;
     }
-
 
     file.open(history->context_file.c_str(),ios::out);
 
@@ -4919,7 +4912,8 @@ bool VirtualMachine::generate_pci_context(VectorAttribute * context)
 
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::generate_network_context(VectorAttribute * context)
+int VirtualMachine::generate_network_context(VectorAttribute * context,
+        string& error_str)
 {
     bool net_context;
 
@@ -4927,19 +4921,48 @@ bool VirtualMachine::generate_network_context(VectorAttribute * context)
 
     if (!net_context)
     {
-        return net_context;
+        return 0;
     }
 
     vector<VectorAttribute *> vatts;
+    int rc;
+
+    string  parsed;
+    string* str;
+
+    VectorAttribute tmp_context("TMP_CONTEXT");
 
     int num_vatts = obj_template->get("NIC", vatts);
 
     for(int i=0; i<num_vatts; i++)
     {
-        parse_nic_context(context, vatts[i]);
+        parse_nic_context(&tmp_context, vatts[i]);
     }
 
-    return net_context;
+    str = tmp_context.marshall();
+
+    if (str == 0)
+    {
+        error_str = "Internal error generating network context";
+        return -1;
+    }
+
+    rc = parse_template_attribute(*str, parsed, error_str);
+
+    delete str;
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    tmp_context.clear();
+
+    tmp_context.unmarshall(parsed);
+
+    context->merge(&tmp_context, true);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -5132,10 +5155,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         obj_template->remove(context_bck);
         obj_template->set(context_new);
 
-        generate_network_context(context_new);
-
         if ( generate_token_context(context_new, err) != 0 ||
-                parse_context_variables(&context_new, err) )
+               generate_network_context(context_new, err) != 0  )
         {
             obj_template->erase("CONTEXT");
             obj_template->set(context_bck);

@@ -1924,9 +1924,10 @@ private:
      *  is invoked when ever the context is prepared for the VM to capture
      *  netowrking updates.
      *    @param context attribute of the VM
-     *    @return true if the net context was generated.
+     *    @param error string if any
+     *    @return 0 on success
      */
-    bool generate_network_context(VectorAttribute * context);
+    int generate_network_context(VectorAttribute * context, string& error);
 
     /**
      *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
