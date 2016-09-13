@@ -498,7 +498,7 @@ end
 def find_gemfile_path
     paths = []
     paths << "#{Dir.pwd}/Gemfile"
-    paths << File.expand_path(File.dirname(__FILE__))
+    paths << "#{File.expand_path(File.dirname(__FILE__))}/Gemfile"
     paths << "#{ENV["ONE_LOCATION"]}/share/install_gems/Gemfile" \
              if ENV["ONE_LOCATION"]
     paths << "/usr/share/one/install_gems/Gemfile"
