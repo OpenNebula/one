@@ -109,8 +109,14 @@ onedatastore list -x > samples/datastore_pool/0.xml
 
 
 # User
+oneuser defaultquota test/quota.txt
+
 oneuser create newuser abc
 oneuser chgrp newuser newgroup
+
+oneuser token-create --user newuser --password abc --time 123
+oneuser token-create --user newuser --password abc --time 456
+oneuser token-create --user newuser --password abc --time 789
 
 for i in `oneuser list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     oneuser show $i -x > samples/user/$i.xml
@@ -120,6 +126,8 @@ oneuser list -x > samples/user_pool/0.xml
 
 
 # Group
+onegroup defaultquota test/quota.txt
+
 onegroup create emptygroup
 
 for i in `onegroup list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do

@@ -82,6 +82,7 @@
                                 <xs:element name="MAC" type="xs:string"/>
                                 <xs:element name="VM" type="xs:integer" minOccurs="0"/>
                                 <xs:element name="VNET" type="xs:integer" minOccurs="0"/>
+                                <xs:element name="VROUTER" type="xs:integer" minOccurs="0"/>
                               </xs:all>
                             </xs:complexType>
                           </xs:element>
