@@ -94,7 +94,7 @@ CLONE_CMD=$(cat <<EOF
     set -e -o pipefail
     mkdir -p $DST_DIR
 
-    $SUDO $LVCREATE -L${SIZE}M -n $LV_NAME $VG_NAME
+    $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
     $QEMU_IMG convert -O raw "$SRC_PATH" "$DEV"
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
