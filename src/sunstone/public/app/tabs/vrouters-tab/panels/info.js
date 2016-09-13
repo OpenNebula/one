@@ -26,6 +26,7 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
+  var Navigation = require('utils/navigation');
 
   /*
     TEMPLATES
@@ -84,6 +85,8 @@ define(function(require) {
     $.map(nics, function(nic){
       if (nic.NETWORK == undefined){
         nic.NETWORK = "--";
+      } else if(nic.NETWORK_ID != undefined) {
+        nic.NETWORK = Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID)
       }
 
       if (nic.FLOATING_IP != undefined && nic.FLOATING_IP.toUpperCase() == "YES"){

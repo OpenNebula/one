@@ -23,6 +23,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var OpenNebulaVM = require('opennebula/vm');
   var TemplateUtils = require('utils/template-utils');
+  var Navigation = require('utils/navigation');
 
   /*
     CONSTANTS
@@ -113,8 +114,8 @@ define(function(require) {
 
       html += '     <tr>\
                         <td style="width:5%">' + history[i].SEQ + '</td>\
-                        <td style="width:15%">' + history[i].HOSTNAME + '</td>\
-                        <td style="width:5%">' + history[i].DS_ID + '</td>\
+                        <td style="width:15%">' + Navigation.link(history[i].HOSTNAME, "hosts-tab", history[i].HID) + '</td>\
+                        <td style="width:5%">' + Navigation.link(history[i].DS_ID, "datastores-tab", history[i].DS_ID) + '</td>\
                         <td style="width:16%">' + OpenNebulaVM.migrateActionStr(parseInt(history[i].ACTION, 10)) + '</td>\
                         <td style="width:10%">' + OpenNebulaVM.migrateReasonStr(parseInt(history[i].REASON, 10)) + '</td>\
                         <td style="width:16%">' + Humanize.prettyTime(history[i].STIME) + '</td>\

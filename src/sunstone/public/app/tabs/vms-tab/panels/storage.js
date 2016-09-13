@@ -28,6 +28,7 @@ define(function(require) {
   var Tree = require('utils/tree');
   var TemplateHtml = require('hbs!./storage/html');
   var DiskDetailsHtml = require('hbs!./storage/disk-details');
+  var Navigation = require('utils/navigation');
 
   /*
     CONSTANTS
@@ -247,10 +248,22 @@ define(function(require) {
           sizeStr += '-';
         }
 
+        var imagetr;
+
+        if (disk.IMAGE != undefined){
+          if (disk.IMAGE_ID != undefined){
+            imagetr = Navigation.link(disk.IMAGE, "images-tab", disk.IMAGE_ID);
+          }else{
+            imagetr = disk.IMAGE;
+          }
+        }else{
+          imagetr = (Humanize.sizeFromMB(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : ''));
+        }
+
         disk_dt_data.push({
           DISK_ID : disk.DISK_ID,
           TARGET : disk.TARGET,
-          IMAGE : (disk.IMAGE ? disk.IMAGE : (Humanize.sizeFromMB(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : ''))),
+          IMAGE : imagetr,
           SIZE: sizeStr,
           SAVE : ((disk.SAVE && disk.SAVE == 'YES') ? Locale.tr('YES') : Locale.tr('NO')),
           ACTIONS : actions,

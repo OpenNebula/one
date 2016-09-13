@@ -18,7 +18,8 @@ define(function(require) {
   var OpenNebulaAction = require('./action'),
       OpenNebulaHelper = require('./helper'),
       OpenNebulaError  = require('./error');
-      Locale = require('utils/locale');
+      Locale = require('utils/locale'),
+      Navigation = require('utils/navigation');
 
   var OpenNebulaCluster = require('./cluster');
 
@@ -572,6 +573,18 @@ define(function(require) {
         var history = retrieveLastHistoryRecord(element)
         if (history) {
           hostname = history.HOSTNAME;
+        };
+      };
+
+      return hostname;
+    },
+    "hostnameStrLink": function(element) {
+      var state = element.STATE;
+      var hostname = "--";
+      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
+        var history = retrieveLastHistoryRecord(element)
+        if (history) {
+          hostname = Navigation.link(history.HOSTNAME, "hosts-tab", history.HID);
         };
       };
 

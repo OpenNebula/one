@@ -40,7 +40,7 @@
         </tr>
         <tr>
           <td class="key_td">{{tr "Host"}}</td>
-          <td class="value_td">{{hostname}}</td>
+          <td class="value_td">{{{hostnameHTML}}}</td>
           <td></td>
         </tr>
         <tr>
@@ -59,13 +59,9 @@
           <td></td>
         </tr>
         <tr>
-          <td class="key_td">{{tr "Virtual Router ID"}}</td>
+          <td class="key_td">{{tr "Virtual Router"}}</td>
           <td class="value_td">
-            {{#if element.TEMPLATE.VROUTER_ID}}
-            <a class="vrid">{{element.TEMPLATE.VROUTER_ID}}</a>
-            {{else}}
-            --
-            {{/if}}
+            {{{vrouterHTML}}}
           </td>
           <td></td>
         </tr>

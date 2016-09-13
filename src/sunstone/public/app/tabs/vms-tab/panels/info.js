@@ -24,9 +24,10 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
-  var OpenNebulaVM = require('opennebula/vm');
+  var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var Config = require('sunstone-config');
+  var Navigation = require('utils/navigation');
 
   /*
     TEMPLATES
@@ -71,9 +72,16 @@ define(function(require) {
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var prettyStartTime = Humanize.prettyTime(this.element.STIME);
 
-    var stateStr = OpenNebulaVM.stateStr(this.element.STATE);
-    var lcmStateStr = OpenNebulaVM.lcmStateStr(this.element.LCM_STATE);
-    var hostname = OpenNebulaVM.hostnameStr(this.element);
+    var stateStr = OpenNebula.VM.stateStr(this.element.STATE);
+    var lcmStateStr = OpenNebula.VM.lcmStateStr(this.element.LCM_STATE);
+    var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
+    var vrouterHTML = '--';
+
+    if (this.element.TEMPLATE.VROUTER_ID != undefined){
+      vrouterHTML = Navigation.link(
+        OpenNebula.VirtualRouter.getName(this.element.TEMPLATE.VROUTER_ID),
+        "vrouters-tab", this.element.TEMPLATE.VROUTER_ID);
+    }
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
@@ -111,24 +119,20 @@ define(function(require) {
       'renameTrHTML': renameTrHTML,
       'stateStr': stateStr,
       'lcmStateStr': lcmStateStr,
-      'hostname': hostname,
+      'hostnameHTML': hostnameHTML,
       'prettyStartTime': prettyStartTime,
       'deployId': deployId,
       'resched': resched,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML,
       'monitoringTableContentHTML': monitoringTableContentHTML,
-      'renameTrHTML': renameTrHTML
+      'vrouterHTML': vrouterHTML
     });
   }
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-
-    $("a.vrid", context).on("click", function(){
-      Sunstone.showElement("vrouters-tab", $(this).text());
-    });
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;

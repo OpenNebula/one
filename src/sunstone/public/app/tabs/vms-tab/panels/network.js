@@ -28,6 +28,7 @@ define(function(require) {
   var StateActions = require('../utils/state-actions');
   var OpenNebulaVM = require('opennebula/vm');
   var SecGroupsCommon = require('tabs/secgroups-tab/utils/common');
+  var Navigation = require('utils/navigation');
 
   /*
     CONSTANTS
@@ -298,7 +299,7 @@ define(function(require) {
 
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
-          NETWORK : nic.NETWORK,
+          NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
           IP : _ipTr(nic, "IP"),
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
