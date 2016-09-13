@@ -64,9 +64,9 @@
   :user:
     - :ID
     - :NAME
+    - :IP
     - :STAT
     - :UCPU
     - :UMEM
     - :HOST
-    - :IP
     - :TIME
