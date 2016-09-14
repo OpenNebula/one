@@ -133,11 +133,11 @@ class EC2Driver
                 #},
                 "SECURITYGROUPS" => {
                     :opt => 'security_groups',
-                    :proc => lambda {|str| str.split(',')}
+                    :proc => lambda {|str| str.split(/,\s*/)}
                 },
                 "SECURITYGROUPIDS" => {
                     :opt => 'security_group_ids',
-                    :proc => lambda {|str| str.split(',')}
+                    :proc => lambda {|str| str.split(/,\s*/)}
                 },
                 "AVAILABILITYZONE" => {
                     :opt => 'placement/availability_zone'
@@ -586,7 +586,7 @@ private
                         }.join(",")
                     end
 
-                    info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
+                    info << "AWS_#{key.to_s.upcase}=\\\"#{URI::encode(value)}\\\" "
                 end
             }
 
