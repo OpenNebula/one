@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEMARKET" "1" "June 2016" "" "onemarket(1) -- manages internal and external Marketplaces"
+.TH "ONEMARKET" "1" "September 2016" "" "onemarket(1) -- manages internal and external Marketplaces"
 .
 .SH "NAME"
 \fBonemarket\fR \- manages internal and external Marketplaces
@@ -14,6 +14,7 @@
 .nf
 
  \-l, \-\-list x,y,z          Selects columns to display with list command
+ \-c, \-\-listconf conf       Selects a predefined column list
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
                            column=value pairs\.
@@ -49,7 +50,7 @@ chown \fIrange|marketplaceid_list\fR \fIuserid\fR [\fIgroupid\fR] Changes the Ma
 chmod \fIrange|marketplaceid_list\fR \fIoctet\fR Changes the Marketplace permissions
 .
 .IP "\(bu" 4
-list Lists Marketplaces valid options: list, delay, filter, csv, xml, numeric, describe
+list Lists Marketplaces valid options: list, listconf, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
 show \fImarketplaceid\fR Shows Marketplace information valid options: xml
@@ -88,7 +89,7 @@ userid OpenNebula USER name or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.0\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.1\.80 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

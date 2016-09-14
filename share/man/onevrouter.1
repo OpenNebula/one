@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVROUTER" "1" "June 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
+.TH "ONEVROUTER" "1" "September 2016" "" "onevrouter(1) -- manages OpenNebula Virtual Routers"
 .
 .SH "NAME"
 \fBonevrouter\fR \- manages OpenNebula Virtual Routers
@@ -66,6 +66,7 @@
  \-i, \-\-ip ip               IP address for the new NIC
  \-\-float                   Makes this IP request a Floating one
  \-l, \-\-list x,y,z          Selects columns to display with list command
+ \-c, \-\-listconf conf       Selects a predefined column list
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
                            column=value pairs\.
@@ -143,13 +144,13 @@ valid options: file, network, ip, float
 nic\-detach \fIvrouterid\fR \fInicid\fR Detaches a NIC from a VirtualRouter, and each one of its VMs
 .
 .IP "\(bu" 4
-list [\fIfilterflag\fR] Lists the Virtual Routers in the pool valid options: list, delay, filter, csv, xml, numeric, describe
+list [\fIfilterflag\fR] Lists the Virtual Routers in the pool valid options: list, listconf, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
 show \fIvrouterid\fR Shows information for the given Virtual Router valid options: xml, all
 .
 .IP "\(bu" 4
-top [\fIfilterflag\fR] Lists Virtual Routers continuously valid options: list, delay, filter, csv, xml, numeric, describe
+top [\fIfilterflag\fR] Lists Virtual Routers continuously valid options: list, listconf, delay, filter, csv, xml, numeric, describe
 .
 .IP "" 0
 .
@@ -185,7 +186,7 @@ templateid OpenNebula VMTEMPLATE name or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.0\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.1\.80 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVDC" "1" "June 2016" "" "onevdc(1) -- manages OpenNebula Virtual DataCenters"
+.TH "ONEVDC" "1" "September 2016" "" "onevdc(1) -- manages OpenNebula Virtual DataCenters"
 .
 .SH "NAME"
 \fBonevdc\fR \- manages OpenNebula Virtual DataCenters
@@ -15,6 +15,7 @@
 
  \-a, \-\-append              Append new attributes to the current template
  \-l, \-\-list x,y,z          Selects columns to display with list command
+ \-c, \-\-listconf conf       Selects a predefined column list
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
                            column=value pairs\.
@@ -76,7 +77,7 @@ addvnet \fIrange|vdcid_list\fR \fIzoneid\fR \fIvnetid\fR Adds a Virtual Network 
 delvnet \fIrange|vdcid_list\fR \fIzoneid\fR \fIvnetid\fR Deletes a Virtual Network (from a specific Zone) from the given VDC
 .
 .IP "\(bu" 4
-list Lists VDCs in the pool valid options: list, delay, filter, csv, xml, numeric, describe
+list Lists VDCs in the pool valid options: list, listconf, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
 show \fIvdcid\fR Shows information for the given VDC valid options: xml
@@ -121,7 +122,7 @@ vnetid OpenNebula VNET name or id\. Can be set to ALL
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 5\.0\.1 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
+OpenNebula 5\.1\.80 Copyright 2002\-2016, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
