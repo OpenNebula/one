@@ -507,7 +507,7 @@ define(function(require) {
           _attributeInput(attr_gb) +
         '</div>' +
         '<div class="input-group-button">'+
-          '<select id="mb_input_unit">' +
+          '<select class="mb_input_unit">' +
             '<option value="MB">'+Locale.tr("MB")+'</option>' +
             '<option value="GB" selected>'+Locale.tr("GB")+'</option>' +
           '</select>' +
@@ -521,9 +521,9 @@ define(function(require) {
 
     var input_val = $("input, select", $("div.mb_input", div)).val();
     if (input_val == "" || (input_val >= 1024 && (input_val % 1024 == 0))){
-      $("#mb_input_unit", div).val("GB").change();
+      $(".mb_input_unit", div).val("GB").change();
     } else {
-      $("#mb_input_unit", div).val("MB").change();
+      $(".mb_input_unit", div).val("MB").change();
     }
   }
 
@@ -553,8 +553,8 @@ define(function(require) {
     var gb_inputs = $("div.gb_input", context).children().detach();
 
     // Unit select
-    $("#mb_input_unit", context).on('change', function() {
-      var mb_input_unit_val = $('#mb_input_unit :selected', context).val();
+    $(".mb_input_unit", context).on('change', function() {
+      var mb_input_unit_val = $('.mb_input_unit :selected', context).val();
 
       if (mb_input_unit_val == 'GB') {
         $("div.mb_input", context).hide();
@@ -567,7 +567,7 @@ define(function(require) {
       }
     });
 
-    $("#mb_input_unit", context).change();
+    $(".mb_input_unit", context).change();
   }
 
   /**
