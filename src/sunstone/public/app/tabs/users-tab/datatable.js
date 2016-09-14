@@ -139,7 +139,7 @@ define(function(require) {
     }
 
     // Build hidden user template
-    var hidden_template = TemplateUtils.templateToString(element);
+    var hidden_template = TemplateUtils.htmlEncode(TemplateUtils.templateToString(element));
 
     var search = {
       NAME:  element.NAME,
