@@ -1039,6 +1039,10 @@ define(function(require) {
       tabId = _getTab()
     }
 
+    if(_getTab() != tabId){
+      _routerShowTab(tabId);
+    }
+
     if (!_formPanelVisible($("#"+tabId)) && router != undefined){
       router.navigate(tabId+"/form");
     }
