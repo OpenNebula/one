@@ -94,6 +94,7 @@ require 'fileutils'
 require 'base64'
 require 'rexml/document'
 require 'uri'
+require 'open3'
 
 require 'CloudAuth'
 require 'SunstoneServer'
