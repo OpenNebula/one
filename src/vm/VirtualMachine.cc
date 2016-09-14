@@ -5052,6 +5052,11 @@ int VirtualMachine::generate_network_context(VectorAttribute * context,
 
     int num_vatts = obj_template->get("NIC", vatts);
 
+    if ( num_vatts == 0 )
+    {
+         return 0;
+    }
+
     for(int i=0; i<num_vatts; i++)
     {
         parse_nic_context(&tmp_context, vatts[i]);
