@@ -151,15 +151,8 @@ define(function(require) {
             '<br>'+
             '<br>'+
             '<span>'+
-              Locale.tr("Looks like you don't have any Service. Click the button below to get started")+
+              Locale.tr("There are no Services")+
             '</span>'+
-            '<br>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-6 large-centered columns">'+
-                '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+Locale.tr("Create a new Service")+'</a>'+
-              '</div>'+
-            '</div>'+
             '<br>'+
             '<br>'+
             '</div>');
