@@ -127,7 +127,9 @@ define(function(require) {
 
       var cost = OpenNebula.Template.cost(template_json);
 
-      if ((cost != 0) && Config.isFeatureEnabled("showback")) {
+      var has_cost = (cost != 0) && Config.isFeatureEnabled("showback");
+
+      if (has_cost) {
         $(".provision_create_service_cost_div", context).show();
         $(".provision_create_service_cost_div", context).data("cost", cost);
 
@@ -150,11 +152,15 @@ define(function(require) {
         $( ".cardinality_slider_div", context).show();
         $( ".cardinality_no_slider_div", context).hide();
 
-        $( ".cardinality_slider_div", context).on("input", 'input', function() {
-          var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
-          $(".cost_value", context).html(cost_value.toFixed(2));
-          _calculateFlowCost();
-        });
+        $( ".cardinality_slider_div", context).off("input");
+
+        if (has_cost) {
+          $( ".cardinality_slider_div", context).on("input", 'input', function() {
+            var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).val();
+            $(".cost_value", context).html(cost_value.toFixed(2));
+            _calculateFlowCost();
+          });
+        }
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();
