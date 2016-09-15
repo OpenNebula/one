@@ -410,7 +410,9 @@ define(function(require) {
 
       if (role.nodes && role.nodes.length > 0) {
         $.each(role.nodes, function(index, node){
-          vms.push(node.vm_info);
+          if(node.vm_info != undefined){
+            vms.push(node.vm_info);
+          }
         })
       }
 
