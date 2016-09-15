@@ -169,6 +169,11 @@ define(function(require) {
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
+
+        if(data == undefined){
+          return nRow;
+        }
+
         var state = get_provision_vm_state(data);
 
         $(".provision_vms_ul", context).append('<div class="column">'+
