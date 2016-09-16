@@ -330,8 +330,8 @@ function mkfs_command {
     fi
 }
 
-#This function executes $2 at $1 host and report error $3
-function ssh_exec_and_log
+#This function executes $2 at $1 host and report error $3 but does not exit
+function ssh_exec_and_log_no_error
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 export LANG=C
@@ -349,7 +349,20 @@ EOF`
             error_message "Error executing $2: $SSH_EXEC_ERR"
         fi
 
-        exit $SSH_EXEC_RC
+        return $SSH_EXEC_RC
+    fi
+
+    return 0
+}
+
+#This function executes $2 at $1 host and report error $3
+function ssh_exec_and_log
+{
+    ssh_exec_and_log "$@"
+    rc=$?
+
+    if [ $rc !=0 ]; then
+        exit $rc
     fi
 }
 
