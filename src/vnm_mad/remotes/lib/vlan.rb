@@ -94,6 +94,9 @@ module VNMMAD
                 # Get the name of the vlan device.
                 get_vlan_dev_name
 
+                # Return if the bridge doesn't exist because it was already deleted (handles last vm with multiple nics on the same vlan)
+                next if !@bridges.include? @nic[:bridge]
+
                 # Return if the vlan device is not the only left device in the bridge.
                 next if @bridges[@nic[:bridge]].length > 1 or !@bridges[@nic[:bridge]].include? @nic[:vlan_dev]
 
