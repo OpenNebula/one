@@ -108,9 +108,23 @@
   opacity: 0.25;
 }
 
+// Source: http://lea.verou.me/more-css-secrets
+.scroll-shadows {
+  background:
+    linear-gradient(white 30%, hsla(0,0%,100%,0)),
+    linear-gradient(hsla(0,0%,100%,0), white 70%) bottom,
+    radial-gradient(at top, rgba(0,0,0,.2), transparent 70%),
+    radial-gradient(at bottom, rgba(0,0,0,.2), transparent 70%) bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
+}
+
 // Dialogs
 
 .confirm-resources-header {
+  @extend .scroll-shadows;
+
   overflow-y: auto;
   max-height: 6em;
 }
