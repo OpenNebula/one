@@ -2502,20 +2502,46 @@ private
 
             cd = vm.config.hardware.device.select {|hw| 
                                  hw.class == RbVmomi::VIM::VirtualCdrom}.first
-            device = RbVmomi::VIM::VirtualCdrom(
-                     backing: vmdk_backing,
-                     key: cd.key,
-                     controllerKey: cd.controllerKey,
-                     connectable: RbVmomi::VIM::VirtualDeviceConnectInfo(
-                       startConnected: false,
-                       connected: false,
-                       allowGuestControl: false
-                     )
-                    )
-            device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
-               :device    => device,
-               :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('edit')
-            )
+
+            # If no CDROM drive present, we need to add it
+            if !cd
+                controller, new_unit_number = find_free_controller(vm)
+                cdrom_drive_spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+                  :deviceChange => [{
+                    :operation => :add,
+                    :device => RbVmomi::VIM::VirtualCdrom(
+                      :backing => vmdk_backing,
+                      :key => -1,
+                      :controllerKey => 15000,
+                      :unitNumber => 0,
+                      :connectable => RbVmomi::VIM::VirtualDeviceConnectInfo(
+                        :startConnected => true,
+                        :connected => true,
+                        :allowGuestControl => true
+                      )
+                   )}]
+                )
+
+                vm.ReconfigVM_Task(:spec => 
+                                       cdrom_drive_spec).wait_for_completion
+
+                return
+            else
+                device = RbVmomi::VIM::VirtualCdrom(
+                         backing: vmdk_backing,
+                         key: cd.key,
+                         controllerKey: cd.controllerKey,
+                         connectable: RbVmomi::VIM::VirtualDeviceConnectInfo(
+                           startConnected: true,
+                           connected: true,
+                           allowGuestControl: true
+                         )
+                        )
+                device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
+                   :device    => device,
+                   :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('edit')
+                )
+            end
         else
             vmdk_backing = RbVmomi::VIM::VirtualDiskFlatVer2BackingInfo(
                   :datastore => ds,
