@@ -169,6 +169,13 @@ int LibVirtDriver::deployment_description_kvm(
     string  ip     = "";
     string  filter = "";
 
+    string  i_avg_bw = "";
+    string  i_peak_bw = "";
+    string  i_peak_kb = "";
+    string  o_avg_bw = "";
+    string  o_peak_bw = "";
+    string  o_peak_kb = "";
+
     string  default_filter = "";
     string  default_model  = "";
 
@@ -844,6 +851,14 @@ int LibVirtDriver::deployment_description_kvm(
         ip     = nic[i]->vector_value("IP");
         filter = nic[i]->vector_value("FILTER");
 
+        i_avg_bw  = nic[i]->vector_value("INBOUND_AVG_BW");
+        i_peak_bw = nic[i]->vector_value("INBOUND_PEAK_BW");
+        i_peak_kb = nic[i]->vector_value("INBOUND_PEAK_KB");
+
+        o_avg_bw  = nic[i]->vector_value("OUTBOUND_AVG_BW");
+        o_peak_bw = nic[i]->vector_value("OUTBOUND_PEAK_BW");
+        o_peak_kb = nic[i]->vector_value("OUTBOUND_PEAK_KB");
+
         if ( bridge.empty() )
         {
             file << "\t\t<interface type='ethernet'>" << endl;
@@ -924,6 +939,58 @@ int LibVirtDriver::deployment_description_kvm(
                          << one_util::escape_xml_attr(ip) << "/>\n"
                      << "\t\t\t</filterref>\n";
             }
+        }
+
+        if (!i_avg_bw.empty() || !i_peak_bw.empty() || !i_peak_kb.empty() ||
+            !o_avg_bw.empty() || !o_peak_bw.empty() || !o_peak_kb.empty())
+        {
+            file << "\t\t\t<bandwidth>\n";
+
+            if (!i_avg_bw.empty() || !i_peak_bw.empty() || !i_peak_kb.empty())
+            {
+                file << "\t\t\t\t<inbound";
+
+                if (!i_avg_bw.empty())
+                {
+                    file << " average=" << one_util::escape_xml_attr(i_avg_bw);
+                }
+
+                if (!i_peak_bw.empty())
+                {
+                    file << " peak=" << one_util::escape_xml_attr(i_peak_bw);
+                }
+
+                if (!i_peak_kb.empty())
+                {
+                    file << " burst=" << one_util::escape_xml_attr(i_peak_kb);
+                }
+
+                file <<"/>\n";
+            }
+
+            if (!o_avg_bw.empty() || !o_peak_bw.empty() || !o_peak_kb.empty())
+            {
+                file << "\t\t\t\t<outbound";
+
+                if (!o_avg_bw.empty())
+                {
+                    file << " average=" << one_util::escape_xml_attr(o_avg_bw);
+                }
+
+                if (!o_peak_bw.empty())
+                {
+                    file << " peak=" << one_util::escape_xml_attr(o_peak_bw);
+                }
+
+                if (!o_peak_kb.empty())
+                {
+                    file << " burst=" << one_util::escape_xml_attr(o_peak_kb);
+                }
+
+                file <<"/>\n";
+            }
+
+            file << "\t\t\t</bandwidth>\n";
         }
 
         file << "\t\t</interface>" << endl;
