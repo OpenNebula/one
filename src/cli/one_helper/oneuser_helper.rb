@@ -443,7 +443,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         rc   = user.info
         if OpenNebula.is_error?(rc)
             puts rc.message
-            exit_with_code 1, rc.message
+            exit 1
         end
         user
     end
