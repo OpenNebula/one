@@ -63,6 +63,7 @@ class RbVmomi::VIM::Datastore
   end
 
   def mkuripath path
-    "/folder/#{URI.escape path}?dcPath=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
+    datacenter_path_str = datacenter.path[1..-1].map{|elem| elem[1]}.join('/')
+    "/folder/#{URI.escape path}?dcPath=#{URI.escape datacenter_path_str }&dsName=#{URI.escape name}"
   end
 end

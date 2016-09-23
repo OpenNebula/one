@@ -13,5 +13,10 @@ class RbVmomi::VIM::Datacenter
   def find_vm path
     vmFolder.traverse path, RbVmomi::VIM::VirtualMachine
   end
+
+  # Traverse the given inventory +path+ to find a Folder.
+  def find_folder path
+    vmFolder.traverse path, RbVmomi::VIM::Folder
+  end
 end
 

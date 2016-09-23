@@ -77,11 +77,11 @@ class AdmissionControlledResourceScheduler
   # Returns the used VM folder. If not set yet, uses the vm_folder_path to 
   # lookup the folder. If it doesn't exist, it is created. Collisions between
   # multiple clients concurrently creating the same folder are handled.
-  # @return [VIM::Folder] The VM folder
+  # @return [RbVmomi::VIM::Folder] The VM folder
   def vm_folder 
     retries = 1
     begin
-      @vm_folder ||= datacenter.vmFolder.traverse!(@vm_folder_path, VIM::Folder)
+      @vm_folder ||= datacenter.vmFolder.traverse!(@vm_folder_path, RbVmomi::VIM::Folder)
       if !@vm_folder 
         fail "VM folder #{@vm_folder_path} not found"
       end
@@ -98,10 +98,10 @@ class AdmissionControlledResourceScheduler
 
   # Returns the used Datacenter. If not set yet, uses the datacenter_path to 
   # lookup the datacenter. 
-  # @return [VIM::Datacenter] The datacenter
+  # @return [RbVmomi::VIM::Datacenter] The datacenter
   def datacenter
     if !@datacenter
-      @datacenter = @root_folder.traverse(@datacenter_path, VIM::Datacenter) 
+      @datacenter = @root_folder.traverse(@datacenter_path, RbVmomi::VIM::Datacenter) 
       if !@datacenter 
         fail "datacenter #{@datacenter_path} not found"
       end
@@ -112,11 +112,11 @@ class AdmissionControlledResourceScheduler
   # Returns the candidate datastores. If not set yet, uses the datastore_paths 
   # to lookup the datastores under the datacenter.
   # As a side effect, also looks up properties about all the datastores 
-  # @return [Array] List of VIM::Datastore
+  # @return [Array] List of RbVmomi::VIM::Datastore
   def datastores
     if !@datastores
       @datastores = @datastore_paths.map do |path|
-        ds = datacenter.datastoreFolder.traverse(path, VIM::Datastore)
+        ds = datacenter.datastoreFolder.traverse(path, RbVmomi::VIM::Datastore)
         if !ds 
           fail "datastore #{path} not found"
         end
@@ -131,7 +131,7 @@ class AdmissionControlledResourceScheduler
 
   # Returns the candidate computers (aka clusters). If not set yet, uses the 
   # computer_names to look them up. 
-  # @return [Array] List of [VIM::ClusterComputeResource, Hash] tuples, where
+  # @return [Array] List of [RbVmomi::VIM::ClusterComputeResource, Hash] tuples, where
   #                 the Hash is a list of stats about the computer
   def computers
     if !@computers
@@ -145,7 +145,7 @@ class AdmissionControlledResourceScheduler
 
   # Returns the candidate pods. If not set, automatically computes the pods 
   # based on the list of computers (aka clusters) and datastores. 
-  # @return [Array] List of pods, where a pod is a list of VIM::ClusterComputeResource
+  # @return [Array] List of pods, where a pod is a list of RbVmomi::VIM::ClusterComputeResource
   def pods
     if !@pods
       # A pod is defined as a set of clusters (aka computers) that share the same
@@ -168,22 +168,22 @@ class AdmissionControlledResourceScheduler
   # @return [Hash] Hash of VMs as keys and their properties as values.
   def pod_vms pod
     # This function retrieves all VMs residing inside a pod
-    filterSpec = VIM.PropertyFilterSpec(
+    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       objectSet: pod.map do |computer, stats|
         {
           obj: computer.resourcePool,
           selectSet: [
-            VIM.TraversalSpec(
+            RbVmomi::VIM.TraversalSpec(
               name: 'tsFolder',
               type: 'ResourcePool',
               path: 'resourcePool',
               skip: false,
               selectSet: [
-                VIM.SelectionSpec(name: 'tsFolder'),
-                VIM.SelectionSpec(name: 'tsVM'),
+                RbVmomi::VIM.SelectionSpec(name: 'tsFolder'),
+                RbVmomi::VIM.SelectionSpec(name: 'tsVM'),
               ]
             ),
-            VIM.TraversalSpec(
+            RbVmomi::VIM.TraversalSpec(
               name: 'tsVM',
               type: 'ResourcePool',
               path: 'vm',
@@ -202,11 +202,11 @@ class AdmissionControlledResourceScheduler
     result = @vim.propertyCollector.RetrieveProperties(specSet: [filterSpec])
   
     out = result.map { |x| [x.obj, Hash[x.propSet.map { |y| [y.name, y.val] }]] }
-    out.select{|obj, props| obj.is_a?(VIM::VirtualMachine)}
+    out.select{|obj, props| obj.is_a?(RbVmomi::VIM::VirtualMachine)}
   end
   
   # Returns all candidate datastores for a given pod.
-  # @return [Array] List of VIM::Datastore
+  # @return [Array] List of RbVmomi::VIM::Datastore
   def pod_datastores pod
     pod.first.datastore & self.datastores
   end
@@ -214,7 +214,7 @@ class AdmissionControlledResourceScheduler
   # Returns the list of pods that pass admission control. If not set yet, performs
   # admission control to compute the list. If no pods passed the admission 
   # control, an exception is thrown.
-  # @return [Array] List of pods, where a pod is a list of VIM::ClusterComputeResource
+  # @return [Array] List of pods, where a pod is a list of RbVmomi::VIM::ClusterComputeResource
   def filtered_pods
     # This function applies admission control and returns those pods that have
     # passed admission control. An exception is thrown if access was denied to 
@@ -300,7 +300,7 @@ class AdmissionControlledResourceScheduler
   # Returns the computer (aka cluster) to be used for placement. If not set yet,
   # computs the least loaded cluster (using a metric that combines CPU and Memory
   # load) that passes admission control.
-  # @return [VIM::ClusterComputeResource] Chosen computer (aka cluster)
+  # @return [RbVmomi::VIM::ClusterComputeResource] Chosen computer (aka cluster)
   def pick_computer placementhint = nil
     if !@computer
       # Out of the pods to which we have been granted access, pick the cluster
@@ -330,7 +330,7 @@ class AdmissionControlledResourceScheduler
 
   # Returns the datastore to be used for placement. If not set yet, picks a
   # datastore without much intelligence, as long as it passes admission control.
-  # @return [VIM::Datastore] Chosen datastore
+  # @return [RbVmomi::VIM::Datastore] Chosen datastore
   def datastore placementHint = nil
     if @datastore
       return @datastore

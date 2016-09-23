@@ -2,7 +2,7 @@ module RbVmomi
 
 class VIM::ReflectManagedMethodExecuter
   def fetch moid, prop
-    result = FetchSoap(:moid => moid, :version => 'urn:vim25/5.0', :prop => prop)
+    result = FetchSoap(:moid => moid, :version => 'urn:vim25/6.0', :prop => prop)
     xml = Nokogiri(result.response)
     _connection.deserializer.deserialize xml.root, nil
   end
@@ -16,7 +16,7 @@ class VIM::ReflectManagedMethodExecuter
         soap_arg.val = xml.target!
       end
     end
-    result = ExecuteSoap(:moid => moid, :version => 'urn:vim25/5.0',
+    result = ExecuteSoap(:moid => moid, :version => 'urn:vim25/6.0',
                          :method => method, :argument => soap_args)
     if result
       _connection.deserializer.deserialize Nokogiri(result.response).root, nil

@@ -158,6 +158,12 @@ class DataObject < ObjectWithProperties
     q.text ')'
   end
 
+  def to_json(*args)
+    h = self.props
+    m = h.merge({ JSON.create_id => self.class.name })
+    m.to_json(*args)
+  end
+
   init
 end
 

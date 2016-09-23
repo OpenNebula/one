@@ -2015,7 +2015,7 @@ private
     ########################################################################
     # Returns the spec to reconfig a VM and add a NIC
     ########################################################################
-    def self.calculate_addnic_spec(vm, mac, bridge, model)
+    def self.calculate_addnic_spec(vm, mac, bridge, model, limit=nil, rsrv=nil)
         model       = model.nil? ? nil : model.downcase
         network     = vm.runtime.host.network.select{|n| n.name==bridge}
         backing     = nil
@@ -2065,17 +2065,33 @@ private
                  :port => port)
         end
 
-        return {:operation => :add,
-                :device => nic_card.new(
-                            :key => 0,
-                            :deviceInfo => {
-                                :label => "net" + card_num.to_s,
-                                :summary => bridge
-                            },
-                            :backing => backing,
-                            :addressType => mac ? 'manual' : 'generated',
-                            :macAddress  => mac
-                           )
+        card_spec = {
+            :key => 0,
+            :deviceInfo => {
+                :label => "net" + card_num.to_s,
+                :summary => bridge
+            },
+            :backing => backing,
+            :addressType => mac ? 'manual' : 'generated',
+            :macAddress  => mac
+        }
+
+        if (limit or rsrv) and (limit > 0)
+            ra_spec = Hash.new
+            rsrv = limit if rsrv > limit
+            ra_spec[:limit] = limit if limit
+            ra_spec[:reservation] = rsrv if rsrv
+            ra_spec[:share] =  RbVmomi::VIM.SharesInfo({
+                    :level => RbVmomi::VIM.SharesLevel("normal"),
+                    :shares => 0
+                })
+            card_spec[:resourceAllocation] =
+               RbVmomi::VIM.VirtualEthernetCardResourceAllocation(ra_spec)
+        end
+
+        return {
+                :operation => :add,
+                :device => nic_card.new(card_spec)
                }
     end
 
@@ -2410,7 +2426,24 @@ private
                mac    = nic.elements["MAC"].text
                bridge = nic.elements["BRIDGE"].text
                model  = nic.elements["MODEL"] ? nic.elements["MODEL"].text : nil
-               nic_array << calculate_addnic_spec(vm, mac, bridge, model)
+               limit_in  = nic.elements["INBOUND_PEAK_BW"] ? nic.elements["INBOUND_PEAK_BW"].text : ""
+               limit_out = nic.elements["OUTBOUND_PEAK_BW"] ? nic.elements["OUTBOUND_PEAK_BW"].text : ""
+               limit     = nil
+               if !limit_in.empty? or !limit_out.empty?
+                  limit=([limit_in.to_i, limit_out.to_i].min / 1024) * 8
+               end
+               rsrv_in  = nic.elements["INBOUND_AVG_BW"] ? nic.elements["INBOUND_AVG_BW"].text : ""
+               rsrv_out = nic.elements["OUTBOUND_AVG_BW"] ? nic.elements["OUTBOUND_AVG_BW"].text : ""
+               rsrv     = nil
+               if !rsrv_in.empty? or !rsrv_out.empty?
+                  rsrv=([rsrv_in.to_i, rsrv_out.to_i].min / 1024) * 8
+               end
+               nic_array << calculate_addnic_spec(vm,
+                                                  mac,
+                                                  bridge,
+                                                  model,
+                                                  limit,
+                                                  rsrv)
             }
 
             device_change += nic_array
@@ -2421,7 +2454,7 @@ private
         disks     = xml.root.get_elements("/VM/TEMPLATE/DISK")
         disk_spec = {}
 
-        # If the VM is not new, avoid readding DISKS
+        # If the VM is not new, avoid reading DISKS
         if !newvm
             vm.config.hardware.device.select { |d|
                 if is_disk?(d)

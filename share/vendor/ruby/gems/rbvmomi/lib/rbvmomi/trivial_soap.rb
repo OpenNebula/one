@@ -48,8 +48,8 @@ class RbVmomi::TrivialSoap
       @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end
     @http.set_debug_output(STDERR) if $DEBUG
-    @http.read_timeout = 1000000
-    @http.open_timeout = 60
+    @http.read_timeout = @opts[:read_timeout] || 1000000
+    @http.open_timeout = @opts[:open_timeout] || 60
     def @http.on_connect
       @socket.io.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
     end

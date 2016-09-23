@@ -336,7 +336,7 @@ class PerfAggregator
     vms_props, inventory = all_inventory_flat root_folder, prop_names
     vms = vms_props.keys
     
-    hosts_props = inventory.select{|k, v| k.is_a?(VIM::HostSystem)}
+    hosts_props = inventory.select{|k, v| k.is_a?(RbVmomi::VIM::HostSystem)}
 
     conn = root_folder._connection
     sc = conn.serviceContent

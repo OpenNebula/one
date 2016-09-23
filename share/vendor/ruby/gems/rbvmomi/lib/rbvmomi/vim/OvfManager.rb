@@ -16,6 +16,7 @@ class RbVmomi::VIM::OvfManager
   # @option opts [String]             :diskProvisioning (thin) Disk provisioning mode.
   # @option opts [Hash]               :networkMappings Network mappings.
   # @option opts [Hash]               :propertyMappings Property mappings.
+  # @option opts [String]             :deploymentOption Deployment option key.
   def deployOVF opts
     opts = { :networkMappings => {},
              :propertyMappings => {},
@@ -29,7 +30,7 @@ class RbVmomi::VIM::OvfManager
       :hostSystem => opts[:host],
       :locale => "US",
       :entityName => opts[:vmName],
-      :deploymentOption => "",
+      :deploymentOption => opts[:deploymentOption] || "",
       :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
       :propertyMapping => opts[:propertyMappings].to_a,
       :diskProvisioning => opts[:diskProvisioning]

@@ -1,16 +1,33 @@
 = RbVmomi
 
+{<img src="https://travis-ci.org/vmware/rbvmomi.svg?branch=master" alt="travis-ci">}[http://travis-ci.org/vmware/rbvmomi]
+
+This is an Open Source community supported project at VMware. It is built and maintained by programmers like you!
+
 == Introduction
 
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
 you can use it to manage ESX and VirtualCenter servers. The current release
 supports the vSphere 5.0 API. RbVmomi specific documentation is
 online[http://rdoc.info/github/rlane/rbvmomi/master/frames] and is meant to
-be used alongside the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+be used alongside the official documentation[http://pubs.vmware.com/vsphere-60/topic/com.vmware.sdk.doc/GUID-19793BCA-9EAB-42E2-8B9F-F9F2129E7741.html].
 
 == Installation
 
     gem install rbvmomi
+
+=== Support for older Ruby versions
+
+RbVmomi supports Ruby 1.8.7 and higher, but certain dependencies may need
+pinning to older versions to get a compatible set of gems.
+
+On Ruby 1.8.7:
+
+* use +nokogiri+ 1.5.x (Gemfile: <code>gem 'nokogiri', '< 1.6'</code>)
+
+On both Ruby 1.9 and 1.8.7:
+
+* use +json+ 1.x (Gemfile: <code>gem 'json', '< 2'</code>)
 
 == Usage
 
@@ -56,7 +73,7 @@ in the first example uses the SearchIndex for fast lookups.
 
 A few important points:
 
-* All class, method, parameter, and property names match the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+* All class, method, parameter, and property names match the official documentation[http://pubs.vmware.com/vsphere-60/topic/com.vmware.sdk.doc/GUID-19793BCA-9EAB-42E2-8B9F-F9F2129E7741.html].
 * Properties are exposed as accessor methods.
 * Data object types can usually be inferred from context, so you may use a hash instead.
 * Enumeration values are simply strings.

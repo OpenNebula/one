@@ -1,6 +1,13 @@
 # Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
 require 'rbvmomi'
 
+# Win32::SSPI is part of core on Windows
+begin
+  require 'win32/sspi'
+rescue LoadError
+end
+WIN32 = (defined? Win32::SSPI)
+
 module RbVmomi
 
 # A connection to one vSphere SDK endpoint.
@@ -22,7 +29,7 @@ class VIM < Connection
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
     opts[:cookie] ||= nil
-    opts[:user] ||= 'root'
+    opts[:user] ||= (WIN32 ? ENV['USERNAME'].dup : 'root')
     opts[:password] ||= ''
     opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
     opts[:insecure] ||= false
@@ -30,16 +37,30 @@ class VIM < Connection
     opts[:path] ||= '/sdk'
     opts[:ns] ||= 'urn:vim25'
     rev_given = opts[:rev] != nil
-    opts[:rev] = '4.0' unless rev_given
+    opts[:rev] = '6.0' unless rev_given
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     new(opts).tap do |vim|
       unless opts[:cookie]
-        vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+        if WIN32 && opts[:password] == ''
+            # Attempt login by SSPI if no password specified on Windows
+            negotiation = Win32::SSPI::NegotiateAuth.new opts[:user], ENV['USERDOMAIN'].dup
+            begin
+              vim.serviceContent.sessionManager.LoginBySSPI :base64Token => negotiation.get_initial_token
+            rescue RbVmomi::Fault => fault
+              if !fault.fault.is_a?(RbVmomi::VIM::SSPIChallenge)
+                raise
+              else
+                vim.serviceContent.sessionManager.LoginBySSPI :base64Token => negotiation.complete_authentication(fault.base64Token)
+              end
+            end
+        else
+            vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+        end
       end
       unless rev_given
         rev = vim.serviceContent.about.apiVersion
-        vim.rev = [rev, '5.5'].min
+        vim.rev = [rev, '6.0'].min
       end
     end
   end
