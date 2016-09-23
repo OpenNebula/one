@@ -77,7 +77,6 @@ module VNMMAD
             lock
 
             @bridges = get_bridges
-            next if @bridges.nil?
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
@@ -87,7 +86,7 @@ module VNMMAD
                 @nic = nic
 
                 next if @nic[:phydev].nil?
-                next if @bridges[@nic[:bridge]]
+                next if @bridges[@nic[:bridge]].nil?
 
                 # Get the name of the vlan device.
                 get_vlan_dev_name
@@ -104,7 +103,7 @@ module VNMMAD
                 OpenNebula.exec_and_log("#{command(:ip)} link delete"\
                     " #{@nic[:bridge]}")
                 @bridges.delete(@nic[:bridge])
-            end
+            end if @bridges
 
             unlock
         end
