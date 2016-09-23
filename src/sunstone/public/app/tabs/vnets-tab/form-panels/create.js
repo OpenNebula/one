@@ -260,6 +260,7 @@ define(function(require) {
 
     $.extend(network_json, WizardFields.retrieve($("#vnetCreateGeneralTab", context)));
     $.extend(network_json, WizardFields.retrieve($("#vnetCreateBridgeTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vnetCreateQoSTab", context)));
     $.extend(network_json, WizardFields.retrieve($("#vnetCreateContextTab", context)));
 
     var secgroups = this.securityGroupsTable.retrieveResourceTableSelect();
@@ -349,6 +350,7 @@ define(function(require) {
 
     WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
     WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateQoSTab", context), element.TEMPLATE);
     WizardFields.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
 
     if ($('#network_mode', context).val() == undefined){

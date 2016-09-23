@@ -34,6 +34,11 @@
         <br>{{tr "Security"}}</a>
     </dd>
     <dd class="tabs-title">
+      <a href="#vnetCreateQoSTab">
+        <i class="fa fa-wrench"></i>
+        <br>{{tr "QoS"}}</a>
+    </dd>
+    <dd class="tabs-title">
       <a href="#vnetCreateContextTab">
         <i class="fa fa-folder"></i>
         <br>{{tr "Context"}}</a>
@@ -190,6 +195,61 @@
         <div class="large-12 columns">
           <span class="radius warning label">
             <i class="fa fa-warning"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="tabs-panel" id="vnetCreateQoSTab">
+      <fieldset>
+        <legend>{{tr "Inbound traffic"}}</legend>
+        <div class="row">
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Average bandwidth (KBytes/s)"}}
+              <input type="number" wizard_field="INBOUND_AVG_BW"/>
+            </label>
+          </div>
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Peak bandwidth (KBytes/s)"}}
+              <input type="number" wizard_field="INBOUND_PEAK_BW"/>
+            </label>
+          </div>
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Peak burst (KBytes)"}}
+              <input type="number" wizard_field="INBOUND_PEAK_KB"/>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>{{tr "Outbound traffic"}}</legend>
+        <div class="row">
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Average bandwidth (KBytes/s)"}}
+              <input type="number" wizard_field="OUTBOUND_AVG_BW"/>
+            </label>
+          </div>
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Peak bandwidth (KBytes/s)"}}
+              <input type="number" wizard_field="OUTBOUND_PEAK_BW"/>
+            </label>
+          </div>
+          <div class="medium-4 columns">
+            <label>
+              {{tr "Peak burst (KBytes)"}}
+              <input type="number" wizard_field="OUTBOUND_PEAK_KB"/>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+      <div class="row">
+        <div class="large-12 columns">
+          <span class="radius secondary label">
+            <i class="fa fa-info-circle"/> {{tr "These values apply to each VM interface individually, they are not global values for the Virtual Network"}}
           </span>
         </div>
       </div>

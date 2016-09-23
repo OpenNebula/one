@@ -43,6 +43,60 @@
   </div>
 </div>
 <div class="row">
+  <div class="medium-6 columns">
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Inbound QoS"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "Average bandwidth"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.INBOUND_AVG_BW "--"}}
+          <td class="value_td">{{tr "KBytes/s"}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Peak bandwidth"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.INBOUND_PEAK_BW "--"}}
+          <td class="value_td">{{tr "KBytes/s"}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Peak burst"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.INBOUND_PEAK_KB "--"}}
+          <td class="value_td">{{tr "KBytes"}}</td>
+        </tr>
+      <tbody>
+    </table>
+  </div>
+  <div class="medium-6 columns">
+    <table class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Outbound QoS"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "Average bandwidth"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.OUTBOUNDD_AVG_BW "--"}}
+          <td class="value_td">{{tr "KBytes/s"}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Peak bandwidth"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.OUTBOUND_PEAK_BW "--"}}
+          <td class="value_td">{{tr "KBytes/s"}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Peak burst"}}</td>
+          <td class="value_td">{{valOrDefault element.TEMPLATE.OUTBOUND_PEAK_KB "--"}}
+          <td class="value_td">{{tr "KBytes/s"}}</td>
+        </tr>
+      <tbody>
+    </table>
+  </div>
+</div>
+<div class="row">
   <div class="large-9 columns">
     {{{templateTableHTML}}}
   </div>

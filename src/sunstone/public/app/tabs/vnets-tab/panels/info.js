@@ -68,8 +68,20 @@ define(function(require) {
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     // TODO: simplify interface?
+    var hiddenKeys = [
+      "SECURITY_GROUPS",
+      "INBOUND_AVG_BW",
+      "INBOUND_PEAK_BW",
+      "INBOUND_PEAK_KB",
+      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_PEAK_BW",
+      "OUTBOUND_PEAK_KB" ];
+
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["SECURITY_GROUPS"];
+
+    $.each(hiddenKeys, function(i, key){
+      delete strippedTemplate[key];
+    });
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -106,18 +118,34 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     // TODO: simplify interface?
+    var hiddenKeys = [
+      "SECURITY_GROUPS",
+      "INBOUND_AVG_BW",
+      "INBOUND_PEAK_BW",
+      "INBOUND_PEAK_KB",
+      "OUTBOUNDD_AVG_BW",
+      "OUTBOUND_PEAK_BW",
+      "OUTBOUND_PEAK_KB" ];
+
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["SECURITY_GROUPS"];
+
+    $.each(hiddenKeys, function(i, key){
+      delete strippedTemplate[key];
+    });
 
     var hiddenValues = {};
 
-    if (this.element.TEMPLATE.SECURITY_GROUPS != undefined){
-        hiddenValues.SECURITY_GROUPS = this.element.TEMPLATE.SECURITY_GROUPS;
-    }
+    $.each(hiddenKeys, function(i, key){
+      if (that.element.TEMPLATE[key] != undefined){
+          hiddenValues[key] = that.element.TEMPLATE[key];
+      }
+    });
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===
