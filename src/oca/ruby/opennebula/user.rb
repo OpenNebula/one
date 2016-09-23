@@ -98,8 +98,9 @@ module OpenNebula
         # +username+ Name of the new user.
         #
         # +password+ Password for the new user
-        def allocate(username, password, driver=CORE_AUTH)
-            super(USER_METHODS[:allocate], username, password, driver)
+        def allocate(username, password, driver=nil, gids=[])
+            driver = CORE_AUTH if driver.nil?
+            super(USER_METHODS[:allocate], username, password, driver, gids)
         end
 
         # Replaces the template contents

@@ -67,6 +67,7 @@ UserPool::UserPool(SqlDB * db,
     string        one_name;
     string        one_pass;
     string        random;
+    vector<int>   gids;
 
     string        filenames[5];
     string        error_str;
@@ -153,13 +154,14 @@ UserPool::UserPool(SqlDB * db,
         ofile.close();
     }
 
+    gids.push_back(GroupPool::ONEADMIN_ID);
+
     allocate(&one_uid,
-             GroupPool::ONEADMIN_ID,
              one_name,
-             GroupPool::ONEADMIN_NAME,
              one_pass,
              UserPool::CORE_AUTH,
              true,
+             gids,
              error_str);
 
     if ( one_uid != 0 )
@@ -168,12 +170,11 @@ UserPool::UserPool(SqlDB * db,
     }
 
     allocate(&server_uid,
-             GroupPool::ONEADMIN_ID,
              SERVER_NAME,
-             GroupPool::ONEADMIN_NAME,
              one_util::sha1_digest(random),
              "server_cipher",
              true,
+             gids,
              error_str);
 
     if ( server_uid != 1 )
@@ -224,22 +225,24 @@ error_common:
 
 int UserPool::allocate (
     int *   oid,
-    int     gid,
     const   string&  uname,
-    const   string&  gname,
     const   string&  password,
     const   string&  auth,
     bool    enabled,
+    const vector<int>& gids,
     string& error_str)
 {
     Nebula&     nd    = Nebula::instance();
 
     User *      user;
-    GroupPool * gpool;
+    GroupPool * gpool = nd.get_gpool();
     Group *     group;
 
     string auth_driver = auth;
     string upass       = password;
+
+    int    gid;
+    string gname;
 
     ostringstream   oss;
 
@@ -282,11 +285,32 @@ int UserPool::allocate (
         upass = one_util::sha1_digest(password);
     }
 
+    if (gids.empty())
+    {
+        goto error_no_groups;
+    }
+
+    gid = gids[0];
+
+    group = gpool->get(gid, true);
+
+    if( group == 0 )
+    {
+        goto error_group;
+    }
+
+    gname = group->get_name();
+
+    group->unlock();
+
     // Build a new User object
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
-    // Add the primary group to the collection
-    user->groups.add(gid);
+    // Add the primary and secondary groups to the collection
+    for(vector<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
+    {
+        user->add_group(*it);
+    }
 
     // Set a password for the OneGate tokens
     user->add_template_attribute("TOKEN_PASSWORD", one_util::random_password());
@@ -299,20 +323,22 @@ int UserPool::allocate (
         return *oid;
     }
 
-    // Adds User to group
-    gpool = nd.get_gpool();
-    group = gpool->get(gid, true);
-
-    if( group == 0 )
+    // Add the user to the main and secondary groups
+    for(vector<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
     {
-        return -1;
+        group = gpool->get(*it, true);
+
+        if( group == 0 ) //Secondary group no longer exists
+        {
+            goto error_group;
+        }
+
+        group->add_user(*oid);
+
+        gpool->update(group);
+
+        group->unlock();
     }
-
-    group->add_user(*oid);
-
-    gpool->update(group);
-
-    group->unlock();
 
     return *oid;
 
@@ -326,6 +352,44 @@ error_name:
 
 error_duplicated:
     oss << "NAME is already taken by USER " << user->get_oid() << ".";
+    goto error_common;
+
+error_no_groups:
+    oss << "The array of groups needs to have at least one Group ID.";
+    goto error_common;
+
+error_group:
+    user = get(*oid, true);
+
+    if ( user != 0 )
+    {
+        string aux_str;
+
+        drop(user, aux_str);
+
+        user->unlock();
+    }
+
+    // Remove from all the groups, just in case the user id was added to a any
+    // of them before a non-existing group was found
+    for(vector<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if( group == 0 ) //Secondary group no longer exists
+        {
+            continue;
+        }
+
+        group->del_user(*oid);
+
+        gpool->update(group);
+
+        group->unlock();
+    }
+
+    oss << "One or more of the groups "
+        << one_util::join(gids.begin(), gids.end(), ',') << " do not exist.";
     goto error_common;
 
 error_common:
@@ -895,15 +959,15 @@ bool UserPool::authenticate_external(const string&  username,
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
     GroupPool *   gpool = nd.get_gpool();
-
-    User*   user;
-    Group*  group;
+    Group*        group;
 
     int     gid = -1;
     int     rc;
 
     set<int>::iterator it;
     set<int> empty_set;
+
+    vector<int> v_group_ids;
 
     AuthRequest ar(-1,empty_set);
 
@@ -965,52 +1029,23 @@ bool UserPool::authenticate_external(const string&  username,
         group->unlock();
     }
 
+    // Copy set into vector, copying the group_id first to make sure it is
+    // the main group
+    v_group_ids.push_back(group_id);
+    copy(group_ids.begin(), group_ids.end(), back_inserter(v_group_ids));
+
     allocate(&user_id,
-             group_id,
              mad_name,
-             gname,
              mad_pass,
              driver_name,
              true,
+             v_group_ids,
              error_str);
 
     if ( user_id == -1 )
     {
         goto auth_failure_user;
     }
-
-    //--------------------------------------------------------------------------
-    // Add the user to the secondary groups
-    //--------------------------------------------------------------------------
-    user = get(user_id,true);
-
-    if ( user == 0 )
-    {
-        error_str = "User object could not be retrieved";
-        goto auth_failure_user;
-    }
-
-    for(it = ++group_ids.begin(); it != group_ids.end(); it++)
-    {
-        group = gpool->get(*it, true);
-
-        if( group == 0 ) //Secondary group no longer exists
-        {
-            continue;
-        }
-
-        group->add_user(user_id);
-
-        gpool->update(group);
-
-        group->unlock();
-
-        user->add_group(*it);
-    }
-
-    update(user);
-
-    user->unlock();
 
     uname = mad_name;
 

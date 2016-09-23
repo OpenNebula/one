@@ -61,7 +61,7 @@ define(function(require) {
       }
     };
 
-    this.userCreation = new UserCreation(FORM_PANEL_ID);
+    this.userCreation = new UserCreation(FORM_PANEL_ID, { group_select: false });
 
     BaseFormPanel.call(this);
   }

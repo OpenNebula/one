@@ -54,12 +54,11 @@ public:
      */
     int allocate (
         int *   oid,
-        int     gid,
         const string& uname,
-        const string& gname,
         const string& password,
         const string& auth,
         bool    enabled,
+        const vector<int>& gids,
         string& error_str);
 
     /**

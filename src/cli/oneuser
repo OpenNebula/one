@@ -131,7 +131,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name => "driver",
         :large => "--driver driver",
         :format => String,
-        :description => "Driver to autehnticate this user"
+        :description => "Driver to authenticate this user"
     }
 
     FORCE = {
@@ -157,6 +157,28 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         }
     }
 
+    GROUP_CREATE = {
+        :name   => "group",
+        :large  => "--group id|name" ,
+        :description => "Comma-separated list of Groups for the new User. "\
+                        "The first Group will be the main one.",
+        :format => String,
+        :proc   => lambda { |o, options|
+            gids = o.split(",").map { |g|
+                id = OpenNebulaHelper.rname_to_id(g, "GROUP")
+
+                if (id[0] == -1)
+                    puts id[1]
+                    exit -1
+                end
+
+                id[1]
+            }
+
+            [0, gids]
+        }
+    }
+
     GLOBAL = {
         :name   => "global",
         :large  => "--global" ,
@@ -169,7 +191,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "enable stdin password"
     }
 
-    create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
+    auth_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
+
+    create_options = auth_options.clone.unshift(GROUP_CREATE)
 
     login_options  = [SSH,
                       X509,
@@ -212,6 +236,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Examples:
           oneuser create my_user my_password
           oneuser create my_user -r /tmp/mypass
+          oneuser create my_user my_password --group users,102,testers
           oneuser create my_user --ssh --key /tmp/id_rsa
           oneuser create my_user --ssh -r /tmp/public_key
           oneuser create my_user --x509 --cert /tmp/my_cert.pem
@@ -232,8 +257,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         driver = options[:driver] || OpenNebula::User::CORE_AUTH
 
+        gids = options[:group] || []
+
         helper.create_resource(options) do |user|
-            user.allocate(args[0], pass, driver)
+            user.allocate(args[0], pass, driver, gids)
         end
     end
 
@@ -411,7 +438,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :passwd, passwd_desc, :userid, [:password, nil],
-            :options=>create_options do
+            :options=>auth_options do
         if args[1]
             pass = args[1]
         else
@@ -474,7 +501,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chauth, chauth_desc, :userid, [:auth, nil], [:password, nil],
-            :options=>create_options do
+            :options=>auth_options do
         if options[:driver]
             driver = options[:driver]
         elsif args[1]

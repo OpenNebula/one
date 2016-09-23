@@ -28,7 +28,8 @@ module OpenNebulaJSON
 
             self.allocate(user_hash['name'],
                           user_hash['password'],
-                          user_hash['auth_driver'])
+                          user_hash['auth_driver'],
+                          user_hash['gids'])
         end
 
         def perform_action(template_json)

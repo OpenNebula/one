@@ -177,11 +177,11 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    rc = pool_allocate(params, tmpl, id, att, cluster_id, cluster_name);
+    ErrorCode ec = pool_allocate(params, tmpl, id, att, cluster_id, cluster_name);
 
-    if ( rc < 0 )
+    if ( ec != SUCCESS )
     {
-        failure_response(INTERNAL, att);
+        failure_response(ec, att);
         return;
     }
 
@@ -229,7 +229,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachineAllocate::pool_allocate(
+Request::ErrorCode VirtualMachineAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -253,16 +253,18 @@ int VirtualMachineAllocate::pool_allocate(
     if ( rc < 0 )
     {
         quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
+
+        return Request::INTERNAL;
     }
 
-    return rc;
+    return Request::SUCCESS;
 }
 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetworkAllocate::pool_allocate(
+Request::ErrorCode VirtualNetworkAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -280,8 +282,15 @@ int VirtualNetworkAllocate::pool_allocate(
         cluster_ids.insert(cluster_id);
     }
 
-    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
+    int rc = vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
             vtmpl, &id, cluster_ids, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -578,7 +587,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int TemplateAllocate::pool_allocate(
+Request::ErrorCode TemplateAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -588,8 +597,15 @@ int TemplateAllocate::pool_allocate(
 
     VirtualMachineTemplate * ttmpl=static_cast<VirtualMachineTemplate *>(tmpl);
 
-    return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         ttmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -626,7 +642,7 @@ bool TemplateAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostAllocate::pool_allocate(
+Request::ErrorCode HostAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -640,14 +656,21 @@ int HostAllocate::pool_allocate(
 
     HostPool * hpool = static_cast<HostPool *>(pool);
 
-    return hpool->allocate(&id, host, im_mad, vmm_mad, cluster_id, cluster_name,
+    int rc = hpool->allocate(&id, host, im_mad, vmm_mad, cluster_id, cluster_name,
             att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int UserAllocate::pool_allocate(
+Request::ErrorCode UserAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -657,15 +680,64 @@ int UserAllocate::pool_allocate(
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
     string driver = xmlrpc_c::value_string(paramList.getString(3));
 
-    UserPool * upool = static_cast<UserPool *>(pool);
+    vector<int> gids;
 
-    int      ugid   = att.gid;
-    string   ugname = att.gname;
+    vector<xmlrpc_c::value> param_arr;
+    vector<xmlrpc_c::value>::const_iterator it;
 
-    if ( att.gid == GroupPool::ONEADMIN_ID )
+    if ( paramList.size() > 4 )
     {
-        ugid   = GroupPool::USERS_ID;
-        ugname = GroupPool::USERS_NAME;
+        param_arr = xmlrpc_c::value_array(paramList.getArray(4)).vectorValueValue();
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    for (it = param_arr.begin(); it != param_arr.end(); it++)
+    {
+        int gid = xmlrpc_c::value_int(*it);
+        gids.push_back(gid);
+
+        PoolObjectAuth perms;
+        Group* group = gpool->get(gid, true);
+
+        if (group == 0)
+        {
+            att.resp_id = gid;
+            att.resp_obj = PoolObjectSQL::GROUP;
+            return NO_EXISTS;
+        }
+
+        // For compatibility with previous versions, a group admin can create
+        // a new user in his group only with the USE CREATE permission.
+        if (att.gid != gid)
+        {
+            group->get_permissions(perms);
+
+            ar.add_auth(AuthRequest::MANAGE, perms);   // MANAGE GROUP
+        }
+
+        group->unlock();
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID )
+    {
+        if (UserPool::authorize(ar) == -1)
+        {
+            att.resp_msg = ar.message;
+            return Request::AUTHORIZATION;
+        }
+    }
+
+    if (gids.empty())
+    {
+        if ( att.gid == GroupPool::ONEADMIN_ID )
+        {
+            gids.push_back(GroupPool::USERS_ID);
+        }
+        else
+        {
+            gids.push_back(att.gid);
+        }
     }
 
     if (driver.empty())
@@ -673,13 +745,21 @@ int UserAllocate::pool_allocate(
         driver = UserPool::CORE_AUTH;
     }
 
-    return upool->allocate(&id,ugid,uname,ugname,passwd,driver,true,att.resp_msg);
+    int rc = static_cast<UserPool *>(pool)->allocate(&id,uname,passwd,
+            driver,true,gids,att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupAllocate::pool_allocate(
+Request::ErrorCode GroupAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -695,7 +775,7 @@ int GroupAllocate::pool_allocate(
 
     if (rc == -1)
     {
-        return rc;
+        return Request::INTERNAL;
     }
 
     Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID, true);
@@ -709,13 +789,18 @@ int GroupAllocate::pool_allocate(
         vdc->unlock();
     }
 
-    return rc;
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DatastoreAllocate::pool_allocate(
+Request::ErrorCode DatastoreAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -733,14 +818,21 @@ int DatastoreAllocate::pool_allocate(
         cluster_ids.insert(cluster_id);
     }
 
-    return dspool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = dspool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             ds_tmpl, &id, cluster_ids, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterAllocate::pool_allocate(
+Request::ErrorCode ClusterAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -750,13 +842,20 @@ int ClusterAllocate::pool_allocate(
 
     ClusterPool * clpool = static_cast<ClusterPool *>(pool);
 
-    return clpool->allocate(name, &id, att.resp_msg);
+    int rc = clpool->allocate(name, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DocumentAllocate::pool_allocate(
+Request::ErrorCode DocumentAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -766,8 +865,15 @@ int DocumentAllocate::pool_allocate(
 
     DocumentPool * docpool = static_cast<DocumentPool *>(pool);
 
-    return docpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = docpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             type, tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -789,7 +895,7 @@ void ZoneAllocate::request_execute(xmlrpc_c::paramList const& params,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ZoneAllocate::pool_allocate(
+Request::ErrorCode ZoneAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -799,13 +905,20 @@ int ZoneAllocate::pool_allocate(
 
     ZonePool * zonepool = static_cast<ZonePool *>(pool);
 
-    return zonepool->allocate(tmpl, &id, att.resp_msg);
+    int rc = zonepool->allocate(tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SecurityGroupAllocate::pool_allocate(
+Request::ErrorCode SecurityGroupAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -813,14 +926,21 @@ int SecurityGroupAllocate::pool_allocate(
 {
     SecurityGroupPool * sgpool = static_cast<SecurityGroupPool *>(pool);
 
-    return sgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = sgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VdcAllocate::pool_allocate(
+Request::ErrorCode VdcAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -830,13 +950,20 @@ int VdcAllocate::pool_allocate(
 
     VdcPool * vdcpool = static_cast<VdcPool *>(pool);
 
-    return vdcpool->allocate(tmpl, &id, att.resp_msg);
+    int rc = vdcpool->allocate(tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouterAllocate::pool_allocate(
+Request::ErrorCode VirtualRouterAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -844,8 +971,15 @@ int VirtualRouterAllocate::pool_allocate(
 {
     VirtualRouterPool * vrpool = static_cast<VirtualRouterPool *>(pool);
 
-    return vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -891,7 +1025,7 @@ bool VirtualRouterAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MarketPlaceAllocate::pool_allocate(
+Request::ErrorCode MarketPlaceAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -900,14 +1034,21 @@ int MarketPlaceAllocate::pool_allocate(
     MarketPlacePool *     mppool = static_cast<MarketPlacePool *>(pool);
     MarketPlaceTemplate * ttmpl  = static_cast<MarketPlaceTemplate *>(tmpl);
 
-    return mppool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    int rc = mppool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         ttmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MarketPlaceAppAllocate::pool_allocate(
+Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
         int&                        id,
@@ -929,7 +1070,7 @@ int MarketPlaceAppAllocate::pool_allocate(
     if ( mp == 0 )
     {
         att.resp_msg = "Cannot find associated MARKETPLACE";
-        return -1;
+        return Request::INTERNAL;
     }
 
     std::string mp_name = mp->get_name();
@@ -939,7 +1080,7 @@ int MarketPlaceAppAllocate::pool_allocate(
         att.resp_msg = "Create disabled for market: " + mp_name;
         mp->unlock();
 
-        return -1;
+        return Request::ACTION;
     }
 
     if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
@@ -947,7 +1088,7 @@ int MarketPlaceAppAllocate::pool_allocate(
         att.resp_msg = "Marketplace is not in this OpenNebula zone";
         mp->unlock();
 
-        return -1;
+        return Request::ACTION;
     }
 
     mp->to_xml(mp_data);
@@ -962,7 +1103,7 @@ int MarketPlaceAppAllocate::pool_allocate(
 
     if (rc < 0)
     {
-        return rc;
+        return Request::INTERNAL;
     }
 
     mp = mppool->get(mp_id, true);
@@ -982,7 +1123,7 @@ int MarketPlaceAppAllocate::pool_allocate(
             app->unlock();
         }
 
-        return -1;
+        return Request::INTERNAL;
     }
 
     mp->add_marketapp(id);
@@ -996,9 +1137,9 @@ int MarketPlaceAppAllocate::pool_allocate(
     // ---------------------------------------------------------------------- //
     if (marketm->import_app(id, mp_data, att.resp_msg) == -1)
     {
-        return -1;
+        return Request::INTERNAL;
     }
 
-    return 0;
+    return Request::SUCCESS;
 }
 

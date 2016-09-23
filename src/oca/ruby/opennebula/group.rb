@@ -331,22 +331,14 @@ module OpenNebula
                                                    @client)
 
                 if udriver
-                    rc = group_admin.allocate(uadmin, upasswd, udriver)
+                    rc = group_admin.allocate(uadmin, upasswd, udriver, [self.id])
                 else
-                    rc = group_admin.allocate(uadmin, upasswd)
+                    rc = group_admin.allocate(uadmin, upasswd, nil, [self.id])
                 end
 
                 if OpenNebula.is_error?(rc)
                     return rc
                 end
-            end
-
-            # Set admin user groups to self
-            rc = group_admin.chgrp(self.id)
-
-            if OpenNebula.is_error?(rc)
-                group_admin.delete
-                return rc
             end
 
             rc = self.add_admin(group_admin.id)

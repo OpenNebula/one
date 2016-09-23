@@ -40,7 +40,8 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.userCreation = new UserCreation(DIALOG_ID, {name: false, password: false});
+    this.userCreation = new UserCreation(DIALOG_ID,
+                        {name: false, password: false, group_select: false});
 
     BaseDialog.call(this);
   }

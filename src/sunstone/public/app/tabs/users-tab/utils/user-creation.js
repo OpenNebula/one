@@ -18,6 +18,9 @@ define(function(require) {
 
   var TemplateHTML = require('hbs!./user-creation/html');
   var Config = require('sunstone-config');
+  var GroupsTable = require('tabs/groups-tab/datatable');
+  var UniqueId = require('utils/unique-id');
+  var ResourceSelect = require('utils/resource-select');
 
   /**
    * @param {string} idPrefix
@@ -26,6 +29,7 @@ define(function(require) {
    *                            - name: true, false
    *                            - password: true, false
    *                            - auth_driver: true, false
+   *                            - group_select: true, false
    */
   function UserCreation(idPrefix, options) {
     this.idPrefix = idPrefix;
@@ -48,11 +52,21 @@ define(function(require) {
       this.options.auth_driver = true;
     }
 
+    if (this.options.group_select == undefined){
+      this.options.group_select = true;
+    }
+
     if (Config.onedConf.AUTH_MAD !== undefined && Config.onedConf.AUTH_MAD['AUTHN'] !== undefined) {
       this.authMadNameList = Config.onedConf.AUTH_MAD['AUTHN'].split(',');
     } else {
       this.authMadNameList = []
     }
+
+    this.groupsTable = new GroupsTable('user-creation-'+UniqueId.id(), {
+        info: false,
+        select: true,
+        selectOptions: {'multiple_choice': true}
+      });
   }
 
   UserCreation.prototype.constructor = UserCreation;
@@ -68,7 +82,8 @@ define(function(require) {
   function _html(){
     return TemplateHTML({
       'idPrefix': this.idPrefix,
-      'authMadNameList': this.authMadNameList
+      'authMadNameList': this.authMadNameList,
+      'groupsTableHTML': this.groupsTable.dataTableHTML
     });
   }
 
@@ -93,6 +108,11 @@ define(function(require) {
       $('.auth_driver_row', context).hide();
     }
 
+    if (this.options.group_select == false){
+      $('.main_group_row', context).hide();
+      $('.secondary_groups_row', context).hide();
+    }
+
     $('#'+that.idPrefix+'_driver', context).change(function(){
       if ($(this).val() == "ldap"){
         $('#'+that.idPrefix+'_pass',context).removeAttr('required');
@@ -113,6 +133,16 @@ define(function(require) {
         $('input[name="custom_auth"]',context).removeAttr('required');
       }
     });
+
+    ResourceSelect.insert({
+        context: $('.main_group_div', context),
+        resourceName: 'Group',
+        extraOptions: '<option value="-1">'+Locale.tr("Default")+'</option>',
+        emptyValue: false
+      });
+
+    that.groupsTable.initialize();
+    this.groupsTable.refreshResourceTableSelect();
   }
 
   /**
@@ -135,10 +165,26 @@ define(function(require) {
       user_password = "-";
     }
 
+    var gid = $("div.main_group_div .resource_list_select", context).val();
+
+    var groups = [];
+
+    if (gid != "-1"){
+      groups = [parseInt(gid)];
+    }
+
+    var selectedGroupsList = that.groupsTable.retrieveResourceTableSelect();
+
+    $.each(selectedGroupsList, function(i,id){
+      groups.push( parseInt(id) );
+    });
+
     return {
       "name" : user_name,
       "password" : user_password,
-      "auth_driver" : driver
+      "auth_driver" : driver,
+      "gid" : gid,
+      "gids" : groups
     };
   }
 

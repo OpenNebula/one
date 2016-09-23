@@ -24,6 +24,8 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var UserCreation = require('tabs/users-tab/utils/user-creation');
+  var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -87,6 +89,12 @@ define(function(require) {
     var user_json = {
       "user" : this.userCreation.retrieve(context)
     };
+
+    if (user_json.user.gid == "-1" && user_json.user.gids.lenght != 0){
+      Sunstone.hideFormPanelLoading(this.tabId);
+      Notifier.notifyError(Locale.tr("To define secondary groups you need to also set the main group"));
+      return false;
+    }
 
     Sunstone.runAction("User.create",user_json);
     return false;
