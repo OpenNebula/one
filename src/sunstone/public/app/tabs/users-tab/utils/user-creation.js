@@ -65,6 +65,7 @@ define(function(require) {
     this.groupsTable = new GroupsTable('user-creation-'+UniqueId.id(), {
         info: false,
         select: true,
+        minColumns: true,
         selectOptions: {'multiple_choice': true}
       });
   }

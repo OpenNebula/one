@@ -86,6 +86,7 @@ define(function(require) {
       'selectOptions': {
         'filter_fn': function(ds) { return ds.TYPE == 0; }
       }
+      'minColumns':     if true, all columns are hidden except ID and NAME
       'customTabContext': jquery selector used when the datatable has associated
                           buttons. By default it will be the parent tab
       'customTrListener': function executed when a tr is clicked. Arguments
@@ -277,6 +278,20 @@ define(function(require) {
 
     if (this.conf.select) {
       that.dataTable.fnSetColumnVis(0, false);
+    }
+
+    if (this.conf.minColumns == true) {
+      var n_columns = that.columns.length + 1;
+
+      for(var i = 1; i < n_columns; i += 1){
+        if ( i == that.selectOptions.id_index ||
+             i == that.selectOptions.name_index ){
+
+          that.dataTable.fnSetColumnVis(i, true);
+        }else{
+          that.dataTable.fnSetColumnVis(i, false);
+        }
+      }
     }
 
     Foundation.reflow($('#' + this.dataTableId + 'Search-dropdown'), 'dropdown');
