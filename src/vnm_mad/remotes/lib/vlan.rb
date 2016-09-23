@@ -77,6 +77,7 @@ module VNMMAD
             lock
 
             @bridges = get_bridges
+            next if @bridges.nil?
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
@@ -86,6 +87,7 @@ module VNMMAD
                 @nic = nic
 
                 next if @nic[:phydev].nil?
+                next if @bridges[@nic[:bridge]]
 
                 # Get the name of the vlan device.
                 get_vlan_dev_name
