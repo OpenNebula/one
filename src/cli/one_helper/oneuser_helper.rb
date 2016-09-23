@@ -28,7 +28,13 @@ end
 
 class OneUserHelper < OpenNebulaHelper::OneHelper
 
-    ONE_AUTH = ENV['HOME']+'/.one/one_auth'
+    if ENV['HOME']
+        ONE_AUTH = ENV['HOME']+'/.one/one_auth'
+    elsif File.file?("/var/lib/one/.one/one_auth")
+        ONE_AUTH = "/var/lib/one/.one/one_auth"
+    else
+        raise "ONE_AUTH file not present"
+    end
 
     def self.rname
         "USER"
