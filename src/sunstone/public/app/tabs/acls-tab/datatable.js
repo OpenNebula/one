@@ -215,7 +215,7 @@ define(function(require) {
         user_str+= OpenNebulaUser.getName(user.substring(1));
       }
       else if (user[0] == '@'){
-        user_str=Locale.tr("Group ");
+        user_str=Locale.tr("Group")+" ";
         user_str+= OpenNebulaGroup.getName(user.substring(1));
       }
     }
