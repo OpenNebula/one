@@ -250,7 +250,7 @@ class SunstoneServer < CloudServer
 
         source = marketapp['SOURCE']
 
-        download_cmd =  "DRV_ACTION=#{drv_message_64} "<<
+        download_cmd =  "DRV_ACTION=#{drv_message_64}; "<<
                         "#{VAR_LOCATION}/remotes/datastore/downloader.sh " <<
                         "#{source} -"
 
