@@ -335,7 +335,7 @@ public:
      */
     static string code_version()
     {
-        return "5.1.80"; // bump version
+        return "5.2.0"; // bump version
     }
 
     /**
