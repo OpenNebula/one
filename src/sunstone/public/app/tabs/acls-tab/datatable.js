@@ -208,7 +208,7 @@ define(function(require) {
   function _parseUserAcl(user){
     var user_str="";
     if (user[0] == '*'){
-      user_str = Locale.tr("All");
+      user_str = Locale.tr("All Users");
     } else {
       if (user[0] == '#'){
         user_str=Locale.tr("User")+" ";
@@ -226,7 +226,7 @@ define(function(require) {
   function _parseResourceAcl(user){
     var user_str="";
     if (user[0] == '*'){
-      user_str = Locale.tr("All");
+      user_str = Locale.tr("All Resources");
     } else {
       if (user[0] == '#'){
         user_str=Locale.tr("ID")+" ";
@@ -253,7 +253,7 @@ define(function(require) {
     var zone_str = "";
 
     if (zone[0] == '*'){
-      zone_str = Locale.tr("All");
+      zone_str = Locale.tr("All Zones");
     } else if (zone[0] == '#'){
       zone_str = OpenNebulaZone.getName(zone.substring(1));
     }
