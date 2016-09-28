@@ -22,8 +22,8 @@ define(function(require) {
 
   var RESOURCE = "DATASTORE";
   var STATES_STR = [
-    Locale.tr("ON"),
-    Locale.tr("OFF")];
+    Locale.tr("DS ON"),
+    Locale.tr("DS OFF")];
 
   var TYPES_STR = [
     Locale.tr("IMAGE"),
