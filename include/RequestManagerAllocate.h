@@ -53,9 +53,9 @@ protected:
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att);
 
-    virtual bool allocate_authorization(Template *          obj_template,
-                                        RequestAttributes&  att,
-                                        PoolObjectAuth *    cluster_perms);
+    virtual bool allocate_authorization(xmlrpc_c::paramList const& _paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
 
     /* -------------------------------------------------------------------- */
 
@@ -150,9 +150,9 @@ public:
                                      int&                        id,
                                      RequestAttributes&          att);
 
-    bool allocate_authorization(Template *          obj_template,
-                                RequestAttributes&  att,
-                                PoolObjectAuth *    cluster_perms);
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -258,9 +258,9 @@ public:
                                      int&                        id,
                                      RequestAttributes&          att);
 
-    bool allocate_authorization(Template *          obj_template,
-                                RequestAttributes&  att,
-                                PoolObjectAuth *    cluster_perms);
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -331,6 +331,10 @@ public:
                                      Template *                  tmpl,
                                      int&                        id,
                                      RequestAttributes&          att);
+
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
 private:
     GroupPool * gpool;
 };
@@ -600,9 +604,9 @@ public:
                                      int&                        id,
                                      RequestAttributes&          att);
 
-    bool allocate_authorization(Template *          obj_template,
-                                RequestAttributes&  att,
-                                PoolObjectAuth *    cluster_perms);
+    bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
+            Template *obj_template, RequestAttributes&  att,
+            PoolObjectAuth *cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */

@@ -25,6 +25,7 @@
 /* -------------------------------------------------------------------------- */
 
 bool RequestManagerAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -65,6 +66,7 @@ bool RequestManagerAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 
 bool VirtualMachineAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -171,7 +173,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         cluster_perms.oid = ClusterPool::NONE_CLUSTER_ID;
     }
 
-    if ( allocate_authorization(tmpl, att, &cluster_perms) == false )
+    if ( allocate_authorization(params, tmpl, att, &cluster_perms) == false )
     {
         delete tmpl;
         return;
@@ -612,6 +614,7 @@ Request::ErrorCode TemplateAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool TemplateAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -670,6 +673,73 @@ Request::ErrorCode HostAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool UserAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    if ( att.uid == 0 )
+    {
+        return true;
+    }
+
+    vector<xmlrpc_c::value> param_arr;
+    vector<xmlrpc_c::value>::const_iterator it;
+
+    if ( paramList.size() > 4 )
+    {
+        param_arr = xmlrpc_c::value_array(
+                paramList.getArray(4)).vectorValueValue();
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_create_auth(att.uid, att.gid, auth_object, "");
+
+    for (it = param_arr.begin(); it != param_arr.end(); it++)
+    {
+        int tmp_gid = xmlrpc_c::value_int(*it);
+
+        Group* group = gpool->get(tmp_gid, true);
+
+        if (group == 0)
+        {
+            att.resp_id  = tmp_gid;
+            att.resp_obj = PoolObjectSQL::GROUP;
+
+			failure_response(NO_EXISTS, att);
+            return false;
+        }
+
+        // Users can be created in request group if USE CREATE is granted for it
+        // Other groups needs MANAGE permission.
+        if (att.gid != tmp_gid)
+        {
+            PoolObjectAuth perms;
+
+            group->get_permissions(perms);
+
+            ar.add_auth(AuthRequest::MANAGE, perms); // MANAGE GROUP
+        }
+
+        group->unlock();
+    }
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Request::ErrorCode UserAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
@@ -680,51 +750,29 @@ Request::ErrorCode UserAllocate::pool_allocate(
     string passwd = xmlrpc_c::value_string(paramList.getString(2));
     string driver = xmlrpc_c::value_string(paramList.getString(3));
 
-    vector<int> gids;
+    set<int> gids;
+    int      gid = -1;
 
     vector<xmlrpc_c::value> param_arr;
     vector<xmlrpc_c::value>::const_iterator it;
 
     if ( paramList.size() > 4 )
     {
-        param_arr = xmlrpc_c::value_array(paramList.getArray(4)).vectorValueValue();
+        param_arr = xmlrpc_c::value_array(
+                paramList.getArray(4)).vectorValueValue();
     }
 
     AuthRequest ar(att.uid, att.group_ids);
 
     for (it = param_arr.begin(); it != param_arr.end(); it++)
     {
-        int gid = xmlrpc_c::value_int(*it);
-        gids.push_back(gid);
+        int tmp_gid = xmlrpc_c::value_int(*it);
 
-        PoolObjectAuth perms;
-        Group* group = gpool->get(gid, true);
+        gids.insert(tmp_gid);
 
-        if (group == 0)
+        if ( gid == -1 ) //First gid is the primary group
         {
-            att.resp_id = gid;
-            att.resp_obj = PoolObjectSQL::GROUP;
-            return NO_EXISTS;
-        }
-
-        // For compatibility with previous versions, a group admin can create
-        // a new user in his group only with the USE CREATE permission.
-        if (att.gid != gid)
-        {
-            group->get_permissions(perms);
-
-            ar.add_auth(AuthRequest::MANAGE, perms);   // MANAGE GROUP
-        }
-
-        group->unlock();
-    }
-
-    if ( att.uid != UserPool::ONEADMIN_ID )
-    {
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            return Request::AUTHORIZATION;
+            gid = tmp_gid;
         }
     }
 
@@ -732,11 +780,13 @@ Request::ErrorCode UserAllocate::pool_allocate(
     {
         if ( att.gid == GroupPool::ONEADMIN_ID )
         {
-            gids.push_back(GroupPool::USERS_ID);
+            gid = GroupPool::USERS_ID;
+            gids.insert(GroupPool::USERS_ID);
         }
         else
         {
-            gids.push_back(att.gid);
+            gid = att.gid;
+            gids.insert(att.gid);
         }
     }
 
@@ -745,8 +795,8 @@ Request::ErrorCode UserAllocate::pool_allocate(
         driver = UserPool::CORE_AUTH;
     }
 
-    int rc = static_cast<UserPool *>(pool)->allocate(&id,uname,passwd,
-            driver,true,gids,att.resp_msg);
+    int rc = static_cast<UserPool *>(pool)->allocate(&id, uname, gid, passwd,
+            driver, true, gids, att.resp_msg);
 
     if (rc < 0)
     {
@@ -986,6 +1036,7 @@ Request::ErrorCode VirtualRouterAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool VirtualRouterAllocate::allocate_authorization(
+		xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
