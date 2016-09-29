@@ -56,13 +56,10 @@ module CloudClient
     # Default location for the authentication file
     # #########################################################################
 
-
     if ENV["HOME"]
         DEFAULT_AUTH_FILE = ENV["HOME"]+"/.one/one_auth"
-    elsif File.file?("/var/lib/one/.one/one_auth")
-        ONE_AUTH = "/var/lib/one/.one/one_auth"
     else
-        raise "ONE_AUTH file not present"
+        DEFAULT_AUTH_FILE = "/var/lib/one/.one/one_auth"
     end
 
     # #########################################################################
@@ -71,6 +68,7 @@ module CloudClient
     #
     # Raises an error if authorization is not found
     # #########################################################################
+
     def self.get_one_auth
         if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
             File.file?(ENV["ONE_AUTH"])

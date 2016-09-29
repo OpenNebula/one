@@ -18,12 +18,11 @@ module CloudClient
     # #########################################################################
     # Default location for the authentication file
     # #########################################################################
+
     if ENV["HOME"]
         DEFAULT_AUTH_FILE = ENV["HOME"]+"/.one/one_auth"
-    elsif File.file?("/var/lib/one/.one/one_auth")
-        ONE_AUTH = "/var/lib/one/.one/one_auth"
     else
-        raise "ONE_AUTH file not present"
+        DEFAULT_AUTH_FILE = "/var/lib/one/.one/one_auth"
     end
 
     # #########################################################################
