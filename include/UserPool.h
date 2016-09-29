@@ -55,10 +55,11 @@ public:
     int allocate (
         int *   oid,
         const string& uname,
+        int     gid,
         const string& password,
         const string& auth,
         bool    enabled,
-        const vector<int>& gids,
+        const set<int>& gids,
         string& error_str);
 
     /**
