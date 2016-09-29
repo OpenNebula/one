@@ -261,7 +261,7 @@ if vm_ids_array
             log "resched #{vm_id}"
             vm.resched
         else
-            log_error "unkown mode '#{mode}'"
+            log_error "unknown mode '#{mode}'"
             exit_error
         end
     end
