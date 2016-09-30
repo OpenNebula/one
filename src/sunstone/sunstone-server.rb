@@ -353,7 +353,29 @@ before do
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
-    if env['HTTP_ZONE_NAME']
+    request_vars = {}
+
+    request.env.each do |k, v|
+        if v && String === v && !v.empty?
+            request_vars[k] = v
+        end
+    end
+
+    hpref        = "HTTP-"
+    head_zone    = "ZONE-NAME"
+    reqenv       = request_vars
+
+    zone_name_header = reqenv[head_zone] ? reqenv[head_zone] : reqenv[hpref+head_zone]
+
+    # Try with underscores
+    if zone_name_header.nil?
+        hpref        = "HTTP_"
+        head_zone    = "ZONE_NAME"
+
+        zone_name_header = reqenv[head_zone] ? reqenv[head_zone] : reqenv[hpref+head_zone]
+    end
+
+    if zone_name_header && !zone_name_header.empty?
         client = $cloud_auth.client(session[:user], session[:active_zone_endpoint])
         zpool = ZonePoolJSON.new(client)
 
@@ -363,13 +385,13 @@ before do
 
         found = false
         zpool.each{|z|
-            if z.name == env['HTTP_ZONE_NAME']
+            if z.name == zone_name_header
                 found = true
                 serveradmin_client = $cloud_auth.client(nil, z['TEMPLATE/ENDPOINT'])
                 rc = OpenNebula::System.new(serveradmin_client).get_configuration
 
                 if OpenNebula.is_error?(rc)
-                    msg = "Zone #{env['HTTP_ZONE_NAME']} not available " + rc.message
+                    msg = "Zone #{zone_name_header} not available " + rc.message
                     logger.error { msg }
                     halt [410, OpenNebula::Error.new(msg).to_json]
                 end
@@ -381,13 +403,13 @@ before do
                 end
 
                 session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
-                session[:zone_name] = env['HTTP_ZONE_NAME']
+                session[:zone_name] = zone_name_header
                 session[:zone_id]   = z.id
             end
          }
 
          if !found
-            msg = "Zone #{env['HTTP_ZONE_NAME']} does not exist"
+            msg = "Zone #{zone_name_header} does not exist"
             logger.error { msg }
             halt [404, OpenNebula::Error.new(msg).to_json]
         end
