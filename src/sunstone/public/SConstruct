@@ -29,5 +29,5 @@ if env['sunstone']=='yes':
 
     exit_code=os.system("grunt --gruntfile ./Gruntfile.js requirejs")
     if exit_code != 0:
-        print "Error generating minifying Susntone files\n"
+        print "Error generating minifying Sunstone files\n"
         exit(-1)
