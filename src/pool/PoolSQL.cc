@@ -753,6 +753,7 @@ void PoolSQL::acl_filter(int                       uid,
 /* -------------------------------------------------------------------------- */
 
 void PoolSQL::usr_filter(int                uid,
+                         int                gid,
                          const set<int>&    user_groups,
                          int                filter_flag,
                          bool               all,
@@ -766,6 +767,10 @@ void PoolSQL::usr_filter(int                uid,
     if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
     {
         uid_filter << "uid = " << uid;
+    }
+    if ( filter_flag == RequestManagerPoolInfoFilter::GROUP )
+    {
+        uid_filter << "gid = " << gid;
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
     {

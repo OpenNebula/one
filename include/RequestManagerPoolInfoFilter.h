@@ -39,6 +39,9 @@ public:
     /** Specify user's + group objects (-1)     */
     static const int MINE_GROUP;
 
+    /** Specify group objects (-4)     */
+    static const int GROUP;
+
     /**
      *  Set a where filter to get the oids of objects that a user can "USE"
      *    @param att the XML-RPC Attributes with user information

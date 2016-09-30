@@ -218,12 +218,14 @@ public:
     /**
      *  Creates a filter for the objects owned by a given user/group
      *    @param uid the user id
+     *    @param gid the primary group of the user
      *    @param user_groups Set of group IDs that the user is part of
      *    @param filter_flag query type (ALL, MINE, GROUP)
      *    @param all user can access all objects
      *    @param filter the resulting filter string
      */
     static void usr_filter(int              uid,
+                           int              gid,
                            const set<int>&  user_groups,
                            int              filter_flag,
                            bool             all,

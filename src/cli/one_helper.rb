@@ -661,6 +661,7 @@ EOT
             when "a", "all"   then OpenNebula::Pool::INFO_ALL
             when "m", "mine"  then OpenNebula::Pool::INFO_MINE
             when "g", "group" then OpenNebula::Pool::INFO_GROUP
+            when "G", "primary group" then OpenNebula::Pool::INFO_PRIMARY_GROUP
             else
                 if str.match(/^[0123456789]+$/)
                     str.to_i
@@ -679,12 +680,13 @@ EOT
 
         def self.filterflag_to_i_desc
             desc=<<-EOT
-a, all       all the known #{self.rname}s
-m, mine      the #{self.rname} belonging to the user in ONE_AUTH
-g, group     'mine' plus the #{self.rname} belonging to the groups
-             the user is member of
-uid          #{self.rname} of the user identified by this uid
-user         #{self.rname} of the user identified by the username
+a, all            all the known #{self.rname}s
+m, mine           the #{self.rname} belonging to the user in ONE_AUTH
+g, group          'mine' plus the #{self.rname} belonging to the groups
+                  the user is member of
+G, primary group  the #{self.rname} owned the user's primary group
+uid               #{self.rname} of the user identified by this uid
+user              #{self.rname} of the user identified by the username
 EOT
         end
 

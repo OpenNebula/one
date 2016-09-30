@@ -62,19 +62,23 @@ module OpenNebula
         alias_method :info!, :info
 
         def info_all(xml_method, *args)
-            return xmlrpc_info(xml_method,INFO_ALL,-1,-1, *args)
+            return xmlrpc_info(xml_method, INFO_ALL, -1, -1, *args)
         end
 
         def info_mine(xml_method, *args)
-            return xmlrpc_info(xml_method,INFO_MINE,-1,-1, *args)
+            return xmlrpc_info(xml_method, INFO_MINE, -1, -1, *args)
         end
 
         def info_group(xml_method, *args)
-            return xmlrpc_info(xml_method,INFO_GROUP,-1,-1, *args)
+            return xmlrpc_info(xml_method, INFO_GROUP, -1, -1, *args)
+        end
+
+        def info_primary_group(xml_method, *args)
+            return xmlrpc_info(xml_method, INFO_PRIMARY_GROUP, -1, -1, *args)
         end
 
         def info_filter(xml_method, who, start_id, end_id, *args)
-            return xmlrpc_info(xml_method,who, start_id, end_id, *args)
+            return xmlrpc_info(xml_method, who, start_id, end_id, *args)
         end
 
         # Retrieves the monitoring data for all the Objects in the pool
@@ -144,6 +148,7 @@ module OpenNebula
         INFO_GROUP = -1
         INFO_ALL   = -2
         INFO_MINE  = -3
+        INFO_PRIMARY_GROUP = -4
 
         # Iterates over every PoolElement in the Pool and calls the block with a
         # a PoolElement obtained calling the factory method

@@ -27,6 +27,8 @@ const int RequestManagerPoolInfoFilter::MINE = -3;
 
 const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 
+const int RequestManagerPoolInfoFilter::GROUP = -4;
+
 /* ------------------------------------------------------------------------- */
 
 const int VirtualMachinePoolInfo::ALL_VM   = -2;
@@ -67,7 +69,8 @@ bool RequestManagerPoolInfoFilter::use_filter(RequestAttributes& att,
     PoolSQL::acl_filter(att.uid, att.group_ids, aobj, all,
         disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
 
-    PoolSQL::usr_filter(att.uid, att.group_ids, ALL, all, acl_str, where_str);
+    PoolSQL::usr_filter(att.uid, att.gid, att.group_ids, ALL, all, acl_str,
+        where_str);
 
     if (!and_str.empty())
     {
@@ -135,7 +138,7 @@ void VirtualMachinePoolAccounting::request_execute(
     string        where;
     int           rc;
 
-    if ( filter_flag < MINE )
+    if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
         failure_response(XML_RPC_API, att);
@@ -177,7 +180,7 @@ void VirtualMachinePoolShowback::request_execute(
     string        where;
     int           rc;
 
-    if ( filter_flag < MINE )
+    if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
         failure_response(XML_RPC_API, att);
@@ -217,7 +220,7 @@ void VirtualMachinePoolMonitoring::request_execute(
     string        where;
     int           rc;
 
-    if ( filter_flag < MINE )
+    if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
         failure_response(XML_RPC_API, att);
@@ -372,7 +375,8 @@ void RequestManagerPoolInfoFilter::where_filter(
     PoolSQL::acl_filter(att.uid, att.group_ids, auth_object, all,
         disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
 
-    PoolSQL::usr_filter(att.uid, att.group_ids, filter_flag, all, acl_str, uid_str);
+    PoolSQL::usr_filter(att.uid, att.gid, att.group_ids, filter_flag, all,
+        acl_str, uid_str);
 
     PoolSQL::oid_filter(start_id, end_id, oid_str);
 
@@ -437,7 +441,7 @@ void RequestManagerPoolInfoFilter::dump(
     string        where_string, limit_clause;
     int           rc;
 
-    if ( filter_flag < MINE )
+    if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
         failure_response(XML_RPC_API, att);
@@ -486,7 +490,7 @@ void VirtualNetworkPoolInfo::request_execute(
     int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
 
-    if ( filter_flag < MINE )
+    if ( filter_flag < GROUP )
     {
         att.resp_msg = "Incorrect filter_flag";
         failure_response(XML_RPC_API, att);
