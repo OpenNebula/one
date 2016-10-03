@@ -484,7 +484,6 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/languages
   SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/languages
-  SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/languages
 )
 
 INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
@@ -1649,9 +1648,6 @@ src/sunstone/public/locale/languages/sk_datatable.txt"
 SUNSTONE_PUBLIC_LOCALE_ZH_CN="\
 src/sunstone/public/locale/languages/zh_CN.js \
 src/sunstone/public/locale/languages/zh_datatable.txt"
-
-SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
-src/sunstone/public/locale/languages/zh_TW.js"
 
 #-----------------------------------------------------------------------------
 # OneGate files

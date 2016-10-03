@@ -42,6 +42,5 @@ env.Po('pt_PT.po')
 env.Po('pt_BR.po')
 env.Po('ru_RU.po')
 env.Po('sk_SK.po')
-env.Po('zh_TW.po')
 env.Po('zh_CN.po')
 

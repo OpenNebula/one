@@ -36,8 +36,7 @@ define(function(require) {
     <option value="ru_RU">Russian (ru_RU)</option>\
     <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
     <option value="sk_SK">Slovak (sk_SK)</option>\
-    <option value="es_ES">Spanish (es_ES)</option>\
-    <option value="zh_TW">Traditional Chinese (zh_TW)</option>';
+    <option value="es_ES">Spanish (es_ES)</option>';
 
   var MONTHS = new Array(
         tr("January"), tr("February"), tr("March"), tr("April"), tr("May"),
