@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,6 +29,7 @@ import org.opennebula.client.OneResponse;
 import org.opennebula.client.OneSystem;
 import org.opennebula.client.user.User;
 import org.opennebula.client.user.UserPool;
+import org.opennebula.client.group.Group;
 import org.w3c.dom.Node;
 
 public class UserTest
@@ -97,6 +98,47 @@ public class UserTest
         }
 
         assertTrue( found );
+    }
+
+    @Test
+    public void allocateInGroup()
+    {
+        user.delete();
+
+        res = Group.allocate(client, "group_a");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+        int group_a_id = Integer.parseInt(res.getMessage());
+        Group group_a = new Group(group_a_id, client);
+
+        res = Group.allocate(client, "group_b");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+        int group_b_id = Integer.parseInt(res.getMessage());
+        Group group_b = new Group(group_b_id, client);
+
+        res = Group.allocate(client, "group_c");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+        int group_c_id = Integer.parseInt(res.getMessage());
+        Group group_c = new Group(group_c_id, client);
+
+        Integer[] gids = {group_b_id, group_a_id};
+        res = User.allocate(client, "test_user_in_group", "pass", "", gids);
+
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        user = new User(Integer.parseInt(res.getMessage()), client);
+
+        res = user.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        assertTrue( user.gid() == group_b_id );
+
+        group_a.info();
+        group_b.info();
+        group_c.info();
+
+        assertTrue( group_a.contains(user.id()) );
+        assertTrue( group_b.contains(user.id()) );
+        assertFalse( group_c.contains(user.id()) );
     }
 
     @Test

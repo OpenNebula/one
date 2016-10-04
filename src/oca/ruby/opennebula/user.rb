@@ -98,6 +98,14 @@ module OpenNebula
         # +username+ Name of the new user.
         #
         # +password+ Password for the new user
+        # @param username Username for the new user.
+        # @param password Password for the new user
+        # @param driver Auth driver for the new user.
+        # @param gids Group IDs. The first ID will be used as the main group.
+        # This array can be empty, in which case the default group will be used.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
         def allocate(username, password, driver=nil, gids=[])
             driver = CORE_AUTH if driver.nil?
             super(USER_METHODS[:allocate], username, password, driver, gids)

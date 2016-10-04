@@ -77,7 +77,9 @@ public class User extends PoolElement{
                                        String username,
                                        String password)
     {
-        return allocate(client, username, password, "");
+        Integer[] empty = new Integer[0];
+
+        return allocate(client, username, password, "", empty);
     }
 
     /**
@@ -87,15 +89,18 @@ public class User extends PoolElement{
      * @param username Username for the new user.
      * @param password Password for the new user
      * @param auth Auth driver for the new user.
+     * @param gids Group IDs. The first ID will be used as the main group. This
+     * array can be empty, in which case the default group will be used.
      * @return If successful the message contains
      * the associated id (int uid) generated for this user.
      */
     public static OneResponse allocate(Client client,
                                        String username,
                                        String password,
-                                       String auth)
+                                       String auth,
+                                       Integer[]  gids)
     {
-        return client.call(ALLOCATE, username, password, auth);
+        return client.call(ALLOCATE, username, password, auth, gids);
     }
 
     /** Retrieves the information of the given user.
