@@ -61,6 +61,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group VirtualRouters</li>
      * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      */
@@ -89,6 +90,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group VirtualRouters</li>
      * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @return If successful the message contains the string
@@ -147,6 +149,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group VirtualRouters</li>
      * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @param startId Lowest Id to retrieve
@@ -219,6 +222,7 @@ public class VirtualRouterPool extends Pool implements Iterable<VirtualRouter>
      * <li>{@link Pool#MINE}: Connected user's VirtualRouters</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's VirtualRouters, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group VirtualRouters</li>
      * <li>&gt;= 0 UID User's VirtualRouters</li>
      * </ul>
      * @param startId Lowest Id to retrieve

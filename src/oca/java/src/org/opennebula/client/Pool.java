@@ -62,6 +62,11 @@ public abstract class Pool{
     public final static int MINE_GROUP = -1;
 
     /**
+     * Resources owned by the user's primary group
+     */
+    public final static int GROUP      = -4;
+
+    /**
      * Protected constructor, to be called from subclasses.
      *
      * @param elementName Name of the PoolElement's xml element
@@ -73,7 +78,7 @@ public abstract class Pool{
         this.elementName = elementName;
         this.infoMethod  = infoMethod;
         this.client      = client;
-        
+
         if(xpath == null)
         {
             XPathFactory factory = XPathFactory.newInstance();
@@ -118,6 +123,11 @@ public abstract class Pool{
     protected static OneResponse infoGroup(Client client, String infoMethod)
     {
         return xmlrpcInfo(client, infoMethod, MINE_GROUP, -1, -1);
+    }
+
+    protected static OneResponse infoGroupPrimary(Client client, String infoMethod)
+    {
+        return xmlrpcInfo(client, infoMethod, GROUP, -1, -1);
     }
 
     protected static OneResponse xmlrpcInfo(Client client, String infoMethod, Object...args)

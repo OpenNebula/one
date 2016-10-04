@@ -111,6 +111,7 @@ public abstract class DocumentPool extends Pool
      * <li>{@link Pool#MINE}: Connected user's Documents</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Documents, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Documents</li>
      * <li>&gt;= 0 UID User's Documents</li>
      * </ul>
      */
@@ -191,6 +192,7 @@ public abstract class DocumentPool extends Pool
      * <li>{@link Pool#MINE}: Connected user's Documents</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Documents, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Documents</li>
      * <li>&gt;= 0 UID User's Documents</li>
      * </ul>
      * @param startId Lowest Id to retrieve

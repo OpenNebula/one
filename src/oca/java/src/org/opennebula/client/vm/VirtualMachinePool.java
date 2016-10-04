@@ -73,6 +73,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      */
@@ -99,6 +100,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @return If successful the message contains the string
@@ -158,6 +160,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param startId Lowest Id to retrieve
@@ -185,6 +188,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
      * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @return If successful the message contains the string
@@ -262,6 +266,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param startId Lowest Id to retrieve
@@ -287,6 +292,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
      * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @return If successful the message contains the string

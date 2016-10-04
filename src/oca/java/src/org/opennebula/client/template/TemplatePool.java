@@ -61,6 +61,7 @@ public class TemplatePool extends Pool implements Iterable<Template>
      * <li>{@link Pool#MINE}: Connected user's Templates</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Templates</li>
      * <li>&gt;= 0: UID User's Templates</li>
      * </ul>
      */
@@ -89,6 +90,8 @@ public class TemplatePool extends Pool implements Iterable<Template>
      * <li>{@link Pool#MINE}: Connected user's Templates</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Templates</li>
+     * <li>&gt;= 0: UID User's Templates</li>
      * <li>&gt;= 0: UID User's Templates</li>
      * </ul>
      * @return If successful the message contains the string
@@ -147,6 +150,8 @@ public class TemplatePool extends Pool implements Iterable<Template>
      * <li>{@link Pool#MINE}: Connected user's Templates</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Templates</li>
+     * <li>&gt;= 0: UID User's Templates</li>
      * <li>&gt;= 0: UID User's Templates</li>
      * </ul>
      * @param startId Lowest Id to retrieve
@@ -219,6 +224,8 @@ public class TemplatePool extends Pool implements Iterable<Template>
      * <li>{@link Pool#MINE}: Connected user's Templates</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Templates, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Templates</li>
+     * <li>&gt;= 0: UID User's Templates</li>
      * <li>&gt;= 0: UID User's Templates</li>
      * </ul>
      * @param startId Lowest Id to retrieve

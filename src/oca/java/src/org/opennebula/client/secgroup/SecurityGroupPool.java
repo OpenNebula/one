@@ -62,6 +62,7 @@ public class SecurityGroupPool extends Pool implements Iterable<SecurityGroup>{
      * <li>{@link Pool#MINE}: Connected user's Security Groups</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Security Groups, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Security Groups</li>
      * <li>&gt;= 0 UID User's Security Groups</li>
      * </ul>
      */
@@ -87,6 +88,7 @@ public class SecurityGroupPool extends Pool implements Iterable<SecurityGroup>{
      * <li>{@link Pool#MINE}: Connected user's Security Groups</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Security Groups, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Security Groups</li>
      * <li>&gt;= 0 UID User's Security Groups</li>
      * </ul>
      * @return If successful the message contains the string
@@ -145,6 +147,7 @@ public class SecurityGroupPool extends Pool implements Iterable<SecurityGroup>{
      * <li>{@link Pool#MINE}: Connected user's Security Groups</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Security Groups, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Security Groups</li>
      * <li>&gt;= 0 UID User's Security Groups</li>
      * </ul>
      * @param startId Lowest Id to retrieve
@@ -217,6 +220,7 @@ public class SecurityGroupPool extends Pool implements Iterable<SecurityGroup>{
      * <li>{@link Pool#MINE}: Connected user's Security Groups</li>
      * <li>{@link Pool#MINE_GROUP}: Connected user's Security Groups, and the ones in
      * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Security Groups</li>
      * <li>&gt;= 0 UID User's Security Groups</li>
      * </ul>
      * @param startId Lowest Id to retrieve
