@@ -45,12 +45,18 @@ lcm_state_num = drv_action["/VM/LCM_STATE"].to_i
 datastore     = drv_action["/VM/USER_TEMPLATE/VCENTER_DATASTORE"]
 lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 
+ops = {
+    :ref    => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_REF"],
+    :name   => drv_action["/VM/USER_TEMPLATE/PUBLIC_CLOUD/VCENTER_NAME"]
+}
+
 begin
     puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
                                          lcm_state,
                                          deploy_id,
                                          host,
-                                         datastore)
+                                         datastore,
+                                         ops)
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
                 "due to \"#{e.message}\""
