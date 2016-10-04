@@ -145,6 +145,7 @@ class VIClient
                 v.propSet.each{ |dynprop|
                     obj[dynprop.name] = dynprop.val
                 }
+                obj[:ref] = k._ref
                 objects << OpenStruct.new(obj)
             end
         }
@@ -305,17 +306,44 @@ class VIClient
     ########################################################################
     # Searches the associated vmFolder of the DataCenter for the current
     # connection. Returns a RbVmomi::VIM::VirtualMachine or nil if not found
+    #
+    # Searches by moref, name, uuid and then iterates over all VMs
+    #
+    # @param uuid [String] the UUID of the VM or VM Template
+    # @param ref [String] VMware moref
+    # @param name [String] VM name in vCenter
+    ########################################################################
+    def find_vm_fast(uuid, ref = nil, name = nil)
+        if ref
+            # It can raise ManagedObjectNotFound
+            begin
+                vm = RbVmomi::VIM::VirtualMachine.new(@dc._connection, ref)
+                return vm if vm.config && vm.config.uuid == uuid
+            rescue  => e
+            end
+        end
+
+        if name
+            begin
+                vm = @dc.vmFolder.find(name)
+                return vm if vm.config && vm.config.uuid == uuid
+            rescue
+            end
+        end
+
+        return find_vm_template(uuid)
+    end
+
+    ########################################################################
+    # Searches the associated vmFolder of the DataCenter for the current
+    # connection. Returns a RbVmomi::VIM::VirtualMachine or nil if not found
     # @param uuid [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm_template(uuid)
         version = @vim.serviceContent.about.version
 
         found_vm = nil
-
-        if version.split(".").first.to_i >= 6
-           found_vm = @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
-        end
-
+        found_vm = @dc.vmFolder.findByUuid(uuid, RbVmomi::VIM::VirtualMachine, @dc)
         return found_vm if found_vm
 
         vms = VIClient.get_entities(@dc.vmFolder, 'VirtualMachine')
@@ -431,13 +459,15 @@ class VIClient
                     ds   = ds_cache[t.datastore[0].to_s]
 
                     one_tmp << {
-                        :name       => "#{vi_tmp.vm.name} - #{host.cluster_name}",
-                        :uuid       => vi_tmp.vm.config.uuid,
-                        :host       => host.cluster_name,
-                        :one        => vi_tmp.to_one(host),
-                        :ds         => vi_tmp.to_one_ds(host, ds.name),
-                        :default_ds => ds.name,
-                        :rp         => vi_tmp.to_one_rp(host)
+                        :name           => "#{vi_tmp.vm.name} - #{host.cluster_name}",
+                        :uuid           => vi_tmp.vm.config.uuid,
+                        :host           => host.cluster_name,
+                        :one            => vi_tmp.to_one(host),
+                        :ds             => vi_tmp.to_one_ds(host, ds.name),
+                        :default_ds     => ds.name,
+                        :rp             => vi_tmp.to_one_rp(host),
+                        :vcenter_ref    => vi_tmp.vm._ref,
+                        :vcenter_name   => vi_tmp.vm.name
                     }
                 end
             }
@@ -1384,13 +1414,16 @@ class VCenterVm
     # Deploys a VM
     #  @xml_text XML representation of the VM
     ############################################################################
-    def self.deploy(xml_text, lcm_state, deploy_id, hostname, datastore = nil)
+    def self.deploy(xml_text, lcm_state, deploy_id, hostname, datastore = nil,
+                    ops = {})
         if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-            return clone_vm(xml_text, hostname, datastore)
+            return clone_vm(xml_text, hostname, datastore, ops)
         else
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
-            vm          = connection.find_vm_template(deploy_id)
+            vm          = connection.find_vm_fast(deploy_id,
+                                                  ops[:ref],
+                                                  ops[:name])
             xml         = REXML::Document.new xml_text
 
             reconfigure_vm(vm, xml, false, hostname)
@@ -1836,6 +1869,8 @@ class VCenterVm
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
+              "  VCENTER_REF =\"#{@vm.ref}\",\n"\
+              "  VCENTER_NAME=\"#{@vm.name}\",\n"\
               "  HOST        =\"#{cluster_name}\"\n"\
               "]\n"\
               "GRAPHICS = [\n"\
@@ -2083,7 +2118,7 @@ private
     ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
     ########################################################################
-    def self.clone_vm(xml_text, hostname, datastore)
+    def self.clone_vm(xml_text, hostname, datastore, ops = {})
 
         host_id = VCenterDriver::VIClient.translate_hostname(hostname)
 
@@ -2145,7 +2180,7 @@ private
         raise "Cannot find host id in deployment file history." if hid.nil?
 
         connection  = VIClient.new(hid)
-        vc_template = connection.find_vm_template(uuid)
+        vc_template = connection.find_vm_fast(uuid, ops[:ref], ops[:name])
 
         # Find out requested and available resource pool
 
