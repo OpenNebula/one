@@ -140,8 +140,8 @@ define(function(require) {
 
             VCenterCommon.setupTable({
               context : newdiv,
-              allSelected : Locale.tr("All %1$s Networks selected."),
-              selected: Locale.tr("%1$s Networks selected.")
+              allSelected : Locale.tr("All %1$s Templates selected."),
+              selected: Locale.tr("%1$s Templates selected.")
             });
 
             context.off('click', '.clear_imported');
