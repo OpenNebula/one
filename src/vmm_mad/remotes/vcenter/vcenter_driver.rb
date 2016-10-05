@@ -151,7 +151,7 @@ class VIClient
     end
 
     ############################################################################
-    # Initializr the VIClient, and creates an OpenNebula client. The parameters
+    # Initialize the VIClient, and creates an OpenNebula client. The parameters
     # are obtained from the associated OpenNebula host
     # @param hid [Integer] The OpenNebula host id with VCenter attributes
     ############################################################################
@@ -513,7 +513,6 @@ class VIClient
                                      "VN_MAD = \"dummy\"\n" \
                                      "VCENTER_TYPE = \"Distributed Port Group\""
 
-
                      default_pc = n.config.defaultPortConfig
 
                      has_vlan = false
@@ -540,7 +539,7 @@ class VIClient
                      end
 
                      if !vlan_str.empty?
-                         vnet_template << "VLAN_ID=#{vlan_str}\n"
+                         vnet_template << "VLAN_TAGGED_ID=#{vlan_str}\n"
                      end
 
                      one_net = {:name    => net_name,

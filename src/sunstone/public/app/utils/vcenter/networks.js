@@ -261,7 +261,7 @@ define(function(require) {
         var vlaninfo = $(".vlaninfo", row_context).text();
 
         if ( vlaninfo != undefined && vlaninfo != "" ) {
-          network_tmpl += "\nVLAN_ID=" + vlaninfo + "\n";
+          network_tmpl += "\nVLAN_TAGGED_ID=" + vlaninfo + "\n";
         }
 
         var vnet_json = {
