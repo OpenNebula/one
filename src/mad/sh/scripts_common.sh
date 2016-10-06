@@ -358,7 +358,7 @@ EOF`
 #This function executes $2 at $1 host and report error $3
 function ssh_exec_and_log
 {
-    ssh_exec_and_log "$@"
+    ssh_exec_and_log_no_error "$@"
     rc=$?
 
     if [ $rc !=0 ]; then
