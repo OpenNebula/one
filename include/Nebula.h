@@ -344,7 +344,7 @@ public:
      */
     static string shared_db_version()
     {
-        return "4.90.0";
+        return "5.2.0";
     }
 
     /**
