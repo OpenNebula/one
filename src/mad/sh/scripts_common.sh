@@ -359,10 +359,10 @@ EOF`
 function ssh_exec_and_log
 {
     ssh_exec_and_log_no_error "$@"
-    rc=$?
+    EXEC_RC=$?
 
-    if [ $rc !=0 ]; then
-        exit $rc
+    if [ "$EXEC_RC" != "0" ]; then
+        exit $EXEC_RC
     fi
 }
 
