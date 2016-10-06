@@ -234,7 +234,8 @@ static int master_allocate(const string& uname, const string& passwd,
             std::ios::ate);
     try
     {
-        client->call("one.user.allocate", "sss", &result, uname, passwd, driver);
+        client->call("one.user.allocate", "sss", &result, uname.c_str(),
+                passwd.c_str(), driver.c_str());
     }
     catch (exception const& e)
     {
