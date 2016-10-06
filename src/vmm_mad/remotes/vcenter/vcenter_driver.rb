@@ -352,6 +352,15 @@ class VIClient
     ########################################################################
     def get_datastore(ds_name)
         datastores = VIClient.get_entities(@dc.datastoreFolder, 'Datastore')
+
+        storage_pods = VIClient.get_entities(@dc.datastoreFolder, 'StoragePod')
+        storage_pods.each { |sp|
+            storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+            if not storage_pod_datastores.empty?
+                datastores.concat(storage_pod_datastores)
+            end
+        }
+
         ds         = datastores.select{|ds| ds.name == ds_name}[0]
     end
 
@@ -590,6 +599,15 @@ class VIClient
         datacenters.each { |dc|
             one_tmp = []
             datastores = VIClient.get_entities(dc.datastoreFolder, 'Datastore')
+
+            storage_pods = VIClient.get_entities(dc.datastoreFolder, 'StoragePod')
+            storage_pods.each { |sp|
+                storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+                if not storage_pod_datastores.empty?
+                    datastores.concat(storage_pod_datastores)
+                end
+            }
+            
             datastores.each { |ds|
                 next if !ds.is_a? RbVmomi::VIM::Datastore
                 # Find the Cluster from which to access this ds
@@ -653,6 +671,15 @@ class VIClient
 
             # Find datastore within datacenter
             datastores = VIClient.get_entities(dc.datastoreFolder, 'Datastore')
+
+            storage_pods = VIClient.get_entities(dc.datastoreFolder, 'StoragePod')
+            storage_pods.each { |sp|
+                storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+                if not storage_pod_datastores.empty?
+                    datastores.concat(storage_pod_datastores)
+                end
+            }
+
             ds         = datastores.select{|ds| ds.name == ds_name}[0]
             next if !ds
 
@@ -984,6 +1011,16 @@ class VCenterCachedHost
             datastores=VIClient.get_entities(
                           datacenter.datastoreFolder,
                            'Datastore')
+
+            storage_pods = VIClient.get_entities(datacenter.datastoreFolder, 
+                                                'StoragePod')
+            storage_pods.each { |sp|
+                storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+                if not storage_pod_datastores.empty?
+                    datastores.concat(storage_pod_datastores)
+                end
+            }
+
             datastores.each { |ds|
                 @attributes['ds_list'] += ds.name + ","
             }
@@ -1344,6 +1381,17 @@ class VCenterHost < ::OpenNebula::Host
 
         datastores = VIClient.get_entities(client.dc.datastoreFolder,
                                            'Datastore')
+
+        storage_pods = VIClient.get_entities(client.dc.datastoreFolder, 
+                                            'StoragePod')           
+
+        storage_pods.each { |sp|
+            storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+            if not storage_pod_datastores.empty?
+                datastores.concat(storage_pod_datastores)
+            end
+        }
+
         datastores.each { |ds|
             str_info += "VCENTER_DATASTORE=\"#{ds.name}\"\n"
         }
@@ -2194,6 +2242,16 @@ private
         if datastore
             datastores = VIClient.get_entities(connection.dc.datastoreFolder,
                                              'Datastore')
+
+            storage_pods = VIClient.get_entities(connection.dc.datastoreFolder, 
+                                                'StoragePod')
+            storage_pods.each { |sp|
+                storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+                if not storage_pod_datastores.empty?
+                    datastores.concat(storage_pod_datastores)
+                end
+            }      
+
             ds         = datastores.select{|ds| ds.name == datastore}[0]
             raise "Cannot find datastore #{datastore}" if !ds
         end
@@ -2522,8 +2580,18 @@ private
         # Find datastore within datacenter
         datastores = VIClient.get_entities(connection.dc.datastoreFolder,
                                            'Datastore')
-        ds         = datastores.select{|ds| ds.name == ds_name}[0]
 
+        storage_pods = VIClient.get_entities(connection.dc.datastoreFolder, 
+                                            'StoragePod')
+        storage_pods.each { |sp|
+            storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
+            if not storage_pod_datastores.empty?
+                datastores.concat(storage_pod_datastores)
+            end
+        }
+
+        ds         = datastores.select{|ds| ds.name == ds_name}[0]
+        
         controller, new_number = find_free_controller(vm)
 
         if type == "CDROM"
@@ -2697,7 +2765,6 @@ private
 
     ############################################################################
     # Detach a specific disk from a VM
-    # Attach disk to a VM
     # @params hostname[String] vcenter cluster name in opennebula as host
     # @params deploy_id[String] deploy id of the vm
     # @params ds_name[String] name of the datastore
