@@ -131,11 +131,15 @@ void Client::call(const std::string &method, const std::string format,
 
     std::string::const_iterator i;
 
-    std::string sval;
-    int         ival;
-    bool        bval;
+    std::string  sval;
+    int          ival;
+    bool         bval;
+
+    std::set<int> * vval;
+    std::set<int>::iterator it;
 
     const char* pval;
+    vector<xmlrpc_c::value> x_vval;
 
     xmlrpc_c::paramList plist;
 
@@ -162,6 +166,18 @@ void Client::call(const std::string &method, const std::string format,
                 bval = va_arg(args, int);
 
                 plist.add(xmlrpc_c::value_boolean(bval));
+                break;
+
+            case 'I':
+                vval = static_cast<std::set<int> *>(va_arg(args,
+                    std::set<int> *));
+
+                for (it = vval->begin(); it != vval->end(); ++it)
+                {
+                    x_vval.push_back(xmlrpc_c::value_int(*it));
+                }
+
+                plist.add(xmlrpc_c::value_array(x_vval));
                 break;
 
             default:
