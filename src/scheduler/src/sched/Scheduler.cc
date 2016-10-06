@@ -795,9 +795,9 @@ void Scheduler::match_schedule()
                 }
                 else
                 {
-                    log_match(vm->get_oid(), "Cannot schedule VM. "+m_error);
+                    log_match(vm->get_oid(), "Cannot schedule VM. "+ m_error);
 
-                    vm->log("Cannot schedule VM. "+m_error);
+                    vm->log("Cannot schedule VM. "+ m_error);
                     vmpool->update(vm);
 
                     continue;
@@ -1061,6 +1061,7 @@ void Scheduler::dispatch()
     VirtualMachineXML * vm;
 
     ostringstream dss;
+    string        error;
 
     int cpu, mem;
     long long dsk;
@@ -1069,6 +1070,7 @@ void Scheduler::dispatch()
     int hid, dsid, cid;
 
     unsigned int dispatched_vms = 0;
+    bool dispatched;
 
     map<int, unsigned int>  host_vms;
     pair<map<int,unsigned int>::iterator, bool> rc;
@@ -1091,6 +1093,8 @@ void Scheduler::dispatch()
             ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
          vm_it++)
     {
+        dispatched = false;
+
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
         const vector<Resource *> resources = vm->get_match_hosts();
@@ -1100,7 +1104,7 @@ void Scheduler::dispatch()
         //----------------------------------------------------------------------
         if (!resources.empty() && !vm->is_resched() && !vm->is_resume())
         {
-            if (vm->test_image_datastore_capacity(img_dspool) == false)
+            if (vm->test_image_datastore_capacity(img_dspool, error) == false)
             {
                 if (vm->is_public_cloud())//No capacity needed for public cloud
                 {
@@ -1108,6 +1112,10 @@ void Scheduler::dispatch()
                 }
                 else
                 {
+                    vm->log("Cannot dispatch VM. " + error);
+
+                    vmpool->update(vm);
+
                     continue;
                 }
             }
@@ -1275,14 +1283,25 @@ void Scheduler::dispatch()
 
             dispatched_vms++;
 
+            dispatched = true;
+
             break;
+        }
+
+        if (!dispatched)
+        {
+            vm->log("Cannot dispatch VM to any Host. Possible reasons: Not "
+                "enough capacity in Host or System DS, or dispatch limit "
+                "reached");
+            vmpool->update(vm);
         }
     }
 
     if (vm_it != pending_vms.end())
     {
         dss << endl << "MAX_DISPATCH limit of " << dispatch_limit << " reached, "
-            << std::distance(vm_it, pending_vms.end()) << " VMs were not dispatched";
+            << std::distance(vm_it, pending_vms.end())
+            << " VMs were not dispatched";
     }
 
     NebulaLog::log("SCHED", Log::DEBUG, dss);
