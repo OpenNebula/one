@@ -222,6 +222,85 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int master_allocate(const string& uname, const string& passwd,
+        const string& driver, string& error_str)
+{
+    Client * client = Client::client();
+
+    xmlrpc_c::value         result;
+    vector<xmlrpc_c::value> values;
+
+    std::ostringstream oss("Cannot allocate user at federation master: ",
+            std::ios::ate);
+    try
+    {
+        client->call("one.user.allocate", "sss", &result, uname, passwd, driver);
+    }
+    catch (exception const& e)
+    {
+        oss << e.what();
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    values = xmlrpc_c::value_array(result).vectorValueValue();
+
+    if ( xmlrpc_c::value_boolean(values[0]) == false )
+    {
+        std::string error_xml = xmlrpc_c::value_string(values[1]);
+
+        oss << error_xml;
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    int oid = xmlrpc_c::value_int(values[1]);
+
+    return oid;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static int master_chgrp(int user_id, int group_id, string& error_str)
+{
+    Client * client = Client::client();
+
+    xmlrpc_c::value         result;
+    vector<xmlrpc_c::value> values;
+
+    std::ostringstream oss("Cannot change user group at federation master: ",
+            std::ios::ate);
+    try
+    {
+        client->call("one.user.chgrp", "ii", &result, user_id, group_id);
+    }
+    catch (exception const& e)
+    {
+        oss << e.what();
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    values = xmlrpc_c::value_array(result).vectorValueValue();
+
+    if ( xmlrpc_c::value_boolean(values[0]) == false )
+    {
+        std::string error_xml = xmlrpc_c::value_string(values[1]);
+
+        oss << error_xml;
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    return 0;
+};
+
+/* -------------------------------------------------------------------------- */
+
 int UserPool::allocate (
     int *   oid,
     int     gid,
@@ -245,11 +324,23 @@ int UserPool::allocate (
 
     if (nd.is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "UserPool::allocate called, but this "
-                "OpenNebula is a federation slave");
+        *oid = master_allocate(uname, password, auth, error_str);
 
-        return -1;
+        if ( *oid < 0 )
+        {
+            NebulaLog::log("ONE", Log::ERROR, error_str);
+            return -1;
+        }
+
+        int rc = master_chgrp(*oid, gid, error_str);
+
+        if ( rc == -1 )
+        {
+
+            NebulaLog::log("ONE", Log::ERROR, error_str);
+        }
+
+        return *oid;
     }
 
     // Check username and password

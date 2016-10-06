@@ -311,7 +311,7 @@ class UserAllocate: public RequestManagerAllocate
 public:
     UserAllocate():
         RequestManagerAllocate("UserAllocate",
-                               "Returns user information",
+                               "Allocates a new user",
                                "A:ssss",
                                false)
     {
