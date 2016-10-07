@@ -107,7 +107,7 @@ define(function(require) {
       call: function(){
         selected = roleElements();
 
-        if(selected.lenght == 0){
+        if(selected.length == 0){
           return;
         }
 

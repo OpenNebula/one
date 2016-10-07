@@ -90,7 +90,7 @@ define(function(require) {
       "user" : this.userCreation.retrieve(context)
     };
 
-    if (user_json.user.gid == "-1" && user_json.user.gids.lenght != 0){
+    if (user_json.user.gid == "-1" && user_json.user.gids.length != 0){
       Sunstone.hideFormPanelLoading(this.tabId);
       Notifier.notifyError(Locale.tr("To define secondary groups you need to also set the main group"));
       return false;
