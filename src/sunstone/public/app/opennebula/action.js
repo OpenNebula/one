@@ -194,7 +194,11 @@ define(function(require) {
 
             if (callback) {
               //console.log(cache_name+" list. Callback called");
-              callback(request, list, response);
+              try{
+                callback(request, list, response);
+              }catch(err){
+                console.error(err);
+              }
             }
           }
 
