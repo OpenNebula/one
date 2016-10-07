@@ -117,7 +117,7 @@ def vmdk_info(file)
         return {
             :type   => :standalone,
             :file   => file_path,
-            :dir    => File.dirname(file_path),            
+            :dir    => File.dirname(file_path)            
         }
     when "application/x-iso9660-image"
         return {
