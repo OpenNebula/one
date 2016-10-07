@@ -198,7 +198,7 @@ define(function(require) {
 
     $('#'+that.idPrefix+'_username',context).attr('disabled','disabled').removeAttr('required');
     $('#'+that.idPrefix+'_pass',context).attr('disabled','disabled').removeAttr('required');
-    $('#'+that.idPrefix+'_confirm_password',context).attr('disabled','disabled').removeAttr('required');
+    $('#'+that.idPrefix+'_confirm_password',context).attr('disabled','disabled');
     $('#'+that.idPrefix+'_driver',context).attr('disabled','disabled').removeAttr('required');
     $('#'+that.idPrefix+'_custom_auth',context).attr('disabled','disabled').removeAttr('required');
   }
@@ -212,7 +212,7 @@ define(function(require) {
 
     $('#'+that.idPrefix+'_username',context).removeAttr("disabled").attr('required', '');
     $('#'+that.idPrefix+'_pass',context).removeAttr("disabled").attr('required', '');
-    $('#'+that.idPrefix+'_confirm_password',context).removeAttr("disabled").attr('required', '');
+    $('#'+that.idPrefix+'_confirm_password',context).removeAttr("disabled");
     $('#'+that.idPrefix+'_driver',context).removeAttr("disabled").attr('required', '');
     $('#'+that.idPrefix+'_custom_auth',context).removeAttr("disabled");
 
