@@ -967,12 +967,25 @@ define(function(require) {
     }, 13)
   }
 
+  /**
+   * Resets the form panel. The loading screen is shown, then the panel is reset
+   * and shown
+   *
+   * @param  {String} tabId TAB_ID. Optional, if it is not provided the current
+   *                        tab will be used
+   * @param  {String} formPanelId TAB_ID. Optional, if it is not provided the
+   *                        visible form panel will be used
+   */
   var _resetFormPanel = function(tabId, formPanelId) {
+    if (tabId == undefined){
+      tabId = _getTab()
+    }
+
     _popFormPanelLoading(tabId);
 
     setTimeout(function() {
       var formPanelInstance;
-      if (formPanelId) {
+      if (formPanelId != undefined) {
         formPanelInstance = SunstoneCfg["tabs"][tabId]['formPanelInstances'][formPanelId];
       } else {
         formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;

@@ -152,11 +152,11 @@ define(function(require) {
           success: function(request, response){
             OpenNebulaAction.clear_cache("VM");
 
-            Sunstone.resetFormPanel(TAB_ID, that.formPanelId);
-            Sunstone.hideFormPanel(TAB_ID);
+            Sunstone.resetFormPanel();
+            Sunstone.hideFormPanel();
           },
           error: function(request, response) {
-            Sunstone.hideFormPanelLoading(TAB_ID);
+            Sunstone.hideFormPanelLoading();
 
             Notifier.notifyError(Locale.tr(
               "Failed to create VMs. Virtual Router may need to be deleted manually."));
@@ -165,7 +165,7 @@ define(function(require) {
         });
       },
       error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
+        Sunstone.hideFormPanelLoading();
         Notifier.onError(request, response);
       },
     });
