@@ -77,8 +77,13 @@ define(function(require) {
       Tree.setup($('.labels-tree', context));
 
       var currentLabel = $('span[one-label-full-name="'+_getLabelsFilter(dataTable)+'"]', context);
-      currentLabel.parent(".labeltree-line").click();
-      currentLabel.parentsUntil(".labels-tree", "li").children(".tree-toggle").click();
+
+      if (currentLabel.length == 0){
+        _clearLabelsFilter(dataTable, labelsColumn);
+      }else{
+        currentLabel.parent(".labeltree-line").click();
+        currentLabel.parentsUntil(".labels-tree", "li").children(".tree-toggle").click();
+      }
     }
 
     /*
