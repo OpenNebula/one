@@ -41,6 +41,12 @@ def is_remote?(file)
     file.match(%r{^https?://})
 end
 
+def is_vmdk?(file)
+    type = %x{file #{file}}
+
+    type.include? "VMware"    
+end
+
 def get_type(file)
     type = %x{file -b --mime-type #{file}}
     if $?.exitstatus != 0
@@ -205,6 +211,7 @@ if is_remote?(file_path) || needs_unpack?(file_path)
     end
 
     delete_file = true
+    original_path = File.basename(file_path)
     file_path = temp_file
 end
 
@@ -220,7 +227,29 @@ when :flat
 end
 
 files_to_upload.each_with_index do |f, index|
-    path = "#{target_path}/#{File.basename(f)}"
+    path = "#{target_path}/#{File.basename(f)}"  
+
+    # Change path for gzipped standalone file
+    if(target_path == File.basename(f))
+        path = "#{target_path}/#{original_path}"
+        
+        # remove gz or bz2 if part of filename
+        if path.end_with?("gz") and is_vmdk?(f)
+            path.gsub!(/gz$/,'')              
+        end
+
+        if path.end_with?("bz2") and is_vmdk?(f)
+            path.gsub!(/bz2$/,'')              
+        end    
+    end        
+
+    # Change path if vmdk is part of filename 
+    # but it's not the extension' 
+    if /[^.]+vmdk$/.match(path) and is_vmdk?(f)
+        path.gsub!(/vmdk$/,'')
+        extension = '.vmdk'       
+    end
+
     if index == files_to_upload.size - 1
         uploader_args = hostname + " " + ds_name + " " +
             "#{path}#{extension}" + " " + f
