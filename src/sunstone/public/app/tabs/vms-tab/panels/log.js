@@ -96,7 +96,15 @@ define(function(require) {
 
       },
       error: function(request, error_json) {
-        $('.vm_log_container', context).html('');
+        $('.vm_log_container', context).html(
+          '<div class="row">' +
+            '<div class="large-12 columns vm_log_container monospace">' +
+              '<div class="text-center" style="height: 100px;">' +
+                '<span class="radius secondary label"><i class="fa fa-exclamation-triangle"></i> '+Locale.tr("Some ad-block extensions are known to filter the '/log?id=' URL")+'</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>');
+
         Notifier.onError(request, error_json);
       }
     });
