@@ -1,13 +1,5 @@
 {
   "name": "opennebula-sunstone",
-  "main": [
-    "dist/login.js",
-    "dist/login.js.map",
-    "dist/main.js",
-    "dist/main.js.map",
-    "css/app.min.css",
-    "css/login.css"
-  ],
   "dependencies": {
     "flot": "0.8.3",
     "jgrowl": "1.4.2",
