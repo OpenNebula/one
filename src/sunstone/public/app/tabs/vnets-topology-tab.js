@@ -278,6 +278,11 @@ define(function(require) {
 
           if (lease.VM != undefined) { //used by a VM
 
+            // Skip leases on hold
+            if (lease.VM == "-1"){
+              continue;
+            }
+
             var nodeId = "vm"+lease.VM;
 
             var edgeLabel = undefined;
@@ -348,10 +353,7 @@ define(function(require) {
           }
 
           /*
-          else if (lease.VM == "-1") { //hold
-          } else  else if (lease.VNET != undefined) { //used by a VNET Reservation
-          } else {
-          }
+          else if (lease.VNET != undefined) { //used by a VNET Reservation
           */
         }
       }
