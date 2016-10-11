@@ -107,6 +107,20 @@ define(function(require) {
         initValue: cluster_id_raw
       });
 
+    var vcenter_cluster = $("div#vcenter_cluster_wrapper .resource_list_select", dialog).val();
+    if (!vcenter_cluster) vcenter_cluster = undefined;
+
+    ResourceSelect.insert({
+        context: $('#vcenter_cluster_wrapper', dialog),
+        resourceName: 'Host',
+        initValue: vcenter_cluster,
+        emptyValue: true,
+        nameValues: true,
+        filterKey: 'VM_MAD',
+        filterValue: 'vcenter',
+        selectId: 'vcenter_cluster'
+      });
+
     return false;
   }
 
@@ -360,7 +374,7 @@ define(function(require) {
     $('label[for="iscsi_host"],input#iscsi_host', dialog).parent().hide();
     $('label[for="iscsi_user"],input#iscsi_user', dialog).parent().hide();
     $('label[for="iscsi_usage"],input#iscsi_usage', dialog).parent().hide();
-    $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().hide();
+    $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
 
@@ -486,7 +500,7 @@ define(function(require) {
     $('input#safe_dirs', dialog).attr('disabled', 'disabled');
     $('input#limit_mb', dialog).attr('disabled', 'disabled');
     $('input#restricted_dirs', dialog).attr('disabled', 'disabled');
-    $('label[for="vcenter_cluster"],input#vcenter_cluster', dialog).parent().fadeIn();
+    $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {

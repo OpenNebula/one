@@ -17,6 +17,7 @@
 define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var TemplateUtils = require('utils/template-utils');
   require('opennebula/cluster');
   require('opennebula/user');
   require('opennebula/group');
@@ -35,6 +36,8 @@ define(function(require) {
    * @param {string}  [opts.extraOptions] - Extra options to be included in the select as a HTML string
    * @param {string}  [opts.filterKey] - Select the resources whose filterKey matches filterValue
    * @param {string}  [opts.filterValue] - RegExp that will be evaluated to filter the resources
+   * @param {Boolean} [opts.nameValues] - Use the object NAME instead of the ID as the option values
+   * @param {string}  [opts.selectId] - Optional ID for the html select element
    */
   var _insert = function(opts) {
     var Resource = require('opennebula/' + opts.resourceName.toLowerCase());
@@ -43,7 +46,13 @@ define(function(require) {
     Resource.list({
       timeout: true,
       success: function (request, elemList) {
-        var selectHTML = '<select class="resource_list_select">';
+        var selectHTML;
+
+        if (opts.selectId != undefined){
+          selectHTML = '<select id="'+opts.selectId+'" class="resource_list_select">';
+        }else{
+          selectHTML = '<select class="resource_list_select">';
+        }
 
         if (opts.emptyValue) {
           selectHTML += '<option class="empty_value" value="">' +
@@ -70,11 +79,19 @@ define(function(require) {
           }
 
           if (add === true) {
-            selectHTML += '<option elem_id="' + elem.ID + '" value="' + elem.ID + '">';
+            var val;
+
+            if (opts.nameValues == true){
+              val = TemplateUtils.htmlDecode(elem.NAME);
+            }else{
+              val = elem.ID;
+            }
+
+            selectHTML += '<option elem_id="' + elem.ID + '" value="' + val + '">';
             if (!opts.onlyName) {
               selectHTML += elem.ID + ': ';
             }
-            selectHTML += elem.NAME + '</option>';
+            selectHTML += TemplateUtils.htmlDecode(elem.NAME) + '</option>';
           }
         });
 
