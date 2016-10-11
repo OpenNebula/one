@@ -24,6 +24,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var VCenterImages = require('utils/vcenter/images');
+  var ResourceSelect = require('utils/resource-select');
 
   /*
     TEMPLATES
@@ -65,6 +66,7 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
+  FormPanel.prototype.reInitForm = _reInitForm;
 
   return FormPanel;
 
@@ -79,7 +81,7 @@ define(function(require) {
     });
   }
 
-  function _setup(context) {
+  function _reInitForm(context) {
     var that = this;
 
     $("form.vcenter_credentials", context)
@@ -110,7 +112,10 @@ define(function(require) {
       .on("submit", function(ev) {
         ev.preventDefault();
       });
+  }
 
+  function _setup(context) {
+    this.reInitForm(context);
     return false;
   }
 
@@ -125,5 +130,24 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    var that = this;
+
+    var vcenter_datastore = $("div#vcenter_datastore_wrapper .resource_list_select", context).val();
+    if (!vcenter_datastore) vcenter_datastore = undefined;
+
+    ResourceSelect.insert({
+        context: $('#vcenter_datastore_wrapper', context),
+        resourceName: 'Datastore',
+        initValue: vcenter_datastore,
+        emptyValue: true,
+        nameValues: true,
+        filterKey: 'DS_MAD',
+        filterValue: 'vcenter',
+        selectId: 'vcenter_datastore',
+        required: true,
+        callback: function(element){
+          that.reInitForm(context);
+        }
+      });
   }
 });

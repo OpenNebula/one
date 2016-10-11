@@ -38,6 +38,9 @@ define(function(require) {
    * @param {string}  [opts.filterValue] - RegExp that will be evaluated to filter the resources
    * @param {Boolean} [opts.nameValues] - Use the object NAME instead of the ID as the option values
    * @param {string}  [opts.selectId] - Optional ID for the html select element
+   * @param {Boolean} [opts.required] - True to make the html select required
+   * @param {function}[opts.callback] - Callback function to call after the select element is
+   *                                    added to the DOM
    */
   var _insert = function(opts) {
     var Resource = require('opennebula/' + opts.resourceName.toLowerCase());
@@ -46,13 +49,19 @@ define(function(require) {
     Resource.list({
       timeout: true,
       success: function (request, elemList) {
-        var selectHTML;
+        var elemId = '';
 
         if (opts.selectId != undefined){
-          selectHTML = '<select id="'+opts.selectId+'" class="resource_list_select">';
-        }else{
-          selectHTML = '<select class="resource_list_select">';
+          elemId = 'id="'+opts.selectId+'"';
         }
+
+        var required = '';
+
+        if (opts.required == true){
+          required = 'required';
+        }
+
+        var selectHTML = '<select '+elemId+' '+required+' class="resource_list_select">';
 
         if (opts.emptyValue) {
           selectHTML += '<option class="empty_value" value="">' +
@@ -104,6 +113,10 @@ define(function(require) {
         }
         if (opts.triggerChange === true) {
           $(' .resource_list_select', opts.context).change();
+        }
+
+        if(opts.callback() != undefined){
+          opts.callback($('.resource_list_select', opts.context));
         }
       },
       error: Notifier.onError
