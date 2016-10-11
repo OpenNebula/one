@@ -115,7 +115,7 @@ define(function(require) {
           $(' .resource_list_select', opts.context).change();
         }
 
-        if(opts.callback() != undefined){
+        if(opts.callback != undefined){
           opts.callback($('.resource_list_select', opts.context));
         }
       },
