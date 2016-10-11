@@ -27,6 +27,7 @@ define(function(require) {
   var OpenNebulaAction = require('opennebula/action');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
+  var Navigation = require('utils/navigation');
 
   /*
     TEMPLATES
@@ -153,7 +154,9 @@ define(function(require) {
           data: dataJSON,
           success: function(request, response) {
             OpenNebulaAction.clear_cache("VM");
-            Notifier.notifyCustom(Locale.tr("VM imported"), " ID: " + response.VM.ID, false);
+            Notifier.notifyCustom(Locale.tr("VM imported"),
+              Navigation.link(" ID: " + response.VM.ID, "vms-tab", response.VM.ID),
+              false);
 
             // Delete row (shouldn't be there in next monitorization)
             that.dataTableWildHosts.fnDeleteRow(wild_row);

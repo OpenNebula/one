@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/marketplaceapp');
   var OpenNebula = require('opennebula');
   var OpenNebulaAction = require('opennebula/action');
+  var Navigation = require('utils/navigation');
 
   var RESOURCE = "MarketPlaceApp";
   var XML_ROOT = "MARKETPLACEAPP";
@@ -63,7 +64,9 @@ define(function(require) {
             if (image.error != undefined){
               Notifier.notifyError(image.error.message);
             } else {
-              Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + image.ID, false);
+              Notifier.notifyCustom(Locale.tr("Image created"),
+                Navigation.link(" ID: " + image.ID, "images-tab", image.ID),
+                false);
             }
           });
         };
@@ -73,7 +76,9 @@ define(function(require) {
             if (vmTemplate.error != undefined) {
               Notifier.notifyError(vmTemplate.error.message);
             } else if (vmTemplate.ID != -1) {
-              Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + vmTemplate.ID, false);
+              Notifier.notifyCustom(Locale.tr("VM Template created"),
+                Navigation.link(" ID: " + vmTemplate.ID, "templates-tab", vmTemplate.ID),
+                false);
             }
           });
         };

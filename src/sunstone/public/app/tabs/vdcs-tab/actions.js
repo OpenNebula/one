@@ -21,6 +21,7 @@ define(function(require) {
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/vdc');
   var CommonActions = require('utils/common-actions');
+  var Navigation = require('utils/navigation');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -100,7 +101,9 @@ define(function(require) {
         // actions end, showing "outdated" information
 
         Sunstone.runAction(RESOURCE+'.refresh');
-        Notifier.notifyCustom(Locale.tr("VDC created"), " ID: " + response.VDC.ID, false);
+        Notifier.notifyCustom(Locale.tr("VDC created"),
+          Navigation.link(" ID: " + response.VDC.ID, "vdcs-tab", response.VDC.ID),
+          false);
       },
       error: function(request, response){
         Sunstone.hideFormPanelLoading(TAB_ID);

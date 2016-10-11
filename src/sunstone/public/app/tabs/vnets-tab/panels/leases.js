@@ -87,13 +87,13 @@ define(function(require) {
           }
         } else if (lease.VM != undefined) { //used by a VM
           col0HTML = '<i class="primary-color fa fa-square"/>';
-          col1HTML = Locale.tr("VM:") + lease.VM;
+          col1HTML = Navigation.link(Locale.tr("VM:") + lease.VM, "vms-tab", lease.VM);
         } else if (lease.VNET != undefined) { //used by a VNET
           col0HTML = '<i class="warning-color fa fa-square"/>';
-          col1HTML = Locale.tr("NET:") + lease.VNET;
+          col1HTML = Navigation.link(Locale.tr("NET:") + lease.VNET, "vnets-tab", lease.VNET);
         } else if (lease.VROUTER != undefined) { //used by a VR
           col0HTML = '<i class="success-color fa fa-square"/>';
-          col1HTML = Locale.tr("VR:") + lease.VROUTER;
+          col1HTML = Navigation.link(Locale.tr("VR:") + lease.VROUTER, "vrouters-tab", lease.VROUTER);
         } else {
           col0HTML = '<i class="primary-color fa fa-square"/>';
           col1HTML = '--';

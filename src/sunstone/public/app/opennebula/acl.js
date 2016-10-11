@@ -29,6 +29,9 @@ define(function(require) {
     },
     "list" : function(params) {
       OpenNebulaAction.list(params, RESOURCE);
+    },
+    "getName": function(id){
+      return "";
     }
   }
 

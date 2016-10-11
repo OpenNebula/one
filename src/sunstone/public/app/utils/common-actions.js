@@ -18,6 +18,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var Navigation = require('utils/navigation');
 
   /*
     CONSTRUCTOR
@@ -154,7 +155,13 @@ define(function(require) {
         Sunstone.hideFormPanel(that.tabId);
         that.refresh();
 
-        Notifier.notifyCustom(that.createdStr, " ID: " + response[that.xmlRoot].ID, false);
+        if (response[that.xmlRoot].ID != undefined){
+          Notifier.notifyCustom(that.createdStr,
+            Navigation.link(" ID: " + response[that.xmlRoot].ID, that.tabId, response[that.xmlRoot].ID),
+            false);
+        }else{
+          Notifier.notifyCustom(that.createdStr, "", false);
+        }
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(that.tabId);

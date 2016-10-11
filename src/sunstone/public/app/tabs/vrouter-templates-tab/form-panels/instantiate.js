@@ -31,6 +31,7 @@ define(function(require) {
   var OpenNebulaAction = require('opennebula/action');
   var Notifier = require('utils/notifier');
   var Config = require('sunstone-config');
+  var Navigation = require('utils/navigation');
 
   /*
     TEMPLATES
@@ -141,7 +142,9 @@ define(function(require) {
           'template': tmpl
         };
 
-        Notifier.notifyCustom(Locale.tr("Virtual Router created"), " ID: " + response.VROUTER.ID, false);
+        Notifier.notifyCustom(Locale.tr("Virtual Router created"),
+          Navigation.link(" ID: " + response.VROUTER.ID, "vrouters-tab", response.VROUTER.ID),
+          false);
 
         OpenNebulaVirtualRouter.instantiate({
           data:{

@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
   var CommonActions = require('utils/common-actions');
+  var Navigation = require('utils/navigation');
 
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
@@ -61,7 +62,9 @@ define(function(require) {
         Sunstone.hideFormPanel(TAB_ID);
         Sunstone.runAction("Cluster.refresh");
 
-        Notifier.notifyCustom(Locale.tr("Cluster created"), " ID: " + response[XML_ROOT].ID, false);
+        Notifier.notifyCustom(Locale.tr("Cluster created"),
+          Navigation.link(" ID: " + response[XML_ROOT].ID, TAB_ID, response[XML_ROOT].ID),
+          false);
       },
       error: function(request, response){
         Sunstone.hideFormPanelLoading(TAB_ID);

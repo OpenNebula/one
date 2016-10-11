@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebula = require('opennebula');
   var OpenNebulaAction = require('opennebula/action');
   var CommonActions = require('utils/common-actions');
+  var Navigation = require('utils/navigation');
 
   var RESOURCE = "Image";
   var XML_ROOT = "IMAGE";
@@ -126,7 +127,9 @@ define(function(require) {
       call: OpenNebulaResource.clone,
       callback: function(request, response) {
         OpenNebulaAction.clear_cache("IMAGE");
-        Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + response.IMAGE.ID, false);
+        Notifier.notifyCustom(Locale.tr("Image created"),
+          Navigation.link(" ID: " + response.IMAGE.ID, TAB_ID, response.IMAGE.ID),
+          false);
       },
       error: Notifier.onError,
       notify: true

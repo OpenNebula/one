@@ -375,7 +375,7 @@ define(function(require) {
 
           var new_tr = '<tr>\
                   <td>' + this.SECURITY_GROUP_ID + '</td>\
-                  <td>' + this.SECURITY_GROUP_NAME + '</td>\
+                  <td>' + Navigation.link(this.SECURITY_GROUP_NAME, "secgroups-tab", this.SECURITY_GROUP_ID) + '</td>\
                   <td>' + rule_st.PROTOCOL + '</td>\
                   <td>' + rule_st.RULE_TYPE + '</td>\
                   <td>' + rule_st.RANGE + '</td>\

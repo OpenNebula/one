@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/servicetemplate');
   var CommonActions = require('utils/common-actions');
   var OpenNebulaAction = require('opennebula/action');
+  var Navigation = require('utils/navigation');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -66,7 +67,9 @@ define(function(require) {
         Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("SERVICE");
 
-        Notifier.notifyCustom(Locale.tr("Service created"), " ID: " + response.DOCUMENT.ID, false);
+        Notifier.notifyCustom(Locale.tr("Service created"),
+          Navigation.link(" ID: " + response.DOCUMENT.ID, "oneflow-services-tab", response.DOCUMENT.ID),
+          false);
       },
       elements: function(opts) {
         return Sunstone.getDataTable(TAB_ID).elements(opts);

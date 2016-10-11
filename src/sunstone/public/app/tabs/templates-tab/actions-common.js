@@ -21,6 +21,7 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/template');
   var CommonActions = require('utils/common-actions');
   var OpenNebulaAction = require('opennebula/action');
+  var Navigation = require('utils/navigation');
 
   var XML_ROOT = "VMTEMPLATE"
 
@@ -157,7 +158,9 @@ define(function(require) {
           Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
-          Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
+          Notifier.notifyCustom(Locale.tr("VM created"),
+            Navigation.link(" ID: " + response, "vms-tab", response),
+            false);
         },
         elements: function(opts) {
           return Sunstone.getDataTable(TAB_ID).elements(opts);
@@ -202,7 +205,9 @@ define(function(require) {
           Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
-          Notifier.notifyCustom(Locale.tr("VM created"), " ID: " + response, false);
+          Notifier.notifyCustom(Locale.tr("VM created"),
+            Navigation.link(" ID: " + response, "vms-tab", response),
+            false);
         },
         error: function(request, response){
           // without tab id param to work for both templates and vms tab
@@ -226,7 +231,9 @@ define(function(require) {
         call: OpenNebulaResource.clone,
         callback: function(request, response) {
           OpenNebulaAction.clear_cache("VMTEMPLATE");
-          Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + response.VMTEMPLATE.ID, false);
+          Notifier.notifyCustom(Locale.tr("VM Template created"),
+            Navigation.link(" ID: " + response.VMTEMPLATE.ID, "templates-tab", response.VMTEMPLATE.ID),
+            false);
         },
         error: Notifier.onError,
         notify: true
@@ -237,7 +244,9 @@ define(function(require) {
         call: OpenNebulaResource.clone_recursive,
         callback : function(request, response) {
           OpenNebulaAction.clear_cache("VMTEMPLATE");
-          Notifier.notifyCustom(Locale.tr("VM Template created"), " ID: " + response.VMTEMPLATE.ID, false);
+          Notifier.notifyCustom(Locale.tr("VM Template created"),
+            Navigation.link(" ID: " + response.VMTEMPLATE.ID, "templates-tab", response.VMTEMPLATE.ID),
+            false);
         },
         error: Notifier.onError,
         notify: true

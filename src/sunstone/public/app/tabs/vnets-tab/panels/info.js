@@ -24,6 +24,7 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var OpenNebulaNetwork = require('opennebula/network');
+  var Navigation = require('utils/navigation');
 
   /*
     TEMPLATES
@@ -94,7 +95,7 @@ define(function(require) {
       reservationTrHTML =
         '<tr>\
           <td class="key_td">'+Locale.tr("Reservation parent")+'</td>\
-          <td class="value_td">'+this.element.PARENT_NETWORK_ID+'</td>\
+          <td class="value_td">'+Navigation.link(OpenNebulaNetwork.getName(this.element.PARENT_NETWORK_ID), "vnets-tab", this.element.PARENT_NETWORK_ID)+'</td>\
           <td></td>\
         </tr>';
 

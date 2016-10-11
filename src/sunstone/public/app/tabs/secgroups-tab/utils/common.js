@@ -24,6 +24,7 @@ define(function(require) {
    */
 
   var Locale = require('utils/locale');
+  var Navigation = require('utils/navigation');
 
   /*
   @param {Object} rule Object representing the rule as returned by OpenNebula
@@ -91,7 +92,7 @@ define(function(require) {
     var network = "";
 
     if(rule.NETWORK_ID != undefined && rule.NETWORK_ID != ""){
-      network += (Locale.tr("Virtual Network") + " " + rule.NETWORK_ID);
+      network += Navigation.link(Locale.tr("Virtual Network") + " " + rule.NETWORK_ID, "vnets-tab", rule.NETWORK_ID);
     }
 
     if(rule.SIZE != undefined && rule.SIZE != ""){
