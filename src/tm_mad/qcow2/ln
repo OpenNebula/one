@@ -111,7 +111,7 @@ fi
 
 ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
 
-$RM -f "${DST_PATH}.snap"
+$RM -rf "${DST_PATH}.snap"
 ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
 EOT
 )
