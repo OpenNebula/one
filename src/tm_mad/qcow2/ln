@@ -109,9 +109,12 @@ if [ -z "\${SNAP}" ]; then
     ln -sf "$SRC_PATH" "$SNAP_DIR/0"
 fi
 
+rm -f "${DST_PATH}"
+
 ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
 
-$RM -rf "${DST_PATH}.snap"
+rm -rf "${DST_PATH}.snap"
+
 ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
 EOT
 )

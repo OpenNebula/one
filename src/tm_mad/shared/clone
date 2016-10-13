@@ -98,6 +98,7 @@ fi
 log "Cloning $SRC_PATH in $DST"
 
 CLONE_CMD="cd ${DST_DIR}; \
+    rm -f ${DST_PATH}; \
     cp ${SRC_PATH} ${DST_PATH} \
     ${RESIZE_CMD}"
 
