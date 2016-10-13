@@ -48,7 +48,7 @@ delete_file=$(cat <<EOF
 [ -e "$DST_PATH" ] || exit 0
 
 times=10
-function="rm -rf $DST_PATH{,.snap}"
+function="rm -rf $DST_PATH"
 
 count=1
 
