@@ -768,7 +768,7 @@ void PoolSQL::usr_filter(int                uid,
     {
         uid_filter << "uid = " << uid;
     }
-    if ( filter_flag == RequestManagerPoolInfoFilter::GROUP )
+    else if ( filter_flag == RequestManagerPoolInfoFilter::GROUP )
     {
         uid_filter << "gid = " << gid;
     }
