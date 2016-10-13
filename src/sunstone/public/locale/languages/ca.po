@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-03 12:26+0200\n"
-"PO-Revision-Date: 2016-09-26 08:59+0000\n"
+"POT-Creation-Date: 2016-10-13 10:54+0200\n"
+"PO-Revision-Date: 2016-10-13 10:03+0000\n"
 "Last-Translator: Carlos Martín <cmartin@opennebula.org>\n"
 "Language-Team: Catalan (http://www.transifex.com/opennebula/one/language/ca/)\n"
 "Language: ca\n"
@@ -114,7 +114,7 @@ msgid "Quotas"
 msgstr "Quotes"
 
 #: ../app/tabs/groups-tab/buttons.js:42 ../app/tabs/vdcs-tab/buttons.js:38
-#: ../app/tabs/templates-tab/actions-common.js:59
+#: ../app/tabs/templates-tab/actions-common.js:60
 #: ../app/tabs/templates-tab/buttons.js:81
 #: ../app/tabs/vrouters-tab/buttons.js:52 ../app/tabs/zones-tab/buttons.js:33
 #: ../app/tabs/provision-tab/templates/list.js:173
@@ -338,7 +338,7 @@ msgstr "Ha seleccionat els següents grups:"
 #: ../app/tabs/marketplaces-tab/panels/info.js:48
 #: ../app/tabs/oneflow-services-tab/panels/info.js:47
 #: ../app/tabs/secgroups-tab/panels/info.js:49
-#: ../app/tabs/vnets-tab/panels/info.js:48
+#: ../app/tabs/vnets-tab/panels/info.js:49
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:50
 #: ../app/tabs/clusters-tab/panels/info.js:46
 #: ../app/tabs/users-tab/panels/info-common.js:51
@@ -355,7 +355,7 @@ msgstr "Informació"
 #: ../app/tabs/datastores-tab/panels/info.js:72
 #: ../app/tabs/marketplaces-tab/panels/info.js:71
 #: ../app/tabs/secgroups-tab/panels/info.js:84
-#: ../app/tabs/vnets-tab/panels/info.js:87
+#: ../app/tabs/vnets-tab/panels/info.js:88
 #: ../app/tabs/marketplaceapps-tab/panels/info.js:76
 #: ../app/tabs/clusters-tab/panels/info.js:82
 #: ../app/tabs/users-tab/panels/info-common.js:77
@@ -419,7 +419,7 @@ msgstr ""
 msgid "View designed to present the valid operations over a vCenter infrastructure to a cloud consumer"
 msgstr ""
 
-#: ../app/tabs/vdcs-tab/actions.js:32 ../app/tabs/vdcs-tab/actions.js:103
+#: ../app/tabs/vdcs-tab/actions.js:33 ../app/tabs/vdcs-tab/actions.js:104
 msgid "VDC created"
 msgstr "VDC creat"
 
@@ -491,9 +491,9 @@ msgstr "Has seleccionat els següents VDCs:"
 #: ../app/tabs/acls-tab/form-panels/create.js:304
 #: ../app/tabs/acls-tab/datatable.js:211 ../app/tabs/acls-tab/datatable.js:229
 #: ../app/tabs/acls-tab/datatable.js:256
-#: ../app/tabs/secgroups-tab/utils/common.js:55
-#: ../app/tabs/secgroups-tab/utils/common.js:88
-#: ../app/tabs/secgroups-tab/utils/common.js:122
+#: ../app/tabs/secgroups-tab/utils/common.js:56
+#: ../app/tabs/secgroups-tab/utils/common.js:89
+#: ../app/tabs/secgroups-tab/utils/common.js:123
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:31
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:45
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:59
@@ -537,7 +537,7 @@ msgstr "Instanciar Plantilla VM"
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:58
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:57
 #: ../app/tabs/oneflow-templates-tab/buttons.js:38
-#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:59
 #: ../app/tabs/vrouter-templates-tab/buttons.js:30
 msgid "Instantiate"
 msgstr "Instanciar"
@@ -549,7 +549,7 @@ msgstr "Plantilla no seleccionada"
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:270
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
 #: ../app/tabs/provision-tab.js:966 ../app/tabs/provision-tab.js:1212
-#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:194
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:197
 #: ../app/utils/user-inputs.js:227
 msgid "Custom Attributes"
 msgstr "Atributs personalitzats"
@@ -564,7 +564,7 @@ msgstr "Importar Plantilles VM de vCenter"
 #: ../app/tabs/datastores-tab/buttons.js:33
 #: ../app/tabs/vnets-tab/form-panels/import.js:51
 #: ../app/tabs/vnets-tab/buttons.js:33
-#: ../app/tabs/images-tab/form-panels/import.js:51
+#: ../app/tabs/images-tab/form-panels/import.js:52
 #: ../app/tabs/images-tab/buttons.js:37
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:113
 msgid "Import"
@@ -598,7 +598,7 @@ msgid "Scheduling"
 msgstr "Programació"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/utils.js:52
-#: ../app/utils/resource-select.js:50
+#: ../app/utils/resource-select.js:68
 msgid "Please select"
 msgstr "Si us plau, seleccioni"
 
@@ -710,23 +710,23 @@ msgstr ""
 msgid "Which resource pool you want this VM to run in?"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:39
-#: ../app/tabs/templates-tab/actions-common.js:229
-#: ../app/tabs/templates-tab/actions-common.js:240
-#: ../app/tabs/marketplaceapps-tab/actions.js:76
+#: ../app/tabs/templates-tab/actions-common.js:40
+#: ../app/tabs/templates-tab/actions-common.js:234
+#: ../app/tabs/templates-tab/actions-common.js:247
+#: ../app/tabs/marketplaceapps-tab/actions.js:79
 msgid "VM Template created"
 msgstr "Plantilla VM creada"
 
-#: ../app/tabs/templates-tab/actions-common.js:55
+#: ../app/tabs/templates-tab/actions-common.js:56
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
 msgstr ""
 
-#: ../app/tabs/templates-tab/actions-common.js:58
+#: ../app/tabs/templates-tab/actions-common.js:59
 msgid "Delete all images"
 msgstr "Eliminar totes les imatges"
 
-#: ../app/tabs/templates-tab/actions-common.js:160
-#: ../app/tabs/templates-tab/actions-common.js:205
+#: ../app/tabs/templates-tab/actions-common.js:161
+#: ../app/tabs/templates-tab/actions-common.js:208
 #: ../app/tabs/vms-tab/actions.js:40
 msgid "VM created"
 msgstr "VM creada"
@@ -915,7 +915,7 @@ msgid "System"
 msgstr "Sistema"
 
 #: ../app/tabs/vrouters-tab/actions.js:32
-#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:144
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:145
 msgid "Virtual Router created"
 msgstr "Router Virtual creat"
 
@@ -1153,21 +1153,21 @@ msgstr "PCI"
 msgid "Zombies"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/wilds.js:49
+#: ../app/tabs/hosts-tab/panels/wilds.js:50
 msgid "Wilds"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/wilds.js:156
+#: ../app/tabs/hosts-tab/panels/wilds.js:157
 msgid "VM imported"
 msgstr "VM importada"
 
-#: ../app/tabs/hosts-tab/panels/wilds.js:162
-#: ../app/tabs/hosts-tab/panels/wilds.js:175
+#: ../app/tabs/hosts-tab/panels/wilds.js:165
+#: ../app/tabs/hosts-tab/panels/wilds.js:178
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:19
 msgid "Import Wilds"
 msgstr ""
 
-#: ../app/tabs/hosts-tab/panels/wilds.js:169 ../app/utils/notifier.js:74
+#: ../app/tabs/hosts-tab/panels/wilds.js:172 ../app/utils/notifier.js:74
 #: ../app/utils/vcenter/images.js:188 ../app/utils/vcenter/templates.js:243
 #: ../app/utils/vcenter/datastores.js:182 ../app/utils/vcenter/networks.js:285
 #: ../app/utils/vcenter/clusters.js:195
@@ -1468,7 +1468,7 @@ msgstr "FET"
 msgid "Virtual Networks"
 msgstr "Xarxes Virtuals"
 
-#: ../app/tabs/vnets-tab.js:57 ../app/tabs/secgroups-tab/utils/common.js:94
+#: ../app/tabs/vnets-tab.js:57 ../app/tabs/secgroups-tab/utils/common.js:95
 msgid "Virtual Network"
 msgstr "Xarxa Virtual"
 
@@ -1622,11 +1622,11 @@ msgstr "Usuari"
 msgid "Cluster ID"
 msgstr "ID Cluster "
 
-#: ../app/tabs/oneflow-templates-tab/actions.js:33
+#: ../app/tabs/oneflow-templates-tab/actions.js:34
 msgid "Service Template created"
 msgstr "Plantilla de Servei creada"
 
-#: ../app/tabs/oneflow-templates-tab/actions.js:69
+#: ../app/tabs/oneflow-templates-tab/actions.js:70
 #: ../app/tabs/oneflow-services-tab/actions.js:35
 msgid "Service created"
 msgstr "Servei creat"
@@ -1674,7 +1674,7 @@ msgstr "Datastore creat"
 msgid "Create Datastore"
 msgstr "Crear datastore"
 
-#: ../app/tabs/datastores-tab/form-panels/create.js:365
+#: ../app/tabs/datastores-tab/form-panels/create.js:342
 msgid "Please select a cluster for this datastore"
 msgstr ""
 
@@ -1719,11 +1719,9 @@ msgstr "DS MAD"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other/html.hbs:24
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:21
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:24
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:109
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:29
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:37
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:91
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:132
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:51
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:45
@@ -2071,7 +2069,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/info.hbs:60
 #: ../app/tabs/provision-tab/vms/confirm_terminate.hbs:18
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:82
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:204
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:140
 msgid "Terminate"
 msgstr ""
 
@@ -2146,44 +2144,44 @@ msgstr ""
 msgid "You selected the following security groups:"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/utils/common.js:43
+#: ../app/tabs/secgroups-tab/utils/common.js:44
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
 msgstr "TCP"
 
-#: ../app/tabs/secgroups-tab/utils/common.js:46
+#: ../app/tabs/secgroups-tab/utils/common.js:47
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
 msgstr "UDP"
 
-#: ../app/tabs/secgroups-tab/utils/common.js:49
+#: ../app/tabs/secgroups-tab/utils/common.js:50
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
 msgid "ICMP"
 msgstr "ICMP"
 
-#: ../app/tabs/secgroups-tab/utils/common.js:52
+#: ../app/tabs/secgroups-tab/utils/common.js:53
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "IPsec"
 msgstr "IPsec"
 
-#: ../app/tabs/secgroups-tab/utils/common.js:67
+#: ../app/tabs/secgroups-tab/utils/common.js:68
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/utils/common.js:70
+#: ../app/tabs/secgroups-tab/utils/common.js:71
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/utils/common.js:103
-#: ../app/tabs/secgroups-tab/utils/common.js:105
+#: ../app/tabs/secgroups-tab/utils/common.js:104
+#: ../app/tabs/secgroups-tab/utils/common.js:106
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:61
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:46
 msgid "Start"
 msgstr ""
 
-#: ../app/tabs/secgroups-tab/utils/common.js:108
+#: ../app/tabs/secgroups-tab/utils/common.js:109
 #: ../app/tabs/vnets-tab/panels/ar.js:310
 #: ../app/tabs/marketplaceapps-tab/datatable.js:88
 #: ../app/tabs/images-tab/datatable-common.js:70
@@ -2197,7 +2195,7 @@ msgstr ""
 msgid "Size"
 msgstr "Tamany"
 
-#: ../app/tabs/secgroups-tab/utils/common.js:112
+#: ../app/tabs/secgroups-tab/utils/common.js:113
 #: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
 msgstr ""
@@ -2292,12 +2290,12 @@ msgstr "Si"
 msgid "No"
 msgstr "No"
 
-#: ../app/tabs/vnets-tab/panels/info.js:96
+#: ../app/tabs/vnets-tab/panels/info.js:97
 #: ../app/tabs/vnets-tab/datatable/search.hbs:28
 msgid "Reservation parent"
 msgstr ""
 
-#: ../app/tabs/vnets-tab/panels/info.js:103
+#: ../app/tabs/vnets-tab/panels/info.js:104
 msgid "This Network is already a reservation"
 msgstr ""
 
@@ -2393,30 +2391,30 @@ msgstr ""
 msgid "App"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:34
+#: ../app/tabs/marketplaceapps-tab/actions.js:35
 msgid "MarketPlace App created"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:66
-#: ../app/tabs/images-tab/actions.js:37 ../app/tabs/images-tab/actions.js:129
+#: ../app/tabs/marketplaceapps-tab/actions.js:67
+#: ../app/tabs/images-tab/actions.js:38 ../app/tabs/images-tab/actions.js:130
 msgid "Image created"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:125
-#: ../app/tabs/images-tab/actions.js:93
+#: ../app/tabs/marketplaceapps-tab/actions.js:130
+#: ../app/tabs/images-tab/actions.js:94
 msgid "Error"
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:128
+#: ../app/tabs/marketplaceapps-tab/actions.js:133
 msgid "This MarketPlace App resides in Zone "
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:130
+#: ../app/tabs/marketplaceapps-tab/actions.js:135
 msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
 msgstr ""
 
-#: ../app/tabs/marketplaceapps-tab/actions.js:133
-#: ../app/tabs/images-tab/actions.js:100
+#: ../app/tabs/marketplaceapps-tab/actions.js:138
+#: ../app/tabs/images-tab/actions.js:101
 msgid "Ok"
 msgstr ""
 
@@ -2486,11 +2484,11 @@ msgstr ""
 msgid "Virtual Router"
 msgstr ""
 
-#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:57
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:58
 msgid "Instantiate Virtual Router Template"
 msgstr ""
 
-#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:162
+#: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:165
 msgid "Failed to create VMs. Virtual Router may need to be deleted manually."
 msgstr ""
 
@@ -2499,8 +2497,8 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Tauler"
 
-#: ../app/tabs/clusters-tab/actions.js:32
-#: ../app/tabs/clusters-tab/actions.js:64
+#: ../app/tabs/clusters-tab/actions.js:33
+#: ../app/tabs/clusters-tab/actions.js:65
 msgid "Cluster created"
 msgstr ""
 
@@ -2653,7 +2651,7 @@ msgid "Settings"
 msgstr ""
 
 #: ../app/tabs/vms-tab.js:70 ../app/tabs/vms-tab/dialogs/migrate.js:138
-#: ../app/tabs/vnets-topology-tab.js:527
+#: ../app/tabs/vnets-topology-tab.js:529
 #: ../app/utils/quotas/quota-widgets.js:1165 ../app/utils/accounting.js:375
 #: ../app/tabs/hosts-tab/panels/pci/html.hbs:22
 #: ../app/utils/accounting/html.hbs:31
@@ -2859,6 +2857,10 @@ msgstr "Afegir"
 
 #: ../app/tabs/vms-tab/panels/actions.js:192
 msgid "No actions to show"
+msgstr ""
+
+#: ../app/tabs/vms-tab/panels/log.js:103
+msgid "Some ad-block extensions are known to filter the '/log?id=' URL"
 msgstr ""
 
 #: ../app/tabs/vms-tab/panels/info.js:87
@@ -3150,15 +3152,15 @@ msgstr ""
 msgid "Virtual Data Center"
 msgstr ""
 
-#: ../app/tabs/images-tab/actions.js:72
+#: ../app/tabs/images-tab/actions.js:73
 msgid "Please select one (and just one) Image to export."
 msgstr ""
 
-#: ../app/tabs/images-tab/actions.js:95
+#: ../app/tabs/images-tab/actions.js:96
 msgid "This Image resides in Datastore "
 msgstr ""
 
-#: ../app/tabs/images-tab/actions.js:97
+#: ../app/tabs/images-tab/actions.js:98
 msgid ". The export action is not supported for that Datastore DS_MAD driver."
 msgstr ""
 
@@ -3187,7 +3189,7 @@ msgstr ""
 msgid "Registering in OpenNebula"
 msgstr ""
 
-#: ../app/tabs/images-tab/form-panels/import.js:50
+#: ../app/tabs/images-tab/form-panels/import.js:51
 msgid "Import vCenter Images"
 msgstr ""
 
@@ -3282,7 +3284,7 @@ msgstr ""
 msgid "Network Topology"
 msgstr ""
 
-#: ../app/tabs/vnets-topology-tab.js:530
+#: ../app/tabs/vnets-topology-tab.js:532
 #: ../app/utils/quotas/quota-widgets.js:1168
 msgid "VNet"
 msgstr ""
@@ -3291,7 +3293,7 @@ msgstr ""
 msgid "Submitting..."
 msgstr ""
 
-#: ../app/sunstone.js:1059 ../app/sunstone.js:1060
+#: ../app/sunstone.js:1072 ../app/sunstone.js:1073
 msgid "Loading..."
 msgstr ""
 
@@ -3527,51 +3529,51 @@ msgstr ""
 msgid "Date UTC"
 msgstr ""
 
-#: ../app/utils/locale.js:43
+#: ../app/utils/locale.js:42
 msgid "January"
 msgstr ""
 
-#: ../app/utils/locale.js:43
+#: ../app/utils/locale.js:42
 msgid "February"
 msgstr ""
 
-#: ../app/utils/locale.js:43
+#: ../app/utils/locale.js:42
 msgid "March"
 msgstr ""
 
-#: ../app/utils/locale.js:43
+#: ../app/utils/locale.js:42
 msgid "April"
 msgstr ""
 
-#: ../app/utils/locale.js:43
+#: ../app/utils/locale.js:42
 msgid "May"
 msgstr ""
 
-#: ../app/utils/locale.js:44
+#: ../app/utils/locale.js:43
 msgid "June"
 msgstr ""
 
-#: ../app/utils/locale.js:44
+#: ../app/utils/locale.js:43
 msgid "July"
 msgstr ""
 
-#: ../app/utils/locale.js:44
+#: ../app/utils/locale.js:43
 msgid "August"
 msgstr ""
 
-#: ../app/utils/locale.js:44
+#: ../app/utils/locale.js:43
 msgid "September"
 msgstr ""
 
-#: ../app/utils/locale.js:44
+#: ../app/utils/locale.js:43
 msgid "October"
 msgstr ""
 
-#: ../app/utils/locale.js:45
+#: ../app/utils/locale.js:44
 msgid "November"
 msgstr ""
 
-#: ../app/utils/locale.js:45
+#: ../app/utils/locale.js:44
 msgid "December"
 msgstr ""
 
@@ -3591,11 +3593,11 @@ msgstr ""
 msgid "You selected the following resource:"
 msgstr ""
 
-#: ../app/utils/labels/utils.js:118
+#: ../app/utils/labels/utils.js:123
 msgid "Edit Labels"
 msgstr ""
 
-#: ../app/utils/labels/utils.js:123
+#: ../app/utils/labels/utils.js:128
 msgid "Add Label"
 msgstr ""
 
@@ -3671,12 +3673,12 @@ msgstr ""
 msgid "Select all %1$s Templates"
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:143 ../app/utils/vcenter/networks.js:132
-msgid "All %1$s Networks selected."
+#: ../app/utils/vcenter/templates.js:143
+msgid "All %1$s Templates selected."
 msgstr ""
 
-#: ../app/utils/vcenter/templates.js:144 ../app/utils/vcenter/networks.js:133
-msgid "%1$s Networks selected."
+#: ../app/utils/vcenter/templates.js:144
+msgid "%1$s Templates selected."
 msgstr ""
 
 #: ../app/utils/vcenter/templates.js:237
@@ -3721,6 +3723,14 @@ msgstr ""
 
 #: ../app/utils/vcenter/networks.js:128
 msgid "Select all %1$s Networks"
+msgstr ""
+
+#: ../app/utils/vcenter/networks.js:132
+msgid "All %1$s Networks selected."
+msgstr ""
+
+#: ../app/utils/vcenter/networks.js:133
+msgid "%1$s Networks selected."
 msgstr ""
 
 #: ../app/utils/vcenter/networks.js:154 ../app/utils/vcenter/networks.js:167
@@ -4679,8 +4689,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:59
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:93
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:120
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:120
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:102
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
 msgid "Expression"
 msgstr ""
 
@@ -4907,10 +4916,8 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:72
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:124
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:168
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:117
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:166
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:99
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:158
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
 #: ../app/utils/user-inputs/row.hbs:39 ../app/utils/user-inputs/row.hbs:56
 msgid "Min"
 msgstr ""
@@ -5480,12 +5487,12 @@ msgid "Straight"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:78
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:199
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:135
 msgid "VM shutdown action"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/wizard.hbs:83
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:205
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:141
 msgid "Terminate hard"
 msgstr ""
 
@@ -5556,9 +5563,8 @@ msgid "Max VMs"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:87
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:126
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:30
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:108
 msgid "Cooldown"
 msgstr ""
 
@@ -5566,172 +5572,136 @@ msgstr ""
 msgid "Cooldown time after an elasticity operation (seconds)"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:99
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:82
-msgid "Elasticity policies"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:105
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:156
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:87
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:148
-msgid "Type of adjustment."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:106
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:157
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:88
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:149
-msgid "CHANGE: Add/subtract the given number of VMs."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:107
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:158
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:89
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:150
-msgid "CARDINALITY: Set the cardinality to the given number."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:108
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:159
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:90
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:151
-msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:111
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:161
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:93
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:153
-msgid "Positive or negative adjustment. Its meaning depends on 'type'"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:112
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:162
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:94
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:154
-msgid "CHANGE: -2, will subtract 2 VMs from the role"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:113
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:163
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:95
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:155
-msgid "CARDINALITY: 8, will set cardinality to 8"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:114
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:164
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:96
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:156
-msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:114
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:164
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:96
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:156
-msgid "Adjust"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:116
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:98
-msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:117
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:99
-msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:119
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:101
-msgid "Expression to trigger the elasticity"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:120
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:102
-msgid "Example: ATT < 20"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:122
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:104
-msgid "Number of periods that the expression must be true before the elasticity is triggered"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:124
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:106
-msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:124
-#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:106
-msgid "Period"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:126
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:108
-msgid "Cooldown period duration after a scale operation, in seconds"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:143
-msgid "Scheduled policies"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:166
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:158
-msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:168
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:172
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:160
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:164
-msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:169
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:173
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
-msgid "Start time: Exact time for the adjustment"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:169
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:161
-msgid "Time format"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:171
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:163
-msgid "Time expression depends on the the time format selected"
-msgstr ""
-
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:173
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:165
-msgid "Time expression"
-msgstr ""
-
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:72
 msgid "Role elasticity"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:200
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:136
 msgid "If it is not set, the one set for the Service will be used"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:213
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:149
 msgid "VM template content"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:214
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:150
 msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
 msgstr ""
 
-#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:196
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:132
 msgid "Advanced role parameters"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:20
+msgid "Elasticity policies"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:26
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:26
+msgid "Type of adjustment."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:27
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:27
+msgid "CHANGE: Add/subtract the given number of VMs."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:28
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:28
+msgid "CARDINALITY: Set the cardinality to the given number."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:29
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:29
+msgid "PERCENTAGE_CHANGE: Add/subtract the given percentage to the current cardinality."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:31
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:31
+msgid "Positive or negative adjustment. Its meaning depends on 'type'"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:32
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:32
+msgid "CHANGE: -2, will subtract 2 VMs from the role"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:33
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:33
+msgid "CARDINALITY: 8, will set cardinality to 8"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
+msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:34
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:34
+msgid "Adjust"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:36
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:37
+msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:39
+msgid "Expression to trigger the elasticity"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:40
+msgid "Example: ATT < 20"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:42
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
+msgid "Duration, in seconds, of each period in '# Periods'"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:44
+#: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:26
+msgid "Period"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-thead.hbs:46
+msgid "Cooldown period duration after a scale operation, in seconds"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:20
+msgid "Scheduled policies"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:36
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:38
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:42
+msgid "Recurrence: Time for recurring adjustments. Time is specified with the Unix cron syntax"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:43
+msgid "Start time: Exact time for the adjustment"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:39
+msgid "Time format"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:41
+msgid "Time expression depends on the the time format selected"
+msgstr ""
+
+#: ../app/tabs/oneflow-templates-tab/utils/role-tab/sched-thead.hbs:43
+msgid "Time expression"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
@@ -5747,14 +5717,14 @@ msgid "Percentage"
 msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:33
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:177
+#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:117
 #: ../app/tabs/vms-tab/panels/info/html.hbs:47
 #: ../app/utils/accounting/html.hbs:19
 msgid "Start time"
 msgstr "Temps inicial"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:34
-#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:181
+#: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:121
 msgid "Recurrence"
 msgstr ""
 
@@ -5986,16 +5956,6 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:260
 msgid "The vCenter Cluster that has access to this datastore."
-msgstr ""
-
-#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:267
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
-msgid "Bus adapter controller"
-msgstr ""
-
-#: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:282
-#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
-msgid "Disk provisioning type"
 msgstr ""
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
@@ -6813,6 +6773,14 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard.hbs:87
 msgid "Path"
 msgstr "Ruta"
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:107
+msgid "Disk provisioning type"
+msgstr ""
+
+#: ../app/tabs/images-tab/form-panels/create/wizard.hbs:129
+msgid "Bus adapter controller"
+msgstr ""
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
