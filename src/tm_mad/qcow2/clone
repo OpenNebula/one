@@ -104,8 +104,8 @@ else
 
     CLONE_CMD=$(cat <<EOF
 cd $DST_DIR
+rm -rf $DST_PATH{,.snap}
 mkdir -p ${DST_PATH}.snap
-rm -f $DST_PATH
 $QEMU_IMG create -b $SRC_PATH -f qcow2 $QCOW2_OPTIONS ${DST_PATH}.snap/0
 ln -s ${DST_FILE}.snap/0 ${DST_PATH}
 cd ${DST_PATH}.snap
