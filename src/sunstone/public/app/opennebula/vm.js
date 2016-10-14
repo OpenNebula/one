@@ -637,7 +637,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VM_MAD, ['vcenter', 'az']) == -1;
+      return $.inArray(history.VM_MAD, ['az']) == -1;
     } else {
       return false;
     }
