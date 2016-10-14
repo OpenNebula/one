@@ -60,7 +60,6 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # Prevent Mac-spoofing
             mac_spoofing if nic[:filter_mac_spoofing] =~ /yes/i
-            mac_spoofing if CONF[:mac_spoofing]
 
             # Apply Firewall
             configure_fw if FIREWALL_PARAMS & @nic.keys != []
