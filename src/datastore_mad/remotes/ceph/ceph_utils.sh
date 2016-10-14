@@ -186,7 +186,7 @@ rbd_rm_r() {
 #--------------------------------------------------------------------------------
 rbd_df_monitor() {
 
-    local monitor_data i j xpath_elements pool_name bytes_used free
+    local monitor_data i j xpath_elements pool_name bytes_used quota_bytes free
 
     monitor_data=$1
     pool_name=$2
@@ -195,10 +195,18 @@ rbd_df_monitor() {
         xpath_elements[i++]="$element"
     done < <(echo $monitor_data | $XPATH \
                 "/stats/pools/pool[name = \"${pool_name}\"]/stats/bytes_used" \
+                "/stats/pools/pool[name = \"${pool_name}\"]/stats/quota_bytes" \
                 "/stats/pools/pool[name = \"${pool_name}\"]/stats/max_avail")
 
     bytes_used="${xpath_elements[j++]:-0}"
+    quota_bytes="${xpath_elements[j++]:-0}"
     free="${xpath_elements[j++]:-0}"
+
+    if [ $quota_bytes -ne 0 ]; then
+        if [ $quota_bytes -lt $free ]; then
+            export free=$quota_bytes
+        fi
+    fi
 
     cat << EOF | tr -d '[:blank:][:space:]'
         USED_MB=$(($bytes_used / 1024**2))\n
