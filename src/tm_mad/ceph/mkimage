@@ -101,7 +101,7 @@ MKIMAGE_CMD=$(cat <<EOF
 
     if [ "$FSTYPE" = "swap" ]; then
         $SUDO $RBD map $RBD_SOURCE || exit \$?
-        $SUDO $MKSWAP -L swap $DST
+        $SUDO $MKSWAP -L swap /dev/rbd/$RBD_SOURCE
         $SUDO $RBD unmap /dev/rbd/$RBD_SOURCE
     fi
 EOF
