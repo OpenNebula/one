@@ -360,10 +360,14 @@ define(function(require) {
 
   function _setLabelsFilter(dataTable, labelsColumn, label) {
 
-    var regExp =  '^' + label + '$|'+
-                  ',' + label + '$|'+
-                  '^' + label + ',|'+
-                  ',' + label + ','
+    // Make the label safe, it may contain regexp special characters. Source:
+    // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions
+    var escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    var regExp =  '^' + escapedLabel + '$|'+
+                  ',' + escapedLabel + '$|'+
+                  '^' + escapedLabel + ',|'+
+                  ',' + escapedLabel + ','
 
     dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
