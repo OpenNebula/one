@@ -294,7 +294,7 @@ define(function(require) {
   }
 
   function _labelsStr(elementTemplate) {
-    return elementTemplate[LABELS_ATTR];
+    return TemplateUtils.htmlEncode( elementTemplate[LABELS_ATTR] );
   }
 
   function _deserializeLabels(labelsStr) {
@@ -335,8 +335,8 @@ define(function(require) {
   function _makeSubTree(parentName, folderName, childs, currentLabel) {
     var fullName = parentName + folderName;
     var htmlStr =
-      '<span class="secondary one-label" title="' + TemplateUtils.htmlEncode(fullName) + '" one-label-full-name="' + TemplateUtils.htmlEncode(fullName) + '">' +
-        TemplateUtils.htmlEncode(folderName) +
+      '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+        folderName +
       '</span>';
 
     var tree = {
