@@ -637,7 +637,7 @@ class VIClient
                     datastores.concat(storage_pod_datastores)
                 end
             }
-            
+
             datastores.each { |ds|
                 next if !ds.is_a? RbVmomi::VIM::Datastore
                 # Find the Cluster from which to access this ds
@@ -1037,12 +1037,12 @@ class VCenterCachedHost
             while !datacenter.is_a? RbVmomi::VIM::Datacenter
                 datacenter = datacenter.parent
             end
-            
+
             datastores=VIClient.get_entities(
                           datacenter.datastoreFolder,
                            'Datastore')
 
-            storage_pods = VIClient.get_entities(datacenter.datastoreFolder, 
+            storage_pods = VIClient.get_entities(datacenter.datastoreFolder,
                                                 'StoragePod')
             storage_pods.each { |sp|
                 storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
@@ -1356,7 +1356,7 @@ class VCenterHost < ::OpenNebula::Host
                                          val[:key]=="opennebula.vm.running"}
               if running_flag.size > 0 and running_flag[0]
                   running_flag = running_flag[0][:value]
-              end                                
+              end
 
               next if running_flag == "no"
 
@@ -1412,8 +1412,8 @@ class VCenterHost < ::OpenNebula::Host
         datastores = VIClient.get_entities(client.dc.datastoreFolder,
                                            'Datastore')
 
-        storage_pods = VIClient.get_entities(client.dc.datastoreFolder, 
-                                            'StoragePod')           
+        storage_pods = VIClient.get_entities(client.dc.datastoreFolder,
+                                            'StoragePod')
 
         storage_pods.each { |sp|
             storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
@@ -1508,8 +1508,8 @@ class VCenterVm
                     detach_attached_disks(vm, disks, hostname) if disks
                 end
 
-                # If the VM was instantiated to persistent, convert the VM to 
-                # vCenter VM Template and update the OpenNebula new 
+                # If the VM was instantiated to persistent, convert the VM to
+                # vCenter VM Template and update the OpenNebula new
                 # VM Template to point to the new vCenter VM Template
                 if !to_template.nil?
                     vm.MarkAsTemplate
@@ -1627,8 +1627,8 @@ class VCenterVm
                     detach_attached_disks(vm, disks, hostname) if disks
                 end
 
-                # If the VM was instantiated to persistent, convert the VM to 
-                # vCenter VM Template and update the OpenNebula new 
+                # If the VM was instantiated to persistent, convert the VM to
+                # vCenter VM Template and update the OpenNebula new
                 # VM Template to point to the new vCenter VM Template
                 if !to_template.nil?
                     vm.MarkAsTemplate
@@ -1873,6 +1873,73 @@ class VCenterVm
         end if @vm.guest.net
 
         @guest_ip_addresses = guest_ip_addresses.join(',')
+
+        # Network metrics - Realtime retrieved by perfManager
+        pm = @client.vim.serviceInstance.content.perfManager
+
+        provider = pm.provider_summary [@vm].first
+        refresh_rate = provider.refreshRate
+
+        vmid = -1
+        extraconfig_vmid = @vm.config.extraConfig.select{|val|
+                                        val[:key]=="opennebula.vm.id"}
+        if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
+            vmid = extraconfig_vmid[0][:value].to_i
+        end
+
+        if vmid < 0
+            @nettx = 0
+            @netrx = 0
+            id_not_found = "Could not retrieve VM ID from extra configuration for "\
+                           "vCenter's VM UUID #{@vm.config.uuid}"
+        else
+            one_vm = OpenNebula::VirtualMachine.new_with_id(vmid, OpenNebula::Client.new)
+            one_vm.info
+            stats = []
+
+            if(one_vm["LAST_POLL"] && one_vm["LAST_POLL"].to_i != 0 )
+                #Real time data stores max 1 hour. 1 minute has 3 samples
+                interval = (Time.now.to_i - one_vm["LAST_POLL"].to_i)
+
+                #If last poll was more than hour ago get 3 minutes,
+                #else calculate how many samples since last poll
+                samples =  interval > 3600 ? 9 : interval / refresh_rate
+                max_samples = samples > 0 ? samples : 1
+
+                stats = pm.retrieve_stats(
+                    [@vm],
+                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received'],
+                    {interval:refresh_rate, max_samples: max_samples}
+                )
+            else
+                # First poll, get at least latest 3 minutes = 9 samples
+                stats = pm.retrieve_stats(
+                    [@vm],
+                    ['net.transmitted','net.bytesRx'],
+                    {interval:refresh_rate, max_samples: 9}
+                )
+            end
+
+            if stats.empty? || stats.first[1][:metrics].empty?
+                @nettx = 0
+                @netrx = 0
+            else
+                metrics = stats.first[1][:metrics]
+
+                nettx_kbpersec = 0
+                metrics['net.transmitted'].each { |sample|
+                    nettx_kbpersec += sample
+                }
+
+                netrx_kbpersec = 0
+                metrics['net.bytesRx'].each { |sample|
+                    netrx_kbpersec += sample
+                }
+
+                @nettx = (nettx_kbpersec * 1024 * refresh_rate).to_i
+                @netrx = (netrx_kbpersec * 1024 * refresh_rate).to_i
+            end
+        end
     end
 
     ########################################################################
@@ -2278,14 +2345,14 @@ private
             datastores = VIClient.get_entities(connection.dc.datastoreFolder,
                                              'Datastore')
 
-            storage_pods = VIClient.get_entities(connection.dc.datastoreFolder, 
+            storage_pods = VIClient.get_entities(connection.dc.datastoreFolder,
                                                 'StoragePod')
             storage_pods.each { |sp|
                 storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
                 if not storage_pod_datastores.empty?
                     datastores.concat(storage_pod_datastores)
                 end
-            }      
+            }
 
             ds         = datastores.select{|ds| ds.name == datastore}[0]
             raise "Cannot find datastore #{datastore}" if !ds
@@ -2616,7 +2683,7 @@ private
         datastores = VIClient.get_entities(connection.dc.datastoreFolder,
                                            'Datastore')
 
-        storage_pods = VIClient.get_entities(connection.dc.datastoreFolder, 
+        storage_pods = VIClient.get_entities(connection.dc.datastoreFolder,
                                             'StoragePod')
         storage_pods.each { |sp|
             storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
@@ -2626,7 +2693,7 @@ private
         }
 
         ds         = datastores.select{|ds| ds.name == ds_name}[0]
-        
+
         controller, new_number = find_free_controller(vm)
 
         if type == "CDROM"
@@ -2635,7 +2702,7 @@ private
                   :fileName  => "[#{ds_name}] #{img_name}"
             )
 
-            cd = vm.config.hardware.device.select {|hw| 
+            cd = vm.config.hardware.device.select {|hw|
                                  hw.class == RbVmomi::VIM::VirtualCdrom}.first
 
             # If no CDROM drive present, we need to add it
@@ -2657,7 +2724,7 @@ private
                    )}]
                 )
 
-                vm.ReconfigVM_Task(:spec => 
+                vm.ReconfigVM_Task(:spec =>
                                        cdrom_drive_spec).wait_for_completion
 
                 return
