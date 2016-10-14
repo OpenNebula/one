@@ -115,13 +115,13 @@ EOF
 
 log "Making volatile disk of ${SIZE}M at $DST"
 
-ssh_exec_and_log_no_exit "$DST_HOST" "$MKIMAGE_CMD" \
+ssh_exec_and_log_no_error "$DST_HOST" "$MKIMAGE_CMD" \
     "Error creating volatile disk.$DISK_ID ($RBD_SOURCE) in $DST_HOST into pool $POOL_NAME."
 
 rc=$?
 
 if [ $rc != 0 ]; then
-    ssh_exec_and_log_no_exit "$DST_HOST" "$DELIMAGE_CMD" \
+    ssh_exec_and_log_no_error "$DST_HOST" "$DELIMAGE_CMD" \
         "Error removing image"
 fi
 
