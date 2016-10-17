@@ -1617,10 +1617,20 @@ class VCenterVm
         case lcm_state
             when "SHUTDOWN"
                 begin
-                    vm.ShutdownGuest.wait_for_completion
+                    vm.ShutdownGuest
+                    counter = 60*10 # 10 minutes
+                    while counter > 0
+                        break if vm.runtime.powerState == "poweredOff"
+                        counter -= 1
+                        sleep 1
+                    end
                 rescue
                 end
-                vm.PowerOffVM_Task.wait_for_completion
+
+                if vm.runtime.powerState != "poweredOff"
+                    vm.PowerOffVM_Task.wait_for_completion
+                end
+
                 if keep_disks
                     detach_all_disks(vm)
                 else
@@ -1656,10 +1666,19 @@ class VCenterVm
 
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
-                    vm.ShutdownGuest.wait_for_completion
+                    vm.ShutdownGuest
+                    counter = 60*10 # 10 minutes
+                    while counter > 0
+                        break if vm.runtime.powerState == "poweredOff"
+                        counter -= 1
+                        sleep 1
+                    end
                 rescue
                 end
-                vm.PowerOffVM_Task.wait_for_completion
+
+                if vm.runtime.powerState != "poweredOff"
+                    vm.PowerOffVM_Task.wait_for_completion
+                end
         end
     end
 
