@@ -45,6 +45,7 @@ adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
 disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
 size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
 img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"]
+folder_img    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/FOLDER_IMG"]
 
 if ds_name.nil? ||
    hostname.nil? ||
@@ -56,17 +57,21 @@ if ds_name.nil? ||
     exit -1
 end
 
+if folder_img[-1] != '/'
+    folder_img = folder_img.gsub(/$/, '/')
+end
+
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
 
-    puts vi_client.create_virtual_disk(img_name,
+    puts vi_client.create_virtual_disk("#{folder_img}#{img_name}",
                                        ds_name,
                                        size,
                                        adapter_type,
                                        disk_type)
 rescue Exception => e
-    STDERR.puts "Error creating virtual disk in #{ds_name}."\
+    STDERR.puts "Error creating virtual disk #{folder_img}#{img_name} in #{ds_name}."\
                 " Reason: #{e.message}"
     exit -1
 end
