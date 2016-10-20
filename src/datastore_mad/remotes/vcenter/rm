@@ -42,6 +42,11 @@ drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DAT
 ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
 hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
 img_src       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
+folder_img    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/FOLDER_IMG"]
+
+if folder_img[-1] != '/'
+    folder_img = folder_img.gsub(/$/, '/')
+end
 
 if ds_name.nil? ||
    hostname.nil? ||
@@ -54,10 +59,10 @@ begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
 
-    vi_client.delete_virtual_disk(img_src,
+    vi_client.delete_virtual_disk("#{folder_img}#{img_src}",
                                   ds_name)
 rescue Exception => e
-    STDERR.puts "Error delete virtual disk #{img_src} in #{ds_name}."\
+    STDERR.puts "Error delete virtual disk #{folder_img}#{img_src} in #{ds_name}."\
                 " Reason: #{e.message}"
     exit -1
 end
