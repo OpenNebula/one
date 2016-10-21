@@ -40,14 +40,19 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+ds_name    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+hostname   = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+img_path   = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+folder_img = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/FOLDER_IMG"]
 
 if ds_name.nil? || hostname.nil? || img_path.nil?
     STDERR.puts "Not enough information to clone the image, missing datastore"\
                 " name or vcenter cluster name or image path."
     exit -1
+end
+
+if folder_img[-1] != '/'
+    folder_img = folder_img.gsub(/$/, '/')
 end
 
 # Generate target path
@@ -58,7 +63,7 @@ begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
 
-    puts vi_client.copy_virtual_disk(img_path, ds_name, target_path)
+    puts vi_client.copy_virtual_disk(img_path, ds_name, "#{folder_img}#{target_path}")
 rescue Exception => e
     STDERR.puts "Error cloning img #{img_path} size. Reason: #{e.message}"
     exit -1
