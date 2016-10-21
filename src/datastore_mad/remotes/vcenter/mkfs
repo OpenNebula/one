@@ -57,8 +57,10 @@ if ds_name.nil? ||
     exit -1
 end
 
-if folder_img[-1] != '/'
-    folder_img = folder_img.gsub(/$/, '/')
+if !folder_img.nil?
+    if folder_img[-1] != '/'
+        folder_img = folder_img.gsub(/$/, '/')
+    end
 end
 
 begin
