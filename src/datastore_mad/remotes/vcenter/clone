@@ -51,8 +51,10 @@ if ds_name.nil? || hostname.nil? || img_path.nil?
     exit -1
 end
 
-if folder_img[-1] != '/'
-    folder_img = folder_img.gsub(/$/, '/')
+if !folder_img.nil?
+    if folder_img[-1] != '/'
+        folder_img = folder_img.gsub(/$/, '/')
+    end
 end
 
 # Generate target path
