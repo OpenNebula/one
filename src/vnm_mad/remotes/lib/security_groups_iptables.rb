@@ -328,7 +328,7 @@ module SGIPTables
 
         remove_chains = []
         iptables_s.lines.each do |line|
-            if line.match(/^-N #{chain}/)
+            if line.match(/^-N #{chain}(-|$)/)
                  remove_chains << line.split[1]
             end
         end
@@ -336,7 +336,7 @@ module SGIPTables
         remove_chains.each {|c| commands.add :iptables, "-X #{c}" }
 
         ipset_list.lines.each do |line|
-            if line.match(/^#{chain}/)
+            if line.match(/^#{chain}(-|$)/)
                 set = line.strip
                 commands.add :ipset, "destroy #{set}"
             end
