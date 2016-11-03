@@ -2637,7 +2637,7 @@ EOT
     # Params:
     # +disk+:: Nokogiri::XML::Node describing a disk used by a template
     def get_image_from_name(disk)
-      name = disk.at_xpath("IMAGE").content # always defined
+      name = disk.at_xpath("IMAGE") && disk.at_xpath("IMAGE").content
       uid = disk.at_xpath("IMAGE_UID")
       uname = disk.at_xpath("IMAGE_UNAME")
 
