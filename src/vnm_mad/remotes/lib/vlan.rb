@@ -46,6 +46,9 @@ module VNMMAD
                 # Create the bridge.
                 create_bridge
 
+                # Check that no other vlans are connected to this bridge
+                validate_vlan_id
+
                 # Return if vlan device is already in the bridge.
                 next if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
 
@@ -148,6 +151,28 @@ module VNMMAD
             end
 
             bridges
+        end
+
+        def get_interface_vlan(name)
+            nil
+        end
+
+        def validate_vlan_id
+            @bridges[@nic[:bridge]].each do |interface|
+                vlan = get_interface_vlan(interface)
+
+                if vlan && vlan.to_s != @nic[:vlan_id]
+                    OpenNebula.log_error("The interface #{interface} has "\
+                        "vlan_id = #{vlan} but the network is configured "\
+                        "with vlan_id = #{@nic[:vlan_id]}")
+
+                    msg = "Interface with an incorrect vlan_id is already in "\
+                          "the bridge"
+                    OpenNebula.error_message(msg)
+
+                    exit(-1)
+                end
+            end
         end
     end
 end
