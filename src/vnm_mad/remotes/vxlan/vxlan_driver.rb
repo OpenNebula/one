@@ -54,4 +54,17 @@ class VXLANDriver < VNMMAD::VLANDriver
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
+
+    def get_interface_vlan(name)
+        text = %x(#{command(:ip)} -d link show #{name})
+        return nil if $?.exitstatus != 0
+
+        text.each_line do |line|
+            m = line.match(/^\s*vxlan id (\d+)/)
+
+            return m[1] if m
+        end
+
+        nil
+    end
 end
