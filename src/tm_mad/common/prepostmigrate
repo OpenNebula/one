@@ -25,8 +25,8 @@
 #  - template is the template of the VM in XML and base64 encoded
 #  - system_ds_mad flag if called by other SYSTEM_DS TM_MAD
 
-SRC="$1"
-DST="$2"
+SRC_HOST="$1"
+DST_HOST="$2"
 DST_PATH="$3"
 VM_ID="$4"
 DS_ID="$5"
