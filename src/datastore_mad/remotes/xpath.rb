@@ -64,7 +64,13 @@ ARGV.each do |xpath|
         values << ar.join(' ')
     else
         element = xml.elements[xpath.dup]
-        values << element.text.to_s if !element.nil?
+        if !element.nil?
+            if element.class.method_defined?(:text)
+                values << element.text
+            else
+                values << element.to_s
+            end
+        end
     end
     values << "\0"
 end
