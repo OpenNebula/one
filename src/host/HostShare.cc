@@ -22,6 +22,7 @@
 #include <iomanip>
 
 #include "HostShare.h"
+#include "Host.h"
 
 using namespace std;
 
@@ -523,6 +524,102 @@ void HostShare::set_ds_monitorization(const vector<VectorAttribute*> &ds_att)
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void set_reserved_metric(long long& value, long long mvalue,
+        string& reserved)
+{
+    bool abs = true;
+
+    if ( reserved.empty() )
+    {
+        value = mvalue;
+        return;
+    }
+
+    if (std::isspace(reserved.back()))
+    {
+        reserved = one_util::trim(reserved);
+    }
+
+    if (reserved.back() == '%')
+    {
+        abs = false;
+        reserved.erase(reserved.end()-1);
+    }
+
+    istringstream iss(reserved);
+
+    iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        value = mvalue;
+        return;
+    }
+
+    if (abs)
+    {
+        value = mvalue - value;
+    }
+    else
+    {
+        value = mvalue * ( 1 - (value / 100.0));
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+void HostShare::set_capacity(Host *host, const string& cluster_rcpu,
+        const string& cluster_rmem)
+{
+    float val;
+
+    string host_rcpu;
+    string host_rmem;
+
+    host->get_reserved_capacity(host_rcpu, host_rmem);
+
+    if ( host_rcpu.empty() )
+    {
+        host_rcpu = cluster_rcpu;
+    }
+
+    if ( host_rmem.empty() )
+    {
+        host_rmem = cluster_rmem;
+    }
+
+    host->erase_template_attribute("TOTALCPU", val);
+    set_reserved_metric(max_cpu, val, host_rcpu);
+
+    host->erase_template_attribute("TOTALMEMORY", val);
+    set_reserved_metric(max_mem, val, host_rmem);
+
+    host->erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
+    max_disk = val;
+
+    host->erase_template_attribute("FREECPU", val);
+    free_cpu = val;
+
+    host->erase_template_attribute("FREEMEMORY", val);
+    free_mem = val;
+
+    host->erase_template_attribute("DS_LOCATION_FREE_MB", val);
+    free_disk = val;
+
+    host->erase_template_attribute("USEDCPU", val);
+    used_cpu = val;
+
+    host->erase_template_attribute("USEDMEMORY", val);
+    used_mem = val;
+
+    host->erase_template_attribute("DS_LOCATION_USED_MB", val);
+    used_disk = val;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 

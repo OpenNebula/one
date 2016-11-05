@@ -234,8 +234,8 @@ int Host::update_info(Template        &tmpl,
                       set<int>        &lost,
                       map<int,string> &found,
                       const set<int>  &non_shared_ds,
-                      long long       reserved_cpu,
-                      long long       reserved_mem)
+                      const string    &reserved_cpu,
+                      const string    &reserved_mem)
 {
     VectorAttribute*             vatt;
     vector<Attribute*>::iterator it;
@@ -246,7 +246,6 @@ int Host::update_info(Template        &tmpl,
 
     int   rc;
     int   vmid;
-    float val;
 
     ostringstream zombie;
     ostringstream wild;
@@ -289,28 +288,7 @@ int Host::update_info(Template        &tmpl,
 
     touch(true);
 
-    get_reserved_capacity(reserved_cpu, reserved_mem);
-
-    erase_template_attribute("TOTALCPU", val);
-    host_share.max_cpu = val - reserved_cpu;
-    erase_template_attribute("TOTALMEMORY", val);
-    host_share.max_mem = val - reserved_mem;
-    erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
-    host_share.max_disk = val;
-
-    erase_template_attribute("FREECPU", val);
-    host_share.free_cpu = val;
-    erase_template_attribute("FREEMEMORY", val);
-    host_share.free_mem = val;
-    erase_template_attribute("DS_LOCATION_FREE_MB", val);
-    host_share.free_disk = val;
-
-    erase_template_attribute("USEDCPU", val);
-    host_share.used_cpu = val;
-    erase_template_attribute("USEDMEMORY", val);
-    host_share.used_mem = val;
-    erase_template_attribute("DS_LOCATION_USED_MB", val);
-    host_share.used_disk = val;
+    host_share.set_capacity(this, reserved_cpu, reserved_mem);
 
     // -------------------------------------------------------------------------
     // Correlate VM information with the list of running VMs
@@ -513,14 +491,7 @@ void Host::offline()
 
     state = OFFLINE;
 
-    host_share.max_cpu = 0;
-    host_share.max_mem = 0;
-
-    host_share.free_cpu = 0;
-    host_share.free_mem = 0;
-
-    host_share.used_cpu = 0;
-    host_share.used_mem = 0;
+    host_share.reset_capacity();
 
     remove_template_attribute("TOTALCPU");
     remove_template_attribute("TOTALMEMORY");

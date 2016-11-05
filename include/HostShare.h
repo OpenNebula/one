@@ -161,6 +161,8 @@ private:
     map <string, PCIDevice *> pci_devices;
 };
 
+class Host;
+
 /**
  *  The HostShare class. It represents a logical partition of a host...
  */
@@ -174,6 +176,14 @@ public:
         long long  _max_cpu=0);
 
     ~HostShare(){};
+
+    /**
+     *  Rebuilds the object from an xml node
+     *    @param node The xml node pointer
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml_node(const xmlNodePtr node);
 
     /**
      *  Add a new VM to this share
@@ -303,6 +313,43 @@ public:
         pci.set_monitorization(pci_att);
     }
 
+    /**
+     *  Resets capaity values of the share
+     */
+    void reset_capacity()
+    {
+        max_cpu = 0;
+        max_mem = 0;
+
+        free_cpu = 0;
+        free_mem = 0;
+
+        used_cpu = 0;
+        used_mem = 0;
+    };
+
+    /**
+     * Set the capacity attributes of the share. CPU and Memory may reserve some
+     * capacity according to RESERVED_CPU and RESERVED_MEM. These values can be
+     * either absolute or a percentage.
+     *
+     * Share values are read from the Host template returned by the monitoring
+     * probes. The values are removed from the template.
+     *
+     *   @param host for this share, capacity values are removed from the template
+     *   @para cr_cpu, reserved cpu default cluster value
+     *   @para cluster_rmem, reserved mem default cluster value
+     */
+    void set_capacity(Host *host, const string& crcpu, const string& crmem);
+
+    /**
+     *  Return the number of running VMs in this host
+     */
+    long long get_running_vms()
+    {
+        return running_vms;
+    };
+
 private:
 
     long long disk_usage; /**< Disk allocated to VMs (in MB).        */
@@ -325,21 +372,6 @@ private:
 
     HostShareDatastore ds;
     HostSharePCI       pci;
-
-    // ----------------------------------------
-    // Friends
-    // ----------------------------------------
-
-    friend class Host;
-    friend class HostPool;
-
-    /**
-     *  Rebuilds the object from an xml node
-     *    @param node The xml node pointer
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml_node(const xmlNodePtr node);
 };
 
 #endif /*HOST_SHARE_H_*/
