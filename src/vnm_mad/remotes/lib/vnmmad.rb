@@ -32,7 +32,7 @@ require 'sg_driver'
 require 'vlan'
 require 'scripts_common'
 
-Dir["vnmmad-load.d/*.rb"].each{ |f| require f }
+Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
 
 include OpenNebula
 
