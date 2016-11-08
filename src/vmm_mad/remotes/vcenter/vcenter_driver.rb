@@ -1787,12 +1787,38 @@ class VCenterVm
 
         vm          = connection.find_vm_template(deploy_id)
 
-        spec_hash   = calculate_addnic_spec(vm, mac, bridge, model)
+        spec_nics   = calculate_addnic_spec(vm, mac, bridge, model)
 
-        spec        = RbVmomi::VIM.VirtualMachineConfigSpec({:deviceChange =>
-                                                              [spec_hash]})
+        spec_hash = {:deviceChange => [spec_nics]}
+
+
+        #B4897 track hot plugged nics
+        hotplugged_nics = vm.config.extraConfig.select do |val|
+            val[:key] == "opennebula.hotplugged_nics"
+        end
+
+        if hotplugged_nics
+            hotplugged_nics << mac
+        else
+            hotplugged_nics = []
+            hotplugged_nics << mac
+        end
+
+        config_array = [{:key=>"opennebula.hotplugged_nics",
+                         :value=>hotplugged_nics}]
+        extra_config_spec = {:extraConfig =>config_array}
+
+        spec_hash.merge!(extra_config_spec)
+
+        spec        = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        config_array << {
+                        :key    => 'opennebula.hotplugged_nics',
+                        :value  => hotplugged_nics
+                    }
+
     end
 
     ############################################################################
@@ -1810,11 +1836,24 @@ class VCenterVm
 
         raise "Could not find NIC with mac address #{mac}" if nic.nil?
 
+        #B4897 track hot plugged nics
+        hotplugged_nics = vm.config.extraConfig.select do |val|
+            val[:key] == "opennebula.hotplugged_nics"
+        end
+
+        config_array = []
+        if hotplugged_nics
+            hotplugged_nics.delete(mac)
+            config_array = [{:key=>"opennebula.hotplugged_nics",
+                         :value=>hotplugged_nics}]
+        end
+
         spec = {
             :deviceChange => [
                 :operation => :remove,
                 :device => nic
-            ]
+            ],
+            :extraConfig => config_array
         }
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
@@ -2582,10 +2621,22 @@ private
         # NIC section, build the reconfig hash
 
         nics     = xml.root.get_elements("/VM/TEMPLATE/NIC")
-        nic_spec = {}
 
         # If the VM is not new, avoid readding NiCs
         if !newvm
+            nic_array = []
+
+            # Get MACs from NICs inside VM template
+            one_mac_addresses = Array.new
+            nics.each{|nic|
+                one_mac_addresses << nic.elements["MAC"].text
+            }
+
+            # Get hotplugged_nics that may haven't been removed from vCenter
+            hotplugged_nics = vm.config.extraConfig.select do |val|
+                val[:key] == "opennebula.hotplugged_nics"
+            end
+
             vm.config.hardware.device.each{ |dv|
                 if is_nic?(dv)
                    nics.each{|nic|
@@ -2594,8 +2645,16 @@ private
                          nics.delete(nic)
                       end
                    }
+
+                   # B4897 - Remove detached NICs from vCenter that were unplugged in POWEROFF
+                   if !one_mac_addresses.include?(dv.macAddress) and
+                       hotplugged_nics.include?(dv.macAddress)
+                       nic_array << { :operation => :remove, :device => dv}
+                   end
                 end
             }
+
+            device_change += nic_array
         end
 
         if !nics.nil?
