@@ -130,6 +130,7 @@ define(function(require) {
     ];
   }
 
+
   function _emptyElementArray(vmId) {
     return [
       '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +

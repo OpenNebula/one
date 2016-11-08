@@ -77,6 +77,8 @@ define(function(require) {
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
     var vrouterHTML = '--';
 
+    var IP = OpenNebula.VM.ipsStr(this.element);
+
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
         OpenNebula.VirtualRouter.getName(this.element.TEMPLATE.VROUTER_ID),
@@ -122,6 +124,7 @@ define(function(require) {
       'hostnameHTML': hostnameHTML,
       'prettyStartTime': prettyStartTime,
       'deployId': deployId,
+      'IP': IP,
       'resched': resched,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML,
@@ -133,7 +136,6 @@ define(function(require) {
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;
     var strippedTemplate = {};
