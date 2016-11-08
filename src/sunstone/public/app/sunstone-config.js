@@ -146,10 +146,15 @@ define(function(require) {
     'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
     'onedConf': _config['oned_conf'],
+    'confirmVMActions': _config['view']['confirm_vms'],
 
     "allTabs": function() {
       return Object.keys(_config['view']['tabs']);
     }
+
+    /*"isConfirmVmsActionsEnable": function() {
+      Console.Log(_config['view']['confirm_vms']);
+    }*/
   }
 
   return Config;
