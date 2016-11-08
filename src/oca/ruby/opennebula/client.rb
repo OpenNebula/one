@@ -201,7 +201,7 @@ module OpenNebula
                     response[1] #response[1..-1]
                 end
             rescue Exception => e
-                Error.new(e.message)
+                Error.new(e.message, Error::EXML_RPC_CALL)
             end
         end
 

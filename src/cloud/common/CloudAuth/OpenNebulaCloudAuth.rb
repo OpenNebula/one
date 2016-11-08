@@ -31,10 +31,8 @@ module OpenNebulaCloudAuth
     #
     def do_auth(env, params={})
         auth = Rack::Auth::Basic::Request.new(env)
-
         if auth.provided? && auth.basic?
             username, password = auth.credentials
-
             authenticated = false
 
             invalid_chars =
@@ -72,11 +70,11 @@ module OpenNebulaCloudAuth
 
                 rc = user.info
             end
-
             if OpenNebula.is_error?(rc)
                 if logger
                     logger.error{ "User #{username} could not be authenticated"}
                     logger.error { rc.message }
+                    throw Exception(rc.message) if rc.is_exml_rpc_call?()
                 end
                 return nil
             end
