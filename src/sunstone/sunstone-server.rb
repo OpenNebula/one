@@ -566,7 +566,8 @@ get '/config' do
         },
         :system_config => {
             :marketplace_url => $conf[:marketplace_url],
-            :vnc_proxy_port => $vnc.proxy_port
+            :vnc_proxy_port => $vnc.proxy_port,
+            :vnc_proxy_port_shared => $vnc.proxy_port_shared
         }
     }
 

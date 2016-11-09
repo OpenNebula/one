@@ -108,6 +108,7 @@ class OpenNebulaVNC
         @token_folder = File.join(VAR_LOCATION, opts[:token_folder_name])
         @proxy_path   = File.join(SHARE_LOCATION, "websockify/websocketproxy.py")
         @proxy_port   = config[:vnc_proxy_port]
+        @proxy_port_shared = config[:vnc_proxy_port_shared]
 
         @proxy_ipv6   = config[:vnc_proxy_ipv6]
 

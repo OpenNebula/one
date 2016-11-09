@@ -20,6 +20,28 @@ define(function(require) {
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
 
+  var vncProxyPort = window.location.port;
+  var vncWSS = "no";
+
+  if (_config['system_config']['vnc_proxy_port_shared'] == "yes") {
+    if (window.location.protocol.substring(0, 5) == 'http:') {
+      if (!vncProxyPort) {
+        vncProxyPort = 80;
+      }
+
+      vncWSS = "no";
+    } else if (window.location.protocol.substring(0, 6) == 'https:') {
+      if (!vncProxyPort) {
+        vncProxyPort = 443;
+      }
+
+      vncWSS = "yes";
+    }
+  } else {
+    vncProxyPort = _config['system_config']['vnc_proxy_port'];
+    vncWSS = _config['user_config']['vnc_wss'];
+  }
+
   var Config = {
     'isTabEnabled': function(tabName) {
       var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
@@ -139,8 +161,8 @@ define(function(require) {
 
     'autoRefresh' : _config['view']['autorefresh'],
     'tableOrder': _config['user_config']['table_order'],
-    'vncProxyPort': _config['system_config']['vnc_proxy_port'],
-    'vncWSS': _config['user_config']['vnc_wss'],
+    'vncProxyPort': vncProxyPort,
+    'vncWSS': vncWSS,
     'requestVNCPassword': _config['system_config']['vnc_request_password'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
     'vmLogos': (_config['vm_logos']),
