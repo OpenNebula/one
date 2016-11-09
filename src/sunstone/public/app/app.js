@@ -186,7 +186,6 @@ define(function(require) {
 
   function _setupDataTableSearch() {
     $.fn.dataTable.ext.type.order['file-size-pre'] = function ( data ) {
-      console.log("hola");
       var matches = data.match( /^(\d+(?:\.\d+)?)\s*([a-z]+)/i );
       var multipliers = {
         B:  1,
