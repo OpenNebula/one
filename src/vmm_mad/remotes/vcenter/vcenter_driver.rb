@@ -1797,11 +1797,12 @@ class VCenterVm
             val[:key] == "opennebula.hotplugged_nics"
         end
 
-        if hotplugged_nics
-            hotplugged_nics << mac
+        if hotplugged_nics && !hotplugged_nics.empty?
+            hotplugged_nics = hotplugged_nics[0][:value].to_s
+            hotplugged_nics << mac.to_s << ";" if !hotplugged_nics.include?(mac)
         else
-            hotplugged_nics = []
-            hotplugged_nics << mac
+            hotplugged_nics = ""
+            hotplugged_nics << mac.to_s << ";"
         end
 
         config_array = [{:key=>"opennebula.hotplugged_nics",
@@ -1842,8 +1843,9 @@ class VCenterVm
         end
 
         config_array = []
-        if hotplugged_nics
-            hotplugged_nics.delete(mac)
+        if hotplugged_nics && !hotplugged_nics.empty?
+            hotplugged_nics = hotplugged_nics[0][:value].to_s
+            hotplugged_nics.slice!(mac + ";") # remove hotplugged nic
             config_array = [{:key=>"opennebula.hotplugged_nics",
                          :value=>hotplugged_nics}]
         end
@@ -2612,10 +2614,6 @@ private
                        :value=>context_text}]
         end
 
-        if config_array != []
-            context_vnc_spec = {:extraConfig =>config_array}
-        end
-
         device_change = []
 
         # NIC section, build the reconfig hash
@@ -2632,24 +2630,32 @@ private
                 one_mac_addresses << nic.elements["MAC"].text
             }
 
-            # Get hotplugged_nics that may haven't been removed from vCenter
-            hotplugged_nics = vm.config.extraConfig.select do |val|
+            # B4897 - Get mac of NICs that were hot-plugged from vCenter extraConfig
+            hotplugged_nics = []
+            extraconfig_nics = vm.config.extraConfig.select do |val|
                 val[:key] == "opennebula.hotplugged_nics"
+            end
+
+            if extraconfig_nics && !extraconfig_nics.empty?
+                hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
             end
 
             vm.config.hardware.device.each{ |dv|
                 if is_nic?(dv)
                    nics.each{|nic|
-                      if nic.elements["MAC"].text == dv.macAddress and
-                         nic.elements["BRIDGE"].text == dv.deviceInfo.summary
+                      if nic.elements["MAC"].text == dv.macAddress
                          nics.delete(nic)
                       end
                    }
 
                    # B4897 - Remove detached NICs from vCenter that were unplugged in POWEROFF
-                   if !one_mac_addresses.include?(dv.macAddress) and
-                       hotplugged_nics.include?(dv.macAddress)
+                   if !one_mac_addresses.include?(dv.macAddress) && hotplugged_nics.include?(dv.macAddress)
                        nic_array << { :operation => :remove, :device => dv}
+                       hotplugged_nics.delete(dv.macAddress)
+                       config_array << {
+                        :key    => 'opennebula.hotplugged_nics',
+                        :value  => hotplugged_nics.join(";")
+                       }
                    end
                 end
             }
@@ -2728,6 +2734,10 @@ private
                          :memoryMB => memory }
 
         # Perform the VM reconfiguration
+        if config_array != []
+            context_vnc_spec = {:extraConfig =>config_array}
+        end
+
         spec_hash = context_vnc_spec.merge(capacity_spec)
         if device_change.length > 0
             spec_hash.merge!({ :deviceChange => device_change })
