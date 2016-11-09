@@ -1815,11 +1815,6 @@ class VCenterVm
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
 
-        config_array << {
-                        :key    => 'opennebula.hotplugged_nics',
-                        :value  => hotplugged_nics
-                    }
-
     end
 
     ############################################################################
