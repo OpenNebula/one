@@ -308,7 +308,7 @@ class EC2Driver
             index = index + 1
         end
 
-        tags = generate_options(:tags, ec2_info)['tags'] || {}
+        tags = generate_options(:tags, ec2_info)[:tags] || {}
 
         tags['ONE_ID'] = id
 
