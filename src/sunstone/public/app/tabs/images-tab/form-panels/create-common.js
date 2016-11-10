@@ -263,6 +263,7 @@ define(function(require) {
         target: 'upload_chunk',
         chunkSize: 10 * 1024 * 1024,
         maxFiles: 1,
+        maxFileSize: config['system_config']['max_upload_file_size'],
         testChunks: false,
         query: {
           csrftoken: csrftoken
