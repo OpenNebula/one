@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'ipaddr'
+
 module VNMMAD
 
 module VNMNetwork
@@ -26,28 +28,49 @@ module VNMNetwork
     #   @return [Array<String>] The networks in CIDR
     def self.to_nets(ip_start, size)
         nets = Array.new
-        ip_i = IPv4.to_i(ip_start)
+
+        if ip_start.match(/:/)
+            family = "inet6"
+        else
+            family = "inet"
+        end
+
+        if family == "inet"
+            ip_i = IPv4.to_i(ip_start)
+            ip_totalLength = 32
+        else
+            ip_i = IPv6.to_i(ip_start)
+            ip_totalLength = 128
+        end
 
         # Find the largest address block (look for the first 1-bit)
         lblock = 0
 
-        lblock += 1 while (ip_i[lblock] == 0 && lblock < 32 )
+        lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_totalLength )
 
         # Allocate whole blocks till the size fits
         while ( size >= 2**lblock )
-            nets << "#{IPv4.to_s(ip_i)}/#{32-lblock}"
+            if family == "inet"
+                nets << "#{IPv4.to_s(ip_i)}/#{ip_totalLength-lblock}"
+            else
+                nets << "#{IPv6.to_s(ip_i)}/#{ip_totalLength-lblock}"
+            end
 
             ip_i += 2**lblock
             size -= 2**lblock
 
-            lblock += 1 while (ip_i[lblock] == 0 && lblock < 32 )
+            lblock += 1 while (ip_i[lblock] == 0 && lblock < ip_totalLength )
         end
 
         # Fit remaining address blocks
-        32.downto(0) { |i|
+        ip_totalLength.downto(0) { |i|
             next if size[i] == 0
 
-            nets << "#{IPv4.to_s(ip_i)}/#{32-i}"
+            if family == "inet"
+                nets << "#{IPv4.to_s(ip_i)}/#{ip_totalLength-i}"
+            else
+                nets << "#{IPv6.to_s(ip_i)}/#{ip_totalLength-i}"
+            end
 
             ip_i += 2**i
         }
@@ -70,6 +93,26 @@ module VNMNetwork
         #  @return [String] IP in dot notation
         def self.to_s(ip)
             ip = 3.downto(0).collect {|s| (ip >> 8*s) & 0xff }.join('.')
+        end
+    end
+
+    module IPv6
+        # Returns the binary equivalent of a IP address
+        #  @param ip [String] IP in dot notation
+        #  @return [Fixnum] IP as an integer
+        def self.to_i(ip)
+            ipaddr = IPAddr.new ip, Socket::AF_INET6
+
+            return ipaddr.to_i
+        end
+
+        # Returns the string equivalent  of a IP address 
+        #  @param ip [Fixnum] IP as an integer
+        #  @return [String] IP in dot notation
+        def self.to_s(ip)
+            ipaddr = IPAddr.new ip, Socket::AF_INET6
+
+            return ipaddr.to_s
         end
     end
 end
