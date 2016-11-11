@@ -241,7 +241,7 @@ class EC2QueryServer < CloudServer
     private
 
     def render_launch_time(vm)
-        return "<launchTime>#{Time.at(vm["STIME"].to_i).utc.xmlschema}</launchTime>"
+        return "<launchTime>#{Time.at(vm["STIME"].to_i).xmlschema}</launchTime>"
     end
 end
 

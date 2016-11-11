@@ -29,6 +29,8 @@ define(function(require) {
   var TemplateHtml = require('hbs!./storage/html');
   var DiskDetailsHtml = require('hbs!./storage/disk-details');
   var Navigation = require('utils/navigation');
+  var Notifier = require('utils/notifier');
+  var Graphs = require('utils/graphs');
 
   /*
     CONSTANTS
@@ -62,6 +64,7 @@ define(function(require) {
   Panel.prototype.setup = _setup;
   Panel.prototype.getState = _getState;
   Panel.prototype.setState = _setState;
+  Panel.prototype.onShow = _onShow;
 
   return Panel;
 
@@ -76,10 +79,82 @@ define(function(require) {
       diskCost = Config.onedConf.DEFAULT_COST.DISK_COST;
     }
 
-    return TemplateHtml({
+    var html = TemplateHtml({
         element: this.element,
         diskCost: diskCost
       });
+    // Do not show statistics for not hypervisors that do not gather net data
+    //if (OpenNebulaVM.isNICGraphsSupported(that.element)) {
+      html += '\
+          <div class="row">\
+              <div class="medium-6 columns">\
+                <div class="row">\
+                  <span>' + Locale.tr("Disk RD Bytes") + '</span3>\
+                </div>\
+                <div class="row">\
+                  <div class="large-12 columns centered graph" id="vm_st_drb_graph" style="height: 100px;">\
+                    <span  id="provision_dashboard_total" style="font-size:80px">\
+                      <i class="fa fa-spinner fa-spin"></i>\
+                    </span>\
+                  </div>\
+                </div>\
+                <div class="row graph_legend">\
+                  <div class="large-12 columns centered" id="vm_net_rx_legend">\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="medium-6 columns">\
+                <div class="row">\
+                  <span>' + Locale.tr("Disk WR Bytes") + '</span3>\
+                </div>\
+                <div class="row">\
+                  <div class="large-12 columns centered graph" id="vm_st_dwb_graph" style="height: 100px;">\
+                    <span  id="provision_dashboard_total" style="font-size:80px">\
+                      <i class="fa fa-spinner fa-spin"></i>\
+                    </span>\
+                  </div>\
+                </div>\
+                <div class="row graph_legend">\
+                  <div class="large-12 columns centered" id="vm_net_tx_legend">\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="medium-6 columns">\
+                <div class="row">\
+                  <span>' + Locale.tr("Disk RD IOPS") + '</span3>\
+                </div>\
+                <div class="row">\
+                  <div class="large-12 columns centered graph" id="vm_st_drio_graph" style="height: 100px;">\
+                    <span  id="provision_dashboard_total" style="font-size:80px">\
+                      <i class="fa fa-spinner fa-spin"></i>\
+                    </span>\
+                  </div>\
+                </div>\
+                <div class="row graph_legend">\
+                  <div class="large-12 columns centered" id="vm_net_rx_speed_legend">\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="medium-6 columns">\
+                <div class="row">\
+                  <span>' + Locale.tr("Disk WR IOPS") + '</span3>\
+                </div>\
+                <div class="row">\
+                  <div class="large-12 columns centered graph" id="vm_st_dwio_graph" style="height: 100px;">\
+                    <span  id="provision_dashboard_total" style="font-size:80px">\
+                      <i class="fa fa-spinner fa-spin"></i>\
+                    </span>\
+                  </div>\
+                </div>\
+                <div class="row graph_legend">\
+                  <div class="large-12 columns centered" id="vm_net_tx_speed_legend">\
+                  </div>\
+                </div>\
+              </div>\
+          </div>\
+        </form>';
+   // }
+    return html;
   }
 
   function _setup(context) {
@@ -570,5 +645,62 @@ define(function(require) {
       htmlStr : html,
       subTree : subTree
     };
+  }
+
+  function _onShow(context) {
+    var that = this;
+    if (OpenNebulaVM.isDiskGraphsSupported(that.element)) {
+      OpenNebulaVM.monitor({
+        data: {
+          id: that.element.ID,
+          monitor: {
+            monitor_resources : "MONITORING/DISKRDBYTES,MONITORING/DISKWRBYTES,MONITORING/DISKRDIOPS,MONITORING/DISKWRIOPS"
+          }
+        },
+        success: function(req, response) {
+          var vmGraphs = [
+            {
+              labels : Locale.tr("Disk read bytes"),
+              monitor_resources : "MONITORING/DISKRDBYTES",
+              humanize_figures : true,
+              convert_from_bytes : true,
+               derivative : true,
+              div_graph : $("#vm_st_drb_graph")
+            },
+            {
+              labels : Locale.tr("Disk write bytes"),
+              monitor_resources : "MONITORING/DISKWRBYTES",
+              humanize_figures : true,
+              convert_from_bytes : true,
+               derivative : true,
+              div_graph : $("#vm_st_dwb_graph")
+            },
+            {
+              labels : Locale.tr("Disk Read IOPS"),
+              monitor_resources : "MONITORING/DISKRDIOPS",
+              //humanize_figures : true,
+              //convert_from_bytes : true,
+              y_sufix : "IOPS/s",
+              derivative : true,
+              div_graph : $("#vm_st_drio_graph")
+            },
+            {
+              labels : Locale.tr("Disk write IOPS"),
+              monitor_resources : "MONITORING/DISKWRIOPS",
+              //humanize_figures : true,
+              //convert_from_bytes : true,
+              y_sufix : "IOPS/s",
+              derivative : true,
+              div_graph : $("#vm_st_dwio_graph")
+            }
+          ];
+
+          for (var i = 0; i < vmGraphs.length; i++) {
+            Graphs.plot(response, vmGraphs[i]);
+          }
+        },
+        error: Notifier.onError
+      });
+    }
   }
 });

@@ -1454,6 +1454,11 @@ class VCenterVm
 
         @netrx = 0
         @nettx = 0
+
+        @diskrdbytes = 0
+        @diskwrbytes = 0
+        @diskrdiops = 0
+        @diskwriops = 0
     end
 
     ############################################################################
@@ -1862,6 +1867,10 @@ class VCenterVm
             @netrx = 0
             @nettx = 0
 
+            @diskrdbytes = 0
+            @diskwrbytes = 0
+            @diskrdiops = 0
+            @diskwriops = 0
             return
         end
 
@@ -1893,7 +1902,7 @@ class VCenterVm
 
         @guest_ip_addresses = guest_ip_addresses.join(',')
 
-        # Network metrics - Realtime retrieved by perfManager
+        # PerfManager metrics
         pm = @client.vim.serviceInstance.content.perfManager
 
         provider = pm.provider_summary [@vm].first
@@ -1909,32 +1918,38 @@ class VCenterVm
         if vmid < 0
             @nettx = 0
             @netrx = 0
-            id_not_found = "Could not retrieve VM ID from extra configuration for "\
-                           "vCenter's VM UUID #{@vm.config.uuid}"
+            @diskrdbytes = 0
+            @diskwrbytes = 0
+            @diskrdiops = 0
+            @diskwriops = 0
         else
             one_vm = OpenNebula::VirtualMachine.new_with_id(vmid, OpenNebula::Client.new)
             one_vm.info
             stats = []
 
-            if(one_vm["LAST_POLL"] && one_vm["LAST_POLL"].to_i != 0 )
+            if(one_vm["MONITORING/LAST_MON"] && one_vm["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
-                interval = (Time.now.to_i - one_vm["LAST_POLL"].to_i)
+                interval = (Time.now.to_i - one_vm["MONITORING/LAST_MON"].to_i)
 
                 #If last poll was more than hour ago get 3 minutes,
                 #else calculate how many samples since last poll
-                samples =  interval > 3600 ? 9 : interval / refresh_rate
+                samples =  interval > 3600 ? 9 : (interval / refresh_rate) + 1
                 max_samples = samples > 0 ? samples : 1
 
                 stats = pm.retrieve_stats(
                     [@vm],
-                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received'],
+                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
+                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
+                    'virtualDisk.read','virtualDisk.write'],
                     {interval:refresh_rate, max_samples: max_samples}
                 )
             else
                 # First poll, get at least latest 3 minutes = 9 samples
                 stats = pm.retrieve_stats(
                     [@vm],
-                    ['net.transmitted','net.bytesRx'],
+                    ['net.transmitted','net.bytesRx','net.bytesTx','net.received',
+                    'virtualDisk.numberReadAveraged','virtualDisk.numberWriteAveraged',
+                    'virtualDisk.read','virtualDisk.write'],
                     {interval:refresh_rate, max_samples: 9}
                 )
             end
@@ -1942,21 +1957,63 @@ class VCenterVm
             if stats.empty? || stats.first[1][:metrics].empty?
                 @nettx = 0
                 @netrx = 0
+                @diskrdbytes = 0
+                @diskwrbytes = 0
+                @diskrdiops = 0
+                @diskwriops = 0
             else
                 metrics = stats.first[1][:metrics]
 
                 nettx_kbpersec = 0
-                metrics['net.transmitted'].each { |sample|
-                    nettx_kbpersec += sample
-                }
+                if metrics['net.transmitted']
+                    metrics['net.transmitted'].each { |sample|
+                        nettx_kbpersec += sample
+                    }
+                end
 
                 netrx_kbpersec = 0
-                metrics['net.bytesRx'].each { |sample|
-                    netrx_kbpersec += sample
-                }
+                if metrics['net.bytesRx']
+                    metrics['net.bytesRx'].each { |sample|
+                        netrx_kbpersec += sample
+                    }
+                end
+
+                read_kbpersec = 0
+                if metrics['virtualDisk.read']
+                    metrics['virtualDisk.read'].each { |sample|
+                        read_kbpersec += sample
+                    }
+                end
+
+                read_iops = 0
+                if metrics['virtualDisk.numberReadAveraged']
+                    metrics['virtualDisk.numberReadAveraged'].each { |sample|
+                        read_iops += sample
+                    }
+                end
+
+                write_kbpersec = 0
+                if metrics['virtualDisk.write']
+                    metrics['virtualDisk.write'].each { |sample|
+                        write_kbpersec += sample
+                    }
+                end
+
+                write_iops = 0
+                if metrics['virtualDisk.numberWriteAveraged']
+                    metrics['virtualDisk.numberWriteAveraged'].each { |sample|
+                        write_iops += sample
+                    }
+                end
 
                 @nettx = (nettx_kbpersec * 1024 * refresh_rate).to_i
                 @netrx = (netrx_kbpersec * 1024 * refresh_rate).to_i
+
+                @diskrdiops = read_iops
+                @diskwriops = write_iops
+                @diskrdbytes = (read_kbpersec * 1024 * refresh_rate).to_i
+                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
+
             end
         end
     end
@@ -1974,11 +2031,16 @@ class VCenterVm
           str_info << "GUEST_IP_ADDRESSES=\\\"" <<
               @guest_ip_addresses.to_s << "\\\" "
       end
+      str_info << "LAST_MON=" << Time.now.to_i.to_s << " "
       str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
       str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
       str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
       str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s           << " "
       str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s           << " "
+      str_info << "DISKRDBYTES=" << @diskrdbytes.to_s << " "
+      str_info << "DISKWRBYTES=" << @diskwrbytes.to_s << " "
+      str_info << "DISKRDIOPS="  << @diskrdiops.to_s  << " "
+      str_info << "DISKWRIOPS="  << @diskwriops.to_s  << " "
       str_info << "ESX_HOST=\\\""               << @esx_host.to_s        << "\\\" "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
@@ -2589,7 +2651,8 @@ private
             vm.config.hardware.device.each{ |dv|
                 if is_nic?(dv)
                    nics.each{|nic|
-                      if nic.elements["MAC"].text == dv.macAddress
+                      if nic.elements["MAC"].text == dv.macAddress and
+                         nic.elements["BRIDGE"].text == dv.deviceInfo.summary
                          nics.delete(nic)
                       end
                    }

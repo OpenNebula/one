@@ -612,6 +612,7 @@ define(function(require) {
     "retrieveExternalIPs": retrieveExternalIPs,
     "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
     "isNICGraphsSupported": isNICGraphsSupported,
+    "isDiskGraphsSupported": isDiskGraphsSupported,
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
     "isSPICESupported": isSPICESupported,
@@ -638,6 +639,15 @@ define(function(require) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
       return $.inArray(history.VM_MAD, ['az']) == -1;
+    } else {
+      return false;
+    }
+  }
+
+   function isDiskGraphsSupported(element) {
+    var history = retrieveLastHistoryRecord(element)
+    if (history) {
+      return $.inArray(history.VM_MAD, ['ec2','az']) == -1;
     } else {
       return false;
     }
