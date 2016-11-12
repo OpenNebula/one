@@ -382,14 +382,19 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "HOST SHARES", false)
-
-        puts str % ["TOTAL MEM", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM'].to_i, {})]
-        puts str % ["USED MEM (REAL)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM'].to_i, {})]
-        puts str % ["USED MEM (ALLOCATED)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE'].to_i, {})]
-        puts str % ["TOTAL CPU", host['HOST_SHARE/MAX_CPU']]
-        puts str % ["USED CPU (REAL)", host['HOST_SHARE/USED_CPU']]
-        puts str % ["USED CPU (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
         puts str % ["RUNNING VMS", host['HOST_SHARE/RUNNING_VMS']]
+
+        CLIHelper.print_header(str_h1 % "MEMORY", false)
+          puts str % ["  TOTAL", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/TOTAL_MEM'].to_i, {})]
+          puts str % ["  TOTAL +/- RESERVED", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MAX_MEM'].to_i, {})]
+          puts str % ["  USED (REAL)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/USED_MEM'].to_i, {})]
+          puts str % ["  USED (ALLOCATED)", OpenNebulaHelper.unit_to_str(host['HOST_SHARE/MEM_USAGE'].to_i, {})]
+
+        CLIHelper.print_header(str_h1 % "CPU", false)
+          puts str % ["  TOTAL", host['HOST_SHARE/TOTAL_CPU']]
+          puts str % ["  TOTAL +/- RESERVED", host['HOST_SHARE/MAX_CPU']]
+          puts str % ["  USED (REAL)", host['HOST_SHARE/USED_CPU']]
+          puts str % ["  USED (ALLOCATED)", host['HOST_SHARE/CPU_USAGE']]
         puts
 
         datastores = host.to_hash['HOST']['HOST_SHARE']['DATASTORES']['DS']

@@ -318,6 +318,9 @@ public:
      */
     void reset_capacity()
     {
+        total_cpu = 0;
+        total_mem = 0;
+
         max_cpu = 0;
         max_mem = 0;
 
@@ -343,6 +346,13 @@ public:
     void set_capacity(Host *host, const string& crcpu, const string& crmem);
 
     /**
+     * Update the capacity attributes when the RESERVED_CPU and RESERVED_MEM
+     * are updated.
+     *   @param host for this share
+     */
+    void update_capacity(Host *host);
+
+    /**
      *  Return the number of running VMs in this host
      */
     long long get_running_vms()
@@ -356,9 +366,12 @@ private:
     long long mem_usage;  /**< Memory allocated to VMs (in KB)       */
     long long cpu_usage;  /**< CPU  allocated to VMs (in percentage) */
 
+    long long total_mem;  /**< Total memory capacity (in KB)         */
+    long long total_cpu;  /**< Total cpu capacity (in percentage)    */
+
     long long max_disk;   /**< Total disk capacity (in MB)           */
-    long long max_mem;    /**< Total memory capacity (in KB)         */
-    long long max_cpu;    /**< Total cpu capacity (in percentage)    */
+    long long max_mem;    /**< Total memory capacity (in KB) +/- reserved     */
+    long long max_cpu;    /**< Total cpu capacity (in percentage) +/- reserved*/
 
     long long free_disk;  /**< Free disk from the IM monitor         */
     long long free_mem;   /**< Free memory from the IM monitor       */

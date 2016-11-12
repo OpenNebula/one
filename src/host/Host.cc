@@ -740,5 +740,7 @@ int Host::post_update_template(string& error)
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
 
+    host_share.update_capacity(this);
+
     return 0;
 };

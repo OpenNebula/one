@@ -1155,13 +1155,15 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/4.11.80_to_4.90.0.rb \
                              src/onedb/shared/4.90.0_to_5.2.0.rb"
 
-ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
+ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/db_schema.rb \
+                            src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
                             src/onedb/local/4.9.80_to_4.10.3.rb \
                             src/onedb/local/4.10.3_to_4.11.80.rb \
                             src/onedb/local/4.11.80_to_4.13.80.rb \
                             src/onedb/local/4.13.80_to_4.13.85.rb \
-                            src/onedb/local/4.13.85_to_4.90.0.rb"
+                            src/onedb/local/4.13.85_to_4.90.0.rb \
+                            src/onedb/local/4.90.0_to_5.2.0.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
