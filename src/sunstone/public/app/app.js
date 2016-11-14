@@ -176,6 +176,14 @@ define(function(require) {
     });
   }
 
+  function _checkIP( sData )
+  {
+    if (/^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$/.test(sData)) {
+      return 'ip-address';
+    }
+    return null;
+  }
+
   function _setupDataTableSearch() {
     $.fn.dataTable.ext.type.order['file-size-pre'] = function ( data ) {
       var matches = data.match( /^(\d+(?:\.\d+)?)\s*([a-z]+)/i );
@@ -188,6 +196,7 @@ define(function(require) {
         PB: 1125899906842624
       };
 
+
       if (matches) {
         var multiplier = multipliers[matches[2]];
         return parseFloat( matches[1] ) * multiplier;
@@ -195,5 +204,110 @@ define(function(require) {
         return -1;
       }
     }
+
+    //source https://cdn.datatables.net/plug-ins/1.10.12/type-detection/ip-address.js (modified)
+    jQuery.fn.dataTableExt.aTypes.unshift(
+      function ( sData )
+      {
+        if (/^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$/.test(sData)) {
+          return 'ip-address';
+        }
+        return 'ip-address';
+      }
+    );
+
+    //source https://datatables.net/plug-ins/sorting/ip-address (modified)
+    jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    "ip-address-pre": function ( a ) {
+      var ip = a.split("<br>");
+        var i, item;
+        if(ip.length == 1){
+          var m = a.split("."),
+              n = a.split(":");
+            }
+        else if(ip.length > 1){
+          var m = ip[0].split("."),
+              n = ip[0].split(":");
+        }
+        var x = "",
+            xa = "";
+ 
+        if (m.length == 4) {
+            // IPV4
+            for(i = 0; i < m.length; i++) {
+                item = m[i];
+ 
+                if(item.length == 1) {
+                    x += "00" + item;
+                }
+                else if(item.length == 2) {
+                    x += "0" + item;
+                }
+                else {
+                    x += item;
+                }
+            }
+        }
+        else if (n.length > 0) {
+            // IPV6
+            var count = 0;
+            for(i = 0; i < n.length; i++) {
+                item = n[i];
+ 
+                if (i > 0) {
+                    xa += ":";
+                }
+ 
+                if(item.length === 0) {
+                    count += 0;
+                }
+                else if(item.length == 1) {
+                    xa += "000" + item;
+                    count += 4;
+                }
+                else if(item.length == 2) {
+                    xa += "00" + item;
+                    count += 4;
+                }
+                else if(item.length == 3) {
+                    xa += "0" + item;
+                    count += 4;
+                }
+                else {
+                    xa += item;
+                    count += 4;
+                }
+            }
+ 
+            // Padding the ::
+            n = xa.split(":");
+            var paddDone = 0;
+ 
+            for (i = 0; i < n.length; i++) {
+                item = n[i];
+ 
+                if (item.length === 0 && paddDone === 0) {
+                    for (var padding = 0 ; padding < (32-count) ; padding++) {
+                        x += "0";
+                        paddDone = 1;
+                    }
+                }
+                else {
+                    x += item;
+                }
+            }
+        }
+ 
+        return x;
+    },
+ 
+    "ip-address-asc": function ( a, b ) {
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+    },
+ 
+    "ip-address-desc": function ( a, b ) {
+        return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+    }
+});
   }
 });
