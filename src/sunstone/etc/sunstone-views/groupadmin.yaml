@@ -1,5 +1,6 @@
 small_logo: images/opennebula-5.0.png
 provision_logo: images/opennebula-5.0.png
+confirm_vms: true
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab

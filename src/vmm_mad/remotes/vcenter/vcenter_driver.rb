@@ -2651,8 +2651,7 @@ private
             vm.config.hardware.device.each{ |dv|
                 if is_nic?(dv)
                    nics.each{|nic|
-                      if nic.elements["MAC"].text == dv.macAddress and
-                         nic.elements["BRIDGE"].text == dv.deviceInfo.summary
+                      if nic.elements["MAC"].text == dv.macAddress
                          nics.delete(nic)
                       end
                    }
