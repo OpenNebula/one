@@ -92,19 +92,16 @@ define(function(require) {
                                       this.strippedTemplate,
                                       RESOURCE,
                                       Locale.tr("Attributes"));
-
+    console.log(this.element);
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var cpuBars = CPUBars.html(this.element);
     var memoryBars = MemoryBars.html(this.element);
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
-    var realCPU = parseInt(this.element.HOST_SHARE.FREE_CPU);
-    if(this.element.HOST_SHARE.USED_CPU != "")
-      realCPU += parseInt(this.element.HOST_SHARE.USED_CPU);
-    var realMEM = parseInt(this.element.HOST_SHARE.FREE_MEM);
-    if(this.element.HOST_SHARE.USED_MEM != "")
-      realMEM += parseInt(this.element.HOST_SHARE.USED_MEM);
+    var realCPU = parseInt(this.element.HOST_SHARE.TOTAL_CPU);
+    var realMEM = parseInt(this.element.HOST_SHARE.TOTAL_MEM);
+  
 
     return TemplateInfo({
       'element': this.element,
@@ -116,15 +113,19 @@ define(function(require) {
       'memoryBars': memoryBars,
       'stateStr': OpenNebulaHost.stateStr(this.element.STATE),
       'datastoresCapacityTableHTML': datastoresCapacityTableHTML,
+      'maxReservedMEM': realMEM * 2,
       'maxReservedCPU': realCPU * 2,
       'realCPU': realCPU,
       'realMEM': Humanize.size(realMEM),
-      'maxReservedMEM': realMEM * 2,
       'virtualMEMInput': Humanize.size(this.element.HOST_SHARE.MAX_MEM)
     });
   }
 
   function changeBarCPU(){
+    if(parseInt(document.getElementById('change_bar_cpu').value) > this.element.HOST_SHARE.TOTAL_CPU)
+      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+    if(parseInt(document.getElementById('change_bar_cpu').value) < this.element.HOST_SHARE.TOTAL_CPU)
+      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
     document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
   }
 
@@ -133,6 +134,10 @@ define(function(require) {
   }
 
   function changeBarMEM(){
+    if(parseInt(document.getElementById('change_bar_mem').value) > this.element.HOST_SHARE.TOTAL_MEM)
+      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+    if(parseInt(document.getElementById('change_bar_mem').value) < this.element.HOST_SHARE.TOTAL_MEM)
+      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
     document.getElementById('textInput_reserved_mem').value = Humanize.size(parseInt(document.getElementById('change_bar_mem').value));
   }
 
@@ -147,20 +152,6 @@ define(function(require) {
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-
-    $("", context).on("click", function(){
-      var dialog = Sunstone.getDialog(OVERCOMMIT_DIALOG_ID);
-
-      dialog.setParams(
-        { element: that.element,
-          action : "Host.append_template",
-          resourceName : Locale.tr("Host"),
-          tabId : TAB_ID
-        });
-
-      dialog.show();
-      return false;
-    });
 
     //.off and .on prevent multiple clicks events
     $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){

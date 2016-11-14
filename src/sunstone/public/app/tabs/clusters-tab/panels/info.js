@@ -24,6 +24,7 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
   var Sunstone = require('sunstone');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -47,12 +48,13 @@ define(function(require) {
     this.icon = "fa-info-circle";
 
     this.element = info[XML_ROOT];
+    this.percent = false;
 
     // Hide information in the template table. Unshow values are stored
     // in the unshownTemplate object to be used when the element info is updated.
     that.unshownTemplate = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['RESERVED_CPU', 'RESERVED_MEM'];
+    var unshownKeys = ['HOST', 'RESERVED_CPU', 'RESERVED_MEM'];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
         that.unshownTemplate[key] = value;
@@ -80,12 +82,41 @@ define(function(require) {
                                       this.strippedTemplate,
                                       RESOURCE,
                                       Locale.tr("Attributes"));
-
+    var reservedMem;
+    (this.element.TEMPLATE.RESERVED_MEM != "0%")?reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM): reservedMem = 0;
+    var reservedCPU
+    (this.element.TEMPLATE.RESERVED_CPU != "0%")? reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU): reservedCPU = 0;
     return TemplateHTML({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
-      'templateTableHTML': templateTableHTML
+      'templateTableHTML': templateTableHTML,
+      'percentCPU': reservedCPU,
+      'percentMEM': reservedMem,
     });
+  }
+
+  function changeBarCPU(){
+    if(parseInt(document.getElementById('change_bar_cpu').value) > 0)
+      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+    if(parseInt(document.getElementById('change_bar_cpu').value) < 0)
+      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
+  }
+
+   function changeInputCPU(){
+    document.getElementById('change_bar_cpu').value = document.getElementById('textInput_reserved_cpu').value;
+  }
+
+  function changeBarMEM(){
+    if(parseInt(document.getElementById('change_bar_mem').value) > 0)
+      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+    if(parseInt(document.getElementById('change_bar_mem').value) < 0)
+      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value;
+  }
+
+   function changeInputMEM(){
+    document.getElementById('change_bar_mem').value = document.getElementById('textInput_reserved_mem').value;
   }
 
   function _setup(context) {
@@ -95,18 +126,17 @@ define(function(require) {
 
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
 
-    $(".edit_reserved", context).on("click", function(){
-      var dialog = Sunstone.getDialog(OVERCOMMIT_DIALOG_ID);
+    document.getElementById("change_bar_cpu").addEventListener("change", changeBarCPU);
+    document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
+    document.getElementById("change_bar_mem").addEventListener("change", changeBarMEM);
+    document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
 
-      dialog.setParams(
-        { element: that.element,
-          action : "Cluster.append_template",
-          resourceName : Locale.tr("Cluster"),
-          tabId : TAB_ID
-        });
+    $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){
+        var reservedCPU = document.getElementById('change_bar_cpu').value+'%'; 
+        var reservedMem = document.getElementById('change_bar_mem').value+'%';
 
-      dialog.show();
-      return false;
+        var obj = {RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem};
+        Sunstone.runAction("Cluster.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
     });
   }
 });
