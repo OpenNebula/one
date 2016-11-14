@@ -13,12 +13,11 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
 define(function(require) {
   /*
     DEPENDENCIES
    */
-
+  require('foundation');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
@@ -31,6 +30,7 @@ define(function(require) {
   var DatastoresCapacityTable = require('../utils/datastores-capacity-table');
   var CanImportWilds = require('../utils/can-import-wilds');
   var Sunstone = require('sunstone');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -59,7 +59,6 @@ define(function(require) {
     that.icon = "fa-info-circle";
 
     that.element = info[XML_ROOT];
-
     that.canImportWilds = CanImportWilds(that.element);
 
     // Hide information of the Wild VMs of the Host and the ESX Hosts
@@ -88,7 +87,6 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-
   function _html() {
     var templateTableHTML = TemplateTable.html(
                                       this.strippedTemplate,
@@ -101,6 +99,12 @@ define(function(require) {
     var cpuBars = CPUBars.html(this.element);
     var memoryBars = MemoryBars.html(this.element);
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
+    var realCPU = parseInt(this.element.HOST_SHARE.FREE_CPU);
+    if(this.element.HOST_SHARE.USED_CPU != "")
+      realCPU += parseInt(this.element.HOST_SHARE.USED_CPU);
+    var realMEM = parseInt(this.element.HOST_SHARE.FREE_MEM);
+    if(this.element.HOST_SHARE.USED_MEM != "")
+      realMEM += parseInt(this.element.HOST_SHARE.USED_MEM);
 
     return TemplateInfo({
       'element': this.element,
@@ -111,8 +115,29 @@ define(function(require) {
       'cpuBars': cpuBars,
       'memoryBars': memoryBars,
       'stateStr': OpenNebulaHost.stateStr(this.element.STATE),
-      'datastoresCapacityTableHTML': datastoresCapacityTableHTML
+      'datastoresCapacityTableHTML': datastoresCapacityTableHTML,
+      'maxReservedCPU': realCPU * 2,
+      'realCPU': realCPU,
+      'realMEM': Humanize.size(realMEM),
+      'maxReservedMEM': realMEM * 2,
+      'virtualMEMInput': Humanize.size(this.element.HOST_SHARE.MAX_MEM)
     });
+  }
+
+  function changeBarCPU(){
+    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
+  }
+
+   function changeInputCPU(){
+    document.getElementById('change_bar_cpu').value = document.getElementById('textInput_reserved_cpu').value;
+  }
+
+  function changeBarMEM(){
+    document.getElementById('textInput_reserved_mem').value = Humanize.size(parseInt(document.getElementById('change_bar_mem').value));
+  }
+
+   function changeInputMEM(){
+    document.getElementById('change_bar_mem').value = parseInt(document.getElementById('textInput_reserved_mem').value);
   }
 
   function _setup(context) {
@@ -123,7 +148,7 @@ define(function(require) {
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
-    $(".edit_reserved", context).on("click", function(){
+    $("", context).on("click", function(){
       var dialog = Sunstone.getDialog(OVERCOMMIT_DIALOG_ID);
 
       dialog.setParams(
@@ -136,6 +161,29 @@ define(function(require) {
       dialog.show();
       return false;
     });
+
+    //.off and .on prevent multiple clicks events
+    $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){
+        var reservedCPU = parseInt(document.getElementById('change_bar_cpu').value); 
+        var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
+        var reservedMem = parseInt(document.getElementById('change_bar_mem').value); 
+        var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
+        if(parseInt(that.element.HOST_SHARE.USED_CPU) > 0)
+          CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
+        reservedCPU = CPU - reservedCPU;
+        if(parseInt(that.element.HOST_SHARE.USED_MEM) > 0)
+          MEM += parseInt(that.element.HOST_SHARE.USED_MEM);
+        reservedMem = MEM - reservedMem;
+
+        var obj = {RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem};
+        Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
+    });
+    
+
+    document.getElementById("change_bar_cpu").addEventListener("change", changeBarCPU);
+    document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
+    document.getElementById("change_bar_mem").addEventListener("change", changeBarMEM);
+    document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
 
     return false;
   }

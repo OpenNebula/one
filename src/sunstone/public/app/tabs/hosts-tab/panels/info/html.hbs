@@ -73,30 +73,38 @@
         </tr>
       </tbody>
     </table>
+    {{{datastoresCapacityTableHTML}}}
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 columns">
     <table class="dataTable">
       <thead>
         <tr>
-          <th colspan="3">{{tr "Overcommitment"}}</th>
+          <th colspan="4">{{tr "Overcommitment"}} 
+          <span class="right">
+                <button id="update_reserved" type="button" class="button small success update_reserved right radius">
+                  {{tr "Update"}}
+                </button>
+              </span>
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr colspan="3">
           <td class="key_td">{{tr "Reserved CPU"}}</td>
-          <td class="value_td" style="width:50%;">{{valOrDefault element.TEMPLATE.RESERVED_CPU "-"}}</td>
-          <td>
-            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
-          </td>
+          <td><input type="range" name="rangeInput" id="change_bar_cpu" min="0" value="{{element.HOST_SHARE.MAX_CPU}}" max="{{maxReservedCPU}}">
+          <label align="center">{{realCPU}}</label></td>
+          <td><input type="text" id="textInput_reserved_cpu"value="{{element.HOST_SHARE.MAX_CPU}}" min="0" size="1"></td>
         </tr>
-        <tr>
+        <tr colspan="3">
           <td class="key_td">{{tr "Reserved Memory"}}</td>
-          <td class="value_td" style="width:50%;">{{humanizeSize "KB" element.TEMPLATE.RESERVED_MEM}}</td>
-          <td>
-            <a class="edit_reserved edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
-          </td>
+          <td><input type="range" name="rangeInput" id="change_bar_mem" value="{{element.HOST_SHARE.MAX_MEM}}" max="{{maxReservedMEM}}">
+          <label align="center">{{realMEM}}</label></td>
+          <td><input type="text" id="textInput_reserved_mem" value="{{virtualMEMInput}}" min="0" size="1"></td>
         </tr>
       </tbody>
     </table>
-    {{{datastoresCapacityTableHTML}}}
   </div>
 </div>
 <div class="row">
