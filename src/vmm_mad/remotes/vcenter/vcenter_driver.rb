@@ -383,6 +383,9 @@ class VIClient
 
         storage_pods = VIClient.get_entities(@dc.datastoreFolder, 'StoragePod')
         storage_pods.each { |sp|
+            datastores << sp #Add StoragePod
+
+            # Add individual datastores under StoragePod
             storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
             if not storage_pod_datastores.empty?
                 datastores.concat(storage_pod_datastores)
@@ -632,6 +635,7 @@ class VIClient
 
             storage_pods = VIClient.get_entities(dc.datastoreFolder, 'StoragePod')
             storage_pods.each { |sp|
+                datastores << sp # Add StoragePod
                 storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
                 if not storage_pod_datastores.empty?
                     datastores.concat(storage_pod_datastores)
@@ -639,24 +643,50 @@ class VIClient
             }
 
             datastores.each { |ds|
-                next if !ds.is_a? RbVmomi::VIM::Datastore
+                next if !ds.is_a? RbVmomi::VIM::Datastore and !ds.is_a? RbVmomi::VIM::StoragePod
                 # Find the Cluster from which to access this ds
-                next if !ds.host[0]
-                cluster_name = ds.host[0].key.parent.name
+
+                cluster_name = ""
+                if ds.is_a? RbVmomi::VIM::StoragePod
+                    storage_pod_datastores = VIClient.get_entities(ds, 'Datastore')
+                    storage_pod_datastores.each { |sp|
+                        next if !sp.is_a? RbVmomi::VIM::Datastore
+                        # Find the Cluster from which to access this ds
+                        next if !sp.host[0]
+                        cluster_name = sp.host[0].key.parent.name
+                        break
+                    }
+                else
+                    next if !ds.host[0]
+                    cluster_name = ds.host[0].key.parent.name
+                end
 
                 if !dspool["DATASTORE[NAME=\"#{ds.name}\"]"] and
                    hpool["HOST[NAME=\"#{cluster_name}\"]"]
-                     one_tmp << {
-                       :name     => "#{ds.name}",
-                       :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
-                       :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
-                       :cluster  => cluster_name,
-                       :one  => "NAME=#{ds.name}\n"\
-                                "DS_MAD=vcenter\n"\
-                                "TM_MAD=vcenter\n"\
-                                "VCENTER_CLUSTER=#{cluster_name}\n"
-                     }
-                 end
+                   if ds.is_a? RbVmomi::VIM::StoragePod
+                        one_tmp << {
+                            :name     => "#{ds.name}",
+                            :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                            :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                            :cluster  => cluster_name,
+                            :one  => "NAME=#{ds.name}\n"\
+                                     "TM_MAD=vcenter\n"\
+                                     "VCENTER_CLUSTER=#{cluster_name}\n"\
+                                     "TYPE=SYSTEM_DS\n" # StoragePods must be set as SYSTEM_DS
+                        }
+                   else
+                         one_tmp << {
+                            :name     => "#{ds.name}",
+                            :total_mb => ((ds.summary.capacity.to_i / 1024) / 1024),
+                            :free_mb  => ((ds.summary.freeSpace.to_i / 1024) / 1024),
+                            :cluster  => cluster_name,
+                            :one  => "NAME=#{ds.name}\n"\
+                                        "DS_MAD=vcenter\n"\
+                                        "TM_MAD=vcenter\n"\
+                                        "VCENTER_CLUSTER=#{cluster_name}\n"
+                        }
+                   end
+                end
             }
             ds_templates[dc.name] = one_tmp
         }
@@ -712,6 +742,12 @@ class VIClient
 
             ds         = datastores.select{|ds| ds.name == ds_name}[0]
             next if !ds
+
+            # Cannot import from StoragePod directly
+            if ds.is_a? RbVmomi::VIM::StoragePod
+                raise "OpenNebula cannot import images from a StoragePod. Please import"\
+                      " it from the datastore which is a member of the StorageDRS cluster"
+            end
 
             # Create Search Spec
             spec         = RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new
@@ -889,7 +925,10 @@ class VIClient
         total_mb = (ds.summary.capacity.to_i / 1024) / 1024
         free_mb = (ds.summary.freeSpace.to_i / 1024) / 1024
         used_mb = total_mb - free_mb
-        ds_type = ds.summary.type
+
+        if ds.is_a? RbVmomi::VIM::Datastore
+            ds_type = ds.summary.type
+        end
 
         "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
     end
@@ -1045,6 +1084,7 @@ class VCenterCachedHost
             storage_pods = VIClient.get_entities(datacenter.datastoreFolder,
                                                 'StoragePod')
             storage_pods.each { |sp|
+                datastores << sp # Add Storage Pod
                 storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
                 if not storage_pod_datastores.empty?
                     datastores.concat(storage_pod_datastores)
@@ -1416,6 +1456,7 @@ class VCenterHost < ::OpenNebula::Host
                                             'StoragePod')
 
         storage_pods.each { |sp|
+            datastores << sp
             storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
             if not storage_pod_datastores.empty?
                 datastores.concat(storage_pod_datastores)
@@ -2428,6 +2469,9 @@ private
 
             storage_pods = VIClient.get_entities(connection.dc.datastoreFolder,
                                                 'StoragePod')
+
+            storpod = storage_pods.select{|sp| sp.name == datastore}
+
             storage_pods.each { |sp|
                 storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
                 if not storage_pod_datastores.empty?
@@ -2435,16 +2479,19 @@ private
                 end
             }
 
-            ds         = datastores.select{|ds| ds.name == datastore}[0]
-            raise "Cannot find datastore #{datastore}" if !ds
+            ds  = datastores.select{|ds| ds.name == datastore}[0]
+
+            raise "Cannot find datastore #{datastore}" if !ds && !storpod
+
         end
 
         relocate_spec_params = {
-            :diskMoveType => :moveChildMostDiskBacking,
             :pool         => rp
         }
 
         relocate_spec_params[:datastore] = ds if datastore
+
+        relocate_spec_params[:diskMoveType] = :moveChildMostDiskBacking if ds
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                                                          relocate_spec_params)
@@ -2468,44 +2515,81 @@ private
         vim = connection.vim
 
         if !customization.nil?
-        begin
-            custom_spec = vim.serviceContent.customizationSpecManager.
-                GetCustomizationSpec(:name => customization.text)
+            begin
+                custom_spec = vim.serviceContent.customizationSpecManager.
+                    GetCustomizationSpec(:name => customization.text)
 
-            if custom_spec && spec=custom_spec.spec
-                clone_parameters[:customization] = spec
-            else
-                raise "Error getting customization spec"
+                if custom_spec && spec=custom_spec.spec
+                    clone_parameters[:customization] = spec
+                else
+                    raise "Error getting customization spec"
+                end
+
+            rescue
+                raise "Customization spec '#{customization.text}' not found"
             end
-
-        rescue
-            raise "Customization spec '#{customization.text}' not found"
-        end
         end
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(clone_parameters)
 
-        begin
+        if storpod && !storpod.empty? && storpod[0].is_a?(RbVmomi::VIM::StoragePod)
+
+            storage_manager = vim.serviceContent.storageResourceManager
+
+            pod_spec = RbVmomi::VIM.StorageDrsPodSelectionSpec(storagePod: storpod[0])
+
+            storage_spec = RbVmomi::VIM.StoragePlacementSpec(
+                type: 'clone',
+                cloneName: vcenter_name,
+                folder: vc_template.parent,
+                podSelectionSpec: pod_spec,
+                vm: vc_template,
+                cloneSpec: clone_spec
+            )
+
+            result = storage_manager.RecommendDatastores(storageSpec: storage_spec)
+
+            recommendation = result.recommendations[0]
+
+            key = recommendation.key ||= ''
+
+            if key == ''
+                raise "Missing Datastore recommendation for StoragePod (Storage DRS)"
+            end
+
+            begin
+                apply_sr = storage_manager.ApplyStorageDrsRecommendation_Task(key: [key]).wait_for_completion
+                vm = apply_sr.vm
+            rescue Exception => e
+                raise "Cannot clone VM Template to StoragePod: #{e.message}"
+            end
+        else
+
+            begin
             vm = vc_template.CloneVM_Task(
                    :folder => vc_template.parent,
                    :name   => vcenter_name,
                    :spec   => clone_spec).wait_for_completion
-        rescue Exception => e
+            rescue Exception => e
 
-            if !e.message.start_with?('DuplicateName')
-                raise "Cannot clone VM Template: #{e.message}"
+                if !e.message.start_with?('DuplicateName')
+                    raise "Cannot clone VM Template: #{e.message}"
+                end
+
+                vm = connection.find_vm(vcenter_name)
+
+                raise "Cannot clone VM Template" if vm.nil?
+
+                vm.Destroy_Task.wait_for_completion
+                vm = vc_template.CloneVM_Task(
+                    :folder => vc_template.parent,
+                    :name   => vcenter_name,
+                    :spec   => clone_spec).wait_for_completion
             end
 
-            vm = connection.find_vm(vcenter_name)
-
-            raise "Cannot clone VM Template" if vm.nil?
-
-            vm.Destroy_Task.wait_for_completion
-            vm = vc_template.CloneVM_Task(
-                :folder => vc_template.parent,
-                :name   => vcenter_name,
-                :spec   => clone_spec).wait_for_completion
         end
+
+
 
         reconfigure_vm(vm, xml, true, hostname)
 

@@ -40,6 +40,12 @@ begin
 
     ds = vi_client.get_datastore(ds_name)
 
+    if ds.is_a? RbVmomi::VIM::StoragePod
+        STDERR.puts "Cannot upload image to StoragePod #{ds_name} on #{hostname}."\
+                    "Reason: Not supported"
+        exit(-1)
+    end
+
     # Monkey path datastore objects. Can not be done patching the class
     # as the library redefines it when a new object is created. Using both
     # the database vmodl.db and the Datastore.rb

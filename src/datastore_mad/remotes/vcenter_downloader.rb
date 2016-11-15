@@ -49,6 +49,12 @@ begin
 
     ds = vi_client.get_datastore(ds_name)
 
+    if ds.is_a? RbVmomi::VIM::StoragePod
+        STDERR.puts "Cannot download images from StoragePod #{ds_name} on #{hostname}."\
+                    "Reason: Not supported"
+        exit(-1)
+    end
+
     if ds.is_descriptor? img_src
         descriptor_name = File.basename u.path
         temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
