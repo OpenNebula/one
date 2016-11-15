@@ -80,7 +80,6 @@ define(function(require) {
         }
       },
       success: function(req, response) {
-        console.log(response);
         var host_graphs = [
             {
               monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/TOTAL_CPU",
