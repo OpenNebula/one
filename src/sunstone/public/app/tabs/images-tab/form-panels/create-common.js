@@ -252,6 +252,14 @@ define(function(require) {
       }
     });
 
+     $("#img_type", context).change(function() {
+      var value = $(this).val();
+      if(value == "CDROM")
+        $('#img_persistent', context).closest('.row').hide();
+      else
+        $('#img_persistent', context).closest('.row').show();
+    });
+
     $('#path_image', context).click();
 
     CustomTagsTable.setup(context);
