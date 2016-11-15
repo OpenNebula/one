@@ -203,7 +203,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     answer =  STDIN.gets.strip.downcase
 
-                    case answer 
+                    case answer
                     when 'd'
                       ds_split     = t[:ds].split("|")
                       list_of_ds   = ds_split[-2]
@@ -269,7 +269,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     answer =  STDIN.gets.strip.downcase
 
-                    case answer 
+                    case answer
                     when 'd'
                        list_of_rp   = rp_split[-2]
                        default_rp   = rp_split[-1]
