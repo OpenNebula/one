@@ -83,9 +83,9 @@ define(function(require) {
                                       RESOURCE,
                                       Locale.tr("Attributes"));
     var reservedMem;
-    (this.element.TEMPLATE.RESERVED_MEM != "0%")?reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM): reservedMem = 0;
+    (this.element.TEMPLATE.RESERVED_MEM != "0%" && this.element.TEMPLATE.RESERVED_MEM != "")?reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM): reservedMem = 0;
     var reservedCPU
-    (this.element.TEMPLATE.RESERVED_CPU != "0%")? reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU): reservedCPU = 0;
+    (this.element.TEMPLATE.RESERVED_CPU != "0%" && this.element.TEMPLATE.RESERVED_CPU != "")? reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU): reservedCPU = 0;
     return TemplateHTML({
       'element': this.element,
       'renameTrHTML': renameTrHTML,

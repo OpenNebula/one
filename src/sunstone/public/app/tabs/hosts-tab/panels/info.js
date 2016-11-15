@@ -92,7 +92,6 @@ define(function(require) {
                                       this.strippedTemplate,
                                       RESOURCE,
                                       Locale.tr("Attributes"));
-    console.log(this.element);
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var clusterTrHTML = ClusterTr.html(this.element.CLUSTER);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
@@ -101,7 +100,6 @@ define(function(require) {
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
     var realCPU = parseInt(this.element.HOST_SHARE.TOTAL_CPU);
     var realMEM = parseInt(this.element.HOST_SHARE.TOTAL_MEM);
-  
 
     return TemplateInfo({
       'element': this.element,
@@ -121,26 +119,10 @@ define(function(require) {
     });
   }
 
-  function changeBarCPU(){
-    if(parseInt(document.getElementById('change_bar_cpu').value) > this.element.HOST_SHARE.TOTAL_CPU)
-      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-    if(parseInt(document.getElementById('change_bar_cpu').value) < this.element.HOST_SHARE.TOTAL_CPU)
-      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
-  }
-
    function changeInputCPU(){
     document.getElementById('change_bar_cpu').value = document.getElementById('textInput_reserved_cpu').value;
   }
-
-  function changeBarMEM(){
-    if(parseInt(document.getElementById('change_bar_mem').value) > this.element.HOST_SHARE.TOTAL_MEM)
-      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-    if(parseInt(document.getElementById('change_bar_mem').value) < this.element.HOST_SHARE.TOTAL_MEM)
-      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_mem').value = Humanize.size(parseInt(document.getElementById('change_bar_mem').value));
-  }
-
+  
    function changeInputMEM(){
     document.getElementById('change_bar_mem').value = parseInt(document.getElementById('textInput_reserved_mem').value);
   }
@@ -170,12 +152,21 @@ define(function(require) {
         Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
     });
     
-
-    document.getElementById("change_bar_cpu").addEventListener("change", changeBarCPU);
+    document.getElementById("change_bar_cpu").addEventListener("change", function(){
+      if(parseInt(document.getElementById('change_bar_cpu').value) > that.element.HOST_SHARE.TOTAL_CPU)
+        document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+      if(parseInt(document.getElementById('change_bar_cpu').value) < that.element.HOST_SHARE.TOTAL_CPU)
+        document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+      document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
+    });
     document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
-    document.getElementById("change_bar_mem").addEventListener("change", changeBarMEM);
+    document.getElementById("change_bar_mem").addEventListener("change", function(){
+      if(parseInt(document.getElementById('change_bar_mem').value) > that.element.HOST_SHARE.TOTAL_MEM)
+        document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+      if(parseInt(document.getElementById('change_bar_mem').value) < that.element.HOST_SHARE.TOTAL_MEM)
+        document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+      document.getElementById('textInput_reserved_mem').value = Humanize.size(parseInt(document.getElementById('change_bar_mem').value));
+    });
     document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
-
-    return false;
   }
 });
