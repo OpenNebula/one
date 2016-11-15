@@ -51,7 +51,7 @@
       margin-top: 1rem;
       border: 1px solid #dfdfdf;
       padding: 1rem;
-      background: #fff;
+      background: $bg-li-support-tab;
 
       .support_connect {
         span {
@@ -89,7 +89,7 @@
   padding-top: 9rem;
   padding-bottom: 1rem;
   margin-top: -8rem;
-  background: #f8f8f8;
+  background: $bg-menu-wrapper;
   //margin-right: 1rem;
   //background-color: white
   &.menu-small {
