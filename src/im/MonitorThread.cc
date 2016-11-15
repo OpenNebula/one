@@ -133,9 +133,9 @@ void MonitorThread::do_message()
 
     int cid = host->get_cluster_id();
 
-    long long reserved_cpu = 0;
+    string reserved_cpu = "";
 
-    long long reserved_mem = 0;
+    string reserved_mem = "";
 
     delete hinfo;
 

@@ -22,6 +22,7 @@
 #include <iomanip>
 
 #include "HostShare.h"
+#include "Host.h"
 
 using namespace std;
 
@@ -375,6 +376,7 @@ ostream& operator<<(ostream& os, const HostSharePCI& pci)
 
 	return os;
 }
+
 /* ************************************************************************ */
 /* HostShare :: Constructor/Destructor                                      */
 /* ************************************************************************ */
@@ -384,6 +386,8 @@ HostShare::HostShare(long long _max_disk,long long _max_mem,long long _max_cpu):
         disk_usage(0),
         mem_usage(0),
         cpu_usage(0),
+        total_mem(_max_mem),
+        total_cpu(_max_cpu),
         max_disk(_max_disk),
         max_mem(_max_mem),
         max_cpu(_max_cpu),
@@ -416,6 +420,8 @@ string& HostShare::to_xml(string& xml) const
           << "<DISK_USAGE>" << disk_usage << "</DISK_USAGE>"
           << "<MEM_USAGE>"  << mem_usage  << "</MEM_USAGE>"
           << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"
+          << "<TOTAL_MEM>"  << total_mem  << "</TOTAL_MEM>"
+          << "<TOTAL_CPU>"  << total_cpu  << "</TOTAL_CPU>"
           << "<MAX_DISK>"   << max_disk   << "</MAX_DISK>"
           << "<MAX_MEM>"    << max_mem    << "</MAX_MEM>"
           << "<MAX_CPU>"    << max_cpu    << "</MAX_CPU>"
@@ -449,6 +455,9 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     rc += xpath<long long>(disk_usage, "/HOST_SHARE/DISK_USAGE", -1);
     rc += xpath<long long>(mem_usage,  "/HOST_SHARE/MEM_USAGE",  -1);
     rc += xpath<long long>(cpu_usage,  "/HOST_SHARE/CPU_USAGE",  -1);
+
+    rc += xpath<long long>(total_mem ,  "/HOST_SHARE/TOTAL_MEM", -1);
+    rc += xpath<long long>(total_cpu,   "/HOST_SHARE/TOTAL_CPU", -1);
 
     rc += xpath<long long>(max_disk,   "/HOST_SHARE/MAX_DISK",   -1);
     rc += xpath<long long>(max_mem ,   "/HOST_SHARE/MAX_MEM",    -1);
@@ -523,6 +532,118 @@ void HostShare::set_ds_monitorization(const vector<VectorAttribute*> &ds_att)
     }
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void set_reserved_metric(long long& value, long long mvalue,
+        string& reserved)
+{
+    bool abs = true;
+
+    if ( reserved.empty() )
+    {
+        value = mvalue;
+        return;
+    }
+
+    if (std::isspace(reserved.back()))
+    {
+        reserved = one_util::trim(reserved);
+    }
+
+    if (reserved.back() == '%')
+    {
+        abs = false;
+        reserved.erase(reserved.end()-1);
+    }
+
+    istringstream iss(reserved);
+
+    iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        value = mvalue;
+        return;
+    }
+
+    if (abs)
+    {
+        value = mvalue - value;
+    }
+    else
+    {
+        value = mvalue * ( 1 - (value / 100.0));
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+void HostShare::set_capacity(Host *host, const string& cluster_rcpu,
+        const string& cluster_rmem)
+{
+    float val;
+
+    string host_rcpu;
+    string host_rmem;
+
+    host->get_reserved_capacity(host_rcpu, host_rmem);
+
+    if ( host_rcpu.empty() )
+    {
+        host_rcpu = cluster_rcpu;
+    }
+
+    if ( host_rmem.empty() )
+    {
+        host_rmem = cluster_rmem;
+    }
+
+    host->erase_template_attribute("TOTALCPU", val);
+    total_cpu = val;
+    set_reserved_metric(max_cpu, val, host_rcpu);
+
+    host->erase_template_attribute("TOTALMEMORY", val);
+    total_mem = val;
+    set_reserved_metric(max_mem, val, host_rmem);
+
+    host->erase_template_attribute("DS_LOCATION_TOTAL_MB", val);
+    max_disk = val;
+
+    host->erase_template_attribute("FREECPU", val);
+    free_cpu = val;
+
+    host->erase_template_attribute("FREEMEMORY", val);
+    free_mem = val;
+
+    host->erase_template_attribute("DS_LOCATION_FREE_MB", val);
+    free_disk = val;
+
+    host->erase_template_attribute("USEDCPU", val);
+    used_cpu = val;
+
+    host->erase_template_attribute("USEDMEMORY", val);
+    used_mem = val;
+
+    host->erase_template_attribute("DS_LOCATION_USED_MB", val);
+    used_disk = val;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void HostShare::update_capacity(Host *host)
+{
+    string host_rcpu;
+    string host_rmem;
+
+    host->get_reserved_capacity(host_rcpu, host_rmem);
+
+    set_reserved_metric(max_cpu, total_cpu, host_rcpu);
+
+    set_reserved_metric(max_mem, total_mem, host_rmem);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
