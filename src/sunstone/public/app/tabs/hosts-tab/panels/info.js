@@ -120,11 +120,11 @@ define(function(require) {
   }
 
    function changeInputCPU(){
-    document.getElementById('change_bar_cpu').value = document.getElementById('textInput_reserved_cpu').value;
+    document.getElementById('change_bar_cpu_hosts').value = document.getElementById('textInput_reserved_cpu_hosts').value;
   }
   
    function changeInputMEM(){
-    document.getElementById('change_bar_mem').value = parseInt(document.getElementById('textInput_reserved_mem').value);
+    document.getElementById('change_bar_mem_hosts').value = parseInt(document.getElementById('textInput_reserved_mem_hosts').value);
   }
 
   function _setup(context) {
@@ -136,10 +136,10 @@ define(function(require) {
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     //.off and .on prevent multiple clicks events
-    $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){
-        var reservedCPU = parseInt(document.getElementById('change_bar_cpu').value); 
+    $(document).off('click', '.update_reserved_hosts').on("click", '.update_reserved', function(){
+        var reservedCPU = parseInt(document.getElementById('change_bar_cpu_hosts').value); 
         var CPU = parseInt(that.element.HOST_SHARE.FREE_CPU);
-        var reservedMem = parseInt(document.getElementById('change_bar_mem').value); 
+        var reservedMem = parseInt(document.getElementById('change_bar_mem_hosts').value); 
         var MEM = parseInt(that.element.HOST_SHARE.FREE_MEM);
         if(parseInt(that.element.HOST_SHARE.USED_CPU) > 0)
           CPU += parseInt(that.element.HOST_SHARE.USED_CPU);
@@ -152,21 +152,21 @@ define(function(require) {
         Sunstone.runAction("Host.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
     });
     
-    document.getElementById("change_bar_cpu").addEventListener("change", function(){
-      if(parseInt(document.getElementById('change_bar_cpu').value) > that.element.HOST_SHARE.TOTAL_CPU)
-        document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-      if(parseInt(document.getElementById('change_bar_cpu').value) < that.element.HOST_SHARE.TOTAL_CPU)
-        document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-      document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
+    document.getElementById("change_bar_cpu_hosts").addEventListener("change", function(){
+      if(parseInt(document.getElementById('change_bar_cpu_hosts').value) > that.element.HOST_SHARE.TOTAL_CPU)
+        document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+      if(parseInt(document.getElementById('change_bar_cpu_hosts').value) < that.element.HOST_SHARE.TOTAL_CPU)
+        document.getElementById('textInput_reserved_cpu_hosts').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+      document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
     });
-    document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
-    document.getElementById("change_bar_mem").addEventListener("change", function(){
-      if(parseInt(document.getElementById('change_bar_mem').value) > that.element.HOST_SHARE.TOTAL_MEM)
-        document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-      if(parseInt(document.getElementById('change_bar_mem').value) < that.element.HOST_SHARE.TOTAL_MEM)
-        document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-      document.getElementById('textInput_reserved_mem').value = Humanize.size(parseInt(document.getElementById('change_bar_mem').value));
+    document.getElementById("textInput_reserved_cpu_hosts").addEventListener("change", changeInputCPU);
+    document.getElementById("change_bar_mem_hosts").addEventListener("change", function(){
+      if(parseInt(document.getElementById('change_bar_mem_hosts').value) > that.element.HOST_SHARE.TOTAL_MEM)
+        document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
+      if(parseInt(document.getElementById('change_bar_mem_hosts').value) < that.element.HOST_SHARE.TOTAL_MEM)
+        document.getElementById('textInput_reserved_mem_hosts').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
+      document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(parseInt(document.getElementById('change_bar_mem_hosts').value));
     });
-    document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
+    document.getElementById("textInput_reserved_mem_hosts").addEventListener("change", changeInputMEM);
   }
 });
