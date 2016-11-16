@@ -160,8 +160,8 @@ public:
                     set<int>        &lost,
                     map<int,string> &found,
                     const set<int>  &non_shared_ds,
-                    long long       reserved_cpu,
-                    long long       reserved_mem);
+                    const string&   reserved_cpu,
+                    const string&   reserved_mem);
     /**
      * Extracts the DS attributes from the given template
      * @param parse_str string with values to be parsed
@@ -264,97 +264,19 @@ public:
      *    @param cpu reserved cpu (in percentage)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(long long &cpu, long long& mem)
+    void get_reserved_capacity(string& cpu, string& mem)
     {
-        long long tcpu;
-        long long tmem;
-
-        if (get_template_attribute("RESERVED_CPU", tcpu))
-        {
-            cpu = tcpu;
-        }
-        else
-        {
-            replace_template_attribute("RESERVED_CPU", "");
-        }
-
-        if (get_template_attribute("RESERVED_MEM", tmem))
-        {
-            mem = tmem;
-        }
-        else
-        {
-            replace_template_attribute("RESERVED_MEM", "");
-        }
+        get_template_attribute("RESERVED_CPU", cpu);
+        get_template_attribute("RESERVED_MEM", mem);
     }
 
     // -------------------------------------------------------------------------
-    // Share functions. Returns the value associated with each host share
-    // metric
+    // Share functions.
     // -------------------------------------------------------------------------
+
     long long get_share_running_vms()
     {
-        return host_share.running_vms;
-    }
-
-    long long get_share_disk_usage()
-    {
-        return host_share.disk_usage;
-    }
-
-    long long get_share_mem_usage()
-    {
-        return host_share.mem_usage;
-    }
-
-    long long get_share_cpu_usage()
-    {
-        return host_share.cpu_usage;
-    }
-
-    long long get_share_max_disk()
-    {
-        return host_share.max_disk;
-    }
-
-    long long get_share_max_mem()
-    {
-        return host_share.max_mem;
-    }
-
-    long long get_share_max_cpu()
-    {
-        return host_share.max_cpu;
-    }
-
-    long long get_share_free_disk()
-    {
-        return host_share.free_disk;
-    }
-
-    long long get_share_free_mem()
-    {
-        return host_share.free_mem;
-    }
-
-    long long get_share_free_cpu()
-    {
-        return host_share.free_cpu;
-    }
-
-    long long get_share_used_disk()
-    {
-        return host_share.used_disk;
-    }
-
-    long long get_share_used_mem()
-    {
-        return host_share.used_mem;
-    }
-
-    long long get_share_used_cpu()
-    {
-        return host_share.used_cpu;
+        return host_share.get_running_vms();
     }
 
     /**
@@ -466,7 +388,6 @@ public:
     {
         return new HostTemplate;
     }
-
 
     /**
      *  Executed after an update operation to process the new template

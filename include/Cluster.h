@@ -164,10 +164,10 @@ public:
     /**
      *  Get the default reserved capacity for hosts in the cluster. It can be
      *  overridden if defined in the host template.
-     *    @param cpu reserved cpu (in percentage)
+     *    @param cpu reserved cpu (percentage, or absolute)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(long long &cpu, long long& mem)
+    void get_reserved_capacity(string& cpu, string& mem)
     {
         get_template_attribute("RESERVED_CPU", cpu);
 
