@@ -517,7 +517,7 @@ class VIClient
                 next if !n[:host][0]
 
                # Networks can be in several cluster, create one per cluster
-                Array(n[:host][0]).each{ |host_system|
+                Array(n[:host]).each{ |host_system|
                     net_name = "#{n.name} - #{host_system.parent.name}"
 
                     if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
