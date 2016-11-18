@@ -289,10 +289,21 @@ define(function(require) {
         fileName = file.fileName;
         file_input = fileName;
 
-        $('#file-uploader-input', context).hide()
+        $('#file-uploader-input', context).hide();
         $("#file-uploader-label", context).html(file.fileName);
+        $("#file-uploader-label", context).show();
+        $('#close_image', context).show();
       });
-      var abort = false;
+
+      $('#close_image', context).on('click', function(){
+          console.log("click");
+          $("#file-uploader-label", context).hide();
+          $('#close_image', context).hide();
+          $('#file-uploader-input', context).show();
+          fileName= '';
+          that.uploader.files.length = 0;
+      });
+
       that.uploader.on('uploadStart', function() {
         var myThis = this;
           if(!(myThis.progress() > 0)){
