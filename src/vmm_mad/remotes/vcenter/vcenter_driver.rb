@@ -517,21 +517,24 @@ class VIClient
                 next if !n[:host][0]
 
                # Networks can be in several cluster, create one per cluster
+                net_names = []
                 Array(n[:host]).each{ |host_system|
                     net_name = "#{n.name} - #{host_system.parent.name}"
-
-                    if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
-                            TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
-                        one_nets << {
-                            :name    => net_name,
-                            :bridge  => n.name,
-                            :cluster => host_system.parent.name,
-                            :type    => "Port Group",
-                            :one     => "NAME   = \"#{net_name}\"\n" \
-                                        "BRIDGE = \"#{n[:name]}\"\n" \
-                                        "VN_MAD = \"dummy\"\n" \
-                                        "VCENTER_TYPE = \"Port Group\""
-                        }
+                    if !net_names.include?(net_name)
+                        if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                                TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
+                            one_nets << {
+                                :name    => net_name,
+                                :bridge  => n.name,
+                                :cluster => host_system.parent.name,
+                                :type    => "Port Group",
+                                :one     => "NAME   = \"#{net_name}\"\n" \
+                                            "BRIDGE = \"#{n[:name]}\"\n" \
+                                            "VN_MAD = \"dummy\"\n" \
+                                            "VCENTER_TYPE = \"Port Group\""
+                            }
+                            net_names << net_name
+                        end
                     end
                 }
             }
