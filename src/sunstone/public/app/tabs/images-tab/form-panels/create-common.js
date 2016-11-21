@@ -33,6 +33,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var WizardFields = require('utils/wizard-fields');
   var ProgressBar = require('utils/progress-bar');
+  var Humanize = require('utils/humanize');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -127,6 +128,7 @@ define(function(require) {
 
     return false;
   }
+
 
   function _setup(context) {
     var that = this;
@@ -287,32 +289,119 @@ define(function(require) {
         fileName = file.fileName;
         file_input = fileName;
 
-        $('#file-uploader-input', context).hide()
+        $('#file-uploader-input', context).hide();
         $("#file-uploader-label", context).html(file.fileName);
+        $("#file-uploader-label", context).show();
+        $('#close_image', context).show();
+      });
+
+      $('#close_image', context).on('click', function(){
+          console.log("click");
+          $("#file-uploader-label", context).hide();
+          $('#close_image', context).hide();
+          $('#file-uploader-input', context).show();
+          fileName= '';
+          that.uploader.files.length = 0;
       });
 
       that.uploader.on('uploadStart', function() {
-        $('#upload_progress_bars').append(
-          '<div id="' + fileName + 'progressBar" class="row" style="margin-bottom:10px">\
-            <div id="' + fileName + '-info" class="medium-2 columns">\
-              ' + Locale.tr("Uploading...") + '\
-            </div>\
-            <div class="medium-10 columns">\
-              <div class="progressbar">'+
-                ProgressBar.html(0, 1, fileName) + '\
+        var myThis = this;
+          if(!(myThis.progress() > 0)){
+          var element = $('#upload_progress_bars').append(
+            '<div id="' + fileName + 'progressBar" class="row" style="margin-bottom:10px">\
+              <div id="' + fileName + '-info" class="medium-2 columns">\
+                ' + Locale.tr("Uploading...") + '\
               </div>\
-            </div>\
-          </div>');
+              <div class="medium-10 columns">\
+                <div class="progressbar">'+
+                  ProgressBar.html(0, 1, fileName) + '\
+                </div>\
+                <div>\
+                  <button id="close_upload_image" class="fa fa-times-circle fa fa-lg close_upload_image">   </button>\
+                  <button id="pause_upload_image" class="fa fa-pause fa fa-lg pause_upload_image">   </button>\
+                  <button id="play_upload_image" class="fa fa-play fa fa-lg play_upload_image" hidden="true">   </button>\
+                </div>\
+              </div>\
+              <div class="medium-2 columns">\
+                <div id="speed">speed: </div>\
+                <div id="percent_progress">Completed: </div>\
+                </div>\
+            </div>');
+          }
+         checkUploadSpeed( 10, function ( speed) {
+            document.getElementById( 'speed' ).textContent = 'speed: ' + Humanize.size(speed) +'s';
+          }, element);
+          $(".close_upload_image").on('click', function(){
+            myThis.cancel();
+            show=0;
+            if(element)
+              element.remove();
+          });
+          $(".pause_upload_image").on('click', function(){
+            myThis.pause();
+            $(".pause_upload_image").hide();
+            $(".play_upload_image").show();
+          });
+          $(".play_upload_image").on('click', function(){
+            myThis.upload();
+            $(".play_upload_image").hide();
+            $(".pause_upload_image").show();
+          });
+
       });
 
       that.uploader.on('progress', function() {
+        document.getElementById( 'percent_progress' ).textContent = 'Completed: ' + (this.progress().toFixed(3)*100).toFixed(1) +'%';
         $('div.progressbar', $('div[id="' + fileName + 'progressBar"]')).html(
                               ProgressBar.html(this.progress(), 1, fileName) );
       });
     }
-
+    
     return false;
   }
+
+  function checkUploadSpeed( iterations, update, element) {
+    var index = 0,
+        timer = window.setInterval( check, 5000 ); //check every 5 seconds
+    check(element);
+
+    function check(element) {
+        if(!element){
+           window.clearInterval( timer );
+        }
+        else{
+          var xhr = new XMLHttpRequest(),
+              url = '?cache=' + Math.floor( Math.random() * 10000 ), //random number prevents url caching
+              data = getRandomString( 1 ), //1 meg POST size handled by all servers
+              startTime,
+              speed = 0;
+          xhr.onreadystatechange = function ( event ) {
+              if( xhr.readyState == 4 ) {
+                  speed = Math.round( 1024 / ( ( new Date() - startTime ) / 1000 ) );
+                  update( speed );
+                  index++;
+                  if( index == iterations ) {
+                      window.clearInterval( timer );
+                  };
+              };
+          };
+          xhr.open( 'POST', url, true );
+          startTime = new Date();
+          if(xhr && data)
+            xhr.send( data );
+        }
+    };
+
+    function getRandomString( sizeInMb ) {
+        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;':,./<>?", //random data prevents gzip effect
+            iterations = sizeInMb * 1024 * 1024, //get byte count
+            result = '';
+        for( var index = 0; index < iterations; index++ ) {
+            result += chars.charAt( Math.floor( Math.random() * chars.length ) );
+        };     
+        return result;
+    };
+  };
 
   function _submitWizard(context) {
     var that = this;
