@@ -362,7 +362,7 @@ define(function(require) {
 
   function checkUploadSpeed( iterations, update, element) {
     var index = 0,
-        timer = window.setInterval( check, 5000 ); //check every 5 seconds
+        timer = window.setInterval( check, 10000 ); //check every 10 seconds
     check(element);
 
     function check(element) {
