@@ -1942,6 +1942,7 @@ class VCenterVm
 
         provider = pm.provider_summary [@vm].first
         refresh_rate = provider.refreshRate
+        max_samples = 0
 
         vmid = -1
         extraconfig_vmid = @vm.config.extraConfig.select{|val|
@@ -1953,54 +1954,55 @@ class VCenterVm
         if vmid < 0
             @nettx = 0
             @netrx = 0
-            id_not_found = "Could not retrieve VM ID from extra configuration for "\
-                           "vCenter's VM UUID #{@vm.config.uuid}"
         else
             one_vm = OpenNebula::VirtualMachine.new_with_id(vmid, OpenNebula::Client.new)
             one_vm.info
             stats = []
+            previous_nettx = 0
+            previous_netrx = 0
+            if one_vm["MONITORING/NETTX"]
+                previous_nettx = one_vm["MONITORING/NETTX"].to_i
+            end
+            if one_vm["MONITORING/NETRX"]
+                previous_netrx = one_vm["MONITORING/NETRX"].to_i
+            end
 
-            if(one_vm["LAST_POLL"] && one_vm["LAST_POLL"].to_i != 0 )
+            if(one_vm["MONITORING/LAST_MON"] && one_vm["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
-                interval = (Time.now.to_i - one_vm["LAST_POLL"].to_i)
-
+                interval = (Time.now.to_i - one_vm["MONITORING/LAST_MON"].to_i)
                 #If last poll was more than hour ago get 3 minutes,
                 #else calculate how many samples since last poll
-                samples =  interval > 3600 ? 9 : interval / refresh_rate
-                max_samples = samples > 0 ? samples : 1
+                max_samples =  interval > 3600 ? 9 : (interval / refresh_rate) + 1
+            else
+                # First poll, get at least latest 3 minutes = 9 samples
+                max_samples = 9
+            end
 
-                stats = pm.retrieve_stats(
+            stats = pm.retrieve_stats(
                     [@vm],
                     ['net.transmitted','net.bytesRx','net.bytesTx','net.received'],
                     {interval:refresh_rate, max_samples: max_samples}
-                )
-            else
-                # First poll, get at least latest 3 minutes = 9 samples
-                stats = pm.retrieve_stats(
-                    [@vm],
-                    ['net.transmitted','net.bytesRx'],
-                    {interval:refresh_rate, max_samples: 9}
-                )
-            end
+            )
 
             if stats.empty? || stats.first[1][:metrics].empty?
-                @nettx = 0
-                @netrx = 0
+                @nettx = 0 + previous_nettx
+                @netrx = 0 + previous_netrx
             else
                 metrics = stats.first[1][:metrics]
-
                 nettx_kbpersec = 0
-                metrics['net.transmitted'].each { |sample|
-                    nettx_kbpersec += sample
-                }
-
                 netrx_kbpersec = 0
-                metrics['net.bytesRx'].each { |sample|
-                    netrx_kbpersec += sample
+                (0..max_samples-1).each { |index|
+                    tx = [0]
+                    rx = [0]
+                    tx << metrics['net.transmitted'][index] if metrics['net.transmitted']
+                    tx << metrics['net.bytesTx'][index] if metrics['net.bytesTx']
+                    rx << metrics['net.received'][index] if metrics['net.received']
+                    rx << metrics['net.bytesRx'][index] if metrics['net.bytesRx']
+                    nettx_kbpersec += tx.max
+                    netrx_kbpersec += rx.max
                 }
-
-                @nettx = (nettx_kbpersec * 1024 * refresh_rate).to_i
-                @netrx = (netrx_kbpersec * 1024 * refresh_rate).to_i
+                @nettx = (nettx_kbpersec * 1000 * refresh_rate).to_i + previous_nettx
+                @netrx = (netrx_kbpersec * 1000 * refresh_rate).to_i + previous_netrx
             end
         end
     end
@@ -2018,6 +2020,7 @@ class VCenterVm
           str_info << "GUEST_IP_ADDRESSES=\\\"" <<
               @guest_ip_addresses.to_s << "\\\" "
       end
+      str_info << "LAST_MON=" << Time.now.to_i.to_s << " "
       str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
       str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
       str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
