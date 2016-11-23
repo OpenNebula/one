@@ -49,6 +49,7 @@ CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 #-------------------------------------------------------------------------------
 
 DST_HOST=`arg_host $DST`
+DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 
 #-------------------------------------------------------------------------------
 # Get Image information & destination image
