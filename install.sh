@@ -874,7 +874,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_delete \
                  src/tm_mad/shared/snap_revert \
                  src/tm_mad/shared/monitor \
-                 src/tm_mad/shared/cpds"
+                 src/tm_mad/shared/cpds \
+                 src/tm_mad/shared/resize"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/context \
@@ -910,7 +911,8 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/snap_create_live \
                  src/tm_mad/qcow2/snap_delete \
                  src/tm_mad/qcow2/snap_revert \
-                 src/tm_mad/qcow2/cpds"
+                 src/tm_mad/qcow2/cpds \
+                 src/tm_mad/qcow2/resize"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/delete \
@@ -929,7 +931,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_revert \
               src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/monitor_ds \
-              src/tm_mad/ssh/cpds"
+              src/tm_mad/ssh/cpds \
+              src/tm_mad/ssh/resize"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/delete \
