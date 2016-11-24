@@ -83,10 +83,6 @@ keep_disks    = !template['/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
 disks         = [template.to_hash["VM"]["TEMPLATE"]["DISK"]].flatten.compact
 host          =  template["/VM/HISTORY_RECORDS/HISTORY"].first["HOSTNAME"]
 
-puts host
-exit
-
-
 cloned_tmplt = nil
 if !template['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
     cloned_tmplt  =  template['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/TEMPLATE_ID']
