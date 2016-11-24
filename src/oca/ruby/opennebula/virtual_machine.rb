@@ -47,6 +47,7 @@ module OpenNebula
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete",
+            :diskresize     => "vm.diskresize",
             :updateconf     => "vm.updateconf"
         }
 
@@ -657,6 +658,16 @@ module OpenNebula
         #   otherwise
         def disk_snapshot_delete(disk_id, snap_id)
           return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
+        end
+
+        # Changes the size of a disk
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param size [Integer] new size in MiB
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or error
+        def disk_resize(disk_id, size)
+            return call(VM_METHODS[:diskresize], @pe_id, disk_id, size)
         end
 
         # Recovers an ACTIVE VM
