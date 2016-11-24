@@ -691,7 +691,8 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/poll \
                          src/vmm_mad/remotes/vcenter/shutdown \
                          src/vmm_mad/remotes/vcenter/reconfigure \
-                         src/vmm_mad/remotes/vcenter/prereconfigure"
+                         src/vmm_mad/remotes/vcenter/prereconfigure \
+                         src/vmm_mad/remotes/vcenter/resize_disk"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
@@ -714,7 +715,8 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/poll \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/reconfigure \
-                      src/vmm_mad/remotes/ec2/prereconfigure"
+                      src/vmm_mad/remotes/ec2/prereconfigure \
+                      src/vmm_mad/remotes/ec2/resize_disk"
 
 #------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
@@ -737,7 +739,8 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/poll \
                      src/vmm_mad/remotes/az/shutdown \
                      src/vmm_mad/remotes/az/reconfigure \
-                     src/vmm_mad/remotes/az/prereconfigure"
+                     src/vmm_mad/remotes/az/prereconfigure \
+                     src/vmm_mad/remotes/az/resize_disk"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -893,7 +896,8 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/snap_delete \
                  src/tm_mad/fs_lvm/snap_revert \
                  src/tm_mad/fs_lvm/failmigrate \
-                 src/tm_mad/fs_lvm/delete"
+                 src/tm_mad/fs_lvm/delete \
+                 src/tm_mad/fs_lvm/resize"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/delete \
@@ -950,7 +954,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/snap_delete \
               src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/monitor \
-              src/tm_mad/dummy/cpds"
+              src/tm_mad/dummy/cpds \
+              src/tm_mad/dummy/resize"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/ln \
@@ -968,7 +973,8 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/context \
                  src/tm_mad/ceph/mkimage \
                  src/tm_mad/ceph/monitor \
-                 src/tm_mad/ceph/mkswap"
+                 src/tm_mad/ceph/mkswap \
+                 src/tm_mad/ceph/resize"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
@@ -982,7 +988,8 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/snap_delete \
                  src/tm_mad/dev/snap_revert \
                  src/tm_mad/dev/failmigrate \
-                 src/tm_mad/dev/delete"
+                 src/tm_mad/dev/delete \
+                 src/tm_mad/dev/resize"
 
 TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/ln \
@@ -997,7 +1004,8 @@ TM_VCENTER_FILES="src/tm_mad/vcenter/clone \
                  src/tm_mad/vcenter/snap_revert \
                  src/tm_mad/vcenter/failmigrate \
                  src/datastore_mad/remotes/vcenter/monitor \
-                 src/tm_mad/vcenter/delete"
+                 src/tm_mad/vcenter/delete \
+                 src/tm_mad/vcenter/resize"
 
 TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
                  src/tm_mad/iscsi_libvirt/ln \
@@ -1011,7 +1019,8 @@ TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
                  src/tm_mad/iscsi_libvirt/snap_delete \
                  src/tm_mad/iscsi_libvirt/snap_revert \
                  src/tm_mad/iscsi_libvirt/failmigrate \
-                 src/tm_mad/iscsi_libvirt/delete"
+                 src/tm_mad/iscsi_libvirt/delete \
+                 src/tm_mad/iscsi_libvirt/resize"
 
 #-------------------------------------------------------------------------------
 # Datastore drivers, to be installed under $REMOTES_LOCATION/datastore
