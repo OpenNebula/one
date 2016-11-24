@@ -81,7 +81,7 @@ lcm_state     = OpenNebula::VirtualMachine::LCM_STATE[lcm_state_num]
 keep_disks    = !template['/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
                  template['/VM/USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
 disks         = [template.to_hash["VM"]["TEMPLATE"]["DISK"]].flatten.compact
-host          =  template["/VM/HISTORY_RECORDS/HISTORY"].first["HOSTNAME"]
+host          =  template.retrieve_elements("/VM/HISTORY_RECORDS/HISTORY/HOSTNAME").last
 
 cloned_tmplt = nil
 if !template['/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/CLONING_TEMPLATE_ID'].nil?
