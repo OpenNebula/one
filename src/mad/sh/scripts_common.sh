@@ -746,9 +746,8 @@ function get_disk_information {
         DEVICE="cdrom"
         ;;
     rbd*)
-        TYPE_SOURCE="protocol"
+        TYPE_SOURCE="name"
         TYPE_XML="network"
-        SOURCE="rbd"
 
         if [ "$TYPE" = "rbd_cdrom" ]; then
             DEVICE="cdrom"
