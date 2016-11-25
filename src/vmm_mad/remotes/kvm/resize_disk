@@ -24,6 +24,9 @@ DRV_ACTION=$4
 source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
+(
+set -e
+
 get_disk_information "DISK_ID=$DISK_ID"
 
 regexp="/domain/devices/disk[target/@dev='${DISK_TARGET}']/alias/@name"
@@ -40,15 +43,12 @@ fi
 
 log_info "Resizing $DISK_TARGET to $DISK_SIZE"
 
-resize_cmd=$(cat <<EOF
 virsh --connect $LIBVIRT_URI qemu-monitor-command $DOMAIN --hmp "block_resize $drive ${DISK_SIZE}M"
-EOF
-)
 
-multiline_exec_and_log "$resize_cmd" \
-    "Error notifying the VM the new disk size"
+) > /dev/null
 
-
-
+if [ $? -ne 0 ]; then
+    echo "error"
+fi
 
 
