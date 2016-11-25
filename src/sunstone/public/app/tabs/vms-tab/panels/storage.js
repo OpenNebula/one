@@ -287,7 +287,7 @@ define(function(require) {
             if (disk.IMAGE_ID &&
                  StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
               actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+              <i class="fa fa-save fa-fw"></i></a> &emsp;';//+ Locale.tr("Save as") + ';'
             }
           }
 
@@ -295,16 +295,16 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times fa-fw"></i>' + Locale.tr("Detach") +
-              '</a> &emsp;');
+              <i class="fa fa-times fa-fw"></i></a> &emsp;');// + Locale.tr("Detach") +
+              
             }
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
             if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
-              '</a>');
+              <i class="fa fa-camera fa-fw"></i></a>');//+ Locale.tr("Snapshot") +
+              
             }
           }
         }
@@ -474,6 +474,12 @@ define(function(require) {
     context.off("change", ".snapshot_check_item");
     context.on("change", ".snapshot_check_item", function() {
       var snapshotsSection = $(this).closest('.snapshots');
+      if(that.element.STATE == "3"){
+        $(".disk_snapshot_revert", snapshotsSection).hide();
+      }
+      else{
+        $(".disk_snapshot_revert", snapshotsSection).show();
+      }
 
       // Unselect other check inputs
       var checked = $(this).is(':checked');
