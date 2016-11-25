@@ -493,6 +493,12 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "resize", action_obj);
     },
+    "disk_resize" : function(params) {
+      var action_obj = params.data.extra_param;
+      console.log(action_obj);
+      console.log(RESOURCE);
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_resize", action_obj);
+    },
     "attachdisk" : function(params) {
       var action_obj = {"disk_template": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "attachdisk", action_obj);
