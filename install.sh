@@ -1164,7 +1164,7 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/db_schema.rb \
                             src/onedb/local/4.11.80_to_4.13.80.rb \
                             src/onedb/local/4.13.80_to_4.13.85.rb \
                             src/onedb/local/4.13.85_to_4.90.0.rb \
-                            src/onedb/local/4.90.0_to_5.2.0.rb"
+                            src/onedb/local/4.90.0_to_5.3.80.rb"
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
@@ -1229,7 +1229,7 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
 
 HOOK_FT_FILES="share/hooks/host_error.rb \
                share/hooks/fence_host.sh \
-               delete_poweroff_vms.rb"
+               share/hooks/delete_poweroff_vms.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION

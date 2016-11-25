@@ -38,7 +38,7 @@ module Migrator
     when "4.13.80"
     when "4.13.85"
     when "4.90.0"
-    when "5.2.0"
+    when "5.3.80"
        'CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), '\
        'body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, '\
        'gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, '\
