@@ -60,14 +60,19 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
-RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+RBD_DST="$RBD_SRC"
+if [ "$CLONE" = "YES" ]; then
+    RBD_DST+="-${VM_ID}-${DISK_ID}"
+else
 
 #-------------------------------------------------------------------------------
 # Resize disk
