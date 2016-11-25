@@ -1227,7 +1227,7 @@ WEBSOCKIFY_SHARE_FILES="share/websockify/websocketproxy.py \
 
 HOOK_FT_FILES="share/hooks/host_error.rb \
                share/hooks/fence_host.sh \
-               delete_poweroff_vms.rb"
+               share/hooks/delete_poweroff_vms.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
