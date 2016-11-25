@@ -48,7 +48,7 @@ virsh --connect $LIBVIRT_URI qemu-monitor-command $DOMAIN --hmp "block_resize $d
 ) > /dev/null
 
 if [ $? -ne 0 ]; then
-    echo "error"
+    echo "Could not notify the VM about the disk resize. Poweroff cycle needed."
 fi
 
 
