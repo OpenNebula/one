@@ -47,7 +47,7 @@ module VNMMAD
                 create_bridge
 
                 # Check that no other vlans are connected to this bridge
-                validate_vlan_id
+                validate_vlan_id if @nic[:conf][:validate_vlan_id]
 
                 # Return if vlan device is already in the bridge.
                 next if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
