@@ -296,15 +296,18 @@ define(function(require) {
       });
 
       $('#close_image', context).on('click', function(){
-          console.log("click");
           $("#file-uploader-label", context).hide();
           $('#close_image', context).hide();
           $('#file-uploader-input', context).show();
           fileName= '';
           that.uploader.files.length = 0;
       });
+      var last_time = 0;
+      var old_size = 0;
 
       that.uploader.on('uploadStart', function() {
+        last_time = new Date().getTime();
+        old_size = 0;
         var myThis = this;
           if(!(myThis.progress() > 0)){
           var element = $('#upload_progress_bars').append(
@@ -328,9 +331,6 @@ define(function(require) {
                 </div>\
             </div>');
           }
-         checkUploadSpeed( 10, function ( speed) {
-            document.getElementById( 'speed' ).textContent = 'speed: ' + Humanize.size(speed) +'s';
-          }, element);
           $(".close_upload_image").on('click', function(){
             myThis.cancel();
             show=0;
@@ -347,63 +347,28 @@ define(function(require) {
             $(".play_upload_image").hide();
             $(".pause_upload_image").show();
           });
-
       });
 
       that.uploader.on('progress', function() {
+        var time = new Date().getTime();
+        var size = this.getSize() * this.progress();
+        if(time - last_time > 2000){
+          size = size - old_size;
+          var speed = size / ((time - last_time));
+          document.getElementById( 'speed' ).textContent = 'speed: ' + Humanize.size(speed) +'s';
+          last_time = time;
+          old_size = size;
+        }
         document.getElementById( 'percent_progress' ).textContent = 'Completed: ' + (this.progress().toFixed(3)*100).toFixed(1) +'%';
         $('div.progressbar', $('div[id="' + fileName + 'progressBar"]')).html(
-                              ProgressBar.html(this.progress(), 1, fileName) );
+                              ProgressBar.html(this.progress(), 1, fileName) ); 
       });
     }
     
     return false;
   }
 
-  function checkUploadSpeed( iterations, update, element) {
-    var index = 0,
-        timer = window.setInterval( check, 10000 ); //check every 10 seconds
-    check(element);
-
-    function check(element) {
-        if(!element){
-           window.clearInterval( timer );
-        }
-        else{
-          var xhr = new XMLHttpRequest(),
-              url = '?cache=' + Math.floor( Math.random() * 10000 ), //random number prevents url caching
-              data = getRandomString( 1 ), //1 meg POST size handled by all servers
-              startTime,
-              speed = 0;
-          xhr.onreadystatechange = function ( event ) {
-              if( xhr.readyState == 4 ) {
-                  speed = Math.round( 1024 / ( ( new Date() - startTime ) / 1000 ) );
-                  update( speed );
-                  index++;
-                  if( index == iterations ) {
-                      window.clearInterval( timer );
-                  };
-              };
-          };
-          xhr.open( 'POST', url, true );
-          startTime = new Date();
-          if(xhr && data)
-            xhr.send( data );
-        }
-    };
-
-    function getRandomString( sizeInMb ) {
-        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;':,./<>?", //random data prevents gzip effect
-            iterations = sizeInMb * 1024 * 1024, //get byte count
-            result = '';
-        for( var index = 0; index < iterations; index++ ) {
-            result += chars.charAt( Math.floor( Math.random() * chars.length ) );
-        };     
-        return result;
-    };
-  };
-
-  function _submitWizard(context) {
+ function _submitWizard(context) {
     var that = this;
     var upload = false;
 
