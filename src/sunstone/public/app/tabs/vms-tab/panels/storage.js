@@ -474,6 +474,12 @@ define(function(require) {
     context.off("change", ".snapshot_check_item");
     context.on("change", ".snapshot_check_item", function() {
       var snapshotsSection = $(this).closest('.snapshots');
+      if(that.element.STATE == "3"){
+        $(".disk_snapshot_revert", snapshotsSection).hide();
+      }
+      else{
+        $(".disk_snapshot_revert", snapshotsSection).show();
+      }
 
       // Unselect other check inputs
       var checked = $(this).is(':checked');
