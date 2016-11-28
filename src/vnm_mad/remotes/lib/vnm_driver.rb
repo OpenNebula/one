@@ -72,6 +72,7 @@ module VNMMAD
         def process(&block)
             blk = lambda do |nic|
                 add_nic_conf(nic)
+                add_bridge_conf(nic)
 
                 block.call(nic)
             end
@@ -98,6 +99,40 @@ module VNMMAD
             end
 
             nic[:conf] = default_conf.merge(nic_conf)
+        end
+
+        def add_bridge_conf(nic)
+            add_command_conf(nic, :bridge_conf)
+        end
+
+        def add_command_conf(nic, conf_name)
+            default_conf = CONF[conf_name] || {}
+            nic_conf = {}
+
+            # sanitize
+            default_conf.each do |key, value|
+                option  = Shellwords.escape(key.to_s.strip.downcase)
+                if value.class == String
+                    value   = Shellwords.escape(value.strip)
+                end
+
+                nic_conf[option] = value
+            end
+
+            if nic[conf_name]
+                parse_options(nic[conf_name]).each do |option, value|
+                    if value == '__delete__'
+                        nic_conf.delete(option.strip.downcase)
+                    else
+                        option  = Shellwords.escape(option.strip.downcase)
+                        value   = Shellwords.escape(value)
+
+                        nic_conf[option] = value
+                    end
+                end
+            end
+
+            nic[conf_name] = nic_conf
         end
 
         # Returns a filter object based on the contents of the template
