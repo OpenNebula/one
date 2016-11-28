@@ -56,7 +56,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             end
 
             # Prevent ARP Cache Poisoning
-            arp_cache_poisoning if CONF[:arp_cache_poisoning] && @nic[:ip]
+            if @nic[:conf][:arp_cache_poisoning] && @nic[:ip]
+                arp_cache_poisoning
+            end
 
             # Prevent Mac-spoofing
             mac_spoofing if nic[:filter_mac_spoofing] =~ /yes/i

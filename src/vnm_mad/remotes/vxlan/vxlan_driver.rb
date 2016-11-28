@@ -43,10 +43,11 @@ class VXLANDriver < VNMMAD::VLANDriver
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev
-        mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + @nic[:vlan_id].to_i
+        mc  = VNMMAD::VNMNetwork::IPv4.to_i(@nic[:conf][:vxlan_mc]) +
+                @nic[:vlan_id].to_i
         mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : ""
-        ttl = CONF[:vxlan_ttl] ? "ttl #{CONF[:vxlan_ttl]}" : ""
+        ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs} #{ttl}"\

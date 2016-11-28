@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'shellwords'
+
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom
 # virtual network drivers. The VNMAD module includes:
@@ -68,7 +70,36 @@ module VNMMAD
 
         # Executes the given block on each NIC
         def process(&block)
-            @vm.each_nic(block)
+            blk = lambda do |nic|
+                add_nic_conf(nic)
+
+                block.call(nic)
+            end
+
+            @vm.each_nic(blk)
+        end
+
+        # Parse network configuration and add it to the nic
+        def add_nic_conf(nic)
+            default_conf = CONF || {}
+            nic_conf = {}
+
+            if nic[:conf]
+                parse_options(nic[:conf]).each do |opt|
+                    value = opt[:value]
+
+                    case value.downcase
+                    when 'true', 'yes'
+                        value = true
+                    when 'false', 'no'
+                        value = false
+                    end
+
+                    nic_conf[opt[:option].to_sym] = value
+                end
+            end
+
+            nic[:conf] = default_conf.merge(nic_conf)
         end
 
         # Returns a filter object based on the contents of the template
@@ -88,6 +119,27 @@ module VNMMAD
             end
 
             return cmd_str
+        end
+
+        def parse_options(string)
+            self.class.parse_options(string)
+        end
+
+        def self.parse_options(string)
+            return [] if !string
+
+            string.split(',').map do |op|
+                m = op.match(/^\s*(?<option>[^=]+)\s*=\s*(?<value>.*?)\s*$/)
+
+                if m
+                    {
+                        :option => Shellwords.escape(m['option']),
+                        :value  => Shellwords.escape(m['value'])
+                    }
+                else
+                    nil
+                end
+            end.flatten
         end
     end
 end
