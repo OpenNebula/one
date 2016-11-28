@@ -85,9 +85,7 @@ module VNMMAD
             nic_conf = {}
 
             if nic[:conf]
-                parse_options(nic[:conf]).each do |opt|
-                    value = opt[:value]
-
+                parse_options(nic[:conf]).each do |option, value|
                     case value.downcase
                     when 'true', 'yes'
                         value = true
@@ -95,7 +93,7 @@ module VNMMAD
                         value = false
                     end
 
-                    nic_conf[opt[:option].to_sym] = value
+                    nic_conf[option.to_sym] = value
                 end
             end
 
@@ -126,20 +124,16 @@ module VNMMAD
         end
 
         def self.parse_options(string)
-            return [] if !string
+            options = {}
+            return options if !string
 
-            string.split(',').map do |op|
+            string.split(',').each do |op|
                 m = op.match(/^\s*(?<option>[^=]+)\s*=\s*(?<value>.*?)\s*$/)
 
-                if m
-                    {
-                        :option => Shellwords.escape(m['option']),
-                        :value  => Shellwords.escape(m['value'])
-                    }
-                else
-                    nil
-                end
-            end.flatten
+                options[m['option']] = m['value'] if m
+            end
+
+            options
         end
     end
 end
