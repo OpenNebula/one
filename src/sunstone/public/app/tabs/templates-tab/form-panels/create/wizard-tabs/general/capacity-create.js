@@ -85,7 +85,7 @@ define(function(require) {
 
   function _totalCost(){
     var total = document.getElementById('real_memory_cost').value + document.getElementById('real_cpu_cost').value;
-    document.getElementById('total_cost').textContent = "Total cost: "+ convertCostNumber(total) + " unit/month";
+    document.getElementById('total_cost').textContent = "Total: "+ convertCostNumber(total);
   }
 
   function _calculatedRealMemory(){

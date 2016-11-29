@@ -128,7 +128,13 @@
 <div class="row">
   <div class="medium-12 columns">
     <fieldset>
-      <legend>{{tr "Cost"}} <label id="total_cost"></label></legend>
+      <legend>
+        {{tr "Cost"}}
+        <span>
+          <span id="total_cost">0.00</span>
+          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+        </span>
+      </legend>
       <div class="medium-4 columns">
         <label  for="MEMORY_COST">
           {{tr "Memory"}}
