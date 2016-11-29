@@ -62,6 +62,19 @@ define(function(require) {
       'dialogId': this.dialogId
     });
 
+  }function convertCostNumber(number){
+    if(number >= 1000000){
+      number = (number/1000000).toFixed(2)
+      return number.toString()+"M";
+    }
+    else if(number >= 1000){
+      number = (number/1000).toFixed(2)
+      return number.toString()+"K";
+    }
+    else if (number >= 0 && number < 1000)
+      return number.toFixed(2);
+    else
+      return number;
   }
 
   function _setup(context) {
@@ -78,13 +91,19 @@ define(function(require) {
 
     $( ".uinput-slider", context).on("change", function(){
       $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
-      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+((Humanize.sizeToMB($( ".uinput-slider",context).val()))*that.diskCost).toFixed(2) + Locale.tr(" cost/hour") ;
+      var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
+      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
 
     $( ".uinput-slider-val", context).on("change", function(){
       $( ".uinput-slider",context).val(Humanize.sizeToMB($( ".uinput-slider-val",context).val()));
-      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+((Humanize.sizeToMB($( ".uinput-slider",context).val()))*that.diskCost).toFixed(2) + Locale.tr(" cost/hour") ;
+      var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
+      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
+
+    var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*this.diskCost;
+    document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
+
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var new_size = $( ".uinput-slider",context).val();
