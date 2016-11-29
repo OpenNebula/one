@@ -73,7 +73,7 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'capacityCreateHTML': CapacityCreate.html(),
-      'logos': Config.vmLogos,
+      'logos': Config.vmLogos
     });
   }
 
