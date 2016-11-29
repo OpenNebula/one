@@ -38,7 +38,10 @@
             </select>
           </div>
         </div>
-        <label id="real_memory_cost" style="color:gray;margin-bottom:1rem">Cost</label>
+        <span style="color:gray;margin-bottom:1rem">
+          <span id="real_memory_cost">Cost</span>
+          <small>{{tr "COST"}} / {{tr "MONTH"}}</small>
+        </span>
       </div>
     </div>
   </div>
@@ -100,7 +103,10 @@
         <div class="cpu_input">
           <input type="number" step="0.01" min="0" wizard_field="CPU" id="CPU" style="margin-bottom:0rem;"/>
         </div>
-        <label id="real_cpu_cost" style="color:gray;margin-bottom:1rem">Cost</label>
+        <span style="color:gray;margin-bottom:1rem">
+          <span id="real_cpu_cost" >Cost</span>
+          <small>{{tr "COST"}} / {{tr "MONTH"}}</small>
+        </span>
       </div>
     </div>
   </div>
