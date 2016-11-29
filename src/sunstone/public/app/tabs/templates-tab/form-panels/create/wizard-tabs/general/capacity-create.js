@@ -97,7 +97,7 @@ define(function(require) {
       memory = (memory/1024)*memory_cost*24*30;
     else
       memory = memory*memory_cost*24*30;
-    document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory) + " unit/month";
+    document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory) + Locale.tr("cost")+ "/"+ Locale.tr("month");
     document.getElementById('real_memory_cost').value = memory;
     _totalCost();
   }
@@ -106,7 +106,7 @@ define(function(require) {
     var cpu_cost = document.getElementById('CPU_COST').value;
     var cpu = document.getElementById('CPU').value;
     cpu = cpu*cpu_cost*24*30;
-    document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu) + " unit/month";
+    document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu) + Locale.tr("cost")+ "/"+ Locale.tr("month");
     document.getElementById('real_cpu_cost').value = cpu;
     _totalCost();
   }
