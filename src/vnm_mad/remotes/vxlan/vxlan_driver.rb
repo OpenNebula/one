@@ -49,9 +49,22 @@ class VXLANDriver < VNMMAD::VLANDriver
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : ""
         ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
 
+        ip_link_conf = ""
+
+        @nic[:ip_link_conf].each do |option, value|
+            case value
+            when true
+                value = "on"
+            when false
+                value = "off"
+            end
+
+            ip_link_conf << "#{option} #{value} "
+        end
+
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs} #{ttl}"\
-            " dev #{@nic[:phydev]}")
+            " dev #{@nic[:phydev]} #{ip_link_conf}")
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
