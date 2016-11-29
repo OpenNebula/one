@@ -125,7 +125,11 @@ module VNMMAD
                         nic_conf.delete(option.strip.downcase)
                     else
                         option  = Shellwords.escape(option.strip.downcase)
-                        value   = Shellwords.escape(value)
+                        if value == ''
+                            value = nil
+                        else
+                            value = Shellwords.escape(value)
+                        end
 
                         nic_conf[option] = value
                     end
