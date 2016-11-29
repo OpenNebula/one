@@ -69,17 +69,25 @@ define(function(require) {
     Tips.setup(context);
     $( ".diskSlider", context).html(RangeSlider.html({
         min: that.diskSize,
-        max: that.diskSize + 512000,
+        max: Humanize.sizeToMB("500GB"),
         initial: that.diskSize,
         name: "resize"
     }));
+    $( ".uinput-slider-val",context).prop('type', 'text');
+    $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
 
     $( ".uinput-slider", context).on("change", function(){
-      document.getElementById("humanize_resize").textContent =  Humanize.size($( ".uinput-slider-val",context)[0].valueAsNumber);
-      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+(($( ".uinput-slider-val",context)[0].valueAsNumber/1024)*that.diskCost).toFixed(2) + Locale.tr(" cost/hour") ;
+      $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
+      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+((Humanize.sizeToMB($( ".uinput-slider",context).val()))*that.diskCost).toFixed(2) + Locale.tr(" cost/hour") ;
     });
+
+    $( ".uinput-slider-val", context).on("change", function(){
+      $( ".uinput-slider",context).val(Humanize.sizeToMB($( ".uinput-slider-val",context).val()));
+      document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+((Humanize.sizeToMB($( ".uinput-slider",context).val()))*that.diskCost).toFixed(2) + Locale.tr(" cost/hour") ;
+    });
+
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var new_size = $( ".uinput-slider-val",context)[0].valueAsNumber;
+      var new_size = $( ".uinput-slider",context).val();
       var obj = {
         "vm_id": that.element.ID,
         "disk_id" : that.diskId,
