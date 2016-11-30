@@ -136,14 +136,12 @@ start()
         exit 1
     fi
 
-    if [ ! -f "$ONE_DB" ]; then
-        if [ ! -f "$HOME/.one/one_auth" ]; then
-            if [ -z "$ONE_AUTH" ]; then
-                echo "You should have ONE_AUTH set the first time you start"
-                echo "OpenNebula as it is used to set the credentials for"
-                echo "the administrator user."
-                exit 1
-            fi
+    if [ -z "$HOME" ] || [ ! -f "$HOME/.one/one_auth" ]; then
+        if [ -z "$ONE_AUTH" ] || [ ! -f "$ONE_AUTH" ]; then
+            echo "Could not find one_auth credentials file: Please create a one_auth"
+            echo "file in either \$ONE_AUTH or \$HOME/.one/one_auth containing the"
+            echo "OpenNebula administrator users credentials."
+            exit 1
         fi
     fi
 
