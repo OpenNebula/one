@@ -474,8 +474,8 @@ define(function(require) {
 
           for (var i = 0; i < vmGraphs.length; i++) {
             Graphs.plot(response, vmGraphs[i]);
-          }
-        },
+            }
+          },
         error: Notifier.onError
       });
     }
