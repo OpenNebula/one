@@ -24,6 +24,8 @@ define(function(require) {
   require('flot.resize');
   // TODO Check if necessary require('flot.tooltip');
   require('flot.time');
+  require('flot.navigate');
+  require('flot.canvas');
   var Humanize = require('utils/humanize');
   /*
     CONSTRUCTOR
@@ -84,7 +86,9 @@ define(function(require) {
         font: {
           color: "#999",
           size: 10
-        }
+        },
+        zoomRange: [0.1, 10],
+        panRange: [-10, 10]
       },
       yaxis : {
         tickFormatter: function(val, axis) {
