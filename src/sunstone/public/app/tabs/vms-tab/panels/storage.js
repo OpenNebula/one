@@ -581,7 +581,6 @@ define(function(require) {
       context.on('click', '.disk_resize', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
         var disk_size = that.element.TEMPLATE.DISK.SIZE*1024; //to MB
-       // console.log(that.element);
         var dialog = Sunstone.getDialog(DISK_RESIZE_DIALOG_ID);
         dialog.setParams(
           { element: that.element,
