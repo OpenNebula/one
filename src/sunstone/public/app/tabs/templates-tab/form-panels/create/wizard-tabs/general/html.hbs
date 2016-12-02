@@ -126,29 +126,60 @@
 </div>
 {{#isFeatureEnabled "showback"}}
 <div class="row">
-  <div class="medium-6 columns">
+  <div class="medium-12 columns">
     <fieldset>
-      <legend>{{tr "Cost"}}</legend>
-      <div class="medium-6 columns">
+      <legend>
+        {{tr "Cost"}}
+        <span>
+          <span id="total_cost">0.00</span>
+          <small>{{tr "COST"}} / {{tr "MONTH"}}</small>
+        </span>
+      </legend>
+      <div class="medium-4 columns">
         <label  for="MEMORY_COST">
           {{tr "Memory"}}
-            {{{tip (tr "Cost of each MB per hour")}}}
+            {{{tip (tr "Cost of each MB or GB per hour")}}}
         </label>
-        <input type="number" step="any" min="0" wizard_field="MEMORY_COST" id="MEMORY_COST"/>
+        <div class="input-group" style="margin-bottom:0;">
+          <input type="number" step="any" min="0" wizard_field="MEMORY_COST" id="MEMORY_COST"/>
+          <div class="input-group-button">
+              <select id="MEMORY_UNIT_COST" wizard_field="MEMORY_UNIT_COST" class="mb_input_unit">
+                <option value="MB" selected>{{tr "MB"}}</option>
+                <option value="GB" >{{tr "GB"}}</option>
+              </select>
+            </div>
+        </div>
+        <div class="target_cost" align="center" style="background-color:lightgrey;">
+          <label class="total_memory_cost" hidden="true">{{tr "TOTAL"}}</label>
+          <label class="total_memory_cost" style="font-size:200%;" id="total_value_memory" hidden="true"></label>
+          <label class="total_memory_cost" hidden="true">/{{tr "month"}}
+          </label>
+        </div>
       </div>
-      <div class="medium-6 columns">
+      <div class="medium-4 columns">
         <label  for="CPU_COST">
           {{tr "CPU"}}
             {{{tip (tr "Cost of each CPU per hour")}}}
         </label>
         <input type="number" step="any" min="0" wizard_field="CPU_COST" id="CPU_COST"/>
+        <span></span>
+         <div class="target_cost" align="center" style="background-color:lightgrey;">
+          <label class="total_cpu_cost" hidden="true">{{tr "TOTAL"}}</label>
+          <label class="total_cpu_cost" style="font-size:200%;" id="total_value_cpu" hidden="true"></label>
+          <label class="total_cpu_cost" hidden="true">/{{tr "month"}}</label>
+        </div>
       </div>
-      <div class="medium-6 columns left">
+      <div class="medium-4 columns left">
         <label  for="DISK_COST">
           {{tr "Disk"}}
-            {{{tip (tr "Cost of each MB per hour")}}}
+            {{{tip (tr "Cost of each GB per hour")}}}
         </label>
         <input type="number" step="any" min="0" wizard_field="DISK_COST" id="DISK_COST"/>
+        <div class="target_cost" align="center" style="background-color:lightgrey;">
+          <label class="total_disk_cost" hidden="true">{{tr "TOTAL"}}</label>
+          <label class="total_disk_cost" style="font-size:200%;" id="total_value_disk" hidden="true"></label>
+          <label class="total_disk_cost" hidden="true">/{{tr "month"}}</label>
+        </div>
       </div>
     </fieldset>
   </div>

@@ -24,20 +24,24 @@
         </label>
       </div>
       <div class="small-12 columns">
-        <div class="input-group">
+        <div class="input-group" style="margin-bottom:0rem;">
           <div class="mb_unit memory_input input-group-field">
-            <input type="number" min="0" step="256" wizard_field="MEMORY" id="MEMORY"/>
+            <input type="number" min="0" step="256" wizard_field="MEMORY" id="MEMORY"style="margin-bottom:0rem;"/>
           </div>
           <div class="gb_unit memory_gb_input input-group-field">
-            <input type="number" min="0" step="1" name="memory_gb"/>
+            <input id="MEMORY_GB" type="number" min="0" step="1" name="memory_gb" style="margin-bottom:0rem;"/>
           </div>
           <div class="input-group-button">
-            <select id="memory_unit" name="MEMORY_UNIT" class="mb_input_unit">
+            <select id="memory_unit" name="MEMORY_UNIT" class="mb_input_unit" style="margin-bottom:0rem;">
               <option value="MB">{{tr "MB"}}</option>
               <option value="GB" selected>{{tr "GB"}}</option>
             </select>
           </div>
         </div>
+        <span style="color:gray;margin-bottom:1rem">
+          <span id="real_memory_cost">Cost</span>
+          <small>{{tr "COST"}} / {{tr "MONTH"}}</small>
+        </span>
       </div>
     </div>
   </div>
@@ -97,8 +101,12 @@
           {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
         </label>
         <div class="cpu_input">
-          <input type="number" step="0.01" min="0" wizard_field="CPU" id="CPU"/>
+          <input type="number" step="0.01" min="0" wizard_field="CPU" id="CPU" style="margin-bottom:0rem;"/>
         </div>
+        <span style="color:gray;margin-bottom:1rem">
+          <span id="real_cpu_cost" >Cost</span>
+          <small>{{tr "COST"}} / {{tr "MONTH"}}</small>
+        </span>
       </div>
     </div>
   </div>

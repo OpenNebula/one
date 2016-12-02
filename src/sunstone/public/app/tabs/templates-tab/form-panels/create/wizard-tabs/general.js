@@ -96,12 +96,55 @@ define(function(require) {
 
     //context.foundation('slider', 'reflow');
   }
+  function convertCostNumber(number){
+    if(number >= 1000000){
+      number = (number/1000000).toFixed(2)
+      return number.toString()+"M";
+    }
+    else if(number >= 1000){
+      number = (number/1000).toFixed(2)
+      return number.toString()+"K";
+    }
+    return number;
+  }
+  function caculatedTotalMemory(context){
+    var memory = document.getElementById('MEMORY_COST').value;
+    var type = document.getElementById('MEMORY_UNIT_COST').value;
+    if(type == "GB")
+      memory *= 1024;
+    memory = memory * 24 * 30; //24 hours and 30 days
+    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
+    $(".total_memory_cost", context).show(); 
+  }
 
   function _setup(context) {
     var that = this;
 
     $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
       //context.foundation('slider', 'reflow');
+    });
+
+    context.on("change", "#MEMORY_COST", function() {
+      caculatedTotalMemory(context);
+      CapacityCreate.calculatedRealMemory(context);
+    });
+
+    context.on("change", "#MEMORY_UNIT_COST", function() {
+      caculatedTotalMemory(context);
+      CapacityCreate.calculatedRealMemory();
+    });
+
+     context.on("change", "#CPU_COST", function() {
+      var cpu = document.getElementById('CPU_COST').value;
+      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * 24 * 30);
+      $(".total_cpu_cost", context).show(); 
+      CapacityCreate.calculatedRealCpu();
+    });
+
+    context.on("change", "#DISK_COST", function() {
+      var disk = document.getElementById('DISK_COST').value;
+      document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 1024 * 24 * 30);
+      $(".total_disk_cost", context).show(); 
     });
 
     context.on("change", "#LOGO", function() {
@@ -135,7 +178,9 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = WizardFields.retrieve(context);
-
+    templateJSON["DISK_COST"] = templateJSON["DISK_COST"] * 1024;
+    if(templateJSON["MEMORY_UNIT_COST"] == "GB")
+      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] * 1024;
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["VCENTER_PUBLIC_CLOUD"] = {
         'TYPE': 'vcenter',
@@ -211,6 +256,8 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var sunstone_template = templateJSON.SUNSTONE;
+    if(templateJSON["MEMORY_UNIT_COST"] =="GB")
+      templateJSON["MEMORY_COST"] = templateJSON["MEMORY_COST"] / 1024;
     if (sunstone_template) {
       if (sunstone_template["NETWORK_SELECT"] &&
           sunstone_template["NETWORK_SELECT"].toUpperCase() == "NO") {

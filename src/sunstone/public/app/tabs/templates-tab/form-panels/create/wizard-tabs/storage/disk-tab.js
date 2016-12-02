@@ -146,7 +146,7 @@ define(function(require) {
     }
 
     var tmpl = WizardFields.retrieve(selectedContext);
-
+    tmpl["SIZE"] = tmpl["SIZE"] * 1024;
     var dev_prefix = WizardFields.retrieveInput($('#disk_dev_prefix', selectedContext));
     if (dev_prefix != undefined && dev_prefix.length) {
       if (dev_prefix == "custom") {
