@@ -1,1 +1,103 @@
-../common/dummy.sh
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# clone fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'opennebula'
+require 'vcenter_driver'
+require 'digest'
+
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to clone the image. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
+
+src          = ARGV[0]
+dst          = ARGV[1]
+vm_id        = ARGV[2]
+source_ds_id = ARGV[3]
+
+target_ds_id = dst.split("/")[-3]
+disk_id = dst.split(".")[-1]
+
+src_host, src_path = src.split ":"
+hostname, dst_path = dst.split ":"
+
+client = OpenNebula::Client.new
+ds_pool = OpenNebula::DatastorePool.new(client)
+
+rc = ds_pool.info
+if OpenNebula.is_error?(rc)
+     puts rc.message
+     exit -1
+end
+
+xml = "/DATASTORE_POOL/DATASTORE[ID='#{source_ds_id}']/TEMPLATE/VCENTER_NAME"
+source_ds = ds_pool[xml]
+
+xml = "/DATASTORE_POOL/DATASTORE[ID='#{target_ds_id}']/TEMPLATE/VCENTER_NAME"
+target_ds = ds_pool[xml]
+
+################################################################################
+
+# Generate target path
+target_path = "one_#{vm_id}_#{disk_id}.vmdk"
+
+################################################################################
+
+# Check for errors
+check_valid source_ds, "source_ds"
+check_valid target_ds, "target_ds"
+check_valid hostname, "hostname"
+check_valid src_path, "src_path"
+
+################################################################################
+
+begin
+    host_id   = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client = VCenterDriver::VIClient.new host_id
+
+    vi_client.copy_virtual_disk(src_path, source_ds, target_path, target_ds)
+rescue Exception => e
+    STDERR.puts "Error cloning img #{src_path} size. Reason: #{e.message}"
+    exit -1
+end

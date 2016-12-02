@@ -823,7 +823,7 @@ class VIClient
     end
 
     def self.find_ds_name(ds_id)
-        ds = OpenNebula::Datastore.new_with_id(ds_id)
+        ds = OpenNebula::Datastore.new_with_id(ds_id, OpenNebula::Client.new)
         rc = ds.info
         raise "Could not find datastore #{ds_id}" if OpenNebula.is_error?(rc)
 
@@ -1524,6 +1524,7 @@ class VCenterVm
             reconfigure_vm(vm, xml, false, hostname)
 
             vm.PowerOnVM_Task.wait_for_completion
+
             return vm.config.uuid
         end
     end
@@ -1537,13 +1538,15 @@ class VCenterVm
     #  @param disks VM attached disks
     ############################################################################
     def self.cancel(deploy_id, hostname, lcm_state, keep_disks, disks, to_template)
+
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state, keep_disks, disks, to_template)
             when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT", "SHUTDOWN", "CLEANUP_DELETE"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
-                vm          = connection.find_vm_template(deploy_id)
+
+                vm = connection.find_vm_template(deploy_id)
 
                 begin
                     if vm.summary.runtime.powerState == "poweredOn"
@@ -1551,6 +1554,7 @@ class VCenterVm
                     end
                 rescue
                 end
+
                 if keep_disks
                     detach_all_disks(vm)
                 else
@@ -1661,7 +1665,8 @@ class VCenterVm
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
-        vm          = connection.find_vm_template(deploy_id)
+        vm   = connection.find_vm_template(deploy_id)
+        vmid = get_vm_id
 
         case lcm_state
             when "SHUTDOWN"
@@ -2628,8 +2633,6 @@ private
 
         end
 
-
-
         reconfigure_vm(vm, xml, true, hostname)
 
         # Power on the VM
@@ -2860,11 +2863,11 @@ private
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
             disks.each{|disk|
-               ds_name    = disk.elements["DATASTORE"].text
-               img_name   = disk.elements["SOURCE"].text
-               type_str   = disk.elements["TYPE"].text
+                ds_name    = disk.elements["DATASTORE"].text
+                img_name   = get_disk_img_path(disk, vmid)
+                type_str   = disk.elements["TYPE"].text
 
-               disk_array += attach_disk("", "", ds_name, img_name, type_str, 0, vm, connection)[:deviceChange]
+                disk_array += attach_disk("", "", ds_name, img_name, type_str, 0, vm, connection)[:deviceChange]
             }
 
             device_change += disk_array
@@ -2888,6 +2891,7 @@ private
         end
 
         spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
@@ -2924,7 +2928,7 @@ private
             end
         }
 
-        ds         = datastores.select{|ds| ds.name == ds_name}[0]
+        ds = datastores.select{|ds| ds.name == ds_name}[0]
 
         controller, new_number = find_free_controller(vm)
 
@@ -3165,14 +3169,20 @@ private
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
+        vmid =  vm.config.extraConfig.select do |val|
+                    val[:key] == "opennebula.vm.id"
+                end.first.value
+
         spec = { :deviceChange => [] }
 
         disks.each{ |disk|
-          ds_and_img_name = "[#{disk['DATASTORE']}] #{disk['SOURCE']}"
-          vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) &&
+            img_name = get_disk_img_path(disk, vmid)
+            ds_and_img_name = "[#{disk['DATASTORE']}] #{img_name}"
+
+            vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) &&
                                     d.backing.respond_to?(:fileName) &&
                                     d.backing.fileName == ds_and_img_name }[0]
-           spec[:deviceChange] <<  {
+            spec[:deviceChange] <<  {
                 :operation => :remove,
                 :device => vcenter_disk
             }
@@ -3180,5 +3190,37 @@ private
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
+
+
+    ############################################################################
+    # Returns the source path of a disk. It will use the 'SOURCE' path if
+    # persistent and one-#{vm_id}-#{disk_id}.vmdk otherwise
+    # @param disks VM attached disks, either an REXML document, or a hash
+    # @param vmid The VM ID
+    ############################################################################
+    def self.get_disk_img_path(disk, vmid)
+        if disk.respond_to? :elements
+            # It's a REXML::Document, probably coming from self.reconfigure_vm
+            persistent = disk.elements["PERSISTENT"].text == "YES" rescue false
+
+            if persistent
+                disk.elements["SOURCE"].text
+            else
+                disk_id = disk.elements["DISK_ID"].text
+                "one_#{vmid}_#{disk_id}.vmdk"
+            end
+        else
+            # It's a hash, probably coming from self.detach_attached_disks
+            persistent = disk["PERSISTENT"] == "YES"
+
+            if persistent
+                disk["SOURCE"]
+            else
+                disk_id = disk["DISK_ID"]
+                "one_#{vmid}_#{disk_id}.vmdk"
+            end
+        end
+    end
+
 end
 end

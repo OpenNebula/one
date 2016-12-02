@@ -22,6 +22,15 @@
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
+# Return if this has called for the whole directory, instead of for a specific
+# disk.
+
+if !ARGV[0].match(/disk\.\d+$/)
+    exit(0)
+end
+
+# ---------------------------------------------------------------------------- #
+
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
@@ -34,10 +43,23 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'opennebula'
 
 hostname, img_path = ARGV[0].split(":")
 vmid               = ARGV[1]
 dsid               = ARGV[2]
+
+client = OpenNebula::Client.new
+vm = OpenNebula::VirtualMachine.new_with_id(vmid, client)
+vm.info
+
+disk_id = img_path.split(".")[-1]
+
+persistent = vm["TEMPLATE/DISK[DISK_ID=#{disk_id}]/PERSISTENT"]
+
+if persistent != "YES"
+    img_path = "one_#{vmid}_#{disk_id}.vmdk"
+end
 
 begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
@@ -47,6 +69,6 @@ begin
     vi_client.delete_virtual_disk(img_path, ds_name)
 rescue Exception => e
     STDERR.puts "Error delete virtual disk #{img_path} in datastore #{dsid}."\
-                " Reason: #{e.message}"
+                " Reason: #{e.message}\n#{e.backtrace}"
     exit -1
 end
