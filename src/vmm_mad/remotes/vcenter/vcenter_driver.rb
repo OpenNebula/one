@@ -2004,6 +2004,7 @@ class VCenterVm
             if(one_vm["MONITORING/LAST_MON"] && one_vm["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
                 interval = (Time.now.to_i - one_vm["MONITORING/LAST_MON"].to_i)
+                interval = 3601 if interval < 0 #Safety check
                 #If last poll was more than hour ago get 3 minutes,
                 #else calculate how many samples since last poll
                 max_samples =  interval > 3600 ? 9 : (interval / refresh_rate) + 1
