@@ -59,7 +59,6 @@ begin
                                          ops)
 rescue Exception => e
     STDERR.puts "Deploy of VM #{vm_id} on host #{host} with #{dfile} failed " +
-                "due to \"#{e.message}\""
+                "due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end
-

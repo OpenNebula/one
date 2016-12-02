@@ -55,6 +55,6 @@ begin
     VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state, keep_disks, disks, cloned_tmplt)
 rescue Exception => e
     STDERR.puts "Cancel of VM #{deploy_id} on host #{host} failed " +
-                "due to \"#{e.message}\""
+                "due to \"#{e.message}\"\n#{e.backtrace}"
     exit -1
 end
