@@ -1847,15 +1847,15 @@ class VCenterVm
         end
 
         if hotplugged_nics && !hotplugged_nics.empty?
-            hotplugged_nics = hotplugged_nics[0][:value].to_s
-            hotplugged_nics << mac.to_s << ";" if !hotplugged_nics.include?(mac)
+            hotplugged_nics = hotplugged_nics[0][:value].to_s.split(";")
+            hotplugged_nics << mac.to_s if !hotplugged_nics.include?(mac)
         else
-            hotplugged_nics = ""
-            hotplugged_nics << mac.to_s << ";"
+            hotplugged_nics = []
+            hotplugged_nics << mac.to_s
         end
 
         config_array = [{:key=>"opennebula.hotplugged_nics",
-                         :value=>hotplugged_nics}]
+                         :value=>hotplugged_nics.join(";")}]
         extra_config_spec = {:extraConfig =>config_array}
 
         spec_hash.merge!(extra_config_spec)
@@ -1888,10 +1888,10 @@ class VCenterVm
 
         config_array = []
         if hotplugged_nics && !hotplugged_nics.empty?
-            hotplugged_nics = hotplugged_nics[0][:value].to_s
-            hotplugged_nics.slice!(mac + ";") # remove hotplugged nic
+            hotplugged_nics = hotplugged_nics[0][:value].to_s.split(";")
+            hotplugged_nics.delete(mac) # remove hotplugged nic
             config_array = [{:key=>"opennebula.hotplugged_nics",
-                         :value=>hotplugged_nics}]
+                         :value=>hotplugged_nics.join(";")}]
         end
 
         spec = {
@@ -2768,12 +2768,6 @@ private
         if !newvm
             nic_array = []
 
-            # Get MACs from NICs inside VM template
-            one_mac_addresses = Array.new
-            nics.each{|nic|
-                one_mac_addresses << nic.elements["MAC"].text
-            }
-
             # B4897 - Get mac of NICs that were hot-plugged from vCenter extraConfig
             hotplugged_nics = []
             extraconfig_nics = vm.config.extraConfig.select do |val|
@@ -2783,6 +2777,17 @@ private
             if extraconfig_nics && !extraconfig_nics.empty?
                 hotplugged_nics = extraconfig_nics[0][:value].to_s.split(";")
             end
+
+            # Get MACs from NICs inside VM template
+            one_mac_addresses = Array.new
+            nics.each{|nic|
+                mac = nic.elements["MAC"].text
+                one_mac_addresses << mac
+                # B4897 - Add NICs that were attached in POWEROFF
+                if !hotplugged_nics.include?(mac)
+                    hotplugged_nics << mac.to_s
+                end
+            }
 
             vm.config.hardware.device.each{ |dv|
                 if is_nic?(dv)
@@ -2796,15 +2801,42 @@ private
                    if !one_mac_addresses.include?(dv.macAddress) && hotplugged_nics.include?(dv.macAddress)
                        nic_array << { :operation => :remove, :device => dv}
                        hotplugged_nics.delete(dv.macAddress)
-                       config_array << {
-                        :key    => 'opennebula.hotplugged_nics',
-                        :value  => hotplugged_nics.join(";")
-                       }
                    end
                 end
             }
 
+            # B4897 - Save what NICs have been attached by OpenNebula in vCenter VM extraconfig
+            if !hotplugged_nics.empty?
+                  config_array << {
+                          :key    => 'opennebula.hotplugged_nics',
+                          :value  => hotplugged_nics.join(";")
+                  }
+            else
+                 config_array << {
+                         :key    => 'opennebula.hotplugged_nics',
+                         :value  => ""
+                 }
+            end
+
             device_change += nic_array
+
+        else
+             # B4897 - Add NICs that have been added to the VM template
+             # to the hotplugged_nics extraconfig so we can track what must be removed
+
+             # Get MACs from NICs inside VM template to track NICs added by OpenNebula
+             one_mac_addresses = []
+             nics.each{|nic|
+                 one_mac_addresses << nic.elements["MAC"].text
+             }
+
+             if !one_mac_addresses.empty?
+                 config_array << {
+                     :key    => 'opennebula.hotplugged_nics',
+                     :value  => one_mac_addresses.join(";")
+                 }
+             end
+
         end
 
         if !nics.nil?
