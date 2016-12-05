@@ -1,1 +1,114 @@
-../common/dummy.sh
+#!/usr/bin/env ruby
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# cpds host:remote_system_ds/disk.i fe:SOURCE snap_id vmid ds_id
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - snap_id is the snapshot id. "-1" for none
+
+ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'opennebula'
+require 'vcenter_driver'
+require 'digest'
+
+client = OpenNebula::Client.new
+
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to perform cpds of the image. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
+
+src          = ARGV[0]
+target_path  = ARGV[1]
+snap_id      = ARGV[2]
+vmid         = ARGV[3]
+target_ds_id = ARGV[4]
+
+source_ds_id = src.split("/")[-3]
+disk_id = src.split(".")[-1]
+
+hostname, src_path = src.split ":"
+
+################################################################################
+
+vm = OpenNebula::VirtualMachine.new_with_id(vmid, client)
+rc = vm.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit -1
+end
+
+persistent = vm["TEMPLATE/DISK[DISK_ID=#{disk_id}]/PERSISTENT"] == "YES"
+
+if persistent
+    src_path = vm["TEMPLATE/DISK[DISK_ID=#{disk_id}]/SOURCE"]
+else
+    src_path = "one_#{vmid}_#{disk_id}.vmdk"
+end
+
+if vm.state == 3
+    STDERR.puts "'disk-saveas' operation is not supported for running VMs."
+    exit 1
+end
+
+################################################################################
+
+ds_pool = OpenNebula::DatastorePool.new(client)
+
+rc = ds_pool.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit -1
+end
+
+xpath = "/DATASTORE_POOL/DATASTORE[ID='#{source_ds_id}']/TEMPLATE/VCENTER_NAME"
+source_ds = ds_pool[xpath]
+
+xpath = "/DATASTORE_POOL/DATASTORE[ID='#{target_ds_id}']/TEMPLATE/VCENTER_NAME"
+target_ds = ds_pool[xpath]
+
+################################################################################
+
+begin
+    host_id   = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client = VCenterDriver::VIClient.new host_id
+
+    vi_client.copy_virtual_disk(src_path, source_ds, target_path, target_ds)
+rescue Exception => e
+    STDERR.puts "Error cloning img #{src_path} size. Reason: #{e.message}"
+    exit -1
+end
