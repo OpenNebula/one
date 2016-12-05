@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -31,6 +31,7 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
+require 'opennebula'
 require 'vcenter_driver'
 require 'digest'
 
@@ -40,15 +41,40 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_path = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+target_ds_name = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
+hostname       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+img_path       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
+src_img_id     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/CLONING_ID"]
 
-if ds_name.nil? || hostname.nil? || img_path.nil?
+if target_ds_name.nil? || hostname.nil? || img_path.nil?
     STDERR.puts "Not enough information to clone the image, missing datastore"\
                 " name or vcenter cluster name or image path."
     exit -1
 end
+
+# Get source image
+client = OpenNebula::Client.new
+
+src_img = OpenNebula::Image.new_with_id(src_img_id, client)
+
+rc = src_img.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit -1
+end
+
+src_ds_id = src_img['DATASTORE_ID']
+
+# Get the source datastore
+src_ds = OpenNebula::Datastore.new_with_id(src_ds_id, client)
+
+rc = src_ds.info
+if OpenNebula.is_error?(rc)
+    STDERR.puts rc.message
+    exit -1
+end
+
+src_ds_name = src_ds["TEMPLATE/VCENTER_NAME"]
 
 # Generate target path
 str_for_target_path = Time.now.to_s + id.to_s
@@ -58,7 +84,7 @@ begin
     host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
     vi_client    = VCenterDriver::VIClient.new host_id
 
-    puts vi_client.copy_virtual_disk(img_path, ds_name, target_path)
+    puts vi_client.copy_virtual_disk(img_path, src_ds_name, target_path, target_ds_name)
 rescue Exception => e
     STDERR.puts "Error cloning img #{img_path} size. Reason: #{e.message}"
     exit -1
