@@ -1665,7 +1665,6 @@ class VCenterVm
         connection  = VIClient.new(hid)
 
         vm   = connection.find_vm_template(deploy_id)
-        vmid = get_vm_id
 
         case lcm_state
             when "SHUTDOWN"
