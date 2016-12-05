@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -32,11 +32,24 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'digest'
+
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to create the image. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
-drv_action =OpenNebula::XMLElement.new
+drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
 ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
@@ -44,21 +57,25 @@ hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CL
 adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
 disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
 size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
-img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"]
+fs_type       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE"]
 
-if ds_name.nil? ||
-   hostname.nil? ||
-   adapter_type.nil? ||
-   disk_type.nil? ||
-   size.nil? ||
-   img_name.nil?
-    STDERR.puts "Not enough information to create the image."
-    exit -1
+str_for_target_path = Time.now.to_s + id.to_s
+target_path = Digest::MD5.hexdigest(str_for_target_path)
+
+if fs_type == "save_as"
+  puts target_path + ".vmdk"
+  exit 0
 end
 
+check_valid ds_name, "ds_name"
+check_valid hostname, "hostname"
+check_valid adapter_type, "adapter_type"
+check_valid disk_type, "disk_type"
+check_valid size, "size"
+
 begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+    host_id   = VCenterDriver::VIClient.translate_hostname(hostname)
+    vi_client = VCenterDriver::VIClient.new host_id
 
     puts vi_client.create_virtual_disk(img_name,
                                        ds_name,
