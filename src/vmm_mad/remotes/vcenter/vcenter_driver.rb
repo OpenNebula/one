@@ -827,7 +827,7 @@ class VIClient
         rc = ds.info
         raise "Could not find datastore #{ds_id}" if OpenNebula.is_error?(rc)
 
-        return ds.name
+        return ds["/DATASTORE/TEMPLATE/VCENTER_NAME"]
     end
 
     ############################################################################
@@ -2860,12 +2860,15 @@ private
             disk_array = []
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
+
+            position    = 0
             disks.each{|disk|
-                ds_name    = disk.elements["DATASTORE"].text
+                ds_name    = disk.elements["VCENTER_NAME"].text
                 img_name   = get_disk_img_path(disk, vmid)
                 type_str   = disk.elements["TYPE"].text
 
-                disk_array += attach_disk("", "", ds_name, img_name, type_str, 0, vm, connection)[:deviceChange]
+                disk_array += attach_disk("", "", ds_name, img_name, type_str, 0, vm, connection, position)[:deviceChange]
+                position += 1
             }
 
             device_change += disk_array
@@ -2888,7 +2891,7 @@ private
             spec_hash.merge!({ :deviceChange => device_change })
         end
 
-        spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
@@ -2902,8 +2905,9 @@ private
     # @params size_kb[String] size in kb of the disk
     # @params vm[RbVmomi::VIM::VirtualMachine] VM if called from instance
     # @params connection[ViClient::connectoon] connection if called from instance
+    # @params position The number of disks to attach. Starts with 0.
     ############################################################################
-    def self.attach_disk(hostname, deploy_id, ds_name, img_name, type, size_kb, vm=nil, connection=nil)
+    def self.attach_disk(hostname, deploy_id, ds_name, img_name, type, size_kb, vm=nil, connection=nil, position=0)
         only_return = true
         if !vm
             hid         = VIClient::translate_hostname(hostname)
@@ -2928,7 +2932,7 @@ private
 
         ds = datastores.select{|ds| ds.name == ds_name}[0]
 
-        controller, new_number = find_free_controller(vm)
+        controller, new_number = find_free_controller(vm, position)
 
         if type == "CDROM"
             vmdk_backing = RbVmomi::VIM::VirtualCdromIsoBackingInfo(
@@ -2992,6 +2996,7 @@ private
               :key           => -1,
               :unitNumber    => new_number
             )
+
             device_config_spec = RbVmomi::VIM::VirtualDeviceConfigSpec(
                :device    => device,
                :operation => RbVmomi::VIM::VirtualDeviceConfigSpecOperation('add')
@@ -3007,7 +3012,7 @@ private
         vm.ReconfigVM_Task(:spec => vm_config_spec).wait_for_completion
     end
 
-    def self.find_free_controller(vm)
+    def self.find_free_controller(vm, position=0)
         free_scsi_controllers = Array.new
         available_controller  = nil
         scsi_schema           = Hash.new
@@ -3052,7 +3057,7 @@ private
           (controller = device ; break) if device.deviceInfo.label == available_controller_label
         }
 
-        new_unit_number =  available_numbers.sort[0]
+        new_unit_number =  available_numbers.sort[position]
 
         return controller, new_unit_number
     end
@@ -3175,7 +3180,7 @@ private
 
         disks.each{ |disk|
             img_name = get_disk_img_path(disk, vmid)
-            ds_and_img_name = "[#{disk['DATASTORE']}] #{img_name}"
+            ds_and_img_name = "[#{disk['VCENTER_NAME']}] #{img_name}"
 
             vcenter_disk = vm.config.hardware.device.select { |d| is_disk?(d) &&
                                     d.backing.respond_to?(:fileName) &&
