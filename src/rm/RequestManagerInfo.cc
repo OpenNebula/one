@@ -16,6 +16,7 @@
 
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
+#include "VirtualMachineDisk.h"
 
 using namespace std;
 
@@ -111,7 +112,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
     {
         VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl);
 
-        VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
     }
 
     if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )

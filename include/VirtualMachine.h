@@ -18,6 +18,7 @@
 #define VIRTUAL_MACHINE_H_
 
 #include "VirtualMachineTemplate.h"
+#include "VirtualMachineDisk.h"
 #include "VirtualMachineMonitorInfo.h"
 #include "PoolSQL.h"
 #include "History.h"
@@ -174,7 +175,9 @@ public:
         //DISK_SNAPSHOT_REVERT = 58,
         DISK_SNAPSHOT_DELETE = 59,
         PROLOG_MIGRATE_UNKNOWN = 60,
-        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
+        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61,
+        DISK_RESIZE = 62,
+        DISK_RESIZE_POWEROFF = 63
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -240,6 +243,8 @@ public:
         else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
         else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
         else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
+        else if ( st == "DISK_RESIZE") { state = DISK_RESIZE; }
+        else if ( st == "DISK_RESIZE_POWEROFF") { state = DISK_RESIZE_POWEROFF; }
         else {return -1;}
 
         return 0;
@@ -308,6 +313,8 @@ public:
             case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
             case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
             case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
+            case DISK_RESIZE: st = "DISK_RESIZE"; break;
+            case DISK_RESIZE_POWEROFF: st = "DISK_RESIZE_POWEROFF"; break;
         }
 
         return st;
@@ -1239,6 +1246,37 @@ public:
      int resize (float cpu, int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
+    // Virtual Machine Disks
+    // ------------------------------------------------------------------------
+    /**
+     *  Get all disk images for this Virtual Machine
+     *  @param error_str Returns the error reason, if any
+     *  @return 0 if success
+     */
+    int get_disk_images(string &error_str);
+
+    /**
+     *  Releases all disk images taken by this Virtual Machine
+     */
+    void release_disk_images();
+
+    /**
+     *  @return reference to the VirtualMachine disks
+     */
+    VirtualMachineDisks& get_disks()
+    {
+        return disks;
+    }
+
+    /**
+     *  @return a pointer to the given disk
+     */
+    VirtualMachineDisk * get_disk(int disk_id) const
+    {
+        return disks.get_disk(disk_id);
+    }
+
+    // ------------------------------------------------------------------------
     // Network Leases & Disk Images
     // ------------------------------------------------------------------------
     /**
@@ -1275,21 +1313,6 @@ public:
     void remove_security_group(int sgid);
 
     /**
-     *  Releases all disk images taken by this Virtual Machine
-     */
-    void release_disk_images();
-
-    /**
-     *  Check if the given disk is volatile
-     */
-    static bool is_volatile(const VectorAttribute * disk);
-
-    /**
-     *  Check if the disk is persistent
-     */
-    static bool is_persistent(const VectorAttribute * disk);
-
-    /**
      *  Check if the VM is imported
      */
     bool is_imported() const;
@@ -1306,31 +1329,11 @@ public:
      */
     bool is_imported_action_supported(History::VMAction action) const;
 
-    /**
-     *  Return the total disk SIZE that the VM instance needs in the system DS
-     */
-    static long long get_system_disk_size(Template * tmpl);
-
-    /**
-     * Returns the disk CLONE_TARGET or LN_TARGET
-     * @param disk
-     * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
-     */
-    static string disk_tm_target(const VectorAttribute *  disk);
-
-    /**
-     * Returns the DISK attribute for a disk
-     *   @param disk_id of the DISK
-     *   @return pointer to the attribute ir null if not found
-     */
-    const VectorAttribute* get_disk(int disk_id) const;
-
     const VectorAttribute* get_nic(int nic_id) const;
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions
     // ------------------------------------------------------------------------
-
     /**
      * Returns the Virtual Router ID if this VM is a VR, or -1
      * @return VR ID or -1
@@ -1342,7 +1345,6 @@ public:
      * @return true if this VM is a Virtual Router
      */
     bool is_vrouter();
-
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1432,18 +1434,9 @@ public:
                                  AuthRequest& ar,
                                  VirtualMachineTemplate *tmpl);
 
-    /**
-     *  Adds extra info to the given template:
-     *  DISK/IMAGE_ID and SIZE
-     *    @param  uid for template owner
-     *    @param  tmpl the virtual machine template
-     */
-    static void disk_extended_info(int uid,
-                                  VirtualMachineTemplate *tmpl);
     // -------------------------------------------------------------------------
-    // Hotplug related functions
+    // Attach Disk Interface
     // -------------------------------------------------------------------------
-
     /**
      * Generate and attach a new DISK attribute to the VM. This method check
      * that the DISK is compatible with the VM cluster allocation and disk target
@@ -1460,31 +1453,70 @@ public:
      *
      * @return the disk waiting for an attachment action, or 0
      */
-    VectorAttribute* get_attach_disk();
+    VirtualMachineDisk * get_attach_disk()
+    {
+        return disks.get_attach();
+    }
 
     /**
      * Cleans the ATTACH = YES attribute from the disks
      */
-    void clear_attach_disk();
+    void clear_attach_disk()
+    {
+        disks.clear_attach();
+    }
 
     /**
      * Deletes the DISK that was in the process of being attached
      *
      * @return the DISK or 0 if no disk was deleted
      */
-    VectorAttribute * delete_attach_disk(Snapshots **snap);
+    VirtualMachineDisk * delete_attach_disk()
+    {
+        return disks.delete_attach();
+    }
 
     /**
      *  Sets the attach attribute to the given disk
      *    @param disk_id of the DISK
      *    @return 0 if the disk_id was found -1 otherwise
      */
-    int set_attach_disk(int disk_id);
+    int set_attach_disk(int disk_id)
+    {
+        return disks.set_attach(disk_id);
+    }
+
+    // -------------------------------------------------------------------------
+    // Resize Disk Interface
+    // -------------------------------------------------------------------------
+    /**
+     * Returns the disk that is going to be resized
+     *
+     * @return the disk or 0 if not found
+     */
+    VirtualMachineDisk * get_resize_disk()
+    {
+        return disks.get_resize();
+    }
+
+    /**
+     * Cleans the RESIZE = YES attribute from the disks
+     */
+    void clear_resize_disk(bool restore)
+    {
+        disks.clear_resize(restore);
+    }
+
+    /**
+     *  Sets the resize attribute to the given disk
+     *    @param disk_id of the DISK
+     *    @return 0 if the disk_id was found -1 otherwise
+     */
+    int set_resize_disk(int disk_id);
 
     // ------------------------------------------------------------------------
     // NIC Hotplug related functions
     // ------------------------------------------------------------------------
-
     /**
      * Generate and attach a new NIC attribute to the VM. This method check
      * that the NIC is compatible with the VM cluster allocation and fills SG
@@ -1529,16 +1561,18 @@ public:
     void detach_nic_failure();
 
     // ------------------------------------------------------------------------
-    // Snapshot related functions
+    // Disk Snapshot related functions
     // ------------------------------------------------------------------------
-
     /**
      *  Return the snapshot list for the disk
      *    @param disk_id of the disk
      *    @param error if any
      *    @return pointer to Snapshots or 0 if not found
      */
-    const Snapshots * get_disk_snapshots(int did, string& err) const;
+    const Snapshots * get_disk_snapshots(int did, string& err) const
+    {
+        return disks.get_snapshots(did, err);
+    }
 
     /**
      *  Creates a new snapshot of the given disk
@@ -1547,7 +1581,10 @@ public:
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int new_disk_snapshot(int disk_id, const string& name, string& error);
+    int new_disk_snapshot(int disk_id, const string& name, string& error)
+    {
+        return disks.create_snapshot(disk_id, name, error);
+    }
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
@@ -1556,7 +1593,10 @@ public:
      *    @param error if any
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id);
+    int revert_disk_snapshot(int disk_id, int snap_id)
+    {
+        return disks.revert_snapshot(disk_id, snap_id);
+    }
 
     /**
      *  Deletes the snap_id from the list
@@ -1566,7 +1606,10 @@ public:
      *    @param vm_quotas template with snapshot usage for the VM quotas
      */
     void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
-            Template **vm_quotas);
+            Template **vm_quotas)
+    {
+        disks.delete_snapshot(disk_id, snap_id, ds_quotas, vm_quotas);
+    }
 
     /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
@@ -1575,7 +1618,10 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_disk_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        map<int, Template *>& ds_quotas)
+    {
+        disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
+    }
 
     /**
      *  Get information about the disk to take the snapshot from
@@ -1585,23 +1631,32 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id);
+            int& snap_id)
+    {
+        return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
+    }
+
     /**
      *  Unset the current disk being snapshotted (reverted...)
      */
-    void clear_snapshot_disk();
+    void clear_snapshot_disk()
+    {
+        disks.clear_active_snapshot();
+    }
 
     /**
      *  Set the disk as being snapshotted (reverted...)
      *    @param disk_id of the disk
      *    @param snap_id of the target snap_id
      */
-    int set_snapshot_disk(int disk_id, int snap_id);
+    int set_snapshot_disk(int disk_id, int snap_id)
+    {
+        return disks.set_active_snapshot(disk_id, snap_id);
+    }
 
     // ------------------------------------------------------------------------
-    // Snapshot related functions
+    // System Snapshot related functions
     // ------------------------------------------------------------------------
-
     /**
      * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
      *
@@ -1648,23 +1703,31 @@ public:
     // ------------------------------------------------------------------------
     // Cloning state related functions
     // ------------------------------------------------------------------------
-
     /**
      * Returns true if any of the disks is waiting for an image in LOCKED state
      * @return true if cloning
      */
-    bool has_cloning_disks();
+    bool has_cloning_disks()
+    {
+        return disks.has_cloning();
+    }
 
     /**
      * Returns the image IDs for the disks waiting for the LOCKED state to finish
      * @param ids image ID set
      */
-    void get_cloning_image_ids(set<int>& ids);
+    void get_cloning_image_ids(set<int>& ids)
+    {
+        disks.get_cloning_image_ids(ids);
+    }
 
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, const string& source);
+    void clear_cloning_image_id(int image_id, const string& source)
+    {
+        disks.clear_cloning_image_id(image_id, source);
+    }
 
 private:
 
@@ -1774,9 +1837,9 @@ private:
     vector<History *> history_records;
 
     /**
-     *  Snapshots for each disk
+     *  VirtualMachine disks
      */
-    map<int, Snapshots *> snapshots;
+    VirtualMachineDisks disks;
 
     /**
      *  User template to store custom metadata. This template can be updated
@@ -2086,24 +2149,6 @@ private:
     }
 
     /**
-     *  Get all disk images for this Virtual Machine
-     *  @param error_str Returns the error reason, if any
-     *  @return 0 if success
-     */
-    int get_disk_images(string &error_str);
-
-    /**
-     *  Return the VectorAttribute representation of a disk
-     *    @param disk_id of the disk
-     *    @return pointer to the VectorAttribute
-     */
-    VectorAttribute* get_disk(int disk_id)
-    {
-        return const_cast<VectorAttribute *>(
-                static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
-    };
-
-    /**
      * Returns the NIC that is waiting for an attachment action
      *
      * @return the NIC waiting for an attachment action, or 0
@@ -2113,7 +2158,6 @@ private:
     // ------------------------------------------------------------------------
     // Public cloud templates related functions
     // ------------------------------------------------------------------------
-
     /**
      * Gets the list of public clouds defined in this VM.
      * @param clouds list to store the cloud hypervisors in the template

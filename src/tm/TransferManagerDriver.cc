@@ -158,6 +158,10 @@ void TransferManagerDriver::protocol(const string& message) const
                     lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
                     break;
 
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
+                    lcm_action = LifeCycleManager::DISK_RESIZE_SUCCESS;
+                    break;
+
                 default:
                     goto error_state;
             }
@@ -222,6 +226,10 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
                     lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
+                    break;
+
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
+                    lcm_action = LifeCycleManager::DISK_RESIZE_FAILURE;
                     break;
 
                 default:

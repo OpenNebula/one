@@ -27,6 +27,8 @@ using namespace std;
 
 extern "C" void * tm_action_loop(void *arg);
 
+class VirtualMachineDisk;
+
 class TransferManager : public MadManager, public ActionListener
 {
 public:
@@ -64,6 +66,7 @@ public:
         SNAPSHOT_CREATE,
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
+        RESIZE,
         FINALIZE
     };
 
@@ -118,7 +121,7 @@ public:
      */
     int prolog_transfer_command(
             VirtualMachine *        vm,
-            const VectorAttribute * disk,
+            const VirtualMachineDisk* disk,
             string&                 system_tm_mad,
             string&                 opennebula_hostname,
             ostream&                xfr,
@@ -154,7 +157,7 @@ public:
     void epilog_transfer_command(
             VirtualMachine *        vm,
             const string&           host,
-            const VectorAttribute * disk,
+            const VirtualMachineDisk * disk,
             ostream&                xfr);
     /**
      * Inserts a transfer command in the xfs stream, for live migration
@@ -191,6 +194,17 @@ public:
     int snapshot_transfer_command(VirtualMachine * vm,
                                   const char * snap_action,
                                   ostream& xfr);
+
+    /**
+     *  Inserts a resize command in the xfr stream
+     *    @param vm
+     *    @param disk to resize
+     *    @param xfr stream to include the command.
+     */
+    void resize_command(
+            VirtualMachine *           vm,
+            const VirtualMachineDisk * disk,
+            ostream&                   xfr);
 private:
     /**
      *  Thread id for the Transfer Manager
@@ -380,6 +394,11 @@ private:
      * This function deletes an snapshot of a disk
      */
     void snapshot_delete_action(int vid);
+
+    /**
+     * This function resizes a VM disk
+     */
+    void resize_action(int vid);
 };
 
 #endif /*TRANSFER_MANAGER_H*/

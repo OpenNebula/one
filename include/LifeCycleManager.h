@@ -104,10 +104,13 @@ public:
         RESTART,          /**< Sent by the DM to restart a deployed VM        */
         DELETE,           /**< Sent by the DM to delete a VM                  */
         DELETE_RECREATE,  /**< Sent by the DM to cleanup a VM for resubmission*/
-        FINALIZE,
-        UPDATESG,         /**< Sent by RM/VMM to trigger the secgroup update  */
-        DISK_LOCK_SUCCESS,/**< Sent by IM, image moves from locked to ready   */
-        DISK_LOCK_FAILURE,/**< Sent by IM, image moves from locked to error   */
+        UPDATESG,           /**< Sent by RM/VMM to trigger the secgroup update*/
+        DISK_LOCK_SUCCESS,  /**< Sent by IM, image moves from locked to ready */
+        DISK_LOCK_FAILURE,  /**< Sent by IM, image moves from locked to error */
+        DISK_RESIZE_SUCCESS,/**< Sent by TM/VMM when a disk resize succeeds   */
+        DISK_RESIZE_FAILURE,/**< Sent by TM/VMM when a disk resize fails      */
+        DISK_RESIZE,        /**< Sent by DM to resize a disk                  */
+        FINALIZE
     };
 
     /**
@@ -308,6 +311,10 @@ private:
     void disk_lock_success(int vid);
 
     void disk_lock_failure(int vid);
+
+    void disk_resize_success(int vid);
+
+    void disk_resize_failure(int vid);
 
     void deploy_action(int vid);
 

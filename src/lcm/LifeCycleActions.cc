@@ -1029,6 +1029,25 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
+        case VirtualMachine::DISK_RESIZE:
+            vm->clear_resize_disk(true);
+            vmpool->update(vm);
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+            vm->clear_resize_disk(true);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
         case VirtualMachine::MIGRATE:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -1316,6 +1335,18 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success)
                 lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
             }
         break;
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::DISK_RESIZE_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DISK_RESIZE_FAILURE;
+            }
+        break;
     }
 
     if (lcm_action != LifeCycleManager::FINALIZE)
@@ -1533,6 +1564,8 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
+        case VirtualMachine::DISK_RESIZE:
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
             break;
@@ -1642,6 +1675,7 @@ void  LifeCycleManager::updatesg_action(int sgid)
                 case VirtualMachine::SAVE_MIGRATE:
                 case VirtualMachine::CLEANUP_RESUBMIT:
                 case VirtualMachine::CLEANUP_DELETE:
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1662,6 +1696,7 @@ void  LifeCycleManager::updatesg_action(int sgid)
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::DISK_SNAPSHOT:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
+                case VirtualMachine::DISK_RESIZE:
                     is_update = true;
                     break;
             }

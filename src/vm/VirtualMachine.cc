@@ -60,6 +60,7 @@ VirtualMachine::VirtualMachine(int           id,
         deploy_id(""),
         history(0),
         previous_history(0),
+        disks(false),
         _log(0)
 {
     if (_vm_template != 0)
@@ -84,12 +85,6 @@ VirtualMachine::~VirtualMachine()
     for (unsigned int i=0 ; i < history_records.size() ; i++)
     {
         delete history_records[i];
-    }
-
-    for (map<int, Snapshots *>::const_iterator it = snapshots.begin();
-            it != snapshots.end() ; it++)
-    {
-        delete it->second;
     }
 
     delete _log;
@@ -2143,592 +2138,6 @@ int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static void assign_disk_targets(queue<pair <string, VectorAttribute *> >& _queue,
-                                set<string>& used_targets)
-{
-    int    index = 0;
-    string target;
-
-    pair <string, VectorAttribute *> disk_pair;
-
-    while (_queue.size() > 0 )
-    {
-        disk_pair = _queue.front();
-        index     = 0;
-
-        do
-        {
-            target = disk_pair.first + static_cast<char>(('a'+ index));
-            index++;
-        }
-        while ( used_targets.count(target) > 0 && index < 26 );
-
-        disk_pair.second->replace("TARGET", target);
-        used_targets.insert(target);
-
-        _queue.pop();
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::get_disk_images(string& error_str)
-{
-    vector<Attribute *> disks;
-    vector<Attribute *> context_disks;
-
-    int               num_disks, num_context, rc;
-    ImagePool *       ipool;
-    VectorAttribute * disk;
-    vector<int>       acquired_images;
-
-    int     image_id;
-    string  dev_prefix;
-    string  target;
-
-    queue<pair <string, VectorAttribute *> > os_disk;
-    queue<pair <string, VectorAttribute *> > cdrom_disks;
-    queue<pair <string, VectorAttribute *> > datablock_disks;
-
-    set<string> used_targets;
-
-    ostringstream    oss;
-    Image::ImageType img_type;
-
-    Nebula& nd = Nebula::instance();
-    ipool      = nd.get_ipool();
-
-    vector<Attribute*>::iterator it;
-
-    num_context = user_obj_template->remove("CONTEXT", context_disks);
-    num_disks   = user_obj_template->remove("DISK", disks);
-
-    for (it=context_disks.begin(); it != context_disks.end(); )
-    {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            num_context--;
-            it = context_disks.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
-    }
-
-    for (it=disks.begin(); it != disks.end(); )
-    {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            num_disks--;
-            it = disks.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
-    }
-
-    if ( num_disks > 20 )
-    {
-        goto error_max_disks;
-    }
-
-    // -------------------------------------------------------------------------
-    // Set DISK attributes & Targets
-    // -------------------------------------------------------------------------
-    for(int i=0; i<num_disks; i++)
-    {
-        Snapshots * snap;
-
-        disk = static_cast<VectorAttribute * >(disks[i]);
-
-        rc = ipool->acquire_disk(oid,
-                                 disk,
-                                 i,
-                                 img_type,
-                                 dev_prefix,
-                                 uid,
-                                 image_id,
-                                 &snap,
-                                 error_str);
-        if (rc == 0 )
-        {
-            if (snap != 0)
-            {
-                if (img_type == Image::OS || img_type == Image::DATABLOCK)
-                {
-                    snapshots.insert(pair<int, Snapshots *>(i, snap));
-                }
-                else
-                {
-                    delete snap;
-                }
-            }
-
-            acquired_images.push_back(image_id);
-
-            target = disk->vector_value("TARGET");
-
-            if ( !target.empty() )
-            {
-                if (  used_targets.insert(target).second == false )
-                {
-                    goto error_duplicated_target;
-                }
-            }
-            else
-            {
-                switch(img_type)
-                {
-                    case Image::OS:
-                        // The first OS disk gets the first device (a),
-                        // other OS's will be managed as DATABLOCK's
-                        if ( os_disk.empty() )
-                        {
-                            os_disk.push( make_pair(dev_prefix, disk) );
-                        }
-                        else
-                        {
-                            datablock_disks.push( make_pair(dev_prefix, disk) );
-                        }
-                        break;
-
-                    case Image::CDROM:
-                        cdrom_disks.push( make_pair(dev_prefix, disk) );
-                        break;
-
-                    case Image::DATABLOCK:
-                        datablock_disks.push( make_pair(dev_prefix, disk) );
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        }
-        else
-        {
-            oss << "DISK " << i << ": " << error_str;
-            error_str = oss.str();
-
-            goto error_common;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // The context is the last of the cdroms
-    // -------------------------------------------------------------------------
-    if ( num_context > 0 )
-    {
-        disk = static_cast<VectorAttribute * >(context_disks[0]);
-
-        target = disk->vector_value("TARGET");
-
-        if ( !target.empty() )
-        {
-            if (  used_targets.insert(target).second == false )
-            {
-                goto error_duplicated_target;
-            }
-        }
-        else
-        {
-            dev_prefix = disk->vector_value("DEV_PREFIX");
-
-            if ( dev_prefix.empty() )
-            {
-                dev_prefix = ipool->default_cdrom_dev_prefix();
-            }
-
-            cdrom_disks.push(make_pair(dev_prefix, disk));
-        }
-
-        // Disk IDs are 0..num-1, context disk is is num
-        disk->replace("DISK_ID", num_disks);
-    }
-
-    assign_disk_targets(os_disk, used_targets);
-    assign_disk_targets(cdrom_disks, used_targets);
-    assign_disk_targets(datablock_disks, used_targets);
-
-    return 0;
-
-error_max_disks:
-    error_str = "Exceeded the maximum number of disks (20)";
-    return -1;
-
-error_duplicated_target:
-    oss << "Two disks have defined the same target " << target;
-    error_str = oss.str();
-
-error_common:
-    ImageManager *  imagem  = nd.get_imagem();
-
-    vector<int>::iterator img_it;
-
-    for ( img_it=acquired_images.begin() ; img_it < acquired_images.end(); img_it++ )
-    {
-        imagem->release_image(oid, *img_it, false);
-    }
-
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::has_cloning_disks()
-{
-    bool cloning;
-
-    vector<VectorAttribute *> disks;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i < num_disks; i++)
-    {
-        disks[i]->vector_value("CLONING", cloning);
-
-        if (cloning)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::get_cloning_image_ids(set<int> &ids)
-{
-    bool cloning;
-    int  image_id;
-
-    vector<VectorAttribute *> disks;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i < num_disks; i++)
-    {
-        disks[i]->vector_value("CLONING", cloning);
-
-        if (cloning && (disks[i]->vector_value("IMAGE_ID", image_id) == 0) )
-        {
-            ids.insert(image_id);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_cloning_image_id(int image_id, const string& source)
-{
-    bool cloning;
-    int  disk_image_id;
-
-    vector<VectorAttribute *> disks;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i < num_disks; i++)
-    {
-        disks[i]->vector_value("CLONING", cloning);
-
-        if (cloning &&
-            (disks[i]->vector_value("IMAGE_ID", disk_image_id) == 0) &&
-            disk_image_id == image_id)
-        {
-            disks[i]->remove("CLONING");
-
-            disks[i]->replace("SOURCE", source);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& err)
-{
-    Nebula&       nd     = Nebula::instance();
-    ImagePool *   ipool  = nd.get_ipool();
-    ImageManager* imagem = nd.get_imagem();
-
-    string           dev_prefix;
-    Image::ImageType img_type;
-
-    set<string> used_targets;
-    int         max_disk_id = -1;
-
-    int    image_id;
-    string target;
-    string disk_cluster_ids;
-
-    Snapshots * snap = 0;
-
-    // -------------------------------------------------------------------------
-    // Get the DISK attribute from the template
-    // -------------------------------------------------------------------------
-    VectorAttribute * new_disk = tmpl->get("DISK");
-
-    if ( new_disk == 0 )
-    {
-        err = "Internal error parsing DISK attribute";
-        return -1;
-    }
-
-    new_disk = new_disk->clone();
-
-    // -------------------------------------------------------------------------
-    // Get the list of used targets and max_disk_id
-    // -------------------------------------------------------------------------
-    vector<VectorAttribute *> disk;
-
-    int disk_id;
-    int num_disks = get_template_attribute("DISK", disk);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        target = disk[i]->vector_value("TARGET");
-
-        if ( !target.empty() )
-        {
-            used_targets.insert(target);
-        }
-
-        disk[i]->vector_value("DISK_ID", disk_id);
-
-        if ( disk_id > max_disk_id )
-        {
-            max_disk_id = disk_id;
-        }
-    }
-
-    VectorAttribute * context = get_template_attribute("CONTEXT");
-
-    if ( context != 0 )
-    {
-        target = context->vector_value("TARGET");
-
-        if ( !target.empty() )
-        {
-            used_targets.insert(target);
-        }
-
-        context->vector_value("DISK_ID", disk_id);
-
-        if ( disk_id > max_disk_id )
-        {
-            max_disk_id = disk_id;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Acquire the new disk image
-    // -------------------------------------------------------------------------
-    int rc = ipool->acquire_disk(oid, new_disk, max_disk_id + 1, img_type,
-                                 dev_prefix, uid, image_id, &snap, err);
-    if ( rc != 0 )
-    {
-        delete new_disk;
-        return -1;
-    }
-
-    target = new_disk->vector_value("TARGET");
-
-    if ( !target.empty() )
-    {
-        if (  used_targets.insert(target).second == false )
-        {
-            err = "Target " + target + " is already in use.";
-
-            imagem->release_image(oid, image_id, false);
-
-            delete new_disk;
-            delete snap;
-
-            return -1;
-        }
-    }
-    else
-    {
-        queue<pair <string, VectorAttribute *> > disks_queue;
-
-        disks_queue.push(make_pair(dev_prefix, new_disk));
-
-        assign_disk_targets(disks_queue, used_targets);
-    }
-
-    // -------------------------------------------------------------------------
-    // Check that we don't have a cluster incompatibility.
-    // -------------------------------------------------------------------------
-    if (new_disk->vector_value("CLUSTER_ID", disk_cluster_ids) == 0)
-    {
-        set<int> cluster_ids;
-        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
-
-        if (cluster_ids.count(get_cid()) == 0)
-        {
-            ostringstream oss;
-
-            oss << "Image [" << image_id << "] is not part of cluster ["
-                << get_cid() << "]";
-
-            err = oss.str();
-
-            imagem->release_image(oid, image_id, false);
-
-            delete new_disk;
-            delete snap;
-
-            return -1;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Add new disk to template and set info in history before attaching
-    // -------------------------------------------------------------------------
-    set_vm_info();
-
-    new_disk->replace("ATTACH", "YES");
-
-    obj_template->set(new_disk);
-
-    if (snap != 0)
-    {
-        new_disk->vector_value("DISK_ID", disk_id);
-
-        snapshots.insert(pair<int, Snapshots *>(disk_id, snap));
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_attach_disk(int disk_id)
-{
-    VectorAttribute * disk;
-
-    disk = get_disk(disk_id);
-
-    if ( disk != 0 )
-    {
-        disk->replace("ATTACH", "YES");
-        return 0;
-    }
-
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute* VirtualMachine::get_attach_disk()
-{
-    vector<VectorAttribute *> disk;
-
-    int num_disks = obj_template->get("DISK", disk);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        if ( disk[i]->vector_value("ATTACH") == "YES" )
-        {
-            return disk[i];
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_attach_disk()
-{
-    vector<VectorAttribute *> disks;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i < num_disks; i++)
-    {
-        if ( disks[i]->vector_value("ATTACH") == "YES" )
-        {
-            disks[i]->remove("ATTACH");
-            return;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::delete_attach_disk(Snapshots **snap)
-{
-    vector<VectorAttribute  *> disks;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    *snap = 0;
-
-    for(int i=0; i<num_disks; i++)
-    {
-        if ( disks[i]->vector_value("ATTACH") == "YES" )
-        {
-            int disk_id;
-
-            disks[i]->vector_value("DISK_ID", disk_id);
-
-            map<int, Snapshots *>::iterator it = snapshots.find(disk_id);
-
-            if (it != snapshots.end())
-            {
-                *snap = it->second;
-                snapshots.erase(it);
-            }
-
-            return static_cast<VectorAttribute *>(obj_template->remove(disks[i]));
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::is_volatile(const VectorAttribute * disk)
-{
-    string type = disk->vector_value("TYPE");
-
-    one_util::toupper(type);
-
-    return ( type == "SWAP" || type == "FS");
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::is_persistent(const VectorAttribute * disk)
-{
-    bool pers_disk;
-
-    disk->vector_value("PERSISTENT", pers_disk);
-
-    return pers_disk;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2765,68 +2174,6 @@ bool VirtualMachine::is_imported_action_supported(History::VMAction action) cons
     VirtualMachineManager * vmm = Nebula::instance().get_vmm();
 
     return vmm->is_imported_action_supported(get_vmm_mad(), action);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-long long VirtualMachine::get_system_disk_size(Template * tmpl)
-{
-    long long size = 0;
-    long long disk_size, snapshot_size;
-
-    vector<const VectorAttribute*> disks;
-
-    int num_disks = tmpl->get("DISK", disks);
-
-    for (int i = 0 ; i < num_disks ; i++)
-    {
-        if (disks[i]->vector_value("SIZE", disk_size) != 0)
-        {
-            continue;
-        }
-
-        if (is_volatile(disks[i]))
-        {
-            size += disk_size;
-        }
-        else if ( disk_tm_target(disks[i]) == "SYSTEM")
-        {
-            size += disk_size;
-
-            if (disks[i]->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
-            {
-                size += snapshot_size;
-            }
-        }
-    }
-
-    return size;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string VirtualMachine::disk_tm_target(const VectorAttribute *  disk)
-{
-    bool    clone;
-    string  target;
-
-    if (disk->vector_value("CLONE", clone) != 0)
-    {
-        return "";
-    }
-
-    if (clone)
-    {
-        target = disk->vector_value("CLONE_TARGET");
-    }
-    else
-    {
-        target = disk->vector_value("LN_TARGET");
-    }
-
-    return one_util::toupper(target);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3088,182 +2435,6 @@ int VirtualMachine::set_detach_nic(int nic_id)
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::release_disk_images()
-{
-    int iid;
-    int num_disks;
-    int did = -1;
-
-    bool img_error;
-
-    vector<const VectorAttribute * > disks;
-    ImageManager *              imagem;
-
-    Nebula& nd = Nebula::instance();
-    imagem     = nd.get_imagem();
-
-    num_disks  = get_template_attribute("DISK",disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        img_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                     state != PENDING && state != HOLD &&
-                     state != CLONING && state != CLONING_FAILURE;
-
-        if ( disks[i]->vector_value("IMAGE_ID", iid) == 0 )
-        {
-            disks[i]->vector_value("DISK_ID", did);
-
-            map<int, Snapshots *>::iterator it = snapshots.find(did);
-
-            if (it != snapshots.end())
-            {
-                imagem->set_image_snapshots(iid, *(it->second));
-            }
-
-            imagem->release_image(oid, iid, img_error);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::new_snapshot(string& name, int& snap_id)
-{
-    int num_snaps;
-    int id;
-    int max_id = -1;
-
-    vector<VectorAttribute *> snaps;
-
-    num_snaps = obj_template->get("SNAPSHOT", snaps);
-
-    for(int i=0; i<num_snaps; i++)
-    {
-        snaps[i]->vector_value("SNAPSHOT_ID", id);
-
-        if (id > max_id)
-        {
-            max_id = id;
-        }
-    }
-
-    snap_id = max_id + 1;
-
-    if (name.empty())
-    {
-        ostringstream oss;
-
-        oss << "snapshot-" << snap_id;
-
-        name = oss.str();
-    }
-
-    VectorAttribute * snap = new VectorAttribute("SNAPSHOT");
-    snap->replace("SNAPSHOT_ID", snap_id);
-    snap->replace("NAME", name);
-    snap->replace("TIME", (int)time(0));
-    snap->replace("HYPERVISOR_ID", "");
-
-    snap->replace("ACTIVE", "YES");
-
-    obj_template->set(snap);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_active_snapshot(int snap_id)
-{
-    int s_id;
-
-    vector<VectorAttribute *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
-
-    for(int i=0; i<num_snaps; i++)
-    {
-        snaps[i]->vector_value("SNAPSHOT_ID", s_id);
-
-        if ( s_id == snap_id )
-        {
-            snaps[i]->replace("ACTIVE", "YES");
-            return 0;
-        }
-    }
-
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::update_snapshot_id(string& hypervisor_id)
-{
-    vector<VectorAttribute  *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
-
-    for(int i=0; i<num_snaps; i++)
-    {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
-        {
-            snaps[i]->replace("HYPERVISOR_ID", hypervisor_id);
-            break;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_active_snapshot()
-{
-    vector<VectorAttribute  *> snaps;
-
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
-
-    for(int i=0; i<num_snaps; i++)
-    {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
-        {
-            snaps[i]->remove("ACTIVE");
-            return;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::delete_active_snapshot()
-{
-    vector<VectorAttribute *> snaps;
-    int num_snaps = obj_template->get("SNAPSHOT", snaps);
-
-    for(int i=0; i<num_snaps; i++)
-    {
-        if ( snaps[i]->vector_value("ACTIVE") == "YES" )
-        {
-            delete obj_template->remove(snaps[i]);
-
-            return;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::delete_snapshots()
-{
-    obj_template->erase("SNAPSHOT");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3675,30 +2846,6 @@ int VirtualMachine::get_created_by_uid() const
     return get_uid();
 }
 
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
-{
-    int tdisk_id;
-
-    vector<const VectorAttribute  *> disks;
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        disks[i]->vector_value("DISK_ID", tdisk_id);
-
-        if ( tdisk_id == disk_id )
-        {
-            return disks[i];
-        }
-    }
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -3732,7 +2879,7 @@ int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, int &iid,
 {
     iid = -1;
 
-    VectorAttribute * disk = get_disk(disk_id);
+    VirtualMachineDisk * disk = get_disk(disk_id);
 
     if (disk == 0)
     {
@@ -3747,7 +2894,7 @@ int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, int &iid,
         return -1;
     }
 
-    const Snapshots * snaps = get_disk_snapshots(disk_id, err_str);
+    const Snapshots * snaps = disk->get_snapshots();
 
     if (snap_id != -1)
     {
@@ -3778,7 +2925,7 @@ int VirtualMachine::set_saveas_disk(int disk_id, const string& source, int iid)
         return -1;
     }
 
-    VectorAttribute * disk = get_disk(disk_id);
+    VirtualMachineDisk * disk = get_disk(disk_id);
 
     if ( disk == 0 )
     {
@@ -3929,16 +3076,17 @@ void VirtualMachine::set_auth_request(int uid,
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     SecurityGroupPool *  sgpool = nd.get_secgrouppool();
 
-    int num = tmpl->get("DISK", vectors);
+    VirtualMachineDisks::disk_iterator disk;
+    VirtualMachineDisks disks(tmpl, false);
 
-    for(int i=0; i<num; i++)
+    for( disk = disks.begin(); disk != disks.end(); ++disk)
     {
-        ipool->authorize_disk(vectors[i], uid, &ar);
+        ipool->authorize_disk(*disk, uid, &ar);
     }
 
     vectors.clear();
 
-    num = tmpl->get("NIC", vectors);
+    int num = tmpl->get("NIC", vectors);
 
     for(int i=0; i<num; i++)
     {
@@ -3966,164 +3114,6 @@ void VirtualMachine::set_auth_request(int uid,
     }
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::disk_extended_info(int uid,
-                                       VirtualMachineTemplate *tmpl)
-{
-    ImagePool * ipool  = Nebula::instance().get_ipool();
-
-    vector<VectorAttribute  * > disks;
-    int num = tmpl->get("DISK",disks);
-
-    for(int i=0; i<num; i++)
-    {
-        ipool->disk_attribute(disks[i], i, uid);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    int vm_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg);
-
-    int vm_file_var_parse (VirtualMachine * vm,
-                           vector<int> *    img_ids,
-                           char **          errmsg);
-
-    int vm_var_lex_destroy();
-
-    YY_BUFFER_STATE vm_var__scan_string(const char * str);
-
-    void vm_var__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::parse_template_attribute(const string& attribute,
-                                             string&       parsed,
-                                             string&       error_str)
-{
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
-
-    pthread_mutex_lock(&lex_mutex);
-
-    str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
-
-    if (str_buffer == 0)
-    {
-        goto error_yy;
-    }
-
-    rc = vm_var_parse(this, &oss_parsed, &error_msg);
-
-    vm_var__delete_buffer(str_buffer);
-
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
-
-    if ( rc != 0 && error_msg != 0 )
-    {
-        ostringstream oss;
-
-        oss << "Error parsing: " << attribute << ". " << error_msg;
-        log("VM", Log::ERROR, oss);
-
-        error_str = oss.str();
-
-        free(error_msg);
-    }
-
-    parsed = oss_parsed.str();
-
-    return rc;
-
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::parse_file_attribute(string       attribute,
-                                         vector<int>& img_ids,
-                                         string&      error)
-{
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
-
-    size_t non_blank_pos;
-
-    //Removes leading blanks from attribute, these are not managed
-    //by the parser as it is common to the other VM varibales
-    non_blank_pos = attribute.find_first_not_of(" \t\n\v\f\r");
-
-    if ( non_blank_pos != string::npos )
-    {
-        attribute.erase(0, non_blank_pos);
-    }
-
-    pthread_mutex_lock(&lex_mutex);
-
-    str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
-
-    if (str_buffer == 0)
-    {
-        goto error_yy;
-    }
-
-    rc = vm_file_var_parse(this, &img_ids, &error_msg);
-
-    vm_var__delete_buffer(str_buffer);
-
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
-
-    if ( rc != 0  )
-    {
-        ostringstream oss;
-
-        if ( error_msg != 0 )
-        {
-            oss << "Error parsing: " << attribute << ". " << error_msg;
-            free(error_msg);
-        }
-        else
-        {
-            oss << "Unknown error parsing: " << attribute << ".";
-        }
-
-        error = oss.str();
-    }
-
-    return rc;
-
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
-}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -4182,10 +3172,17 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         oss << "<HISTORY_RECORDS/>";
     }
 
-    for (map<int, Snapshots *>::const_iterator it = snapshots.begin();
-            it != snapshots.end() ; it++)
+    VirtualMachineDisks::disk_iterator disk;
+
+    for ( disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
+            disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
     {
-        oss << it->second->to_xml(snap_xml);
+        const Snapshots * snapshots = (*disk)->get_snapshots();
+
+        if ( snapshots != 0 )
+        {
+            oss << snapshots->to_xml(snap_xml);
+        }
     }
 
     oss << "</VM>";
@@ -4242,7 +3239,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     prev_state     = static_cast<VmState>(istate);
     prev_lcm_state = static_cast<LcmState>(ilcmstate);
 
-    // Virtual Machine template
+    // -------------------------------------------------------------------------
+    // Virtual Machine template and attributes
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
 
     if (content.empty())
@@ -4251,11 +3250,18 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
     rc += obj_template->from_xml_node(content[0]);
 
+    vector<VectorAttribute  *> vdisks;
+
+    obj_template->get("DISK", vdisks);
+
+    disks.init(vdisks, true);
+
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // -------------------------------------------------------------------------
     // Virtual Machine Monitoring
-
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/MONITORING", content);
 
     if (content.empty())
@@ -4268,8 +3274,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // -------------------------------------------------------------------------
     // Virtual Machine user template
-
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/USER_TEMPLATE", content);
 
     if (content.empty())
@@ -4282,8 +3289,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // -------------------------------------------------------------------------
     // Last history entry
-
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/HISTORY_RECORDS/HISTORY", content);
 
     if (!content.empty())
@@ -4298,8 +3306,9 @@ int VirtualMachine::from_xml(const string &xml_str)
         content.clear();
     }
 
-    // Virtual Machine user template
-
+    // -------------------------------------------------------------------------
+    // Virtual Machine Snapshots
+    // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/SNAPSHOTS", content);
 
     for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
@@ -4314,7 +3323,7 @@ int VirtualMachine::from_xml(const string &xml_str)
             break;
         }
 
-        snapshots.insert(pair<int, Snapshots *>(snap->get_disk_id(), snap));
+        disks.set_snapshots(snap->get_disk_id(), snap);
     }
 
     if (!content.empty())
@@ -4323,6 +3332,8 @@ int VirtualMachine::from_xml(const string &xml_str)
         content.clear();
     }
 
+    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     if (rc != 0)
     {
         return -1;
@@ -4576,360 +3587,6 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
     }
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_snapshot_disk(int did, int snap_id)
-{
-    VectorAttribute * disk;
-
-    disk = get_disk(did);
-
-    if ( disk == 0 )
-    {
-        return -1;
-    }
-
-    disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
-    disk->replace("DISK_SNAPSHOT_ID", snap_id);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::clear_snapshot_disk()
-{
-    vector<VectorAttribute  *> disks;
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        if ( disks[i]->vector_value("DISK_SNAPSHOT_ACTIVE") == "YES" )
-        {
-            disks[i]->remove("DISK_SNAPSHOT_ACTIVE");
-            disks[i]->remove("DISK_SNAPSHOT_ID");
-            return;
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::get_snapshot_disk(int& ds_id, string& tm_mad,
-        int& disk_id, int& snap_id)
-{
-    vector<VectorAttribute *> disks;
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        if ( disks[i]->vector_value("DISK_SNAPSHOT_ACTIVE") == "YES" )
-        {
-            map<int, Snapshots *>::iterator it;
-            int did, rc;
-
-            if (disks[i]->vector_value("DISK_ID", did) == -1)
-            {
-                return -1;
-            }
-
-            it = snapshots.find(did);
-
-            if (it == snapshots.end())
-            {
-                return -1;
-            }
-
-            tm_mad  = disks[i]->vector_value("TM_MAD");
-            rc =  disks[i]->vector_value("DATASTORE_ID", ds_id);
-            rc += disks[i]->vector_value("DISK_ID", disk_id);
-            rc += disks[i]->vector_value("DISK_SNAPSHOT_ID", snap_id);
-
-            if (tm_mad.empty() || rc != 0)
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-    }
-
-    return -1;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::new_disk_snapshot(int did, const string& name, string& error)
-{
-    map<int, Snapshots *>::iterator it;
-    long long size_mb, snap_size;
-    int snap_id;
-
-    VectorAttribute * disk;
-
-    disk = get_disk(did);
-
-    if ( disk == 0 )
-    {
-        error = "VM disk does not exist";
-        return -1;
-    }
-
-    if (is_volatile(disk))
-    {
-        error = "Cannot make snapshots on volatile disks";
-        return -1;
-    }
-
-    if (disk->vector_value("SIZE", size_mb) != 0 )
-    {
-        error = "Wrong size in disk";
-        return -1;
-    }
-
-    it = snapshots.find(did);
-
-    if ( it == snapshots.end() )
-    {
-        Snapshots * snap = new Snapshots(did);
-
-        snap_id   = snap->create_snapshot(name, size_mb);
-        snap_size = size_mb;
-
-        if (snap_id != -1)
-        {
-            snapshots.insert(pair<int, Snapshots *>(did, snap));
-        }
-        else
-        {
-            delete snap;
-        }
-    }
-    else
-    {
-        snap_id   = it->second->create_snapshot(name, size_mb);
-        snap_size = it->second->get_total_size();
-    }
-
-    if (snap_id != -1)
-    {
-        disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
-        disk->replace("DISK_SNAPSHOT_ID", snap_id);
-        disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
-    }
-
-    return snap_id;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const Snapshots * VirtualMachine::get_disk_snapshots(int did, string& error) const
-{
-    const VectorAttribute * disk = get_disk(did);
-
-    if ( disk == 0 )
-    {
-        error = "VM disk does not exist";
-        return 0;
-    }
-
-    map<int, Snapshots *>::const_iterator it = snapshots.find(did);
-
-    if (it == snapshots.end())
-    {
-        error = "Snapshot does not exist";
-        return 0;
-    }
-
-    return it->second;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::revert_disk_snapshot(int did, int snap_id)
-{
-    map<int, Snapshots *>::iterator it;
-
-    VectorAttribute * disk = get_disk(did);
-
-    if ( disk == 0 )
-    {
-        return -1;
-    }
-
-    it = snapshots.find(did);
-
-    if (it == snapshots.end())
-    {
-        return -1;
-    }
-
-    return it->second->active_snapshot(snap_id);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
-        Template **ds_quotas, Template **vm_quotas)
-{
-    map<int, Snapshots *>::iterator it;
-    long long snap_size;
-
-    VectorAttribute * delta_disk;
-    VectorAttribute * disk = get_disk(did);
-
-    *ds_quotas = 0;
-    *vm_quotas = 0;
-
-    if ( disk == 0 )
-    {
-        return;
-    }
-
-    it = snapshots.find(did);
-
-    if (it == snapshots.end())
-    {
-        return;
-    }
-
-    long long ssize = it->second->get_snapshot_size(snap_id);
-
-    it->second->delete_snapshot(snap_id);
-
-    snap_size = it->second->get_total_size();
-
-    disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
-
-    if (it->second->size() == 0)
-    {
-        Snapshots * tmp = it->second;
-
-        snapshots.erase(it);
-
-        delete tmp;
-    }
-
-	if (is_persistent(disk) || disk_tm_target(disk) != "SYSTEM")
-	{
-        *ds_quotas = new Template();
-
-        (*ds_quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
-        (*ds_quotas)->add("SIZE", ssize);
-        (*ds_quotas)->add("IMAGES",0 );
-	}
-
-    if (disk_tm_target(disk) == "SYSTEM")
-    {
-        *vm_quotas = new Template();
-
-        delta_disk = new VectorAttribute("DISK");
-        delta_disk->replace("TYPE", "FS");
-        delta_disk->replace("SIZE", ssize);
-
-        (*vm_quotas)->add("VMS", 0);
-        (*vm_quotas)->set(delta_disk);
-    }
-}
-
-//  +--------+-------------------------------------+
-//  |LN/CLONE|     PERSISTENT    |   NO PERSISTENT |
-//  |        |---------+---------+-----------------+
-//  | TARGET | created |  quota  | created | quota |
-//  +--------+---------+---------+-----------------+
-//  | SYSTEM | system  | VM + DS | system  | VM    |
-//  | SELF   | image   | DS      | image   | DS    |
-//  | NONE   | image   | DS      | image   | DS    |
-//  +----------------------------------------------+
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas)
-{
-    vector<VectorAttribute *> disks;
-
-    map<int, Snapshots *>::iterator it;
-
-    int  disk_id;
-
-    long long system_disk = 0;
-
-    int num_disks = obj_template->get("DISK", disks);
-
-    for(int i=0; i<num_disks; i++)
-    {
-        if (disks[i]->vector_value("DISK_ID", disk_id) != 0)
-        {
-            continue;
-        }
-
-        it = snapshots.find(disk_id);
-
-        if (it == snapshots.end())
-        {
-            continue;
-        }
-
-		if ( disk_tm_target(disks[i]) != "SYSTEM" )
-		{
-			continue;
-		}
-
-        if (is_persistent(disks[i]))
-        {
-            int image_id;
-
-            if ( disks[i]->vector_value("IMAGE_ID", image_id) != 0 )
-            {
-                continue;
-            }
-
-            Template * d_ds = new Template();
-
-            d_ds->add("DATASTORE", disks[i]->vector_value("DATASTORE_ID"));
-            d_ds->add("SIZE", it->second->get_total_size());
-            d_ds->add("IMAGES", 0);
-
-            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
-        }
-
-		system_disk += it->second->get_total_size();
-
-        it->second->clear();
-
-        Snapshots * tmp = it->second;
-
-        snapshots.erase(it);
-
-        delete tmp;
-
-        disks[i]->remove("DISK_SNAPSHOT_ACTIVE");
-        disks[i]->remove("DISK_SNAPSHOT_ID");
-        disks[i]->remove("DISK_SNAPSHOT_TOTAL_SIZE");
-    }
-
-    if ( system_disk > 0 )
-    {
-        VectorAttribute * delta_disk;
-
-        *vm_quotas = new Template();
-
-        delta_disk = new VectorAttribute("DISK");
-        delta_disk->replace("TYPE", "FS");
-        delta_disk->replace("SIZE", system_disk);
-
-        (*vm_quotas)->add("VMS", 0);
-        (*vm_quotas)->set(delta_disk);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -5293,3 +3950,299 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* VirtualMachine Disks Interface                                             */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_disk_images(string& error_str)
+{
+    vector<Attribute *> adisks;
+    vector<Attribute *> acontext_disks;
+
+    vector<Attribute*>::iterator it;
+
+    int num_context = user_obj_template->remove("CONTEXT", acontext_disks);
+    int num_disks   = user_obj_template->remove("DISK", adisks);
+
+    for (it = acontext_disks.begin(); it != acontext_disks.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            num_context--;
+            it = acontext_disks.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
+    }
+
+    for (it = adisks.begin(); it != adisks.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            num_disks--;
+            it = adisks.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
+    }
+
+    if ( num_disks > 20 )
+    {
+        error_str = "Exceeded the maximum number of disks (20)";
+        return -1;
+    }
+
+    VectorAttribute * context = 0;
+
+    if ( num_context > 0 )
+    {
+        context = static_cast<VectorAttribute * >(acontext_disks[0]);
+    }
+
+    return disks.get_images(oid, uid, adisks, context, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_disk_images()
+{
+    bool image_error = (state == ACTIVE && lcm_state != EPILOG) &&
+                        state != PENDING && state != HOLD &&
+                        state != CLONING && state != CLONING_FAILURE;
+
+    disks.release_images(oid, image_error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_up_attach_disk(VirtualMachineTemplate * tmpl, string& err)
+{
+    VectorAttribute * new_vdisk = tmpl->get("DISK");
+
+    if ( new_vdisk == 0 )
+    {
+        err = "Internal error parsing DISK attribute";
+        return -1;
+    }
+
+    new_vdisk = new_vdisk->clone();
+
+    VectorAttribute * context = get_template_attribute("CONTEXT");
+
+    VirtualMachineDisk * new_disk;
+
+    new_disk = disks.set_up_attach(oid, uid, get_cid(), new_vdisk, context, err);
+
+    if ( new_disk == 0 )
+    {
+        delete new_vdisk;
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Add new disk to template and set info in history before attaching
+    // -------------------------------------------------------------------------
+    set_vm_info();
+
+    obj_template->set(new_disk->vector_attribute());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*
+int VirtualMachine::set_up_resize_disk(int disk_id, long size, string& err)
+{
+    VectorAttribute * disk = get_disk(disk_id);
+    long size_prev;
+
+    if ( disk == 0 )
+    {
+        err = "Disk not found";
+        return -1;
+    }
+
+    if ( disk->vector_value("SIZE", size_prev) != 0 )
+    {
+        err = "Wrong format for disk SIZE";
+        return -1;
+    }
+
+    if ( size <= size_prev )
+    {
+        err = "New size has to be bigger than current one";
+        return -1;
+    }
+
+    disk->replace("SIZE_PREV", size_prev);
+
+    disk->replace("SIZE", size);
+
+    disk->replace("RESIZE", "YES");
+
+    return 0;
+}
+*/
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* VirtualMachine parser functions                                            */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+extern "C"
+{
+    typedef struct yy_buffer_state * YY_BUFFER_STATE;
+
+    int vm_var_parse (VirtualMachine * vm,
+                      ostringstream *  parsed,
+                      char **          errmsg);
+
+    int vm_file_var_parse (VirtualMachine * vm,
+                           vector<int> *    img_ids,
+                           char **          errmsg);
+
+    int vm_var_lex_destroy();
+
+    YY_BUFFER_STATE vm_var__scan_string(const char * str);
+
+    void vm_var__delete_buffer(YY_BUFFER_STATE);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_template_attribute(const string& attribute,
+                                             string&       parsed,
+                                             string&       error_str)
+{
+    YY_BUFFER_STATE  str_buffer = 0;
+    const char *     str;
+    int              rc;
+    ostringstream    oss_parsed;
+    char *           error_msg = 0;
+
+    pthread_mutex_lock(&lex_mutex);
+
+    str        = attribute.c_str();
+    str_buffer = vm_var__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = vm_var_parse(this, &oss_parsed, &error_msg);
+
+    vm_var__delete_buffer(str_buffer);
+
+    vm_var_lex_destroy();
+
+    pthread_mutex_unlock(&lex_mutex);
+
+    if ( rc != 0 && error_msg != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Error parsing: " << attribute << ". " << error_msg;
+        log("VM", Log::ERROR, oss);
+
+        error_str = oss.str();
+
+        free(error_msg);
+    }
+
+    parsed = oss_parsed.str();
+
+    return rc;
+
+error_yy:
+    log("VM",Log::ERROR,"Error setting scan buffer");
+    pthread_mutex_unlock(&lex_mutex);
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_file_attribute(string       attribute,
+                                         vector<int>& img_ids,
+                                         string&      error)
+{
+    YY_BUFFER_STATE  str_buffer = 0;
+    const char *     str;
+    int              rc;
+    ostringstream    oss_parsed;
+    char *           error_msg = 0;
+
+    size_t non_blank_pos;
+
+    //Removes leading blanks from attribute, these are not managed
+    //by the parser as it is common to the other VM varibales
+    non_blank_pos = attribute.find_first_not_of(" \t\n\v\f\r");
+
+    if ( non_blank_pos != string::npos )
+    {
+        attribute.erase(0, non_blank_pos);
+    }
+
+    pthread_mutex_lock(&lex_mutex);
+
+    str        = attribute.c_str();
+    str_buffer = vm_var__scan_string(str);
+
+    if (str_buffer == 0)
+    {
+        goto error_yy;
+    }
+
+    rc = vm_file_var_parse(this, &img_ids, &error_msg);
+
+    vm_var__delete_buffer(str_buffer);
+
+    vm_var_lex_destroy();
+
+    pthread_mutex_unlock(&lex_mutex);
+
+    if ( rc != 0  )
+    {
+        ostringstream oss;
+
+        if ( error_msg != 0 )
+        {
+            oss << "Error parsing: " << attribute << ". " << error_msg;
+            free(error_msg);
+        }
+        else
+        {
+            oss << "Unknown error parsing: " << attribute << ".";
+        }
+
+        error = oss.str();
+    }
+
+    return rc;
+
+error_yy:
+    log("VM",Log::ERROR,"Error setting scan buffer");
+    pthread_mutex_unlock(&lex_mutex);
+    return -1;
+}

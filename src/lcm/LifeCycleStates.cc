@@ -1895,7 +1895,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     Template *ds_quotas = 0;
     Template *vm_quotas = 0;
 
-    const VectorAttribute* disk;
+    const VirtualMachineDisk * disk;
     Snapshots           snaps(-1);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
@@ -1940,7 +1940,6 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
             vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
-
             break;
 
         default:
@@ -1963,8 +1962,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     disk->vector_value("IMAGE_ID", img_id);
 
-    bool is_persistent = VirtualMachine::is_persistent(disk);
-    string target      = VirtualMachine::disk_tm_target(disk);
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
 
     vmpool->update(vm);
 
@@ -2033,7 +2032,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     Template *ds_quotas = 0;
     Template *vm_quotas = 0;
 
-    const VectorAttribute* disk;
+    const VirtualMachineDisk* disk;
     Snapshots           snaps(-1);
     const Snapshots*    tmp_snaps;
     bool                has_snaps = false;
@@ -2099,8 +2098,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     disk->vector_value("IMAGE_ID", img_id);
 
-    bool is_persistent = VirtualMachine::is_persistent(disk);
-    string target      = VirtualMachine::disk_tm_target(disk);
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
 
     vmpool->update(vm);
 
@@ -2268,3 +2267,23 @@ void LifeCycleManager::disk_lock_failure(int vid)
 {
     disk_lock_success(vid);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_resize_success(int vid)
+{
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_resize_failure(int vid)
+{
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+

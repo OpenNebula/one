@@ -1708,7 +1708,7 @@ void VirtualMachineManager::attach_action(
     string  epilog_cmd;
     string  disk_path;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
     int disk_id;
     int rc;
 
@@ -1771,7 +1771,7 @@ void VirtualMachineManager::attach_action(
 
     os.str("");
 
-    disk->vector_value("DISK_ID", disk_id);
+    disk_id = disk->get_disk_id();
 
     os << vm->get_system_dir() << "/disk." << disk_id;
 
@@ -1850,7 +1850,7 @@ void VirtualMachineManager::detach_action(
     string        disk_path;
     string        error_str;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
     int disk_id;
 
     Nebula&           nd = Nebula::instance();
@@ -1887,7 +1887,7 @@ void VirtualMachineManager::detach_action(
     vm_tm_mad = vm->get_tm_mad();
     opennebula_hostname = nd.get_nebula_hostname();
 
-    disk->vector_value("DISK_ID", disk_id);
+    disk_id = disk->get_disk_id();
 
     tm->epilog_transfer_command(vm, vm->get_hostname(), disk, os);
 

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVirtualMachine.h"
+#include "VirtualMachineDisk.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "Quotas.h"
@@ -639,34 +640,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
  *    @param vd vector of DISKS
  *    @return true if there at least one volatile disk was found
  */
-static bool set_volatile_disk_info(int ds_id, vector<VectorAttribute *>& vd)
-{
-    DatastorePool * ds_pool = Nebula::instance().get_dspool();
-
-    bool found = false;
-
-    for(vector<VectorAttribute *>::iterator it = vd.begin(); it!=vd.end(); ++it)
-    {
-        if ( !VirtualMachine::is_volatile(*it) )
-        {
-            continue;
-        }
-
-        ds_pool->disk_attribute(ds_id, *it);
-
-        found = true;
-    }
-
-    return found;
-}
-
 static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id)
 {
-    vector<VectorAttribute *> disks;
+    VirtualMachineDisks& disks = vm->get_disks();
 
-    vm->get_template_attribute("DISK", disks);
-
-    bool found = set_volatile_disk_info(ds_id, disks);
+    bool found = disks.volatile_info(ds_id);
 
     if ( found )
     {
@@ -679,11 +657,9 @@ static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id)
 
 static bool set_volatile_disk_info(VirtualMachine *vm, int ds_id, Template& tmpl)
 {
-    vector<VectorAttribute *> disks;
+    VirtualMachineDisks disks(&tmpl, false);
 
-    tmpl.get("DISK", disks);
-
-    bool found = set_volatile_disk_info(ds_id, disks);
+    bool found = disks.volatile_info(ds_id);
 
     if ( found )
     {
@@ -1707,7 +1683,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
     VirtualMachineTemplate deltas(tmpl);
-    VirtualMachine::disk_extended_info(att.uid, &deltas);
+    VirtualMachineDisks::extended_info(att.uid, &deltas);
 
     deltas.add("VMS", 0);
 
@@ -2572,7 +2548,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     PoolObjectAuth   vm_perms;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
     VectorAttribute * delta_disk = 0;
 
     Template ds_deltas;
@@ -2607,9 +2583,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     string disk_size = disk->vector_value("SIZE");
     string ds_id     = disk->vector_value("DATASTORE_ID");
-    bool is_volatile = VirtualMachine::is_volatile(disk);
-    bool is_system   = VirtualMachine::disk_tm_target(disk) == "SYSTEM";
-    bool do_ds_quota = VirtualMachine::is_persistent(disk) || !is_system;
+    bool is_volatile = disk->is_volatile();
+    bool is_system   = disk->get_tm_target() == "SYSTEM";
+    bool do_ds_quota = disk->is_persistent() || !is_system;
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2766,7 +2742,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     DispatchManager * dm = nd.get_dm();
     VirtualMachine *  vm;
 
-    const VectorAttribute * disk;
+    const VirtualMachineDisk * disk;
 
     int rc;
 
@@ -2791,7 +2767,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         return;
     }
 
-    bool persistent  = VirtualMachine::is_persistent(disk);
+    bool persistent = disk->is_persistent();
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);

@@ -113,7 +113,9 @@ int get_image_path(VirtualMachine * vm,
             file_values.insert(make_pair(var2, val2));
 
             vfile = new VectorAttribute("FILE", file_values);
-            uid   = ImagePool::get_disk_uid(vfile, uid);
+
+            VirtualMachineDisk file_disk(vfile, 0);
+            uid   = file_disk.get_uid(uid);
 
             delete vfile;
         }
