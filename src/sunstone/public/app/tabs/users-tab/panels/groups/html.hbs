@@ -1,0 +1,54 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+  <div class="row">
+   <button type="submit" class="button primary small radius right show_labels" id="update_group">
+      <span class= "fa fa-pencil-square-o"></span>
+      {{tr "Edit"}}
+    </button>
+    <button type="submit" class="button secondary small radius right select_labels" id="cancel_update_group" hidden="true">
+      <span class= "fa fa-times-circle"></span>
+    </button>
+  </div>
+  <form data-abide novalidate id="Form_change_second_grp">
+  <div class="row">
+    <h3 class="subheader select_labels" hidden="true">{{tr "Select Primary Group"}}</h3>
+    <h3 class="subheader show_labels">{{tr "Show Primary Group"}}</h3>
+    <h5 id="value_primary_grp" class="show_labels">{{navigate element.GNAME "groups-tab" element.GID}}</h5>
+    <div id="choose_primary_grp" hidden="true" class="select_labels"></div> 
+  </div>
+  <div class="row">
+    <h3 class="subheader select_labels" hidden="true">{{tr "Select Secondary Groups"}}</h3>
+    <h3 class="subheader show_labels">{{tr "Show Secondary Groups"}}</h3>
+  </div>
+  <div class="confirm-resources-header"></div>
+  <div class="row">
+    <div class="large-12 columns show_labels">
+      {{{groupsTableHTML}}}
+    </div>
+  </div>
+    <div class="select_labels" hidden="true">
+    <div class="row">
+      <div class="large-12 columns">
+        {{{groupsTableEditHTML}}}
+      </div>
+    </div>
+    <div class="form_buttons row">
+      <button type="submit" class="button success radius right" >
+        {{tr "Apply changes"}}
+      </button>
+    </div>
+    </div>
+  </form>
