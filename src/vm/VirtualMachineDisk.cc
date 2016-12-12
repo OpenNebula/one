@@ -368,7 +368,7 @@ long long VirtualMachineDisks::system_ds_size()
 
 long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl)
 {
-    VirtualMachineDisks disks(ds_tmpl);
+    VirtualMachineDisks disks(ds_tmpl, false);
 
     return disks.system_ds_size();
 }
@@ -386,7 +386,7 @@ void VirtualMachineDisks::extended_info(int uid)
 
 void VirtualMachineDisks::extended_info(int uid, Template * tmpl)
 {
-    VirtualMachineDisks disks(tmpl);
+    VirtualMachineDisks disks(tmpl, false);
 
     return disks.extended_info(uid);
 }
@@ -415,8 +415,6 @@ bool VirtualMachineDisks::volatile_info(int ds_id)
     return found;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -472,140 +470,6 @@ void VirtualMachineDisks::assign_disk_targets(
 
         dqueue.pop();
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-        int cluster_id, VectorAttribute * vdisk, VectorAttribute * vcontext,
-        string& error)
-{
-    set<string> used_targets;
-    int         max_disk_id = -1;
-
-    // -------------------------------------------------------------------------
-    // Get the list of used targets and max_disk_id
-    // -------------------------------------------------------------------------
-    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
-    {
-        string target = (*disk)->vector_value("TARGET");
-
-        if ( !target.empty() )
-        {
-            used_targets.insert(target);
-        }
-
-        int disk_id = (*disk)->get_disk_id();
-
-        if ( disk_id > max_disk_id )
-        {
-            max_disk_id = disk_id;
-        }
-    }
-
-    if ( vcontext != 0 )
-    {
-        string target = vcontext->vector_value("TARGET");
-
-        if ( !target.empty() )
-        {
-            used_targets.insert(target);
-        }
-
-        int disk_id;
-
-        vcontext->vector_value("DISK_ID", disk_id);
-
-        if ( disk_id > max_disk_id )
-        {
-            max_disk_id = disk_id;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Acquire the new disk image
-    // -------------------------------------------------------------------------
-    Nebula&       nd     = Nebula::instance();
-    ImagePool *   ipool  = nd.get_ipool();
-    ImageManager* imagem = nd.get_imagem();
-
-    Snapshots * snap = 0;
-
-    string           dev_prefix;
-    Image::ImageType img_type;
-
-    int image_id;
-
-    VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
-
-    int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
-                         dev_prefix, uid, image_id, &snap, error);
-    if ( rc != 0 )
-    {
-        return 0;
-    }
-
-    disk->set_snapshots(snap);
-
-    string target = disk->vector_value("TARGET");
-
-    if ( !target.empty() )
-    {
-        if (  used_targets.insert(target).second == false )
-        {
-            error = "Target " + target + " is already in use.";
-
-            imagem->release_image(vmid, image_id, false);
-
-            delete disk;
-            return 0;
-        }
-    }
-    else
-    {
-        queue<pair <string, VirtualMachineDisk *> > disks_queue;
-
-        disks_queue.push(make_pair(dev_prefix, disk));
-
-        assign_disk_targets(disks_queue, used_targets);
-    }
-
-    // -------------------------------------------------------------------------
-    // Check that we don't have a cluster incompatibility.
-    // -------------------------------------------------------------------------
-    string disk_cluster_ids = disk->vector_value("CLUSTER_ID");
-
-    if ( !disk_cluster_ids.empty() )
-    {
-        set<int> cluster_ids;
-        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
-
-        if (cluster_ids.count(cluster_id) == 0)
-        {
-            ostringstream oss;
-
-            oss << "Image [" << image_id << "] is not part of cluster ["
-                << cluster_id << "]";
-
-            error = oss.str();
-
-            imagem->release_image(vmid, image_id, false);
-
-            delete disk;
-            return 0;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Add disk to the set
-    // -------------------------------------------------------------------------
-
-    disk->set_attach();
-
-    add_attribute(disk, disk->get_disk_id());
-
-    return disk;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -877,6 +741,140 @@ int VirtualMachineDisks::set_attach(int id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
+        int cluster_id, VectorAttribute * vdisk, VectorAttribute * vcontext,
+        string& error)
+{
+    set<string> used_targets;
+    int         max_disk_id = -1;
+
+    // -------------------------------------------------------------------------
+    // Get the list of used targets and max_disk_id
+    // -------------------------------------------------------------------------
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+        string target = (*disk)->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            used_targets.insert(target);
+        }
+
+        int disk_id = (*disk)->get_disk_id();
+
+        if ( disk_id > max_disk_id )
+        {
+            max_disk_id = disk_id;
+        }
+    }
+
+    if ( vcontext != 0 )
+    {
+        string target = vcontext->vector_value("TARGET");
+
+        if ( !target.empty() )
+        {
+            used_targets.insert(target);
+        }
+
+        int disk_id;
+
+        vcontext->vector_value("DISK_ID", disk_id);
+
+        if ( disk_id > max_disk_id )
+        {
+            max_disk_id = disk_id;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Acquire the new disk image
+    // -------------------------------------------------------------------------
+    Nebula&       nd     = Nebula::instance();
+    ImagePool *   ipool  = nd.get_ipool();
+    ImageManager* imagem = nd.get_imagem();
+
+    Snapshots * snap = 0;
+
+    string           dev_prefix;
+    Image::ImageType img_type;
+
+    int image_id;
+
+    VirtualMachineDisk * disk = new VirtualMachineDisk(vdisk, max_disk_id + 1);
+
+    int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
+                         dev_prefix, uid, image_id, &snap, error);
+    if ( rc != 0 )
+    {
+        return 0;
+    }
+
+    disk->set_snapshots(snap);
+
+    string target = disk->vector_value("TARGET");
+
+    if ( !target.empty() )
+    {
+        if (  used_targets.insert(target).second == false )
+        {
+            error = "Target " + target + " is already in use.";
+
+            imagem->release_image(vmid, image_id, false);
+
+            delete disk;
+            return 0;
+        }
+    }
+    else
+    {
+        queue<pair <string, VirtualMachineDisk *> > disks_queue;
+
+        disks_queue.push(make_pair(dev_prefix, disk));
+
+        assign_disk_targets(disks_queue, used_targets);
+    }
+
+    // -------------------------------------------------------------------------
+    // Check that we don't have a cluster incompatibility.
+    // -------------------------------------------------------------------------
+    string disk_cluster_ids = disk->vector_value("CLUSTER_ID");
+
+    if ( !disk_cluster_ids.empty() )
+    {
+        set<int> cluster_ids;
+        one_util::split_unique(disk_cluster_ids, ',', cluster_ids);
+
+        if (cluster_ids.count(cluster_id) == 0)
+        {
+            ostringstream oss;
+
+            oss << "Image [" << image_id << "] is not part of cluster ["
+                << cluster_id << "]";
+
+            error = oss.str();
+
+            imagem->release_image(vmid, image_id, false);
+
+            delete disk;
+            return 0;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Add disk to the set
+    // -------------------------------------------------------------------------
+
+    disk->set_attach();
+
+    add_attribute(disk, disk->get_disk_id());
+
+    return disk;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* RESIZE DISK INTERFACE                                                      */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -895,6 +893,8 @@ int VirtualMachineDisks::set_resize(int id)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDisks::clear_resize(bool restore)
 {
     string size, size_prev;
@@ -912,6 +912,40 @@ void VirtualMachineDisks::clear_resize(bool restore)
 
     disk->remove("SIZE_PREV");
     disk->clear_resize();
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::set_up_resize(int disk_id, long size, string& err)
+{
+    VirtualMachineDisk * disk = get_disk(disk_id);
+    long size_prev;
+
+    if ( disk == 0 )
+    {
+        err = "Disk not found";
+        return -1;
+    }
+
+    if ( disk->vector_value("SIZE", size_prev) != 0 )
+    {
+        err = "Wrong format for disk SIZE";
+        return -1;
+    }
+
+    if ( size <= size_prev )
+    {
+        err = "New size has to be bigger than current one";
+        return -1;
+    }
+
+    disk->replace("SIZE_PREV", size_prev);
+
+    disk->replace("SIZE", size);
+
+    disk->set_resize();
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -951,15 +985,12 @@ int VirtualMachineDisks::set_active_snapshot(int id, int snap_id)
 
 void VirtualMachineDisks::clear_active_snapshot()
 {
-    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
-    {
-        if ( (*disk)->is_active_snapshot() )
-        {
-            (*disk)->clear_active_snapshot();
-            (*disk)->remove("DISK_SNAPSHOT_ID");
+    VirtualMachineDisk * disk = get_active_snapshot();
 
-            break;
-        }
+    if ( disk != 0 )
+    {
+        disk->clear_active_snapshot();
+        disk->remove("DISK_SNAPSHOT_ID");
     }
 }
 
@@ -1081,7 +1112,7 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
         map<int, Template *>& ds_quotas)
 {
-    long long system_disk;
+    long long system_disk = 0;
 
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
@@ -1129,5 +1160,117 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
         (*vm_quotas)->add("VMS", 0);
         (*vm_quotas)->set(delta_disk);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::set_saveas(int disk_id, int snap_id, int &iid,
+        long long &size, string& err_str)
+{
+    iid = -1;
+
+    VirtualMachineDisk * disk =
+        static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
+
+    if (disk == 0)
+    {
+        err_str = "DISK does not exist.";
+        return -1;
+    }
+
+    if (disk->vector_value("IMAGE_ID", iid) != 0)
+    {
+        iid = -1;
+        err_str = "DISK does not have a valid IMAGE_ID.";
+        return -1;
+    }
+
+    const Snapshots * snaps = disk->get_snapshots();
+
+    if (snap_id != -1)
+    {
+        if (snaps == 0 || !snaps->exists(snap_id))
+        {
+            err_str = "Snapshot does not exist.";
+            return -1;
+        }
+    }
+
+    disk->set_saveas();
+    disk->replace("HOTPLUG_SAVE_AS_SNAPSHOT_ID", snap_id);
+
+    size = 0;
+    disk->vector_value("SIZE", size);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::set_saveas(int disk_id, const string& source, int iid)
+{
+    VirtualMachineDisk * disk = get_saveas();
+
+    if ( disk == 0 )
+    {
+        return -1;
+    }
+
+    disk->replace("HOTPLUG_SAVE_AS", iid);
+    disk->replace("HOTPLUG_SAVE_AS_SOURCE", source);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::clear_saveas()
+{
+    VirtualMachineDisk * disk = get_saveas();
+
+    if ( disk == 0 )
+    {
+        return -1;
+    }
+
+    int  image_id;
+
+    disk->clear_saveas();
+
+    disk->vector_value("HOTPLUG_SAVE_AS", image_id);
+
+    disk->remove("HOTPLUG_SAVE_AS");
+    disk->remove("HOTPLUG_SAVE_AS_SOURCE");
+    disk->remove("HOTPLUG_SAVE_AS_SNAPSHOT_ID");
+
+    return image_id;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
+        int& image_id, string& snap_id, string& tm_mad, string& ds_id)
+{
+    int rc;
+
+    VirtualMachineDisk * disk = get_saveas();
+
+    if ( disk == 0 )
+    {
+        return -1;
+    }
+
+    rc  = disk->vector_value("HOTPLUG_SAVE_AS_SOURCE", source);
+    rc += disk->vector_value("HOTPLUG_SAVE_AS", image_id);
+    rc += disk->vector_value("HOTPLUG_SAVE_AS_SNAPSHOT_ID", snap_id);
+    rc += disk->vector_value("DISK_ID",  disk_id);
+    rc += disk->vector_value("DATASTORE_ID", ds_id);
+    rc += disk->vector_value("TM_MAD", tm_mad);
+
+    return rc;
 }
 

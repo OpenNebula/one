@@ -983,28 +983,6 @@ public:
     // Template
     // ------------------------------------------------------------------------
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM
-     *  template values:
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error description in case of failure
-     *    @return 0 on success.
-     */
-    int  parse_template_attribute(const string& attribute,
-                                  string&       parsed,
-                                  string&       error);
-    /**
-     *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
-     *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
-     *    @param attribute the string to be parsed
-     *    @param img_ids ids of the FILE images in the attribute
-     *    @param error description in case of failure
-     *    @return 0 on success.
-     */
-    int  parse_file_attribute(string       attribute,
-                              vector<int>& img_ids,
-                              string&      error);
-    /**
      *  Updates the configuration attributes based on a template, the state of
      *  the virtual machine is checked to assure operation consistency
      *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
@@ -1378,7 +1356,11 @@ public:
      *    @param err_str describing the error if any
      *    @return -1 if the image cannot saveas, 0 on success
      */
-    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size,
+            string& err_str)
+    {
+        return disks.set_saveas(disk_id, snap_id, img_id, size, err_str);
+    }
 
     /**
      *  Set save attributes for the disk
@@ -1386,7 +1368,16 @@ public:
      *    @param  source to save the disk
      *    @param  img_id ID of the image this disk will be saved to
      */
-    int set_saveas_disk(int disk_id, const string& source, int img_id);
+    int set_saveas_disk(int disk_id, const string& source, int img_id)
+    {
+        if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+            && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+        {
+            return -1;
+        }
+
+        return disks.set_saveas(disk_id, source, img_id);
+    }
 
     /**
      *  Sets the corresponding state to save the disk.
@@ -1405,7 +1396,10 @@ public:
      *    @return the ID of the image this disk will be saved to or -1 if it
      *    is not found.
      */
-    int clear_saveas_disk();
+    int clear_saveas_disk()
+    {
+        return disks.clear_saveas();
+    }
 
     /**
      * Get the original image id of the disk. It also checks that the disk can
@@ -1418,7 +1412,11 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id);
+            string& snap_id, string& tm_mad, string& ds_id)
+    {
+        return disks.get_saveas_info(disk_id, source, image_id, snap_id,
+                tm_mad, ds_id);
+    }
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -1473,7 +1471,10 @@ public:
      */
     VirtualMachineDisk * delete_attach_disk()
     {
-        return disks.delete_attach();
+        VirtualMachineDisk * disk = disks.delete_attach();
+        obj_template->remove(disk->vector_attribute());
+
+        return disk;
     }
 
     /**
@@ -1513,6 +1514,19 @@ public:
      *    @return 0 if the disk_id was found -1 otherwise
      */
     int set_resize_disk(int disk_id);
+
+    /**
+     *  Prepares a disk to be resized.
+     *     @param disk_id of disk
+     *     @param size new size for the disk (needs to be greater than current)
+     *     @param error
+     *
+     *     @return 0 on success
+     */
+    int set_up_resize_disk(int disk_id, long size, string& error)
+    {
+        return disks.set_up_resize(disk_id, size, error);
+    }
 
     // ------------------------------------------------------------------------
     // NIC Hotplug related functions
@@ -1860,11 +1874,9 @@ private:
      */
     Log * _log;
 
-
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine
      *    @return 0 on success
@@ -1943,14 +1955,63 @@ private:
      */
     int update_monitoring(SqlDB * db);
 
+    /**
+     *  Function that renders the VM in XML format optinally including
+     *  extended information (all history records)
+     *  @param xml the resulting XML string
+     *  @param n_history Number of history records to include:
+     *      0: none
+     *      1: the last one
+     *      2: all
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml, int n_history) const;
+
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------
-
     /**
      * Mutex to perform just one attribute parse at a time
      */
     static pthread_mutex_t lex_mutex;
+
+    /**
+     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
+     *  inconsistencies for NIC_DEFAULTS
+     */
+    static const char* NO_NIC_DEFAULTS[];
+    static const int   NUM_NO_NIC_DEFAULTS;
+
+    /**
+     * Known Virtual Router attributes, to be moved from the user template
+     * to the template
+     */
+    static const char* VROUTER_ATTRIBUTES[];
+    static const int   NUM_VROUTER_ATTRIBUTES;
+
+    /**
+     *  Parse a string and substitute variables (e.g. $NAME) using the VM
+     *  template values:
+     *    @param attribute, the string to be parsed
+     *    @param parsed, the resulting parsed string
+     *    @param error description in case of failure
+     *    @return 0 on success.
+     */
+    int  parse_template_attribute(const string& attribute,
+                                  string&       parsed,
+                                  string&       error);
+
+    /**
+     *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
+     *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
+     *    @param attribute the string to be parsed
+     *    @param img_ids ids of the FILE images in the attribute
+     *    @param error description in case of failure
+     *    @return 0 on success.
+     */
+    int  parse_file_attribute(string       attribute,
+                              vector<int>& img_ids,
+                              string&      error);
 
     /**
      *  Generates image attributes (DS_ID, TM_MAD, SOURCE...) for KERNEL and
@@ -1959,12 +2020,11 @@ private:
      *    @param base_name of the attribute "KERNEL", or "INITRD"
      *    @param base_type of the image attribute KERNEL, RAMDISK
      *    @param error_str Returns the error reason, if any
-     *    @return 0 on success
+     *    @return 0 on succes
      */
-    int set_os_file(VectorAttribute *  os,
-                    const string&      base_name,
-                    Image::ImageType   base_type,
-                    string&            error_str);
+    int set_os_file(VectorAttribute* os, const string& base_name,
+            Image::ImageType base_type, string& error_str);
+
     /**
      *  Parse the "OS" attribute of the template by substituting
      *  $FILE variables
@@ -1972,49 +2032,6 @@ private:
      *    @return 0 on success
      */
     int parse_os(string& error_str);
-
-    /**
-     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
-     *  inconsistencies for NIC_DEFAULTS
-     */
-    static const char * NO_NIC_DEFAULTS[];
-
-    static const int NUM_NO_NIC_DEFAULTS;
-
-    /**
-     *  Parse and generate the ETH_ network attributed of a NIC
-     *    @param context attribute
-     *    @param nic attribute
-     *
-     *    @return 0 on success
-     */
-    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
-
-    /**
-     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
-     *  is invoked when ever the context is prepared for the VM to capture
-     *  netowrking updates.
-     *    @param context attribute of the VM
-     *    @param error string if any
-     *    @return 0 on success
-     */
-    int generate_network_context(VectorAttribute * context, string& error);
-
-    /**
-     *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
-     *  is also adds basic network attributes for pass-through NICs
-     *    @param context attribute of the VM
-     *    @return true if the net context was generated.
-     */
-    bool generate_pci_context(VectorAttribute * context);
-
-    /**
-     *  Generate the ONE_GATE token & url
-     *    @param context attribute of the VM
-     *    @param error_str describing the error
-     *    @return 0 if success
-     */
-    int generate_token_context(VectorAttribute * context, string& error_str);
 
     /**
      * Parse the "NIC_DEFAULT" attribute
@@ -2031,12 +2048,35 @@ private:
     int parse_vrouter(string& error_str);
 
     /**
-     * Known Virtual Router attributes, to be moved from the user template
-     * to the template
+     * Parse the "PCI" attribute of the template and checks mandatory attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
      */
-    static const char* VROUTER_ATTRIBUTES[];
-    static const int   NUM_VROUTER_ATTRIBUTES;
+    int parse_pci(string& error_str);
 
+    /**
+     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_requirements(string& error_str);
+
+    /**
+     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
+     *  defined
+     */
+    int parse_graphics(string& error_str);
+
+    /**
+     * Searches the meaningful attributes and moves them from the user template
+     * to the internal template
+     */
+    void parse_well_known_attributes();
+
+    // -------------------------------------------------------------------------
+    // Context related functions
+    // -------------------------------------------------------------------------
     /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
@@ -2066,11 +2106,30 @@ private:
     static const int   NUM_NETWORK6_CONTEXT;
 
     /**
-     * Parse the "PCI" attribute of the template and checks mandatory attributes
-     *    @param error_str Returns the error reason, if any
+     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
+     *  is invoked when ever the context is prepared for the VM to capture
+     *  netowrking updates.
+     *    @param context attribute of the VM
+     *    @param error string if any
      *    @return 0 on success
      */
-    int parse_pci(string& error_str);
+    int generate_network_context(VectorAttribute * context, string& error);
+
+    /**
+     *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
+     *  is also adds basic network attributes for pass-through NICs
+     *    @param context attribute of the VM
+     *    @return true if the net context was generated.
+     */
+    bool generate_pci_context(VectorAttribute * context);
+
+    /**
+     *  Generate the ONE_GATE token & url
+     *    @param context attribute of the VM
+     *    @param error_str describing the error
+     *    @return 0 if success
+     */
+    int generate_token_context(VectorAttribute * context, string& error_str);
 
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
@@ -2090,44 +2149,6 @@ private:
      *   @return 0 on success
      */
     int parse_context_variables(VectorAttribute ** context, string& error_str);
-
-    /**
-     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
-     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
-     *    @param error_str Returns the error reason, if any
-     *    @return 0 on success
-     */
-    int parse_requirements(string& error_str);
-
-    /**
-     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
-     *  defined
-     */
-    int parse_graphics(string& error_str);
-
-    /**
-     * Searches the meaningful attributes and moves them from the user template
-     * to the internal template
-     */
-    void parse_well_known_attributes();
-
-    /**
-     *  Function that renders the VM in XML format optinally including
-     *  extended information (all history records)
-     *  @param xml the resulting XML string
-     *  @param n_history Number of history records to include:
-     *      0: none
-     *      1: the last one
-     *      2: all
-     *  @return a reference to the generated string
-     */
-    string& to_xml_extended(string& xml, int n_history) const;
-
-    /**
-     * Merges NIC_DEFAULT with the given NIC
-     * @param nic NIC to process
-     */
-    void merge_nic_defaults(VectorAttribute* nic);
 
     // -------------------------------------------------------------------------
     // NIC & DISK Management Helpers
@@ -2154,6 +2175,12 @@ private:
      * @return the NIC waiting for an attachment action, or 0
      */
     VectorAttribute* get_attach_nic();
+
+    /**
+     * Merges NIC_DEFAULT with the given NIC
+     * @param nic NIC to process
+     */
+    void merge_nic_defaults(VectorAttribute* nic);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions

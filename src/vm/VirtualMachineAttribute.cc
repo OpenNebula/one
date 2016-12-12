@@ -16,26 +16,6 @@
 
 #include "VirtualMachineAttribute.h"
 
-
-VirtualMachineAttributeSet::VirtualMachineAttributeSet(const std::string anam,
-    const std::string& idnam, Template * tmpl):dispose(false)
-{
-    std::vector<VectorAttribute *> vas;
-
-    tmpl->get(anam, vas);
-
-    init_attribute_map(idnam, vas);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineAttributeSet::VirtualMachineAttributeSet(const std::string& idnam,
-        std::vector<VectorAttribute *>& vas, bool _dispose):dispose(_dispose)
-{
-    init_attribute_map(idnam, vas);
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

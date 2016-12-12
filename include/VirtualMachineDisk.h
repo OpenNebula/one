@@ -84,13 +84,23 @@ public:
 
     void clear_active_snapshot()
     {
-        set_flag("DISK_SNAPSHOT_ACTIVE");
+        clear_flag("DISK_SNAPSHOT_ACTIVE");
     };
 
     bool is_active_snapshot()
     {
         return is_flag("DISK_SNAPSHOT_ACTIVE");
     }
+
+    void set_saveas()
+    {
+        set_flag("HOTPLUG_SAVE_AS_ACTIVE");
+    };
+
+    void clear_saveas()
+    {
+        clear_flag("HOTPLUG_SAVE_AS_ACTIVE");
+    };
 
     /* ---------------------------------------------------------------------- */
     /* Disk attributes, not accesible through vector_value                    */
@@ -243,7 +253,14 @@ public:
      *    @param tmpl template with DISK
      */
     VirtualMachineDisks(Template * tmpl, bool has_id):
-        VirtualMachineAttributeSet(DISK_NAME, id_name(has_id), tmpl){};
+        VirtualMachineAttributeSet(false)
+    {
+        std::vector<VectorAttribute *> vas;
+
+        tmpl->get(DISK_NAME, vas);
+
+        init(vas, has_id);
+    };
 
     /**
      *  Creates the VirtualMachineDisk set from a vector of DISK VectorAttribute
@@ -251,7 +268,10 @@ public:
      *    @param va vector of DISK Vector Attributes
      */
     VirtualMachineDisks(vector<VectorAttribute *>& va, bool has_id, bool dispose):
-        VirtualMachineAttributeSet(id_name(has_id), va, dispose){};
+        VirtualMachineAttributeSet(dispose)
+    {
+        init(va, has_id);
+    };
 
     /**
      *  Creates an empty disk set
@@ -402,6 +422,22 @@ public:
     /* Attach disk Interface                                                  */
     /* ---------------------------------------------------------------------- */
     /**
+     *  Clear attach status from the attach disk (ATTACH=YES)
+     */
+    VirtualMachineDisk * delete_attach()
+    {
+        return static_cast<VirtualMachineDisk *>(remove_attribute("ATTACH"));
+    }
+
+    /**
+     *  Get the attach disk (ATTACH=YES)
+     */
+    VirtualMachineDisk * get_attach()
+    {
+        return static_cast<VirtualMachineDisk *>(get_attribute("ATTACH"));
+    }
+
+    /**
      *  Sets the attach attribute to the given disk
      *    @param disk_id of the DISK
      *    @return 0 if the disk_id was found -1 otherwise
@@ -414,16 +450,6 @@ public:
     void clear_attach()
     {
         clear_flag("ATTACH");
-    }
-
-    VirtualMachineDisk * delete_attach()
-    {
-        return static_cast<VirtualMachineDisk *>(remove_attribute("ATTACH"));
-    }
-
-    VirtualMachineDisk * get_attach()
-    {
-        return static_cast<VirtualMachineDisk *>(get_attribute("ATTACH"));
     }
 
     /**
@@ -440,6 +466,59 @@ public:
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
             VectorAttribute * vdisk, VectorAttribute * vcontext, string& error);
+
+    /* ---------------------------------------------------------------------- */
+    /* Save as Interface                                                      */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Get the saveas disk (HOTPLUG_SAVE_AS_ACTIVE = YES)
+     */
+    VirtualMachineDisk * get_saveas()
+    {
+        return static_cast<VirtualMachineDisk *>(
+                get_attribute("HOTPLUG_SAVE_AS_ACTIVE"));
+    }
+
+    /**
+     *  Mark the disk that is going to be "save as"
+     *    @param disk_id of the VM
+     *    @param snap_id of the disk to save, -1 to select the active snapshot
+     *    @param iid The image id used by the disk
+     *    @param size The disk size. This may be different to the original
+     *    image size
+     *    @param err_str describing the error if any
+     *    @return -1 if the image cannot saveas, 0 on success
+     */
+    int set_saveas(int disk_id, int snap_id, int &iid, long long &size,
+            string& err_str);
+
+    /**
+     *  Set save attributes for the disk
+     *    @param  disk_id Index of the disk to save
+     *    @param  source to save the disk
+     *    @param  img_id ID of the image this disk will be saved to
+     */
+    int set_saveas(int disk_id, const string& source, int iid);
+
+    /**
+     * Clears the SAVE_AS_* attributes of the disk being saved as
+     *    @return the ID of the image this disk will be saved to or -1 if it
+     *    is not found.
+     */
+    int clear_saveas();
+
+    /**
+     * Get the original image id of the disk. It also checks that the disk can
+     * be saved_as.
+     *    @param  disk_id Index of the disk to save
+     *    @param  source of the image to save the disk to
+     *    @param  image_id of the image to save the disk to
+     *    @param  tm_mad in use by the disk
+     *    @param  ds_id of the datastore in use by the disk
+     *    @return -1 if failure
+     */
+    int get_saveas_info(int& disk_id, string& source, int& image_id,
+            string& snap_id, string& tm_mad, string& ds_id);
 
     /* ---------------------------------------------------------------------- */
     /* Resize disk Interface                                                  */
@@ -467,9 +546,25 @@ public:
         return static_cast<VirtualMachineDisk *>(get_attribute("RESIZE"));
     }
 
+    /**
+     *  Prepares a disk to be resized.
+     *     @param disk_id of disk
+     *     @param size new size for the disk (needs to be greater than current)
+     *     @param error
+     *
+     *     @return 0 on success
+     */
+	int set_up_resize(int disk_id, long size, string& error);
+
     /* ---------------------------------------------------------------------- */
     /* SNAPSHOT interface                                                     */
     /* ---------------------------------------------------------------------- */
+    VirtualMachineDisk * get_active_snapshot()
+    {
+        return static_cast<VirtualMachineDisk *>(
+                get_attribute("DISK_SNAPSHOT_ACTIVE"));
+    }
+
     /**
      *  Set the snapshots for a disk
      *    @param id of disk
@@ -562,18 +657,6 @@ private:
     void assign_disk_targets(
             std::queue<pair <std::string, VirtualMachineDisk *> >& dqueue,
             std::set<std::string>& used_targets);
-
-    static const char * id_name(bool has_id)
-    {
-        if (has_id)
-        {
-            return DISK_ID_NAME;
-        }
-        else
-        {
-            return "";
-        }
-    }
 };
 
 #endif  /*VIRTUAL_MACHINE_DISK_H_*/

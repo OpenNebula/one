@@ -169,17 +169,9 @@ class VirtualMachineAttributeSet
 {
 protected:
     /**
-     *  Creates the VirtualMachineAttribute set from the Template or vector with
-     *  all the attributes.
-     *    @param a_name the attribute name (e.g. "DISK")
-     *    @param id_name to search for attributes (e.g. "DISK_ID")
+     *  Creates the VirtualMachineAttribute set
+     *    @param dispose elements upon set destruction
      */
-    VirtualMachineAttributeSet(const std::string a_name,
-        const std::string& id_name, Template * tmpl);
-
-    VirtualMachineAttributeSet(const std::string& id_name,
-            std::vector<VectorAttribute *>& vas, bool dispose);
-
     VirtualMachineAttributeSet(bool _dispose):dispose(_dispose){};
 
     virtual ~VirtualMachineAttributeSet();
