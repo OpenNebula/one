@@ -178,13 +178,6 @@ public:
     void disk_attribute(VirtualMachineDisk* disk,
                         int                 disk_id,
                         int                 uid);
-    /**
-     *  Generates an Authorization token for the DISK attribute
-     *    @param disk the disk to be authorized
-     *    @param uid of owner (to look for the image id within her images)
-     *    @param ar the AuthRequest
-     */
-    void authorize_disk(VirtualMachineDisk * disk, int uid, AuthRequest * ar);
 
     static const string& default_type()
     {

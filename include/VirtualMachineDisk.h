@@ -23,6 +23,8 @@
 #include "VirtualMachineAttribute.h"
 #include "Snapshots.h"
 
+class AuthRequest;
+
 /**
  * The VirtualMachine DISK attribute
  */
@@ -131,6 +133,14 @@ public:
      *  Fills the disk extended information attributes
      */
     void extended_info(int uid);
+
+    /**
+     *  Fills the authorization request for this disk based on its Image use
+     *  requirements
+     *    @param uid of user making the request
+     *    @param ar auth request
+     */
+    void authorize(int uid, AuthRequest* ar);
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots Interface                                                    */

@@ -31,6 +31,7 @@ bool VirtualMachineDisk::is_volatile() const
     return ( type == "SWAP" || type == "FS");
 }
 
+/* -------------------------------------------------------------------------- */
 
 string VirtualMachineDisk::get_tm_target() const
 {
@@ -53,6 +54,8 @@ string VirtualMachineDisk::get_tm_target() const
 
     return one_util::toupper(target);
 }
+
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisk::get_uid(int _uid)
 {
@@ -98,7 +101,6 @@ int VirtualMachineDisk::get_uid(int _uid)
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisk::get_image_id(int &id, int uid)
 {
@@ -143,6 +145,53 @@ void VirtualMachineDisk::extended_info(int uid)
     ImagePool * ipool  = Nebula::instance().get_ipool();
 
     ipool->disk_attribute(this, get_id(), uid);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisk::authorize(int uid, AuthRequest* ar)
+{
+    string  source;
+    Image * img = 0;
+
+    int iid;
+
+    PoolObjectAuth perm;
+
+    ImagePool * ipool = Nebula::instance().get_ipool();
+
+    if ( vector_value("IMAGE", source) == 0 )
+    {
+        int uiid = get_uid(uid);
+
+        if ( uiid == -1)
+        {
+            return;
+        }
+
+        img = ipool->get(source , uiid, true);
+
+        if ( img != 0 )
+        {
+            replace("IMAGE_ID", img->get_oid());
+        }
+    }
+    else if ( vector_value("IMAGE_ID", iid) == 0 )
+    {
+        img = ipool->get(iid, true);
+    }
+
+    if (img == 0)
+    {
+        return;
+    }
+
+    img->get_permissions(perm);
+
+    img->unlock();
+
+    ar->add_auth(AuthRequest::USE, perm);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -267,6 +316,15 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* VIRTUALMACHINEDISKS                                                        */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

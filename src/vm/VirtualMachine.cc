@@ -3072,7 +3072,6 @@ void VirtualMachine::set_auth_request(int uid,
 
     Nebula& nd = Nebula::instance();
 
-    ImagePool *          ipool  = nd.get_ipool();
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     SecurityGroupPool *  sgpool = nd.get_secgrouppool();
 
@@ -3081,7 +3080,7 @@ void VirtualMachine::set_auth_request(int uid,
 
     for( disk = disks.begin(); disk != disks.end(); ++disk)
     {
-        ipool->authorize_disk(*disk, uid, &ar);
+        (*disk)->authorize(uid, &ar);
     }
 
     vectors.clear();
