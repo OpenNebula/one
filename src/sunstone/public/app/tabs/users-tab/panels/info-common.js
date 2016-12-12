@@ -20,12 +20,12 @@ define(function(require) {
    */
 
   var TemplateInfo = require('hbs!./info/html');
-  var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
   var ResourceSelect = require('utils/resource-select');
   var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
   var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
+  var UserCreation = require('tabs/users-tab/utils/user-creation');
 
   /*
     TEMPLATES
@@ -52,7 +52,7 @@ define(function(require) {
     this.icon = "fa-info-circle";
 
     this.element = info[XML_ROOT];
-
+    this.userCreation = new UserCreation(this.tabId, {name: false, password: false, group_select: false});
     return this;
   }
 
@@ -66,7 +66,6 @@ define(function(require) {
    */
 
   function _html() {
-    var groupTrHTML = TemplateChgrpTr({'element': this.element});
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
@@ -80,15 +79,15 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'sunstone_template': this.element.TEMPLATE.SUNSTONE||{},
-      'groupTrHTML': groupTrHTML,
       'templateTableHTML': templateTableHTML,
-      'tabId': this.tabId
+      'tabId': this.tabId,
+      'userCreationHTML': this.userCreation.html()
     });
   }
 
   function _setup(context) {
     var that = this;
-
+    this.userCreation.setup(context);
     // Template update
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
@@ -106,24 +105,6 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===
-
-    // Chgrp
-    context.off("click", "#div_edit_chg_group_link");
-    context.on("click", "#div_edit_chg_group_link", function() {
-      ResourceSelect.insert({
-        context: $('#value_td_group', context),
-        resourceName: 'Group',
-        initValue: that.element.GID
-      });
-    });
-
-    context.off("change", "#value_td_group .resource_list_select");
-    context.on("change", "#value_td_group .resource_list_select", function() {
-      var newGroupId = $(this).val();
-      if (newGroupId != "") {
-        Sunstone.runAction(RESOURCE + ".chgrp", [that.element.ID], newGroupId);
-      }
-    });
 
     // View password button
     context.off("click", "#view_password");
@@ -163,6 +144,25 @@ define(function(require) {
       Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
       Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
       Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).show();
+    });
+
+    context.off("click", "#div_edit_auth_driver_link");
+    context.on("click", "#div_edit_auth_driver_link", function() {
+      $("#show_auth_driver").hide();
+      $("#label_auth").hide();
+      $("#change_auth_driver").show();
+      $("#users-tab_driver").val(that.element.AUTH_DRIVER);
+    });
+
+    context.off("change", "#users-tab_driver");
+    context.on("change", "#users-tab_driver", function() {
+      var newAuthDriver= $(this).val();
+      if (newAuthDriver != "") {
+        Sunstone.runAction(RESOURCE + ".chauth", [that.element.ID], newAuthDriver);
+        $("#change_auth_driver").hide();
+        $("#show_auth_driver").show();
+        Sunstone.runAction(RESOURCE + ".refresh");
+      }
     });
 
     // SSH input
