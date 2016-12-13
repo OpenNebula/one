@@ -24,31 +24,31 @@
   </div>
   <form data-abide novalidate id="Form_change_second_grp">
   <div class="row">
-    <h3 class="subheader select_labels" hidden="true">{{tr "Select Primary Group"}}</h3>
-    <h3 class="subheader show_labels">{{tr "Show Primary Group"}}</h3>
-    <h5 id="value_primary_grp" class="show_labels">{{navigate element.GNAME "groups-tab" element.GID}}</h5>
-    <div id="choose_primary_grp" hidden="true" class="select_labels"></div> 
+    <fieldset style="margin-bottom: 0rem;">
+      <legend>{{tr "Primary Group"}}</legend>
+          <h6 class="show_labels">{{navigate element.GNAME "groups-tab" element.GID}}</h6>
+          <div id="choose_primary_grp" hidden="true" class="select_labels"></div>
+    </fieldset>
   </div>
   <div class="row">
-    <h3 class="subheader select_labels" hidden="true">{{tr "Select Secondary Groups"}}</h3>
-    <h3 class="subheader show_labels">{{tr "Show Secondary Groups"}}</h3>
+     <fieldset>
+      <legend>{{tr "Secondary Group"}}</legend>
+          <div class="show_labels">
+            <div class="large-12 columns show_labels">
+              {{{groupsTableHTML}}}
+            </div>
+          </div>
+          <div hidden="true" class="select_labels">
+            <div class="large-12 columns">
+              {{{groupsTableEditHTML}}}
+            </div>
+          </div>
+    </fieldset>
   </div>
   <div class="confirm-resources-header"></div>
-  <div class="row">
-    <div class="large-12 columns show_labels">
-      {{{groupsTableHTML}}}
-    </div>
-  </div>
-    <div class="select_labels" hidden="true">
-    <div class="row">
-      <div class="large-12 columns">
-        {{{groupsTableEditHTML}}}
-      </div>
-    </div>
     <div class="form_buttons row">
       <button type="submit" class="button success radius right" >
         {{tr "Apply changes"}}
       </button>
-    </div>
     </div>
   </form>
