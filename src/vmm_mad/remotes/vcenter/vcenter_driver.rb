@@ -2009,16 +2009,34 @@ class VCenterVm
             stats = []
             previous_nettx = 0
             previous_netrx = 0
+            previous_diskrdbytes = 0
+            previous_diskwrbytes = 0
+            previous_diskrdiops = 0
+            previous_diskwriops = 0
+
             if one_vm["MONITORING/NETTX"]
                 previous_nettx = one_vm["MONITORING/NETTX"].to_i
             end
             if one_vm["MONITORING/NETRX"]
                 previous_netrx = one_vm["MONITORING/NETRX"].to_i
             end
+            if one_vm["MONITORING/DISKRDBYTES"]
+                previous_diskrdbytes = one_vm["MONITORING/DISKRDBYTES"].to_i
+            end
+            if one_vm["MONITORING/DISKWRBYTES"]
+                previous_diskwrbytes = one_vm["MONITORING/DISKWRBYTES"].to_i
+            end
+            if one_vm["MONITORING/DISKRDIOPS"]
+                previous_diskrdiops = one_vm["MONITORING/DISKRDIOPS"].to_i
+            end
+            if one_vm["MONITORING/DISKWRIOPS"]
+                previous_diskwriops = one_vm["MONITORING/DISKWRIOPS"].to_i
+            end
 
             if(one_vm["MONITORING/LAST_MON"] && one_vm["MONITORING/LAST_MON"].to_i != 0 )
                 #Real time data stores max 1 hour. 1 minute has 3 samples
                 interval = (Time.now.to_i - one_vm["MONITORING/LAST_MON"].to_i)
+                interval = 3601 if interval < 0 #Safety check
                 #If last poll was more than hour ago get 3 minutes,
                 #else calculate how many samples since last poll
                 max_samples =  interval > 3600 ? 9 : (interval / refresh_rate) + 1
@@ -2039,10 +2057,10 @@ class VCenterVm
             if stats.empty? || stats.first[1][:metrics].empty?
                 @nettx = 0 + previous_nettx
                 @netrx = 0 + previous_netrx
-                @diskrdbytes = 0
-                @diskwrbytes = 0
-                @diskrdiops = 0
-                @diskwriops = 0
+                @diskrdbytes = 0 + previous_diskrdbytes
+                @diskwrbytes = 0 + previous_diskwrbytes
+                @diskrdiops = 0 + previous_diskrdiops
+                @diskwriops = 0 + previous_diskwriops
             else
                 metrics = stats.first[1][:metrics]
                 nettx_kbpersec = 0
@@ -2061,38 +2079,38 @@ class VCenterVm
                 read_kbpersec = 0
                 if metrics['virtualDisk.read']
                     metrics['virtualDisk.read'].each { |sample|
-                        read_kbpersec += sample
+                        read_kbpersec += sample if sample > 0
                     }
                 end
 
                 read_iops = 0
                 if metrics['virtualDisk.numberReadAveraged']
                     metrics['virtualDisk.numberReadAveraged'].each { |sample|
-                        read_iops += sample
+                        read_iops += sample if sample > 0
                     }
                 end
 
                 write_kbpersec = 0
                 if metrics['virtualDisk.write']
                     metrics['virtualDisk.write'].each { |sample|
-                        write_kbpersec += sample
+                        write_kbpersec += sample if sample > 0
                     }
                 end
 
                 write_iops = 0
                 if metrics['virtualDisk.numberWriteAveraged']
                     metrics['virtualDisk.numberWriteAveraged'].each { |sample|
-                        write_iops += sample
+                        write_iops += sample if sample > 0
                     }
                 end
 
+                #Accumulate values with previous monitored values
                 @nettx = (nettx_kbpersec * 1000 * refresh_rate).to_i + previous_nettx
                 @netrx = (netrx_kbpersec * 1000 * refresh_rate).to_i + previous_netrx
-
-                @diskrdiops = read_iops
-                @diskwriops = write_iops
-                @diskrdbytes = (read_kbpersec * 1024 * refresh_rate).to_i
-                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i
+                @diskrdiops = read_iops + previous_diskrdiops
+                @diskwriops = write_iops + previous_diskwriops
+                @diskrdbytes = (read_kbpersec * 1024 * refresh_rate).to_i + previous_diskrdbytes
+                @diskwrbytes = (write_kbpersec * 1024 * refresh_rate).to_i + previous_diskwrbytes
 
             end
         end
