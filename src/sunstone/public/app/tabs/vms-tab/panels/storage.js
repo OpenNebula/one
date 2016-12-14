@@ -31,6 +31,8 @@ define(function(require) {
   var Navigation = require('utils/navigation');
   var Notifier = require('utils/notifier');
   var Graphs = require('utils/graphs');
+  require('flot.navigate');
+  require('flot.canvas');
 
   /*
     CONSTANTS
