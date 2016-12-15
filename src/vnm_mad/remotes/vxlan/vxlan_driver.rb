@@ -45,7 +45,7 @@ class VXLANDriver < VNMMAD::VLANDriver
     def create_vlan_dev
         mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + @nic[:vlan_id].to_i
         mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
-        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : ""
+        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{CONF[:vxlan_mtu]}"
         ttl = CONF[:vxlan_ttl] ? "ttl #{CONF[:vxlan_ttl]}" : ""
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
