@@ -80,6 +80,7 @@ tabs:
             user_groups_tab: true
             user_accounting_tab: true
             user_showback_tab: true
+            user_auth_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
