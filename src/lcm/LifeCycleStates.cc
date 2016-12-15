@@ -1994,7 +1994,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     }
 
     // Update image if it is persistent and ln mode does not clone it
-    if ( img_id != -1 && is_persistent && has_snaps && target != "SYSTEM" )
+    if ( img_id != -1 && is_persistent && has_snaps && target == "NONE" )
     {
         imagem->set_image_snapshots(img_id, snaps);
     }

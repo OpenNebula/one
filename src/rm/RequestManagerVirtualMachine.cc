@@ -2888,3 +2888,188 @@ void VirtualMachineUpdateConf::request_execute(
     vm->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDiskResize::request_execute(
+		xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    VirtualMachine * vm;
+
+    Template ds_deltas;
+    Template vm_deltas;
+
+    PoolObjectAuth   vm_perms;
+
+    int    id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int    did    = xmlrpc_c::value_int(paramList.getInt(2));
+    string size_s = xmlrpc_c::value_string(paramList.getString(3));
+
+	long long size , current_size;
+
+    // ------------------------------------------------------------------------
+    // Check request consistency (VM & disk exists, size, and no snapshots)
+    // ------------------------------------------------------------------------
+	istringstream iss(size_s);
+
+	iss >> size;
+
+	if (iss.fail() || !iss.eof())
+	{
+		att.resp_msg = "Disk SIZE is not a valid integer";
+        failure_response(ACTION, att);
+
+		return;
+	}
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk =vm->get_disk(did);
+
+    if (disk == 0)
+    {
+        att.resp_msg = "VM disk does not exist";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+	disk->vector_value("SIZE", current_size);
+
+	if ( size <= current_size )
+	{
+        att.resp_msg = "New disk size has to be greater than current one";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+	if ( disk->has_snapshots() )
+	{
+        att.resp_msg = "Cannot resize a disk with snapshots";
+        failure_response(ACTION, att);
+
+        vm->unlock();
+
+        return;
+	}
+
+    /* ------------- Get information about the disk and image --------------- */
+    bool is_persistent = disk->is_persistent();
+
+    disk->resize_quotas(size, ds_deltas, vm_deltas);
+
+    int img_id = -1;
+    disk->vector_value("IMAGE_ID", img_id);
+
+    vm->get_permissions(vm_perms);
+
+    vm->unlock();
+
+    /* ---------------------------------------------------------------------- */
+    /*  Authorize the request for VM and IMAGE for persistent disks           */
+    /* ---------------------------------------------------------------------- */
+    RequestAttributes ds_att_quota;
+    RequestAttributes vm_att_quota;
+
+    if ( is_persistent )
+    {
+        PoolObjectAuth img_perms;
+
+        if ( img_id != -1 )
+        {
+            Image* img = ipool->get(img_id, true);
+
+            if (img == 0)
+            {
+                att.resp_obj = PoolObjectSQL::IMAGE;
+                att.resp_id  = img_id;
+                failure_response(NO_EXISTS, att);
+
+                return;
+            }
+
+            img->get_permissions(img_perms);
+
+            img->unlock();
+        }
+
+        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false)
+        {
+            return;
+        }
+
+        ds_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
+    }
+    else
+    {
+        if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+        {
+            return;
+        }
+
+        ds_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check quotas for the new size in image/system datastoress             */
+    /* ---------------------------------------------------------------------- */
+
+    if ( !ds_deltas.empty() )
+    {
+        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, ds_att_quota))
+        {
+            return;
+        }
+    }
+
+    if ( !vm_deltas.empty() )
+    {
+        if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
+        {
+            if (!ds_deltas.empty())
+            {
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+            }
+
+            return;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Do the snapshot
+    // ------------------------------------------------------------------------
+    int rc = dm->disk_resize(id, did, size, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        if ( !ds_deltas.empty() )
+        {
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+        }
+
+        if ( !vm_deltas.empty() )
+        {
+            quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
+        }
+
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(did, att);
+    }
+
+    return;
+}

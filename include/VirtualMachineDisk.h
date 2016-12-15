@@ -232,6 +232,32 @@ public:
      */
     void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota);
 
+    /* ---------------------------------------------------------------------- */
+    /* Disk space usage functions                                             */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  @return the space required by this disk in the system datastore
+     */
+    long long system_ds_size();
+
+    /**
+     *  Calculate the quotas for a resize operation on the disk
+     *    @param new_size of disk
+     *    @param dsdeltas increment in datastore usage
+     *    @param vmdelta increment in system datastore usage
+     */
+   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta);
+
+    /**
+     *  Compute the storage needed by the disk in the system and/or image
+     *  datastore
+     *    @param ds_id of the datastore
+     *    @param img_sz size in image datastore needed
+     *    @param sys_sz size in system datastore needed
+     */
+    void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz);
+
 private:
 
     Snapshots * snapshots;

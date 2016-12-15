@@ -318,6 +318,112 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+long long VirtualMachineDisk::system_ds_size()
+{
+	long long disk_sz, snapshot_sz = 0;
+
+	if ( vector_value("SIZE", disk_sz) != 0 )
+	{
+		return 0;
+	}
+
+	//Volatile disks don't have snapshots
+	if (vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0)
+	{
+		disk_sz += snapshot_sz;
+	}
+
+	if ( is_volatile() || get_tm_target() == "SYSTEM" )
+	{
+		return disk_sz;
+	}
+
+	return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
+        Template& vm_deltas)
+{
+    long long current_size, delta_size;
+
+	if ( vector_value("SIZE", current_size) != 0 )
+    {
+        return;
+    }
+
+    delta_size = new_size - current_size;
+
+    bool is_system = get_tm_target() == "SYSTEM";
+    string ds_id   = vector_value("DATASTORE_ID");
+
+    if ( !is_volatile() && ( is_persistent() || !is_system ) )
+    {
+        ds_deltas.add("DATASTORE", ds_id);
+        ds_deltas.add("SIZE", delta_size);
+        ds_deltas.add("IMAGES", 0);
+    }
+
+    if ( is_volatile() || is_system )
+    {
+        VectorAttribute * delta_disk = new VectorAttribute("DISK");
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", delta_size);
+
+        vm_deltas.add("VMS", 0);
+        vm_deltas.set(delta_disk);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
+        long long& system_sz)
+{
+	long long tmp_size, snapshot_size;
+
+	image_sz  = 0;
+	system_sz = 0;
+	ds_id     = -1;
+
+	if ( vector_value("SIZE", tmp_size) != 0 )
+	{
+		return;
+	}
+
+	if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0 )
+	{
+		tmp_size += snapshot_size;
+	}
+
+	if ( is_volatile() )
+	{
+		system_sz = tmp_size;
+		return;
+	}
+	else
+	{
+		string target = get_tm_target();
+
+		if ( target  == "SYSTEM" )
+		{
+			system_sz = tmp_size;
+		}
+		else if ( target == "SELF" )
+		{
+            vector_value("DATASTORE_ID", ds_id);
+
+			image_sz = tmp_size;
+		}// else if ( target == "NONE" )
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -341,26 +447,7 @@ long long VirtualMachineDisks::system_ds_size()
 
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
-        long long tmp_size;
-
-        if ( (*disk)->vector_value("SIZE", tmp_size) != 0 )
-        {
-            continue;
-        }
-
-        if ( (*disk)->is_volatile() )
-        {
-            size += tmp_size;
-        }
-        else if ( (*disk)->get_tm_target() == "SYSTEM" )
-        {
-            size += tmp_size;
-
-            if ((*disk)->vector_value("DISK_SNAPSHOT_TOTAL_SIZE",tmp_size) == 0)
-            {
-                size += tmp_size;
-            }
-        }
+		size += (*disk)->system_ds_size();
     }
 
     return size;
@@ -373,6 +460,33 @@ long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl)
     return disks.system_ds_size();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*
+void VirtualMachineDisks::image_ds_size(bool resize_snapshot, long long system,
+		std::map<int, long long>& ds_size) const
+{
+	int ds_id;
+	long long system_sz, image_sz;
+
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+		(*disk)->ds_size(resize_snapshot, ds_id, image_sz, system_sz);
+
+		system += system_sz;
+
+		if ( ds_id != -1 && image_sz > 0 )
+		{
+			if (ds_size.count(ds_id) == 0)
+			{
+				ds_size[ds_id] = 0;
+			}
+
+			ds_size[ds_id] += image_sz;
+		}
+    }
+}
+*/
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -413,14 +527,6 @@ bool VirtualMachineDisks::volatile_info(int ds_id)
     }
 
     return found;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineDisks::image_ds_size(std::map<int, long long>& ds_size) const
-{
-
 }
 
 /* -------------------------------------------------------------------------- */
