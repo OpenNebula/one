@@ -2273,6 +2273,75 @@ void LifeCycleManager::disk_lock_failure(int vid)
 
 void LifeCycleManager::disk_resize_success(int vid)
 {
+    int img_id = -1;
+    long long size;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk = vm->get_resize_disk();
+
+    if ( disk == 0 )
+    {
+        vm->unlock();
+        return;
+    }
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE:
+            vm->set_state(VirtualMachine::RUNNING);
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
+
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    disk->clear_resize(false);
+
+    bool is_persistent = disk->is_persistent();
+    string target      = disk->get_tm_target();
+
+    disk->vector_value("IMAGE_ID", img_id);
+    disk->vector_value("SIZE", size);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // Update image if it is persistent and ln mode does not clone it
+    if ( img_id != -1 && is_persistent && target == "NONE" )
+    {
+        imagem->set_image_size(img_id, size);
+    }
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            dm->trigger(DispatchManager::UNDEPLOY_SUCCESS, vid);
+            break;
+
+        default:
+            return;
+    }
+
     return;
 }
 
@@ -2280,10 +2349,97 @@ void LifeCycleManager::disk_resize_success(int vid)
 
 void LifeCycleManager::disk_resize_failure(int vid)
 {
+    Template ds_deltas;
+    Template vm_deltas;
+
+    int img_id = -1;
+    long long size_prev;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    VirtualMachineDisk * disk = vm->get_resize_disk();
+
+    if ( disk == 0 )
+    {
+        vm->unlock();
+        return;
+    }
+
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE:
+            vm->set_state(VirtualMachine::RUNNING);
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
+
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
+
+    disk->vector_value("IMAGE_ID", img_id);
+    disk->vector_value("SIZE_PREV", size_prev);
+    disk->resize_quotas(size_prev, ds_deltas, vm_deltas);
+
+    disk->clear_resize(true);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // Restore quotas
+    if ( !ds_deltas.empty() && img_id != -1 )
+    {
+        Image* img = ipool->get(img_id, true);
+
+        if(img != 0)
+        {
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
+
+            img->unlock();
+
+            Quotas::ds_del(img_uid, img_gid, &ds_deltas);
+        }
+    }
+
+    if ( !vm_deltas.empty() )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, &vm_deltas);
+    }
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            dm->trigger(DispatchManager::UNDEPLOY_SUCCESS, vid);
+            break;
+
+        default:
+            return;
+    }
 
     return;
 }
 
 /* -------------------------------------------------------------------------- */
-
 

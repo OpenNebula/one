@@ -49,7 +49,6 @@ public:
     // -------------------------------------------------------------------------
     // VM States
     // -------------------------------------------------------------------------
-
     /**
      *  Global Virtual Machine state
      */
@@ -68,46 +67,6 @@ public:
         CLONING         = 10,
         CLONING_FAILURE = 11
     };
-
-    static int vm_state_from_str(string& st, VmState& state)
-    {
-        one_util::toupper(st);
-
-        if ( st == "INIT" ) { state = INIT; }
-        else if ( st == "PENDING" ) { state = PENDING; }
-        else if ( st == "HOLD" ) { state = HOLD; }
-        else if ( st == "ACTIVE" ) { state = ACTIVE; }
-        else if ( st == "STOPPED" ) { state = STOPPED; }
-        else if ( st == "SUSPENDED" ) { state = SUSPENDED; }
-        else if ( st == "DONE" ) { state = DONE; }
-        else if ( st == "POWEROFF" ) { state = POWEROFF; }
-        else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
-        else if ( st == "CLONING" ) { state = CLONING; }
-        else if ( st == "CLONING_FAILURE" ) { state = CLONING_FAILURE; }
-        else {return -1;}
-
-        return 0;
-    }
-
-    static string& vm_state_to_str(string& st, VmState state)
-    {
-        switch (state)
-        {
-            case INIT               : st = "INIT"; break;
-            case PENDING            : st = "PENDING"; break;
-            case HOLD               : st = "HOLD"; break;
-            case ACTIVE             : st = "ACTIVE"; break;
-            case STOPPED            : st = "STOPPED"; break;
-            case SUSPENDED          : st = "SUSPENDED"; break;
-            case DONE               : st = "DONE"; break;
-            case POWEROFF           : st = "POWEROFF"; break;
-            case UNDEPLOYED         : st = "UNDEPLOYED"; break;
-            case CLONING            : st = "CLONING"; break;
-            case CLONING_FAILURE    : st = "CLONING_FAILURE"; break;
-        }
-
-        return st;
-    }
 
     /**
      *  Virtual Machine state associated to the Life-cycle Manager
@@ -177,170 +136,113 @@ public:
         PROLOG_MIGRATE_UNKNOWN = 60,
         PROLOG_MIGRATE_UNKNOWN_FAILURE = 61,
         DISK_RESIZE = 62,
-        DISK_RESIZE_POWEROFF = 63
+        DISK_RESIZE_POWEROFF = 63,
+        DISK_RESIZE_UNDEPLOYED = 64
     };
 
-    static int lcm_state_from_str(string& st, LcmState& state)
-    {
-        one_util::toupper(st);
+    /**
+     *  Functions to convert to/from string the VM states
+     */
+    static int vm_state_from_str(string& st, VmState& state);
 
-        if ( st == "LCM_INIT" ){ state = LCM_INIT; }
-        else if ( st == "PROLOG") { state = PROLOG; }
-        else if ( st == "BOOT") { state = BOOT; }
-        else if ( st == "RUNNING") { state = RUNNING; }
-        else if ( st == "MIGRATE") { state = MIGRATE; }
-        else if ( st == "SAVE_STOP") { state = SAVE_STOP; }
-        else if ( st == "SAVE_SUSPEND") { state = SAVE_SUSPEND; }
-        else if ( st == "SAVE_MIGRATE") { state = SAVE_MIGRATE; }
-        else if ( st == "PROLOG_MIGRATE") { state = PROLOG_MIGRATE; }
-        else if ( st == "PROLOG_RESUME") { state = PROLOG_RESUME; }
-        else if ( st == "EPILOG_STOP") { state = EPILOG_STOP; }
-        else if ( st == "EPILOG") { state = EPILOG; }
-        else if ( st == "SHUTDOWN") { state = SHUTDOWN; }
-        else if ( st == "CLEANUP_RESUBMIT") { state = CLEANUP_RESUBMIT; }
-        else if ( st == "UNKNOWN") { state = UNKNOWN; }
-        else if ( st == "HOTPLUG") { state = HOTPLUG; }
-        else if ( st == "SHUTDOWN_POWEROFF") { state = SHUTDOWN_POWEROFF; }
-        else if ( st == "BOOT_UNKNOWN") { state = BOOT_UNKNOWN; }
-        else if ( st == "BOOT_POWEROFF") { state = BOOT_POWEROFF; }
-        else if ( st == "BOOT_SUSPENDED") { state = BOOT_SUSPENDED; }
-        else if ( st == "BOOT_STOPPED") { state = BOOT_STOPPED; }
-        else if ( st == "CLEANUP_DELETE") { state = CLEANUP_DELETE; }
-        else if ( st == "HOTPLUG_SNAPSHOT") { state = HOTPLUG_SNAPSHOT; }
-        else if ( st == "HOTPLUG_NIC") { state = HOTPLUG_NIC; }
-        else if ( st == "HOTPLUG_SAVEAS") { state = HOTPLUG_SAVEAS; }
-        else if ( st == "HOTPLUG_SAVEAS_POWEROFF") { state = HOTPLUG_SAVEAS_POWEROFF; }
-        else if ( st == "HOTPLUG_SAVEAS_SUSPENDED") { state = HOTPLUG_SAVEAS_SUSPENDED; }
-        else if ( st == "SHUTDOWN_UNDEPLOY") { state = SHUTDOWN_UNDEPLOY; }
-        else if ( st == "EPILOG_UNDEPLOY") { state = EPILOG_UNDEPLOY; }
-        else if ( st == "PROLOG_UNDEPLOY") { state = PROLOG_UNDEPLOY; }
-        else if ( st == "BOOT_UNDEPLOY") { state = BOOT_UNDEPLOY; }
-        else if ( st == "HOTPLUG_PROLOG_POWEROFF") { state = HOTPLUG_PROLOG_POWEROFF; }
-        else if ( st == "HOTPLUG_EPILOG_POWEROFF") { state = HOTPLUG_EPILOG_POWEROFF; }
-        else if ( st == "BOOT_MIGRATE") { state = BOOT_MIGRATE; }
-        else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
-        else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
-        else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
-        else if ( st == "PROLOG_FAILURE") { state = PROLOG_FAILURE; }
-        else if ( st == "EPILOG_FAILURE") { state = EPILOG_FAILURE; }
-        else if ( st == "EPILOG_STOP_FAILURE") { state = EPILOG_STOP_FAILURE; }
-        else if ( st == "EPILOG_UNDEPLOY_FAILURE") { state = EPILOG_UNDEPLOY_FAILURE; }
-        else if ( st == "PROLOG_MIGRATE_POWEROFF") { state = PROLOG_MIGRATE_POWEROFF;}
-        else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE") { state = PROLOG_MIGRATE_POWEROFF_FAILURE;}
-        else if ( st == "PROLOG_MIGRATE_SUSPEND") { state = PROLOG_MIGRATE_SUSPEND;}
-        else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE") { state = PROLOG_MIGRATE_SUSPEND_FAILURE;}
-        else if ( st == "BOOT_STOPPED_FAILURE") { state = BOOT_STOPPED_FAILURE; }
-        else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
-        else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
-        else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
-        else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF") { state = DISK_SNAPSHOT_DELETE_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_SUSPENDED") { state = DISK_SNAPSHOT_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED") { state = DISK_SNAPSHOT_REVERT_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED") { state = DISK_SNAPSHOT_DELETE_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
-        else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
-        else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
-        else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
-        else if ( st == "DISK_RESIZE") { state = DISK_RESIZE; }
-        else if ( st == "DISK_RESIZE_POWEROFF") { state = DISK_RESIZE_POWEROFF; }
-        else {return -1;}
+    static string& vm_state_to_str(string& st, VmState state);
 
-        return 0;
-    }
+    static int lcm_state_from_str(string& st, LcmState& state);
 
-    static string& lcm_state_to_str(string& st, LcmState state)
-    {
-        switch (state)
-        {
-            case LCM_INIT: st = "LCM_INIT"; break;
-            case PROLOG: st = "PROLOG"; break;
-            case BOOT: st = "BOOT"; break;
-            case RUNNING: st = "RUNNING"; break;
-            case MIGRATE: st = "MIGRATE"; break;
-            case SAVE_STOP: st = "SAVE_STOP"; break;
-            case SAVE_SUSPEND: st = "SAVE_SUSPEND"; break;
-            case SAVE_MIGRATE: st = "SAVE_MIGRATE"; break;
-            case PROLOG_MIGRATE: st = "PROLOG_MIGRATE"; break;
-            case PROLOG_RESUME: st = "PROLOG_RESUME"; break;
-            case EPILOG_STOP: st = "EPILOG_STOP"; break;
-            case EPILOG: st = "EPILOG"; break;
-            case SHUTDOWN: st = "SHUTDOWN"; break;
-            case CLEANUP_RESUBMIT: st = "CLEANUP_RESUBMIT"; break;
-            case UNKNOWN: st = "UNKNOWN"; break;
-            case HOTPLUG: st = "HOTPLUG"; break;
-            case SHUTDOWN_POWEROFF: st = "SHUTDOWN_POWEROFF"; break;
-            case BOOT_UNKNOWN: st = "BOOT_UNKNOWN"; break;
-            case BOOT_POWEROFF: st = "BOOT_POWEROFF"; break;
-            case BOOT_SUSPENDED: st = "BOOT_SUSPENDED"; break;
-            case BOOT_STOPPED: st = "BOOT_STOPPED"; break;
-            case CLEANUP_DELETE: st = "CLEANUP_DELETE"; break;
-            case HOTPLUG_SNAPSHOT: st = "HOTPLUG_SNAPSHOT"; break;
-            case HOTPLUG_NIC: st = "HOTPLUG_NIC"; break;
-            case HOTPLUG_SAVEAS: st = "HOTPLUG_SAVEAS"; break;
-            case HOTPLUG_SAVEAS_POWEROFF: st = "HOTPLUG_SAVEAS_POWEROFF"; break;
-            case HOTPLUG_SAVEAS_SUSPENDED: st = "HOTPLUG_SAVEAS_SUSPENDED"; break;
-            case SHUTDOWN_UNDEPLOY: st = "SHUTDOWN_UNDEPLOY"; break;
-            case EPILOG_UNDEPLOY: st = "EPILOG_UNDEPLOY"; break;
-            case PROLOG_UNDEPLOY: st = "PROLOG_UNDEPLOY"; break;
-            case BOOT_UNDEPLOY: st = "BOOT_UNDEPLOY"; break;
-            case HOTPLUG_PROLOG_POWEROFF: st = "HOTPLUG_PROLOG_POWEROFF"; break;
-            case HOTPLUG_EPILOG_POWEROFF: st = "HOTPLUG_EPILOG_POWEROFF"; break;
-            case BOOT_MIGRATE: st = "BOOT_MIGRATE"; break;
-            case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
-            case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
-            case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
-            case PROLOG_FAILURE: st = "PROLOG_FAILURE"; break;
-            case EPILOG_FAILURE: st = "EPILOG_FAILURE"; break;
-            case EPILOG_STOP_FAILURE: st = "EPILOG_STOP_FAILURE"; break;
-            case EPILOG_UNDEPLOY_FAILURE: st = "EPILOG_UNDEPLOY_FAILURE"; break;
-            case PROLOG_MIGRATE_POWEROFF: st = "PROLOG_MIGRATE_POWEROFF"; break;
-            case PROLOG_MIGRATE_POWEROFF_FAILURE: st = "PROLOG_MIGRATE_POWEROFF_FAILURE"; break;
-            case PROLOG_MIGRATE_SUSPEND: st = "PROLOG_MIGRATE_SUSPEND"; break;
-            case PROLOG_MIGRATE_SUSPEND_FAILURE: st = "PROLOG_MIGRATE_SUSPEND_FAILURE"; break;
-            case BOOT_STOPPED_FAILURE: st = "BOOT_STOPPED_FAILURE"; break;
-            case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
-            case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
-            case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
-            case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
-            case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
-            case DISK_SNAPSHOT_DELETE_POWEROFF: st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
-            case DISK_SNAPSHOT_SUSPENDED: st = "DISK_SNAPSHOT_SUSPENDED"; break;
-            case DISK_SNAPSHOT_REVERT_SUSPENDED: st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
-            case DISK_SNAPSHOT_DELETE_SUSPENDED: st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
-            case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
-            case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
-            case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
-            case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
-            case DISK_RESIZE: st = "DISK_RESIZE"; break;
-            case DISK_RESIZE_POWEROFF: st = "DISK_RESIZE_POWEROFF"; break;
-        }
-
-        return st;
-    }
+    static string& lcm_state_to_str(string& st, LcmState state);
 
     /**
      * Returns the VM state to string, using the lcm state if the current state
      * is ACTIVE.
      * @return the state sting
      */
-    string state_str()
+    string state_str();
+
+    /**
+     *  Returns the VM state (Dispatch Manager)
+     *    @return the VM state
+     */
+    VmState get_state() const
+    {
+        return state;
+    };
+
+    VmState get_prev_state() const
+    {
+        return prev_state;
+    };
+
+    /**
+     *  Returns the VM state (life-cycle Manager)
+     *    @return the VM state
+     */
+    LcmState get_lcm_state() const
+    {
+        return lcm_state;
+    };
+
+    LcmState get_prev_lcm_state() const
+    {
+        return prev_lcm_state;
+    };
+
+    /**
+     *  Sets VM state
+     *    @param s state
+     */
+    void set_state(VmState s)
     {
         string st;
 
-        if (state == ACTIVE)
-        {
-            return lcm_state_to_str(st, lcm_state);
-        }
+        state = s;
 
-        return vm_state_to_str(st, state);
+        log("VM", Log::INFO, "New state is " + vm_state_to_str(st, s));
+    };
+
+    /**
+     *  Sets VM LCM state
+     *    @param s state
+     */
+    void set_state(LcmState s)
+    {
+        string st;
+
+        lcm_state = s;
+
+        log("VM", Log::INFO, "New LCM state is " + lcm_state_to_str(st, s));
+    };
+
+    /**
+     *  Sets the previous state to the current one
+     */
+    void set_prev_state()
+    {
+        prev_state     = state;
+        prev_lcm_state = lcm_state;
+    };
+
+    /**
+     *  Test if the VM has changed state since last time prev state was set
+     *    @return true if VM changed state
+     */
+    bool has_changed_state()
+    {
+        return (prev_lcm_state != lcm_state || prev_state != state);
     }
+
+    /**
+     *  Sets the re-scheduling flag
+     *    @param set or unset the re-schedule flag
+     */
+    void set_resched(bool do_sched)
+    {
+        resched = do_sched ? 1 : 0;
+    };
+
 
     // -------------------------------------------------------------------------
     // Log & Print
     // -------------------------------------------------------------------------
-
     /**
      *  writes a log message in vm.log. The class lock should be locked and
      *  the VM MUST BE obtained through the VirtualMachinePool get() method.
@@ -383,40 +285,9 @@ public:
         log(module, type, message.c_str());
     };
 
-    /**
-     * Function to print the VirtualMachine object into a string in
-     * XML format
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml(string& xml) const
-    {
-        return to_xml_extended(xml, 1);
-    }
-
-    /**
-     * Function to print the VirtualMachine object into a string in
-     * XML format, with extended information (full history records)
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml_extended(string& xml) const
-    {
-        return to_xml_extended(xml, 2);
-    }
-
-    /**
-     *  Rebuilds the object from an xml formatted string
-     *    @param xml_str The xml-formatted string
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml(const string &xml_str);
-
     // ------------------------------------------------------------------------
     // Dynamic Info
     // ------------------------------------------------------------------------
-
     /**
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
@@ -980,18 +851,37 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Template
+    // Template & Object Representation
     // ------------------------------------------------------------------------
     /**
-     *  Updates the configuration attributes based on a template, the state of
-     *  the virtual machine is checked to assure operation consistency
-     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
-     *      CONTEXT and GRAPHICS.
-     *    @param err description if any
-     *
-     *    @return 0 on success
+     * Function to print the VirtualMachine object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    int updateconf(VirtualMachineTemplate& tmpl, string &err);
+    string& to_xml(string& xml) const
+    {
+        return to_xml_extended(xml, 1);
+    }
+
+    /**
+     * Function to print the VirtualMachine object into a string in
+     * XML format, with extended information (full history records)
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml) const
+    {
+        return to_xml_extended(xml, 2);
+    }
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const string &xml_str);
 
     /**
      *  Factory method for virtual machine templates
@@ -1071,96 +961,6 @@ public:
      */
     void clear_template_monitor_error();
 
-    // ------------------------------------------------------------------------
-    // States
-    // ------------------------------------------------------------------------
-    /**
-     *  Returns the VM state (Dispatch Manager)
-     *    @return the VM state
-     */
-    VmState get_state() const
-    {
-        return state;
-    };
-
-    VmState get_prev_state() const
-    {
-        return prev_state;
-    };
-
-    /**
-     *  Returns the VM state (life-cycle Manager)
-     *    @return the VM state
-     */
-    LcmState get_lcm_state() const
-    {
-        return lcm_state;
-    };
-
-    LcmState get_prev_lcm_state() const
-    {
-        return prev_lcm_state;
-    };
-
-    /**
-     *  Sets VM state
-     *    @param s state
-     */
-    void set_state(VmState s)
-    {
-        string st;
-
-        state = s;
-
-        log("VM", Log::INFO, "New state is " + vm_state_to_str(st, s));
-    };
-
-    /**
-     *  Sets VM LCM state
-     *    @param s state
-     */
-    void set_state(LcmState s)
-    {
-        string st;
-
-        lcm_state = s;
-
-        log("VM", Log::INFO, "New LCM state is " + lcm_state_to_str(st, s));
-    };
-
-    /**
-     *  Sets the previous state to the current one
-     */
-    void set_prev_state()
-    {
-        prev_state     = state;
-        prev_lcm_state = lcm_state;
-    };
-
-    /**
-     *  Test if the VM has changed state since last time prev state was set
-     *    @return true if VM changed state
-     */
-    bool has_changed_state()
-    {
-        return (prev_lcm_state != lcm_state || prev_state != state);
-    }
-
-    /**
-     *  Sets the re-scheduling flag
-     *    @param set or unset the re-schedule flag
-     */
-    void set_resched(bool do_sched)
-    {
-        if ( do_sched == true )
-        {
-            resched = 1;
-        }
-        else
-        {
-            resched = 0;
-        }
-    };
 
     // ------------------------------------------------------------------------
     // Timers & Requirements
@@ -1235,8 +1035,9 @@ public:
 
     /**
      *  Releases all disk images taken by this Virtual Machine
+     *    @param quotas disk space to free from image datastores
      */
-    void release_disk_images();
+    void release_disk_images(map<int, Template *>& quotas);
 
     /**
      *  @return reference to the VirtualMachine disks
@@ -1342,6 +1143,17 @@ public:
      * @return uid
      */
     int get_created_by_uid() const;
+
+    /**
+     *  Updates the configuration attributes based on a template, the state of
+     *  the virtual machine is checked to assure operation consistency
+     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
+     *      CONTEXT and GRAPHICS.
+     *    @param err description if any
+     *
+     *    @return 0 on success
+     */
+    int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1501,11 +1313,21 @@ public:
     }
 
     /**
-     * Cleans the RESIZE = YES attribute from the disks
+     *  Cleans the RESIZE = YES attribute from the disks
+     *    @param restore if true the previous disk size is restored
      */
-    void clear_resize_disk(bool restore)
+    VirtualMachineDisk * clear_resize_disk(bool restore)
     {
-        disks.clear_resize(restore);
+        VirtualMachineDisk * disk = disks.get_resize();
+
+        if ( disk == 0 )
+        {
+            return 0;
+        }
+
+        disk->clear_resize(restore);
+
+        return disk;
     }
 
     /**
@@ -1526,6 +1348,18 @@ public:
     int set_up_resize_disk(int disk_id, long size, string& error)
     {
         return disks.set_up_resize(disk_id, size, error);
+    }
+
+    /**
+     * Restore original disk sizes  for non-persistentand for persistent disks
+     * in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_disk_resizes(Template **vm_quotas,
+        map<int, Template *>& ds_quotas)
+    {
+        disks.delete_non_persistent_resizes(vm_quotas, ds_quotas);
     }
 
     // ------------------------------------------------------------------------

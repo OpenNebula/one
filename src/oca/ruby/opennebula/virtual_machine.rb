@@ -117,6 +117,9 @@ module OpenNebula
             DISK_SNAPSHOT_DELETE
             PROLOG_MIGRATE_UNKNOWN
             PROLOG_MIGRATE_UNKNOWN_FAILURE
+            DISK_RESIZE
+            DISK_RESIZE_POWEROFF
+            DISK_RESIZE_UNDEPLOYED
         }
 
         SHORT_VM_STATES={
@@ -194,7 +197,10 @@ module OpenNebula
             "DISK_SNAPSHOT"        => "snap",
             "DISK_SNAPSHOT_DELETE" => "snap",
             "PROLOG_MIGRATE_UNKNOWN" => "migr",
-            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail"
+            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
+            "DISK_RESIZE"            => "drsz",
+            "DISK_RESIZE_POWEROFF"   => "drsz",
+            "DISK_RESIZE_UNDEPLOYED" => "drsz",
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
@@ -667,7 +673,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success or error
         def disk_resize(disk_id, size)
-            return call(VM_METHODS[:diskresize], @pe_id, disk_id, size)
+            return call(VM_METHODS[:diskresize], @pe_id, disk_id, size.to_s)
         end
 
         # Recovers an ACTIVE VM

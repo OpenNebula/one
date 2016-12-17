@@ -3022,6 +3022,8 @@ void VirtualMachineDiskResize::request_execute(
         ds_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
     }
 
+    vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+
     /* ---------------------------------------------------------------------- */
     /*  Check quotas for the new size in image/system datastoress             */
     /* ---------------------------------------------------------------------- */
@@ -3048,7 +3050,7 @@ void VirtualMachineDiskResize::request_execute(
     }
 
     // ------------------------------------------------------------------------
-    // Do the snapshot
+    // Resize the disk
     // ------------------------------------------------------------------------
     int rc = dm->disk_resize(id, did, size, att.resp_msg);
 

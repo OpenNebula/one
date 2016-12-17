@@ -424,6 +424,22 @@ void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisk::clear_resize(bool restore)
+{
+    string size, size_prev;
+
+    if ( restore && vector_value("SIZE_PREV", size_prev) == 0 )
+    {
+        replace("SIZE", size_prev);
+    }
+
+    remove("SIZE_PREV");
+    clear_resize();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -749,7 +765,8 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisks::release_images(int vmid, bool image_error)
+void VirtualMachineDisks::release_images(int vmid, bool image_error,
+        map<int, Template *>& ds_quotas)
 {
     Nebula& nd = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
@@ -760,9 +777,44 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error)
 
         if ( (*it)->vector_value("IMAGE_ID", iid) == 0 )
         {
+            long long original_size, size;
+
+            int rc;
+
+            /* ---------- Update size on source image if needed ------------- */
+            rc  = (*it)->vector_value("SIZE", size);
+            rc += (*it)->vector_value("ORIGINAL_SIZE", original_size);
+
+            if ( size > original_size )
+            {
+                imagem->set_image_size(iid, size);
+            }
+
+            /* ------- Update snapshots  on source image if needed ---------- */
             if ( (*it)->has_snapshots() )
             {
                 imagem->set_image_snapshots(iid, *(*it)->get_snapshots());
+            }
+
+            /* --------- Compute space to free on image datastore ----------- */
+            if ( !(*it)->is_persistent() && (*it)->get_tm_target() != "SYSTEM" )
+            {
+                long long delta_size = 0;
+
+                if ( size > original_size )
+                {
+                    delta_size = size - original_size;
+                }
+
+                delta_size += (*it)->get_total_snapshot_size();
+
+                Template * d_ds = new Template();
+
+                d_ds->add("DATASTORE", (*it)->vector_value("DATASTORE_ID"));
+                d_ds->add("SIZE", delta_size);
+                d_ds->add("IMAGES", 0);
+
+                ds_quotas.insert(pair<int, Template *>(iid, d_ds));
             }
 
             imagem->release_image(vmid, iid, image_error);
@@ -1001,27 +1053,6 @@ int VirtualMachineDisks::set_resize(int id)
 
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisks::clear_resize(bool restore)
-{
-    string size, size_prev;
-    VirtualMachineDisk * disk = get_resize();
-
-    if ( disk == 0 )
-    {
-        return;
-    }
-
-    if ( restore && disk->vector_value("SIZE_PREV", size_prev) == 0 )
-    {
-        disk->replace("SIZE", size_prev);
-    }
-
-    disk->remove("SIZE_PREV");
-    disk->clear_resize();
-}
-
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachineDisks::set_up_resize(int disk_id, long size, string& err)
 {
     VirtualMachineDisk * disk = get_disk(disk_id);
@@ -1222,12 +1253,14 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
 
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
-        if ( !(*disk)->has_snapshots() || (*disk)->get_tm_target() != "SYSTEM" )
+        string tm_target = (*disk)->get_tm_target();
+
+        if ( !(*disk)->has_snapshots() || tm_target == "NONE" )
         {
             continue;
         }
 
-        if ((*disk)->is_persistent())
+        if ((*disk)->is_persistent() || tm_target != "SYSTEM" )
         {
             int image_id;
 
@@ -1245,7 +1278,10 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template **vm_quotas,
             ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
         }
 
-        system_disk += (*disk)->get_total_snapshot_size();
+        if ( tm_target == "SYSTEM" )
+        {
+            system_disk += (*disk)->get_total_snapshot_size();
+        }
 
         (*disk)->clear_snapshots();
 
@@ -1380,3 +1416,70 @@ int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisks::delete_non_persistent_resizes(Template **vm_quotas,
+        map<int, Template *>& ds_quotas)
+{
+    long long original_size, size, delta_size, system_disk = 0;
+
+    string tm_target;
+    int    rc;
+
+    for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
+    {
+        tm_target = (*disk)->get_tm_target();
+
+        rc  = (*disk)->vector_value("SIZE", size);
+        rc += (*disk)->vector_value("ORIGINAL_SIZE", original_size);
+
+        if ( rc != 0 || original_size >= size || tm_target == "NONE" )
+        {
+            continue;
+        }
+
+        delta_size = original_size - size;
+
+        if ((*disk)->is_persistent() || tm_target != "SYSTEM" )
+        {
+            int image_id;
+
+            if ( (*disk)->vector_value("IMAGE_ID", image_id) != 0 )
+            {
+                continue;
+            }
+
+            Template * d_ds = new Template();
+
+            d_ds->add("DATASTORE", (*disk)->vector_value("DATASTORE_ID"));
+            d_ds->add("SIZE", delta_size);
+            d_ds->add("IMAGES", 0);
+
+            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
+        }
+
+        if ( tm_target == "SYSTEM" )
+        {
+            system_disk += delta_size;
+        }
+
+        (*disk)->replace("SIZE", original_size);
+    }
+
+    if ( system_disk > 0 )
+    {
+        *vm_quotas = new Template();
+
+        VectorAttribute * delta_disk = new VectorAttribute("DISK");
+
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", system_disk);
+
+        (*vm_quotas)->add("VMS", 0);
+        (*vm_quotas)->set(delta_disk);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

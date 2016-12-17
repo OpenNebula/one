@@ -233,13 +233,13 @@ public:
     void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota);
 
     /* ---------------------------------------------------------------------- */
-    /* Disk space usage functions                                             */
+    /* Disk resize functions                                                  */
     /* ---------------------------------------------------------------------- */
-
     /**
-     *  @return the space required by this disk in the system datastore
+     *  Cleans the resize attribute from the disk
+     *    @param restore the previous size
      */
-    long long system_ds_size();
+    void clear_resize(bool restore);
 
     /**
      *  Calculate the quotas for a resize operation on the disk
@@ -248,6 +248,15 @@ public:
      *    @param vmdelta increment in system datastore usage
      */
    void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta);
+
+    /* ---------------------------------------------------------------------- */
+    /* Disk space usage functions                                             */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  @return the space required by this disk in the system datastore
+     */
+    long long system_ds_size();
 
     /**
      *  Compute the storage needed by the disk in the system and/or image
@@ -419,9 +428,10 @@ public:
     /**
      *  Release the images in the disk set
      *    @param vmid id of VM
-     *    @param image_error true if the image has to be set in error state
+     *    @param img_error true if the image has to be set in error state
+     *    @param quotas disk space usage to free from image datastores
      */
-    void release_images(int vmid, bool image_error);
+    void release_images(int vmid, bool img_error, map<int, Template *>& quotas);
 
     /* ---------------------------------------------------------------------- */
     /* DISK cloning functions                                                 */
@@ -549,28 +559,22 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Resize disk Interface                                                  */
     /* ---------------------------------------------------------------------- */
-    /**
-     *  Sets the resize attribute to the given disk
-     *    @param disk_id of the DISK
-     *    @return 0 if the disk_id was found -1 otherwise
-     */
-    int set_resize(int disk_id);
-
-    /**
-     *  Cleans the resize attribute from the disk
-     *    @param restore the previous size
-     */
-    void clear_resize(bool restore);
+    VirtualMachineDisk * get_resize()
+    {
+        return static_cast<VirtualMachineDisk *>(get_attribute("RESIZE"));
+    }
 
     VirtualMachineDisk * delete_resize()
     {
         return static_cast<VirtualMachineDisk *>(remove_attribute("RESIZE"));
     }
 
-    VirtualMachineDisk * get_resize()
-    {
-        return static_cast<VirtualMachineDisk *>(get_attribute("RESIZE"));
-    }
+    /**
+     *  Sets the resize attribute to the given disk
+     *    @param disk_id of the DISK
+     *    @return 0 if the disk_id was found -1 otherwise
+     */
+    int set_resize(int disk_id);
 
     /**
      *  Prepares a disk to be resized.
@@ -658,6 +662,15 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas);
+
+    /**
+     * Restores the disk original size for non-persistent and for persistent
+     * disks in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_resizes(Template **vm_quotas,
         map<int, Template *>& ds_quotas);
 
 protected:

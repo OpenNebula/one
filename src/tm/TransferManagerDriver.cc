@@ -159,6 +159,7 @@ void TransferManagerDriver::protocol(const string& message) const
                     break;
 
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
+                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
                     lcm_action = LifeCycleManager::DISK_RESIZE_SUCCESS;
                     break;
 
@@ -229,6 +230,7 @@ void TransferManagerDriver::protocol(const string& message) const
                     break;
 
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
+                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
                     lcm_action = LifeCycleManager::DISK_RESIZE_FAILURE;
                     break;
 

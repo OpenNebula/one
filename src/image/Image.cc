@@ -481,7 +481,6 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
-    long long size = -1;
     long long snap_size;
 
     string template_target;
