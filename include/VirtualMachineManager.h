@@ -67,7 +67,8 @@ public:
         SNAPSHOT_CREATE,
         SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
-        DISK_SNAPSHOT_CREATE
+        DISK_SNAPSHOT_CREATE,
+        DISK_RESIZE
     };
 
     /**
@@ -410,12 +411,19 @@ private:
         int vid);
 
     /**
+     *  This function cancels the current driver operation
+     */
+    void driver_cancel_action(
+        int vid);
+
+    /**
      * Creates a new system snapshot. The VM must have a snapshot with the
      * attribute ACTIVE = YES
      *
      * @param vid the id of the VM.
      */
-    void snapshot_create_action(int vid);
+    void snapshot_create_action(
+        int vid);
 
     /**
      * Reverts to a snapshot. The VM must have a snapshot with the
@@ -423,7 +431,8 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_revert_action(int vid);
+    void snapshot_revert_action(
+        int vid);
 
     /**
      * Deletes a snapshot. The VM must have a snapshot with the
@@ -431,19 +440,23 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_delete_action(int vid);
+    void snapshot_delete_action(
+        int vid);
 
     /**
      * Creates a new disk system snapshot.
      *
      * @param vid the id of the VM.
      */
-    void disk_snapshot_create_action(int vid);
+    void disk_snapshot_create_action(
+        int vid);
 
     /**
-     *  This function cancels the current driver operation
+     * Resize a VM disk
+     *
+     * @param vid the id of the VM.
      */
-    void driver_cancel_action(
+    void disk_resize_action(
         int vid);
 };
 

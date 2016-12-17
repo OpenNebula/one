@@ -2176,7 +2176,7 @@ int DispatchManager::disk_resize(
 
             vmpool->update_history(vm);
 
-//            vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
+            vmm->trigger(VirtualMachineManager::DISK_RESIZE, vid);
             break;
 
         default: break;

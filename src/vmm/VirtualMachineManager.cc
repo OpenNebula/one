@@ -203,6 +203,10 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
         aname = "DISK_SNAPSHOT_CREATE";
         break;
 
+    case DISK_RESIZE:
+        aname = "DISK_RESIZE";
+        break;
+
     default:
         delete vid;
         return;
@@ -321,6 +325,10 @@ void VirtualMachineManager::do_action(const string &action, void * arg)
     else if (action == "DISK_SNAPSHOT_CREATE")
     {
         disk_snapshot_create_action(vid);
+    }
+    else if (action == "DISK_RESIZE")
+    {
+        disk_resize_action(vid);
     }
     else if (action == ACTION_TIMER)
     {
@@ -2295,6 +2303,117 @@ error_common:
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::disk_resize_action(int vid)
+{
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    VirtualMachineDisk * disk;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    string  resize_cmd;
+    string  disk_path;
+
+    Nebula& nd           = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    disk = vm->get_resize_disk();
+
+    if ( disk == 0 )
+    {
+        goto error_disk;
+    }
+
+    tm->resize_command(vm, disk, os);
+
+    resize_cmd = os.str();
+
+    os.str("");
+
+    if ( resize_cmd.empty() )
+    {
+        goto error_no_tm_command;
+    }
+
+    os << vm->get_system_dir() << "/disk." << disk->get_disk_id();
+
+    disk_path = os.str();
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        resize_cmd,
+        "",
+        disk_path,
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id(),
+        -1);
+
+    vmd->disk_resize(vid, *drv_msg);
+
+    vm->unlock();
+
+    delete drv_msg;
+
+    return;
+
+error_disk:
+    os << "disk_snapshot_create, could not find disk to take snapshot";
+    goto error_common;
+
+error_history:
+    os << "disk_snapshot_create, VM has no history";
+    goto error_common;
+
+error_driver:
+    os << "disk_snapshot_create, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_no_tm_command:
+    os << "Cannot set disk for snapshot.";
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

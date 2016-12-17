@@ -789,13 +789,16 @@ class ExecDriver < VirtualMachineDriver
 
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        size = xml_data.elements['SIZE'].text.strip
-        disk_id = xml_data.elements['DISK_ID'].text.strip
+        size_xpath = "VM/TEMPLATE/DISK[RESIZE='YES']/SIZE"
+        size       = ensure_xpath(xml_data, id, action, size_xpath) || return
+
+        disk_id_xpath = "VM/TEMPLATE/DISK[RESIZE='YES']/DISK_ID"
+        disk_id       = ensure_xpath(xml_data, id, action, disk_id_xpath) || return
 
         action = VmmAction.new(self, id, :resize_disk, drv_message)
 
         steps = [
-            # Perform a PROLOG on the disk
+            # Perform the resize command
             {
                 :driver     => :tm,
                 :action     => :tm_resize,
