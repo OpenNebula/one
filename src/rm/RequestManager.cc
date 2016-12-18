@@ -169,9 +169,19 @@ int RequestManager::setup_socket()
 {
     int                 rc;
     int                 yes = 1;
-    struct sockaddr_in  rm_addr;
+    struct sockaddr_in  rm_addr4;
+    struct sockaddr_in6 rm_addr6;
+    struct sockaddr     *rm_addr;
+    int socket_af;
+    size_t rm_addr_size;
 
-    socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (listen_address.find(':') == std::string::npos) {
+        socket_af = AF_INET;
+    } else {
+        socket_af = AF_INET6;
+    }
+
+    socket_fd = socket(socket_af, SOCK_STREAM, 0);
 
     if ( socket_fd == -1 )
     {
@@ -199,10 +209,23 @@ int RequestManager::setup_socket()
 
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
 
-    rm_addr.sin_family      = AF_INET;
-    rm_addr.sin_port        = htons(port);
+    if (socket_af == AF_INET) {
+        rm_addr4.sin_family      = AF_INET;
+        rm_addr4.sin_port        = htons(port);
 
-    rc = inet_aton(listen_address.c_str(), &rm_addr.sin_addr);
+        rm_addr = (struct sockaddr *) &rm_addr4;
+        rm_addr_size = sizeof(rm_addr4);
+
+        rc = inet_aton(listen_address.c_str(), &rm_addr4.sin_addr);
+    } else {
+        rm_addr6.sin6_family     = AF_INET6;
+        rm_addr6.sin6_port       = htons(port);
+
+        rm_addr = (struct sockaddr *) &rm_addr6;
+        rm_addr_size = sizeof(rm_addr6);
+
+        rc = inet_pton(AF_INET6, listen_address.c_str(), &rm_addr6.sin6_addr);
+    }
 
     if ( rc == 0 )
     {
@@ -216,7 +239,7 @@ int RequestManager::setup_socket()
         return -1;
     }
 
-    rc = bind(socket_fd,(struct sockaddr *) &(rm_addr),sizeof(struct sockaddr));
+    rc = bind(socket_fd, rm_addr, rm_addr_size);
 
     if ( rc == -1)
     {
