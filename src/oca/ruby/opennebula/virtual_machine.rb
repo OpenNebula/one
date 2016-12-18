@@ -200,7 +200,7 @@ module OpenNebula
             "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
             "DISK_RESIZE"            => "drsz",
             "DISK_RESIZE_POWEROFF"   => "drsz",
-            "DISK_RESIZE_UNDEPLOYED" => "drsz",
+            "DISK_RESIZE_UNDEPLOYED" => "drsz"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
