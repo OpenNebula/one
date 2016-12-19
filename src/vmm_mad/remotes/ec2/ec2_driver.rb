@@ -257,8 +257,7 @@ class EC2Driver
         load_default_template_values
 
         if !ec2_value(ec2_info, 'AMI')
-            STDERR.puts("Cannot find AMI in deployment file")
-            exit(-1)
+            raise "Cannot find AMI in deployment file"
         end
 
         opts = generate_options(:run, ec2_info, {
@@ -288,24 +287,18 @@ class EC2Driver
             end
         end
 
-        begin
-            instances = @ec2.create_instances(opts)
-            instance = instances.first
-        rescue => e
-            STDERR.puts(e.message)
-            exit(-1)
-        end
+        instances = @ec2.create_instances(opts)
+        instance = instances.first
 
-        index = 0
+        start_time = Time.now
 
-        while index < 5
+        while Time.now - start_time < @state_change_timeout
             begin
                 instance.state
                 break
             rescue
             end
             sleep 2
-            index = index + 1
         end
 
         tags = generate_options(:tags, ec2_info)[:tags] || {}
@@ -320,25 +313,16 @@ class EC2Driver
             }
         }
 
-        begin
-            instance.create_tags(:tags => tag_array)
-        rescue => e
-            STDERR.puts(e.message)
-            exit(-1)
-        end
+        instance.create_tags(:tags => tag_array)
+
 
         if ec2_value(ec2_info, 'ELASTICIP')
-            begin
-                start_time = Time.now
-                while instance.state.name == 'pending'
-                    break if Time.now - start_time > @state_change_timeout
-                    sleep 5
-                end
-                instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
-            rescue => e
-                STDERR.puts(e.message)
-                exit(-1)
+            start_time = Time.now
+            while instance.state.name == 'pending'
+                break if Time.now - start_time > @state_change_timeout
+                sleep 5
             end
+            instance.associate_elastic_ip(ec2_value(ec2_info, 'ELASTICIP'))
         end
 
         puts(instance.id)
@@ -686,7 +670,7 @@ private
         end
     end
 
-    # Retrive the instance from EC2
+    # Retrieve the instance from EC2
     def get_instance(id)
         begin
             instance = @ec2.instance(id)
