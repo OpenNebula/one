@@ -24,6 +24,11 @@
       </li>
       <li>
         <img class="opennebula-img" src="{{logo}}"/>
+        {{#if link_text}}
+          {{#if link}}
+            <a class="opennebula-img" href="{{link}}" style="font-size:smaller; text-align:center">{{link_text}}</a>
+          {{/if}}
+        {{/if}}
       </li>
     </ul>
     <div class="small-4 medium-8 large-8 columns">

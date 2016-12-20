@@ -1,4 +1,7 @@
 provision_logo: images/opennebula-5.0.png
+link_logo:
+text_link_logo:
+confirm_vms: false
 enabled_tabs:
     - provision-tab
     - settings-tab
