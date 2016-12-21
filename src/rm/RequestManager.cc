@@ -175,10 +175,40 @@ int RequestManager::setup_socket()
     int socket_af;
     size_t rm_addr_size;
 
-    if (listen_address.find(':') == std::string::npos) {
-        socket_af = AF_INET;
-    } else {
-        socket_af = AF_INET6;
+    socket_af = -1;
+    if (socket_af == -1) {
+        rc = inet_aton(listen_address.c_str(), &rm_addr4.sin_addr);
+        if (rc != 0) {
+            socket_af = AF_INET;
+
+            rm_addr4.sin_family      = socket_af;
+            rm_addr4.sin_port        = htons(port);
+
+            rm_addr = (struct sockaddr *) &rm_addr4;
+            rm_addr_size = sizeof(rm_addr4);
+        }
+    }
+
+    if (socket_af == -1) {
+        rc = inet_pton(AF_INET6, listen_address.c_str(), &rm_addr6.sin6_addr);
+        if (rc != 0) {
+            socket_af = AF_INET6;
+
+            rm_addr6.sin6_family     = socket_af;
+            rm_addr6.sin6_port       = htons(port);
+
+            rm_addr = (struct sockaddr *) &rm_addr6;
+            rm_addr_size = sizeof(rm_addr6);
+        }
+    }
+
+    if (socket_af == -1) {
+        ostringstream oss;
+
+        oss << "Invalid listen address: " << listen_address;
+        NebulaLog::log("ReM",Log::ERROR,oss);
+
+        return -1;
     }
 
     socket_fd = socket(socket_af, SOCK_STREAM, 0);
@@ -208,36 +238,6 @@ int RequestManager::setup_socket()
     }
 
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
-
-    if (socket_af == AF_INET) {
-        rm_addr4.sin_family      = AF_INET;
-        rm_addr4.sin_port        = htons(port);
-
-        rm_addr = (struct sockaddr *) &rm_addr4;
-        rm_addr_size = sizeof(rm_addr4);
-
-        rc = inet_aton(listen_address.c_str(), &rm_addr4.sin_addr);
-    } else {
-        rm_addr6.sin6_family     = AF_INET6;
-        rm_addr6.sin6_port       = htons(port);
-
-        rm_addr = (struct sockaddr *) &rm_addr6;
-        rm_addr_size = sizeof(rm_addr6);
-
-        rc = inet_pton(AF_INET6, listen_address.c_str(), &rm_addr6.sin6_addr);
-    }
-
-    if ( rc == 0 )
-    {
-        ostringstream oss;
-
-        oss << "Invalid listen address: " << listen_address;
-        NebulaLog::log("ReM",Log::ERROR,oss);
-
-        close(socket_fd);
-
-        return -1;
-    }
 
     rc = bind(socket_fd, rm_addr, rm_addr_size);
 
