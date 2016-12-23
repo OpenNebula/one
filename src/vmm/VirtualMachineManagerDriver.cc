@@ -622,6 +622,22 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, id);
         }
     }
+    else if ( action == "RESIZEDISK" )
+    {
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::INFO, "VM disk successfully resized");
+
+            lcm->trigger(LifeCycleManager::DISK_RESIZE_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error resizing disk");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DISK_RESIZE_FAILURE, id);
+        }
+    }
     else if ( action == "CLEANUP" )
     {
         if ( result == "SUCCESS" )

@@ -96,7 +96,6 @@ define(function(require) {
     return st;
   }
 
-
   function _sizeToMB(value){
     var split = value.split("B");
     var factor = split[0].slice(-1);

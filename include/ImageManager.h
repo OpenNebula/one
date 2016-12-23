@@ -258,6 +258,14 @@ public:
      */
      void set_image_snapshots(int iid, const Snapshots& s);
 
+    /**
+     *  Set the size for the given image. The image MUST be persistent
+     *  and of type OS or DATABLOCK.
+     *    @param iid id of image
+     *    @param size
+     */
+     void set_image_size(int iid, long long size);
+
      /**
       *  Deletes the snapshot of an image
       *    @param iid id of image

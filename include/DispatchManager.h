@@ -347,6 +347,7 @@ public:
         int      id,
         int      nic_id,
         string&  error_str);
+
     /**
      * Starts the snapshot create action
      *
@@ -441,6 +442,21 @@ public:
         int           snap_id,
         string&       error_str);
 
+    /**
+     * Starts the disk resize create action
+     *
+     * @param vid VirtualMachine identification
+     * @param did DISK identification
+     * @param size new size for the disk
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int disk_resize(
+        int           vid,
+        int           did,
+        long long     new_size,
+        string&       error_str);
 
 private:
     /**

@@ -158,16 +158,15 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int acquire_disk(  int                vm_id,
-                       VectorAttribute *  disk,
-                       int                disk_id,
-                       Image::ImageType&  img_type,
-                       string&            dev_prefix,
-                       int                uid,
-                       int&               image_id,
-                       Snapshots **       snaps,
-                       string&            error_str);
-
+    int acquire_disk(int                vm_id,
+                     VirtualMachineDisk *  disk,
+                     int                disk_id,
+                     Image::ImageType&  img_type,
+                     string&            dev_prefix,
+                     int                uid,
+                     int&               image_id,
+                     Snapshots **       snaps,
+                     string&            error_str);
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
      *
@@ -176,17 +175,9 @@ public:
      *    @param uid of VM owner (to look for the image id within its images)
      *
      */
-    void disk_attribute(VectorAttribute *   disk,
+    void disk_attribute(VirtualMachineDisk* disk,
                         int                 disk_id,
                         int                 uid);
-
-    /**
-     *  Generates an Authorization token for the DISK attribute
-     *    @param disk the disk to be authorized
-     *    @param uid of owner (to look for the image id within her images)
-     *    @param ar the AuthRequest
-     */
-    void authorize_disk(VectorAttribute * disk, int uid, AuthRequest * ar);
 
     static const string& default_type()
     {
@@ -202,31 +193,6 @@ public:
     {
         return _default_cdrom_dev_prefix;
     };
-
-    /**
-     *  Get the effective uid to get an image. Used in VM parsers
-     *    @param disk a vector attribute with the image data
-     *    @param uid default uid
-     *    @return the uid to get the image;
-     */
-    static int get_disk_uid(VectorAttribute *  disk, int _uid);
-
-     /**
-      *  Gets the IDs of the images associated to a set of disks
-      *    @param dsk a vector with the DISK attributes
-      *    @param ids set of image ids
-      *    @param uid effective user id making the call
-      */
-     void get_image_ids(vector<VectorAttribute *>& dsk, set<int>& ids, int uid);
-
-     /**
-      *  Gets the IDs of the images associated to a set of disks
-      *    @param disk DISK attribute
-      *    @param ids the image id, if found
-      *    @param uid effective user id making the call
-      *    @return 0 if the disk uses an image, -1 otherwise
-      */
-     int get_image_id(VectorAttribute * disk, int &id, int uid);
 
 private:
     //--------------------------------------------------------------------------

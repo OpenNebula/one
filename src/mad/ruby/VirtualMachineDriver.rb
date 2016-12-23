@@ -50,6 +50,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         :attach_nic  => "ATTACHNIC",
         :detach_nic  => "DETACHNIC",
         :disk_snapshot_create => "DISKSNAPSHOTCREATE",
+        :resize_disk => "RESIZEDISK",
         :update_sg   => "UPDATESG"
     }
 
@@ -93,6 +94,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:attach_nic].to_sym, method("attach_nic"))
         register_action(ACTION[:detach_nic].to_sym, method("detach_nic"))
         register_action(ACTION[:disk_snapshot_create].to_sym, method("disk_snapshot_create"))
+        register_action(ACTION[:resize_disk].to_sym, method("resize_disk"))
         register_action(ACTION[:update_sg].to_sym, method("update_sg"))
     end
 
@@ -201,6 +203,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def disk_snapshot_create(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:disk_snapshot_create],RESULT[:failure],id,error)
+    end
+
+    def resize_disk(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:resize_disk],RESULT[:failure],id,error)
     end
 
     def update_sg(id, drv_message)

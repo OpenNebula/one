@@ -462,10 +462,10 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Image::disk_attribute( VectorAttribute *       disk,
-                            ImageType&              img_type,
-                            string&                 dev_prefix,
-                            const vector<string>&   inherit_attrs)
+void Image::disk_attribute(VirtualMachineDisk *    disk,
+                           ImageType&              img_type,
+                           string&                 dev_prefix,
+                           const vector<string>&   inherit_attrs)
 {
     string target;
     string driver;
@@ -481,7 +481,6 @@ void Image::disk_attribute( VectorAttribute *       disk,
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
-    long long size = -1;
     long long snap_size;
 
     string template_target;
@@ -520,15 +519,12 @@ void Image::disk_attribute( VectorAttribute *       disk,
     //--------------------------------------------------------------------------
     //                       BASE DISK ATTRIBUTES
     //--------------------------------------------------------------------------
-    disk->replace("IMAGE",    name);
+    disk->replace("IMAGE", name);
     disk->replace("IMAGE_ID", oid);
-    disk->replace("SOURCE",   source);
+    disk->replace("SOURCE", source);
+    disk->replace("ORIGINAL_SIZE", size_mb);
 
-    if ( disk->vector_value("SIZE", size) == 0 && size != size_mb)
-    {
-        disk->replace("ORIGINAL_SIZE", size_mb);
-    }
-    else
+    if ( disk->vector_value("SIZE").empty() )
     {
         disk->replace("SIZE", size_mb);
     }

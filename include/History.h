@@ -65,7 +65,8 @@ public:
         DISK_SNAPSHOT_CREATE_ACTION = 25,
         DISK_SNAPSHOT_DELETE_ACTION = 26,
         TERMINATE_ACTION       = 27,
-        TERMINATE_HARD_ACTION  = 28
+        TERMINATE_HARD_ACTION  = 28,
+        DISK_RESIZE_ACTION     = 29
     };
 
     static string action_to_str(VMAction action)
@@ -148,6 +149,9 @@ public:
             break;
             case DISK_SNAPSHOT_DELETE_ACTION:
                 st = "snap-delete";
+            break;
+            case DISK_RESIZE_ACTION:
+                st = "disk-resize";
             break;
             case NONE_ACTION:
                 st = "none";
@@ -258,6 +262,10 @@ public:
         else if (st == "snap-delete")
         {
             action = DISK_SNAPSHOT_DELETE_ACTION;
+        }
+        else if (st == "disk-resize")
+        {
+            action = DISK_RESIZE_ACTION;
         }
         else
         {

@@ -233,6 +233,22 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DISK_SNAPSHOT_FAILURE";
         break;
 
+    case DISK_LOCK_SUCCESS:
+        aname = "DISK_LOCK_SUCCESS";
+        break;
+
+    case DISK_LOCK_FAILURE:
+        aname = "DISK_LOCK_FAILURE";
+        break;
+
+    case DISK_RESIZE_SUCCESS:
+        aname = "DISK_RESIZE_SUCCESS";
+        break;
+
+    case DISK_RESIZE_FAILURE:
+        aname = "DISK_RESIZE_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -299,14 +315,6 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case UPDATESG:
         aname = "UPDATESG";
-        break;
-
-    case DISK_LOCK_SUCCESS:
-        aname = "DISK_LOCK_SUCCESS";
-        break;
-
-    case DISK_LOCK_FAILURE:
-        aname = "DISK_LOCK_FAILURE";
         break;
 
     default:
@@ -478,6 +486,22 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         disk_snapshot_failure(vid);
     }
+    else if (action == "DISK_LOCK_SUCCESS")
+    {
+        disk_lock_success(vid);
+    }
+    else if (action == "DISK_LOCK_FAILURE")
+    {
+        disk_lock_failure(vid);
+    }
+    else if (action == "DISK_RESIZE_SUCCESS")
+    {
+        disk_resize_success(vid);
+    }
+    else if (action == "DISK_RESIZE_FAILURE")
+    {
+        disk_resize_failure(vid);
+    }
     else if (action == "DEPLOY")
     {
         deploy_action(vid);
@@ -541,14 +565,6 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "UPDATESG")
     {
         updatesg_action(vid);
-    }
-    else if (action == "DISK_LOCK_SUCCESS")
-    {
-        disk_lock_success(vid);
-    }
-    else if (action == "DISK_LOCK_FAILURE")
-    {
-        disk_lock_failure(vid);
     }
     else if (action == ACTION_FINALIZE)
     {

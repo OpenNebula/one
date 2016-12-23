@@ -25,6 +25,8 @@
 
 using namespace std;
 
+class VirtualMachineDisk;
+
 /**
  *  The Image class.
  */
@@ -454,11 +456,10 @@ public:
      *   into the disk
      *
      */
-    void disk_attribute(VectorAttribute *       disk,
-                        ImageType&              img_type,
-                        string&                 dev_prefix,
-                        const vector<string>&   inherit_attrs);
-
+    void disk_attribute(VirtualMachineDisk *  disk,
+                        ImageType&            img_type,
+                        string&               dev_prefix,
+                        const vector<string>& inherit_attrs);
     /**
      *  Factory method for image templates
      */

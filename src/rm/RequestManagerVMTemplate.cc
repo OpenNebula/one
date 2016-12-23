@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerVMTemplate.h"
+#include "VirtualMachineDisk.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "RequestManagerClone.h"
@@ -215,7 +216,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
 
         extended_tmpl = new VirtualMachineTemplate(*tmpl);
 
-        VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
 
         if (quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att,
                     att.resp_msg) == false)

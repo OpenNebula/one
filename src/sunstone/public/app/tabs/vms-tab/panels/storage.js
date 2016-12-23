@@ -44,6 +44,7 @@ define(function(require) {
   var DISK_SNAPSHOT_DIALOG_ID = require('../dialogs/disk-snapshot/dialogId');
   var DISK_SAVEAS_DIALOG_ID = require('../dialogs/disk-saveas/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
+  var DISK_RESIZE_DIALOG_ID = require('../dialogs/disk-resize/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -289,7 +290,7 @@ define(function(require) {
             if (disk.IMAGE_ID &&
                  StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
               actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';//+ Locale.tr("Save as") + ';'
             }
           }
 
@@ -297,16 +298,23 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times fa-fw"></i>' + Locale.tr("Detach") +
-              '</a> &emsp;');
+              <i class="fa fa-times fa-fw" title="Detach"></i></a> &emsp;');// + Locale.tr("Detach") +
+              
             }
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
             if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
-              '</a>');
+              <i class="fa fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
+              
+            }
+          }
+          
+          if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+            if (StateActions.enabledStateAction("VM.resize", that.element.STATE, that.element.LCM_STATE)) {
+              actions += ('<a class="disk_resize nowrap" >\
+              <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
             }
           }
         }
@@ -473,6 +481,7 @@ define(function(require) {
       });
     }
 
+
     context.off("change", ".snapshot_check_item");
     context.on("change", ".snapshot_check_item", function() {
       var snapshotsSection = $(this).closest('.snapshots');
@@ -566,6 +575,24 @@ define(function(require) {
         Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
         Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
+        return false;
+      });
+    }
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
+    context.off('click', '.disk_sresize');
+      context.on('click', '.disk_resize', function() {
+        var disk_id = $(this).parents('tr').attr('disk_id');
+        var disk_size = that.element.TEMPLATE.DISK.SIZE*1024; //to MB
+        var dialog = Sunstone.getDialog(DISK_RESIZE_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id,
+            diskSize: disk_size,
+            diskCost: that.element.TEMPLATE.DISK_COST
+          });
+
+        dialog.reset();
+        dialog.show();
         return false;
       });
     }

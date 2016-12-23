@@ -412,6 +412,14 @@ public:
       */
      virtual bool has_restricted();
 
+     /**
+      *  @return true if template is empty
+      */
+     bool empty()
+     {
+         return attributes.empty();
+     }
+
 protected:
     /**
      *  The template attributes

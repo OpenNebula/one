@@ -62,7 +62,7 @@ extern int vm_file_var__debug;
 
 union YYSTYPE
 {
-#line 208 "vm_file_var_syntax.y" /* yacc.c:1909  */
+#line 210 "vm_file_var_syntax.y" /* yacc.c:1909  */
 
     char * val_str;
     int    val_int;

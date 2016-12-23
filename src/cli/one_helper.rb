@@ -771,6 +771,27 @@ EOT
         OneHelper.name_to_id(name, pool, poolname)
     end
 
+    def OpenNebulaHelper.size_in_mb(size)
+        m = size.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+
+        if !m
+            # return OpenNebula::Error.new('Size value malformed')
+            return -1, 'Size value malformed'
+        else
+            multiplier=case m[2]
+            when /(g|gb)/i
+                1024
+            else
+                1
+            end
+
+            value=m[1].to_f*multiplier
+
+            # return value.ceil
+            return 0, value.ceil
+        end
+    end
+
     def OpenNebulaHelper.rname_to_id_desc(poolname)
         "OpenNebula #{poolname} name or id"
     end

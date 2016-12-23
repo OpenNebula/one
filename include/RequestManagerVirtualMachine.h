@@ -483,4 +483,26 @@ public:
             RequestAttributes& att);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskResize : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskResize():
+        RequestManagerVirtualMachine("VirtualMachineDiskResize",
+                           "Resizes a disk from a virtual machine",
+                           "A:siis"){
+        Nebula& nd  = Nebula::instance();
+        ipool       = nd.get_ipool();
+    };
+
+    ~VirtualMachineDiskResize(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+private:
+    ImagePool* ipool;
+};
+
 #endif

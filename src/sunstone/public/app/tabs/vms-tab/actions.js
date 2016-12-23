@@ -88,6 +88,7 @@ define(function(require) {
     "VM.attachnic": _commonActions.singleAction('attachnic'),
     "VM.detachnic": _commonActions.singleAction('detachnic'),
     "VM.resize": _commonActions.singleAction('resize'),
+    "VM.disk_resize": _commonActions.singleAction('disk_resize'),
     "VM.snapshot_create": _commonActions.singleAction('snapshot_create'),
     "VM.snapshot_revert": _commonActions.singleAction('snapshot_revert'),
     "VM.snapshot_delete": _commonActions.singleAction('snapshot_delete'),

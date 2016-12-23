@@ -51,6 +51,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DISKSNAPSHOTCREATE  = METHOD_PREFIX + "disksnapshotcreate";
     private static final String DISKSNAPSHOTREVERT  = METHOD_PREFIX + "disksnapshotrevert";
     private static final String DISKSNAPSHOTDELETE  = METHOD_PREFIX + "disksnapshotdelete";
+    private static final String DISKRESIZE          = METHOD_PREFIX + "diskresize";
     private static final String UPDATECONF          = METHOD_PREFIX + "updateconf";
 
     private static final String[] VM_STATES =
@@ -148,7 +149,10 @@ public class VirtualMachine extends PoolElement{
         "DISK_SNAPSHOT_REVERT",
         "DISK_SNAPSHOT_DELETE",
         "PROLOG_MIGRATE_UNKNOWN",
-        "PROLOG_MIGRATE_UNKNOWN_FAILURE"
+        "PROLOG_MIGRATE_UNKNOWN_FAILURE",
+        "DISK_RESIZE",
+        "DISK_RESIZE_POWEROFF",
+        "DISK_RESIZE_UNDEPLOYED"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -214,7 +218,10 @@ public class VirtualMachine extends PoolElement{
         "snap",     // DISK_SNAPSHOT_REVERT
         "snap",     // DISK_SNAPSHOT_DELETE
         "migr",     // PROLOG_MIGRATE_UNKNOWN
-        "fail"      // PROLOG_MIGRATE_UNKNOWN_FAILURE
+        "fail",     // PROLOG_MIGRATE_UNKNOWN_FAILURE
+        "drsz",     // DISK_RESIZE
+        "drsz",     // DISK_RESIZE_POWEROFF
+        "drsz"      // DISK_RESIZE_UNDEPLOYED
     };
 
     /**
@@ -569,6 +576,21 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Resize VM disk
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param newSize for the disk
+     * @return diskId of resized disk, or error message
+     */
+    public static OneResponse diskResize(Client client, int id,
+        int diskId, long newSize)
+    {
+        return client.call(DISKRESIZE, id, diskId, String.valueOf(newSize));
+    }
+
+    /**
      * Recovers a stuck VM.
      *
      * @param client XML-RPC Client.
@@ -647,11 +669,11 @@ public class VirtualMachine extends PoolElement{
      * </ul>
      *
      * @param action The action name to be performed, can be:<br>
-     * 
+     *
      * "terminate-hard", "terminate", "undeploy-hard", "undeploy",
      * "poweroff-hard", "poweroff", "reboot-hard", "reboot", "hold",
      * "release", "stop", "suspend", "resume", "resched", "unresched"
-     * 
+     *
      * @return If an error occurs the error message contains the reason.
      */
     protected OneResponse action(String action)
@@ -1001,6 +1023,19 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Resize VM disk
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param newSize for the disk
+     * @return diskId of resized disk, or error message
+     */
+    public OneResponse diskResize(int diskId, long newSize)
+    {
+        return diskResize(client, id, diskId, newSize);
+    }
+    /**
      * Recovers a stuck VM.
      *
      * @param operation to recover the VM:
@@ -1011,7 +1046,7 @@ public class VirtualMachine extends PoolElement{
      * <li>3 delete</li>
      * <li>4 delete-recreate</li>
      * </ul>
-     * 
+     *
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse recover(int operation)
