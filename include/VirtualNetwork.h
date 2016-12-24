@@ -33,6 +33,8 @@
 
 using namespace std;
 
+class VirtualMachineNic;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -328,7 +330,7 @@ public:
      *  @return 0 on success
      */
     int nic_attribute(
-            VectorAttribute *       nic,
+            VirtualMachineNic *     nic,
             int                     vid,
             const vector<string>&   inherit_attrs);
 
@@ -343,7 +345,7 @@ public:
      *  @return 0 on success
      */
     int vrouter_nic_attribute(
-            VectorAttribute *       nic,
+            VirtualMachineNic *     nic,
             int                     vrid,
             const vector<string>&   inherit_attrs);
 

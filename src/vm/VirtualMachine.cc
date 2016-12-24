@@ -61,6 +61,7 @@ VirtualMachine::VirtualMachine(int           id,
         history(0),
         previous_history(0),
         disks(false),
+        nics(false),
         _log(0)
 {
     if (_vm_template != 0)
@@ -1802,7 +1803,6 @@ int VirtualMachine::resize(float cpu, int memory, int vcpu, string& error_str)
     return 0;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1838,490 +1838,6 @@ bool VirtualMachine::is_imported_action_supported(History::VMAction action) cons
     VirtualMachineManager * vmm = Nebula::instance().get_vmm();
 
     return vmm->is_imported_action_supported(get_vmm_mad(), action);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err)
-{
-    Nebula&             nd     = Nebula::instance();
-    VirtualNetworkPool* vnpool = nd.get_vnpool();
-    SecurityGroupPool*  sgpool = nd.get_secgrouppool();
-
-    // -------------------------------------------------------------------------
-    // Get the new NIC attribute from the template
-    // -------------------------------------------------------------------------
-    VectorAttribute * new_nic = tmpl->get("NIC");
-
-    if ( new_nic == 0 )
-    {
-        err = "Wrong format or missing NIC attribute";
-        return -1;
-    }
-
-    new_nic = new_nic->clone();
-
-    merge_nic_defaults(new_nic);
-
-    // -------------------------------------------------------------------------
-    // Get the highest NIC_ID
-    // -------------------------------------------------------------------------
-    vector<VectorAttribute *> nics;
-
-    int max_nic_id = -1;
-    int num_nics   = obj_template->get("NIC", nics);
-
-    for(int i=0; i<num_nics; i++)
-    {
-        int nic_id;
-
-        nics[i]->vector_value("NIC_ID", nic_id);
-
-        if ( nic_id > max_nic_id )
-        {
-            max_nic_id = nic_id;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Acquire a new network lease
-    // -------------------------------------------------------------------------
-    int rc = vnpool->nic_attribute(PoolObjectSQL::VM, new_nic, max_nic_id+1,
-            uid, oid, err);
-
-    if ( rc == -1 ) //-2 is not using a pre-defined network
-    {
-        delete new_nic;
-        return -1;
-    }
-
-    // -------------------------------------------------------------------------
-    // Check that we don't have a cluster incompatibility.
-    // -------------------------------------------------------------------------
-    string nic_cluster_ids;
-
-    if (new_nic->vector_value("CLUSTER_ID", nic_cluster_ids) == 0)
-    {
-        set<int> cluster_ids;
-        one_util::split_unique(nic_cluster_ids, ',', cluster_ids);
-
-        if (cluster_ids.count(get_cid()) == 0)
-        {
-            ostringstream oss;
-
-            release_network_leases(new_nic, oid);
-
-            delete new_nic;
-
-            oss << "Virtual network is not part of cluster [" << get_cid() << "]";
-
-            err = oss.str();
-
-            NebulaLog::log("DiM", Log::ERROR, err);
-
-            return -1;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Get security groups for the new nic
-    // -------------------------------------------------------------------------
-    set<int> nic_sgs, vm_sgs;
-
-    vector<VectorAttribute*> sg_rules;
-    vector<VectorAttribute*>::iterator it;
-
-    get_security_groups(vm_sgs);
-
-    get_security_groups(new_nic, nic_sgs);
-
-    for (set<int>::iterator it = vm_sgs.begin(); it != vm_sgs.end(); it++)
-    {
-        nic_sgs.erase(*it);
-    }
-
-    sgpool->get_security_group_rules(oid, nic_sgs, sg_rules);
-
-    // -------------------------------------------------------------------------
-    // Add new nic to template and set info in history before attaching
-    // -------------------------------------------------------------------------
-    set_vm_info();
-
-    new_nic->replace("ATTACH", "YES");
-
-    obj_template->set(new_nic);
-
-    for(it = sg_rules.begin(); it != sg_rules.end(); it++ )
-    {
-        obj_template->set(*it);
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute* VirtualMachine::get_attach_nic()
-{
-    vector<VectorAttribute  *> nics;
-    int num_nics;
-
-    num_nics = obj_template->get("NIC", nics);
-
-    for(int i=0; i<num_nics; i++)
-    {
-        if ( nics[i]->vector_value("ATTACH") == "YES" )
-        {
-            return nics[i];
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::attach_nic_success()
-{
-    VectorAttribute * nic = get_attach_nic();
-
-    if (nic != 0)
-    {
-        nic->remove("ATTACH");
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-static void clear_context_network(const char* vars[][2], int num_vars,
-        VectorAttribute * context, int nic_id)
-{
-    ostringstream att_name;
-
-    for (int i=0; i < num_vars; i++)
-    {
-        att_name.str("");
-
-        att_name << "ETH" << nic_id << "_" << vars[i][0];
-
-        context->remove(att_name.str());
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::attach_nic_failure()
-{
-
-    VectorAttribute * nic = get_attach_nic();
-
-    if (nic == 0)
-    {
-        return 0;
-    }
-
-    obj_template->remove(nic);
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context != 0)
-    {
-        int nic_id;
-
-        nic->vector_value("NIC_ID", nic_id);
-
-        clear_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,  context, nic_id);
-        clear_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, context, nic_id);
-    }
-
-    return nic;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::detach_nic_failure()
-{
-    string err;
-
-    VectorAttribute * nic = get_attach_nic();
-
-    if (nic == 0)
-    {
-        return;
-    }
-
-    nic->remove("ATTACH");
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::detach_nic_success()
-{
-    VectorAttribute * nic = get_attach_nic();
-
-    if (nic == 0)
-    {
-        return 0;
-    }
-
-    obj_template->remove(nic);
-
-    return nic;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::set_detach_nic(int nic_id)
-{
-    int n_id;
-
-    vector<VectorAttribute *> nics;
-
-    bool found = false;
-
-    int num_nics = obj_template->get("NIC", nics);
-
-    for(int i=0; !found && i<num_nics; i++)
-    {
-        nics[i]->vector_value("NIC_ID", n_id);
-
-        if ( n_id == nic_id )
-        {
-            nics[i]->replace("ATTACH", "YES");
-            found = true;
-        }
-    }
-
-    if (!found)
-    {
-        return -1;
-    }
-
-    VectorAttribute * context = obj_template->get("CONTEXT");
-
-    if (context != 0)
-    {
-        clear_context_network(NETWORK_CONTEXT,  NUM_NETWORK_CONTEXT,
-                            context, nic_id);
-
-        clear_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
-                            context, nic_id);
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::get_network_leases(string& estr)
-{
-    int                   num_nics, rc;
-    vector<Attribute  * > nics;
-    VectorAttribute *     nic;
-
-    Nebula& nd = Nebula::instance();
-    VirtualNetworkPool * vnpool = nd.get_vnpool();
-    SecurityGroupPool*   sgpool = nd.get_secgrouppool();
-
-    vector<VectorAttribute*> sg_rules;
-
-    set<int> vm_sgs;
-
-    num_nics = user_obj_template->remove("NIC",nics);
-
-    for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); )
-    {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            num_nics--;
-            it = nics.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
-    }
-
-    for(int i=0; i<num_nics; i++)
-    {
-        nic = static_cast<VectorAttribute * >(nics[i]);
-
-        merge_nic_defaults(nic);
-
-        rc = vnpool->nic_attribute(PoolObjectSQL::VM, nic, i, uid, oid, estr);
-
-        if (rc == -1)
-        {
-            return -1;
-        }
-    }
-
-    vector<VectorAttribute *> pcis;
-
-    int num_pcis = get_template_attribute("PCI", pcis);
-
-    for (int i = 0; i < num_pcis; ++i)
-    {
-        if ( pcis[i]->vector_value("TYPE") == "NIC" )
-        {
-            rc = vnpool->nic_attribute(PoolObjectSQL::VM, pcis[i], i, uid, oid, estr);
-
-            if ( rc == -1 )
-            {
-                return -1;
-            }
-        }
-    }
-
-    get_security_groups(vm_sgs);
-
-    sgpool->get_security_group_rules(get_oid(), vm_sgs, sg_rules);
-
-    obj_template->set(sg_rules);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::merge_nic_defaults(VectorAttribute* nic)
-{
-    VectorAttribute * nic_def = obj_template->get("NIC_DEFAULT");
-
-    if (nic_def == 0)
-    {
-        return;
-    }
-
-    nic->merge(nic_def, false);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::release_network_leases()
-{
-    string vnid;
-    string ip;
-
-    vector<VectorAttribute const *> vatts;
-
-    int num = get_template_attribute("NIC", vatts);
-
-    for(int i = 0; i < num; i++)
-    {
-        release_network_leases(vatts[i], oid);
-    }
-
-    num = get_template_attribute("PCI", vatts);
-
-    for(int i = 0; i < num; i++)
-    {
-        if ( vatts[i]->vector_value("TYPE") == "NIC" )
-        {
-            release_network_leases(vatts[i], oid);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::release_network_leases(const VectorAttribute * nic, int vmid)
-{
-    VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
-    SecurityGroupPool*  sgpool = Nebula::instance().get_secgrouppool();
-
-    VirtualNetwork*     vn;
-
-    int     vnid;
-    int     ar_id;
-    string  mac;
-    string  error_msg;
-
-    set<int> sgs;
-
-    if ( nic == 0 )
-    {
-        return -1;
-    }
-
-    get_security_groups(nic, sgs);
-
-    sgpool->release_security_groups(vmid, sgs);
-
-    if (nic->vector_value("NETWORK_ID", vnid) != 0)
-    {
-        return -1;
-    }
-
-    mac = nic->vector_value("MAC");
-
-    if (mac.empty())
-    {
-        return -1;
-    }
-
-    vn = vnpool->get(vnid, true);
-
-    if ( vn == 0 )
-    {
-        return -1;
-    }
-
-    if (nic->vector_value("AR_ID", ar_id) == 0)
-    {
-        vn->free_addr(ar_id, PoolObjectSQL::VM, vmid, mac);
-    }
-    else
-    {
-        vn->free_addr(PoolObjectSQL::VM, vmid, mac);
-    }
-
-    vnpool->update(vn);
-
-    vn->unlock();
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachine::get_security_groups(VirtualMachineTemplate *tmpl,
-        set<int>& sgs)
-{
-
-    vector<VectorAttribute const *> vatts;
-
-    int num = tmpl->get("NIC", vatts);
-
-    for(int i = 0; i < num; i++)
-    {
-        get_security_groups(vatts[i], sgs);
-    }
-
-    num = tmpl->get("PCI", vatts);
-
-    for(int i = 0; i < num; i++)
-    {
-        if ( vatts[i]->vector_value("TYPE") == "NIC" )
-        {
-            get_security_groups(vatts[i], sgs);
-        }
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2374,78 +1890,24 @@ bool VirtualMachine::is_vrouter()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const VectorAttribute* VirtualMachine::get_nic(int nic_id) const
-{
-    int num_nics;
-    int tnic_id;
-
-    vector<const VectorAttribute  *> nics;
-
-    num_nics = obj_template->get("NIC", nics);
-
-    for(int i=0; i<num_nics; i++)
-    {
-        nics[i]->vector_value("NIC_ID", tnic_id);
-
-        if ( tnic_id == nic_id )
-        {
-            return nics[i];
-        }
-    }
-
-    return 0;
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void VirtualMachine::set_auth_request(int uid,
                                       AuthRequest& ar,
                                       VirtualMachineTemplate *tmpl)
 {
-    vector<VectorAttribute  *> vectors;
-
-    Nebula& nd = Nebula::instance();
-
-    VirtualNetworkPool * vnpool = nd.get_vnpool();
-    SecurityGroupPool *  sgpool = nd.get_secgrouppool();
-
     VirtualMachineDisks::disk_iterator disk;
-    VirtualMachineDisks disks(tmpl, false);
+    VirtualMachineDisks tdisks(tmpl, false);
 
-    for( disk = disks.begin(); disk != disks.end(); ++disk)
+    for( disk = tdisks.begin(); disk != tdisks.end(); ++disk)
     {
         (*disk)->authorize(uid, &ar);
     }
 
-    vectors.clear();
+    VirtualMachineNics::nic_iterator nic;
+    VirtualMachineNics tnics(tmpl);
 
-    int num = tmpl->get("NIC", vectors);
-
-    for(int i=0; i<num; i++)
+    for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        vnpool->authorize_nic(PoolObjectSQL::VM, vectors[i], uid, &ar);
-    }
-
-    set<int> sgroups;
-
-    get_security_groups(tmpl, sgroups);
-
-    for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
-    {
-        SecurityGroup * sgroup = sgpool->get(*it, true);
-
-        if(sgroup != 0)
-        {
-            PoolObjectAuth perm;
-
-            sgroup->get_permissions(perm);
-
-            sgroup->unlock();
-
-            ar.add_auth(AuthRequest::USE, perm);
-        }
+        (*nic)->authorize(uid, &ar);
     }
 }
 
@@ -2585,11 +2047,26 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
     rc += obj_template->from_xml_node(content[0]);
 
-    vector<VectorAttribute  *> vdisks;
+    vector<VectorAttribute *> vdisks, vnics, pcis;
+    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("DISK", vdisks);
 
     disks.init(vdisks, true);
+
+    obj_template->get("NIC", vnics);
+
+    obj_template->get("PCI", pcis);
+
+    for (it =pcis.begin(); it != pcis.end(); ++it)
+    {
+        if ( (*it)->vector_value("TYPE") == "NIC" )
+        {
+            vnics.push_back(*it);
+        }
+    }
+
+    nics.init(vnics, true);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -3272,4 +2749,140 @@ int VirtualMachine::clear_saveas_state()
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* VirtualMachine Nic interface                                                */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_network_leases(string& estr)
+{
+    /* ---------------------------------------------------------------------- */
+    /* Get the NIC attributes:                                                */
+    /*   * NIC                                                                */
+    /*   * PCI + TYPE = NIC                                                   */
+    /* ---------------------------------------------------------------------- */
+    vector<Attribute  * > anics;
+
+    user_obj_template->remove("NIC", anics);
+
+    for (vector<Attribute*>::iterator it = anics.begin(); it != anics.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = anics.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
+    }
+
+    vector<VectorAttribute *> pcis;
+    vector<VectorAttribute *>::iterator it;
+
+    get_template_attribute("PCI", pcis);
+
+    for (it =pcis.begin(); it != pcis.end(); ++it)
+    {
+        if ( (*it)->vector_value("TYPE") == "NIC" )
+        {
+            anics.push_back(*it);
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the network leases & security groups for the NICs and PCIs         */
+    /* ---------------------------------------------------------------------- */
+    vector<VectorAttribute*> sgs;
+
+    VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
+
+    if (nics.get_network_leases(oid, uid, anics, nic_default, sgs, estr) == -1)
+    {
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Get the associated secutiry groups for NICs and PCI TYPE=NIC           */
+    /* ---------------------------------------------------------------------- */
+
+    obj_template->set(sgs);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err)
+{
+    // -------------------------------------------------------------------------
+    // Get the new NIC attribute from the template
+    // -------------------------------------------------------------------------
+    VectorAttribute * new_nic = tmpl->get("NIC");
+
+    if ( new_nic == 0 )
+    {
+        err = "Wrong format or missing NIC attribute";
+        return -1;
+    }
+
+    new_nic = new_nic->clone();
+
+    // -------------------------------------------------------------------------
+    // Setup nic for attachment
+    // -------------------------------------------------------------------------
+    vector<VectorAttribute *> sgs;
+
+    VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
+
+    int rc = nics.set_up_attach_nic(oid, uid, get_cid(), new_nic, nic_default,
+                sgs, err);
+
+    if ( rc != 0 )
+    {
+        delete new_nic;
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Add new nic to template and set info in history before attaching
+    // -------------------------------------------------------------------------
+    set_vm_info();
+
+    obj_template->set(new_nic);
+
+    for(vector<VectorAttribute*>::iterator it=sgs.begin(); it!=sgs.end(); ++it)
+    {
+        obj_template->set(*it);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_detach_nic(int nic_id)
+{
+    VirtualMachineNic * nic = nics.get_nic(nic_id);
+
+    if ( nic == 0 )
+    {
+        return -1;
+    }
+
+    nic->set_attach();
+
+    clear_nic_context(nic_id);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 

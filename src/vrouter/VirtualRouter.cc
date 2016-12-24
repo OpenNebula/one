@@ -206,7 +206,9 @@ int VirtualRouter::get_network_leases(string& estr)
 
     for(int i=0; i<num_nics; i++)
     {
-        if (vnpool->nic_attribute(PoolObjectSQL::VROUTER, nics[i], i, uid, oid,
+        VirtualMachineNic nic(nics[i], i);
+
+        if (vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, i, uid, oid,
                 estr) == -1)
         {
             return -1;
@@ -452,7 +454,7 @@ void vrouter_prefix(VectorAttribute* nic, const string& attr)
 
 /* -------------------------------------------------------------------------- */
 
-void prepare_nic_vm(VectorAttribute* nic)
+static void prepare_nic_vm(VectorAttribute * nic)
 {
     bool floating = false;
     nic->vector_value("FLOATING_IP", floating);
@@ -590,7 +592,6 @@ VectorAttribute * VirtualRouter::attach_nic(
     vector<VectorAttribute *>   nics;
 
     vector<VectorAttribute *>::const_iterator it;
-    VectorAttribute *           nic;
 
     int rc;
     int nic_id;
@@ -629,23 +630,23 @@ VectorAttribute * VirtualRouter::attach_nic(
         return 0;
     }
 
-    nic = nics[0];
+    VirtualMachineNic nic(nics[0], nic_id);
 
-    rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER,
-                        nic, nic_id, uid, oid, error_str);
+    rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, nic_id, uid, oid,
+            error_str);
 
     if (rc == -1)
     {
         return 0;
     }
 
-    obj_template->set(nic->clone());
+    VectorAttribute * new_nic = nic.vector_attribute()->clone();
 
-    nic = nic->clone();
+    prepare_nic_vm(new_nic);
 
-    prepare_nic_vm(nic);
+    obj_template->set(new_nic);
 
-    return nic;
+    return new_nic;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -702,22 +703,14 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualRouter::set_auth_request(int uid,
-                                     AuthRequest& ar,
-                                     Template *tmpl)
+void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl)
 {
-    vector<VectorAttribute* > nics;
-    vector<VectorAttribute* >::const_iterator nics_it;
+    VirtualMachineNics::nic_iterator nic;
+    VirtualMachineNics tnics(tmpl);
 
-    Nebula& nd = Nebula::instance();
-
-    VirtualNetworkPool * vnpool = nd.get_vnpool();
-
-    tmpl->get("NIC", nics);
-
-    for (nics_it = nics.begin(); nics_it != nics.end(); nics_it++)
+    for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
-        vnpool->authorize_nic(PoolObjectSQL::VROUTER, *nics_it, uid, &ar);
+        (*nic)->authorize_vrouter(uid, &ar);
     }
 }
 

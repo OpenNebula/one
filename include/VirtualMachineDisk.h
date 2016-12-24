@@ -176,6 +176,11 @@ public:
      */
     void clear_snapshots()
     {
+        if ( snapshots == 0 )
+        {
+            return;
+        }
+
         snapshots->clear();
 
         delete snapshots;
@@ -188,6 +193,11 @@ public:
      */
     long long get_total_snapshot_size() const
     {
+        if ( snapshots == 0 )
+        {
+            return 0;
+        }
+
         return snapshots->get_total_size();
     }
 
@@ -198,6 +208,11 @@ public:
      */
     long long get_snapshot_size(int snap_id) const
     {
+        if ( snapshots == 0 )
+        {
+            return 0;
+        }
+
         return snapshots->get_snapshot_size(snap_id);
     }
 

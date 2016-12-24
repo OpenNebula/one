@@ -1103,7 +1103,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 {
     VirtualMachine *  vm;
-    VectorAttribute * nic;
+    VirtualMachineNic * nic;
 
     int uid;
     int gid;
@@ -1122,18 +1122,7 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
     vm->get_security_groups(pre);
 
-    if (attach)
-    {
-        nic  = vm->attach_nic_failure();
-    }
-    else
-    {
-        nic = vm->detach_nic_success();
-    }
-
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-    oid  = vm->get_oid();
+    nic = vm->delete_attach_nic();
 
     if ( nic == 0 )
     {
@@ -1143,6 +1132,15 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
         return;
     }
+
+    if (attach)
+    {
+        vm->clear_nic_context(nic->get_nic_id());
+    }
+
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
+    oid  = vm->get_oid();
 
     vm->get_security_groups(post);
 
@@ -1158,11 +1156,11 @@ void VirtualMachinePool::delete_hotplug_nic(int vid, bool attach)
 
     vm->unlock();
 
-    tmpl.set(nic);
+    nic->release_network_leases(oid);
+
+    tmpl.set(nic->vector_attribute());
 
     Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
-
-    VirtualMachine::release_network_leases(nic, oid);
 }
 
 /* -------------------------------------------------------------------------- */

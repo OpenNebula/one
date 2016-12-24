@@ -577,3 +577,36 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+static void clear_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, int nic_id)
+{
+    ostringstream att_name;
+
+    for (int i=0; i < num_vars; i++)
+    {
+        att_name.str("");
+
+        att_name << "ETH" << nic_id << "_" << vars[i][0];
+
+        context->remove(att_name.str());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_nic_context(int nicid)
+{
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    clear_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, context, nicid);
+    clear_context_network(NETWORK6_CONTEXT,NUM_NETWORK6_CONTEXT, context,nicid);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

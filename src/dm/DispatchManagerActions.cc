@@ -1634,7 +1634,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->attach_nic_success();
+        vm->clear_attach_nic();
     }
 
     vmpool->update(vm);

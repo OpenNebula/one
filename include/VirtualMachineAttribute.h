@@ -67,6 +67,13 @@ public:
     {
         va->remove(name);
     }
+
+
+    void merge(VectorAttribute* vattr, bool replace)
+    {
+        va->merge(vattr, replace);
+    }
+
 protected:
     /**
      *  Creates the attribute with a reference to a VectorAttribute. The object

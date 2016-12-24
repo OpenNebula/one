@@ -19,6 +19,7 @@
 
 #include "VirtualMachineTemplate.h"
 #include "VirtualMachineDisk.h"
+#include "VirtualMachineNic.h"
 #include "VirtualMachineMonitorInfo.h"
 #include "PoolSQL.h"
 #include "History.h"
@@ -909,7 +910,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted,
+            string& error);
 
     /**
      *  Append new attributes to the *user template*.
@@ -919,7 +921,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int append_template(const string& tmpl_str, bool keep_restricted,
+            string& error);
 
     /**
      *  This function gets an attribute from the user template
@@ -1027,13 +1030,6 @@ public:
     // Virtual Machine Disks
     // ------------------------------------------------------------------------
     /**
-     *  Get all disk images for this Virtual Machine
-     *  @param error_str Returns the error reason, if any
-     *  @return 0 if success
-     */
-    int get_disk_images(string &error_str);
-
-    /**
      *  Releases all disk images taken by this Virtual Machine
      *    @param quotas disk space to free from image datastores
      */
@@ -1056,34 +1052,33 @@ public:
     }
 
     // ------------------------------------------------------------------------
-    // Network Leases & Disk Images
+    // Virtual Machine Nics
     // ------------------------------------------------------------------------
+    /**
+     *  Get a NIC by its id
+     *    @param nic_id of the NIC
+     */
+    VirtualMachineNic * get_nic(int nic_id) const
+    {
+        return nics.get_nic(nic_id);
+    }
+
+    /**
+     * Returns a set of the security group IDs in use in this VM.
+     *     @param sgs a set of security group IDs
+     */
+    void get_security_groups(set<int>& sgs)
+    {
+        nics.get_security_groups(sgs);
+    }
+
     /**
      *  Releases all network leases taken by this Virtual Machine
      */
-    void release_network_leases();
-
-    /**
-     * Releases the network lease taken by this NIC
-     *
-     * @param nic NIC to be released
-     * @param vmid Virtual Machine oid
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    static int release_network_leases(const VectorAttribute * nic, int vmid);
-
-    /**
-     * Returns a set of the security group IDs in use in this VM. VirtualMachine
-     * and static version.
-     * @param sgs a set of security group IDs
-     */
-    void get_security_groups(set<int>& sgs) const
+    void release_network_leases()
     {
-        get_security_groups(static_cast<VirtualMachineTemplate *>(obj_template), sgs);
+        nics.release_network_leases(oid);
     }
-
-    static void get_security_groups(VirtualMachineTemplate *tmpl, set<int>& sgs);
 
     /**
      *  Remove the rules associated to the given security group rules
@@ -1091,6 +1086,9 @@ public:
      */
     void remove_security_group(int sgid);
 
+    // ------------------------------------------------------------------------
+    // Imported VM interface
+    // ------------------------------------------------------------------------
     /**
      *  Check if the VM is imported
      */
@@ -1107,8 +1105,6 @@ public:
      * @return true if the current VM MAD supports the given action for imported VMs
      */
     bool is_imported_action_supported(History::VMAction action) const;
-
-    const VectorAttribute* get_nic(int nic_id) const;
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions
@@ -1240,9 +1236,8 @@ public:
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
      */
-    static void set_auth_request(int uid,
-                                 AuthRequest& ar,
-                                 VirtualMachineTemplate *tmpl);
+    static void set_auth_request(int uid, AuthRequest& ar,
+            VirtualMachineTemplate *tmpl);
 
     // -------------------------------------------------------------------------
     // Attach Disk Interface
@@ -1284,6 +1279,12 @@ public:
     VirtualMachineDisk * delete_attach_disk()
     {
         VirtualMachineDisk * disk = disks.delete_attach();
+
+        if (disk == 0)
+        {
+            return 0;
+        }
+
         obj_template->remove(disk->vector_attribute());
 
         return disk;
@@ -1377,18 +1378,6 @@ public:
     int set_up_attach_nic(VirtualMachineTemplate *tmpl, string& error_str);
 
     /**
-     * Cleans the ATTACH = YES attribute from the NICs
-     */
-    void attach_nic_success();
-
-    /**
-     * Deletes the NIC that was in the process of being attached
-     *
-     * @return the deleted NIC or 0 if none was deleted
-     */
-    VectorAttribute * attach_nic_failure();
-
-    /**
      *  Sets the attach attribute to the given NIC
      *    @param nic_id of the NIC
      *    @return 0 if the nic_id was found, -1 otherwise
@@ -1396,17 +1385,31 @@ public:
     int set_detach_nic(int nic_id);
 
     /**
-     * Deletes the NIC that was in the process of being detached
+     * Cleans the ATTACH = YES attribute from the NICs
+     */
+    void clear_attach_nic()
+    {
+        nics.clear_attach();
+    }
+
+    /**
+     * Deletes the NIC that was in the process of being attached/detached
      *
      * @return the deleted NIC or 0 if none was deleted
      */
-    VectorAttribute * detach_nic_success();
+    VirtualMachineNic * delete_attach_nic()
+    {
+        VirtualMachineNic * nic = nics.delete_attach();
 
-    /**
-     * Cleans the ATTACH = YES attribute from the NIC, restores the NIC context
-     * variables
-     */
-    void detach_nic_failure();
+        if (nic == 0)
+        {
+            return 0;
+        }
+
+        obj_template->remove(nic->vector_attribute());
+
+        return nic;
+    }
 
     // ------------------------------------------------------------------------
     // Disk Snapshot related functions
@@ -1690,6 +1693,11 @@ private:
     VirtualMachineDisks disks;
 
     /**
+     *  VirtualMachine nics
+     */
+    VirtualMachineNics nics;
+
+    /**
      *  User template to store custom metadata. This template can be updated
      */
     VirtualMachineTemplate * user_obj_template;
@@ -1950,6 +1958,13 @@ private:
     int generate_network_context(VectorAttribute * context, string& error);
 
     /**
+     *  Deletes the NETWORK related CONTEXT section for the given nic, i.e.
+     *  ETH_<id>
+     *    @param nicid the id of the NIC
+     */
+    void clear_nic_context(int nicid);
+
+    /**
      *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
      *  is also adds basic network attributes for pass-through NICs
      *    @param context attribute of the VM
@@ -1994,27 +2009,11 @@ private:
     int get_network_leases(string &error_str);
 
     /**
-     * Returns a set of the security group IDs of this NIC
-     * @param nic NIC to get the security groups from
-     * @param sgs a set of security group IDs
+     *  Get all disk images for this Virtual Machine
+     *  @param error_str Returns the error reason, if any
+     *  @return 0 if success
      */
-    static void get_security_groups(const VectorAttribute * nic, set<int>& sgs)
-    {
-        one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', sgs);
-    }
-
-    /**
-     * Returns the NIC that is waiting for an attachment action
-     *
-     * @return the NIC waiting for an attachment action, or 0
-     */
-    VectorAttribute* get_attach_nic();
-
-    /**
-     * Merges NIC_DEFAULT with the given NIC
-     * @param nic NIC to process
-     */
-    void merge_nic_defaults(VectorAttribute* nic);
+    int get_disk_images(string &error_str);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions

@@ -50,6 +50,7 @@ source_files=[
     'VirtualMachineTemplate.cc',
     'VirtualMachineAttribute.cc',
     'VirtualMachineDisk.cc',
+    'VirtualMachineNic.cc',
     'VirtualMachineSystemSnapshot.cc',
     'VirtualMachineParser.cc',
     'VirtualMachineContext.cc',

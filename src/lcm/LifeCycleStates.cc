@@ -1645,7 +1645,7 @@ void LifeCycleManager::attach_nic_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->attach_nic_success();
+        vm->clear_attach_nic();
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -1755,7 +1755,7 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        vm->detach_nic_failure();
+        vm->clear_attach_nic();
 
         vm->set_state(VirtualMachine::RUNNING);
 

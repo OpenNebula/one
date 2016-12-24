@@ -982,7 +982,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
-            vm->attach_nic_success();
+            vm->clear_attach_nic();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);
