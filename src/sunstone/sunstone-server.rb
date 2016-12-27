@@ -47,8 +47,6 @@ $: << RUBY_LIB_LOCATION+'/cloud'
 $: << SUNSTONE_ROOT_DIR
 $: << SUNSTONE_ROOT_DIR+'/models'
 
-SESSION_EXPIRE_TIME = 60*60
-
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
 DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
@@ -112,6 +110,9 @@ rescue Exception => e
 end
 
 $conf[:debug_level] ||= 3
+
+# Set Sunstone Session Timeout
+$conf[:session_expire_time] ||= 3600
 
 # Set the TMPDIR environment variable for uploaded images
 ENV['TMPDIR']=$conf[:tmpdir] if $conf[:tmpdir]
@@ -427,7 +428,7 @@ after do
             if params[:timeout] == "true"
                 env['rack.session.options'][:defer] = true
             else
-                env['rack.session.options'][:expire_after] = SESSION_EXPIRE_TIME
+                env['rack.session.options'][:expire_after] = $conf[:session_expire_time]
             end
         end
     end
