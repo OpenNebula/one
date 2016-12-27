@@ -370,8 +370,8 @@ void Nebula::start(bool bootstrap_only)
         //XML Library
         xmlCleanupParser();
 
-        NebulaLog::log("ONE", Log::INFO, "Database bootstrap finalized, exiting.\n");
-
+        NebulaLog::log("ONE", Log::INFO,
+                "Database bootstrap finalized, exiting.\n");
         return;
     }
 
@@ -918,7 +918,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Request Manager ----
     try
     {
-        int  rm_port = 0;
+        string rm_port;
         int  max_conn;
         int  max_conn_backlog;
         int  keepalive_timeout;

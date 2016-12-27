@@ -964,7 +964,6 @@ public:
      */
     void clear_template_monitor_error();
 
-
     // ------------------------------------------------------------------------
     // Timers & Requirements
     // ------------------------------------------------------------------------
@@ -993,7 +992,7 @@ public:
      *    @param disk
      *    @param pci_dev
      */
-    void get_requirements (int& cpu, int& memory, int& disk,
+    void get_requirements(int& cpu, int& memory, int& disk,
             vector<VectorAttribute *>& pci_dev);
 
     /**
@@ -1013,7 +1012,7 @@ public:
      *
      *    @return 0 on success
      */
-     int check_resize (float cpu, int memory, int vcpu, string& error_str);
+     int check_resize(float cpu, int memory, int vcpu, string& error_str);
 
     /**
      *  Resize the VM capacity
@@ -1024,7 +1023,7 @@ public:
      *
      *    @return 0 on success
      */
-     int resize (float cpu, int memory, int vcpu, string& error_str);
+     int resize(float cpu, int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks
@@ -1132,7 +1131,7 @@ public:
      *    @param  password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, const string& password);
+    int generate_context(string &files, int &disk_id, const string& password);
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist

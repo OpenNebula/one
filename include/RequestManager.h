@@ -43,15 +43,15 @@ class RequestManager : public ActionListener
 public:
 
     RequestManager(
-            int _port,
+            const string& _port,
             int _max_conn,
             int _max_conn_backlog,
             int _keepalive_timeout,
             int _keepalive_max_conn,
             int _timeout,
-            const string _xml_log_file,
-            const string call_log_format,
-            const string _listen_address,
+            const string& _xml_log_file,
+            const string& call_log_format,
+            const string& _listen_address,
             int message_size);
 
     ~RequestManager(){};
@@ -105,7 +105,7 @@ private:
     /**
      *  Port number where the connection will be open
      */
-    int port;
+    string port;
 
     /*
      *  FD for the XML server socket
