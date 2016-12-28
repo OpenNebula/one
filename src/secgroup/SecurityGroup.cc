@@ -411,7 +411,7 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
         if (inet_pton(AF_INET6, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
         {
-            if (inet_pton(AF_INET, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
+            if (inet_pton(AF_INET,ip.c_str(),static_cast<void*>(&ip_addr)) != 1)
             {
                 error = "Wrong format for IP value.";
                 return false;

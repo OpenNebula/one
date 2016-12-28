@@ -123,21 +123,36 @@ module VNMNetwork
             end
         end
 
-        # Expand the ICMP type with associated codes if any 
+        # Expand the ICMP type with associated codes if any
         #   @return [Array<String>] expanded ICMP types to include all codes
         def icmpv6_type_expand
-            # XXX:TODO: Implement expansion of codes for IPv6 types
-            ["#{@icmpv6_type}/0"]
+            if (codes = ICMPv6_TYPES_EXPANDED[@icmpv6_type.to_i])
+                codes.collect{|e| "#{@icmpv6_type}/#{e}"}
+            else
+                ["#{@icmpv6_type}/0"]
+            end
         end
 
         private
 
-        # ICMP Codes for each ICMP type
+        # ICMP Codes for each ICMP type as in:
+        # http://www.iana.org/assignments/icmp-parameters/
+        # http://www.iana.org/assignments/icmpv6-parameters/
         ICMP_TYPES_EXPANDED = {
             3  => [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15],
             5  => [0, 1, 2, 3],
+            9  => [0, 16],
             11 => [0, 1],
-            12 => [0, 1]
+            12 => [0, 1, 2]
+        }
+
+        ICMPv6_TYPES_EXPANDED = {
+            1  => [0, 1, 2, 3, 4, 5, 6, 7],
+            3  => [0, 1],
+            4  => [0, 1, 2, 3],
+            138=> [0, 1, 255],
+            139=> [0, 1, 2],
+            140=> [0, 1, 2]
         }
 
         # Depending on the combination of the rule attributes derive the

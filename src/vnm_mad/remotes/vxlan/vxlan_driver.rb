@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'vnmmad'
+require 'ipaddr'
 
 ################################################################################
 # This driver tag VM traffic with a VLAN_ID using VXLAN protocol. Features:
@@ -43,8 +44,15 @@ class VXLANDriver < VNMMAD::VLANDriver
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev
-        mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + @nic[:vlan_id].to_i
-        mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
+        begin
+            ipaddr = IPAddr.new CONF[:vxlan_mc]
+        rescue
+            ipaddr = IPAddr.new "239.0.0.0"
+        end
+
+        mc  = ipaddr.to_i + @nic[:vlan_id].to_i
+        mcs = IPAddr.new(mc, Socket::AF_INET).to_s
+
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{CONF[:vxlan_mtu]}"
         ttl = CONF[:vxlan_ttl] ? "ttl #{CONF[:vxlan_ttl]}" : ""
 

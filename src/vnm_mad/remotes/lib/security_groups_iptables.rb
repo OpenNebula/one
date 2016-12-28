@@ -36,6 +36,7 @@ module SGIPTables
             if @protocol != :icmpv6
                 cmds.add :iptables, "-A #{chain} -p #{@protocol} -j RETURN"
             end
+
             if @protocol != :icmp
                 cmds.add :ip6tables, "-A #{chain} -p #{@protocol} -j RETURN"
             end
@@ -54,25 +55,26 @@ module SGIPTables
 
         # Implements the :icmp_type rule. Example:
         #   iptables -A one-3-0-o -p icmp --icmp-type 8 -j RETURN
-        def     process_icmp_type(cmds, vars)
+        def process_icmp_type(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
 
-            cmds.add :iptables, "-A #{chain} -p icmp --icmp-type #{@icmp_type}" \
+            cmds.add :iptables, "-A #{chain} -p icmp --icmp-type #{@icmp_type}"\
                 " -j RETURN"
         end
 
         # Implements the :icmpv6_type rule. Example:
         #   ip6tables -A one-3-0-o -p icmpv6 --icmpv6-type 128 -j RETURN
-        def     process_icmpv6_type(cmds, vars)
+        def process_icmpv6_type(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
 
-            cmds.add :ip6tables, "-A #{chain} -p icmpv6 --icmpv6-type #{@icmpv6_type}" \
-                " -j RETURN"
+            cmds.add :ip6tables, "-A #{chain} -p icmpv6 --icmpv6-type "\
+                "#{@icmpv6_type} -j RETURN"
         end
 
         # Implements the :net rule. Example:
         #   ipset create one-3-0-1-i-tcp-n-inet hash:net family inet
-        #   iptables -A one-3-0-i -p tcp -m set --match-set one-3-0-1-i-tcp-n-inet src -j RETURN
+        #   iptables -A one-3-0-i -p tcp -m set --match-set \
+        #       one-3-0-1-i-tcp-n-inet src -j RETURN
         #   ipset add -exist one-3-0-1-i-tcp-n-inet 10.0.0.0/24
         def process_net(cmds, vars)
             ["inet", "inet6"].each do |family|
@@ -97,7 +99,7 @@ module SGIPTables
                     " --match-set #{set} #{dir} -j RETURN"
 
                 net.each do |n|
-                    if n.match(/:/)
+                    if IPAddr.new(n).ipv6?
                         n_family = "inet6"
                     else
                         n_family = "inet"
@@ -139,7 +141,7 @@ module SGIPTables
                     " #{set} #{dir} -j RETURN"
 
                 net.each do |n|
-                    if n.match(/:/)
+                    if IPAddr.new(n).ipv6?
                         n_family = "inet6"
                     else
                         n_family = "inet"
@@ -194,7 +196,7 @@ module SGIPTables
                 dir = "src,dst"
             else
                 chain = vars[:chain_out]
-                set = "#{vars[:set_sg_out]}-ni6"                
+                set = "#{vars[:set_sg_out]}-ni6"
                 dir = "dst,dst"
             end
 
@@ -278,22 +280,23 @@ module SGIPTables
     def self.global_bootstrap
         info = SGIPTables.info
 
-        if info[:iptables_s].split("\n").include? "-N #{GLOBAL_CHAIN}"
-            if info[:ip6tables_s].split("\n").include? "-N #{GLOBAL_CHAIN}"
-                return
-            end
-        end
-
         commands = VNMNetwork::Commands.new
 
-        commands.add :iptables, "-N #{GLOBAL_CHAIN}"
-        commands.add :iptables, "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
-        commands.add :iptables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
-        commands.add :ip6tables, "-N #{GLOBAL_CHAIN}"
-        commands.add :ip6tables, "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
-        commands.add :ip6tables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
+        if !info[:iptables_s].split("\n").include?("-N #{GLOBAL_CHAIN}")
+            commands.add :iptables, "-N #{GLOBAL_CHAIN}"
+            commands.add :iptables, "-A FORWARD -m physdev "\
+                "--physdev-is-bridged -j #{GLOBAL_CHAIN}"
+            commands.add :iptables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
+        end
 
-        commands.run!
+        if !info[:ip6tables_s].split("\n").include?("-N #{GLOBAL_CHAIN}")
+            commands.add :ip6tables, "-N #{GLOBAL_CHAIN}"
+            commands.add :ip6tables, "-A FORWARD -m physdev "\
+                "--physdev-is-bridged -j #{GLOBAL_CHAIN}"
+            commands.add :ip6tables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
+        end
+
+        commands.run! if !commands.empty?
     end
 
     # Returns the base chain and ipset names for the VM
@@ -332,8 +335,10 @@ module SGIPTables
     #  Example, for VM 3 and NIC 0
     #   iptables -N one-3-0-i
     #   iptables -N one-3-0-o
-    #   iptables -I opennebula -m physdev --physdev-out vnet0 --physdev-is-bridged -j one-3-0-i"
-    #   iptables -I opennebula -m physdev --physdev-in  vnet0 --physdev-is-bridged -j one-3-0-o"
+    #   iptables -I opennebula -m physdev --physdev-out vnet0
+    #       --physdev-is-bridged -j one-3-0-i"
+    #   iptables -I opennebula -m physdev --physdev-in  vnet0
+    #       --physdev-is-bridged -j one-3-0-o"
     #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j ACCEPT
     #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j ACCEPT
     #
@@ -358,80 +363,105 @@ module SGIPTables
         commands.add :ip6tables, "-N #{chain_out}" # outbound
 
         # Send traffic to the NIC chains
-        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
-        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
-        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
-        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
+        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev "\
+            "--physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
+        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev "\
+            "--physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
+
+        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev "\
+            "--physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
+        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev "\
+            "--physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
 
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
-        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 134 -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 134 "\
+            "-j ACCEPT"
 
         ## Allow neighbor solicitations to reach the host
-        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 "\
+            "-j ACCEPT"
 
         ## Allow routers to send Redirect messages
-        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 "\
+            "-j ACCEPT"
 
         ## Allow the host to send a router solicitation
-        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 "\
+            "-j ACCEPT"
 
         ## Allow the host to send neighbor solicitation replies
-        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 136 -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 136 "\
+            "-j ACCEPT"
 
         # Mac-spofing
         if nic[:filter_mac_spoofing] == "YES"
-            commands.add :iptables, "-A #{chain_out} -m mac ! --mac-source #{nic[:mac]} -j DROP"
-            commands.add :ip6tables, "-A #{chain_out} -m mac ! --mac-source #{nic[:mac]} -j DROP"
+            commands.add :iptables, "-A #{chain_out} -m mac ! "\
+                "--mac-source #{nic[:mac]} -j DROP"
+            commands.add :ip6tables, "-A #{chain_out} -m mac ! "\
+                "--mac-source #{nic[:mac]} -j DROP"
         end
 
         # IP-spofing
         if nic[:filter_ip_spoofing] == "YES"
-            if !nic[:ip].nil? and !nic[:ip].empty?
-                commands.add :iptables, "-A #{chain_out} -p udp --source 0.0.0.0/32 --sport 68 --destination 255.255.255.255/32 --dport 67 -j ACCEPT"
+            ipv4s = Array.new
+
+            [:ip, :vrouter_ip].each do |key|
+                ipv4s << nic[key] if !nic[key].nil? && !nic[key].empty?
+            end
+
+            if !ipv4s.empty?
+                #bootp
+                commands.add :iptables, "-A #{chain_out} -p udp "\
+                    "--source 0.0.0.0/32 --sport 68 --destination "\
+                    "255.255.255.255/32 --dport 67 -j ACCEPT"
 
                 set = "#{vars[:chain]}-ip-spoofing"
 
-                commands.add :ipset, "create #{set} hash:ip"
-                commands.add :ipset, "add -exist #{set} #{nic[:ip]}"
-                commands.add :ipset, "add -exist #{set} #{nic[:vrouter_ip]}" if nic[:vrouter_ip]
+                commands.add :ipset, "create #{set} hash:ip family inet"
 
-                commands.add :iptables, "-A #{chain_out} -m set ! --match-set #{set} src -j DROP"
-            else
-                # If there are no IPv4 addresses allowed, block all IPv4 addresses
-                commands.add :ip6tables, "-A #{chain_out} --source 0.0.0.0/0 -j DROP"
-            end
-
-            ip6_addrs = Array.new
-
-            [:ip6_global, :ip6_link, :ip6_ula].each do |keyName|
-                if !nic[keyName].nil? and !nic[keyName].empty?
-                    ip6_addrs << nic[keyName]
+                ipv4s.each do |ip|
+                    commands.add :ipset, "add -exist #{set} #{ip}"
                 end
+
+                commands.add :iptables, "-A #{chain_out} -m set ! "\
+                    "--match-set #{set} src -j DROP"
+            else # If there are no IPv4 addresses allowed, block all
+                commands.add :iptables, "-A #{chain_out} --source 0.0.0.0/0 "\
+                    "-j DROP"
             end
 
-            if ip6_addrs.length > 1
-                set = "#{chain_out}-ip6-spoofing"
+            ipv6s = Array.new
+
+            [:ip6_global, :ip6_link, :ip6_ula].each do |key|
+                ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
+            end
+
+            if !ipv6s.empty?
+                set = "#{vars[:chain]}-ip6-spoofing"
 
                 commands.add :ipset, "create #{set} hash:ip family inet6"
-                ip6_addrs.each do |ip6_addr|
-                    commands.add :ipset, "add -exist #{set} #{ip6_addr}"
+
+                ipv6s.each do |ip|
+                    commands.add :ipset, "add -exist #{set} #{ip}"
                 end
 
-                commands.add :ip6tables, "-A #{chain_out} -m set ! --match-set #{set} src -j DROP"
-            elsif ip6_addrs.length == 1
-                commands.add :ip6tables, "-A #{chain_out} ! --source #{ip6_addrs[0]} -j DROP"
-            else
-                # If there are no IPv6 addresses allowed, block all IPv6 addresses
+                commands.add :ip6tables, "-A #{chain_out} -m set ! "\
+                    "--match-set #{set} src -j DROP"
+            else # If there are no IPv6 addresses allowed, block all
                 commands.add :ip6tables, "-A #{chain_out} --source ::/0 -j DROP"
             end
         end
 
         # Related, Established
-        commands.add :iptables, "-A #{chain_in} -m state --state ESTABLISHED,RELATED -j ACCEPT"
-        commands.add :iptables, "-A #{chain_out} -m state --state ESTABLISHED,RELATED -j ACCEPT"
-        commands.add :ip6tables, "-A #{chain_in} -m state --state ESTABLISHED,RELATED -j ACCEPT"
-        commands.add :ip6tables, "-A #{chain_out} -m state --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :iptables, "-A #{chain_in} -m state"\
+            " --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :iptables, "-A #{chain_out} -m state"\
+            " --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_in} -m state"\
+            " --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :ip6tables, "-A #{chain_out} -m state"\
+            " --state ESTABLISHED,RELATED -j ACCEPT"
 
         commands.run!
     end
@@ -463,7 +493,7 @@ module SGIPTables
         info              = self.info
         iptables_forwards = info[:iptables_forwards]
         iptables_s        = info[:iptables_s]
-        ip6tables_forwards = info[:ip6tables_forwards]
+        ip6tables_forwards= info[:ip6tables_forwards]
         ip6tables_s       = info[:ip6tables_s]
         ipset_list        = info[:ipset_list]
 
