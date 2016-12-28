@@ -153,6 +153,10 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
                 d["ICMP_TYPE"]
             end
 
+            column :ICMVP6_TYPE, "", :left, :size=>11 do |d|
+                d["ICMPV6_TYPE"]
+            end
+
             column :NETWORK, "", :left, :donottruncate, :size=>35 do |d|
                 network = ""
                 if(!d["NETWORK_ID"].nil? && d["NETWORK_ID"] != "")
