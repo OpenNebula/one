@@ -25,7 +25,7 @@ module OneGateCloudAuth
     #
     def initialize_auth
         @conf[:use_user_pool_cache] = false
-        @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
+        @cipher = OpenSSL::Cipher.new(CIPHER)
     end
 
     def do_auth(env, params={})

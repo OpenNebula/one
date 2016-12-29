@@ -39,12 +39,12 @@ class OpenNebula::ServerCipherAuth
         @srv_passwd = srv_passwd
 
         if !srv_passwd.empty?
-            @key = Digest::SHA1.hexdigest(@srv_passwd)
+            @key = Digest::SHA1.hexdigest(@srv_passwd)[0,32]
         else
             @key = ""
         end
 
-        @cipher = OpenSSL::Cipher::Cipher.new(CIPHER)
+        @cipher = OpenSSL::Cipher.new(CIPHER)
     end
 
     ###########################################################################
