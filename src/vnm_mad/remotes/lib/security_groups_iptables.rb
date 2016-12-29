@@ -77,92 +77,82 @@ module SGIPTables
         #       one-3-0-1-i-tcp-n-inet src -j RETURN
         #   ipset add -exist one-3-0-1-i-tcp-n-inet 10.0.0.0/24
         def process_net(cmds, vars)
-            ["inet", "inet6"].each do |family|
-                if family == "inet"
-                    command = :iptables
-                else
-                    command = :ip6tables
-                end
+            the_nets = net()
 
-                if @rule_type == :inbound
-                    chain = vars[:chain_in]
-                    set = "#{vars[:set_sg_in]}-#{@protocol}-n-#{family}"
-                    dir = "src"
-                else
-                    chain = vars[:chain_out]
-                    set = "#{vars[:set_sg_out]}-#{@protocol}-n-#{family}"
-                    dir = "dst"
-                end
+            return if the_nets.empty?
 
-                cmds.add :ipset, "create #{set} hash:net family #{family}"
-                cmds.add command, "-A #{chain} -p #{@protocol} -m set" \
-                    " --match-set #{set} #{dir} -j RETURN"
+            if IPAddr.new(the_nets[0]).ipv6?
+                command = :ip6tables
+                family  = "inet6"
+            else
+                command = :iptables
+                family  = "inet"
+            end
 
-                net.each do |n|
-                    if IPAddr.new(n).ipv6?
-                        n_family = "inet6"
-                    else
-                        n_family = "inet"
-                    end
+            if @rule_type == :inbound
+                chain = vars[:chain_in]
+                set = "#{vars[:set_sg_in]}-#{@protocol}-n-#{family}"
+                dir = "src"
+            else
+                chain = vars[:chain_out]
+                set = "#{vars[:set_sg_out]}-#{@protocol}-n-#{family}"
+                dir = "dst"
+            end
 
-                    if n_family != family
-                        next
-                    end
+            cmds.add :ipset, "create #{set} hash:net family #{family}"
+            cmds.add command, "-A #{chain} -p #{@protocol} -m set" \
+                " --match-set #{set} #{dir} -j RETURN"
 
-                    cmds.add :ipset, "add -exist #{set} #{n}"
-                end
+            the_nets.each do |n|
+                cmds.add :ipset, "add -exist #{set} #{n}"
             end
         end
 
         # Implements the :net_portrange rule. Example:
         #   ipset create one-3-0-1-i-nr-inet hash:net,port family inet
-        #   iptables -A one-3-0-i -m set --match-set one-3-0-1-i-nr-inet src,dst -j RETURN
+        #   iptables -A one-3-0-i -m set --match-set one-3-0-1-i-nr-inet src,dst
+        #        -j RETURN
         #   ipset add -exist one-3-0-1-i-nr-inet 10.0.0.0/24,tcp:80
         def process_net_portrange(cmds, vars)
-            ["inet", "inet6"].each do |family|
-                if family == "inet"
-                    command = :iptables
-                else
-                    command = :ip6tables
-                end
+            the_nets = net()
 
-                if @rule_type == :inbound
-                    chain = vars[:chain_in]
-                    set = "#{vars[:set_sg_in]}-nr-#{family}"
-                    dir = "src,dst"
-                else
-                    chain = vars[:chain_out]
-                    set = "#{vars[:set_sg_out]}-nr-#{family}"
-                    dir = "dst,dst"
-                end
+            return if the_nets.empty?
 
-                cmds.add :ipset, "create #{set} hash:net,port family #{family}"
-                cmds.add command, "-A #{chain} -m set --match-set" \
-                    " #{set} #{dir} -j RETURN"
+            if IPAddr.new(the_nets[0]).ipv6?
+                command = :ip6tables
+                family  = "inet6"
+            else
+                command = :iptables
+                family  = "inet"
+            end
 
-                net.each do |n|
-                    if IPAddr.new(n).ipv6?
-                        n_family = "inet6"
-                    else
-                        n_family = "inet"
-                    end
+            if @rule_type == :inbound
+                chain = vars[:chain_in]
+                set = "#{vars[:set_sg_in]}-nr-#{family}"
+                dir = "src,dst"
+            else
+                chain = vars[:chain_out]
+                set = "#{vars[:set_sg_out]}-nr-#{family}"
+                dir = "dst,dst"
+            end
 
-                    if n_family != family
-                        next
-                    end
+            cmds.add :ipset, "create #{set} hash:net,port family #{family}"
+            cmds.add command, "-A #{chain} -m set --match-set" \
+                " #{set} #{dir} -j RETURN"
 
-                    @range.split(",").each do |r|
-                        r.gsub!(":","-")
-                        net_range = "#{n},#{@protocol}:#{r}"
-                        cmds.add :ipset, "add -exist #{set} #{net_range}"
-                    end
+            the_nets.each do |n|
+                @range.split(",").each do |r|
+                    r.gsub!(":","-")
+                    net_range = "#{n},#{@protocol}:#{r}"
+                    cmds.add :ipset, "add -exist #{set} #{net_range}"
                 end
             end
         end
 
         # Implements the :net_icmp_type rule. Example:
         #   ipset create one-3-0-1-i-ni hash:net,port family inet
-        #   iptables -A one-3-0-i -m set --match-set one-3-0-1-i-ni src,dst -j RETURN
+        #   iptables -A one-3-0-i -m set --match-set one-3-0-1-i-ni src,dst
+        #       -j RETURN
         #   ipset add -exist one-3-0-1-i-ni 10.0.0.0/24,icmp:8/0
         def process_net_icmp_type(cmds, vars)
             if @rule_type == :inbound
@@ -176,7 +166,8 @@ module SGIPTables
             end
 
             cmds.add :ipset, "create #{set} hash:net,port family inet"
-            cmds.add :iptables, "-A #{chain} -m set --match-set #{set} #{dir} -j RETURN"
+            cmds.add :iptables, "-A #{chain} -m set --match-set #{set} #{dir}"\
+                " -j RETURN"
 
             net.each do |n|
                 icmp_type_expand.each do |type_code|
@@ -187,7 +178,8 @@ module SGIPTables
 
         # Implements the :net_icmpv6_type rule. Example:
         #   ipset create one-3-0-1-i-ni6 hash:net,port family inet6
-        #   ip6tables -A one-3-0-i -m set --match-set one-3-0-1-i-ni6 src,dst -j RETURN
+        #   ip6tables -A one-3-0-i -m set --match-set one-3-0-1-i-ni6 src,dst
+        #       -j RETURN
         #   ipset add -exist one-3-0-1-i-ni6 10.0.0.0/24,icmpv6:128/0
         def process_net_icmpv6_type(cmds, vars)
             if @rule_type == :inbound
@@ -201,7 +193,8 @@ module SGIPTables
             end
 
             cmds.add :ipset, "create #{set} hash:net,port family inet6"
-            cmds.add :ip6tables, "-A #{chain} -m set --match-set #{set} #{dir} -j RETURN"
+            cmds.add :ip6tables, "-A #{chain} -m set --match-set #{set} #{dir}"\
+                " -j RETURN"
 
             net.each do |n|
                 icmpv6_type_expand.each do |type_code|
