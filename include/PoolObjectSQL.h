@@ -66,7 +66,8 @@ public:
         VDC            = 0x0002000000000000LL,
         VROUTER        = 0x0004000000000000LL,
         MARKETPLACE    = 0x0008000000000000LL,
-        MARKETPLACEAPP = 0x0010000000000000LL
+        MARKETPLACEAPP = 0x0010000000000000LL,
+        VMGROUP        = 0x0020000000000000LL
     };
 
     static string type_to_str(ObjectType ob)
