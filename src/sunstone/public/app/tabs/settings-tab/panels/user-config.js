@@ -124,11 +124,6 @@ define(function(require) {
     $("#provision_add_ssh_key_form").submit(function() {
       var keypair = $('#provision_ssh_key', this).val();
 
-      if (!keypair.length) {
-        Notifier.notifyError(Locale.tr("You have to provide an SSH key"));
-        return false;
-      }
-
       var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes(keypair)+'"';
 
       Sunstone.runAction("User.append_template", "-1", template_str);
