@@ -91,6 +91,7 @@ public:
             case VROUTER:        return "VROUTER" ; break;
             case MARKETPLACE:    return "MARKETPLACE" ; break;
             case MARKETPLACEAPP: return "MARKETPLACEAPP" ; break;
+            case VMGROUP:        return "VMGROUP" ; break;
             default:             return "";
         }
     };

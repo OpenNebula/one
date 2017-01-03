@@ -5,7 +5,7 @@
 
 :NAME:
   :desc: Name of the VM Group
-  :size: 20
+  :size: 15
   :left: true
 
 :USER:
@@ -18,8 +18,14 @@
   :size: 15
   :left: true
 
+:ROLES:
+  :desc: Roles in the VM Group
+  :size: 31
+  :left: true
+
 :default:
 - :ID
 - :USER
 - :GROUP
 - :NAME
+- :ROLES

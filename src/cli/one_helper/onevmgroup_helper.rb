@@ -33,7 +33,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the VM Group", :left, :size=>20 do |d|
+            column :NAME, "Name of the VM Group", :left, :size=>15 do |d|
                 d["NAME"]
             end
 
@@ -46,7 +46,19 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
                 helper.group_name(d, options)
             end
 
-            default :ID, :USER, :GROUP, :NAME
+            column :ROLES, "Roles in the VM Group", :left, :size=>31 do |d|
+                roles = d["ROLES"]["ROLE"]
+                roles_names = ""
+
+                if !roles.nil?
+                    rnames = roles.collect { |i| i["NAME"] }
+                    roles_names = rnames.join(", ") if !rnames.empty?
+                end
+
+                roles_names
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :ROLES
         end
 
         table

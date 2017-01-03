@@ -18,6 +18,7 @@
 #define VMGROUP_ROLE_H_
 
 #include "PoolObjectSQL.h"
+#include "NebulaUtil.h"
 
 class VMGroupPool;
 
@@ -186,7 +187,9 @@ private:
 
             for ( it = key_set.begin(); it != key_set.end() ; ++it )
             {
-                if ( roles.find(*it) == roles.end() )
+                string rname = one_util::trim(*it);
+
+                if ( roles.find(rname) == roles.end() )
                 {
                     return false;
                 }

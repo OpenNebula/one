@@ -169,5 +169,10 @@ module OpenNebula
         def owner_id
             self['UID'].to_i
         end
+
+        # [return] _Array_ with the name of roles
+        def role_names
+            self.retrieve_elements('ROLES/ROLE/NAME')
+        end
     end
 end
