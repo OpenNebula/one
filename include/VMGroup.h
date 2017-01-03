@@ -85,6 +85,18 @@ private:
     ~VMGroup();
 
     // -------------------------------------------------------------------------
+    // Role Management
+    // -------------------------------------------------------------------------
+    /**
+     *  Check if all the roles are defined in the group
+     *    @param aname attribute with a list (comma-separated) of role names
+     *    @param error_str if any
+     *
+     *    @return 0 if all roles are defined -1 otherwise
+     */
+    int check_affinity(const std::string& aname, std::string& error_str);
+
+    // -------------------------------------------------------------------------
     // DataBase implementation
     // -------------------------------------------------------------------------
     static const char * db_names;

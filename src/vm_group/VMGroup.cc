@@ -370,17 +370,39 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
+{
+    vector<const SingleAttribute *> affined;
+    vector<const SingleAttribute *>::const_iterator jt;
+
+    obj_template->get(aname, affined);
+
+    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    {
+        std::string a_str = (*jt)->value();
+
+        if ( !roles.in_map(a_str) )
+        {
+            std::ostringstream oss;
+            oss << "Some roles used in " << aname << " attribute (" << a_str
+                << ") are not defined";
+
+            error_str = oss.str();
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VMGroup::insert(SqlDB *db, string& error_str)
 {
-    vector<VectorAttribute*> va_roles;
-    vector<VectorAttribute*>::iterator it;
+    vector<Attribute*> va_roles;
+    vector<Attribute*>::iterator it;
 
-    vector<const SingleAttribute*> affined;
-    vector<const SingleAttribute*> anti_affined;
-
-    vector<const SingleAttribute*>::const_iterator jt;
-
-    erase_template_attribute("NAME",name);
+    erase_template_attribute("NAME", name);
 
     if (name.empty())
     {
@@ -388,17 +410,21 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    remove_template_attribute("ROLE", va_roles);
+    obj_template->remove("ROLE", va_roles);
 
     bool error = false;
 
     for ( it = va_roles.begin(); it != va_roles.end(); ++it )
     {
-        if ( error )
+        VectorAttribute * vatt = dynamic_cast<VectorAttribute *>(*it);
+
+        if (vatt == 0 || error)
         {
             delete *it;
+            continue;
         }
-        else if ( roles.add_role(*it, error_str) == -1 )
+
+        if ( roles.add_role(vatt, error_str) == -1 )
         {
             delete *it;
             error = true;
@@ -410,30 +436,14 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    get_template_attribute("AFFINED", affined);
-
-    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    if ( check_affinity("AFFINED", error_str) == -1 )
     {
-        std::string a_str = (*jt)->value();
-
-        if ( !roles.in_map(a_str) )
-        {
-            error_str = "Some AFFINED roles: " + a_str + ", not defined";
-            return -1;
-        }
+        return -1;
     }
 
-    get_template_attribute("ANTI_AFFINED", anti_affined);
-
-    for ( jt = anti_affined.begin() ; jt != anti_affined.end() ; ++jt )
+    if ( check_affinity("ANTI_AFFINED", error_str) == -1 )
     {
-        std::string a_str = (*jt)->value();
-
-        if ( !roles.in_map(a_str) )
-        {
-            error_str = "Some ANTI_AFFINED roles: " + a_str + ", not defined";
-            return -1;
-        }
+        return -1;
     }
 
     if ( insert_replace(db, false, error_str) != 0 )
