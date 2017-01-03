@@ -24,12 +24,11 @@ module OpenNebula
         VMGROUP_METHODS = {
             :allocate    => "vmgroup.allocate",
             :info        => "vmgroup.info",
-            #:update      => "vmgroup.update",
+            :update      => "vmgroup.update",
             :delete      => "vmgroup.delete",
-            #:chown       => "vmgroup.chown",
-            #:chmod       => "vmgroup.chmod",
-            #:clone       => "vmgroup.clone",
-            #:rename      => "vmgroup.rename"
+            :chown       => "vmgroup.chown",
+            :chmod       => "vmgroup.chmod",
+            :rename      => "vmgroup.rename"
         }
 
         # Creates a VMGroup description with just its identifier
@@ -77,17 +76,17 @@ module OpenNebula
         def delete()
             super(VMGROUP_METHODS[:delete])
         end
-=begin
-        # Replaces the securitygroup contents
+
+        # Replaces the vm group contents
         #
-        # @param new_securitygroup [String] New securitygroup contents
+        # @param new_vmgroup [String] New vmgroup contents
         # @param append [true, false] True to append new attributes instead of
         #   replace the whole securitygroup
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_securitygroup, append=false)
-            super(SECGROUP_METHODS[:update], new_securitygroup, append ? 1 : 0)
+        def update(new_vmgroup, append=false)
+            super(VMGROUP_METHODS[:update], new_vmgroup, append ? 1 : 0)
         end
 
         # Changes the owner/group
@@ -97,7 +96,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chown(uid, gid)
-            super(SECGROUP_METHODS[:chown], uid, gid)
+            super(VMGROUP_METHODS[:chown], uid, gid)
         end
 
         # Changes the SecurityGroup permissions.
@@ -106,7 +105,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod_octet(octet)
-            super(SECGROUP_METHODS[:chmod], octet)
+            super(VMGROUP_METHODS[:chmod], octet)
         end
 
         # Changes the SecurityGroup permissions.
@@ -116,46 +115,20 @@ module OpenNebula
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
                 other_m, other_a)
-            super(SECGROUP_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
+            super(VMGROUP_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
 
-        # Clones this SecurityGroup into a new one
+        # Renames this VMGroup
         #
-        # @param [String] name for the new SecurityGroup.
-        #
-        # @return [Integer, OpenNebula::Error] The new SecurityGroup ID in case
-        #   of success, Error otherwise
-        def clone(name)
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(SECGROUP_METHODS[:clone], @pe_id, name)
-
-            return rc
-        end
-
-        # Renames this SecurityGroup
-        #
-        # @param name [String] New name for the SecurityGroup.
+        # @param name [String] New name for the VMGroup.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(SECGROUP_METHODS[:rename], @pe_id, name)
+            return call(VMGROUP_METHODS[:rename], @pe_id, name)
         end
 
-        # Commit SG changes to associated VMs
-        #
-        # @param recover [Bool] If true will only operate on outdated and error
-        # VMs. This is intended for retrying updates of VMs or reinitialize the
-        # updating process if oned stopped or fail.
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def commit(recover)
-            return call(SECGROUP_METHODS[:commit], @pe_id, recover)
-        end
-=end
         #######################################################################
         # Helpers to get VMGroup information
         #######################################################################

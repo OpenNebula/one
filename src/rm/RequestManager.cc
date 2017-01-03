@@ -366,6 +366,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
+    xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -453,6 +454,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chown(new DocumentChown());
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
     xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
+    xmlrpc_c::methodPtr vmg_chown(new VMGroupChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -463,6 +465,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
     xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
+    xmlrpc_c::methodPtr vmg_chmod(new VMGroupChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -487,6 +490,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+    xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -838,6 +842,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmgroup.allocate", vmg_allocate);
     RequestManagerRegistry.addMethod("one.vmgroup.delete",   vmg_delete);
     RequestManagerRegistry.addMethod("one.vmgroup.info",     vmg_info);
+    RequestManagerRegistry.addMethod("one.vmgroup.chown",    vmg_chown);
+    RequestManagerRegistry.addMethod("one.vmgroup.chmod",    vmg_chmod);
+    RequestManagerRegistry.addMethod("one.vmgroup.rename",   vmg_rename);
+    RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
 
     RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 

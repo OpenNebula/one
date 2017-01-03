@@ -120,38 +120,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(args[0],options)
     end
 
-=begin
-    clone_desc = <<-EOT.unindent
-        Creates a new Security Group from an existing one
-    EOT
-
-    command :clone, clone_desc, :secgroupid, :name do
-        helper.perform_action(args[0],options,"cloned") do |obj|
-            res = obj.clone(args[1])
-
-            if !OpenNebula.is_error?(res)
-                puts "ID: #{res}"
-            else
-                puts res.message
-            end
-        end
-    end
-
     chgrp_desc = <<-EOT.unindent
-        Changes the Security Group's group
+        Changes the VM Group's group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :secgroupid_list], :groupid do
+    command :chgrp, chgrp_desc,[:range, :vmgroupid_list], :groupid do
         helper.perform_actions(args[0],options,"Group changed") do |obj|
             obj.chown(-1, args[1].to_i)
         end
     end
 
     chown_desc = <<-EOT.unindent
-        Changes the Security Group's owner and group
+        Changes the VM Group's owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :secgroupid_list], :userid,
+    command :chown, chown_desc, [:range, :vmgroupid_list], :userid,
             [:groupid,nil] do
         gid = args[2].nil? ? -1 : args[2].to_i
         helper.perform_actions(args[0],options,"Owner/Group changed") do |obj|
@@ -160,10 +143,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     chmod_desc = <<-EOT.unindent
-        Changes the Security Group permissions
+        Changes the VM Group permissions
     EOT
 
-    command :chmod, chmod_desc, [:range, :secgroupid_list], :octet do
+    command :chmod, chmod_desc, [:range, :vmgroupid_list], :octet do
         helper.perform_actions(args[0],options, "Permissions changed") do |t|
             t.chmod_octet(args[1])
         end
@@ -174,7 +157,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :secgroupid, [:file, nil],
+    command :update, update_desc, :vmgroupid, [:file, nil],
     :options=>OpenNebulaHelper::APPEND do
         helper.perform_action(args[0],options,"modified") do |obj|
             if options[:append]
@@ -191,28 +174,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     rename_desc = <<-EOT.unindent
-        Renames the Security Group
+        Renames the VM Group
     EOT
 
-    command :rename, rename_desc, :secgroupid, :name do
+    command :rename, rename_desc, :vmgroupid, :name do
         helper.perform_action(args[0],options,"renamed") do |o|
             o.rename(args[1])
         end
     end
-
-    commit_desc = <<-EOT.unindent
-        Commit SG changes to associated VMs. This command is to propagate
-        security group rules to VMs when they are updated. This operation takes
-        time to iterate over all VMs in the security group, progress can be
-        checked through the outdated, updating and error VM sets.
-    EOT
-
-    command :commit, commit_desc, :secgroupid,
-        :options =>[OneSecurityGroupHelper::RECOVER] do
-        helper.perform_action(args[0], options, "commit") do |o|
-            o.commit(options[:recover]==true)
-        end
-    end
-
-=end
 end

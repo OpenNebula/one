@@ -148,11 +148,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error)
-	{
-		//TODO
-		return 0;
-	};
+    int post_update_template(string& error);
 
     /**
      *  Factory method for VMGroup templates

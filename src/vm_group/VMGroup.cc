@@ -457,3 +457,17 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VMGroup::post_update_template(string& error)
+{
+    if ( check_affinity("AFFINED", error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_affinity("ANTI_AFFINED", error) == -1 )
+    {
+        return -1;
+    }
+
+    return 0;
+}
