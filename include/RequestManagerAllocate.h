@@ -679,4 +679,33 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VMGroupAllocate : public RequestManagerAllocate
+{
+public:
+    VMGroupAllocate():
+        RequestManagerAllocate("VMGroupAllocate",
+                               "Allocates a new vm group",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new Template;
+    };
+
+    Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
+                                     Template *                  tmpl,
+                                     int&                        id,
+                                     RequestAttributes&          att);
+};
+
 #endif

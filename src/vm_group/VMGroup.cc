@@ -322,6 +322,8 @@ error_common:
 
 int VMGroup::insert(SqlDB *db, string& error_str)
 {
+    int role_id;
+
     vector<VectorAttribute*>::iterator it;
     vector<VectorAttribute*> roles;
 
@@ -340,8 +342,10 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("ROLE", roles);
 
-    for ( it = roles.begin(); it != roles.end(); it++ )
+    for ( it = roles.begin(), role_id = 0; it != roles.end(); ++it, ++role_id )
     {
+        (*it)->replace("ID", role_id);
+
         if (add_role(*it, error_str) == -1)
         {
             return -1;

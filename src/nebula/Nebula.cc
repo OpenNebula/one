@@ -323,6 +323,7 @@ void Nebula::start(bool bootstrap_only)
             rc += GroupQuotas::bootstrap(db);
             rc += SecurityGroupPool::bootstrap(db);
             rc += VirtualRouterPool::bootstrap(db);
+            rc += VMGroupPool::bootstrap(db);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -596,6 +597,8 @@ void Nebula::start(bool bootstrap_only)
 
         marketpool = new MarketPlacePool(db, is_federation_slave());
         apppool    = new MarketPlaceAppPool(db, is_federation_slave());
+
+        vmgrouppool = new VMGroupPool(db);
 
         default_user_quota.select();
         default_group_quota.select();

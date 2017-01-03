@@ -378,6 +378,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
+    xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -394,6 +395,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
     xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
+    xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -406,6 +408,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
     xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
+    xmlrpc_c::methodPtr vmg_info(new VMGroupInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -421,6 +424,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
+    xmlrpc_c::methodPtr vmgpool_info(new VMGroupPoolInfo());
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
@@ -828,6 +832,14 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.secgroup.commit",  secg_commit);
 
     RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
+
+    /* VM Group objects related methods*/
+
+    RequestManagerRegistry.addMethod("one.vmgroup.allocate", vmg_allocate);
+    RequestManagerRegistry.addMethod("one.vmgroup.delete",   vmg_delete);
+    RequestManagerRegistry.addMethod("one.vmgroup.info",     vmg_info);
+
+    RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 
     /* Vdc related methods */
 

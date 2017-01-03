@@ -553,4 +553,23 @@ public:
     ~MarketPlaceAppPoolInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VMGroupPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    VMGroupPoolInfo():
+        RequestManagerPoolInfoFilter("VMGroupPoolInfo",
+                                     "Returns the vm group pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupPoolInfo(){};
+};
+
 #endif

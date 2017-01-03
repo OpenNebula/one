@@ -1195,3 +1195,25 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     return Request::SUCCESS;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VMGroupAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    VMGroupPool * vmgpool = static_cast<VMGroupPool *>(pool);
+
+    int rc = vmgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask
+        ,tmpl, &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}
+
