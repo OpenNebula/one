@@ -18,55 +18,9 @@
 #define VMGROUP_H_
 
 #include "PoolObjectSQL.h"
+#include "VMGroupRole.h"
 
 class VMGroupPool;
-
-/**
- *  A VMGroupRole defines a VM type that typically implements a role in a
- *  multi-vm application.
- *
- *  ROLE = [
- *    NAME = "Web application servers",
- *    ID   = 12,
- *    VMS  = "1,2,45,21"
- *  ]
- *
- */
-class VMGroupRole
-{
-public:
-    VMGroupRole(VectorAttribute *_va);
-
-    virtual ~VMGroupRole(){};
-
-    /* ---------------------------------------------------------------------- */
-    /* VMS set Interface                                                      */
-    /* ---------------------------------------------------------------------- */
-    const std::set<int>& get_vms()
-    {
-        return vms;
-    };
-
-    void add_vm(int vm_id);
-
-    void del_vm(int vm_id);
-
-private:
-    /**
-     *  The set of vms in the role
-     */
-    std::set<int> vms;
-
-    /**
-     *  The associated vector attribute
-     */
-    VectorAttribute * va;
-
-    /**
-     *  Set the VMS attribute for the role (list of VM IDs)
-     */
-    void set_vms();
-};
 
 /**
  *  A VM group is a set of related VMs that may impose placement constraints.
@@ -129,101 +83,6 @@ private:
             int _umask, Template * group_template);
 
     ~VMGroup();
-
-    // -------------------------------------------------------------------------
-    // Role Map management
-    // -------------------------------------------------------------------------
-    /**
-     *  A role map indexed by different key types
-     */
-    template<class T>
-    class RoleMap
-    {
-    public:
-        /**
-         *  Inserts a new role in the map
-         *    @param k the key
-         *    @param r pointer to yhe VMGroupRole
-         *    @return true if the role was successfully inserted
-         */
-        bool insert(const T& k, VMGroupRole * r)
-        {
-            std::pair<T, VMGroupRole *> rpair(k, r);
-            std::pair<roles_it, bool> rc;
-
-            rc = roles.insert(rpair);
-
-            return rc.second;
-        }
-
-        /**
-         *  Frees the memory associated to the map and clears it
-         */
-        void delete_roles()
-        {
-            for (roles_it it = roles.begin() ; it != roles.end() ; ++it )
-            {
-                delete it->second;
-            }
-
-            clear();
-        }
-
-        /**
-         *  Clears the contents of the map
-         */
-        void clear()
-        {
-            roles.clear();
-        }
-
-        size_t erase(const T& k)
-        {
-            return roles.erase(k);
-        }
-
-        /**
-         *  Check id a set of keys are in the map.
-         *    @param key_str a comma separated list of keys
-         *    @return true if all the keys are in the map
-         */
-        bool in_map(const string& key_str)
-        {
-            std::set<T> key_set;
-            typename std::set<T>::iterator it;
-
-            one_util::split_unique(key_str, ',', key_set);
-
-            if ( key_set.empty() )
-            {
-                return true;
-            }
-
-            for ( it = key_set.begin(); it != key_set.end() ; ++it )
-            {
-                if ( roles.find(*it) == roles.end() )
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-    private:
-        typedef typename std::map<T, VMGroupRole *>::iterator roles_it;
-
-        std::map<T, VMGroupRole *> roles;
-    };
-
-    /**
-     *  Add a new role to the VM group
-     *    @param role to add as a vector attribute
-     *    @param error if any
-     *
-     *    @return 0 on success
-     */
-    int add_role(VectorAttribute * vrole, string& error);
 
     // -------------------------------------------------------------------------
     // DataBase implementation
@@ -299,16 +158,11 @@ private:
      */
     std::string name;
 
-    /**
-     *  Map to access the roles by their name
-     */
-    RoleMap<std::string> by_name;
-
-    /**
-     *  Map to access the roles by their id
-     */
-    RoleMap<int> by_id;
+	/**
+	 *  The role set
+	 */
+	VMGroupRoles roles;
 };
 
-#endif /*SECURITYGROUP_H_*/
+#endif /*VMGROUP_H_*/
 

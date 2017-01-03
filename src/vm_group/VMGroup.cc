@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------*/
 
 #include "VMGroup.h"
+#include "VMGroupRole.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -60,7 +61,6 @@ void VMGroupRole::del_vm(int vm_id)
     set_vms();
 }
 
-
 void VMGroupRole::set_vms()
 {
     std::string vms_str = one_util::join(vms.begin(), vms.end(), ',');
@@ -70,10 +70,105 @@ void VMGroupRole::set_vms()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VMGroupRoles::from_xml_node(const xmlNodePtr node)
+{
+    std::vector<VectorAttribute *> roles;
+    std::vector<VectorAttribute *>::iterator it;
+
+    if ( roles_template.from_xml_node(node) == -1 )
+    {
+        return -1;
+    }
+
+    roles_template.get("ROLE", roles);
+
+    for (it = roles.begin(); it != roles.end(); ++it)
+    {
+        std::string rname = (*it)->vector_value("NAME");
+
+        int rid;
+        int rc = (*it)->vector_value("ID", rid);
+
+        if ( rname.empty() || rc == -1 )
+        {
+            return -1;
+        }
+
+        if ( rid >= next_role )
+        {
+            next_role = rid + 1;
+        }
+
+        VMGroupRole * role = new VMGroupRole((*it));
+
+        if ( by_id.insert(rid, role) == false )
+        {
+            delete role;
+            return -1;
+        }
+
+        if ( by_name.insert(rname, role) == false )
+        {
+            by_id.erase(rid);
+
+            delete role;
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VMGroupRoles::add_role(VectorAttribute * vrole, string& error)
+{
+    std::string rname = vrole->vector_value("NAME");
+
+    if ( rname.empty() )
+    {
+        error = "Missing NAME in VM group role";
+        return -1;
+    }
+
+    // Remove internal attributes before inserting
+    vrole->replace("ID", next_role);
+
+    vrole->remove("VMS");
+
+    VMGroupRole * role = new VMGroupRole(vrole);
+
+    if ( by_id.insert(next_role, role) == false )
+    {
+        delete role;
+
+        error = "Role ID already exists";
+        return -1;
+    }
+
+    if ( by_name.insert(rname, role) == false )
+    {
+        by_id.erase(next_role);
+
+        delete role;
+
+        error = "Role NAME already exists";
+        return -1;
+    }
+
+    next_role += 1;
+
+    roles_template.set(vrole);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /*   VMGroup                                                                  */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
 
 const char * VMGroup::table = "vmgroup_pool";
 
@@ -105,8 +200,6 @@ VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
 
 VMGroup::~VMGroup()
 {
-    by_id.delete_roles();
-
     delete obj_template;
 }
 
@@ -116,8 +209,9 @@ VMGroup::~VMGroup()
 string& VMGroup::to_xml(string& xml) const
 {
     ostringstream   oss;
-    string          template_xml;
-    string          perms_xml;
+    string template_xml;
+    string perms_xml;
+    string roles_xml;
 
     oss <<
     "<VM_GROUP>"    <<
@@ -128,6 +222,7 @@ string& VMGroup::to_xml(string& xml) const
         "<GNAME>"   << gname    << "</GNAME>"  <<
         "<NAME>"    << name     << "</NAME>"   <<
         perms_to_xml(perms_xml)                <<
+        roles.to_xml(roles_xml)                <<
         obj_template->to_xml(template_xml)     <<
     "</VM_GROUP>";
 
@@ -165,8 +260,19 @@ int VMGroup::from_xml(const string &xml_str)
         return -1;
     }
 
-    // Template contents
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
+    // VMGroup roles
+    ObjectXML::get_nodes("/VM_GROUP/ROLES", content);
+
+    if (!content.empty())
+    {
+        rc += roles.from_xml_node(content[0]);
+    }
 
     ObjectXML::free_nodes(content);
 
@@ -174,62 +280,6 @@ int VMGroup::from_xml(const string &xml_str)
 
     if (rc != 0)
     {
-        return -1;
-    }
-
-    // VMGroup roles
-    vector<VectorAttribute *> roles;
-    vector<VectorAttribute *>::iterator it;
-
-    std::string error;
-
-    obj_template->get("ROLE", roles);
-
-    for (it = roles.begin(); it != roles.end(); ++it)
-    {
-        if ( add_role(*it, error) == -1 )
-        {
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VMGroup::add_role(VectorAttribute * vrole, string& error)
-{
-    int rid;
-    std::string rname = vrole->vector_value("NAME");
-
-    if ( vrole->vector_value("ID", rid) == -1 )
-    {
-        error = "Missing ID in VM group role";
-        return -1;
-    }
-    else if ( rname.empty() )
-    {
-        error = "Missing NAME in VM group role";
-        return -1;
-    }
-
-    VMGroupRole * role = new VMGroupRole(vrole);
-
-    if ( by_id.insert(rid, role) == false )
-    {
-        delete role;
-        error = "Role ID already exists";
-        return -1;
-    }
-
-    if ( by_name.insert(rname, role) == false )
-    {
-        by_id.erase(rid);
-
-        delete role;
-        error = "Role NAME already exists";
         return -1;
     }
 
@@ -322,10 +372,8 @@ error_common:
 
 int VMGroup::insert(SqlDB *db, string& error_str)
 {
-    int role_id;
-
+    vector<VectorAttribute*> va_roles;
     vector<VectorAttribute*>::iterator it;
-    vector<VectorAttribute*> roles;
 
     vector<const SingleAttribute*> affined;
     vector<const SingleAttribute*> anti_affined;
@@ -340,16 +388,26 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    get_template_attribute("ROLE", roles);
+    remove_template_attribute("ROLE", va_roles);
 
-    for ( it = roles.begin(), role_id = 0; it != roles.end(); ++it, ++role_id )
+    bool error = false;
+
+    for ( it = va_roles.begin(); it != va_roles.end(); ++it )
     {
-        (*it)->replace("ID", role_id);
-
-        if (add_role(*it, error_str) == -1)
+        if ( error )
         {
-            return -1;
+            delete *it;
         }
+        else if ( roles.add_role(*it, error_str) == -1 )
+        {
+            delete *it;
+            error = true;
+        }
+    }
+
+    if ( error )
+    {
+        return -1;
     }
 
     get_template_attribute("AFFINED", affined);
@@ -358,7 +416,7 @@ int VMGroup::insert(SqlDB *db, string& error_str)
     {
         std::string a_str = (*jt)->value();
 
-        if ( !by_name.in_map(a_str) )
+        if ( !roles.in_map(a_str) )
         {
             error_str = "Some AFFINED roles: " + a_str + ", not defined";
             return -1;
@@ -371,7 +429,7 @@ int VMGroup::insert(SqlDB *db, string& error_str)
     {
         std::string a_str = (*jt)->value();
 
-        if ( !by_name.in_map(a_str) )
+        if ( !roles.in_map(a_str) )
         {
             error_str = "Some ANTI_AFFINED roles: " + a_str + ", not defined";
             return -1;

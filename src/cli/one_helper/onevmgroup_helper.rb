@@ -95,8 +95,8 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "ROLES", false)
 
-        if !vmgroup.to_hash['VM_GROUP']['TEMPLATE']['ROLE'].nil?
-            roles = [vmgroup.to_hash['VM_GROUP']['TEMPLATE']['ROLE']].flatten
+        if !vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE'].nil?
+            roles = [vmgroup.to_hash['VM_GROUP']['ROLES']['ROLE']].flatten
         end
 
         CLIHelper::ShowTable.new(nil, self) do
