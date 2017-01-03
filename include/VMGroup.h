@@ -96,6 +96,30 @@ private:
      */
     int check_affinity(const std::string& aname, std::string& error_str);
 
+    /**
+     *  Adds a VM to a role
+     *    @param role_name
+     *    @param vmid
+     *
+     *    @return 0 if VM was successfully added, -1 otherwise
+     */
+    int add_vm(const std::string& role_name, int vmid)
+    {
+        return roles.add_vm(role_name, vmid);
+    }
+
+    /**
+     *  Deletes a VM from a role
+     *    @param role_name
+     *    @param vmid
+     *
+     *    @return 0 if VM was successfully added, -1 otherwise
+     */
+    int del_vm(const std::string& role_name, int vmid)
+    {
+        return roles.del_vm(role_name, vmid);
+    }
+
     // -------------------------------------------------------------------------
     // DataBase implementation
     // -------------------------------------------------------------------------

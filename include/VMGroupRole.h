@@ -118,6 +118,24 @@ public:
         return by_name.in_map(key_str);
     }
 
+    /**
+     *  Adds a VM to a role
+     *    @param role_name
+     *    @param vmid
+     *
+     *    @return 0 if VM was successfully added, -1 otherwise
+     */
+    int add_vm(const std::string& role_name, int vmid);
+
+    /**
+     *  Deletes a VM from a role
+     *    @param role_name
+     *    @param vmid
+     *
+     *    @return 0 if VM was successfully added, -1 otherwise
+     */
+    int del_vm(const std::string& role_name, int vmid);
+
 private:
     /**
      *  A role map indexed by different key types
@@ -153,6 +171,20 @@ private:
             }
 
             clear();
+        }
+
+        VMGroupRole * get(T k)
+        {
+            typename std::map<T, VMGroupRole *>::iterator it;
+
+            it = roles.find(k);
+
+            if ( it == roles.end() )
+            {
+                return 0;
+            }
+
+            return it->second;
         }
 
         /**
