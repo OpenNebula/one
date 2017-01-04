@@ -34,7 +34,7 @@ define(function(require) {
 
   function Panel(info) {
     this.tabId = TAB_ID;
-
+    info.tabId = this.tabId;
     return BasePanel.call(this, info);
   };
 
