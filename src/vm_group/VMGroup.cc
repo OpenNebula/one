@@ -63,6 +63,12 @@ void VMGroupRole::del_vm(int vm_id)
 
 void VMGroupRole::set_vms()
 {
+    if ( vms.empty() )
+    {
+        va->remove("VMS");
+        return;
+    }
+
     std::string vms_str = one_util::join(vms.begin(), vms.end(), ',');
 
     va->replace("VMS", vms_str);
@@ -520,6 +526,8 @@ int VMGroup::post_update_template(string& error)
 
         return -1;
     }
+
+    obj_template->erase("ROLE");
 
     if ( check_affinity("AFFINED", error) == -1 )
     {

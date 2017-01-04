@@ -2949,7 +2949,7 @@ int VirtualMachine::get_vmgroup(string& error)
             vmg_uid = get_uid();
         }
 
-        vmgroup = vmgrouppool->get(gname, vmg_uid, true);
+        vmgroup = vmgrouppool->get(vmg_name, vmg_uid, true);
     }
     else if ( thegroup->vector_value("VMGROUP_ID", vmg_id) == 0 )
     {
