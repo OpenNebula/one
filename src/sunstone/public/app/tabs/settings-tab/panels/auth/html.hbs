@@ -1,0 +1,91 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<div class="row">
+  <div class="large-12 columns">
+    <div class="row">
+      <div class="large-12 columns">
+        <table class="dataTable">
+          <thead>
+            <tr>
+              <th colspan="2">{{tr "Authentication"}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key_td">{{tr "Authentication driver"}}</td>
+              <td class="value_td" id="change_auth_driver" colspan="2" hidden = "true">{{{userCreationHTML}}}</td>
+              <td class="value_td" colspan="2" id="show_auth_driver">{{element.AUTH_DRIVER}}</td>
+              <td><a id="div_edit_auth_driver_link" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a></td>
+            </tr>
+            <tr class="passsword_edit">
+              <td class="key_td">{{tr "Password"}}</td>
+              <td class="value_td" colspan="2" id ="show_btn_password">
+                <button id="view_password" type="button" class="button small radius secondary" style="min-width:80%">
+                  {{tr "View"}}
+                </button>
+              </td>
+              <td>
+                {{#isTabActionEnabled tabId "Settings.change_password"}}
+                  <a id="update_password" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+                {{/isTabActionEnabled}}
+              </td>
+            </tr>
+            {{#isTabActionEnabled tabId "Settings.login_token"}}
+            <tr class="login_token">
+              <td class="key_td">{{tr "Login token"}}</td>
+              <td class="value_td" colspan="2">
+                <button id="login_token" type="button" class="button small radius secondary" style="min-width:80%">
+                  {{tr "Manage login tokens"}}
+                </button>
+              </td>
+              <td/>
+            </tr>
+            {{/isTabActionEnabled}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <table class="dataTable" cellpadding="0" cellspacing="0" border="0">
+          <thead>
+            <tr>
+              <th>{{tr "Public SSH Key"}}</th>
+              {{#isTabActionEnabled tabId "Settings.ssh_key"}}
+              <th>
+                <a class="user_ssh_public_key_edit right" href="#"><i class="fa fa-pencil-square-o"></i></a>
+              </th>
+              {{/isTabActionEnabled}}
+            </tr>
+          </thead>
+        </table>
+        <td>
+          <textarea rows="6" type="text" id="user_ssh_public_key_textarea" name="ssh_public_key" hidden>
+            {{~element.TEMPLATE.SSH_PUBLIC_KEY~}}
+          </textarea>
+          <p id="user_ssh_public_key_text" class="ellipsis" name="ssh_public_key">
+            {{#if element.TEMPLATE.SSH_PUBLIC_KEY}}
+              {{element.TEMPLATE.SSH_PUBLIC_KEY}}
+            {{else}}
+              {{tr "You can provide a SSH Key for this User clicking on the edit button"}}
+            {{/if}}
+          </p>
+        </td>
+      </div>
+    </div>
+  </div>
+</div>
