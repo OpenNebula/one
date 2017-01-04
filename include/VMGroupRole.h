@@ -136,6 +136,11 @@ public:
      */
     int del_vm(const std::string& role_name, int vmid);
 
+    /**
+     *  @return the total number of VMs in the group
+     */
+    int vm_size();
+
 private:
     /**
      *  A role map indexed by different key types
@@ -230,11 +235,74 @@ private:
             return true;
         }
 
-    private:
+        /**
+         *  Iterators for the map
+         */
         typedef typename std::map<T, VMGroupRole *>::iterator roles_it;
 
+        roles_it begin()
+        {
+            return roles.begin();
+        }
+
+        roles_it end()
+        {
+            return roles.end();
+        }
+
+    private:
         std::map<T, VMGroupRole *> roles;
     };
+
+    class RoleIterator
+    {
+    public:
+        RoleIterator& operator=(const RoleIterator& rhs)
+        {
+            role_it = rhs.role_it;
+            return *this;
+        }
+
+        RoleIterator& operator++()
+        {
+            ++role_it;
+            return *this;
+        }
+
+        bool operator!=(const RoleIterator& rhs)
+        {
+            return role_it != rhs.role_it;
+        }
+
+        VMGroupRole * operator*() const
+        {
+            return role_it->second;
+        }
+
+        RoleIterator(){};
+        RoleIterator(const RoleIterator& rit):role_it(rit.role_it){};
+        RoleIterator(const std::map<int, VMGroupRole *>::iterator& _role_it)
+            :role_it(_role_it){};
+
+        virtual ~RoleIterator(){};
+
+    private:
+        std::map<int, VMGroupRole *>::iterator role_it;
+    };
+
+    RoleIterator begin()
+    {
+        RoleIterator it(by_id.begin());
+        return it;
+    }
+
+    RoleIterator end()
+    {
+        RoleIterator it(by_id.end());
+        return it;
+    }
+
+    typedef class RoleIterator role_iterator;
 
     /**
      *  The role template to store the VMGroupRole

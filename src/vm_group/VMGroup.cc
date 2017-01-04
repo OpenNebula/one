@@ -202,6 +202,18 @@ int VMGroupRoles::del_vm(const std::string& role_name, int vmid)
     return 0;
 }
 
+int VMGroupRoles::vm_size()
+{
+    int total = 0;
+
+    for ( role_iterator it = begin(); it != end() ; ++it )
+    {
+        total += (*it)->get_vms().size();
+    }
+
+    return total;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /*   VMGroup                                                                  */
@@ -497,6 +509,18 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
 int VMGroup::post_update_template(string& error)
 {
+    int vms = roles.vm_size();
+
+    if ( vms > 0 )
+    {
+        ostringstream oss;
+
+        oss << "VM Group has " << vms << " VMs";
+        error = oss.str();
+
+        return -1;
+    }
+
     if ( check_affinity("AFFINED", error) == -1 )
     {
         return -1;

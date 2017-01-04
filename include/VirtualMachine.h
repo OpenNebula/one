@@ -1086,6 +1086,14 @@ public:
     void remove_security_group(int sgid);
 
     // ------------------------------------------------------------------------
+    // Virtual Machine Groups
+    // ------------------------------------------------------------------------
+    /**
+     *  Remove this VM from its role and VM group if any
+     */
+    void release_vmgroup();
+
+    // ------------------------------------------------------------------------
     // Imported VM interface
     // ------------------------------------------------------------------------
     /**
@@ -1999,7 +2007,7 @@ private:
     int parse_context_variables(VectorAttribute ** context, string& error_str);
 
     // -------------------------------------------------------------------------
-    // NIC & DISK Management Helpers
+    // Management helpers: NIC, DISK and VMGROUP
     // -------------------------------------------------------------------------
     /**
      *  Get all network leases for this Virtual Machine
@@ -2013,6 +2021,13 @@ private:
      *  @return 0 if success
      */
     int get_disk_images(string &error_str);
+
+    /**
+     *  Adds the VM to the VM group if needed
+     *  @param error_str Returns the error reason, if any
+     *  @return 0 if success
+     */
+    int get_vmgroup(string& error);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions

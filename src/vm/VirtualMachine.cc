@@ -741,12 +741,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
-
-    oss << oid;
-    value = oss.str();
-
     user_obj_template->erase("VMID");
-    obj_template->add("VMID", value);
+    obj_template->add("VMID", oid);
 
     user_obj_template->get("TEMPLATE_ID", value);
     user_obj_template->erase("TEMPLATE_ID");
@@ -1017,6 +1013,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
             deploy_id = value;
             obj_template->add("IMPORTED", "YES");
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Associate to VM Group
+    // ------------------------------------------------------------------------
+    if ( get_vmgroup(error_str) == -1 )
+    {
+        goto error_rollback;
     }
 
     // ------------------------------------------------------------------------
@@ -2885,4 +2889,143 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* VirtualMachine VMGroup interface                                           */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_vmgroup(string& error)
+{
+    vector<Attribute  *> vmgroups;
+    vector<Attribute*>::iterator it;
+
+    bool found;
+    VectorAttribute * thegroup = 0;
+
+    user_obj_template->remove("VMGROUP", vmgroups);
+
+    for (it = vmgroups.begin(), found = false; it != vmgroups.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR || found )
+        {
+            delete *it;
+            it = vmgroups.erase(it);
+        }
+        else
+        {
+            thegroup = dynamic_cast<VectorAttribute *>(*it);
+            found    = true;
+
+            ++it;
+        }
+    }
+
+    if ( thegroup == 0 )
+    {
+        return 0;
+    }
+
+    /* ------------------ Get the VMGroup by_name or by_id ------------------ */
+    VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+    VMGroup * vmgroup;
+
+    string vmg_role = thegroup->vector_value("ROLE");
+    string vmg_name = thegroup->vector_value("VMGROUP");
+    int    vmg_id;
+
+    if ( vmg_role.empty() )
+    {
+        error = "Missing role name in VM Group definition";
+        delete thegroup;
+
+        return -1;
+    }
+
+    if ( !vmg_name.empty() )
+    {
+        int vmg_uid;
+
+        if ( thegroup->vector_value("VMGROUP_UID", vmg_uid) == -1 )
+        {
+            vmg_uid = get_uid();
+        }
+
+        vmgroup = vmgrouppool->get(gname, vmg_uid, true);
+    }
+    else if ( thegroup->vector_value("VMGROUP_ID", vmg_id) == 0 )
+    {
+        vmgroup = vmgrouppool->get(vmg_id, true);
+    }
+
+    if ( vmgroup == 0 )
+    {
+        error = "Cannot find VM Group to associate the VM to";
+        delete thegroup;
+
+        return -1;
+    }
+
+    /* ------------------ Add VM to the role in the vm group ---------------- */
+
+    thegroup->replace("VMGROUP_ID", vmgroup->get_oid());
+
+    int rc = vmgroup->add_vm(vmg_role, get_oid());
+
+
+    if ( rc != 0 )
+    {
+        error = "Role does not exist in VM Group";
+        delete thegroup;
+    }
+    else
+    {
+        vmgrouppool->update(vmgroup);
+
+        obj_template->set(thegroup);
+    }
+
+    vmgroup->unlock();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_vmgroup()
+{
+    VectorAttribute * thegroup = obj_template->get("VMGROUP");
+
+    if ( thegroup == 0 )
+    {
+        return;
+    }
+
+    int vmg_id;
+
+    if ( thegroup->vector_value("VMGROUP_ID", vmg_id) == -1 )
+    {
+        return;
+    }
+
+    string vmg_role = thegroup->vector_value("ROLE");
+
+    if ( vmg_role.empty() )
+    {
+        return;
+    }
+
+    VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+    VMGroup * vmgroup = vmgrouppool->get(vmg_id, true);
+
+    if ( vmgroup == 0 )
+    {
+        return;
+    }
+
+    vmgroup->del_vm(vmg_role, get_oid());
+
+    vmgrouppool->update(vmgroup);
+
+    vmgroup->unlock();
+}
 

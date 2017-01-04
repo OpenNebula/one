@@ -230,6 +230,8 @@ void  DispatchManager::done_action(int vid)
     {
         vm->release_network_leases();
 
+        vm->release_vmgroup();
+
         vm->release_disk_images(ds_quotas);
 
         vm->set_state(VirtualMachine::DONE);
