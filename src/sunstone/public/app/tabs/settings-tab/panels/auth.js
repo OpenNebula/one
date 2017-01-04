@@ -19,14 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BasePanel = require('tabs/users-tab/panels/info-common');
+  var BasePanel = require('tabs/users-tab/panels/auth-common');
 
   /*
     CONSTANTS
    */
 
   var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
+  var PANEL_ID = require('./auth/panelId');
 
   /*
     CONSTRUCTOR
