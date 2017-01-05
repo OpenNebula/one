@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "VMGroup.h"
 
+class AuthRequest;
+
 class VMGroupPool : public PoolSQL
 {
 public:
@@ -107,8 +109,34 @@ public:
         return PoolSQL::dump(os, "VM_GROUP_POOL", VMGroup::table, where, limit);
     };
 
-private:
+    /**
+     *  Parse the VMGROUP definition in a VM and fills the ROLE attributes. It
+     *  also adds the VM to the role if found.
+     *    @param va the vector attribute
+     *    @param uid VM owner, used as default to look for the VMGroup
+     *    @param vid of the VM
+     *    @param err if any
+     *
+     *    @return 0 on success
+     */
+    int vmgroup_attribute(VectorAttribute * va, int uid, int vid, string& err);
 
+    /**
+     *  Removes VM from the VMGroup
+     *    @param va with VMGROUP
+     *    @param vid of the VM to be removed
+     */
+    void del_vm(const VectorAttribute * va, int vid);
+
+    /**
+     *  Builds the AuthRequest for the VMGroup
+     *    @param va with the VMGROUP
+     *    @param uid VM owber, used as default to look for the VMGroup
+     *    @param ar the authrequest
+     */
+    void authorize(const VectorAttribute * va, int uid, AuthRequest* ar);
+
+private:
     /**
      *  Factory method to produce objects
      *    @return a pointer to the new object
@@ -117,6 +145,13 @@ private:
     {
         return new VMGroup(-1,-1,"","",0,0);
     };
+
+    /**
+     *  Gest a VMGroup from its vector attribute description
+     *    @param va the VectorAttribute
+     *    @param _uid default uid to look for the VMGroup
+     */
+    VMGroup * get_from_attribute(const VectorAttribute *va, int _uid);
 };
 
 #endif /*VMGROUP_POOL_H_*/
