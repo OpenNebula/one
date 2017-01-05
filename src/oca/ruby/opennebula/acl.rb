@@ -36,6 +36,7 @@ module OpenNebula
     #                  VROUTER
     #                  MARKETPLACE
     #                  MARKETPLACEAPP
+    #                  VMGROUP
     #     RIGHTS    -> + separated list
     #                  USE
     #                  MANAGE
@@ -67,7 +68,8 @@ module OpenNebula
             "VDC"           =>  0x2000000000000,
             "VROUTER"       =>  0x4000000000000,
             "MARKETPLACE"   =>  0x8000000000000,
-            "MARKETPLACEAPP"=> 0x10000000000000
+            "MARKETPLACEAPP"=> 0x10000000000000,
+            "VMGROUP"       => 0x20000000000000
         }
 
         RIGHTS =
