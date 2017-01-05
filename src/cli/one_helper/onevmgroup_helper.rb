@@ -38,15 +38,28 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :USER, "Username of the VM Group owner", :left,
-                    :size=>15 do |d|
+                    :size=>8 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the VM Group", :left, :size=>15 do |d|
+            column :GROUP, "Group of the VM Group", :left, :size=>8 do |d|
                 helper.group_name(d, options)
             end
 
-            column :ROLES, "Roles in the VM Group", :left, :size=>31 do |d|
+            column :VMS, "Number of VMs in the VM Group", :left, :size=>4 do |d|
+                roles = d["ROLES"]["ROLE"]
+                vms   = 0
+
+                if !roles.nil?
+                    roles.each { |r|
+                        vms += r["VMS"].split(',').size if !r["VMS"].nil?
+                    }
+                end
+
+                vms
+            end
+
+            column :ROLES, "Roles in the VM Group", :left, :size=>36 do |d|
                 roles = d["ROLES"]["ROLE"]
                 roles_names = ""
 
@@ -58,7 +71,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
                 roles_names
             end
 
-            default :ID, :USER, :GROUP, :NAME, :ROLES
+            default :ID, :USER, :GROUP, :NAME, :VMS, :ROLES
         end
 
         table

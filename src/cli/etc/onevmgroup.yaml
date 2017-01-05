@@ -10,17 +10,22 @@
 
 :USER:
   :desc: Username of the VM Group owner
-  :size: 15
+  :size: 8
   :left: true
 
 :GROUP:
   :desc: Group of the VM Group
-  :size: 15
+  :size: 8
   :left: true
+
+:VMS:
+  :desc: Number of VMs in the VM Group
+  :size: 4
+  :lef:  true
 
 :ROLES:
   :desc: Roles in the VM Group
-  :size: 31
+  :size: 36
   :left: true
 
 :default:
@@ -28,4 +33,5 @@
 - :USER
 - :GROUP
 - :NAME
+- :VMS
 - :ROLES
