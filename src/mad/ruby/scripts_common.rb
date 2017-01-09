@@ -59,7 +59,7 @@ module OpenNebula
     # If a second parameter is present it is used as the error message when
     # the command fails
     def self.exec_and_log(command, message=nil)
-        output=`#{command} 2>&1 1>/dev/null`
+        output=`#{command} 2>&1`
         code=$?.exitstatus
 
         if code!=0

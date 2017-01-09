@@ -136,7 +136,7 @@ function exec_and_log
 {
     message=$2
 
-    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_ERR=`$1 2>&1`
     EXEC_LOG_RC=$?
 
     if [ $EXEC_LOG_RC -ne 0 ]; then
@@ -187,7 +187,7 @@ function multiline_exec_and_log
 {
     message=$2
 
-    EXEC_LOG_ERR=`bash -s 2>&1 1>/dev/null <<EOF
+    EXEC_LOG_ERR=`bash -s 2>&1 <<EOF
 export LANG=C
 export LC_ALL=C
 $1
@@ -212,7 +212,7 @@ function exec_and_set_error
 {
     message=$2
 
-    EXEC_LOG_ERR=$(bash -c "$1" 2>&1 1>/dev/null)
+    EXEC_LOG_ERR=$(bash -c "$1" 2>&1)
     EXEC_LOG_RC=$?
 
     export ERROR=""
@@ -333,7 +333,7 @@ function mkfs_command {
 #This function executes $2 at $1 host and report error $3 but does not exit
 function ssh_exec_and_log_no_error
 {
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 <<EOF
 export LANG=C
 export LC_ALL=C
 $2
@@ -373,7 +373,7 @@ function ssh_exec_and_log
 # $4: ERROR_REPORT
 function ssh_exec_and_log_stdin
 {
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 <<EOF
 export LANG=C
 export LC_ALL=C
 $(cat $3)
@@ -427,7 +427,7 @@ EOF
 # file ".monitor" in the directory. Used for local disk monitoring
 function ssh_make_path
 {
-    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
+    SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 <<EOF
 set -e -o pipefail
 if [ ! -d $2 ]; then
    mkdir -p $2
