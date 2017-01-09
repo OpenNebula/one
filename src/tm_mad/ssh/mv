@@ -29,6 +29,23 @@ DST=$2
 VMID=$3
 DSID=$4
 
+#--------------------------------------------------------------------------------
+
+# Get custom datastore values
+DRIVER_PATH=$(dirname "$0")
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset XPATH_ELEMENTS i j
+
+while IFS= read -r -d '' element; do
+  XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x "$DSID" | $XPATH \
+  /DATASTORE/TEMPLATE/SHARED)
+
+SHARED="${XPATH_ELEMENTS[j++]:-$SHARED}"
+
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
@@ -69,21 +86,23 @@ if [ `lcm_state` -eq 60 ]; then
     exit 0
 fi
 
-ssh_make_path "$DST_HOST" "$DST_DIR" "ssh"
-
-log "Moving $SRC to $DST"
-
-ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
-    "Error removing target path to prevent overwrite errors"
-
-TAR_SSH=$(cat <<EOF
-set -e -o pipefail
-
-$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'
-rm -rf $SRC_PATH
-EOF
-)
-
-ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
+if [ "$SHARED" != "YES" ]; then
+    ssh_make_path "$DST_HOST" "$DST_DIR" "ssh"
+    
+    log "Moving $SRC to $DST"
+    
+    ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
+        "Error removing target path to prevent overwrite errors"
+    
+    TAR_SSH=$(cat <<EOF
+    set -e -o pipefail
+    
+    $TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'
+    rm -rf $SRC_PATH
+    EOF
+    )
+    
+    ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
+fi
 
 exit 0
