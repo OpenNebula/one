@@ -104,13 +104,13 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
     context.off("change", '.security_group_rule_protocol');
     context.on("change", '.security_group_rule_protocol', function(){
       $('.range_row', context).hide();
       $('.range_row input', context).removeAttr('required');
 
       $('.icmp_type_wrapper', context).hide();
+      $('.icmpv6_type_wrapper', context).hide();
 
       switch ($(this).val()) {
       case "TCP":
@@ -120,6 +120,9 @@ define(function(require) {
         break;
       case "ICMP":
         $('.icmp_type_wrapper', context).show();
+        break;
+      case "ICMPv6":
+        $('.icmpv6_type_wrapper', context).show();
         break;
       case "IPSEC":
       case "ALL":
@@ -207,6 +210,14 @@ define(function(require) {
           }
         }
 
+         if (rule["PROTOCOL"] == "ICMPv6" ){
+          var icmpv6_type_val = WizardFields.retrieveInput($(".security_group_rule_icmpv6_type", context));
+
+          if (icmpv6_type_val != ""){
+            rule["ICMPv6_TYPE"] = icmpv6_type_val;
+          }
+        }
+
         var text = Utils.sgRuleToSt(rule);
 
         $(".security_group_rules tbody", context).append(
@@ -216,6 +227,7 @@ define(function(require) {
               <td>'+text.RANGE+'</td>\
               <td>'+text.NETWORK+'</td>\
               <td>'+text.ICMP_TYPE+'</td>\
+              <td>'+text.ICMPv6_TYPE+'</td>\
               <td>\
                 <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
               </td>\
@@ -340,6 +352,7 @@ define(function(require) {
         <td>'+text.RANGE+'</td>\
         <td>'+text.NETWORK+'</td>\
         <td>'+text.ICMP_TYPE+'</td>\
+        <td>'+text.ICMPv6_TYPE+'</td>\
         <td>\
         <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
         </td>\
