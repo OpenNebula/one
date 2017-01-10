@@ -55,6 +55,27 @@ fi
 
 migrate_other "$@"
 
+#--------------------------------------------------------------------------------
+
+# Get custom datastore values
+DRIVER_PATH=$(dirname "$0")
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset XPATH_ELEMENTS i j
+
+while IFS= read -r -d '' element; do
+  XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x "$DSID" | $XPATH \
+  /DATASTORE/TEMPLATE/SHARED)
+
+SHARED="${XPATH_ELEMENTS[j++]}"
+
+if [ "$SHARED" = "YES" ]; then
+    exit 0
+fi
+
+#--------------------------------------------------------------------------------
+
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
