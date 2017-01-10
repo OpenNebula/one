@@ -294,10 +294,11 @@ class EC2Driver
 
         while Time.now - start_time < @state_change_timeout
             begin
-                instance.state
-                break
-            rescue
+                break if instance.exists?
+            rescue => e
+                STDERR.puts "RESCUE: #{e.inspect}"
             end
+
             sleep 2
         end
 
