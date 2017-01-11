@@ -185,7 +185,7 @@ public:
       *
       *    @return -1 if the DS does not exists
       */
-    int disk_attribute(int ds_id, VectorAttribute * disk);
+    int disk_attribute(int ds_id, VirtualMachineDisk * disk);
 
 private:
     /**

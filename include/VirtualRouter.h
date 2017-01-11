@@ -68,7 +68,6 @@ public:
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------
-
     /**
      *  Factory method for VirtualRouter templates
      */
@@ -131,12 +130,11 @@ public:
     /**
      * Adds a new NIC to the virtual router template.
      * @param tmpl Template, should contain only one NIC
-     * @param error_str error reason, if any
+     * @param error reason, if any
      *
      * @return 0 on failure, the NIC to attach to each VM on success
      */
-    VectorAttribute * attach_nic(
-            VirtualMachineTemplate * tmpl, string& error_str);
+    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl, string& error);
 
     /**
      * Deletes the NIC from the virtual router template.
@@ -157,9 +155,7 @@ public:
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
      */
-    static void set_auth_request(int uid,
-                                 AuthRequest& ar,
-                                 Template *tmpl);
+    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl);
 
     /**
      * Checks if the given action is supported for Virtual Router VMs
@@ -219,13 +215,13 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VirtualRouter(  int id,
-                    int uid,
-                    int gid,
-                    const string& uname,
-                    const string& gname,
-                    int umask,
-                    Template * _template_contents);
+    VirtualRouter(int id,
+                  int uid,
+                  int gid,
+                  const string& uname,
+                  const string& gname,
+                  int umask,
+                  Template * _template_contents);
 
     ~VirtualRouter();
 

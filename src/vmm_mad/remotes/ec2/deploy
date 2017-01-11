@@ -45,7 +45,7 @@ ec2_drv = EC2Driver.new(host)
 text=File.read(dfile)
 
 begin
-	puts ec2_drv.deploy(id, host, text, lcm_state, deploy_id)
+    puts ec2_drv.deploy(id, host, text, lcm_state, deploy_id)
 rescue Exception => e
     STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed " +
                 "due to \"#{e.message}\""

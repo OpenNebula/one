@@ -727,7 +727,7 @@ define(function(require) {
         '<div class="row">\
           <div class="large-12 columns">\
             <span class="right">\
-              <button class="button secondary small radius" id="edit_quotas_button">\
+              <button class="button primary small radius" id="edit_quotas_button">\
                 <span class="fa fa-pencil-square-o"></span> '+Locale.tr("Edit")+'\
               </button>\
               <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\

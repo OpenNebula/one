@@ -1,6 +1,8 @@
 small_logo: images/opennebula-5.0.png
 provision_logo: images/opennebula-5.0.png
-confirm_vms: true
+link_logo:
+text_link_logo:
+confirm_vms: false
 enabled_tabs:
     - dashboard-tab
     - instances-top-tab
@@ -83,6 +85,7 @@ tabs:
             user_groups_tab: true
             user_accounting_tab: true
             user_showback_tab: true
+            user_auth_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -336,6 +339,7 @@ tabs:
             VM.terminate: true
             VM.terminate_hard: true
             VM.resize: true
+            VM.disk_resize: true
             VM.attachdisk: true
             VM.detachdisk: true
             VM.disk_saveas: true

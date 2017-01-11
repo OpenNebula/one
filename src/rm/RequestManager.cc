@@ -54,9 +54,8 @@
 
 #include <sys/signal.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -64,15 +63,15 @@
 
 
 RequestManager::RequestManager(
-        int _port,
+        const string& _port,
         int _max_conn,
         int _max_conn_backlog,
         int _keepalive_timeout,
         int _keepalive_max_conn,
         int _timeout,
-        const string _xml_log_file,
-        const string call_log_format,
-        const string _listen_address,
+        const string& _xml_log_file,
+        const string& call_log_format,
+        const string& _listen_address,
         int message_size):
             port(_port),
             socket_fd(-1),
@@ -167,11 +166,29 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
 int RequestManager::setup_socket()
 {
-    int                 rc;
-    int                 yes = 1;
-    struct sockaddr_in  rm_addr;
+    int rc;
+    int yes = 1;
 
-    socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    struct addrinfo hints = {0};
+    struct addrinfo * result;
+
+    hints.ai_family   = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = AI_PASSIVE;
+
+    rc = getaddrinfo(listen_address.c_str(), port.c_str(), &hints, &result);
+
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Cannot open server socket: " << gai_strerror(rc);
+        NebulaLog::log("ReM",Log::ERROR,oss);
+
+        return -1;
+    }
+
+    socket_fd = socket(result->ai_family, result->ai_socktype, 0);
 
     if ( socket_fd == -1 )
     {
@@ -179,6 +196,8 @@ int RequestManager::setup_socket()
 
         oss << "Cannot open server socket: " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
+
+        freeaddrinfo(result);
 
         return -1;
     }
@@ -194,35 +213,24 @@ int RequestManager::setup_socket()
 
         close(socket_fd);
 
+        freeaddrinfo(result);
+
         return -1;
     }
 
     fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
 
-    rm_addr.sin_family      = AF_INET;
-    rm_addr.sin_port        = htons(port);
+    rc = bind(socket_fd, result->ai_addr, result->ai_addrlen);
 
-    rc = inet_aton(listen_address.c_str(), &rm_addr.sin_addr);
-
-    if ( rc == 0 )
-    {
-        ostringstream oss;
-
-        oss << "Invalid listen address: " << listen_address;
-        NebulaLog::log("ReM",Log::ERROR,oss);
-
-        close(socket_fd);
-
-        return -1;
-    }
-
-    rc = bind(socket_fd,(struct sockaddr *) &(rm_addr),sizeof(struct sockaddr));
+    freeaddrinfo(result);
 
     if ( rc == -1)
     {
         ostringstream oss;
 
-        oss << "Cannot bind to " << listen_address << ":" << port << " : " << strerror(errno);
+        oss << "Cannot bind to " << listen_address << ":" << port << " : "
+            << strerror(errno);
+
         NebulaLog::log("ReM",Log::ERROR,oss);
 
         close(socket_fd);
@@ -330,6 +338,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_dsnap_delete(new VirtualMachineDiskSnapshotDelete());
     xmlrpc_c::methodPtr vm_recover(new VirtualMachineRecover());
     xmlrpc_c::methodPtr vm_updateconf(new VirtualMachineUpdateConf());
+    xmlrpc_c::methodPtr vm_disk_resize(new VirtualMachineDiskResize());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -508,6 +517,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
     RequestManagerRegistry.addMethod("one.vm.updateconf", vm_updateconf);
+    RequestManagerRegistry.addMethod("one.vm.diskresize", vm_disk_resize);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);

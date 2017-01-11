@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-
+#include "VirtualMachineNic.h"
 #include "VirtualNetwork.h"
 #include "VirtualNetworkPool.h"
 #include "VirtualNetworkTemplate.h"
@@ -583,7 +583,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::nic_attribute(
-        VectorAttribute *       nic,
+        VirtualMachineNic *     nic,
         int                     vid,
         const vector<string>&   inherit_attrs)
 {
@@ -657,15 +657,18 @@ int VirtualNetwork::nic_attribute(
 
     if (!ip.empty())
     {
-        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic, inherit_attrs);
+        rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic->vector_attribute(),
+                inherit_attrs);
     }
     else if (!mac.empty())
     {
-        rc = allocate_by_mac(PoolObjectSQL::VM, vid, mac, nic, inherit_attrs);
+        rc = allocate_by_mac(PoolObjectSQL::VM, vid,mac,nic->vector_attribute(),
+                inherit_attrs);
     }
     else
     {
-        rc = allocate_addr(PoolObjectSQL::VM, vid, nic, inherit_attrs);
+        rc = allocate_addr(PoolObjectSQL::VM, vid, nic->vector_attribute(),
+                inherit_attrs);
     }
 
     //--------------------------------------------------------------------------
@@ -693,7 +696,7 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::vrouter_nic_attribute(
-        VectorAttribute *       nic,
+        VirtualMachineNic *     nic,
         int                     vrid,
         const vector<string>&   inherit_attrs)
 {
@@ -720,15 +723,18 @@ int VirtualNetwork::vrouter_nic_attribute(
 
         if (!ip.empty())
         {
-            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip, nic, inherit_attrs);
+            rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip,
+                    nic->vector_attribute(), inherit_attrs);
         }
         else if (!mac.empty())
         {
-            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac, nic, inherit_attrs);
+            rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac,
+                    nic->vector_attribute(), inherit_attrs);
         }
         else
         {
-            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid, nic, inherit_attrs);
+            rc = allocate_addr(PoolObjectSQL::VROUTER, vrid,
+                    nic->vector_attribute(), inherit_attrs);
         }
     }
 

@@ -25,7 +25,6 @@ define(function(require) {
   // TODO Check if necessary require('flot.tooltip');
   require('flot.time');
   var Humanize = require('utils/humanize');
-
   /*
     CONSTRUCTOR
    */
@@ -42,7 +41,6 @@ define(function(require) {
     series = [];
 
     var attributes = info.monitor_resources.split(',');
-
     if (info.labels) {
       labels = info.labels.split(',')
     }
@@ -67,8 +65,10 @@ define(function(require) {
     }
 
     var humanize = info.humanize_figures ?
-        Humanize.size : function(val) { return (val * 100).toFixed() / 100 };
-
+        Humanize.size : function(val) { 
+          return (val * 100).toFixed() / 100 
+        };
+    //var valueX,valueY;
     var options = {
       //        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
       colors: ["#2ba6cb", "#707D85", "#AC5A62"],
@@ -88,6 +88,7 @@ define(function(require) {
       },
       yaxis : {
         tickFormatter: function(val, axis) {
+          this.valueY = val;
           return humanize(val, info.convert_from_bytes, info.y_sufix);
         },
         min: 0,
@@ -95,19 +96,29 @@ define(function(require) {
         font: {
           color: "#999",
           size: 10
-        }
+        },
+        zoomRange:[1, 10*1024*1024]
       },
       series: {
         lines: {
-          lineWidth: 1
-        }
+          lineWidth: 1,
+          show: true
+        },
+        shadowSize: 0
       },
       grid: {
         borderWidth: 1,
         borderColor: "#efefef"
+      },
+      zoom: {
+        interactive: true
+      },
+      pan: {
+        interactive: true
       }
     };
-
+    //options.xaxis.zoomRange = false;
+    options.yaxis.panRange = false;
     if (series.length > 0) {
       $.plot(info.div_graph, series, options);
     };

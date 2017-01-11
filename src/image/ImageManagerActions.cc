@@ -1005,6 +1005,45 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ImageManager::set_image_size(int iid, long long size)
+{
+    Image * img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return;
+    }
+
+    switch(img->get_type())
+    {
+        case Image::OS:
+        case Image::DATABLOCK:
+            break;
+
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+        case Image::CDROM:
+            img->unlock();
+            return;
+    }
+
+    if (img->get_state() != Image::USED_PERS)
+    {
+        img->unlock();
+        return;
+    }
+
+    img->set_size(size);
+
+    ipool->update(img);
+
+    img->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ImageManager::delete_snapshot(int iid, int sid, string& error)
 {
     const ImageManagerDriver* imd = get();

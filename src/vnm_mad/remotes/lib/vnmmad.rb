@@ -45,7 +45,10 @@ rescue
     CONF = {
         :arp_cache_poisoning => true,
         :vxlan_mc            => "239.0.0.0",
-        :vxlan_ttl           => "16"
+        :vxlan_ttl           => "16",
+        :vxlan_mtu           => "1500",
+        :validate_vlan_id    => false,
+        :vlan_mtu            => "1500"
     }
 end
 

@@ -27,6 +27,7 @@ define(function(require) {
     'sizeFromB': _sizeFromB,
     'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
+    'sizeToMB': _sizeToMB,
     'prettyDuration': _prettyDuration,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
@@ -93,6 +94,19 @@ define(function(require) {
 
     var st = value + binarySufix[i];
     return st;
+  }
+
+  function _sizeToMB(value){
+    var split = value.split("B");
+    var factor = split[0].slice(-1);
+    var number = parseFloat(split[0]);
+    if(factor=="K")
+      number = number * 1024;
+    else if(factor=="G")
+      number = number * 1024 * 1024;
+    else if(factor=="T")
+      number = number * 1024 * 1024 * 1024;
+    return number;
   }
 
   function _prettyDuration(duration) {

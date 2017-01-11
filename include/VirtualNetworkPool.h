@@ -24,6 +24,7 @@
 #include <time.h>
 
 class AuthRequest;
+class VirtualMachineNic;
 
 using namespace std;
 
@@ -187,7 +188,7 @@ public:
      */
     int nic_attribute(
             PoolObjectSQL::ObjectType   ot,
-            VectorAttribute*            nic,
+            VirtualMachineNic *         nic,
             int                         nic_id,
             int                         uid,
             int                         vid,
@@ -200,7 +201,7 @@ public:
      */
     void authorize_nic(
             PoolObjectSQL::ObjectType   ot,
-            VectorAttribute *           nic,
+            VirtualMachineNic *         nic,
             int                         uid,
             AuthRequest *               ar);
 
@@ -301,7 +302,7 @@ private:
      *  Function to get a VirtualNetwork by its name, as provided by a VM
      *  template
      */
-    VirtualNetwork * get_nic_by_name(VectorAttribute * nic,
+    VirtualNetwork * get_nic_by_name(VirtualMachineNic * nic,
                                      const string&     name,
                                      int               _uidi,
                                      string&           error);

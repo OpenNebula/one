@@ -24,7 +24,7 @@ module VNMNetwork
     #
     # PROTOCOL (mandatory)
     #   - Specifies the protocol of the rule
-    #   - values: ['ALL', 'TCP', 'UDP', 'ICMP', 'IPSEC']
+    #   - values: ['ALL', 'TCP', 'UDP', 'ICMP', 'ICMPV6', 'IPSEC']
     #
     # RULE_TYPE (mandatory)
     #   - Specifies the direction of application of the rule
@@ -34,8 +34,9 @@ module VNMNetwork
     #   - only works for protocols ['TCP', 'UDP']
     #   - uses the iptables multiports syntax
     #
-    # ICMP_TYPE (optional)
-    #   - Only works for protocol 'ICMP'
+    # ICMP_TYPE and ICMPV6_TYPE (optional)
+    #   - Only works for protocol 'ICMP' (for ICMP_TYPE) or protocol 'ICMPV6' (for
+    #     ICMPV6_TYPE)
     #   - Is either in the form of '<TYPE>' or '<TYPE>/<CODE>', where both
     #     '<TYPE>' and '<CODE>' are integers. This class has a helper method
     #     tgat expands '<TYPE>' into all the '<TYPE>/<CODE>' subtypes.
@@ -50,9 +51,11 @@ module VNMNetwork
             :protocol,      # Type  1: block the whole protocol
             :portrange,     # Type 2a: block a port range within a protocol
             :icmp_type,     # Type 2b: block selected icmp types
+            :icmpv6_type,   # Type 2c: block selected icmpv6 types
             :net,           # Type  3: block a whole protocol for a network
             :net_portrange, # Type 4a: block a port range from a network
-            :net_icmp_type  # Type 4b: block selected icmp types from a network
+            :net_icmp_type, # Type 4b: block selected icmp types from a network
+            :net_icmpv6_type # Type 4c: block selected icmpv6 types from a network
         ]
 
         # Initialize a new rule.
@@ -63,6 +66,7 @@ module VNMNetwork
 
             @rule_type = @rule[:rule_type].downcase.to_sym
             @icmp_type = @rule[:icmp_type]
+            @icmpv6_type = @rule[:icmpv6_type]
 
             @range = @rule[:range]
             @ip    = @rule[:ip]
@@ -84,6 +88,9 @@ module VNMNetwork
                 when :icmp_type
                     process_icmp_type(cmds, vars)
 
+                when :icmpv6_type
+                    process_icmpv6_type(cmds, vars)
+
                 when :net
                     process_net(cmds, vars)
 
@@ -92,6 +99,9 @@ module VNMNetwork
 
                 when :net_icmp_type
                     process_net_icmp_type(cmds, vars)
+
+                when :net_icmpv6_type
+                    process_net_icmpv6_type(cmds, vars)
             end
         end
 
@@ -113,14 +123,36 @@ module VNMNetwork
             end
         end
 
+        # Expand the ICMP type with associated codes if any
+        #   @return [Array<String>] expanded ICMP types to include all codes
+        def icmpv6_type_expand
+            if (codes = ICMPv6_TYPES_EXPANDED[@icmpv6_type.to_i])
+                codes.collect{|e| "#{@icmpv6_type}/#{e}"}
+            else
+                ["#{@icmpv6_type}/0"]
+            end
+        end
+
         private
 
-        # ICMP Codes for each ICMP type
+        # ICMP Codes for each ICMP type as in:
+        # http://www.iana.org/assignments/icmp-parameters/
+        # http://www.iana.org/assignments/icmpv6-parameters/
         ICMP_TYPES_EXPANDED = {
             3  => [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15],
             5  => [0, 1, 2, 3],
+            9  => [0, 16],
             11 => [0, 1],
-            12 => [0, 1]
+            12 => [0, 1, 2]
+        }
+
+        ICMPv6_TYPES_EXPANDED = {
+            1  => [0, 1, 2, 3, 4, 5, 6, 7],
+            3  => [0, 1],
+            4  => [0, 1, 2, 3],
+            138=> [0, 1, 255],
+            139=> [0, 1, 2],
+            140=> [0, 1, 2]
         }
 
         # Depending on the combination of the rule attributes derive the
@@ -129,17 +161,21 @@ module VNMNetwork
         # @protocol + @rule_type => Type 1: 'protocol'
         # @protocol + @rule_type + @range => Type 2A: 'portrange'
         # @protocol + @rule_type + @icmp_type => Type 2B: 'icmp_type'
+        # @protocol + @rule_type + @icmpv6_type => Type 2C: 'icmpv6_type'
         # @protocol + @rule_type + @ip + @size => Type 3: 'net'
         # @protocol + @rule_type + @ip + @size + @range => Type 4A: 'net_portrange'
         # @protocol + @rule_type + @ip + @size + @icmp_type => Type 4B: 'net_icmp_type'
+        # @protocol + @rule_type + @ip + @size + @icmpv6_type => Type 4C: 'net_icmpv6_type'
         #
         # @return [Symbol] The rule type
         def set_type
             if @ip.nil? && @size.nil?
+                return :icmpv6_type if !@icmpv6_type.nil?
                 return :icmp_type if !@icmp_type.nil?
                 return :portrange if !@range.nil?
                 return :protocol
             else
+                return :net_icmpv6_type if !@icmpv6_type.nil?
                 return :net_icmp_type if !@icmp_type.nil?
                 return :net_portrange if !@range.nil?
                 return :net
@@ -161,6 +197,9 @@ module VNMNetwork
         def process_icmp_type(cmds, vars)
         end
 
+        def process_icmpv6_type(cmds, vars)
+        end
+
         def process_net(cmds, vars)
         end
 
@@ -168,6 +207,9 @@ module VNMNetwork
         end
 
         def process_net_icmp_type(cmds, vars)
+        end
+
+        def process_net_icmpv6_type(cmds, vars)
         end
     end
 

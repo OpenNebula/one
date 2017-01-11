@@ -168,7 +168,9 @@ int get_image_path(VirtualMachine * vm,
             file_values.insert(make_pair(var2, val2));
 
             vfile = new VectorAttribute("FILE", file_values);
-            uid   = ImagePool::get_disk_uid(vfile, uid);
+
+            VirtualMachineDisk file_disk(vfile, 0);
+            uid   = file_disk.get_uid(uid);
 
             delete vfile;
         }
@@ -252,7 +254,7 @@ int get_image_path(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 
 
-#line 256 "vm_file_var_syntax.cc" /* yacc.c:339  */
+#line 258 "vm_file_var_syntax.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -304,13 +306,13 @@ extern int vm_file_var__debug;
 
 union YYSTYPE
 {
-#line 208 "vm_file_var_syntax.y" /* yacc.c:355  */
+#line 210 "vm_file_var_syntax.y" /* yacc.c:355  */
 
     char * val_str;
     int    val_int;
     char   val_char;
 
-#line 314 "vm_file_var_syntax.cc" /* yacc.c:355  */
+#line 316 "vm_file_var_syntax.cc" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -340,7 +342,7 @@ int vm_file_var__parse (mem_collector *  mc, VirtualMachine * vm, vector<int> * 
 
 /* Copy the second part of user declarations.  */
 
-#line 344 "vm_file_var_syntax.cc" /* yacc.c:358  */
+#line 346 "vm_file_var_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -638,9 +640,9 @@ static const yytype_uint8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,   232,   232,   233,   237,   255
+       0,   234,   234,   235,   239,   257
 };
 #endif
 
@@ -1520,7 +1522,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 238 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 240 "vm_file_var_syntax.y" /* yacc.c:1646  */
     {
         string file((yyvsp[-6].val_str));
         string var1((yyvsp[-4].val_str));
@@ -1538,11 +1540,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1542 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1544 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 256 "vm_file_var_syntax.y" /* yacc.c:1646  */
+#line 258 "vm_file_var_syntax.y" /* yacc.c:1646  */
     {
         string file((yyvsp[-10].val_str));
         string var1((yyvsp[-8].val_str));
@@ -1563,11 +1565,11 @@ yyreduce:
             YYABORT;
         }
     }
-#line 1567 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1569 "vm_file_var_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1571 "vm_file_var_syntax.cc" /* yacc.c:1646  */
+#line 1573 "vm_file_var_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1802,7 +1804,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 277 "vm_file_var_syntax.y" /* yacc.c:1906  */
+#line 279 "vm_file_var_syntax.y" /* yacc.c:1906  */
 
 
 extern "C" void vm_file_var__error(

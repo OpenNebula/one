@@ -100,11 +100,12 @@ define(function(require) {
       document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
     if(parseInt(document.getElementById('change_bar_cpu').value) < 0)
       document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value;
+    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
   }
 
    function changeInputCPU(){
-    document.getElementById('change_bar_cpu').value = document.getElementById('textInput_reserved_cpu').value;
+    document.getElementById('change_bar_cpu').value = parseInt(document.getElementById('textInput_reserved_cpu').value);
+    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
   }
 
   function changeBarMEM(){
@@ -112,11 +113,12 @@ define(function(require) {
       document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
     if(parseInt(document.getElementById('change_bar_mem').value) < 0)
       document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value;
+    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
   }
 
    function changeInputMEM(){
-    document.getElementById('change_bar_mem').value = document.getElementById('textInput_reserved_mem').value;
+    document.getElementById('change_bar_mem').value = parseInt(document.getElementById('textInput_reserved_mem').value);
+    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
   }
 
   function _setup(context) {
@@ -130,6 +132,8 @@ define(function(require) {
     document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
     document.getElementById("change_bar_mem").addEventListener("change", changeBarMEM);
     document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
+    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
+    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
 
     $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){
         var reservedCPU = document.getElementById('change_bar_cpu').value+'%'; 

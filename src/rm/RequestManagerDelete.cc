@@ -171,12 +171,16 @@ int RequestManagerDelete::drop(PoolObjectSQL * object, bool recursive,
 int TemplateDelete::drop(PoolObjectSQL * object, bool recursive,
 		RequestAttributes& att)
 {
-    vector<VectorAttribute *> disks;
+    vector<VectorAttribute *> vdisks;
     vector<VectorAttribute *>::iterator i;
+
+    VirtualMachineDisks disks(true);
 
     if (recursive)
     {
-		static_cast<VMTemplate *>(object)->clone_disks(disks);
+		static_cast<VMTemplate *>(object)->clone_disks(vdisks);
+
+        disks.init(vdisks, false);
     }
 
 	int rc = RequestManagerDelete::drop(object, false, att);
@@ -193,11 +197,9 @@ int TemplateDelete::drop(PoolObjectSQL * object, bool recursive,
     set<int> error_ids;
     set<int> img_ids;
 
-    ImagePool* ipool = Nebula::instance().get_ipool();
-
 	ImageDelete img_delete;
 
-    ipool->get_image_ids(disks, img_ids, att.uid);
+    disks.get_image_ids(img_ids, att.uid);
 
     for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
     {
@@ -208,11 +210,6 @@ int TemplateDelete::drop(PoolObjectSQL * object, bool recursive,
 
             error_ids.insert(*it);
         }
-    }
-
-    for (i = disks.begin(); i != disks.end() ; i++)
-    {
-        delete *i;
     }
 
     if ( !error_ids.empty() )

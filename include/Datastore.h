@@ -23,6 +23,8 @@
 #include "Clusterable.h"
 #include "Image.h"
 
+class VirtualMachineDisk;
+
 /**
  *  The Datastore class.
  */
@@ -191,7 +193,7 @@ public:
      *   into the disk
      */
     void disk_attribute(
-            VectorAttribute *       disk,
+            VirtualMachineDisk *    disk,
             const vector<string>&   inherit_attrs);
 
     /**

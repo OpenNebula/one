@@ -101,20 +101,17 @@ int Datastore::enable(bool enable, string& error_str)
 /* ------------------------------------------------------------------------ */
 
 void Datastore::disk_attribute(
-        VectorAttribute *       disk,
+        VirtualMachineDisk *    disk,
         const vector<string>&   inherit_attrs)
 {
-    ostringstream oss;
     string st;
     string inherit_val;
     string current_val;
 
     vector<string>::const_iterator it;
 
-    oss << oid;
-
     disk->replace("DATASTORE",    get_name());
-    disk->replace("DATASTORE_ID", oss.str());
+    disk->replace("DATASTORE_ID", oid);
     disk->replace("TM_MAD",       get_tm_mad());
 
     set<int> cluster_ids = get_cluster_ids();
@@ -146,7 +143,7 @@ void Datastore::disk_attribute(
         }
     }
 
-    if (VirtualMachine::is_volatile(disk))
+    if (disk->is_volatile())
     {
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }

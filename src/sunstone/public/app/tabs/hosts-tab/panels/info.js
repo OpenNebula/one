@@ -120,11 +120,13 @@ define(function(require) {
   }
 
    function changeInputCPU(){
-    document.getElementById('change_bar_cpu_hosts').value = document.getElementById('textInput_reserved_cpu_hosts').value;
+    document.getElementById('change_bar_cpu_hosts').value = parseInt(document.getElementById('textInput_reserved_cpu_hosts').value);
+    document.getElementById('textInput_reserved_cpu_hosts').value = document.getElementById('change_bar_cpu_hosts').value;
   }
   
    function changeInputMEM(){
-    document.getElementById('change_bar_mem_hosts').value = parseInt(document.getElementById('textInput_reserved_mem_hosts').value);
+    document.getElementById('change_bar_mem_hosts').value = Humanize.sizeToMB(document.getElementById('textInput_reserved_mem_hosts').value);
+    document.getElementById('textInput_reserved_mem_hosts').value = Humanize.size(document.getElementById('change_bar_mem_hosts').value);
   }
 
   function _setup(context) {

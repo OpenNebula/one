@@ -20,12 +20,12 @@ define(function(require) {
    */
 
   var TemplateInfo = require('hbs!./info/html');
-  var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
   var ResourceSelect = require('utils/resource-select');
   var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
   var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
+  var UserCreation = require('tabs/users-tab/utils/user-creation');
 
   /*
     TEMPLATES
@@ -52,7 +52,7 @@ define(function(require) {
     this.icon = "fa-info-circle";
 
     this.element = info[XML_ROOT];
-
+    this.userCreation = new UserCreation(this.tabId, {name: false, password: false, group_select: false});
     return this;
   }
 
@@ -66,7 +66,6 @@ define(function(require) {
    */
 
   function _html() {
-    var groupTrHTML = TemplateChgrpTr({'element': this.element});
 
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
@@ -80,15 +79,15 @@ define(function(require) {
     return TemplateInfo({
       'element': this.element,
       'sunstone_template': this.element.TEMPLATE.SUNSTONE||{},
-      'groupTrHTML': groupTrHTML,
       'templateTableHTML': templateTableHTML,
-      'tabId': this.tabId
+      'tabId': this.tabId,
+      'userCreationHTML': this.userCreation.html()
     });
   }
 
   function _setup(context) {
     var that = this;
-
+    this.userCreation.setup(context);
     // Template update
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
@@ -106,88 +105,6 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===
-
-    // Chgrp
-    context.off("click", "#div_edit_chg_group_link");
-    context.on("click", "#div_edit_chg_group_link", function() {
-      ResourceSelect.insert({
-        context: $('#value_td_group', context),
-        resourceName: 'Group',
-        initValue: that.element.GID
-      });
-    });
-
-    context.off("change", "#value_td_group .resource_list_select");
-    context.on("change", "#value_td_group .resource_list_select", function() {
-      var newGroupId = $(this).val();
-      if (newGroupId != "") {
-        Sunstone.runAction(RESOURCE + ".chgrp", [that.element.ID], newGroupId);
-      }
-    });
-
-    // View password button
-    context.off("click", "#view_password");
-    context.on("click", "#view_password", function(){
-      Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
-        header : Locale.tr("Password"),
-        headerTabId: that.tabId,
-        body: '<label>' + Locale.tr("Current password") + '</label>' +
-              '<pre>'+that.element.PASSWORD+'</pre>',
-        question : '',
-        buttons : [
-          Locale.tr("Close"),
-        ],
-        submit : [
-          function(){
-            return false;
-          }
-        ]
-      });
-
-      Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
-      Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
-    });
-
-    // Edit password button
-    context.off("click", "#update_password");
-    context.on("click", "#update_password", function(){
-      Sunstone.getDialog(PASSWORD_DIALOG_ID).setParams(
-        {selectedElements: [that.element.ID]});
-      Sunstone.getDialog(PASSWORD_DIALOG_ID).reset();
-      Sunstone.getDialog(PASSWORD_DIALOG_ID).show();
-    });
-
-    // Login token button
-    context.off("click", "#login_token");
-    context.on("click", "#login_token", function(){
-      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).setParams({element: that.element});
-      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).reset();
-      Sunstone.getDialog(LOGIN_TOKEN_DIALOG_ID).show();
-    });
-
-    // SSH input
-
-    context.off("click", ".user_ssh_public_key_edit");
-    context.on("click", ".user_ssh_public_key_edit", function() {
-      $("#user_ssh_public_key_text", context).hide();
-      $("#user_ssh_public_key_textarea", context).show().focus();
-    });
-
-    context.off("change", "#user_ssh_public_key_textarea");
-    context.on("change", "#user_ssh_public_key_textarea", function() {
-      var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes($(this).val())+'"';
-
-      Sunstone.runAction("User.append_template", that.element.ID, template_str);
-    });
-
-    context.off("focusout", "#user_ssh_public_key_textarea");
-    context.on("focusout", "#user_ssh_public_key_textarea", function() {
-      $("#user_ssh_public_key_text", context).show();
-      $("#user_ssh_public_key_textarea", context).hide();
-    });
-
-    $("#user_ssh_public_key_text", context).show();
-    $("#user_ssh_public_key_textarea", context).hide();
       
     // Change table Order
     context.off("click", "#div_edit_table_order")

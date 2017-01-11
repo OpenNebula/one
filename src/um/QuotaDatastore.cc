@@ -32,7 +32,7 @@ bool QuotaDatastore::check(Template * tmpl, Quotas& default_quotas, string& erro
     map<string, float> ds_request;
 
     string ds_id;
-    int    size;
+    float  size;
     int    images, images_req = 1;
 
     tmpl->get("DATASTORE", ds_id);
@@ -68,7 +68,7 @@ void QuotaDatastore::del(Template * tmpl)
     map<string, float> ds_request;
 
     string ds_id;
-    int    size;
+    float  size;
     int    images, images_req = 1;
 
     tmpl->get("DATASTORE", ds_id);

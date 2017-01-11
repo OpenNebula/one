@@ -214,7 +214,8 @@ error:
 
 void DispatchManager::free_vm_resources(VirtualMachine * vm)
 {
-    Template *    tmpl;
+    Template* tmpl;
+    map<int, Template *> ds_quotas;
 
     int uid;
     int gid;
@@ -222,7 +223,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     int vmid;
 
     vm->release_network_leases();
-    vm->release_disk_images();
+    vm->release_disk_images(ds_quotas);
 
     vm->set_exit_time(time(0));
 
@@ -245,6 +246,11 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     Quotas::vm_del(uid, gid, tmpl);
 
     delete tmpl;
+
+    if ( !ds_quotas.empty() )
+    {
+        Quotas::ds_del(ds_quotas);
+    }
 
     if (vrid != -1)
     {
@@ -1055,8 +1061,11 @@ int DispatchManager::delete_recreate(VirtualMachine * vm, string& error)
 
     int rc = 0;
 
-    Template *           vm_quotas = 0;
-    map<int, Template *> ds_quotas;
+    Template * vm_quotas_snp = 0;
+    Template * vm_quotas_rsz = 0;
+
+    map<int, Template *> ds_quotas_snp;
+    map<int, Template *> ds_quotas_rsz;
 
     int vm_uid, vm_gid;
 
@@ -1085,7 +1094,10 @@ int DispatchManager::delete_recreate(VirtualMachine * vm, string& error)
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
-            vm->delete_non_persistent_disk_snapshots(&vm_quotas, ds_quotas);
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas_rsz,
+                    ds_quotas_rsz);
+            vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
+                    ds_quotas_rsz);
 
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
@@ -1115,16 +1127,28 @@ int DispatchManager::delete_recreate(VirtualMachine * vm, string& error)
 
     vm->unlock();
 
-    if ( !ds_quotas.empty() )
+    if ( !ds_quotas_snp.empty() )
     {
-        Quotas::ds_del(ds_quotas);
+        Quotas::ds_del(ds_quotas_snp);
     }
 
-    if ( vm_quotas != 0 )
+    if ( !ds_quotas_rsz.empty() )
     {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+        Quotas::ds_del(ds_quotas_rsz);
+    }
 
-        delete vm_quotas;
+    if ( vm_quotas_snp != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
+
+        delete vm_quotas_snp;
+    }
+
+    if ( vm_quotas_rsz != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_rsz);
+
+        delete vm_quotas_rsz;
     }
 
     return rc;
@@ -1610,7 +1634,7 @@ int DispatchManager::attach_nic(
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->attach_nic_success();
+        vm->clear_attach_nic();
     }
 
     vmpool->update(vm);
@@ -2045,3 +2069,121 @@ int DispatchManager::disk_snapshot_delete(
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_resize(
+        int           vid,
+        int           did,
+        long long     new_size,
+        string&       error_str)
+{
+    ostringstream oss;
+    time_t        the_time;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not resize disk for VM " << vid << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+        return -1;
+    }
+
+    VirtualMachine::VmState  state  = vm->get_state();
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+    if ((state!=VirtualMachine::POWEROFF  || lstate!=VirtualMachine::LCM_INIT)&&
+        (state!=VirtualMachine::UNDEPLOYED|| lstate!=VirtualMachine::LCM_INIT)&&
+        (state!=VirtualMachine::ACTIVE    || lstate!=VirtualMachine::RUNNING))
+    {
+        oss << "Could not resize disk for VM " << vid << ", wrong state "
+            << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+
+        return -1;
+    }
+
+    // Set the VM info in the history before the disk is resized
+    vm->set_vm_info();
+
+    int rc = vm->set_up_resize_disk(did, new_size, error_str);
+
+    if (rc == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_RESIZE_POWEROFF);
+            break;
+
+        case VirtualMachine::UNDEPLOYED:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_RESIZE_UNDEPLOYED);
+            break;
+
+        case VirtualMachine::ACTIVE:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_RESIZE);
+            break;
+
+        default: break;
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::UNDEPLOYED:
+            tm->trigger(TransferManager::RESIZE, vid);
+            break;
+
+        case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_RESIZE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DISK_RESIZE, vid);
+            break;
+
+        default: break;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

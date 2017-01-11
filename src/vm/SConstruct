@@ -48,6 +48,12 @@ source_files=[
     'VirtualMachinePool.cc',
     'VirtualMachineHook.cc',
     'VirtualMachineTemplate.cc',
+    'VirtualMachineAttribute.cc',
+    'VirtualMachineDisk.cc',
+    'VirtualMachineNic.cc',
+    'VirtualMachineSystemSnapshot.cc',
+    'VirtualMachineParser.cc',
+    'VirtualMachineContext.cc',
     'Snapshots.cc'
 ]
 

@@ -402,6 +402,19 @@ private:
     }
 
     /**
+     *  Sends a disk resize request to the MAD:
+     *  "RESIZE ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void disk_resize (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("RESIZEDISK", oid, drv_msg);
+    }
+
+    /**
      *  Sends a request to update the VM security groups:
      *  "UPDATESG ID XML_DRV_MSG"
      *    @param oid the virtual machine id.

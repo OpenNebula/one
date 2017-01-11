@@ -781,6 +781,46 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
+    # RESIZEDISK action, resizes a disk on a running VM
+    #
+    def resize_disk(id, drv_message)
+        action   = ACTION[:resize_disk]
+        xml_data = decode(drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+
+        size_xpath = "VM/TEMPLATE/DISK[RESIZE='YES']/SIZE"
+        size       = ensure_xpath(xml_data, id, action, size_xpath) || return
+
+        disk_id_xpath = "VM/TEMPLATE/DISK[RESIZE='YES']/DISK_ID"
+        disk_id       = ensure_xpath(xml_data, id, action, disk_id_xpath) || return
+
+        action = VmmAction.new(self, id, :resize_disk, drv_message)
+
+        steps = [
+            # Perform the resize command
+            {
+                :driver     => :tm,
+                :action     => :tm_resize,
+                :parameters => tm_command.split
+            },
+            # Run the attach vmm script
+            {
+                :driver       => :vmm,
+                :action       => :resize_disk,
+                :parameters   => [
+                        :deploy_id,
+                        disk_id,
+                        size,
+                        drv_message,
+                        :host
+                ]
+            }
+        ]
+
+        action.run(steps)
+    end
+    #
     # CLEANUP action, frees resources allocated in a host: VM and disk images
     #
     def cleanup(id, drv_message)

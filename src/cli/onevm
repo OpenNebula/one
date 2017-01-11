@@ -177,6 +177,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         format_int(arg)
     end
 
+    set :format, :size, "Disk size in MiB" do |arg|
+        OpenNebulaHelper.size_in_mb(arg)
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -840,6 +844,29 @@ cmd=CommandParser::CmdParser.new(ARGV) do
       :vmid, :diskid, :snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot deleted") do |o|
           o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    disk_resize_desc = <<-EOT.unindent
+        Resizes a VM disk. The new size should be larger than the old one.
+
+        States: RUNNING, POWEROFF
+    EOT
+
+    command :"disk-resize", disk_resize_desc,
+      :vmid, :diskid, :size do
+        helper.perform_action(args[0],options,"disk resized") do |o|
+            o.info
+            size = o["/VM/TEMPLATE/DISK[DISK_ID='#{args[1]}']/SIZE"].to_i
+
+            new_size = args[2]
+
+            if size < new_size
+                o.disk_resize(args[1].to_i, args[2])
+            else
+                OpenNebula::Error.new("New size '#{new_size}' must be larger " \
+                                      "than current size '#{size}'")
+            end
         end
     end
 

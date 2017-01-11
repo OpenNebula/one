@@ -36,7 +36,8 @@ define(function(require) {
     require('./users-tab/panels/groups'),
     require('./users-tab/panels/quotas'),
     require('./users-tab/panels/accounting'),
-    require('./users-tab/panels/showback')
+    require('./users-tab/panels/showback'),
+    require('./users-tab/panels/auth')
   ];
 
   var _panelsHooks = [

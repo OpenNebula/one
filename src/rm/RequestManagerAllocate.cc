@@ -20,6 +20,7 @@
 #include "PoolObjectSQL.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "VirtualMachineDisk.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -113,7 +114,7 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     VirtualMachineTemplate aux_tmpl(*ttmpl);
 
-    VirtualMachine::disk_extended_info(att.uid, &aux_tmpl);
+    VirtualMachineDisks::extended_info(att.uid, &aux_tmpl);
 
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {

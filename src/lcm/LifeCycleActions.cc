@@ -787,8 +787,11 @@ void LifeCycleManager::delete_action(int vid)
 
 void LifeCycleManager::delete_recreate_action(int vid)
 {
-    Template *           vm_quotas = 0;
-    map<int, Template *> ds_quotas;
+    Template * vm_quotas_snp = 0;
+    Template * vm_quotas_rsz = 0;
+
+    map<int, Template *> ds_quotas_snp;
+    map<int, Template *> ds_quotas_rsz;
 
     int vm_uid, vm_gid;
 
@@ -827,7 +830,11 @@ void LifeCycleManager::delete_recreate_action(int vid)
 
             clean_up_vm(vm, false, image_id);
 
-            vm->delete_non_persistent_disk_snapshots(&vm_quotas, ds_quotas);
+            vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
+                    ds_quotas_snp);
+
+            vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
+                    ds_quotas_rsz);
         break;
     }
 
@@ -847,16 +854,28 @@ void LifeCycleManager::delete_recreate_action(int vid)
         }
     }
 
-    if ( !ds_quotas.empty() )
+    if ( !ds_quotas_snp.empty() )
     {
-        Quotas::ds_del(ds_quotas);
+        Quotas::ds_del(ds_quotas_snp);
     }
 
-    if ( vm_quotas != 0 )
+    if ( !ds_quotas_rsz.empty() )
     {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
+        Quotas::ds_del(ds_quotas_rsz);
+    }
 
-        delete vm_quotas;
+    if ( vm_quotas_snp != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
+
+        delete vm_quotas_snp;
+    }
+
+    if ( vm_quotas_rsz != 0 )
+    {
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_rsz);
+
+        delete vm_quotas_rsz;
     }
 }
 
@@ -963,7 +982,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
-            vm->attach_nic_success();
+            vm->clear_attach_nic();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);
@@ -986,13 +1005,14 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
-
             image_id = vm->clear_saveas_disk();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
+
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
+            tm->trigger(TransferManager::EPILOG_DELETE, vid);
         break;
 
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
@@ -1027,6 +1047,26 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
+        case VirtualMachine::DISK_RESIZE:
+            vm->clear_resize_disk(true);
+            vmpool->update(vm);
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+        break;
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+            vm->clear_resize_disk(true);
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
         case VirtualMachine::MIGRATE:
@@ -1316,6 +1356,19 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success)
                 lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
             }
         break;
+
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+        case VirtualMachine::DISK_RESIZE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::DISK_RESIZE_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DISK_RESIZE_FAILURE;
+            }
+        break;
     }
 
     if (lcm_action != LifeCycleManager::FINALIZE)
@@ -1533,6 +1586,9 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
+        case VirtualMachine::DISK_RESIZE:
+        case VirtualMachine::DISK_RESIZE_POWEROFF:
+        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
             break;
@@ -1642,6 +1698,8 @@ void  LifeCycleManager::updatesg_action(int sgid)
                 case VirtualMachine::SAVE_MIGRATE:
                 case VirtualMachine::CLEANUP_RESUBMIT:
                 case VirtualMachine::CLEANUP_DELETE:
+                case VirtualMachine::DISK_RESIZE_POWEROFF:
+                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1662,6 +1720,7 @@ void  LifeCycleManager::updatesg_action(int sgid)
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::DISK_SNAPSHOT:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
+                case VirtualMachine::DISK_RESIZE:
                     is_update = true;
                     break;
             }

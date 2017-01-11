@@ -18,6 +18,8 @@
 #define VIRTUAL_MACHINE_H_
 
 #include "VirtualMachineTemplate.h"
+#include "VirtualMachineDisk.h"
+#include "VirtualMachineNic.h"
 #include "VirtualMachineMonitorInfo.h"
 #include "PoolSQL.h"
 #include "History.h"
@@ -48,7 +50,6 @@ public:
     // -------------------------------------------------------------------------
     // VM States
     // -------------------------------------------------------------------------
-
     /**
      *  Global Virtual Machine state
      */
@@ -67,46 +68,6 @@ public:
         CLONING         = 10,
         CLONING_FAILURE = 11
     };
-
-    static int vm_state_from_str(string& st, VmState& state)
-    {
-        one_util::toupper(st);
-
-        if ( st == "INIT" ) { state = INIT; }
-        else if ( st == "PENDING" ) { state = PENDING; }
-        else if ( st == "HOLD" ) { state = HOLD; }
-        else if ( st == "ACTIVE" ) { state = ACTIVE; }
-        else if ( st == "STOPPED" ) { state = STOPPED; }
-        else if ( st == "SUSPENDED" ) { state = SUSPENDED; }
-        else if ( st == "DONE" ) { state = DONE; }
-        else if ( st == "POWEROFF" ) { state = POWEROFF; }
-        else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
-        else if ( st == "CLONING" ) { state = CLONING; }
-        else if ( st == "CLONING_FAILURE" ) { state = CLONING_FAILURE; }
-        else {return -1;}
-
-        return 0;
-    }
-
-    static string& vm_state_to_str(string& st, VmState state)
-    {
-        switch (state)
-        {
-            case INIT               : st = "INIT"; break;
-            case PENDING            : st = "PENDING"; break;
-            case HOLD               : st = "HOLD"; break;
-            case ACTIVE             : st = "ACTIVE"; break;
-            case STOPPED            : st = "STOPPED"; break;
-            case SUSPENDED          : st = "SUSPENDED"; break;
-            case DONE               : st = "DONE"; break;
-            case POWEROFF           : st = "POWEROFF"; break;
-            case UNDEPLOYED         : st = "UNDEPLOYED"; break;
-            case CLONING            : st = "CLONING"; break;
-            case CLONING_FAILURE    : st = "CLONING_FAILURE"; break;
-        }
-
-        return st;
-    }
 
     /**
      *  Virtual Machine state associated to the Life-cycle Manager
@@ -174,166 +135,115 @@ public:
         //DISK_SNAPSHOT_REVERT = 58,
         DISK_SNAPSHOT_DELETE = 59,
         PROLOG_MIGRATE_UNKNOWN = 60,
-        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61
+        PROLOG_MIGRATE_UNKNOWN_FAILURE = 61,
+        DISK_RESIZE = 62,
+        DISK_RESIZE_POWEROFF = 63,
+        DISK_RESIZE_UNDEPLOYED = 64
     };
 
-    static int lcm_state_from_str(string& st, LcmState& state)
-    {
-        one_util::toupper(st);
+    /**
+     *  Functions to convert to/from string the VM states
+     */
+    static int vm_state_from_str(string& st, VmState& state);
 
-        if ( st == "LCM_INIT" ){ state = LCM_INIT; }
-        else if ( st == "PROLOG") { state = PROLOG; }
-        else if ( st == "BOOT") { state = BOOT; }
-        else if ( st == "RUNNING") { state = RUNNING; }
-        else if ( st == "MIGRATE") { state = MIGRATE; }
-        else if ( st == "SAVE_STOP") { state = SAVE_STOP; }
-        else if ( st == "SAVE_SUSPEND") { state = SAVE_SUSPEND; }
-        else if ( st == "SAVE_MIGRATE") { state = SAVE_MIGRATE; }
-        else if ( st == "PROLOG_MIGRATE") { state = PROLOG_MIGRATE; }
-        else if ( st == "PROLOG_RESUME") { state = PROLOG_RESUME; }
-        else if ( st == "EPILOG_STOP") { state = EPILOG_STOP; }
-        else if ( st == "EPILOG") { state = EPILOG; }
-        else if ( st == "SHUTDOWN") { state = SHUTDOWN; }
-        else if ( st == "CLEANUP_RESUBMIT") { state = CLEANUP_RESUBMIT; }
-        else if ( st == "UNKNOWN") { state = UNKNOWN; }
-        else if ( st == "HOTPLUG") { state = HOTPLUG; }
-        else if ( st == "SHUTDOWN_POWEROFF") { state = SHUTDOWN_POWEROFF; }
-        else if ( st == "BOOT_UNKNOWN") { state = BOOT_UNKNOWN; }
-        else if ( st == "BOOT_POWEROFF") { state = BOOT_POWEROFF; }
-        else if ( st == "BOOT_SUSPENDED") { state = BOOT_SUSPENDED; }
-        else if ( st == "BOOT_STOPPED") { state = BOOT_STOPPED; }
-        else if ( st == "CLEANUP_DELETE") { state = CLEANUP_DELETE; }
-        else if ( st == "HOTPLUG_SNAPSHOT") { state = HOTPLUG_SNAPSHOT; }
-        else if ( st == "HOTPLUG_NIC") { state = HOTPLUG_NIC; }
-        else if ( st == "HOTPLUG_SAVEAS") { state = HOTPLUG_SAVEAS; }
-        else if ( st == "HOTPLUG_SAVEAS_POWEROFF") { state = HOTPLUG_SAVEAS_POWEROFF; }
-        else if ( st == "HOTPLUG_SAVEAS_SUSPENDED") { state = HOTPLUG_SAVEAS_SUSPENDED; }
-        else if ( st == "SHUTDOWN_UNDEPLOY") { state = SHUTDOWN_UNDEPLOY; }
-        else if ( st == "EPILOG_UNDEPLOY") { state = EPILOG_UNDEPLOY; }
-        else if ( st == "PROLOG_UNDEPLOY") { state = PROLOG_UNDEPLOY; }
-        else if ( st == "BOOT_UNDEPLOY") { state = BOOT_UNDEPLOY; }
-        else if ( st == "HOTPLUG_PROLOG_POWEROFF") { state = HOTPLUG_PROLOG_POWEROFF; }
-        else if ( st == "HOTPLUG_EPILOG_POWEROFF") { state = HOTPLUG_EPILOG_POWEROFF; }
-        else if ( st == "BOOT_MIGRATE") { state = BOOT_MIGRATE; }
-        else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
-        else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
-        else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
-        else if ( st == "PROLOG_FAILURE") { state = PROLOG_FAILURE; }
-        else if ( st == "EPILOG_FAILURE") { state = EPILOG_FAILURE; }
-        else if ( st == "EPILOG_STOP_FAILURE") { state = EPILOG_STOP_FAILURE; }
-        else if ( st == "EPILOG_UNDEPLOY_FAILURE") { state = EPILOG_UNDEPLOY_FAILURE; }
-        else if ( st == "PROLOG_MIGRATE_POWEROFF") { state = PROLOG_MIGRATE_POWEROFF;}
-        else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE") { state = PROLOG_MIGRATE_POWEROFF_FAILURE;}
-        else if ( st == "PROLOG_MIGRATE_SUSPEND") { state = PROLOG_MIGRATE_SUSPEND;}
-        else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE") { state = PROLOG_MIGRATE_SUSPEND_FAILURE;}
-        else if ( st == "BOOT_STOPPED_FAILURE") { state = BOOT_STOPPED_FAILURE; }
-        else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
-        else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
-        else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
-        else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF") { state = DISK_SNAPSHOT_DELETE_POWEROFF; }
-        else if ( st == "DISK_SNAPSHOT_SUSPENDED") { state = DISK_SNAPSHOT_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED") { state = DISK_SNAPSHOT_REVERT_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED") { state = DISK_SNAPSHOT_DELETE_SUSPENDED; }
-        else if ( st == "DISK_SNAPSHOT") { state = DISK_SNAPSHOT; }
-        else if ( st == "DISK_SNAPSHOT_DELETE") { state = DISK_SNAPSHOT_DELETE; }
-        else if ( st == "PROLOG_MIGRATE_UNKNOWN") { state = PROLOG_MIGRATE_UNKNOWN; }
-        else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE") { state = PROLOG_MIGRATE_UNKNOWN_FAILURE; }
-        else {return -1;}
+    static string& vm_state_to_str(string& st, VmState state);
 
-        return 0;
-    }
+    static int lcm_state_from_str(string& st, LcmState& state);
 
-    static string& lcm_state_to_str(string& st, LcmState state)
-    {
-        switch (state)
-        {
-            case LCM_INIT: st = "LCM_INIT"; break;
-            case PROLOG: st = "PROLOG"; break;
-            case BOOT: st = "BOOT"; break;
-            case RUNNING: st = "RUNNING"; break;
-            case MIGRATE: st = "MIGRATE"; break;
-            case SAVE_STOP: st = "SAVE_STOP"; break;
-            case SAVE_SUSPEND: st = "SAVE_SUSPEND"; break;
-            case SAVE_MIGRATE: st = "SAVE_MIGRATE"; break;
-            case PROLOG_MIGRATE: st = "PROLOG_MIGRATE"; break;
-            case PROLOG_RESUME: st = "PROLOG_RESUME"; break;
-            case EPILOG_STOP: st = "EPILOG_STOP"; break;
-            case EPILOG: st = "EPILOG"; break;
-            case SHUTDOWN: st = "SHUTDOWN"; break;
-            case CLEANUP_RESUBMIT: st = "CLEANUP_RESUBMIT"; break;
-            case UNKNOWN: st = "UNKNOWN"; break;
-            case HOTPLUG: st = "HOTPLUG"; break;
-            case SHUTDOWN_POWEROFF: st = "SHUTDOWN_POWEROFF"; break;
-            case BOOT_UNKNOWN: st = "BOOT_UNKNOWN"; break;
-            case BOOT_POWEROFF: st = "BOOT_POWEROFF"; break;
-            case BOOT_SUSPENDED: st = "BOOT_SUSPENDED"; break;
-            case BOOT_STOPPED: st = "BOOT_STOPPED"; break;
-            case CLEANUP_DELETE: st = "CLEANUP_DELETE"; break;
-            case HOTPLUG_SNAPSHOT: st = "HOTPLUG_SNAPSHOT"; break;
-            case HOTPLUG_NIC: st = "HOTPLUG_NIC"; break;
-            case HOTPLUG_SAVEAS: st = "HOTPLUG_SAVEAS"; break;
-            case HOTPLUG_SAVEAS_POWEROFF: st = "HOTPLUG_SAVEAS_POWEROFF"; break;
-            case HOTPLUG_SAVEAS_SUSPENDED: st = "HOTPLUG_SAVEAS_SUSPENDED"; break;
-            case SHUTDOWN_UNDEPLOY: st = "SHUTDOWN_UNDEPLOY"; break;
-            case EPILOG_UNDEPLOY: st = "EPILOG_UNDEPLOY"; break;
-            case PROLOG_UNDEPLOY: st = "PROLOG_UNDEPLOY"; break;
-            case BOOT_UNDEPLOY: st = "BOOT_UNDEPLOY"; break;
-            case HOTPLUG_PROLOG_POWEROFF: st = "HOTPLUG_PROLOG_POWEROFF"; break;
-            case HOTPLUG_EPILOG_POWEROFF: st = "HOTPLUG_EPILOG_POWEROFF"; break;
-            case BOOT_MIGRATE: st = "BOOT_MIGRATE"; break;
-            case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
-            case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
-            case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
-            case PROLOG_FAILURE: st = "PROLOG_FAILURE"; break;
-            case EPILOG_FAILURE: st = "EPILOG_FAILURE"; break;
-            case EPILOG_STOP_FAILURE: st = "EPILOG_STOP_FAILURE"; break;
-            case EPILOG_UNDEPLOY_FAILURE: st = "EPILOG_UNDEPLOY_FAILURE"; break;
-            case PROLOG_MIGRATE_POWEROFF: st = "PROLOG_MIGRATE_POWEROFF"; break;
-            case PROLOG_MIGRATE_POWEROFF_FAILURE: st = "PROLOG_MIGRATE_POWEROFF_FAILURE"; break;
-            case PROLOG_MIGRATE_SUSPEND: st = "PROLOG_MIGRATE_SUSPEND"; break;
-            case PROLOG_MIGRATE_SUSPEND_FAILURE: st = "PROLOG_MIGRATE_SUSPEND_FAILURE"; break;
-            case BOOT_STOPPED_FAILURE: st = "BOOT_STOPPED_FAILURE"; break;
-            case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
-            case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
-            case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
-            case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
-            case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
-            case DISK_SNAPSHOT_DELETE_POWEROFF: st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
-            case DISK_SNAPSHOT_SUSPENDED: st = "DISK_SNAPSHOT_SUSPENDED"; break;
-            case DISK_SNAPSHOT_REVERT_SUSPENDED: st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
-            case DISK_SNAPSHOT_DELETE_SUSPENDED: st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
-            case DISK_SNAPSHOT: st = "DISK_SNAPSHOT"; break;
-            case DISK_SNAPSHOT_DELETE: st = "DISK_SNAPSHOT_DELETE"; break;
-            case PROLOG_MIGRATE_UNKNOWN: st = "PROLOG_MIGRATE_UNKNOWN"; break;
-            case PROLOG_MIGRATE_UNKNOWN_FAILURE: st = "PROLOG_MIGRATE_UNKNOWN_FAILURE"; break;
-        }
-
-        return st;
-    }
+    static string& lcm_state_to_str(string& st, LcmState state);
 
     /**
      * Returns the VM state to string, using the lcm state if the current state
      * is ACTIVE.
      * @return the state sting
      */
-    string state_str()
+    string state_str();
+
+    /**
+     *  Returns the VM state (Dispatch Manager)
+     *    @return the VM state
+     */
+    VmState get_state() const
+    {
+        return state;
+    };
+
+    VmState get_prev_state() const
+    {
+        return prev_state;
+    };
+
+    /**
+     *  Returns the VM state (life-cycle Manager)
+     *    @return the VM state
+     */
+    LcmState get_lcm_state() const
+    {
+        return lcm_state;
+    };
+
+    LcmState get_prev_lcm_state() const
+    {
+        return prev_lcm_state;
+    };
+
+    /**
+     *  Sets VM state
+     *    @param s state
+     */
+    void set_state(VmState s)
     {
         string st;
 
-        if (state == ACTIVE)
-        {
-            return lcm_state_to_str(st, lcm_state);
-        }
+        state = s;
 
-        return vm_state_to_str(st, state);
+        log("VM", Log::INFO, "New state is " + vm_state_to_str(st, s));
+    };
+
+    /**
+     *  Sets VM LCM state
+     *    @param s state
+     */
+    void set_state(LcmState s)
+    {
+        string st;
+
+        lcm_state = s;
+
+        log("VM", Log::INFO, "New LCM state is " + lcm_state_to_str(st, s));
+    };
+
+    /**
+     *  Sets the previous state to the current one
+     */
+    void set_prev_state()
+    {
+        prev_state     = state;
+        prev_lcm_state = lcm_state;
+    };
+
+    /**
+     *  Test if the VM has changed state since last time prev state was set
+     *    @return true if VM changed state
+     */
+    bool has_changed_state()
+    {
+        return (prev_lcm_state != lcm_state || prev_state != state);
     }
+
+    /**
+     *  Sets the re-scheduling flag
+     *    @param set or unset the re-schedule flag
+     */
+    void set_resched(bool do_sched)
+    {
+        resched = do_sched ? 1 : 0;
+    };
+
 
     // -------------------------------------------------------------------------
     // Log & Print
     // -------------------------------------------------------------------------
-
     /**
      *  writes a log message in vm.log. The class lock should be locked and
      *  the VM MUST BE obtained through the VirtualMachinePool get() method.
@@ -376,40 +286,9 @@ public:
         log(module, type, message.c_str());
     };
 
-    /**
-     * Function to print the VirtualMachine object into a string in
-     * XML format
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml(string& xml) const
-    {
-        return to_xml_extended(xml, 1);
-    }
-
-    /**
-     * Function to print the VirtualMachine object into a string in
-     * XML format, with extended information (full history records)
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml_extended(string& xml) const
-    {
-        return to_xml_extended(xml, 2);
-    }
-
-    /**
-     *  Rebuilds the object from an xml formatted string
-     *    @param xml_str The xml-formatted string
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml(const string &xml_str);
-
     // ------------------------------------------------------------------------
     // Dynamic Info
     // ------------------------------------------------------------------------
-
     /**
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
@@ -973,40 +852,37 @@ public:
     };
 
     // ------------------------------------------------------------------------
-    // Template
+    // Template & Object Representation
     // ------------------------------------------------------------------------
     /**
-     *  Parse a string and substitute variables (e.g. $NAME) using the VM
-     *  template values:
-     *    @param attribute, the string to be parsed
-     *    @param parsed, the resulting parsed string
-     *    @param error description in case of failure
-     *    @return 0 on success.
+     * Function to print the VirtualMachine object into a string in
+     * XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    int  parse_template_attribute(const string& attribute,
-                                  string&       parsed,
-                                  string&       error);
+    string& to_xml(string& xml) const
+    {
+        return to_xml_extended(xml, 1);
+    }
+
     /**
-     *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
-     *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
-     *    @param attribute the string to be parsed
-     *    @param img_ids ids of the FILE images in the attribute
-     *    @param error description in case of failure
-     *    @return 0 on success.
+     * Function to print the VirtualMachine object into a string in
+     * XML format, with extended information (full history records)
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    int  parse_file_attribute(string       attribute,
-                              vector<int>& img_ids,
-                              string&      error);
+    string& to_xml_extended(string& xml) const
+    {
+        return to_xml_extended(xml, 2);
+    }
+
     /**
-     *  Updates the configuration attributes based on a template, the state of
-     *  the virtual machine is checked to assure operation consistency
-     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
-     *      CONTEXT and GRAPHICS.
-     *    @param err description if any
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
      *
-     *    @return 0 on success
+     *    @return 0 on success, -1 otherwise
      */
-    int updateconf(VirtualMachineTemplate& tmpl, string &err);
+    int from_xml(const string &xml_str);
 
     /**
      *  Factory method for virtual machine templates
@@ -1034,7 +910,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted,
+            string& error);
 
     /**
      *  Append new attributes to the *user template*.
@@ -1044,7 +921,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int append_template(const string& tmpl_str, bool keep_restricted,
+            string& error);
 
     /**
      *  This function gets an attribute from the user template
@@ -1087,97 +965,6 @@ public:
     void clear_template_monitor_error();
 
     // ------------------------------------------------------------------------
-    // States
-    // ------------------------------------------------------------------------
-    /**
-     *  Returns the VM state (Dispatch Manager)
-     *    @return the VM state
-     */
-    VmState get_state() const
-    {
-        return state;
-    };
-
-    VmState get_prev_state() const
-    {
-        return prev_state;
-    };
-
-    /**
-     *  Returns the VM state (life-cycle Manager)
-     *    @return the VM state
-     */
-    LcmState get_lcm_state() const
-    {
-        return lcm_state;
-    };
-
-    LcmState get_prev_lcm_state() const
-    {
-        return prev_lcm_state;
-    };
-
-    /**
-     *  Sets VM state
-     *    @param s state
-     */
-    void set_state(VmState s)
-    {
-        string st;
-
-        state = s;
-
-        log("VM", Log::INFO, "New state is " + vm_state_to_str(st, s));
-    };
-
-    /**
-     *  Sets VM LCM state
-     *    @param s state
-     */
-    void set_state(LcmState s)
-    {
-        string st;
-
-        lcm_state = s;
-
-        log("VM", Log::INFO, "New LCM state is " + lcm_state_to_str(st, s));
-    };
-
-    /**
-     *  Sets the previous state to the current one
-     */
-    void set_prev_state()
-    {
-        prev_state     = state;
-        prev_lcm_state = lcm_state;
-    };
-
-    /**
-     *  Test if the VM has changed state since last time prev state was set
-     *    @return true if VM changed state
-     */
-    bool has_changed_state()
-    {
-        return (prev_lcm_state != lcm_state || prev_state != state);
-    }
-
-    /**
-     *  Sets the re-scheduling flag
-     *    @param set or unset the re-schedule flag
-     */
-    void set_resched(bool do_sched)
-    {
-        if ( do_sched == true )
-        {
-            resched = 1;
-        }
-        else
-        {
-            resched = 0;
-        }
-    };
-
-    // ------------------------------------------------------------------------
     // Timers & Requirements
     // ------------------------------------------------------------------------
     /**
@@ -1205,7 +992,7 @@ public:
      *    @param disk
      *    @param pci_dev
      */
-    void get_requirements (int& cpu, int& memory, int& disk,
+    void get_requirements(int& cpu, int& memory, int& disk,
             vector<VectorAttribute *>& pci_dev);
 
     /**
@@ -1225,7 +1012,7 @@ public:
      *
      *    @return 0 on success
      */
-     int check_resize (float cpu, int memory, int vcpu, string& error_str);
+     int check_resize(float cpu, int memory, int vcpu, string& error_str);
 
     /**
      *  Resize the VM capacity
@@ -1236,37 +1023,61 @@ public:
      *
      *    @return 0 on success
      */
-     int resize (float cpu, int memory, int vcpu, string& error_str);
+     int resize(float cpu, int memory, int vcpu, string& error_str);
 
     // ------------------------------------------------------------------------
-    // Network Leases & Disk Images
+    // Virtual Machine Disks
     // ------------------------------------------------------------------------
+    /**
+     *  Releases all disk images taken by this Virtual Machine
+     *    @param quotas disk space to free from image datastores
+     */
+    void release_disk_images(map<int, Template *>& quotas);
+
+    /**
+     *  @return reference to the VirtualMachine disks
+     */
+    VirtualMachineDisks& get_disks()
+    {
+        return disks;
+    }
+
+    /**
+     *  @return a pointer to the given disk
+     */
+    VirtualMachineDisk * get_disk(int disk_id) const
+    {
+        return disks.get_disk(disk_id);
+    }
+
+    // ------------------------------------------------------------------------
+    // Virtual Machine Nics
+    // ------------------------------------------------------------------------
+    /**
+     *  Get a NIC by its id
+     *    @param nic_id of the NIC
+     */
+    VirtualMachineNic * get_nic(int nic_id) const
+    {
+        return nics.get_nic(nic_id);
+    }
+
+    /**
+     * Returns a set of the security group IDs in use in this VM.
+     *     @param sgs a set of security group IDs
+     */
+    void get_security_groups(set<int>& sgs)
+    {
+        nics.get_security_groups(sgs);
+    }
+
     /**
      *  Releases all network leases taken by this Virtual Machine
      */
-    void release_network_leases();
-
-    /**
-     * Releases the network lease taken by this NIC
-     *
-     * @param nic NIC to be released
-     * @param vmid Virtual Machine oid
-     *
-     * @return 0 on success, -1 otherwise
-     */
-    static int release_network_leases(const VectorAttribute * nic, int vmid);
-
-    /**
-     * Returns a set of the security group IDs in use in this VM. VirtualMachine
-     * and static version.
-     * @param sgs a set of security group IDs
-     */
-    void get_security_groups(set<int>& sgs) const
+    void release_network_leases()
     {
-        get_security_groups(static_cast<VirtualMachineTemplate *>(obj_template), sgs);
+        nics.release_network_leases(oid);
     }
-
-    static void get_security_groups(VirtualMachineTemplate *tmpl, set<int>& sgs);
 
     /**
      *  Remove the rules associated to the given security group rules
@@ -1274,21 +1085,9 @@ public:
      */
     void remove_security_group(int sgid);
 
-    /**
-     *  Releases all disk images taken by this Virtual Machine
-     */
-    void release_disk_images();
-
-    /**
-     *  Check if the given disk is volatile
-     */
-    static bool is_volatile(const VectorAttribute * disk);
-
-    /**
-     *  Check if the disk is persistent
-     */
-    static bool is_persistent(const VectorAttribute * disk);
-
+    // ------------------------------------------------------------------------
+    // Imported VM interface
+    // ------------------------------------------------------------------------
     /**
      *  Check if the VM is imported
      */
@@ -1306,31 +1105,9 @@ public:
      */
     bool is_imported_action_supported(History::VMAction action) const;
 
-    /**
-     *  Return the total disk SIZE that the VM instance needs in the system DS
-     */
-    static long long get_system_disk_size(Template * tmpl);
-
-    /**
-     * Returns the disk CLONE_TARGET or LN_TARGET
-     * @param disk
-     * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
-     */
-    static string disk_tm_target(const VectorAttribute *  disk);
-
-    /**
-     * Returns the DISK attribute for a disk
-     *   @param disk_id of the DISK
-     *   @return pointer to the attribute ir null if not found
-     */
-    const VectorAttribute* get_disk(int disk_id) const;
-
-    const VectorAttribute* get_nic(int nic_id) const;
-
     // ------------------------------------------------------------------------
     // Virtual Router related functions
     // ------------------------------------------------------------------------
-
     /**
      * Returns the Virtual Router ID if this VM is a VR, or -1
      * @return VR ID or -1
@@ -1343,7 +1120,6 @@ public:
      */
     bool is_vrouter();
 
-
     // ------------------------------------------------------------------------
     // Context related functions
     // ------------------------------------------------------------------------
@@ -1355,13 +1131,24 @@ public:
      *    @param  password Password to encrypt the token, if it is set
      *    @return -1 in case of error, 0 if the VM has no context, 1 on success
      */
-    int  generate_context(string &files, int &disk_id, const string& password);
+    int generate_context(string &files, int &disk_id, const string& password);
 
     /**
      * Returns the CREATED_BY template attribute, or the uid if it does not exist
      * @return uid
      */
     int get_created_by_uid() const;
+
+    /**
+     *  Updates the configuration attributes based on a template, the state of
+     *  the virtual machine is checked to assure operation consistency
+     *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
+     *      CONTEXT and GRAPHICS.
+     *    @param err description if any
+     *
+     *    @return 0 on success
+     */
+    int updateconf(VirtualMachineTemplate& tmpl, string &err);
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1376,7 +1163,11 @@ public:
      *    @param err_str describing the error if any
      *    @return -1 if the image cannot saveas, 0 on success
      */
-    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size,
+            string& err_str)
+    {
+        return disks.set_saveas(disk_id, snap_id, img_id, size, err_str);
+    }
 
     /**
      *  Set save attributes for the disk
@@ -1384,7 +1175,16 @@ public:
      *    @param  source to save the disk
      *    @param  img_id ID of the image this disk will be saved to
      */
-    int set_saveas_disk(int disk_id, const string& source, int img_id);
+    int set_saveas_disk(int disk_id, const string& source, int img_id)
+    {
+        if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+            && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+        {
+            return -1;
+        }
+
+        return disks.set_saveas(disk_id, source, img_id);
+    }
 
     /**
      *  Sets the corresponding state to save the disk.
@@ -1403,7 +1203,10 @@ public:
      *    @return the ID of the image this disk will be saved to or -1 if it
      *    is not found.
      */
-    int clear_saveas_disk();
+    int clear_saveas_disk()
+    {
+        return disks.clear_saveas();
+    }
 
     /**
      * Get the original image id of the disk. It also checks that the disk can
@@ -1416,7 +1219,11 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id);
+            string& snap_id, string& tm_mad, string& ds_id)
+    {
+        return disks.get_saveas_info(disk_id, source, image_id, snap_id,
+                tm_mad, ds_id);
+    }
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -1428,22 +1235,12 @@ public:
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual machine template
      */
-    static void set_auth_request(int uid,
-                                 AuthRequest& ar,
-                                 VirtualMachineTemplate *tmpl);
+    static void set_auth_request(int uid, AuthRequest& ar,
+            VirtualMachineTemplate *tmpl);
 
-    /**
-     *  Adds extra info to the given template:
-     *  DISK/IMAGE_ID and SIZE
-     *    @param  uid for template owner
-     *    @param  tmpl the virtual machine template
-     */
-    static void disk_extended_info(int uid,
-                                  VirtualMachineTemplate *tmpl);
     // -------------------------------------------------------------------------
-    // Hotplug related functions
+    // Attach Disk Interface
     // -------------------------------------------------------------------------
-
     /**
      * Generate and attach a new DISK attribute to the VM. This method check
      * that the DISK is compatible with the VM cluster allocation and disk target
@@ -1460,31 +1257,114 @@ public:
      *
      * @return the disk waiting for an attachment action, or 0
      */
-    VectorAttribute* get_attach_disk();
+    VirtualMachineDisk * get_attach_disk()
+    {
+        return disks.get_attach();
+    }
 
     /**
      * Cleans the ATTACH = YES attribute from the disks
      */
-    void clear_attach_disk();
+    void clear_attach_disk()
+    {
+        disks.clear_attach();
+    }
 
     /**
      * Deletes the DISK that was in the process of being attached
      *
      * @return the DISK or 0 if no disk was deleted
      */
-    VectorAttribute * delete_attach_disk(Snapshots **snap);
+    VirtualMachineDisk * delete_attach_disk()
+    {
+        VirtualMachineDisk * disk = disks.delete_attach();
+
+        if (disk == 0)
+        {
+            return 0;
+        }
+
+        obj_template->remove(disk->vector_attribute());
+
+        return disk;
+    }
 
     /**
      *  Sets the attach attribute to the given disk
      *    @param disk_id of the DISK
      *    @return 0 if the disk_id was found -1 otherwise
      */
-    int set_attach_disk(int disk_id);
+    int set_attach_disk(int disk_id)
+    {
+        return disks.set_attach(disk_id);
+    }
+
+    // -------------------------------------------------------------------------
+    // Resize Disk Interface
+    // -------------------------------------------------------------------------
+    /**
+     * Returns the disk that is going to be resized
+     *
+     * @return the disk or 0 if not found
+     */
+    VirtualMachineDisk * get_resize_disk()
+    {
+        return disks.get_resize();
+    }
+
+    /**
+     *  Cleans the RESIZE = YES attribute from the disks
+     *    @param restore if true the previous disk size is restored
+     */
+    VirtualMachineDisk * clear_resize_disk(bool restore)
+    {
+        VirtualMachineDisk * disk = disks.get_resize();
+
+        if ( disk == 0 )
+        {
+            return 0;
+        }
+
+        disk->clear_resize(restore);
+
+        return disk;
+    }
+
+    /**
+     *  Sets the resize attribute to the given disk
+     *    @param disk_id of the DISK
+     *    @return 0 if the disk_id was found -1 otherwise
+     */
+    int set_resize_disk(int disk_id);
+
+    /**
+     *  Prepares a disk to be resized.
+     *     @param disk_id of disk
+     *     @param size new size for the disk (needs to be greater than current)
+     *     @param error
+     *
+     *     @return 0 on success
+     */
+    int set_up_resize_disk(int disk_id, long size, string& error)
+    {
+        return disks.set_up_resize(disk_id, size, error);
+    }
+
+    /**
+     * Restore original disk sizes  for non-persistentand for persistent disks
+     * in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_disk_resizes(Template **vm_quotas,
+        map<int, Template *>& ds_quotas)
+    {
+        disks.delete_non_persistent_resizes(vm_quotas, ds_quotas);
+    }
 
     // ------------------------------------------------------------------------
     // NIC Hotplug related functions
     // ------------------------------------------------------------------------
-
     /**
      * Generate and attach a new NIC attribute to the VM. This method check
      * that the NIC is compatible with the VM cluster allocation and fills SG
@@ -1497,18 +1377,6 @@ public:
     int set_up_attach_nic(VirtualMachineTemplate *tmpl, string& error_str);
 
     /**
-     * Cleans the ATTACH = YES attribute from the NICs
-     */
-    void attach_nic_success();
-
-    /**
-     * Deletes the NIC that was in the process of being attached
-     *
-     * @return the deleted NIC or 0 if none was deleted
-     */
-    VectorAttribute * attach_nic_failure();
-
-    /**
      *  Sets the attach attribute to the given NIC
      *    @param nic_id of the NIC
      *    @return 0 if the nic_id was found, -1 otherwise
@@ -1516,29 +1384,45 @@ public:
     int set_detach_nic(int nic_id);
 
     /**
-     * Deletes the NIC that was in the process of being detached
+     * Cleans the ATTACH = YES attribute from the NICs
+     */
+    void clear_attach_nic()
+    {
+        nics.clear_attach();
+    }
+
+    /**
+     * Deletes the NIC that was in the process of being attached/detached
      *
      * @return the deleted NIC or 0 if none was deleted
      */
-    VectorAttribute * detach_nic_success();
+    VirtualMachineNic * delete_attach_nic()
+    {
+        VirtualMachineNic * nic = nics.delete_attach();
 
-    /**
-     * Cleans the ATTACH = YES attribute from the NIC, restores the NIC context
-     * variables
-     */
-    void detach_nic_failure();
+        if (nic == 0)
+        {
+            return 0;
+        }
+
+        obj_template->remove(nic->vector_attribute());
+
+        return nic;
+    }
 
     // ------------------------------------------------------------------------
-    // Snapshot related functions
+    // Disk Snapshot related functions
     // ------------------------------------------------------------------------
-
     /**
      *  Return the snapshot list for the disk
      *    @param disk_id of the disk
      *    @param error if any
      *    @return pointer to Snapshots or 0 if not found
      */
-    const Snapshots * get_disk_snapshots(int did, string& err) const;
+    const Snapshots * get_disk_snapshots(int did, string& err) const
+    {
+        return disks.get_snapshots(did, err);
+    }
 
     /**
      *  Creates a new snapshot of the given disk
@@ -1547,7 +1431,10 @@ public:
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int new_disk_snapshot(int disk_id, const string& name, string& error);
+    int new_disk_snapshot(int disk_id, const string& name, string& error)
+    {
+        return disks.create_snapshot(disk_id, name, error);
+    }
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
@@ -1556,7 +1443,10 @@ public:
      *    @param error if any
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id);
+    int revert_disk_snapshot(int disk_id, int snap_id)
+    {
+        return disks.revert_snapshot(disk_id, snap_id);
+    }
 
     /**
      *  Deletes the snap_id from the list
@@ -1566,7 +1456,10 @@ public:
      *    @param vm_quotas template with snapshot usage for the VM quotas
      */
     void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
-            Template **vm_quotas);
+            Template **vm_quotas)
+    {
+        disks.delete_snapshot(disk_id, snap_id, ds_quotas, vm_quotas);
+    }
 
     /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
@@ -1575,7 +1468,10 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_disk_snapshots(Template **vm_quotas,
-        map<int, Template *>& ds_quotas);
+        map<int, Template *>& ds_quotas)
+    {
+        disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
+    }
 
     /**
      *  Get information about the disk to take the snapshot from
@@ -1585,23 +1481,32 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id);
+            int& snap_id)
+    {
+        return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
+    }
+
     /**
      *  Unset the current disk being snapshotted (reverted...)
      */
-    void clear_snapshot_disk();
+    void clear_snapshot_disk()
+    {
+        disks.clear_active_snapshot();
+    }
 
     /**
      *  Set the disk as being snapshotted (reverted...)
      *    @param disk_id of the disk
      *    @param snap_id of the target snap_id
      */
-    int set_snapshot_disk(int disk_id, int snap_id);
+    int set_snapshot_disk(int disk_id, int snap_id)
+    {
+        return disks.set_active_snapshot(disk_id, snap_id);
+    }
 
     // ------------------------------------------------------------------------
-    // Snapshot related functions
+    // System Snapshot related functions
     // ------------------------------------------------------------------------
-
     /**
      * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
      *
@@ -1648,23 +1553,31 @@ public:
     // ------------------------------------------------------------------------
     // Cloning state related functions
     // ------------------------------------------------------------------------
-
     /**
      * Returns true if any of the disks is waiting for an image in LOCKED state
      * @return true if cloning
      */
-    bool has_cloning_disks();
+    bool has_cloning_disks()
+    {
+        return disks.has_cloning();
+    }
 
     /**
      * Returns the image IDs for the disks waiting for the LOCKED state to finish
      * @param ids image ID set
      */
-    void get_cloning_image_ids(set<int>& ids);
+    void get_cloning_image_ids(set<int>& ids)
+    {
+        disks.get_cloning_image_ids(ids);
+    }
 
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, const string& source);
+    void clear_cloning_image_id(int image_id, const string& source)
+    {
+        disks.clear_cloning_image_id(image_id, source);
+    }
 
 private:
 
@@ -1774,9 +1687,14 @@ private:
     vector<History *> history_records;
 
     /**
-     *  Snapshots for each disk
+     *  VirtualMachine disks
      */
-    map<int, Snapshots *> snapshots;
+    VirtualMachineDisks disks;
+
+    /**
+     *  VirtualMachine nics
+     */
+    VirtualMachineNics nics;
 
     /**
      *  User template to store custom metadata. This template can be updated
@@ -1797,11 +1715,9 @@ private:
      */
     Log * _log;
 
-
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine
      *    @return 0 on success
@@ -1880,14 +1796,63 @@ private:
      */
     int update_monitoring(SqlDB * db);
 
+    /**
+     *  Function that renders the VM in XML format optinally including
+     *  extended information (all history records)
+     *  @param xml the resulting XML string
+     *  @param n_history Number of history records to include:
+     *      0: none
+     *      1: the last one
+     *      2: all
+     *  @return a reference to the generated string
+     */
+    string& to_xml_extended(string& xml, int n_history) const;
+
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------
-
     /**
      * Mutex to perform just one attribute parse at a time
      */
     static pthread_mutex_t lex_mutex;
+
+    /**
+     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
+     *  inconsistencies for NIC_DEFAULTS
+     */
+    static const char* NO_NIC_DEFAULTS[];
+    static const int   NUM_NO_NIC_DEFAULTS;
+
+    /**
+     * Known Virtual Router attributes, to be moved from the user template
+     * to the template
+     */
+    static const char* VROUTER_ATTRIBUTES[];
+    static const int   NUM_VROUTER_ATTRIBUTES;
+
+    /**
+     *  Parse a string and substitute variables (e.g. $NAME) using the VM
+     *  template values:
+     *    @param attribute, the string to be parsed
+     *    @param parsed, the resulting parsed string
+     *    @param error description in case of failure
+     *    @return 0 on success.
+     */
+    int  parse_template_attribute(const string& attribute,
+                                  string&       parsed,
+                                  string&       error);
+
+    /**
+     *  Parse a file string variable (i.e. $FILE) using the FILE_DS datastores.
+     *  It should be used for OS/DS_KERNEL, OS/DS_INITRD, CONTEXT/DS_FILES.
+     *    @param attribute the string to be parsed
+     *    @param img_ids ids of the FILE images in the attribute
+     *    @param error description in case of failure
+     *    @return 0 on success.
+     */
+    int  parse_file_attribute(string       attribute,
+                              vector<int>& img_ids,
+                              string&      error);
 
     /**
      *  Generates image attributes (DS_ID, TM_MAD, SOURCE...) for KERNEL and
@@ -1896,12 +1861,11 @@ private:
      *    @param base_name of the attribute "KERNEL", or "INITRD"
      *    @param base_type of the image attribute KERNEL, RAMDISK
      *    @param error_str Returns the error reason, if any
-     *    @return 0 on success
+     *    @return 0 on succes
      */
-    int set_os_file(VectorAttribute *  os,
-                    const string&      base_name,
-                    Image::ImageType   base_type,
-                    string&            error_str);
+    int set_os_file(VectorAttribute* os, const string& base_name,
+            Image::ImageType base_type, string& error_str);
+
     /**
      *  Parse the "OS" attribute of the template by substituting
      *  $FILE variables
@@ -1909,49 +1873,6 @@ private:
      *    @return 0 on success
      */
     int parse_os(string& error_str);
-
-    /**
-     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
-     *  inconsistencies for NIC_DEFAULTS
-     */
-    static const char * NO_NIC_DEFAULTS[];
-
-    static const int NUM_NO_NIC_DEFAULTS;
-
-    /**
-     *  Parse and generate the ETH_ network attributed of a NIC
-     *    @param context attribute
-     *    @param nic attribute
-     *
-     *    @return 0 on success
-     */
-    void parse_nic_context(VectorAttribute * context, VectorAttribute * nic);
-
-    /**
-     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
-     *  is invoked when ever the context is prepared for the VM to capture
-     *  netowrking updates.
-     *    @param context attribute of the VM
-     *    @param error string if any
-     *    @return 0 on success
-     */
-    int generate_network_context(VectorAttribute * context, string& error);
-
-    /**
-     *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
-     *  is also adds basic network attributes for pass-through NICs
-     *    @param context attribute of the VM
-     *    @return true if the net context was generated.
-     */
-    bool generate_pci_context(VectorAttribute * context);
-
-    /**
-     *  Generate the ONE_GATE token & url
-     *    @param context attribute of the VM
-     *    @param error_str describing the error
-     *    @return 0 if success
-     */
-    int generate_token_context(VectorAttribute * context, string& error_str);
 
     /**
      * Parse the "NIC_DEFAULT" attribute
@@ -1968,12 +1889,35 @@ private:
     int parse_vrouter(string& error_str);
 
     /**
-     * Known Virtual Router attributes, to be moved from the user template
-     * to the template
+     * Parse the "PCI" attribute of the template and checks mandatory attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
      */
-    static const char* VROUTER_ATTRIBUTES[];
-    static const int   NUM_VROUTER_ATTRIBUTES;
+    int parse_pci(string& error_str);
 
+    /**
+     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
+     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_requirements(string& error_str);
+
+    /**
+     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
+     *  defined
+     */
+    int parse_graphics(string& error_str);
+
+    /**
+     * Searches the meaningful attributes and moves them from the user template
+     * to the internal template
+     */
+    void parse_well_known_attributes();
+
+    // -------------------------------------------------------------------------
+    // Context related functions
+    // -------------------------------------------------------------------------
     /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
@@ -2003,11 +1947,37 @@ private:
     static const int   NUM_NETWORK6_CONTEXT;
 
     /**
-     * Parse the "PCI" attribute of the template and checks mandatory attributes
-     *    @param error_str Returns the error reason, if any
+     *  Generate the NETWORK related CONTEXT setions, i.e. ETH_*. This function
+     *  is invoked when ever the context is prepared for the VM to capture
+     *  netowrking updates.
+     *    @param context attribute of the VM
+     *    @param error string if any
      *    @return 0 on success
      */
-    int parse_pci(string& error_str);
+    int generate_network_context(VectorAttribute * context, string& error);
+
+    /**
+     *  Deletes the NETWORK related CONTEXT section for the given nic, i.e.
+     *  ETH_<id>
+     *    @param nicid the id of the NIC
+     */
+    void clear_nic_context(int nicid);
+
+    /**
+     *  Generate the PCI related CONTEXT setions, i.e. PCI_*. This function
+     *  is also adds basic network attributes for pass-through NICs
+     *    @param context attribute of the VM
+     *    @return true if the net context was generated.
+     */
+    bool generate_pci_context(VectorAttribute * context);
+
+    /**
+     *  Generate the ONE_GATE token & url
+     *    @param context attribute of the VM
+     *    @param error_str describing the error
+     *    @return 0 if success
+     */
+    int generate_token_context(VectorAttribute * context, string& error_str);
 
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
@@ -2028,44 +1998,6 @@ private:
      */
     int parse_context_variables(VectorAttribute ** context, string& error_str);
 
-    /**
-     *  Parse the "SCHED_REQUIREMENTS" attribute of the template by substituting
-     *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
-     *    @param error_str Returns the error reason, if any
-     *    @return 0 on success
-     */
-    int parse_requirements(string& error_str);
-
-    /**
-     *  Parse the "GRAPHICS" attribute and generates a default PORT if not
-     *  defined
-     */
-    int parse_graphics(string& error_str);
-
-    /**
-     * Searches the meaningful attributes and moves them from the user template
-     * to the internal template
-     */
-    void parse_well_known_attributes();
-
-    /**
-     *  Function that renders the VM in XML format optinally including
-     *  extended information (all history records)
-     *  @param xml the resulting XML string
-     *  @param n_history Number of history records to include:
-     *      0: none
-     *      1: the last one
-     *      2: all
-     *  @return a reference to the generated string
-     */
-    string& to_xml_extended(string& xml, int n_history) const;
-
-    /**
-     * Merges NIC_DEFAULT with the given NIC
-     * @param nic NIC to process
-     */
-    void merge_nic_defaults(VectorAttribute* nic);
-
     // -------------------------------------------------------------------------
     // NIC & DISK Management Helpers
     // -------------------------------------------------------------------------
@@ -2076,44 +2008,15 @@ private:
     int get_network_leases(string &error_str);
 
     /**
-     * Returns a set of the security group IDs of this NIC
-     * @param nic NIC to get the security groups from
-     * @param sgs a set of security group IDs
-     */
-    static void get_security_groups(const VectorAttribute * nic, set<int>& sgs)
-    {
-        one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', sgs);
-    }
-
-    /**
      *  Get all disk images for this Virtual Machine
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
     int get_disk_images(string &error_str);
 
-    /**
-     *  Return the VectorAttribute representation of a disk
-     *    @param disk_id of the disk
-     *    @return pointer to the VectorAttribute
-     */
-    VectorAttribute* get_disk(int disk_id)
-    {
-        return const_cast<VectorAttribute *>(
-                static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
-    };
-
-    /**
-     * Returns the NIC that is waiting for an attachment action
-     *
-     * @return the NIC waiting for an attachment action, or 0
-     */
-    VectorAttribute* get_attach_nic();
-
     // ------------------------------------------------------------------------
     // Public cloud templates related functions
     // ------------------------------------------------------------------------
-
     /**
      * Gets the list of public clouds defined in this VM.
      * @param clouds list to store the cloud hypervisors in the template

@@ -201,6 +201,9 @@ module OneGate
             DISK_SNAPSHOT_DELETE
             PROLOG_MIGRATE_UNKNOWN
             PROLOG_MIGRATE_UNKNOWN_FAILURE
+            DISK_RESIZE
+            DISK_RESIZE_POWEROFF
+            DISK_RESIZE_UNDEPLOYED
         }
 
         SHORT_VM_STATES={
@@ -278,7 +281,10 @@ module OneGate
             "DISK_SNAPSHOT"        => "snap",
             "DISK_SNAPSHOT_DELETE" => "snap",
             "PROLOG_MIGRATE_UNKNOWN" => "migr",
-            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail"
+            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
+            "DISK_RESIZE"            => "drsz",
+            "DISK_RESIZE_POWEROFF"   => "drsz",
+            "DISK_RESIZE_UNDEPLOYED" => "drsz"
         }
 
         def self.state_to_str(id, lcm_id)
