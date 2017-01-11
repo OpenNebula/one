@@ -61,6 +61,12 @@ source $TMCOMMON
 
 #--------------------------------------------------------------------------------
 
+if [ "$SHARED" = "YES" ]; then
+    exit 0
+fi
+
+#--------------------------------------------------------------------------------
+
 if [ "$SRC_HOST" == "$DST_HOST" ]; then
     log "Not moving $SRC_HOST to $DST_HOST, they are the same host"
     exit 0
@@ -70,8 +76,6 @@ fi
 
 migrate_other "$@"
 
-if [ "$SHARED" != "YES" ]; then
-    exec_and_log "$SSH $SRC_HOST rm -rf $DST_PATH"
-fi
+exec_and_log "$SSH $SRC_HOST rm -rf $DST_PATH"
 
 exit 0
