@@ -42,7 +42,7 @@ while IFS= read -r -d '' element; do
 done < <(onedatastore show -x "$DSID" | $XPATH \
   /DATASTORE/TEMPLATE/SHARED)
 
-SHARED="${XPATH_ELEMENTS[j++]:-$SHARED}"
+SHARED="${XPATH_ELEMENTS[j++]}"
 
 #--------------------------------------------------------------------------------
 
