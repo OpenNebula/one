@@ -48,12 +48,22 @@ img_name      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/NAME"]
 
 if ds_name.nil? ||
    hostname.nil? ||
-   adapter_type.nil? ||
-   disk_type.nil? ||
    size.nil? ||
    img_name.nil?
     STDERR.puts "Not enough information to create the image."
     exit -1
+end
+
+# If no disk type disk it was chosen on Sunstone GUI
+# Default will be thin
+if disk_type.nil? or disk_type.empty?
+    disk_type = "thin"
+end
+
+# If no adpter it was chosen on Sunstone GUI
+# Default will be lsiLogic
+if adapter_type.nil? or adapter_type.empty?
+    adapter_type = "lsiLogic"
 end
 
 begin
