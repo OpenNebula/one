@@ -18,6 +18,7 @@ require 'OpenNebulaJSON/JSONUtils'
 
 module OpenNebulaJSON
     class HostPoolJSON < OpenNebula::HostPool; include JSONUtils; end
+    class VMGroupPoolJSON < OpenNebula::VMGroupPool; include JSONUtils; end
     class VirtualMachinePoolJSON < OpenNebula::VirtualMachinePool; include JSONUtils; end
     class VirtualNetworkPoolJSON < OpenNebula::VirtualNetworkPool; include JSONUtils; end
     class ImagePoolJSON < OpenNebula::ImagePool; include JSONUtils; end
