@@ -1,80 +1,58 @@
 module VCenterDriver
 
-################################################################################
-# This class is an OpenNebula hosts that abstracts a vCenter cluster. It
-# includes the functionality needed to monitor the cluster and report the ESX
-# hosts and VM status of the cluster.
-################################################################################
-class VCenterHost < ::OpenNebula::Host
-    attr_reader :vc_client, :vc_root, :cluster, :host, :client
+class HostFolder
+    attr_accessor :item, :clusters
 
-    ############################################################################
-    # Initialize the VCenterHost by looking for the associated objects of the
-    # VIM hierarchy
-    # client [VIClient] to interact with the associated vCenter
-    ############################################################################
-    def initialize(client)
-        @client  = client
-        @cluster = client.cluster
-
-        @resource_pools = client.resource_pool
+    def initialize(item)
+        @item = item
+        @clusters = {}
     end
 
-    ########################################################################
-    #  Creates an OpenNebula host representing a cluster in this VCenter
-    #  @param cluster_name[String] the name of the cluster in the vcenter
-    #  @param client [VIClient] to create the host
-    #  @return In case of success [0, host_id] or [-1, error_msg]
-    ########################################################################
-    def self.to_one(cluster_name, client)
-        one_host = ::OpenNebula::Host.new(::OpenNebula::Host.build_xml,
-            client.one)
+    def fetch_clusters!
+        VIClient.get_entities(@item, 'ClusterComputeResource').each do |item|
+            _, item_name, _ = item.to_s.split('"')
+            @clusters[item_name.to_sym] = ClusterComputeResource.new(item)
+        end
+    end
 
-        rc = one_host.allocate(cluster_name, 'vcenter', 'vcenter',
-                ::OpenNebula::ClusterPool::NONE_CLUSTER_ID)
-
-        return -1, rc.message if ::OpenNebula.is_error?(rc)
-
-        template = "VCENTER_HOST=\"#{client.host}\"\n"\
-                   "VCENTER_PASSWORD=\"#{client.pass}\"\n"\
-                   "VCENTER_USER=\"#{client.user}\"\n"
-
-        rc = one_host.update(template, false)
-
-        if ::OpenNebula.is_error?(rc)
-            error = rc.message
-
-            rc = one_host.delete
-
-            if ::OpenNebula.is_error?(rc)
-                error << ". Host #{cluster_name} could not be"\
-                    " deleted: #{rc.message}."
-            end
-
-            return -1, error
+    def get_cluster(ref)
+        if !@clusters[ref.to_sym]
+            rbvmomi_dc = RbVmomi::VIM::ClusterComputeResource.new(@vcenter_client.vim, ref)
+            @clusters[ref.to_sym] = ClusterComputeResource.new(rbvmomi_dc)
         end
 
-        return 0, one_host.id
+        @clusters[ref.to_sym]
+    end
+end
+
+class ClusterComputeResource
+    attr_accessor :item
+
+    def initialize(item)
+        @item = item
     end
 
-    ############################################################################
-    # Generate an OpenNebula monitor string for this host. Reference:
-    # https://www.vmware.com/support/developer/vc-sdk/visdk25pubs/Reference
-    # Guide/vim.ComputeResource.Summary.html
-    #   - effectiveCpu: Effective CPU resources (in MHz) available to run
-    #     VMs. This is the aggregated from all running hosts excluding hosts in
-    #     maintenance mode or unresponsive are not counted.
-    #   - effectiveMemory: Effective memory resources (in MB) available to run
-    #     VMs. Equivalente to effectiveCpu.
-    #   - numCpuCores: Number of physical CPU cores.
-    #   - numEffectiveHosts: Total number of effective hosts.
-    #   - numHosts:Total number of hosts.
-    #   - totalCpu: Aggregated CPU resources of all hosts, in MHz.
-    #   - totalMemory: Aggregated memory resources of all hosts, in bytes.
-    ############################################################################
-    def monitor_cluster
+    def fetch_resource_pools(rp, rp_array = [])
+        rp_array << rp
+
+        rp.resourcePool.each do |child_rp|
+            fetch_resource_pools(child_rp, rp_array)
+        end
+
+        rp_array
+    end
+
+    def resource_pools
+        if @resource_pools.nil?
+            @resource_pools = fetch_resource_pools(@item.resourcePool)
+        end
+
+        @resource_pools
+    end
+
+    def monitor
         #Load the host systems
-        summary = @cluster.summary
+        summary = @item.summary
 
         mhz_core = summary.totalCpu.to_f / summary.numCpuCores.to_f
         eff_core = summary.effectiveCpu.to_f / mhz_core
@@ -104,15 +82,10 @@ class VCenterHost < ::OpenNebula::Host
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s
 
-        str_info << monitor_resource_pools(@cluster.resourcePool, "", mhz_core)
+
+        str_info << monitor_resource_pools(@item.resourcePool, "", mhz_core)
     end
 
-    ############################################################################
-    # Generate an OpenNebula monitor string for all resource pools of a cluster
-    # Reference:
-    # http://pubs.vmware.com/vsphere-60/index.jsp#com.vmware.wssdk.apiref.doc
-    # /vim.ResourcePool.html
-    ############################################################################
     def monitor_resource_pools(parent_rp, parent_prefix, mhz_core)
         return "" if parent_rp.resourcePool.size == 0
 
@@ -162,18 +135,10 @@ class VCenterHost < ::OpenNebula::Host
         return rp_info
     end
 
-    ############################################################################
-    # Generate a template with information for each ESX Host. Reference:
-    # http://pubs.vmware.com/vi-sdk/visdk250/ReferenceGuide/vim.HostSystem.html
-    #   - Summary: Basic information about the host, including connection state
-    #     - hardware: Hardware configuration of the host. This might not be
-    #       available for a disconnected host.
-    #     - quickStats: Basic host statistics.
-    ############################################################################
     def monitor_host_systems
         host_info = ""
 
-        @cluster.host.each{|h|
+        @item.host.each do |h|
             next if h.runtime.connectionState != "connected"
 
             summary = h.summary
@@ -201,120 +166,82 @@ class VCenterHost < ::OpenNebula::Host
             host_info << "USED_MEM="  << used_memory.to_s  << ","
             host_info << "FREE_MEM="  << free_memory.to_s
             host_info << "]"
-        }
+        end
 
         return host_info
     end
 
     def monitor_vms
-        # Only monitor from top level (Resource) Resource Pool
-        monitor_vms_in_rp(@resource_pools[-1])
-    end
+        str_info = ""
+        resource_pools.each do |rp|
+            str_info << monitor_vms_in_rp(rp)
+        end
 
+        return str_info
+    end
 
     def monitor_vms_in_rp(rp)
         str_info = ""
 
-        if rp.resourcePool.size != 0
-            rp.resourcePool.each{|child_rp|
-                str_info += monitor_vms_in_rp(child_rp)
-            }
-        end
+        rp.vm.each do |v|
+            begin
+                vm = VirtualMachine.new(v)
 
-        host_cache = {}
+                number = -1
 
-        rp.vm.each { |v|
-          begin
-              # Check cached objects
-              if !host_cache[v.runtime.host.to_s]
-                  host_cache[v.runtime.host.to_s] =
-                         VCenterCachedHost.new v.runtime.host
-              end
+                # Check the running flag
+                running_flag = vm["config.extraConfig"].select do |val|
+                    val[:key] == "opennebula.vm.running"
+                end
 
-              host = host_cache[v.runtime.host.to_s]
+                if running_flag.size > 0 and running_flag[0]
+                    running_flag = running_flag[0][:value]
+                end
 
-              name            = v.name
-              number          = -1
-              vm_extra_config = v.config.extraConfig
+                next if running_flag == "no"
 
-              # Check the running flag
-              running_flag = v.config.extraConfig.select{|val|
-                                         val[:key]=="opennebula.vm.running"}
-              if running_flag.size > 0 and running_flag[0]
-                  running_flag = running_flag[0][:value]
-              end
+                # Extract vmid if possible
+                matches = vm["name"].match(/^one-(\d*)(-(.*))?$/)
+                number  = matches[1] if matches
 
-              next if running_flag == "no"
+                extraconfig_vmid = vm["config.extraConfig"].select do |val|
+                   val[:key] == "opennebula.vm.id"
+                end
 
-              # Extract vmid if possible
-              matches = name.match(/^one-(\d*)(-(.*))?$/)
-              number  = matches[1] if matches
-              extraconfig_vmid = v.config.extraConfig.select{|val|
-                                         val[:key]=="opennebula.vm.id"}
-              if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
-                  number = extraconfig_vmid[0][:value]
-              end
-              vm = VCenterVm.new(@client, v)
-              vm.monitor(host)
-              next if !vm.vm.config
-              str_info << "\nVM = ["
-              str_info << "ID=#{number},"
-              str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-              str_info << "VM_NAME=\"#{name} - "\
-                          "#{host.cluster_name}\","
-              if number == -1
-                  vm_template_to_one =
-                      Base64.encode64(vm.vm_to_one(host)).gsub("\n","")
-                  str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
-              end
-              str_info << "POLL=\"#{vm.info}\"]"
-          rescue Exception => e
-              STDERR.puts e.inspect
-              STDERR.puts e.backtrace
-          end
-        }
-      return str_info
-    end
+                if extraconfig_vmid.size > 0 and extraconfig_vmid[0]
+                    number = extraconfig_vmid[0][:value]
+                end
 
-    def monitor_customizations
-        customizations = client.vim.serviceContent.customizationSpecManager.info
+                vm.monitor
 
-        text = ''
+                next if !vm["config"]
 
-        customizations.each do |c|
-            t = "CUSTOMIZATION = [ "
-            t << %Q<NAME = "#{c.name}", >
-            t << %Q<TYPE = "#{c.type}" ]\n>
+                str_info << %Q{
+                VM = [
+                    ID="#{number}",
+                    VM_NAME="#{vm["name"]} - #{vm["runtime.host.parent.name"]}",
+                    DEPLOY_ID="#{vm["config.uuid"]}",
+                }
 
-            text << t
-        end
+                if number == -1
+                    vm_template_64 = Base64.encode64(vm.to_one).gsub("\n","")
 
-        text
-    end
+                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_64}\","
+                end
 
-    def get_available_ds
-        str_info = ""
-
-        datastores = VIClient.get_entities(client.dc.datastoreFolder,
-                                           'Datastore')
-
-        storage_pods = VIClient.get_entities(client.dc.datastoreFolder,
-                                            'StoragePod')
-
-        storage_pods.each { |sp|
-            datastores << sp
-            storage_pod_datastores = VIClient.get_entities(sp, 'Datastore')
-            if not storage_pod_datastores.empty?
-                datastores.concat(storage_pod_datastores)
+                str_info << "POLL=\"#{vm.info}\"]"
+            rescue Exception => e
+                STDERR.puts e.inspect
+                STDERR.puts e.backtrace
             end
-        }
+        end
 
-        datastores.each { |ds|
-            str_info += "VCENTER_DATASTORE=\"#{ds.name}\"\n"
-        }
-        str_info.chomp
+        return str_info.gsub(/^\s+/,"")
+    end
+
+    def self.new_from_ref(vi_client, ref)
+        self.new(RbVmomi::VIM::ClusterComputeResource.new(vi_client.vim, ref))
     end
 end
 
-
-end
+end # module VCenterDriver

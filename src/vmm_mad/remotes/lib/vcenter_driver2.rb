@@ -38,7 +38,6 @@ $: << LIB_LOCATION + '/ruby/vendors/rbvmomi/lib'
 $: << LIB_LOCATION + '/ruby'
 $: << LIB_LOCATION + '/ruby/vcenter_driver'
 
-require 'ostruct'
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
@@ -49,9 +48,9 @@ require 'openssl'
 # vCenter Library                                                              #
 # ---------------------------------------------------------------------------- #
 
-require 'rbvmomi_datastore'
+require 'memoize'
 require 'vi_client'
-require 'cached_datastore'
-require 'cached_host'
+require 'datacenter'
 require 'host'
+require 'datastore'
 require 'virtual_machine'
