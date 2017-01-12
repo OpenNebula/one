@@ -1,0 +1,39 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<div class="row">
+  <div class="service_template_param service_role st_man medium-6 columns">
+    <label>
+      {{tr "Role name"}}
+      <input type="text" id="role_name" name="name" aria-describedby="helpText" required pattern="^\w+$"/>
+      <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
+    </label>
+  </div>
+  <div class="service_template_param service_role medium-4 columns end">
+    <label>
+      {{tr "Number min of VMs"}}
+      <input type="number" min="0" id="cardinality" name="cardinality" value="1"/>
+    </label>
+  </div>
+  <div class="service_template_param service_role medium-2 columns end">
+    <label>{{tr "Protocol"}}</label>
+      <select class="vmgroup_policy">
+        <option value="NONE" selected="selected">{{tr "None"}}</option>
+        <option value="AFFINED" >{{tr "Affined"}}</option>
+        <option value="ANTI_AFFINED">{{tr "Anti Affined"}}</option>
+      </select>
+  </div>
+</div>

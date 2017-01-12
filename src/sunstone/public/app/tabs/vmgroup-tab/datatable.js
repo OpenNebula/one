@@ -1,0 +1,142 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+
+  var TabDataTable = require('utils/tab-datatable');
+  var SunstoneConfig = require('sunstone-config');
+  var Locale = require('utils/locale');
+  var QuotaDefaults = require('utils/quotas/quota-defaults');
+  var QuotaWidgets = require('utils/quotas/quota-widgets');
+  var TemplateUtils = require('utils/template-utils');
+  var LabelsUtils = require('utils/labels/utils');
+  var SearchDropdown = require('hbs!./datatable/search');
+
+  /*
+    CONSTANTS
+   */
+
+  var RESOURCE = "vmgroup";
+  var XML_ROOT = "VMGROUP";
+  var TAB_NAME = require('./tabId');
+  var LABELS_COLUMN = 11;
+  var SEARCH_COLUMN = 12;
+  var TEMPLATE_ATTR = 'TEMPLATE';
+
+  /*
+    CONSTRUCTOR
+   */
+
+  function Table(dataTableId, conf) {
+    this.conf = conf || {};
+    this.tabId = TAB_NAME;
+    this.dataTableId = dataTableId;
+    this.resource = RESOURCE;
+    this.xmlRoot = XML_ROOT;
+    this.labelsColumn = LABELS_COLUMN;
+
+    this.dataTableOptions = {
+      "bAutoWidth": false,
+      "bSortClasses" : false,
+      "bDeferRender": true,
+      "aoColumnDefs": [
+          { "bSortable": false, "aTargets": ["check",6,7,8] },
+          {"sWidth": "35px", "aTargets": [0]},
+          { "sWidth": "150px", "aTargets": [6,7,8] },
+          {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
+          {"bVisible": false, "aTargets": ['_all']}
+      ]
+    };
+
+    this.columns = [
+      Locale.tr("ID"),
+      Locale.tr("Name"),
+      Locale.tr("Roles"),
+      Locale.tr("VMs"),
+      Locale.tr("Afined"),
+      Locale.tr("Unafined"),
+      "search_data"
+    ];
+
+    this.selectOptions = {
+      "id_index": 1,
+      "name_index": 2,
+      "select_resource": Locale.tr("Please select a vm group from the list"),
+      "you_selected": Locale.tr("You selected the following vm group:"),
+      "select_resource_multiple": Locale.tr("Please select one or more vm groups from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following vm groups:")
+    };
+
+    this.totalvmgroup = 0;
+
+    this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.searchColumn = SEARCH_COLUMN;
+
+    TabDataTable.call(this);
+  }
+
+  Table.prototype = Object.create(TabDataTable.prototype);
+  Table.prototype.constructor = Table;
+  Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
+
+  return Table;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _elementArray(element_json) {
+    this.totalvmgroup++;
+
+    var element = element_json[XML_ROOT];
+
+    var vms    = '<span class="progress-text right" style="font-size: 12px">-</span>';
+
+    // Build hidden vm group template
+    var hidden_template = TemplateUtils.htmlEncode(TemplateUtils.templateToString(element));
+
+    var search = {
+      NAME:  element.NAME,
+    }
+
+    return [
+      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" ' +
+                           'value="' + element.ID + '"/>',
+      element.ID,
+      element.NAME,
+      element.GNAME,
+      vms,
+      element.GID,
+      hidden_template,
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+    ];
+  }
+
+  function _preUpdateView() {
+    this.totalvmgroup = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vmgroup").text(this.totalvmgroup);
+  }
+});

@@ -1,0 +1,49 @@
+/* -------------------------------------------------------------------------- */
+/* Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                */
+/*                                                                            */
+/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
+/* not use this file except in compliance with the License. You may obtain    */
+/* a copy of the License at                                                   */
+/*                                                                            */
+/* http://www.apache.org/licenses/LICENSE-2.0                                 */
+/*                                                                            */
+/* Unless required by applicable law or agreed to in writing, software        */
+/* distributed under the License is distributed on an "AS IS" BASIS,          */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
+/* See the License for the specific language governing permissions and        */
+/* limitations under the License.                                             */
+/* -------------------------------------------------------------------------- */
+
+define(function(require) {
+  var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
+  var Locale = require('utils/locale');
+  var DataTable = require('./datatable');
+  var OpenNebulaResource = require('opennebula/user');
+  var CommonActions = require('utils/common-actions');
+  var TemplateUtils = require('utils/template-utils');
+
+  var CREATE_DIALOG_ID = require('tabs/vmgroup-tab/form-panels/create/formPanelId');
+  var TAB_ID = require('./tabId');
+
+  var RESOURCE = "vmgroup";
+  var XML_ROOT = "VMGROUP";
+
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
+    XML_ROOT, Locale.tr("VM groups"));
+
+  var _actions = {
+    "VMGroup.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "VMGroup.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "VMGroup.list" : _commonActions.list(),
+    "VMGroup.show" : _commonActions.show(),
+    "VMGroup.delete" : _commonActions.del(),
+    "VMGroup.refresh" : _commonActions.refresh(),
+    "VMGroup.update_template" : _commonActions.updateTemplate(),
+    "VMGroup.append_template" : _commonActions.appendTemplate(),
+    //"vmgroup.chmod": _commonActions.chmod(),
+    //"vmgroup.chown": _commonActions.chown(),
+  };
+
+  return _actions;
+});
