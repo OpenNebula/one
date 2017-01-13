@@ -29,6 +29,13 @@ struct VMGroupRule_compare;
 class VMGroupRule
 {
 public:
+
+    /**
+     *  Placement policy rules for roles
+     *    AFFINED: VMs of all roles are placed in the same hypervisor
+     *    ANTI_AFFINED: VMs are placed in different hypervisors (role-wise)
+     *    NONE: No additional placement constraints
+     */
     enum Policy
     {
         NONE        = 0x00,
@@ -36,9 +43,40 @@ public:
         ANTI_AFFINED= 0x02
     };
 
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
 
+    /**
+     *  @return policy name
+     */
+    static std::string policy_to_s(Policy policy)
+    {
+        std::string name;
+
+        switch(policy)
+        {
+            case AFFINED:
+                name="AFFINED";
+                break;
+
+            case ANTI_AFFINED:
+                name="ANTI_AFFINED";
+                break;
+
+            case NONE:
+                name="NONE";
+                break;
+        }
+
+        return name;
+    }
+
+    /**
+     * A specialized set for rules
+     */
+    typedef std::set<VMGroupRule, VMGroupRule_compare> rule_set;
+
+    /* ---------------------------------------------------------------------- */
+    /*  Rule Constructors                                                     */
+    /* ---------------------------------------------------------------------- */
     VMGroupRule():policy(NONE),roles(){};
 
     VMGroupRule(Policy p, std::set<int> roles_id):policy(p)
@@ -64,13 +102,8 @@ public:
     }
 
     /* ---------------------------------------------------------------------- */
+    /* Rule operators                                                         */
     /* ---------------------------------------------------------------------- */
-
-    typedef std::set<VMGroupRule, VMGroupRule_compare> rule_set;
-
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-
     VMGroupRule& operator=(const VMGroupRule& other)
     {
         if ( this != &other )
@@ -109,7 +142,28 @@ public:
         return roles.none();
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Rule interface                                                         */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Check if an affined and anti-affined rule set are compatible. Sets are
+     *  compatible if there isn't a role in the affined and anti-affined sets
+     *  at the same time
+     *    @param affined rule set
+     *    @param anti affined rule set
+     *    @param err a rule with the roles in both sets
+     *
+     *    @return true if sets are compatible
+     */
     static bool compatible(rule_set& affined, rule_set& anti, VMGroupRule& err);
+
+    /**
+     *  @return the roles in the rule as a bitset (1 roles is in)
+     */
+    const std::bitset<VMGroupRoles::MAX_ROLES>& get_roles() const
+    {
+        return roles;
+    }
 
 private:
 
@@ -126,6 +180,10 @@ private:
     std::bitset<VMGroupRoles::MAX_ROLES> roles;
 };
 
+/**
+ *  Functor to compre two rules. Two rules are considered equivalent if the
+ *  include the same roles.
+ */
 struct VMGroupRule_compare
 {
     bool operator() (const VMGroupRule& lhs, const VMGroupRule& rhs) const

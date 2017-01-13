@@ -479,10 +479,12 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::check_rule_names(const std::string& aname, std::string& error_str)
+int VMGroup::check_rule_names(VMGroupRule::Policy policy, std::string& error)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
+
+    std::string aname = VMGroupRule::policy_to_s(policy);
 
     obj_template->get(aname, affined);
 
@@ -506,7 +508,7 @@ int VMGroup::check_rule_names(const std::string& aname, std::string& error_str)
             oss << "Some roles used in " << aname << " attribute ("
                 << (*jt)->value() << ") are not defined";
 
-            error_str = oss.str();
+            error = oss.str();
             return -1;
         }
     }
@@ -517,11 +519,13 @@ int VMGroup::check_rule_names(const std::string& aname, std::string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::get_rules(const std::string& aname, VMGroupRule::Policy policy,
-        VMGroupRule::rule_set& rules, std::string& error_str)
+int VMGroup::get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
+        std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
+
+    std::string aname = VMGroupRule::policy_to_s(policy);
 
     obj_template->get(aname, affined);
 
@@ -566,22 +570,62 @@ int VMGroup::check_rule_consistency(std::string& error)
 {
     VMGroupRule::rule_set affined, anti;
 
+    VMGroupRule::rule_set::iterator it;
+
     VMGroupRule error_rule;
 
-    if ( get_rules("AFFINED", VMGroupRule::AFFINED, affined, error) == -1 )
+    if ( get_rules(VMGroupRule::AFFINED, affined, error) == -1 )
     {
         return -1;
     }
 
-    if ( get_rules("ANTI_AFFINED", VMGroupRule::ANTI_AFFINED, anti, error) == -1 )
+    for (it=affined.begin() ; it != affined.end(); ++it)
+    {
+        const std::bitset<VMGroupRoles::MAX_ROLES> rs = (*it).get_roles();
+
+        for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
+        {
+            if ( rs[i] == 1 )
+            {
+                VMGroupRole * role = roles.get(i);
+
+                if ( role != 0 && role->policy() == VMGroupRole::ANTI_AFFINED )
+                {
+                    error = "Role " + role->name() + " is in an AFFINED rule "
+                        "but the role policy is ANTI_AFFINED";
+
+                    return -1;
+                }
+            }
+        }
+    }
+
+    if ( get_rules(VMGroupRule::ANTI_AFFINED, anti, error) == -1 )
     {
         return -1;
     }
 
     if ( !VMGroupRule::compatible(affined, anti, error_rule) )
     {
-        error = "Some roles are defined in AFFINED and ANTI_AFFINED at the same"
-            " time";
+        ostringstream oss;
+        const std::bitset<VMGroupRoles::MAX_ROLES> rs = error_rule.get_roles();
+
+        oss << "Roles defined in AFFINED and ANTI_AFFINED rules:";
+
+        for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
+        {
+            if ( rs[i] == 1 )
+            {
+                VMGroupRole * role = roles.get(i);
+
+                if ( role != 0 )
+                {
+                    oss << " " << role->name();
+                }
+            }
+        }
+
+        error = oss.str();
         return -1;
     }
 
@@ -640,12 +684,17 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    if ( check_rule_names("AFFINED", error_str) == -1 )
+    if ( check_rule_names(VMGroupRule::AFFINED, error_str) == -1 )
     {
         return -1;
     }
 
-    if ( check_rule_names("ANTI_AFFINED", error_str) == -1 )
+    if ( check_rule_names(VMGroupRule::ANTI_AFFINED, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_consistency(error_str) == -1 )
     {
         return -1;
     }
@@ -677,12 +726,17 @@ int VMGroup::post_update_template(string& error)
 
     obj_template->erase("ROLE");
 
-    if ( check_rule_names("AFFINED", error) == -1 )
+    if ( check_rule_names(VMGroupRule::AFFINED, error) == -1 )
     {
         return -1;
     }
 
-    if ( check_rule_names("ANTI_AFFINED", error) == -1 )
+    if ( check_rule_names(VMGroupRule::ANTI_AFFINED, error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_consistency(error) == -1 )
     {
         return -1;
     }

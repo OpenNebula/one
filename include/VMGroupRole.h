@@ -66,6 +66,32 @@ public:
         return rid;
     }
 
+    /**
+     *  @return the role name
+     */
+    std::string name()
+    {
+        return va->vector_value("NAME");
+    }
+
+    Policy policy()
+    {
+        string p = va->vector_value("POLICY");
+
+        if ( p == "AFFINED" )
+        {
+            return AFFINED;
+        }
+        else if ( p == "ANTI_AFFINED" )
+        {
+            return ANTI_AFFINED;
+        }
+        else
+        {
+            return NONE;
+        }
+    }
+
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
     /* ---------------------------------------------------------------------- */
@@ -175,6 +201,24 @@ public:
      *  @return the total number of VMs in the group
      */
     int vm_size();
+
+    /**
+     * @return the a VMGroupRole by its name
+     *   @param rname role name
+     */
+    VMGroupRole * get(const std::string& rname)
+    {
+        return by_name.get(rname);
+    }
+
+    /**
+     * @return the a VMGroupRole by its id
+     *   @param rname role name
+     */
+    VMGroupRole * get(int id)
+    {
+        return by_id.get(id);
+    }
 
     /**
      * Max number of roles in a VMGroup

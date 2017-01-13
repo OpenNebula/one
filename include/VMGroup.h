@@ -38,13 +38,13 @@ class VMGroupPool;
  *  ]
  *
  *  ROLE = [
- *    NAME = "db",
- *    ID   = 1,
+ *    NAME   = "db",
+ *    ID     = 1,
  *    POLICY = ANTI_AFFINED,
- *    VMS  = "2,3,4,5"
+ *    VMS    = "2,3,4,5"
  *  ]
  *
- *  ANTI_AFFINED = "db", "front_end"
+ *  ANTI_AFFINED = "db, front_end"
  */
 class VMGroup : public PoolObjectSQL
 {
@@ -117,16 +117,25 @@ private:
     // Role Management
     // -------------------------------------------------------------------------
     /**
-     *  Check if all the roles are defined in the group
-     *    @param aname attribute with a list (comma-separated) of role names
+     *  Check if all the roles in a AFFINED/ANTI_AFFINED rules are defined in
+     *  the group
+     *    @param policy attribute with a list (comma-separated) of role names
      *    @param error_str if any
      *
      *    @return 0 if all roles are defined -1 otherwise
      */
-    int check_rule_names(const std::string& aname, std::string& error_str);
+    int check_rule_names(VMGroupRule::Policy policy, std::string& error_str);
 
-    int get_rules(const std::string& aname, VMGroupRule::Policy policy,
-            VMGroupRule::rule_set& rules, std::string& error_str);
+    /**
+     *  Generate a rule_set from the AFFINED/ANTI_AFFINED rules
+     *    @param policy AFFINED or ANTIAFFINED
+     *    @param rule_set with the rules
+     *    @param error_str if some of the roles are not defined
+     *
+     *    @return 0 if success -1 otherwise
+     */
+    int get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
+            std::string& error_str);
 
     int check_rule_consistency(std::string& error);
 
