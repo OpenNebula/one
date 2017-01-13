@@ -320,6 +320,8 @@ void Scheduler::start()
     dspool     = new SystemDatastorePoolXML(Client::client());
     img_dspool = new ImageDatastorePoolXML(Client::client());
 
+    vmgpool = new VMGroupPoolXML(Client::client());
+
     acls = new AclXML(Client::client(), zone_id);
 
     // -----------------------------------------------------------
@@ -407,7 +409,7 @@ int Scheduler::set_up_pools()
     map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
-    //Cleans the cache and get the pending VMs
+    //Cleans the cache and get the pools
     //--------------------------------------------------------------------------
 
     rc = vmpool->set_up();
@@ -416,10 +418,6 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the datastores
-    //--------------------------------------------------------------------------
 
     rc = dspool->set_up();
 
@@ -435,20 +433,12 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the hosts ids
-    //--------------------------------------------------------------------------
-
     rc = upool->set_up();
 
     if ( rc != 0 )
     {
         return rc;
     }
-
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the hosts ids
-    //--------------------------------------------------------------------------
 
     rc = hpool->set_up();
 
@@ -457,10 +447,6 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the cluster information
-    //--------------------------------------------------------------------------
-
     rc = clpool->set_up();
 
     if ( rc != 0 )
@@ -468,17 +454,16 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    //--------------------------------------------------------------------------
-    //Add to each host the corresponding cluster template
-    //--------------------------------------------------------------------------
-
     hpool->merge_clusters(clpool);
 
-    //--------------------------------------------------------------------------
-    //Cleans the cache and get the ACLs
-    //--------------------------------------------------------------------------
-
     rc = acls->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    rc = vmgpool->set_up();
 
     if ( rc != 0 )
     {

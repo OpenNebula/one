@@ -19,6 +19,7 @@
 
 #include "Log.h"
 #include "HostPoolXML.h"
+#include "VMGroupPoolXML.h"
 #include "UserPoolXML.h"
 #include "ClusterPoolXML.h"
 #include "DatastorePoolXML.h"
@@ -56,6 +57,7 @@ protected:
         dspool(0),
         img_dspool(0),
         upool(0),
+        vmgpool(0),
         acls(0),
         timer(0),
         one_xmlrpc(""),
@@ -78,6 +80,7 @@ protected:
         delete img_dspool;
 
         delete upool;
+        delete vmgpool;
 
         delete acls;
     };
@@ -94,6 +97,8 @@ protected:
     SystemDatastorePoolXML * dspool;
     ImageDatastorePoolXML * img_dspool;
     UserPoolXML * upool;
+
+    VMGroupPoolXML * vmgpool;
 
     AclXML * acls;
 
