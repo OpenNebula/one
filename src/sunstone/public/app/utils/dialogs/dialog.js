@@ -53,6 +53,14 @@ define(function(require) {
       that.show();
     });
 
+    dialogElement.on('keydown', function(evt) {
+        if (evt.keyCode  == 27 && dialogElement[0].id == "vncVMDialog") {
+          evt.keyCode = 0;
+          evt.key = "";
+          evt.which = 0;
+        }               
+    });
+
     that.dialogElement = dialogElement;
 
     return that.dialogElement;
@@ -64,7 +72,7 @@ define(function(require) {
   }
 
   function _hide() {
-    this.dialogElement.foundation('close');
+      this.dialogElement.foundation('close');
   }
 
   function _reset() {
