@@ -48,6 +48,7 @@
               <option value="TCP" selected="selected">{{tr "TCP"}}</option>
               <option value="UDP">{{tr "UDP"}}</option>
               <option value="ICMP">{{tr "ICMP"}}</option>
+              <option value="ICMPv6">{{tr "ICMPv6"}}</option>
               <option value="IPSEC">{{tr "IPsec"}}</option>
               <option value="ALL">{{tr "All"}}</option>
             </select>
@@ -70,6 +71,19 @@
               <option value = "14">14/0: Timestamp Reply</option>
               <option value = "17">17/0: Address Mask Request</option>
               <option value = "18">18/0: Address Mask Reply</option>
+            </select>
+          </div>
+          <div class="medium-4 columns icmpv6_type_wrapper">
+            <label>{{tr "ICMPv6 Type"}}
+            </label>
+            <select class="security_group_rule_icmpv6_type">
+              <option value="" selected="selected">{{tr "All"}}</option>
+              <option value = "1">1: Destination Unreachable</option>
+              <option value = "2">2/0: Packet too big</option>
+              <option value = "3">3: Time exceeded</option>
+              <option value = "4">4: Parameter problem</option>
+              <option value = "128">128/0: Echo request (ping)</option>
+              <option value = "129">129/0: Echo reply (pong)</option>
             </select>
           </div>
         </div>
@@ -98,7 +112,7 @@
             </select>
           </div>
           <div class="medium-4 columns security_group_rule_network">
-            <label for="security_group_rule_first_ip">{{tr "First IP address"}}
+            <label for="security_group_rule_first_ip">{{tr "First IP/IPv6 address"}}
             </label>
             <input id="security_group_rule_first_ip" type="text" placeholder="192.168.10.1"/>
           </div>
@@ -133,6 +147,7 @@
               <th>{{tr "Port Range"}}</th>
               <th>{{tr "Network"}}</th>
               <th>{{tr "ICMP Type"}}</th>
+              <th>{{tr "ICMPv6 Type"}}</th>
               <th style="width:3%"></th>
             </tr>
           </thead>
