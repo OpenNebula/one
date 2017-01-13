@@ -1918,9 +1918,9 @@ void VirtualMachine::set_auth_request(int uid,
 
     if ( vmgroup != 0 )
     {
-      VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+        VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
 
-      vmgrouppool->authorize(vmgroup, uid, &ar);
+        vmgrouppool->authorize(vmgroup, uid, &ar);
     }
 }
 

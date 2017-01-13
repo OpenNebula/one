@@ -19,6 +19,7 @@
 
 #include "PoolObjectSQL.h"
 #include "VMGroupRole.h"
+#include "VMGroupRule.h"
 
 class VMGroupPool;
 
@@ -39,6 +40,7 @@ class VMGroupPool;
  *  ROLE = [
  *    NAME = "db",
  *    ID   = 1,
+ *    POLICY = ANTI_AFFINED,
  *    VMS  = "2,3,4,5"
  *  ]
  *
@@ -121,7 +123,12 @@ private:
      *
      *    @return 0 if all roles are defined -1 otherwise
      */
-    int check_affinity(const std::string& aname, std::string& error_str);
+    int check_rule_names(const std::string& aname, std::string& error_str);
+
+    int get_rules(const std::string& aname, VMGroupRule::Policy policy,
+            VMGroupRule::rule_set& rules, std::string& error_str);
+
+    int check_rule_consistency(std::string& error);
 
     // -------------------------------------------------------------------------
     // DataBase implementation

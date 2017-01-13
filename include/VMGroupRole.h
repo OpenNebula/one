@@ -29,6 +29,7 @@ class VMGroupPool;
  *  ROLE = [
  *    NAME = "Web application servers",
  *    ID   = 12,
+ *    POLICY = AFFINED,
  *    VMS  = "1,2,45,21"
  *  ]
  *
@@ -36,9 +37,34 @@ class VMGroupPool;
 class VMGroupRole
 {
 public:
+
+    /**
+     *  Scheduling policy for the VMs within this role
+     */
+    enum Policy
+    {
+        NONE        = 0x00,
+        AFFINED     = 0x01,
+        ANTI_AFFINED= 0x02
+    };
+
+    /* ---------------------------------------------------------------------- */
+
     VMGroupRole(VectorAttribute *_va);
 
     virtual ~VMGroupRole(){};
+
+    /**
+     *  @return the role id
+     */
+    int id()
+    {
+        int rid;
+
+        va->vector_value("ID", rid);
+
+        return rid;
+    }
 
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
@@ -51,6 +77,17 @@ public:
     void add_vm(int vm_id);
 
     void del_vm(int vm_id);
+
+    /* ---------------------------------------------------------------------- */
+    /* Placement constraints                                                  */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Generates a string with the boolean expresion to conform the role
+     *  policy
+     *    @param vm_id of the VM to generate the requirements for
+     *    @param requirements
+     */
+    void vm_requirements(int vm_id, std::string requirements);
 
 private:
     /**
@@ -109,14 +146,12 @@ public:
     int add_role(VectorAttribute * vrole, string& error);
 
     /**
-     *  Check that a key list is defined in the name map
-     *    @param key_str separated list of keys
-     *    @param true if the keys are in the map
+     *  Generates the ids corresponding to a set of role names
+     *    @param keys the set of names
+     *    @param keyi the set of ids
+     *    @return 0 if all the names were successfully translated
      */
-    bool in_map(const std::string& key_str)
-    {
-        return by_name.in_map(key_str);
-    }
+    int names_to_ids(const std::set<std::string> keys, std::set<int>&  keyi);
 
     /**
      *  Adds a VM to a role
@@ -140,6 +175,11 @@ public:
      *  @return the total number of VMs in the group
      */
     int vm_size();
+
+    /**
+     * Max number of roles in a VMGroup
+     */
+    const static int MAX_ROLES = 32;
 
 private:
     /**
@@ -203,36 +243,6 @@ private:
         size_t erase(const T& k)
         {
             return roles.erase(k);
-        }
-
-        /**
-         *  Check id a set of keys are in the map.
-         *    @param key_str a comma separated list of keys
-         *    @return true if all the keys are in the map
-         */
-        bool in_map(const string& key_str)
-        {
-            std::set<T> key_set;
-            typename std::set<T>::iterator it;
-
-            one_util::split_unique(key_str, ',', key_set);
-
-            if ( key_set.empty() )
-            {
-                return true;
-            }
-
-            for ( it = key_set.begin(); it != key_set.end() ; ++it )
-            {
-                string rname = one_util::trim(*it);
-
-                if ( roles.find(rname) == roles.end() )
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         /**

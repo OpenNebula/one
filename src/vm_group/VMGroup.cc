@@ -16,6 +16,35 @@
 
 #include "VMGroup.h"
 #include "VMGroupRole.h"
+#include "VMGroupRule.h"
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*  VMGroupRule                                                               */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VMGroupRule::compatible(VMGroupRule::rule_set& affined,
+        VMGroupRule::rule_set& anti, VMGroupRule& err)
+{
+    VMGroupRule ta, taa;
+
+    rule_set::iterator it;
+
+    for (it=affined.begin() ; it != affined.end(); ++it)
+    {
+        ta |= *it;
+    }
+
+    for (it=anti.begin() ; it != anti.end(); ++it)
+    {
+        taa |= *it;
+    }
+
+    err = ta & taa;
+
+    return err.none();
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -218,6 +247,30 @@ int VMGroupRoles::vm_size()
     }
 
     return total;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroupRoles::names_to_ids(const std::set<std::string> keys,
+        std::set<int>&  keyi)
+{
+    std::set<std::string>::iterator it;
+
+    for ( it = keys.begin(); it != keys.end(); ++it )
+    {
+        VMGroupRole *r = by_name.get(*it);
+
+        if ( r == 0 )
+        {
+            keyi.clear();
+            return -1;
+        }
+
+        keyi.insert(r->id());
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -426,7 +479,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
+int VMGroup::check_rule_names(const std::string& aname, std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
@@ -435,13 +488,23 @@ int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
 
     for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
     {
-        std::string a_str = (*jt)->value();
+        std::set<std::string> a_set, key_set;
+        std::set<std::string>::iterator s_it;
 
-        if ( !roles.in_map(a_str) )
+        std::set<int> id_set;
+
+        one_util::split_unique((*jt)->value(), ',', a_set);
+
+        for (s_it = a_set.begin(); s_it != a_set.end() ; ++s_it)
+        {
+            key_set.insert(one_util::trim(*s_it));
+        }
+
+        if ( roles.names_to_ids(key_set, id_set) != 0 )
         {
             std::ostringstream oss;
-            oss << "Some roles used in " << aname << " attribute (" << a_str
-                << ") are not defined";
+            oss << "Some roles used in " << aname << " attribute ("
+                << (*jt)->value() << ") are not defined";
 
             error_str = oss.str();
             return -1;
@@ -451,6 +514,81 @@ int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::get_rules(const std::string& aname, VMGroupRule::Policy policy,
+        VMGroupRule::rule_set& rules, std::string& error_str)
+{
+    vector<const SingleAttribute *> affined;
+    vector<const SingleAttribute *>::const_iterator jt;
+
+    obj_template->get(aname, affined);
+
+    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    {
+        std::set<std::string> a_set, key_set;
+        std::set<std::string>::iterator s_it;
+
+        std::set<int> id_set;
+
+        std::pair<std::set<VMGroupRule>::iterator, bool> rc;
+
+        one_util::split_unique((*jt)->value(), ',', a_set);
+
+        for (s_it = a_set.begin(); s_it != a_set.end() ; ++s_it)
+        {
+            key_set.insert(one_util::trim(*s_it));
+        }
+
+        roles.names_to_ids(key_set, id_set);
+
+        VMGroupRule rule(policy, id_set);
+
+        rc = rules.insert(rule);
+
+        if ( rc.second == false )
+        {
+            error_str = "Duplicated " + aname + " rule (" +
+               (*jt)->value() + ") detected.";
+
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::check_rule_consistency(std::string& error)
+{
+    VMGroupRule::rule_set affined, anti;
+
+    VMGroupRule error_rule;
+
+    if ( get_rules("AFFINED", VMGroupRule::AFFINED, affined, error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( get_rules("ANTI_AFFINED", VMGroupRule::ANTI_AFFINED, anti, error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( !VMGroupRule::compatible(affined, anti, error_rule) )
+    {
+        error = "Some roles are defined in AFFINED and ANTI_AFFINED at the same"
+            " time";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VMGroup::insert(SqlDB *db, string& error_str)
@@ -466,7 +604,17 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    obj_template->remove("ROLE", va_roles);
+    int num_role = obj_template->remove("ROLE", va_roles);
+
+    if ( num_role > VMGroupRoles::MAX_ROLES )
+    {
+        for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+        {
+            delete *it;
+        }
+
+        error_str = "Maximum number of roles in a VM Group reached";
+    }
 
     bool error = false;
 
@@ -492,12 +640,12 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    if ( check_affinity("AFFINED", error_str) == -1 )
+    if ( check_rule_names("AFFINED", error_str) == -1 )
     {
         return -1;
     }
 
-    if ( check_affinity("ANTI_AFFINED", error_str) == -1 )
+    if ( check_rule_names("ANTI_AFFINED", error_str) == -1 )
     {
         return -1;
     }
@@ -529,12 +677,12 @@ int VMGroup::post_update_template(string& error)
 
     obj_template->erase("ROLE");
 
-    if ( check_affinity("AFFINED", error) == -1 )
+    if ( check_rule_names("AFFINED", error) == -1 )
     {
         return -1;
     }
 
-    if ( check_affinity("ANTI_AFFINED", error) == -1 )
+    if ( check_rule_names("ANTI_AFFINED", error) == -1 )
     {
         return -1;
     }
