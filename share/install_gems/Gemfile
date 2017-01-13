@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
-if RUBY_VERSION < '1.9.0'
+if RUBY_VERSION < '1.9.2'
     gem 'nokogiri', '< 1.6.0'
     gem 'net-ldap', '< 0.9'
     gem 'zendesk_api', '< 1.5'
 else
-    gem 'nokogiri'
+    gem 'nokogiri', '< 1.7.0'
     gem 'net-ldap', '< 0.13'
     gem 'zendesk_api', '< 1.14.0'
 end
