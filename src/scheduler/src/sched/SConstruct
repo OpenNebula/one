@@ -30,6 +30,7 @@ sched_env.StaticLibrary(lib_name, source_files)
 sched_env.Prepend(LIBS=[
     'scheduler_sched',
     'scheduler_pool',
+    'nebula_vmgroup_roles',
     'nebula_log',
     'nebula_client',
     'nebula_acl',

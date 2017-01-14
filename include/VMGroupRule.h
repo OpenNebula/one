@@ -47,27 +47,7 @@ public:
     /**
      *  @return policy name
      */
-    static std::string policy_to_s(Policy policy)
-    {
-        std::string name;
-
-        switch(policy)
-        {
-            case AFFINED:
-                name="AFFINED";
-                break;
-
-            case ANTI_AFFINED:
-                name="ANTI_AFFINED";
-                break;
-
-            case NONE:
-                name="NONE";
-                break;
-        }
-
-        return name;
-    }
+    static std::string policy_to_s(Policy policy);
 
     /**
      * A specialized set for rules

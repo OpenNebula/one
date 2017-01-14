@@ -18,6 +18,7 @@
 #define VMGROUP_XML_H_
 
 #include "ObjectXML.h"
+#include "VMGroupRole.h"
 
 class VMGroupXML : public ObjectXML
 {
@@ -39,6 +40,8 @@ public:
 
 private:
     int oid;
+
+    VMGroupRoles roles;
 
     void init_attributes();
 };

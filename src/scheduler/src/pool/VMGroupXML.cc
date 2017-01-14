@@ -18,6 +18,20 @@
 
 void VMGroupXML::init_attributes()
 {
-    xpath(oid,  "/VM_GROUP/ID", -1);
+    vector<xmlNodePtr> content;
+
+    xpath(oid, "/VM_GROUP/ID", -1);
+
+    // VMGroup roles
+    get_nodes("/VM_GROUP/ROLES", content);
+
+    if (!content.empty())
+    {
+        roles.from_xml_node(content[0]);
+    }
+
+    free_nodes(content);
+
+    content.clear();
 };
 
