@@ -34,19 +34,32 @@ if !host_id
     exit -1
 end
 
-vi_client    = VCenterDriver::VIClient.new host_id
+vi_client    = VCenterDriver::VIClient.new_from_host(host_id)
 
-vcenter_host = VCenterDriver::VCenterHost.new vi_client
+# Get CCR reference
+client = OpenNebula::Client.new
+host = OpenNebula::Host.new_with_id(host_id, client)
+rc = host.info
+if OpenNebula::is_error? rc
+    STDERR.puts rc.message
+    exit 1
+end
 
-cluster_info = vcenter_host.monitor_cluster
-cluster_info << vcenter_host.monitor_host_systems
-vm_monitor_info = vcenter_host.monitor_vms
+ccr = host["TEMPLATE/VCENTER_CCR"]
 
-cluster_info << "\nVM_POLL=YES"
-cluster_info << "#{vm_monitor_info}" if !vm_monitor_info.empty?
+# Get vCenter Cluster
+cluster = VCenterDriver::ClusterComputeResource.new_from_ref(vi_client, ccr)
 
-cluster_info << "\n"
-cluster_info << vcenter_host.monitor_customizations
-cluster_info << vcenter_host.get_available_ds
+# Print monitoring info
+puts cluster.monitor
+puts cluster.monitor_host_systems
 
-puts cluster_info
+vm_monitor_info = cluster.monitor_vms
+if !vm_monitor_info.empty?
+    puts "VM_POLL=YES"
+    puts vm_monitor_info
+end
+
+# TODO: monitor network metrics in 'monitor_vms'
+# TODO: monitor_customizations
+# TODO: get_available_ds
