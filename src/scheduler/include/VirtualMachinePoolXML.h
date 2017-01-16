@@ -84,6 +84,15 @@ public:
         return update(vm->get_oid(), vm->get_template(xml));
     };
 
+    /**
+     *
+     *
+     * */
+    void clear()
+    {
+        flush();
+    }
+
 protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)

@@ -108,12 +108,20 @@ public:
     /* Placement constraints                                                  */
     /* ---------------------------------------------------------------------- */
     /**
-     *  Generates a string with the boolean expresion to conform the role
-     *  policy
+     *  Generates a string with the boolean expression to conform the role
+     *  internal policy
      *    @param vm_id of the VM to generate the requirements for
      *    @param requirements
      */
-    void vm_requirements(int vm_id, std::string requirements);
+    void vm_role_requirements(int vm_id, std::string& requirements);
+
+    /**
+     *  Generates a string with the boolean expression to conform an affinity
+     *  constraint policy
+     *    @param policy to place VMs respect to this role VMs
+     *    @param requirements
+     */
+    void role_requirements(Policy policy, std::string& requirements);
 
 private:
     /**
@@ -145,6 +153,15 @@ public:
         by_id.delete_roles();
     };
 
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * Max number of roles in a VMGroup
+     */
+    const static int MAX_ROLES = 32;
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
     /**
      * Function to print the VMGroupRoles into a string in XML format
      *   @param xml the resulting XML string
@@ -173,11 +190,12 @@ public:
 
     /**
      *  Generates the ids corresponding to a set of role names
-     *    @param keys the set of names
+     *    @param rnames string with a comma separated list of role names
      *    @param keyi the set of ids
+     *
      *    @return 0 if all the names were successfully translated
      */
-    int names_to_ids(const std::set<std::string> keys, std::set<int>&  keyi);
+    int names_to_ids(const std::string& rnames, std::set<int>&  keyi);
 
     /**
      *  Adds a VM to a role
@@ -220,10 +238,60 @@ public:
         return by_id.get(id);
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
     /**
-     * Max number of roles in a VMGroup
+     *  Iterator for the roles in the group
      */
-    const static int MAX_ROLES = 32;
+    class RoleIterator
+    {
+    public:
+        RoleIterator& operator=(const RoleIterator& rhs)
+        {
+            role_it = rhs.role_it;
+            return *this;
+        }
+
+        RoleIterator& operator++()
+        {
+            ++role_it;
+            return *this;
+        }
+
+        bool operator!=(const RoleIterator& rhs)
+        {
+            return role_it != rhs.role_it;
+        }
+
+        VMGroupRole * operator*() const
+        {
+            return role_it->second;
+        }
+
+        RoleIterator(){};
+        RoleIterator(const RoleIterator& rit):role_it(rit.role_it){};
+        RoleIterator(const std::map<int, VMGroupRole *>::iterator& _role_it)
+            :role_it(_role_it){};
+
+        virtual ~RoleIterator(){};
+
+    private:
+        std::map<int, VMGroupRole *>::iterator role_it;
+    };
+
+    RoleIterator begin()
+    {
+        RoleIterator it(by_id.begin());
+        return it;
+    }
+
+    RoleIterator end()
+    {
+        RoleIterator it(by_id.end());
+        return it;
+    }
+
+    typedef class RoleIterator role_iterator;
 
 private:
     /**
@@ -307,56 +375,6 @@ private:
     private:
         std::map<T, VMGroupRole *> roles;
     };
-
-    class RoleIterator
-    {
-    public:
-        RoleIterator& operator=(const RoleIterator& rhs)
-        {
-            role_it = rhs.role_it;
-            return *this;
-        }
-
-        RoleIterator& operator++()
-        {
-            ++role_it;
-            return *this;
-        }
-
-        bool operator!=(const RoleIterator& rhs)
-        {
-            return role_it != rhs.role_it;
-        }
-
-        VMGroupRole * operator*() const
-        {
-            return role_it->second;
-        }
-
-        RoleIterator(){};
-        RoleIterator(const RoleIterator& rit):role_it(rit.role_it){};
-        RoleIterator(const std::map<int, VMGroupRole *>::iterator& _role_it)
-            :role_it(_role_it){};
-
-        virtual ~RoleIterator(){};
-
-    private:
-        std::map<int, VMGroupRole *>::iterator role_it;
-    };
-
-    RoleIterator begin()
-    {
-        RoleIterator it(by_id.begin());
-        return it;
-    }
-
-    RoleIterator end()
-    {
-        RoleIterator it(by_id.end());
-        return it;
-    }
-
-    typedef class RoleIterator role_iterator;
 
     /**
      *  The role template to store the VMGroupRole

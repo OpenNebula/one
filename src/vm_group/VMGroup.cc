@@ -235,25 +235,17 @@ int VMGroup::check_rule_names(VMGroupRule::Policy policy, std::string& error)
 
     for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
     {
-        std::set<std::string> a_set, key_set;
-        std::set<std::string>::iterator s_it;
-
         std::set<int> id_set;
 
-        one_util::split_unique((*jt)->value(), ',', a_set);
-
-        for (s_it = a_set.begin(); s_it != a_set.end() ; ++s_it)
-        {
-            key_set.insert(one_util::trim(*s_it));
-        }
-
-        if ( roles.names_to_ids(key_set, id_set) != 0 )
+        if ( roles.names_to_ids((*jt)->value(), id_set) != 0 )
         {
             std::ostringstream oss;
+
             oss << "Some roles used in " << aname << " attribute ("
                 << (*jt)->value() << ") are not defined";
 
             error = oss.str();
+
             return -1;
         }
     }
@@ -276,21 +268,11 @@ int VMGroup::get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
 
     for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
     {
-        std::set<std::string> a_set, key_set;
-        std::set<std::string>::iterator s_it;
-
         std::set<int> id_set;
 
         std::pair<std::set<VMGroupRule>::iterator, bool> rc;
 
-        one_util::split_unique((*jt)->value(), ',', a_set);
-
-        for (s_it = a_set.begin(); s_it != a_set.end() ; ++s_it)
-        {
-            key_set.insert(one_util::trim(*s_it));
-        }
-
-        roles.names_to_ids(key_set, id_set);
+        roles.names_to_ids((*jt)->value(), id_set);
 
         VMGroupRule rule(policy, id_set);
 
@@ -298,8 +280,12 @@ int VMGroup::get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
 
         if ( rc.second == false )
         {
-            error_str = "Duplicated " + aname + " rule (" +
-               (*jt)->value() + ") detected.";
+            std::ostringstream oss;
+
+            oss << "Duplicated " << aname << " rule (" << (*jt)->value()
+                << ") detected.";
+
+            error_str = oss.str();
 
             return -1;
         }

@@ -19,6 +19,7 @@
 
 #include "ObjectXML.h"
 #include "VMGroupRole.h"
+#include "VMGroupRule.h"
 
 class VMGroupXML : public ObjectXML
 {
@@ -39,9 +40,16 @@ public:
     };
 
 private:
+    // ------------------------------------------------------------------------
+    // VMGroup Attributes
+    // ------------------------------------------------------------------------
     int oid;
 
+    std::string name;
+
     VMGroupRoles roles;
+
+    VMGroupRule::rule_set rules;
 
     void init_attributes();
 };

@@ -308,21 +308,23 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
     // Pools
     // -------------------------------------------------------------------------
+    acls  = new AclXML(Client::client(), zone_id);
+    upool = new UserPoolXML(Client::client());
 
     hpool  = new HostPoolXML(Client::client());
-    upool  = new UserPoolXML(Client::client());
     clpool = new ClusterPoolXML(Client::client());
-    vmpool = new VirtualMachinePoolXML(Client::client(), machines_limit,
-            live_rescheds==1);
-
-    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
 
     dspool     = new SystemDatastorePoolXML(Client::client());
     img_dspool = new ImageDatastorePoolXML(Client::client());
 
+    vmpool        = new VirtualMachinePoolXML(Client::client(), machines_limit,
+                        live_rescheds==1);
+    vm_roles_pool = new VirtualMachinePoolXML(Client::client(), machines_limit,
+                        live_rescheds==1);
+
     vmgpool = new VMGroupPoolXML(Client::client());
 
-    acls = new AclXML(Client::client(), zone_id);
+    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -469,6 +471,8 @@ int Scheduler::set_up_pools()
     {
         return rc;
     }
+
+    vm_roles_pool->clear();
 
     return 0;
 };

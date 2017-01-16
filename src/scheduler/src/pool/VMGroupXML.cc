@@ -18,9 +18,13 @@
 
 void VMGroupXML::init_attributes()
 {
-    vector<xmlNodePtr> content;
+    vector<xmlNodePtr>       content;
+    std::vector<std::string> srules;
+
+    std::vector<std::string>::iterator it;
 
     xpath(oid, "/VM_GROUP/ID", -1);
+    xpath(name,"/VM_GROUP/NAME", "undefined");
 
     // VMGroup roles
     get_nodes("/VM_GROUP/ROLES", content);
@@ -33,5 +37,33 @@ void VMGroupXML::init_attributes()
     free_nodes(content);
 
     content.clear();
+
+    xpaths(srules, "/VM_GROUP/TEMPLATE/AFFINED");
+
+    for ( it = srules.begin() ; it != srules.end(); ++it )
+    {
+        std::set<int> id_set;
+
+        roles.names_to_ids(*it, id_set);
+
+        VMGroupRule rule(VMGroupRule::AFFINED, id_set);
+
+        rules.insert(rule);
+    }
+
+    rules.clear();
+
+    xpaths(srules, "/VM_GROUP/TEMPLATE/ANTI_AFFINED");
+
+    for ( it = srules.begin() ; it != srules.end(); ++it )
+    {
+        std::set<int> id_set;
+
+        roles.names_to_ids(*it, id_set);
+
+        VMGroupRule rule(VMGroupRule::ANTI_AFFINED, id_set);
+
+        rules.insert(rule);
+    }
 };
 

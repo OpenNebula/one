@@ -50,15 +50,16 @@ public:
 protected:
 
     Scheduler():
+        acls(0),
+        upool(0),
         hpool(0),
         clpool(0),
-        vmpool(0),
-        vmapool(0),
         dspool(0),
         img_dspool(0),
-        upool(0),
+        vmpool(0),
+        vm_roles_pool(0),
         vmgpool(0),
-        acls(0),
+        vmapool(0),
         timer(0),
         one_xmlrpc(""),
         machines_limit(0),
@@ -74,6 +75,7 @@ protected:
         delete clpool;
 
         delete vmpool;
+        delete vm_roles_pool;
         delete vmapool;
 
         delete dspool;
@@ -88,19 +90,21 @@ protected:
     // ---------------------------------------------------------------
     // Pools
     // ---------------------------------------------------------------
+    AclXML *      acls;
+    UserPoolXML * upool;
 
     HostPoolXML *    hpool;
     ClusterPoolXML * clpool;
 
-    VirtualMachinePoolXML *       vmpool;
-    VirtualMachineActionsPoolXML* vmapool;
     SystemDatastorePoolXML * dspool;
-    ImageDatastorePoolXML * img_dspool;
-    UserPoolXML * upool;
+    ImageDatastorePoolXML *  img_dspool;
+
+    VirtualMachinePoolXML *  vmpool;
+    VirtualMachinePoolXML *  vm_roles_pool;
 
     VMGroupPoolXML * vmgpool;
 
-    AclXML * acls;
+    VirtualMachineActionsPoolXML* vmapool;
 
     // ---------------------------------------------------------------
     // Scheduler Policies

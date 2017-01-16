@@ -33,6 +33,7 @@ VMGroupRole::VMGroupRole(VectorAttribute *_va):va(_va)
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void VMGroupRole::add_vm(int vm_id)
 {
@@ -73,6 +74,60 @@ void VMGroupRole::set_vms()
     va->replace("VMS", vms_str);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void affinity_requirements(int vm_id, std::string& requirements,
+        VMGroupRole::Policy policy, const std::set<int>& vms)
+{
+    string op;
+
+    requirements = "";
+
+    switch(policy)
+    {
+        case VMGroupRole::AFFINED:
+            op = "=";
+            break;
+        case VMGroupRole::ANTI_AFFINED:
+            op = "!=";
+            break;
+        case VMGroupRole::NONE:
+            return;
+    }
+
+    std::ostringstream oss;
+    std::set<int>::const_iterator it;
+
+    for ( it = vms.begin(); it != vms.end(); ++it )
+    {
+        if ( vm_id == -1 || vm_id != *it )
+        {
+            if ( it != vms.begin() )
+            {
+                oss << " & ";
+            }
+
+            oss << "( CURRENT_VMS " << op << " " << *it << ") ";
+        }
+    }
+
+    requirements = oss.str();
+}
+
+void VMGroupRole::vm_role_requirements(int vm_id, std::string& requirements)
+{
+    affinity_requirements(vm_id, requirements, policy(), vms);
+}
+
+void VMGroupRole::role_requirements(Policy policy, std::string& requirements)
+{
+    affinity_requirements(-1, requirements, policy, vms);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*  VMGroupRoles                                                              */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -125,6 +180,7 @@ int VMGroupRoles::from_xml_node(const xmlNodePtr node)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VMGroupRoles::add_role(VectorAttribute * vrole, string& error)
@@ -207,6 +263,9 @@ int VMGroupRoles::del_vm(const std::string& role_name, int vmid)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VMGroupRoles::vm_size()
 {
     int total = 0;
@@ -222,12 +281,19 @@ int VMGroupRoles::vm_size()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroupRoles::names_to_ids(const std::set<std::string> keys,
-        std::set<int>&  keyi)
+int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
 {
+    std::set<std::string> a_set, key_set;
     std::set<std::string>::iterator it;
 
-    for ( it = keys.begin(); it != keys.end(); ++it )
+    one_util::split_unique(rnames, ',', a_set);
+
+    for ( it = a_set.begin(); it != a_set.end() ; ++it )
+    {
+        key_set.insert(one_util::trim(*it));
+    }
+
+    for ( it = key_set.begin(); it != key_set.end(); ++it )
     {
         VMGroupRole *r = by_name.get(*it);
 
