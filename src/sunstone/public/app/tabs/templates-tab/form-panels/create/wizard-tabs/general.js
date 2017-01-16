@@ -114,7 +114,7 @@ define(function(require) {
       memory *= 1024;
     memory = memory * 24 * 30; //24 hours and 30 days
     document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    $(".total_memory_cost", context).show(); 
+    $(".total_memory_cost", context).show();
   }
 
   function _setup(context) {
@@ -137,14 +137,14 @@ define(function(require) {
      context.on("change", "#CPU_COST", function() {
       var cpu = document.getElementById('CPU_COST').value;
       document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * 24 * 30);
-      $(".total_cpu_cost", context).show(); 
+      $(".total_cpu_cost", context).show();
       CapacityCreate.calculatedRealCpu();
     });
 
     context.on("change", "#DISK_COST", function() {
       var disk = document.getElementById('DISK_COST').value;
       document.getElementById('total_value_disk').textContent = convertCostNumber(disk * 1024 * 24 * 30);
-      $(".total_disk_cost", context).show(); 
+      $(".total_disk_cost", context).show();
     });
 
     context.on("change", "#LOGO", function() {
@@ -187,6 +187,9 @@ define(function(require) {
         'VM_TEMPLATE': WizardFields.retrieveInput($("#vcenter_template_uuid", context))
       };
 
+      if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
+        templateJSON["DEPLOY_FOLDER"] = WizardFields.retrieveInput($("#vcenter_deploy_folder", context))
+      }
       templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
 
@@ -201,7 +204,7 @@ define(function(require) {
     }
 
     var userInputs = {};
-    
+
     // Retrieve Datastore Attribute
     var dsInput = $(".vcenter_datastore_input", context);
     if (dsInput.length > 0) {
@@ -274,6 +277,17 @@ define(function(require) {
     }
 
     delete templateJSON["KEEP_DISKS_ON_DONE"];
+
+    if (Config.isFeatureEnabled("vcenter_deploy_folder")) {
+      if (templateJSON["HYPERVISOR"] == 'vcenter' &&
+        templateJSON["DEPLOY_FOLDER"]) {
+        WizardFields.fillInput($("#vcenter_deploy_folder", context), templateJSON["DEPLOY_FOLDER"]);
+      }
+    } else {
+      $(".vcenter_deploy_folder_input", context).remove();
+    }
+
+    delete templateJSON["DEPLOY_FOLDER"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       var publicClouds = templateJSON["PUBLIC_CLOUD"];

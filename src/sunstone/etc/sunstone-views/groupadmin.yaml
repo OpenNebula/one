@@ -48,6 +48,10 @@ features:
     # will be set to the same value as VCPU, that will still be visible for the
     # end users
     instantiate_hide_cpu: false
+
+    # True to show an input to specify the the VMs and Template path/folder where a vCenter VM will
+    # deployed to
+    vcenter_deploy_folder: false
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
