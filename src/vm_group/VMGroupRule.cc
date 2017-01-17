@@ -18,6 +18,8 @@
 #include "VMGroupRole.h"
 #include "VMGroupRule.h"
 
+#include <iomanip>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /*  VMGroupRule                                                               */
@@ -70,3 +72,24 @@ std::string VMGroupRule::policy_to_s(Policy policy)
 
     return name;
 }
+
+/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& os, const VMGroupRule& rule)
+{
+    os << right << setw(14) << VMGroupRule::policy_to_s(rule.policy) << " ";
+
+    for (int i = 0 ; i <VMGroupRoles::MAX_ROLES ; ++i)
+    {
+        if ( rule.roles[i] == 1 )
+        {
+            os << right << setw(3) << i << " ";
+        }
+    }
+
+    os << '\n';
+
+    return os;
+}
+

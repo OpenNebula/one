@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "VMGroupXML.h"
+#include <iomanip>
 
 void VMGroupXML::init_attributes()
 {
@@ -51,7 +52,7 @@ void VMGroupXML::init_attributes()
         rules.insert(rule);
     }
 
-    rules.clear();
+    srules.clear();
 
     xpaths(srules, "/VM_GROUP/TEMPLATE/ANTI_AFFINED");
 
@@ -67,3 +68,46 @@ void VMGroupXML::init_attributes()
     }
 };
 
+ostream& operator<<(ostream& os, VMGroupXML& vmg)
+{
+    VMGroupRule::rule_set::iterator rit;
+    VMGroupRoles::role_iterator it;
+
+    os << left << setw(4) << vmg.oid << " "
+       << left << setw(8) << vmg.name<< " "
+       << left << setw(26)<< "ROLES" << "\n"
+       << setfill(' ') << setw(14) << " " << setfill('-') << setw(26) << '-'
+       << "\n";
+
+    for ( it = vmg.roles.begin() ; it != vmg.roles.end() ; ++it )
+    {
+        os << setfill(' ') << setw(14) << ' '
+           << left << setw(3) << (*it)->id()       << " "
+           << left << setw(8) << (*it)->name()     << " "
+           << left << setw(12)<< (*it)->policy_s() << "\n";
+    }
+
+    os << setfill(' ') << setw(14) << ' ' << left << "RULES" << "\n"
+       << setfill(' ') << setw(14) << ' ' << setfill('-') << setw(26) << '-'
+       << "\n";
+
+    for ( rit = vmg.rules.begin() ; rit != vmg.rules.end(); ++rit )
+    {
+        const std::bitset<VMGroupRoles::MAX_ROLES>& rroles = (*rit).get_roles();
+
+        os << setfill(' ') << setw(14) << ' ' << left << setw(14)
+           << (*rit).get_policy() << " ";
+
+        for (int i = 0 ; i <VMGroupRoles::MAX_ROLES ; ++i)
+        {
+            if ( rroles[i] == 1 )
+            {
+                os << right << setw(3) << i << " ";
+            }
+        }
+
+        os << "\n";
+    }
+
+    return os;
+}

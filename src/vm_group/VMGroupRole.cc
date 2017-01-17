@@ -16,6 +16,8 @@
 
 #include "VMGroupRole.h"
 
+#include <iomanip>
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /*  VMGroupRole                                                               */
@@ -29,6 +31,27 @@ VMGroupRole::VMGroupRole(VectorAttribute *_va):va(_va)
     if ( !vms_str.empty() )
     {
         one_util::split_unique(vms_str, ',', vms);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VMGroupRole::Policy VMGroupRole::policy()
+{
+    string p = va->vector_value("POLICY");
+
+    if ( p == "AFFINED" )
+    {
+        return AFFINED;
+    }
+    else if ( p == "ANTI_AFFINED" )
+    {
+        return ANTI_AFFINED;
+    }
+    else
+    {
+        return NONE;
     }
 }
 
@@ -307,5 +330,22 @@ int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& os, VMGroupRoles& roles)
+{
+    VMGroupRoles::role_iterator it;
+
+    for ( it = roles.begin() ; it != roles.end() ; ++it )
+    {
+        os << right << setw(3)  << (*it)->id()       << " "
+           << right << setw(12) << (*it)->name()     << " "
+           << right << setw(12) << (*it)->policy_s() << "\n";
+    }
+
+    return os;
 }
 

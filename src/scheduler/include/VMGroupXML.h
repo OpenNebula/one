@@ -39,6 +39,8 @@ public:
         return oid;
     };
 
+    friend ostream& operator<<(ostream& os, VMGroupXML& vmg);
+
 private:
     // ------------------------------------------------------------------------
     // VMGroup Attributes

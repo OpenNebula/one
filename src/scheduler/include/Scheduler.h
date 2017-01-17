@@ -144,6 +144,8 @@ protected:
 
     virtual int do_scheduled_actions();
 
+    virtual void do_vm_groups();
+
 private:
     Scheduler(Scheduler const&){};
 

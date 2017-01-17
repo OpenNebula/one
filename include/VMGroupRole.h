@@ -74,23 +74,15 @@ public:
         return va->vector_value("NAME");
     }
 
-    Policy policy()
-    {
-        string p = va->vector_value("POLICY");
+    /**
+     *  @return the policy of this role
+     */
+    Policy policy();
 
-        if ( p == "AFFINED" )
-        {
-            return AFFINED;
-        }
-        else if ( p == "ANTI_AFFINED" )
-        {
-            return ANTI_AFFINED;
-        }
-        else
-        {
-            return NONE;
-        }
-    }
+    std::string policy_s()
+    {
+        return va->vector_value("POLICY");
+    };
 
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
@@ -237,6 +229,11 @@ public:
     {
         return by_id.get(id);
     }
+
+    /**
+     *  Function to write a the roles in an output stream
+     */
+    friend ostream& operator<<(ostream& os, VMGroupRoles& roles);
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */

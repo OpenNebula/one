@@ -26,6 +26,7 @@
 #include <pthread.h>
 
 #include <cmath>
+#include <iomanip>
 
 #include "Scheduler.h"
 #include "SchedulerTemplate.h"
@@ -1394,6 +1395,30 @@ int Scheduler::do_scheduled_actions()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Scheduler::do_vm_groups()
+{
+    map<int, ObjectXML*>::const_iterator it;
+    const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
+
+    ostringstream oss;
+
+    for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
+    {
+        oss << "\nVMGroups\n"
+            << left << setw(4)<< "ID" << left << setw(8) << "NAME    \n"
+            << setfill('-') << setw(40) << '-' << setfill(' ') << "\n";
+
+        VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
+
+        oss << *grp;
+    }
+
+    NebulaLog::log("VMGRP", Log::DEBUG, oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Scheduler::do_action(const string &name, void *args)
 {
     int rc;
@@ -1419,6 +1444,10 @@ void Scheduler::do_action(const string &name, void *args)
         {
             return;
         }
+
+        profile(true);
+        do_vm_groups();
+        profile(false,"Setting VM groups placement constraints.");
 
         match_schedule();
 

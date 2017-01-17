@@ -29,7 +29,6 @@ struct VMGroupRule_compare;
 class VMGroupRule
 {
 public:
-
     /**
      *  Placement policy rules for roles
      *    AFFINED: VMs of all roles are placed in the same hypervisor
@@ -42,7 +41,6 @@ public:
         AFFINED     = 0x01,
         ANTI_AFFINED= 0x02
     };
-
 
     /**
      *  @return policy name
@@ -144,6 +142,16 @@ public:
     {
         return roles;
     }
+
+    std::string get_policy() const
+    {
+        return policy_to_s(policy);
+    }
+
+    /**
+     *  Function to write a the rule in an output stream
+     */
+    friend ostream& operator<<(ostream& os, const VMGroupRule& rule);
 
 private:
 
