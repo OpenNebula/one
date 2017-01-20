@@ -24,40 +24,39 @@
 struct VMGroupRule_compare;
 
 /**
+ *  Placement policy rules for roles
+ *    AFFINED: VMs of all roles are placed in the same hypervisor
+ *    ANTI_AFFINED: VMs are placed in different hypervisors (role-wise)
+ *    NONE: No additional placement constraints
+ */
+enum class VMGroupPolicy
+{
+    NONE        = 0x00,
+    AFFINED     = 0x01,
+    ANTI_AFFINED= 0x02
+};
+
+std::ostream& operator<<(std::ostream& os, VMGroupPolicy policy);
+
+/**
  *  A rule represents a role placement policy
  */
 class VMGroupRule
 {
 public:
     /**
-     *  Placement policy rules for roles
-     *    AFFINED: VMs of all roles are placed in the same hypervisor
-     *    ANTI_AFFINED: VMs are placed in different hypervisors (role-wise)
-     *    NONE: No additional placement constraints
-     */
-    enum Policy
-    {
-        NONE        = 0x00,
-        AFFINED     = 0x01,
-        ANTI_AFFINED= 0x02
-    };
-
-    /**
-     *  @return policy name
-     */
-    static std::string policy_to_s(Policy policy);
-
-    /**
      * A specialized set for rules
      */
     typedef std::set<VMGroupRule, VMGroupRule_compare> rule_set;
 
+    typedef std::bitset<VMGroupRoles::MAX_ROLES> role_bitset;
+
     /* ---------------------------------------------------------------------- */
     /*  Rule Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    VMGroupRule():policy(NONE),roles(){};
+    VMGroupRule():policy(VMGroupPolicy::NONE),roles(){};
 
-    VMGroupRule(Policy p, std::set<int> roles_id):policy(p)
+    VMGroupRule(VMGroupPolicy p, std::set<int> roles_id):policy(p)
     {
         std::set<int>::iterator it;
 
@@ -70,8 +69,7 @@ public:
         }
     };
 
-    VMGroupRule(Policy p, std::bitset<VMGroupRoles::MAX_ROLES> _roles)
-        :policy(p), roles(_roles){};
+    VMGroupRule(VMGroupPolicy p, role_bitset _roles):policy(p), roles(_roles){};
 
     VMGroupRule(const VMGroupRule& other)
     {
@@ -138,20 +136,15 @@ public:
     /**
      *  @return the roles in the rule as a bitset (1 roles is in)
      */
-    const std::bitset<VMGroupRoles::MAX_ROLES>& get_roles() const
+    const role_bitset& get_roles() const
     {
         return roles;
     }
 
-    std::string get_policy() const
+    VMGroupPolicy get_policy() const
     {
-        return policy_to_s(policy);
+        return policy;
     }
-
-    /**
-     *  Function to write a the rule in an output stream
-     */
-    friend ostream& operator<<(ostream& os, const VMGroupRule& rule);
 
 private:
 
@@ -160,7 +153,7 @@ private:
     /**
      *  Type of the rule
      */
-    Policy policy;
+    VMGroupPolicy policy;
 
     /**
      *  Roles participating in the rule

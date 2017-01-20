@@ -87,7 +87,7 @@ public:
     /**
      *
      *
-     * */
+     */
     void clear()
     {
         flush();

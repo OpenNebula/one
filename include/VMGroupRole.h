@@ -22,6 +22,8 @@
 
 class VMGroupPool;
 
+enum class VMGroupPolicy;
+
 /**
  *  A VMGroupRole defines a VM type that typically implements a role in a
  *  multi-vm application.
@@ -37,19 +39,6 @@ class VMGroupPool;
 class VMGroupRole
 {
 public:
-
-    /**
-     *  Scheduling policy for the VMs within this role
-     */
-    enum Policy
-    {
-        NONE        = 0x00,
-        AFFINED     = 0x01,
-        ANTI_AFFINED= 0x02
-    };
-
-    /* ---------------------------------------------------------------------- */
-
     VMGroupRole(VectorAttribute *_va);
 
     virtual ~VMGroupRole(){};
@@ -77,7 +66,7 @@ public:
     /**
      *  @return the policy of this role
      */
-    Policy policy();
+    VMGroupPolicy policy();
 
     std::string policy_s()
     {
@@ -91,6 +80,11 @@ public:
     {
         return vms;
     };
+
+    int size_vms()
+    {
+        return vms.size();
+    }
 
     void add_vm(int vm_id);
 
@@ -110,10 +104,10 @@ public:
     /**
      *  Generates a string with the boolean expression to conform an affinity
      *  constraint policy
-     *    @param policy to place VMs respect to this role VMs
+     *    @param p policy to place VMs respect to this role VMs
      *    @param requirements
      */
-    void role_requirements(Policy policy, std::string& requirements);
+    void role_requirements(VMGroupPolicy p, std::string& requirements);
 
 private:
     /**
@@ -229,11 +223,6 @@ public:
     {
         return by_id.get(id);
     }
-
-    /**
-     *  Function to write a the roles in an output stream
-     */
-    friend ostream& operator<<(ostream& os, VMGroupRoles& roles);
 
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------*/
 
 #include "VMGroupRole.h"
+#include "VMGroupRule.h"
 
 #include <iomanip>
 
@@ -37,21 +38,23 @@ VMGroupRole::VMGroupRole(VectorAttribute *_va):va(_va)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VMGroupRole::Policy VMGroupRole::policy()
+VMGroupPolicy VMGroupRole::policy()
 {
     string p = va->vector_value("POLICY");
 
+    one_util::toupper(p);
+
     if ( p == "AFFINED" )
     {
-        return AFFINED;
+        return VMGroupPolicy::AFFINED;
     }
     else if ( p == "ANTI_AFFINED" )
     {
-        return ANTI_AFFINED;
+        return VMGroupPolicy::ANTI_AFFINED;
     }
     else
     {
-        return NONE;
+        return VMGroupPolicy::NONE;
     }
 }
 
@@ -101,7 +104,7 @@ void VMGroupRole::set_vms()
 /* -------------------------------------------------------------------------- */
 
 static void affinity_requirements(int vm_id, std::string& requirements,
-        VMGroupRole::Policy policy, const std::set<int>& vms)
+        VMGroupPolicy policy, const std::set<int>& vms)
 {
     string op;
 
@@ -109,27 +112,31 @@ static void affinity_requirements(int vm_id, std::string& requirements,
 
     switch(policy)
     {
-        case VMGroupRole::AFFINED:
+        case VMGroupPolicy::AFFINED:
             op = "=";
             break;
-        case VMGroupRole::ANTI_AFFINED:
+        case VMGroupPolicy::ANTI_AFFINED:
             op = "!=";
             break;
-        case VMGroupRole::NONE:
+        case VMGroupPolicy::NONE:
             return;
     }
 
     std::ostringstream oss;
     std::set<int>::const_iterator it;
 
+    bool first = true;
+
     for ( it = vms.begin(); it != vms.end(); ++it )
     {
         if ( vm_id == -1 || vm_id != *it )
         {
-            if ( it != vms.begin() )
+            if ( !first )
             {
-                oss << " & ";
+                oss << "& ";
             }
+
+            first = false;
 
             oss << "( CURRENT_VMS " << op << " " << *it << ") ";
         }
@@ -143,9 +150,9 @@ void VMGroupRole::vm_role_requirements(int vm_id, std::string& requirements)
     affinity_requirements(vm_id, requirements, policy(), vms);
 }
 
-void VMGroupRole::role_requirements(Policy policy, std::string& requirements)
+void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 {
-    affinity_requirements(-1, requirements, policy, vms);
+    affinity_requirements(-1, reqs, pol, vms);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -330,22 +337,5 @@ int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-ostream& operator<<(ostream& os, VMGroupRoles& roles)
-{
-    VMGroupRoles::role_iterator it;
-
-    for ( it = roles.begin() ; it != roles.end() ; ++it )
-    {
-        os << right << setw(3)  << (*it)->id()       << " "
-           << right << setw(12) << (*it)->name()     << " "
-           << right << setw(12) << (*it)->policy_s() << "\n";
-    }
-
-    return os;
 }
 

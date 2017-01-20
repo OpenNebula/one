@@ -23,6 +23,8 @@
 
 class VMGroupPool;
 
+enum class VMGroupPolicy;
+
 /**
  *  A VM group is a set of related VMs that may impose placement constraints.
  *
@@ -124,18 +126,17 @@ private:
      *
      *    @return 0 if all roles are defined -1 otherwise
      */
-    int check_rule_names(VMGroupRule::Policy policy, std::string& error_str);
+    int check_rule_names(VMGroupPolicy policy, std::string& error_str);
 
     /**
      *  Generate a rule_set from the AFFINED/ANTI_AFFINED rules
-     *    @param policy AFFINED or ANTIAFFINED
-     *    @param rule_set with the rules
-     *    @param error_str if some of the roles are not defined
+     *    @param p policy AFFINED or ANTIAFFINED
+     *    @param rs rule_set with the rules
+     *    @param error if some of the roles are not defined
      *
      *    @return 0 if success -1 otherwise
      */
-    int get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
-            std::string& error_str);
+    int get_rules(VMGroupPolicy p, VMGroupRule::rule_set& rs, std::string& err);
 
     int check_rule_consistency(std::string& error);
 

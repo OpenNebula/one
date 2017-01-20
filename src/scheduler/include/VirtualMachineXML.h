@@ -60,7 +60,6 @@ public:
     //--------------------------------------------------------------------------
     // Get Methods for VirtualMachineXML class
     //--------------------------------------------------------------------------
-
     int get_oid() const
     {
         return oid;
@@ -130,10 +129,29 @@ public:
         return public_cloud;
     };
 
+    /**
+     *  Adds (logical AND) new placement requirements to the current ones
+     *    @param reqs additional requirements
+     */
+    void add_requirements(const string& reqs)
+    {
+        if ( reqs.empty() )
+        {
+            return;
+        }
+        else if ( requirements.empty() )
+        {
+            requirements = reqs;
+        }
+        else
+        {
+            requirements += " & " + reqs;
+        }
+    }
+
     //--------------------------------------------------------------------------
     // Matched Resources Interface
     //--------------------------------------------------------------------------
-
     /**
      *  Adds a matching host if it is not equal to the actual one
      *    @param oid of the host

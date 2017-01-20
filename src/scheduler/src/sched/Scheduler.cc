@@ -1400,20 +1400,30 @@ void Scheduler::do_vm_groups()
     map<int, ObjectXML*>::const_iterator it;
     const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
 
-    ostringstream oss;
+    if (NebulaLog::log_level() >= Log::DDDEBUG)
+    {
+        ostringstream oss;
+
+        oss << "VMGroups\n"
+            << left << setw(4)<< "ID" << " " << left << setw(8) << "NAME" << " "
+            << "\n" << setfill('-') << setw(40) << '-' << setfill(' ') << "\n";
+
+        for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
+        {
+            VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
+
+            oss << *grp;
+        }
+
+        NebulaLog::log("VMGRP", Log::DDDEBUG, oss);
+    }
 
     for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
     {
-        oss << "\nVMGroups\n"
-            << left << setw(4)<< "ID" << left << setw(8) << "NAME    \n"
-            << setfill('-') << setw(40) << '-' << setfill(' ') << "\n";
-
         VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
 
-        oss << *grp;
+        grp->set_antiaffinity_requirements(vmpool);
     }
-
-    NebulaLog::log("VMGRP", Log::DEBUG, oss);
 }
 
 /* -------------------------------------------------------------------------- */

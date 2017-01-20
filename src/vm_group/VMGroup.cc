@@ -224,12 +224,15 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::check_rule_names(VMGroupRule::Policy policy, std::string& error)
+int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
 
-    std::string aname = VMGroupRule::policy_to_s(policy);
+    std::ostringstream oss;
+    oss << policy;
+
+    std::string aname = oss.str();
 
     obj_template->get(aname, affined);
 
@@ -256,13 +259,16 @@ int VMGroup::check_rule_names(VMGroupRule::Policy policy, std::string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::get_rules(VMGroupRule::Policy policy, VMGroupRule::rule_set& rules,
+int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
         std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
 
-    std::string aname = VMGroupRule::policy_to_s(policy);
+    std::ostringstream oss;
+    oss << policy;
+
+    std::string aname = oss.str();
 
     obj_template->get(aname, affined);
 
@@ -305,14 +311,14 @@ int VMGroup::check_rule_consistency(std::string& error)
 
     VMGroupRule error_rule;
 
-    if ( get_rules(VMGroupRule::AFFINED, affined, error) == -1 )
+    if ( get_rules(VMGroupPolicy::AFFINED, affined, error) == -1 )
     {
         return -1;
     }
 
     for (it=affined.begin() ; it != affined.end(); ++it)
     {
-        const std::bitset<VMGroupRoles::MAX_ROLES> rs = (*it).get_roles();
+        const VMGroupRule::role_bitset rs = (*it).get_roles();
 
         for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
         {
@@ -320,7 +326,7 @@ int VMGroup::check_rule_consistency(std::string& error)
             {
                 VMGroupRole * role = roles.get(i);
 
-                if ( role != 0 && role->policy() == VMGroupRole::ANTI_AFFINED )
+                if ( role != 0 && role->policy() == VMGroupPolicy::ANTI_AFFINED )
                 {
                     error = "Role " + role->name() + " is in an AFFINED rule "
                         "but the role policy is ANTI_AFFINED";
@@ -331,7 +337,7 @@ int VMGroup::check_rule_consistency(std::string& error)
         }
     }
 
-    if ( get_rules(VMGroupRule::ANTI_AFFINED, anti, error) == -1 )
+    if ( get_rules(VMGroupPolicy::ANTI_AFFINED, anti, error) == -1 )
     {
         return -1;
     }
@@ -339,7 +345,7 @@ int VMGroup::check_rule_consistency(std::string& error)
     if ( !VMGroupRule::compatible(affined, anti, error_rule) )
     {
         ostringstream oss;
-        const std::bitset<VMGroupRoles::MAX_ROLES> rs = error_rule.get_roles();
+        const VMGroupRule::role_bitset rs = error_rule.get_roles();
 
         oss << "Roles defined in AFFINED and ANTI_AFFINED rules:";
 
@@ -415,12 +421,12 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    if ( check_rule_names(VMGroupRule::AFFINED, error_str) == -1 )
+    if ( check_rule_names(VMGroupPolicy::AFFINED, error_str) == -1 )
     {
         return -1;
     }
 
-    if ( check_rule_names(VMGroupRule::ANTI_AFFINED, error_str) == -1 )
+    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error_str) == -1 )
     {
         return -1;
     }
@@ -457,12 +463,12 @@ int VMGroup::post_update_template(string& error)
 
     obj_template->erase("ROLE");
 
-    if ( check_rule_names(VMGroupRule::AFFINED, error) == -1 )
+    if ( check_rule_names(VMGroupPolicy::AFFINED, error) == -1 )
     {
         return -1;
     }
 
-    if ( check_rule_names(VMGroupRule::ANTI_AFFINED, error) == -1 )
+    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error) == -1 )
     {
         return -1;
     }
@@ -475,3 +481,5 @@ int VMGroup::post_update_template(string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

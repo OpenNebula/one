@@ -21,6 +21,8 @@
 #include "VMGroupRole.h"
 #include "VMGroupRule.h"
 
+class VirtualMachinePoolXML;
+
 class VMGroupXML : public ObjectXML
 {
 public:
@@ -34,12 +36,28 @@ public:
         init_attributes();
     };
 
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
     int get_oid() const
     {
         return oid;
     };
 
+    const std::string& get_name() const
+    {
+        return name;
+    };
+
+    /**
+     *  Dumps a Group, its roles and affinity rules to an output stream
+     */
     friend ostream& operator<<(ostream& os, VMGroupXML& vmg);
+
+    /**
+     *  Adds the internal role placement rules to each VM in the role
+     *    @params vmpool VM set of pending VMs
+     */
+    void set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool);
 
 private:
     // ------------------------------------------------------------------------
@@ -53,6 +71,11 @@ private:
 
     VMGroupRule::rule_set rules;
 
+    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    /**
+     *  Bootstrap VMGroup roles ans rules
+     */
     void init_attributes();
 };
 

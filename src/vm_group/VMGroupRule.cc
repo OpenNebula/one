@@ -48,47 +48,22 @@ bool VMGroupRule::compatible(VMGroupRule::rule_set& affined,
     return err.none();
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-std::string VMGroupRule::policy_to_s(Policy policy)
+std::ostream& operator<<(std::ostream& os, VMGroupPolicy policy)
 {
-    std::string name;
-
     switch(policy)
     {
-        case AFFINED:
-            name="AFFINED";
+        case VMGroupPolicy::AFFINED:
+            os << "AFFINED";
             break;
 
-        case ANTI_AFFINED:
-            name="ANTI_AFFINED";
+        case VMGroupPolicy::ANTI_AFFINED:
+            os << "ANTI_AFFINED";
             break;
 
-        case NONE:
-            name="NONE";
+        case VMGroupPolicy::NONE:
+            os << "NONE";
             break;
     }
-
-    return name;
-}
-
-/* -------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-ostream& operator<<(ostream& os, const VMGroupRule& rule)
-{
-    os << right << setw(14) << VMGroupRule::policy_to_s(rule.policy) << " ";
-
-    for (int i = 0 ; i <VMGroupRoles::MAX_ROLES ; ++i)
-    {
-        if ( rule.roles[i] == 1 )
-        {
-            os << right << setw(3) << i << " ";
-        }
-    }
-
-    os << '\n';
 
     return os;
 }
