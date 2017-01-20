@@ -120,6 +120,15 @@
       </label>
     </div>
   </div>
+  <div class="vcenter_deploy_folder_input row">
+    <div class="medium-6 columns">
+      <label  for="vcenter_deploy_folder">
+        {{tr "Deployment Folder"}}
+        {{{tip (tr "If specified, the the VMs and Template folder path where the VM will be created inside the data center. The path is delimited by slashes e.g /Management/VMs. If no path is set the VM will be deployed in the same folder where the template exists.")}}}
+      </label>
+      <input type="text" id="vcenter_deploy_folder"/>
+    </div>
+  </div>
 </fieldset>
 <div class="row">
   <div class="capacityCreate large-12 columns">{{{capacityCreateHTML}}}</div>

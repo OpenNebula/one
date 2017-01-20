@@ -2490,6 +2490,21 @@ private
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_fast(uuid, ops[:ref], ops[:name])
 
+        deploy_folder = nil
+        deploy_folder_name = xml.root.elements["/VM/USER_TEMPLATE/DEPLOY_FOLDER"]
+
+        if !deploy_folder_name.nil?
+            deploy_folder_name = deploy_folder_name.text
+            if !deploy_folder_name.empty?
+                # Look for folder object
+                deploy_folder = connection.dc.find_folder(deploy_folder_name)
+            end
+        end
+
+        if deploy_folder.nil?
+            deploy_folder = vc_template.parent
+        end
+
         # Find out requested and available resource pool
 
         req_rp = nil
@@ -2598,7 +2613,7 @@ private
             storage_spec = RbVmomi::VIM.StoragePlacementSpec(
                 type: 'clone',
                 cloneName: vcenter_name,
-                folder: vc_template.parent,
+                folder: deploy_folder,
                 podSelectionSpec: pod_spec,
                 vm: vc_template,
                 cloneSpec: clone_spec
@@ -2624,7 +2639,7 @@ private
 
             begin
             vm = vc_template.CloneVM_Task(
-                   :folder => vc_template.parent,
+                   :folder => deploy_folder,
                    :name   => vcenter_name,
                    :spec   => clone_spec).wait_for_completion
             rescue Exception => e
@@ -2639,7 +2654,7 @@ private
 
                 vm.Destroy_Task.wait_for_completion
                 vm = vc_template.CloneVM_Task(
-                    :folder => vc_template.parent,
+                    :folder => deploy_folder,
                     :name   => vcenter_name,
                     :spec   => clone_spec).wait_for_completion
             end
