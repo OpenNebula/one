@@ -304,6 +304,6 @@ class VirtualMachine
                 VM_STATE[:unknown]
         end
     end
-end
+end # class VirtualMachine
 
 end # module VCenterDriver

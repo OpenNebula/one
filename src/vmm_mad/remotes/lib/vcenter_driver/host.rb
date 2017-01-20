@@ -23,7 +23,7 @@ class HostFolder
 
         @clusters[ref.to_sym]
     end
-end
+end # class HostFolder
 
 class ClusterComputeResource
     attr_accessor :item
@@ -242,6 +242,6 @@ class ClusterComputeResource
     def self.new_from_ref(vi_client, ref)
         self.new(RbVmomi::VIM::ClusterComputeResource.new(vi_client.vim, ref))
     end
-end
+end # class ClusterComputeResource
 
 end # module VCenterDriver

@@ -33,7 +33,7 @@ class DatacenterFolder
 
         @items[ref.to_sym]
     end
-end
+end # class DatatacenterFolder
 
 class Datacenter
     attr_accessor :item

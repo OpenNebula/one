@@ -33,7 +33,7 @@ class DatastoreFolder
 
         @items[ref.to_sym]
     end
-end
+end # class DatastoreFolder
 
 class Datastore
     attr_accessor :item
@@ -51,7 +51,7 @@ class Datastore
     def self.new_from_ref(vi_client, ref)
         self.new(RbVmomi::VIM::Datastore.new(vi_client.vim, ref))
     end
-end
+end # class Datastore
 
 end # module VCenterDriver
 
