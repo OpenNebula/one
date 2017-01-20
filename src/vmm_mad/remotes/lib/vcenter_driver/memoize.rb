@@ -41,4 +41,4 @@ module Memoize
 
         @memoize[property] = value
     end
-end
+end # module Memoize
