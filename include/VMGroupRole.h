@@ -74,16 +74,16 @@ public:
     };
 
     /**
-     *  Gets the sets of hosts affined to this role
-     *    @param ahosts set of ids of affined hosts
+     *  Gets the placement requirements for the affined HOSTS
+     *    @param reqs string with the requirements expression
      */
-    void get_affined_hosts(std::set<int>& ahosts);
+    void affined_host_requirements(std::string& reqs);
 
     /**
-     *  Gets the sets of hosts anti-affined to this role
-     *    @param ahosts set of ids of anti-affined hosts
+     *  Gets the placement requirements for the antiaffined HOSTS
+     *    @param reqs string with the requirements expression
      */
-    void get_antiaffined_hosts(std::set<int>& ahosts);
+    void antiaffined_host_requirements(std::string& reqs);
 
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */

@@ -309,23 +309,23 @@ void Scheduler::start()
     // -------------------------------------------------------------------------
     // Pools
     // -------------------------------------------------------------------------
-    acls  = new AclXML(Client::client(), zone_id);
-    upool = new UserPoolXML(Client::client());
+    Client * client = Client::client();
 
-    hpool  = new HostPoolXML(Client::client());
-    clpool = new ClusterPoolXML(Client::client());
+    acls  = new AclXML(client, zone_id);
+    upool = new UserPoolXML(client);
 
-    dspool     = new SystemDatastorePoolXML(Client::client());
-    img_dspool = new ImageDatastorePoolXML(Client::client());
+    hpool  = new HostPoolXML(client);
+    clpool = new ClusterPoolXML(client);
 
-    vmpool        = new VirtualMachinePoolXML(Client::client(), machines_limit,
-                        live_rescheds==1);
-    vm_roles_pool = new VirtualMachinePoolXML(Client::client(), machines_limit,
-                        live_rescheds==1);
+    dspool     = new SystemDatastorePoolXML(client);
+    img_dspool = new ImageDatastorePoolXML(client);
 
-    vmgpool = new VMGroupPoolXML(Client::client());
+    vm_roles_pool = new VirtualMachineRolePoolXML(client, machines_limit);
+    vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1);
 
-    vmapool = new VirtualMachineActionsPoolXML(Client::client(), machines_limit);
+    vmgpool = new VMGroupPoolXML(client);
+
+    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -473,7 +473,12 @@ int Scheduler::set_up_pools()
         return rc;
     }
 
-    vm_roles_pool->clear();
+    rc = vm_roles_pool->set_up();
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
 
     return 0;
 };
@@ -1012,13 +1017,20 @@ void Scheduler::match_schedule()
         ostringstream oss;
 
         oss << "Match Making statistics:\n"
-            << "\tNumber of VMs:            " << pending_vms.size() << endl
-            << "\tTotal time:               " << one_util::float_to_str(time(0) - stime) << "s" << endl
-            << "\tTotal Cluster Match time: " << one_util::float_to_str(total_cl_match_time) << "s" << endl
-            << "\tTotal Host Match time:    " << one_util::float_to_str(total_host_match_time) << "s" << endl
-            << "\tTotal Host Ranking time:  " << one_util::float_to_str(total_host_rank_time) << "s" << endl
-            << "\tTotal DS Match time:      " << one_util::float_to_str(total_ds_match_time) << "s" << endl
-            << "\tTotal DS Ranking time:    " << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
+            << "\tNumber of VMs:            "
+            << pending_vms.size() << endl
+            << "\tTotal time:               "
+            << one_util::float_to_str(time(0) - stime) << "s" << endl
+            << "\tTotal Cluster Match time: "
+            << one_util::float_to_str(total_cl_match_time) << "s" << endl
+            << "\tTotal Host Match time:    "
+            << one_util::float_to_str(total_host_match_time) << "s" << endl
+            << "\tTotal Host Ranking time:  "
+            << one_util::float_to_str(total_host_rank_time) << "s" << endl
+            << "\tTotal DS Match time:      "
+            << one_util::float_to_str(total_ds_match_time) << "s" << endl
+            << "\tTotal DS Ranking time:    "
+            << one_util::float_to_str(total_ds_rank_time) << "s" << endl;
 
         NebulaLog::log("SCHED", Log::DDEBUG, oss);
     }

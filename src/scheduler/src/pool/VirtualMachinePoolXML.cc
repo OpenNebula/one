@@ -235,6 +235,7 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     return 0;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -267,6 +268,7 @@ int VirtualMachineActionsPoolXML::set_up()
 
     return rc;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -308,3 +310,30 @@ int VirtualMachineActionsPoolXML::action(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineRolePoolXML::set_up()
+{
+    int rc = PoolXML::set_up();
+
+    if ( rc == 0 )
+    {
+        ostringstream oss;
+
+        oss << "VMs in VMGroups:" << endl;
+
+        map<int,ObjectXML*>::iterator it;
+
+        for (it=objects.begin();it!=objects.end();it++)
+        {
+            oss << " " << it->first;
+        }
+
+        NebulaLog::log("VM", Log::DEBUG, oss);
+    }
+
+    return rc;
+}
+

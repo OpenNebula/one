@@ -106,7 +106,7 @@ void VMGroupRole::set_vms()
 static void affinity_requirements(int vm_id, std::string& requirements,
         VMGroupPolicy policy, const std::set<int>& vms)
 {
-    string op;
+    string op, op2;
 
     requirements = "";
 
@@ -114,9 +114,11 @@ static void affinity_requirements(int vm_id, std::string& requirements,
     {
         case VMGroupPolicy::AFFINED:
             op = "=";
+            op2= " | ";
             break;
         case VMGroupPolicy::ANTI_AFFINED:
             op = "!=";
+            op2= " & ";
             break;
         case VMGroupPolicy::NONE:
             return;
@@ -133,7 +135,7 @@ static void affinity_requirements(int vm_id, std::string& requirements,
         {
             if ( !first )
             {
-                oss << " & ";
+                oss << op2;
             }
 
             first = false;
@@ -158,27 +160,63 @@ void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMGroupRole::get_affined_hosts(std::set<int>& ahosts)
+static void host_requirements(std::set<int>& hosts, const std::string& op1,
+        const std::string& op2, std::ostringstream& oss)
 {
-    string shosts = va->vector_value("HOST_AFFINED");
+    std::set<int>::const_iterator jt;
+    bool empty = true;
 
-    if ( !shosts.empty() )
+    for ( jt = hosts.begin() ; jt != hosts.end() ; ++jt )
     {
-        one_util::split_unique(shosts, ',', ahosts);
+        if ( empty == true )
+        {
+            empty = false;
+
+            oss << "(ID" << op1 << *jt << ")";
+        }
+        else
+        {
+            oss << " " << op2 << " (ID" << op1 << *jt << ")";
+        }
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
+void VMGroupRole::affined_host_requirements(std::string& reqs)
+{
+    std::ostringstream oss;
+    std::set<int> hosts;
+
+    string shosts = va->vector_value("HOST_AFFINED");
+
+    if ( !shosts.empty() )
+    {
+        one_util::split_unique(shosts, ',', hosts);
+    }
+
+    host_requirements(hosts, "=", "|", oss);
+
+    reqs = oss.str();
+}
+
 /* -------------------------------------------------------------------------- */
 
-void VMGroupRole::get_antiaffined_hosts(std::set<int>& ahosts)
+void VMGroupRole::antiaffined_host_requirements(std::string& reqs)
 {
+    std::ostringstream oss;
+    std::set<int> hosts;
+
     string shosts = va->vector_value("HOST_ANTI_AFFINED");
 
     if ( !shosts.empty() )
     {
-        one_util::split_unique(shosts, ',', ahosts);
+        one_util::split_unique(shosts, ',', hosts);
     }
+
+    host_requirements(hosts, "!=", "&", oss);
+
+    reqs = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */

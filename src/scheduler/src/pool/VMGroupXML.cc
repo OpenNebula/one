@@ -206,27 +206,6 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void host_requirements(std::set<int>& hosts, const std::string& op1,
-        const std::string& op2, std::ostringstream& oss)
-{
-    std::set<int>::const_iterator jt;
-    bool empty = true;
-
-    for ( jt = hosts.begin() ; jt != hosts.end() ; ++jt )
-    {
-        if ( empty == true )
-        {
-            empty = false;
-
-            oss << "(ID" << op1 << *jt << ")";
-        }
-        else
-        {
-            oss << " " << op2 << " (ID" << op1 << *jt << ")";
-        }
-    }
-}
-
 void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
 {
     VMGroupRoles::role_iterator it;
@@ -240,38 +219,22 @@ void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
 
     for ( it = roles.begin(); it != roles.end() ; ++it )
     {
-        std::ostringstream oss;
-
-        std::set<int> ahosts;
-        std::set<int> aahosts;
-
-        std::set<int>::const_iterator jt;
+        std::string areqs, aareqs;
 
         VMGroupRole * r = *it;
 
-        r->get_affined_hosts(ahosts);
+        r->affined_host_requirements(areqs);
 
-        r->get_antiaffined_hosts(aahosts);
+        r->antiaffined_host_requirements(aareqs);
 
-        if ( r->size_vms() == 0 || (ahosts.size() == 0 && aahosts.size() == 0) )
+        if ( r->size_vms() == 0 || (areqs.empty() && aareqs.empty()) )
         {
             continue;
         }
 
-        host_requirements(ahosts, "=", "|", oss);
-
-        std::string areqs = oss.str();
-
-        oss.str("");
-
-        host_requirements(aahosts, "!=", "&", oss);
-
-        std::string aareqs = oss.str();
-
-
         const std::set<int> vms = r->get_vms();
 
-        for ( jt = vms.begin() ; jt != vms.end(); ++jt )
+        for (std::set<int>::const_iterator jt=vms.begin(); jt!=vms.end(); ++jt)
         {
             VirtualMachineXML * vm = vmpool->get(*jt);
 

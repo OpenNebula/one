@@ -99,8 +99,8 @@ protected:
     SystemDatastorePoolXML * dspool;
     ImageDatastorePoolXML *  img_dspool;
 
-    VirtualMachinePoolXML *  vmpool;
-    VirtualMachinePoolXML *  vm_roles_pool;
+    VirtualMachinePoolXML *     vmpool;
+    VirtualMachineRolePoolXML * vm_roles_pool;
 
     VMGroupPoolXML * vmgpool;
 

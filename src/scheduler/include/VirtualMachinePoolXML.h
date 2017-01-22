@@ -158,4 +158,36 @@ protected:
     }
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineRolePoolXML : public VirtualMachinePoolXML
+{
+public:
+
+    VirtualMachineRolePoolXML(Client * client, unsigned int machines_limit):
+        VirtualMachinePoolXML(client, machines_limit, false){};
+
+    virtual ~VirtualMachineRolePoolXML(){};
+
+    /**
+     * Retrieves the VMs part of a role
+     *
+     * @return   0 on success
+     *          -1 on error
+     *          -2 if no VMs in a role
+     */
+    int set_up();
+
+protected:
+
+    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    {
+        ostringstream oss;
+
+        oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
+
+        return get_nodes(oss.str().c_str(), content);
+    }
+};
 #endif /* VM_POOL_XML_H_ */

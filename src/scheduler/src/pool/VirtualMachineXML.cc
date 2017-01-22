@@ -406,14 +406,14 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 bool VirtualMachineXML::test_image_datastore_capacity(
     ImageDatastorePoolXML * img_dspool, string & error_msg) const
 {
-    map<int,long long>::const_iterator ds_usage_it;
+    map<int,long long>::const_iterator ds_it;
     DatastoreXML* ds;
 
-    for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+    for (ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ++ds_it)
     {
-        ds = img_dspool->get(ds_usage_it->first);
+        ds = img_dspool->get(ds_it->first);
 
-        if (ds == 0 || !ds->test_capacity(ds_usage_it->second))
+        if (ds == 0 || !ds->test_capacity(ds_it->second))
         {
             ostringstream oss;
 
@@ -434,20 +434,20 @@ bool VirtualMachineXML::test_image_datastore_capacity(
 void VirtualMachineXML::add_image_datastore_capacity(
         ImageDatastorePoolXML * img_dspool)
 {
-    map<int,long long>::const_iterator ds_usage_it;
+    map<int,long long>::const_iterator ds_it;
 
     DatastoreXML *ds;
 
-    for (ds_usage_it = ds_usage.begin(); ds_usage_it != ds_usage.end(); ds_usage_it++)
+    for (ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ++ds_it)
     {
-        ds = img_dspool->get(ds_usage_it->first);
+        ds = img_dspool->get(ds_it->first);
 
         if (ds == 0) //Should never reach here
         {
             continue;
         }
 
-        ds->add_capacity(ds_usage_it->second);
+        ds->add_capacity(ds_it->second);
     }
 }
 
