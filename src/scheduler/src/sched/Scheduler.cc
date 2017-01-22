@@ -1423,6 +1423,8 @@ void Scheduler::do_vm_groups()
         VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
 
         grp->set_antiaffinity_requirements(vmpool);
+
+        grp->set_host_requirements(vmpool);
     }
 }
 

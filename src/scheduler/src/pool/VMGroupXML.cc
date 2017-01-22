@@ -77,7 +77,7 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
     VMGroupRoles::role_iterator it;
     std::ostringstream oss;
 
-    oss << "Placement rules for VMGroup " << get_name() << "\n";
+    oss << "Anti-affinity rules for VMGroup " << get_name() << "\n";
     oss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
         << " " << left << "ANTI_AFFINITY REQUIRMENTS\n"
         << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
@@ -153,6 +153,12 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
                 }
 
                 VMGroupRole * r = roles.get(j);
+
+                if ( r == 0 )
+                {
+                    continue;
+                }
+
                 std::string reqs;
 
                 r->role_requirements(VMGroupPolicy::ANTI_AFFINED, reqs);
@@ -189,14 +195,107 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
                 vm->add_requirements(role_reqs);
 
                 oss << left << setw(8) << r->id() << left << setw(8) << *vt
-                    << role_reqs << "\n";
+                    << vm->get_requirements() << "\n";
             }
         }
     }
 
     NebulaLog::log("VMGRP", Log::DEBUG, oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void host_requirements(std::set<int>& hosts, const std::string& op1,
+        const std::string& op2, std::ostringstream& oss)
+{
+    std::set<int>::const_iterator jt;
+    bool empty = true;
+
+    for ( jt = hosts.begin() ; jt != hosts.end() ; ++jt )
+    {
+        if ( empty == true )
+        {
+            empty = false;
+
+            oss << "(ID" << op1 << *jt << ")";
+        }
+        else
+        {
+            oss << " " << op2 << " (ID" << op1 << *jt << ")";
+        }
+    }
+}
+
+void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
+{
+    VMGroupRoles::role_iterator it;
+
+    std::ostringstream doss;
+
+    doss << "Host affinity rules for VMGroup " << get_name() << "\n";
+    doss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
+         << " " << left << "AFFINITY REQUIRMENTS\n"
+         << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+
+    for ( it = roles.begin(); it != roles.end() ; ++it )
+    {
+        std::ostringstream oss;
+
+        std::set<int> ahosts;
+        std::set<int> aahosts;
+
+        std::set<int>::const_iterator jt;
+
+        VMGroupRole * r = *it;
+
+        r->get_affined_hosts(ahosts);
+
+        r->get_antiaffined_hosts(aahosts);
+
+        if ( r->size_vms() == 0 || (ahosts.size() == 0 && aahosts.size() == 0) )
+        {
+            continue;
+        }
+
+        host_requirements(ahosts, "=", "|", oss);
+
+        std::string areqs = oss.str();
+
+        oss.str("");
+
+        host_requirements(aahosts, "!=", "&", oss);
+
+        std::string aareqs = oss.str();
 
 
+        const std::set<int> vms = r->get_vms();
+
+        for ( jt = vms.begin() ; jt != vms.end(); ++jt )
+        {
+            VirtualMachineXML * vm = vmpool->get(*jt);
+
+            if ( vm == 0 )
+            {
+                continue;
+            }
+
+            if ( !areqs.empty() )
+            {
+                vm->add_requirements(areqs);
+            }
+
+            if ( !aareqs.empty() )
+            {
+                vm->add_requirements(aareqs);
+            }
+
+            doss << left << setw(8) << r->id() << left << setw(8) << *jt
+                 << vm->get_requirements() << "\n";
+        }
+    }
+
+    NebulaLog::log("VMGRP", Log::DEBUG, doss);
 }
 
 /* -------------------------------------------------------------------------- */

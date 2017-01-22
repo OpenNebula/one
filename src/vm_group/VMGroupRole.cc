@@ -133,12 +133,12 @@ static void affinity_requirements(int vm_id, std::string& requirements,
         {
             if ( !first )
             {
-                oss << "& ";
+                oss << " & ";
             }
 
             first = false;
 
-            oss << "( CURRENT_VMS " << op << " " << *it << ") ";
+            oss << "(CURRENT_VMS " << op << " " << *it << ")";
         }
     }
 
@@ -153,6 +153,32 @@ void VMGroupRole::vm_role_requirements(int vm_id, std::string& requirements)
 void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 {
     affinity_requirements(-1, reqs, pol, vms);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VMGroupRole::get_affined_hosts(std::set<int>& ahosts)
+{
+    string shosts = va->vector_value("HOST_AFFINED");
+
+    if ( !shosts.empty() )
+    {
+        one_util::split_unique(shosts, ',', ahosts);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VMGroupRole::get_antiaffined_hosts(std::set<int>& ahosts)
+{
+    string shosts = va->vector_value("HOST_ANTI_AFFINED");
+
+    if ( !shosts.empty() )
+    {
+        one_util::split_unique(shosts, ',', ahosts);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

@@ -33,6 +33,8 @@ int VirtualMachinePoolXML::set_up()
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
+            map<int,ObjectXML*>::iterator it;
+
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
             oss << right << setw(8)  << "ACTION"    << " "
@@ -44,7 +46,7 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
+            for (it = objects.begin() ; it != objects.end() ; ++it)
             {
                 int cpu, mem;
                 long long disk;
@@ -52,7 +54,9 @@ int VirtualMachinePoolXML::set_up()
 
                 string action = "DEPLOY";
 
-                VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
+                VirtualMachineXML * vm;
+
+                vm = static_cast<VirtualMachineXML *>(it->second);
 
                 vm->get_requirements(cpu, mem, disk, pci);
 
@@ -73,11 +77,11 @@ int VirtualMachinePoolXML::set_up()
                     << right << setw(11) << disk        << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
+                map<int,long long>::const_iterator ds_it;
 
-                for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
-                        ds_it != ds_usage.end(); ds_it++)
+                for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
-                    oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
+                    oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
                 }
 
                 oss << endl;

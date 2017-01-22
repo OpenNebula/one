@@ -73,6 +73,18 @@ public:
         return va->vector_value("POLICY");
     };
 
+    /**
+     *  Gets the sets of hosts affined to this role
+     *    @param ahosts set of ids of affined hosts
+     */
+    void get_affined_hosts(std::set<int>& ahosts);
+
+    /**
+     *  Gets the sets of hosts anti-affined to this role
+     *    @param ahosts set of ids of anti-affined hosts
+     */
+    void get_antiaffined_hosts(std::set<int>& ahosts);
+
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
     /* ---------------------------------------------------------------------- */

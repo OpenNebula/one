@@ -145,7 +145,7 @@ public:
         }
         else
         {
-            requirements += " & " + reqs;
+            requirements += " & (" + reqs + ")";
         }
     }
 

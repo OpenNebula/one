@@ -59,6 +59,13 @@ public:
      */
     void set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool);
 
+    /**
+     *  Adds host affinity rules to each VM in the roles
+     *    @params vmp the VM set of pending VMs
+     */
+    void set_host_requirements(VirtualMachinePoolXML * vmp);
+
+
 private:
     // ------------------------------------------------------------------------
     // VMGroup Attributes
