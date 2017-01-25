@@ -72,7 +72,7 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 RBD_DST="$RBD_SRC"
 if [ "$CLONE" = "YES" ]; then
     RBD_DST+="-${VM_ID}-${DISK_ID}"
-else
+fi
 
 #-------------------------------------------------------------------------------
 # Resize disk
