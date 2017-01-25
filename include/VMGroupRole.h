@@ -64,6 +64,14 @@ public:
     }
 
     /**
+     *  @return the set of VMs in a string in a comma separated list
+     */
+    std::string vms_s()
+    {
+        return va->vector_value("VMS");
+    }
+
+    /**
      *  @return the policy of this role
      */
     VMGroupPolicy policy();
@@ -72,18 +80,6 @@ public:
     {
         return va->vector_value("POLICY");
     };
-
-    /**
-     *  Gets the placement requirements for the affined HOSTS
-     *    @param reqs string with the requirements expression
-     */
-    void affined_host_requirements(std::string& reqs);
-
-    /**
-     *  Gets the placement requirements for the antiaffined HOSTS
-     *    @param reqs string with the requirements expression
-     */
-    void antiaffined_host_requirements(std::string& reqs);
 
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
@@ -120,6 +116,28 @@ public:
      *    @param requirements
      */
     void role_requirements(VMGroupPolicy p, std::string& requirements);
+
+    /**
+     *  Gets the placement requirements for the affined HOSTS
+     *    @param reqs string with the requirements expression
+     */
+    void affined_host_requirements(std::string& reqs);
+
+    /**
+     *  Gets the placement requirements for the antiaffined HOSTS
+     *    @param reqs string with the requirements expression
+     */
+    void antiaffined_host_requirements(std::string& reqs);
+
+    /**
+     *  Generate generic requirements for a set of hosts
+     *    @param hosts the set
+     *    @param op1 operator for each host requirement = or !=
+     *    @param op2 operator to join host requirements & or |
+     *    @param oss stream where the requirement expression is output
+     */
+    static void host_requirements(std::set<int>& hosts, const std::string& op1,
+        const std::string& op2, std::ostringstream& oss);
 
 private:
     /**

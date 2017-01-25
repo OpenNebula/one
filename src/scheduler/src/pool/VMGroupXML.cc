@@ -18,6 +18,8 @@
 #include "VirtualMachinePoolXML.h"
 #include <iomanip>
 
+static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules);
+
 void VMGroupXML::init_attributes()
 {
     vector<xmlNodePtr>       content;
@@ -50,7 +52,7 @@ void VMGroupXML::init_attributes()
 
         VMGroupRule rule(VMGroupPolicy::AFFINED, id_set);
 
-        rules.insert(rule);
+        affined.insert(rule);
     }
 
     srules.clear();
@@ -65,19 +67,21 @@ void VMGroupXML::init_attributes()
 
         VMGroupRule rule(VMGroupPolicy::ANTI_AFFINED, id_set);
 
-        rules.insert(rule);
+        anti_affined.insert(rule);
     }
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
+void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
+        std::ostringstream& oss)
 {
     VMGroupRoles::role_iterator it;
-    std::ostringstream oss;
 
-    oss << "Anti-affinity rules for VMGroup " << get_name() << "\n";
+    oss << "\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "Intra-role Anti-affinity rules \n";
     oss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
         << " " << left << "ANTI_AFFINITY REQUIRMENTS\n"
         << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
@@ -94,7 +98,7 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
             continue;
         }
 
-        const std::set<int> vms = r->get_vms();
+        const std::set<int>& vms = r->get_vms();
         std::set<int>::const_iterator jt;
 
         for ( jt = vms.begin() ; jt != vms.end(); ++jt )
@@ -120,20 +124,20 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
         }
     }
 
-    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
 
     /* ---------------------------------------------------------------------- */
     /* Inter-role anti-affinity placement rule                                */
     /* ---------------------------------------------------------------------- */
+    oss << "\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "Inter-role Anti-affinity rules \n";
+    oss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
+        << " " << left << "ANTI_AFFINITY REQUIRMENTS\n"
+        << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
     VMGroupRule::rule_set::iterator rt;
 
-    for ( rt = rules.begin() ; rt != rules.end() ; ++rt )
+    for ( rt = anti_affined.begin() ; rt != anti_affined.end() ; ++rt )
     {
-        if ( (*rt).get_policy() != VMGroupPolicy::ANTI_AFFINED )
-        {
-            continue;
-        }
-
         VMGroupRule::role_bitset rroles = (*rt).get_roles();
 
         for ( int i=0 ; i < VMGroupRoles::MAX_ROLES; ++i)
@@ -180,7 +184,7 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
 
             VMGroupRole * r = roles.get(i);
 
-            const std::set<int> vms = r->get_vms();
+            const std::set<int>& vms = r->get_vms();
             std::set<int>::const_iterator vt;
 
             for ( vt=vms.begin() ; vt!=vms.end(); ++vt )
@@ -206,16 +210,17 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
+void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool,
+        std::ostringstream& oss)
 {
     VMGroupRoles::role_iterator it;
 
-    std::ostringstream doss;
-
-    doss << "Host affinity rules for VMGroup " << get_name() << "\n";
-    doss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
-         << " " << left << "AFFINITY REQUIRMENTS\n"
-         << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "Host affinity rules \n";
+    oss << left << setw(8)<< "ROLE" << " " << left << setw(8) <<"VM"
+        << " " << left << "AFFINITY REQUIRMENTS\n"
+        << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
 
     for ( it = roles.begin(); it != roles.end() ; ++it )
     {
@@ -232,7 +237,7 @@ void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
             continue;
         }
 
-        const std::set<int> vms = r->get_vms();
+        const std::set<int>& vms = r->get_vms();
 
         for (std::set<int>::const_iterator jt=vms.begin(); jt!=vms.end(); ++jt)
         {
@@ -253,41 +258,206 @@ void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool)
                 vm->add_requirements(aareqs);
             }
 
-            doss << left << setw(8) << r->id() << left << setw(8) << *jt
-                 << vm->get_requirements() << "\n";
+            oss << left << setw(8) << r->id() << left << setw(8) << *jt
+                << vm->get_requirements() << "\n";
         }
     }
-
-    NebulaLog::log("VMGRP", Log::DEBUG, doss);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ostream& operator<<(ostream& os, VMGroupXML& vmg)
+static void schecule_affined_set(std::set<int> vms,
+    VirtualMachinePoolXML * vmpool, VirtualMachineRolePoolXML * vm_roles_pool,
+    std::ostringstream& oss)
 {
-    VMGroupRule::rule_set::iterator rit;
-    VMGroupRoles::role_iterator it;
+    std::set<int>::iterator it;
+    std::set<int> hosts;
 
-    os << left << setw(4) << vmg.oid << " "
-       << left << setw(8) << vmg.name<< " "
-       << left << setw(26)<< "ROLES" << "\n"
-       << setfill(' ') << setw(14) << " " << setfill('-') << setw(26) << '-'
-       << setfill(' ') << "\n";
-
-    for ( it = vmg.roles.begin() ; it != vmg.roles.end() ; ++it )
+    if ( vms.size() == 0 )
     {
-        os << setfill(' ') << setw(14) << ' '
-           << left << setw(3) << (*it)->id()       << " "
-           << left << setw(8) << (*it)->name()     << " "
-           << left << setw(12)<< (*it)->policy_s() << "\n";
+        return;
     }
 
-    os << setfill(' ') << setw(14) << ' ' << left << "RULES" << "\n"
-       << setfill(' ') << setw(14) << ' ' << setfill('-') << setw(26) << '-'
-       << setfill(' ') << "\n";
+    for ( it = vms.begin() ; it != vms.end() ; ++it )
+    {
+        VirtualMachineXML * vm = vm_roles_pool->get(*it);
 
-    for ( rit = vmg.rules.begin() ; rit != vmg.rules.end(); ++rit )
+        if ( vm == 0 )
+        {
+            continue;
+        }
+
+        int hid = vm->get_hid();
+
+        if ( vm->is_active() && hid != -1 )
+        {
+            hosts.insert(hid);
+        }
+    }
+
+    if ( hosts.size() == 0 )
+    {
+        VirtualMachineXML * vm;
+
+        for ( it = vms.begin(); it != vms.end() ; ++it )
+        {
+            vm = vmpool->get(*it);
+
+            if ( vm != 0 )
+            {
+                break;
+            }
+        }
+
+        if ( vm == 0 )
+        {
+            return;
+        }
+
+        std::ostringstream areqs;
+        std::string areqs_s;
+
+        areqs << "CURRENT_VMS = " << *it;
+        areqs_s = areqs.str();
+
+        for ( ++it ; it != vms.end() ; ++it )
+        {
+            float cpu;
+            int   memory;
+
+            long long disk;
+
+            VirtualMachineXML * tmp = vmpool->get(*it);
+
+            if ( tmp == 0 )
+            {
+                continue;
+            }
+
+            tmp->get_raw_requirements(cpu, memory, disk);
+
+            vm->add_requirements(cpu, memory, disk);
+            vm->add_requirements(tmp->get_requirements());
+
+            tmp->add_requirements(areqs_s);
+
+            oss << left << setw(8) << tmp->get_oid() << " "
+                << tmp->get_requirements() << "\n";
+        }
+
+        oss << left << setw(8) << vm->get_oid() << " "
+            << vm->get_requirements() << "\n";
+    }
+    else
+    {
+        std::ostringstream oss;
+        std::string reqs;
+
+        VMGroupRole::host_requirements(hosts, "=", "|", oss);
+
+        reqs = oss.str();
+
+        for ( it = vms.begin() ; it != vms.end() ; ++it )
+        {
+            VirtualMachineXML * vm = vmpool->get(*it);
+
+            if ( vm == 0 || reqs.empty())
+            {
+                continue;
+            }
+
+            vm->add_requirements(reqs);
+
+            oss << left << setw(8) << vm->get_oid() << " "
+                << vm->get_requirements() << "\n";
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VMGroupXML::set_affinity_requirements(VirtualMachinePoolXML * vmpool,
+        VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss)
+{
+    VMGroupRoles::role_iterator it;
+
+    /* ---------------------------------------------------------------------- */
+    /* Intra-role affinity placement rule                                     */
+    /* ---------------------------------------------------------------------- */
+    oss << "\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "Intra-role affinity requirements\n";
+    oss << left << setw(8) << "VMID" << " " << left << "REQUIREMENTS\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+
+    for ( it = roles.begin(); it != roles.end() ; ++it )
+    {
+        VMGroupRole * r = *it;
+
+        if ( r->policy() != VMGroupPolicy::AFFINED || r->size_vms() <= 1 )
+        {
+            continue;
+        }
+
+        const std::set<int>& vms = r->get_vms();
+
+        schecule_affined_set(vms, vmpool, vm_roles_pool, oss);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Inter-role affinity placement rule                                     */
+    /*   1. Build the reduced set of affinity rules                           */
+    /*   2. Build the set of VMs affected by each rule                        */
+    /*   3. Schedule the resulting set                                        */
+    /* ---------------------------------------------------------------------- */
+    VMGroupRule::rule_set reduced;
+    VMGroupRule::rule_set::iterator rit;
+
+    oss << "\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+    oss << "Inter-role affinity requirements\n";
+    oss << left << setw(8) << "VMID" << " " << left << "REQUIREMENTS\n";
+    oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
+
+    VMGroupRule::reduce(affined, reduced);
+
+    for ( rit = reduced.begin() ; rit != reduced.end(); ++rit )
+    {
+        const VMGroupRule::role_bitset rroles = (*rit).get_roles();
+        std::set<int> rule_vms;
+
+        for (int i = 0 ; i <VMGroupRoles::MAX_ROLES ; ++i)
+        {
+            if ( rroles[i] == 0 )
+            {
+                continue;
+            }
+
+            VMGroupRole * r = roles.get(i);
+
+            if ( r == 0 )
+            {
+                continue;
+            }
+
+            const std::set<int>& role_vms = r->get_vms();
+
+            rule_vms.insert(role_vms.begin(), role_vms.end());
+        }
+
+        schecule_affined_set(rule_vms, vmpool, vm_roles_pool, oss);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules)
+{
+    VMGroupRule::rule_set::iterator rit;
+
+    for ( rit = rules.begin() ; rit != rules.end(); ++rit )
     {
         const VMGroupRule::role_bitset rroles = (*rit).get_roles();
 
@@ -307,3 +477,42 @@ ostream& operator<<(ostream& os, VMGroupXML& vmg)
 
     return os;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& os, VMGroupXML& vmg)
+{
+    VMGroupRoles::role_iterator it;
+
+    os << left << setw(4) << vmg.oid << " "
+       << left << setw(8) << vmg.name<< " "
+       << left << setw(12)<< "ROLES" << " " << setw(12) << "POLICY" << " "
+       << left << "VMS\n"
+       << setfill(' ') << setw(14) << " " << setfill('-') << setw(50) << '-'
+       << setfill(' ') << "\n";
+
+    for ( it = vmg.roles.begin() ; it != vmg.roles.end() ; ++it )
+    {
+        os << setfill(' ') << setw(14) << " "
+           << left << setw(3) << (*it)->id()       << " "
+           << left << setw(8) << (*it)->name()     << " "
+           << left << setw(12)<< (*it)->policy_s() << " "
+           << left << (*it)->vms_s() << "\n";
+    }
+
+    os << "\n";
+    os << setfill(' ') << setw(14) << ' ' << left << "RULES" << "\n"
+       << setfill(' ') << setw(14) << ' ' << setfill('-') << setw(50) << '-'
+       << setfill(' ') << "\n";
+
+    os << vmg.affined;
+
+    os << vmg.anti_affined;
+
+    return os;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

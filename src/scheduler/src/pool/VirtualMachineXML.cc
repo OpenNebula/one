@@ -36,6 +36,8 @@ void VirtualMachineXML::init_attributes()
     xpath(uid, "/VM/UID", -1);
     xpath(gid, "/VM/GID", -1);
 
+    xpath(state, "/VM/STATE", -1);
+
     xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
     xpath<float>(cpu, "/VM/TEMPLATE/CPU", 0);
 
@@ -198,6 +200,26 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
     return os;
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::add_requirements(float c, int m, long long d)
+{
+    cpu    += c;
+    memory += m;
+    system_ds_usage += d;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::get_raw_requirements (float& c, int& m, long long& d)
+{
+    c = cpu;
+    m = memory;
+    d = system_ds_usage;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

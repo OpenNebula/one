@@ -1074,9 +1074,6 @@ void Scheduler::dispatch()
     unsigned int dispatched_vms = 0;
     bool dispatched;
 
-    map<int, unsigned int>  host_vms;
-    pair<map<int,unsigned int>::iterator, bool> rc;
-
     map<int, ObjectXML*>::const_iterator vm_it;
 
     vector<Resource *>::const_reverse_iterator i, j;
@@ -1157,11 +1154,9 @@ void Scheduler::dispatch()
             }
 
             //------------------------------------------------------------------
-            // Test host dispatch limit (init counter if needed)
+            // Test host dispatch limit
             //------------------------------------------------------------------
-            rc = host_vms.insert(make_pair(hid,0));
-
-            if (rc.first->second >= host_dispatch_limit)
+            if (host->dispatched() >= host_dispatch_limit)
             {
                 continue;
             }
@@ -1280,8 +1275,6 @@ void Scheduler::dispatch()
             }
 
             host->add_capacity(vm->get_oid(), cpu, mem, pci);
-
-            host_vms[hid]++;
 
             dispatched_vms++;
 
@@ -1412,32 +1405,24 @@ void Scheduler::do_vm_groups()
     map<int, ObjectXML*>::const_iterator it;
     const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
 
-    if (NebulaLog::log_level() >= Log::DDDEBUG)
-    {
-        ostringstream oss;
-
-        oss << "VMGroups\n"
-            << left << setw(4)<< "ID" << " " << left << setw(8) << "NAME" << " "
-            << "\n" << setfill('-') << setw(40) << '-' << setfill(' ') << "\n";
-
-        for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
-        {
-            VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
-
-            oss << *grp;
-        }
-
-        NebulaLog::log("VMGRP", Log::DDDEBUG, oss);
-    }
+    ostringstream oss;
 
     for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
     {
         VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
 
-        grp->set_antiaffinity_requirements(vmpool);
+        oss << "\nSCHEDULING RESULTS FOR VM GROUP: " << grp->get_name() <<"\n";
 
-        grp->set_host_requirements(vmpool);
+        oss << *grp << "\n";
+
+        grp->set_antiaffinity_requirements(vmpool, oss);
+
+        grp->set_host_requirements(vmpool, oss);
+
+        grp->set_affinity_requirements(vmpool, vm_roles_pool, oss);
     }
+
+    NebulaLog::log("VMGRP", Log::DDDEBUG, oss);
 }
 
 /* -------------------------------------------------------------------------- */

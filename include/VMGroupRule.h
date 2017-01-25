@@ -97,7 +97,7 @@ public:
         return *this;
     }
 
-    VMGroupRule operator& (const VMGroupRule& other)
+    VMGroupRule operator& (const VMGroupRule& other) const
     {
         return VMGroupRule(policy, other.roles & roles );
     }
@@ -108,7 +108,7 @@ public:
         return *this;
     }
 
-    VMGroupRule operator| (const VMGroupRule& other)
+    VMGroupRule operator| (const VMGroupRule& other) const
     {
         return VMGroupRule(policy, other.roles | roles );
     }
@@ -132,6 +132,18 @@ public:
      *    @return true if sets are compatible
      */
     static bool compatible(rule_set& affined, rule_set& anti, VMGroupRule& err);
+
+    /**
+     *  Reduce a set of affinity rules merging rules affecting the same roles
+     *  Example:
+     *    AFFINED = a, b
+     *    AFFINED = b, c   ------->  AFFINED = a, b, c
+     *    AFFINED = e, d             AFFINED = e, d
+     *
+     *   @param affined set of rules to be reduced
+     *   @param reduced set
+     */
+    static void reduce(rule_set affined, rule_set& reduced);
 
     /**
      *  @return the roles in the rule as a bitset (1 roles is in)

@@ -26,8 +26,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VMGroupRule::compatible(VMGroupRule::rule_set& affined,
-        VMGroupRule::rule_set& anti, VMGroupRule& err)
+bool VMGroupRule::compatible(rule_set& affined, rule_set& anti,VMGroupRule& err)
 {
     VMGroupRule ta, taa;
 
@@ -47,6 +46,51 @@ bool VMGroupRule::compatible(VMGroupRule::rule_set& affined,
 
     return err.none();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VMGroupRule::reduce(rule_set affined, rule_set& reduced_set)
+{
+    VMGroupRule::rule_set::iterator it, jt;
+
+    VMGroupRule reduced_rule;
+
+    for ( it = affined.begin(), reduced_rule = (*it) ; it != affined.end() ; )
+    {
+        bool reduced = false;
+
+        for ( jt = affined.begin() ; jt != affined.end() ; )
+        {
+            VMGroupRule tmp = *it;
+
+            tmp &= *jt;
+
+            if ( it == jt || (reduced_rule & *jt).none() )
+            {
+                ++jt;
+            }
+            else
+            {
+                reduced_rule |= *jt;
+
+                jt = affined.erase(jt);
+
+                reduced = true;
+            }
+        }
+
+        if (!reduced)
+        {
+            reduced_set.insert(reduced_rule);
+
+            reduced_rule = *(++it);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 std::ostream& operator<<(std::ostream& os, VMGroupPolicy policy)
 {

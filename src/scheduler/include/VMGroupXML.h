@@ -22,6 +22,7 @@
 #include "VMGroupRule.h"
 
 class VirtualMachinePoolXML;
+class VirtualMachineRolePoolXML;
 
 class VMGroupXML : public ObjectXML
 {
@@ -56,14 +57,26 @@ public:
     /**
      *  Adds the internal role placement rules to each VM in the role
      *    @params vmpool VM set of pending VMs
+     *    @params oss stream to output debug information
      */
-    void set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool);
+    void set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
+            std::ostringstream& oss);
+
+    /**
+     *  Adds the internal role placement rules to each VM in the role
+     *    @params vmpool VM set of pending VMs
+     *    @params oss stream to output debug information
+     */
+    void set_affinity_requirements(VirtualMachinePoolXML * vmpool,
+            VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss);
 
     /**
      *  Adds host affinity rules to each VM in the roles
      *    @params vmp the VM set of pending VMs
+     *    @params oss stream to output debug information
      */
-    void set_host_requirements(VirtualMachinePoolXML * vmp);
+    void set_host_requirements(VirtualMachinePoolXML * vmp,
+            std::ostringstream& oss);
 
 
 private:
@@ -76,7 +89,8 @@ private:
 
     VMGroupRoles roles;
 
-    VMGroupRule::rule_set rules;
+    VMGroupRule::rule_set affined;
+    VMGroupRule::rule_set anti_affined;
 
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------

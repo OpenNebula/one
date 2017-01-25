@@ -160,7 +160,7 @@ void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void host_requirements(std::set<int>& hosts, const std::string& op1,
+void VMGroupRole::host_requirements(std::set<int>& hosts, const std::string& op1,
         const std::string& op2, std::ostringstream& oss)
 {
     std::set<int>::const_iterator jt;

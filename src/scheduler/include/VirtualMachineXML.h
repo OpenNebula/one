@@ -115,9 +115,23 @@ public:
         return ds_requirements;
     }
 
-    void get_requirements (int& cpu, int& memory, long long& disk,
+    /**
+     *  Return VM usage requirments
+     */
+    void get_requirements(int& cpu, int& memory, long long& disk,
         vector<VectorAttribute *> &pci);
 
+    /**
+     *  Return the requirements of this VM (as is)
+     *    @param cpu in unit
+     *    @param memory in kb
+     *    @param disk in mb (system ds usage)
+     */
+    void get_raw_requirements(float& cpu, int& memory, long long& disk);
+
+    /**
+     *  @return the usage requirements in image ds.
+     */
     map<int,long long> get_storage_usage();
 
     /**
@@ -128,6 +142,14 @@ public:
     {
         return public_cloud;
     };
+
+    /**
+     *   Adds usage requirements to this VM
+     *     @param cpu in unit form
+     *     @param m memory in kb
+     *     @param d in mb (system ds usage)
+     */
+    void add_requirements(float c, int m, long long d);
 
     /**
      *  Adds (logical AND) new placement requirements to the current ones
@@ -147,6 +169,14 @@ public:
         {
             requirements += " & (" + reqs + ")";
         }
+    }
+
+    /**
+     *  Check if the VM is ACTIVE state
+     */
+    bool is_active() const
+    {
+        return state == 3;
     }
 
     //--------------------------------------------------------------------------
@@ -348,6 +378,8 @@ protected:
 
     int   resched;
     bool  resume;
+
+    int   state;
 
     int         memory;
     float       cpu;
