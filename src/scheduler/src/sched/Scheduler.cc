@@ -598,7 +598,8 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
 
         if (matched == false)
         {
-            error = "It does not fulfill SCHED_REQUIREMENTS.";
+            error = "It does not fulfill SCHED_REQUIREMENTS: " +
+                vm->get_requirements();
             return false;
         }
     }
@@ -873,7 +874,8 @@ void Scheduler::match_schedule()
 
             vmpool->update(vm);
 
-            log_match(vm->get_oid(), "Cannot schedule VM, there is no suitable host.");
+            log_match(vm->get_oid(),
+                    "Cannot schedule VM, there is no suitable host.");
 
             continue;
         }
@@ -1072,7 +1074,8 @@ void Scheduler::dispatch()
     int hid, dsid, cid;
 
     unsigned int dispatched_vms = 0;
-    bool dispatched;
+    bool dispatched, matched;
+    char * estr;
 
     map<int, ObjectXML*>::const_iterator vm_it;
 
@@ -1136,6 +1139,26 @@ void Scheduler::dispatch()
             }
 
             cid = host->get_cid();
+
+            //------------------------------------------------------------------
+            // Check host still match requirements for ANTI_AFFINITY rules
+            //------------------------------------------------------------------
+            if ( host->eval_bool(vm->get_requirements(), matched, &estr) != 0 )
+            {
+                free(estr);
+                continue;
+            }
+
+            if (matched == false)
+            {
+                std::ostringstream mss;
+
+                mss << "Host " << hid << " no longer meets requirements for VM "
+                    << vm->get_oid() << "\n";
+
+                NebulaLog::log("SCHED", Log::DEBUG, mss);
+                continue;
+            }
 
             //------------------------------------------------------------------
             // Test host capacity
@@ -1415,11 +1438,11 @@ void Scheduler::do_vm_groups()
 
         oss << *grp << "\n";
 
+        grp->set_affinity_requirements(vmpool, vm_roles_pool, oss);
+
         grp->set_antiaffinity_requirements(vmpool, oss);
 
         grp->set_host_requirements(vmpool, oss);
-
-        grp->set_affinity_requirements(vmpool, vm_roles_pool, oss);
     }
 
     NebulaLog::log("VMGRP", Log::DDDEBUG, oss);

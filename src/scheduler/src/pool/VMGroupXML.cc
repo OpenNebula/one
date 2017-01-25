@@ -351,12 +351,12 @@ static void schecule_affined_set(std::set<int> vms,
     }
     else
     {
-        std::ostringstream oss;
+        std::ostringstream oss_reqs;
         std::string reqs;
 
-        VMGroupRole::host_requirements(hosts, "=", "|", oss);
+        VMGroupRole::host_requirements(hosts, "=", "|", oss_reqs);
 
-        reqs = oss.str();
+        reqs = oss_reqs.str();
 
         for ( it = vms.begin() ; it != vms.end() ; ++it )
         {
