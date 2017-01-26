@@ -214,11 +214,15 @@ void VirtualMachineXML::add_requirements(float c, int m, long long d)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineXML::get_raw_requirements (float& c, int& m, long long& d)
+void VirtualMachineXML::reset_requirements(float& c, int& m, long long& d)
 {
     c = cpu;
     m = memory;
     d = system_ds_usage;
+
+    cpu    = 0;
+    memory = 0;
+    system_ds_usage = 0;
 }
 
 /* -------------------------------------------------------------------------- */

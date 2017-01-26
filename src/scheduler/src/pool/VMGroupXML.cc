@@ -203,8 +203,6 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
             }
         }
     }
-
-    NebulaLog::log("VMGRP", Log::DEBUG, oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -267,18 +265,21 @@ void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void schecule_affined_set(std::set<int> vms,
+static void schecule_affined_set(const std::set<int>& vms,
     VirtualMachinePoolXML * vmpool, VirtualMachineRolePoolXML * vm_roles_pool,
     std::ostringstream& oss)
 {
     std::set<int>::iterator it;
     std::set<int> hosts;
 
-    if ( vms.size() == 0 )
+    if ( vms.size() <= 1 )
     {
         return;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Get hosts where the affined set is running                             */
+    /* ---------------------------------------------------------------------- */
     for ( it = vms.begin() ; it != vms.end() ; ++it )
     {
         VirtualMachineXML * vm = vm_roles_pool->get(*it);
@@ -298,6 +299,12 @@ static void schecule_affined_set(std::set<int> vms,
 
     if ( hosts.size() == 0 )
     {
+        /* ------------------------------------------------------------------ */
+        /*  No VMs of the set are running:                                    */
+        /*    1. Select a set leader                                          */
+        /*    2. Allocate VMs in the same host as the leader                  */
+        /*    3. Aggregate requirements in the leader for scheduling          */
+        /* ------------------------------------------------------------------ */
         VirtualMachineXML * vm;
 
         for ( it = vms.begin(); it != vms.end() ; ++it )
@@ -335,10 +342,11 @@ static void schecule_affined_set(std::set<int> vms,
                 continue;
             }
 
-            tmp->get_raw_requirements(cpu, memory, disk);
+            tmp->reset_requirements(cpu, memory, disk);
 
             vm->add_requirements(cpu, memory, disk);
             vm->add_requirements(tmp->get_requirements());
+            vm->add_affined(*it);
 
             tmp->add_requirements(areqs_s);
 
@@ -351,6 +359,10 @@ static void schecule_affined_set(std::set<int> vms,
     }
     else
     {
+        /* ------------------------------------------------------------------ */
+        /* VMs in the group already running                                   */
+        /*   1. Assign VMs to one of the hosts used by the affined set        */
+        /* ------------------------------------------------------------------ */
         std::ostringstream oss_reqs;
         std::string reqs;
 
@@ -461,14 +473,13 @@ static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules)
     {
         const VMGroupRule::role_bitset rroles = (*rit).get_roles();
 
-        os << setfill(' ') << setw(14) << ' ' << left << setw(14)
-           << (*rit).get_policy() << " ";
+        os << left << setw(14) << (*rit).get_policy() << " ";
 
         for (int i = 0 ; i <VMGroupRoles::MAX_ROLES ; ++i)
         {
             if ( rroles[i] == 1 )
             {
-                os << right << setw(3) << i << " ";
+                os << right << setw(2) << i << " ";
             }
         }
 
@@ -485,26 +496,21 @@ ostream& operator<<(ostream& os, VMGroupXML& vmg)
 {
     VMGroupRoles::role_iterator it;
 
-    os << left << setw(4) << vmg.oid << " "
-       << left << setw(8) << vmg.name<< " "
-       << left << setw(12)<< "ROLES" << " " << setw(12) << "POLICY" << " "
-       << left << "VMS\n"
-       << setfill(' ') << setw(14) << " " << setfill('-') << setw(50) << '-'
-       << setfill(' ') << "\n";
+    os << left << setw(7)<< "ROLE ID" << " " << left << setw(8) << "NAME" << " "
+       << setw(12) << "POLICY" << " " << left << "VMS\n"
+       << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
 
     for ( it = vmg.roles.begin() ; it != vmg.roles.end() ; ++it )
     {
-        os << setfill(' ') << setw(14) << " "
-           << left << setw(3) << (*it)->id()       << " "
+        os << left << setw(7) << (*it)->id()       << " "
            << left << setw(8) << (*it)->name()     << " "
            << left << setw(12)<< (*it)->policy_s() << " "
            << left << (*it)->vms_s() << "\n";
     }
 
     os << "\n";
-    os << setfill(' ') << setw(14) << ' ' << left << "RULES" << "\n"
-       << setfill(' ') << setw(14) << ' ' << setfill('-') << setw(50) << '-'
-       << setfill(' ') << "\n";
+    os << left << "RULES" << "\n"
+       << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
 
     os << vmg.affined;
 

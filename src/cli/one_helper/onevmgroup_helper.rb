@@ -47,7 +47,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :VMS, "Number of VMs in the VM Group", :left, :size=>4 do |d|
-                roles = d["ROLES"]["ROLE"]
+                roles = [d["ROLES"]["ROLE"]].flatten
                 vms   = 0
 
                 if !roles.nil?
@@ -60,7 +60,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :ROLES, "Roles in the VM Group", :left, :size=>36 do |d|
-                roles = d["ROLES"]["ROLE"]
+                roles = [d["ROLES"]["ROLE"]].flatten
                 roles_names = ""
 
                 if !roles.nil?

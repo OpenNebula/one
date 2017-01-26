@@ -1141,12 +1141,18 @@ void Scheduler::dispatch()
             cid = host->get_cid();
 
             //------------------------------------------------------------------
-            // Check host still match requirements for ANTI_AFFINITY rules
+            // Check host still match requirements with CURRENT_VMS
             //------------------------------------------------------------------
-            if ( host->eval_bool(vm->get_requirements(), matched, &estr) != 0 )
+            matched = true;
+
+            if ( one_util::regex_match("CURRENT_VMS",
+                        vm->get_requirements().c_str()) == 0 )
             {
-                free(estr);
-                continue;
+                if (host->eval_bool(vm->get_requirements(), matched, &estr)!=0)
+                {
+                    free(estr);
+                    continue;
+                }
             }
 
             if (matched == false)
@@ -1154,7 +1160,7 @@ void Scheduler::dispatch()
                 std::ostringstream mss;
 
                 mss << "Host " << hid << " no longer meets requirements for VM "
-                    << vm->get_oid() << "\n";
+                    << vm->get_oid();
 
                 NebulaLog::log("SCHED", Log::DEBUG, mss);
                 continue;
@@ -1297,6 +1303,32 @@ void Scheduler::dispatch()
                 }
             }
 
+            //------------------------------------------------------------------
+            // VM leaders needs to add the select host to the affined VMs
+            //------------------------------------------------------------------
+            const set<int>& affined_vms = vm->get_affined_vms();
+
+            if ( affined_vms.size() > 0 )
+            {
+                set<int>::const_iterator it;
+
+                for ( it = affined_vms.begin(); it != affined_vms.end(); ++it )
+                {
+                    VirtualMachineXML * avm = vmpool->get(*it);
+
+                    if ( avm == 0 )
+                    {
+                        continue;
+                    }
+
+                    avm->add_match_host(hid);
+                    avm->add_match_datastore(dsid);
+                }
+            }
+
+            //------------------------------------------------------------------
+            // Update usage and statistics counters
+            //------------------------------------------------------------------
             host->add_capacity(vm->get_oid(), cpu, mem, pci);
 
             dispatched_vms++;
@@ -1430,11 +1462,16 @@ void Scheduler::do_vm_groups()
 
     ostringstream oss;
 
+    oss << "VM Group Scheduling information\n";
+
     for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
     {
         VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
 
-        oss << "\nSCHEDULING RESULTS FOR VM GROUP: " << grp->get_name() <<"\n";
+        oss << setfill('*') << setw(80) << '*' << setfill(' ') << "\n"
+            << "SCHEDULING RESULTS FOR VM GROUP " << grp->get_oid() << ", "
+            << grp->get_name() <<"\n"
+            << setfill('*') << setw(80) << '*' << setfill(' ') << "\n";
 
         oss << *grp << "\n";
 

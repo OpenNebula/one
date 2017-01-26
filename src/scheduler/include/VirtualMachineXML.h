@@ -122,12 +122,12 @@ public:
         vector<VectorAttribute *> &pci);
 
     /**
-     *  Return the requirements of this VM (as is)
+     *  Return the requirements of this VM (as is) and reset them
      *    @param cpu in unit
      *    @param memory in kb
      *    @param disk in mb (system ds usage)
      */
-    void get_raw_requirements(float& cpu, int& memory, long long& disk);
+    void reset_requirements(float& cpu, int& memory, long long& disk);
 
     /**
      *  @return the usage requirements in image ds.
@@ -262,6 +262,23 @@ public:
      */
     bool is_only_public_cloud() const;
 
+    /**
+     *  Add a VM to the set of affined VMs. This is used for the VM leader
+     *  when scheduling a group.
+     *
+     *  @param vmid of the affined vm
+     *
+     */
+    void add_affined(int vmid)
+    {
+        affined_vms.insert(vmid);
+    }
+
+    const set<int>& get_affined_vms() const
+    {
+        return affined_vms;
+    }
+
     //--------------------------------------------------------------------------
     // Capacity Interface
     //--------------------------------------------------------------------------
@@ -361,11 +378,15 @@ protected:
 
     void init_storage_usage();
 
+    /* ------------------- SCHEDULER INFORMATION --------------------------- */
+
     ResourceMatch match_hosts;
 
     ResourceMatch match_datastores;
 
     bool only_public_cloud;
+
+    set<int> affined_vms;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
     int   oid;
@@ -397,6 +418,7 @@ protected:
 
     VirtualMachineTemplate * vm_template;   /**< The VM template */
     VirtualMachineTemplate * user_template; /**< The VM user template */
+
 };
 
 #endif /* VM_XML_H_ */
