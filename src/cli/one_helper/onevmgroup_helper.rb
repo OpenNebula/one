@@ -129,11 +129,35 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "", :left, :size=>16 do |d|
+            column :NAME, "", :left, :size=>8 do |d|
                 d["NAME"]
             end
 
-            column :VIRTUAL_MACHINES, "", :left, :size=>32 do |d|
+            column :POLICY, "", :left, :size=>12 do |d|
+                if d["POLICY"].nil?
+                    '-'
+                else
+                    d["POLICY"]
+                end
+            end
+
+            column :AFFINED_HOSTS, "", :left, :size=>18 do |d|
+                if d["HOST_AFFINED"].nil?
+                    '-'
+                else
+                    d["HOST_AFFINED"]
+                end
+            end
+
+            column :ANTI_AFFINED_HOST, "", :left, :size=>18 do |d|
+                if d["HOST_ANTI_AFFINED"].nil?
+                    '-'
+                else
+                    d["HOST_ANTI_AFFINED"]
+                end
+            end
+
+            column :VIRTUAL_MACHINES, "", :left, :size=>20 do |d|
                 d["VMS"]
             end
         end.show(roles, {})
