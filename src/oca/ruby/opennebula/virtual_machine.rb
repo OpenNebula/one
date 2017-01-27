@@ -215,7 +215,10 @@ module OpenNebula
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
             poweroff-hard disk-attach disk-detach nic-attach nic-detach
-            snap-create snap-delete terminate terminate-hard}
+            disk-snapshot-create disk-snapshot-delete terminate terminate-hard
+            disk-resize deploy chown chmod updateconf rename resize update
+            snapshot-resize snapshot-delete snapshot-revert disk-saveas
+            disk-snapshot-revert}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',

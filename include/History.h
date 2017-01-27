@@ -36,245 +36,54 @@ public:
     };
 
     enum VMAction
-    {
-        NONE_ACTION            = 0,
-        MIGRATE_ACTION         = 1,
+    {                                       //Associated XML-RPC API call
+        NONE_ACTION            = 0,         // "one.vm.migrate"
+        MIGRATE_ACTION         = 1,         // "one.vm.migrate"
         LIVE_MIGRATE_ACTION    = 2,
         //SHUTDOWN_ACTION        = 3,
         //SHUTDOWN_HARD_ACTION   = 4,
-        UNDEPLOY_ACTION        = 5,
-        UNDEPLOY_HARD_ACTION   = 6,
-        HOLD_ACTION            = 7,
-        RELEASE_ACTION         = 8,
-        STOP_ACTION            = 9,
-        SUSPEND_ACTION         = 10,
-        RESUME_ACTION          = 11,
+        UNDEPLOY_ACTION        = 5,         // "one.vm.action"
+        UNDEPLOY_HARD_ACTION   = 6,         // "one.vm.action"
+        HOLD_ACTION            = 7,         // "one.vm.action"
+        RELEASE_ACTION         = 8,         // "one.vm.action"
+        STOP_ACTION            = 9,         // "one.vm.action"
+        SUSPEND_ACTION         = 10,        // "one.vm.action"
+        RESUME_ACTION          = 11,        // "one.vm.action"
         //BOOT_ACTION            = 12,
-        DELETE_ACTION          = 13,
-        DELETE_RECREATE_ACTION = 14,
-        REBOOT_ACTION          = 15,
-        REBOOT_HARD_ACTION     = 16,
-        RESCHED_ACTION         = 17,
-        UNRESCHED_ACTION       = 18,
-        POWEROFF_ACTION        = 19,
-        POWEROFF_HARD_ACTION   = 20,
-        DISK_ATTACH_ACTION     = 21,
-        DISK_DETACH_ACTION     = 22,
-        NIC_ATTACH_ACTION      = 23,
-        NIC_DETACH_ACTION      = 24,
-        DISK_SNAPSHOT_CREATE_ACTION = 25,
-        DISK_SNAPSHOT_DELETE_ACTION = 26,
-        TERMINATE_ACTION       = 27,
-        TERMINATE_HARD_ACTION  = 28,
-        DISK_RESIZE_ACTION     = 29
+        DELETE_ACTION          = 13,        // "one.vm.recover"
+        DELETE_RECREATE_ACTION = 14,        // "one.vm.recover"
+        REBOOT_ACTION          = 15,        // "one.vm.action"
+        REBOOT_HARD_ACTION     = 16,        // "one.vm.action"
+        RESCHED_ACTION         = 17,        // "one.vm.action"
+        UNRESCHED_ACTION       = 18,        // "one.vm.action"
+        POWEROFF_ACTION        = 19,        // "one.vm.action"
+        POWEROFF_HARD_ACTION   = 20,        // "one.vm.action"
+        DISK_ATTACH_ACTION     = 21,        // "one.vm.attach"
+        DISK_DETACH_ACTION     = 22,        // "one.vm.detach"
+        NIC_ATTACH_ACTION      = 23,        // "one.vm.attachnic"
+        NIC_DETACH_ACTION      = 24,        // "one.vm.detachnic"
+        DISK_SNAPSHOT_CREATE_ACTION = 25,   // "one.vm.disksnapshotcreate"
+        DISK_SNAPSHOT_DELETE_ACTION = 26,   // "one.vm.disksnapshotdelete"
+        TERMINATE_ACTION       = 27,        // "one.vm.action"
+        TERMINATE_HARD_ACTION  = 28,        // "one.vm.action"
+        DISK_RESIZE_ACTION     = 29,        // "one.vm.diskresize"
+        DEPLOY_ACTION          = 30,        // "one.vm.deploy"
+        CHOWN_ACTION           = 31,        // "one.vm.chown"
+        CHMOD_ACTION           = 32,        // "one.vm.chmod"
+        UPDATECONF_ACTION      = 33,        // "one.vm.updateconf"
+        RENAME_ACTION          = 34,        // "one.vm.rename"
+        RESIZE_ACTION          = 35,        // "one.vm.resize"
+        UPDATE_ACTION          = 36,        // "one.vm.update"
+        SNAPSHOT_CREATE_ACTION = 37,        // "one.vm.snapshotcreate"
+        SNAPSHOT_DELETE_ACTION = 38,        // "one.vm.snapshotdelete"
+        SNAPSHOT_REVERT_ACTION = 39,        // "one.vm.snapshotrevert"
+        DISK_SAVEAS_ACTION     = 40,        // "one.vm.disksaveas"
+        DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
     };
 
-    static string action_to_str(VMAction action)
-    {
-        string st;
+    static string action_to_str(VMAction action);
 
-        switch (action)
-        {
-            case MIGRATE_ACTION:
-                st = "migrate";
-            break;
-            case LIVE_MIGRATE_ACTION:
-                st = "live-migrate";
-            break;
-            case TERMINATE_ACTION:
-                st = "terminate";
-            break;
-            case TERMINATE_HARD_ACTION:
-                st = "terminate-hard";
-            break;
-            case UNDEPLOY_ACTION:
-                st = "undeploy";
-            break;
-            case UNDEPLOY_HARD_ACTION:
-                st = "undeploy-hard";
-            break;
-            case HOLD_ACTION:
-                st = "hold";
-            break;
-            case RELEASE_ACTION:
-                st = "release";
-            break;
-            case STOP_ACTION:
-                st = "stop";
-            break;
-            case SUSPEND_ACTION:
-                st = "suspend";
-            break;
-            case RESUME_ACTION:
-                st = "resume";
-            break;
-            case DELETE_ACTION:
-                st = "delete";
-            break;
-            case DELETE_RECREATE_ACTION:
-                st = "delete-recreate";
-            break;
-            case REBOOT_ACTION:
-                st = "reboot";
-            break;
-            case REBOOT_HARD_ACTION:
-                st = "reboot-hard";
-            break;
-            case RESCHED_ACTION:
-                st = "resched";
-            break;
-            case UNRESCHED_ACTION:
-                st = "unresched";
-            break;
-            case POWEROFF_ACTION:
-                st = "poweroff";
-            break;
-            case POWEROFF_HARD_ACTION:
-                st = "poweroff-hard";
-            break;
-            case DISK_ATTACH_ACTION:
-                st = "disk-attach";
-            break;
-            case DISK_DETACH_ACTION:
-                st = "disk-detach";
-            break;
-            case NIC_ATTACH_ACTION:
-                st = "nic-attach";
-            break;
-            case NIC_DETACH_ACTION:
-                st = "nic-detach";
-            break;
-            case DISK_SNAPSHOT_CREATE_ACTION:
-                st = "snap-create";
-            break;
-            case DISK_SNAPSHOT_DELETE_ACTION:
-                st = "snap-delete";
-            break;
-            case DISK_RESIZE_ACTION:
-                st = "disk-resize";
-            break;
-            case NONE_ACTION:
-                st = "none";
-            break;
-        }
-
-        return st;
-    };
-
-    static int action_from_str(string& st, VMAction& action)
-    {
-        if (st == "migrate")
-        {
-            action = MIGRATE_ACTION;
-        }
-        else if (st == "live-migrate")
-        {
-            action = LIVE_MIGRATE_ACTION;
-        }
-        else if (st == "terminate")
-        {
-            action = TERMINATE_ACTION;
-        }
-        else if (st == "terminate-hard")
-        {
-            action = TERMINATE_HARD_ACTION;
-        }
-        else if (st == "undeploy")
-        {
-            action = UNDEPLOY_ACTION;
-        }
-        else if (st == "undeploy-hard")
-        {
-            action = UNDEPLOY_HARD_ACTION;
-        }
-        else if (st == "hold")
-        {
-            action = HOLD_ACTION;
-        }
-        else if (st == "release")
-        {
-            action = RELEASE_ACTION;
-        }
-        else if (st == "stop")
-        {
-            action = STOP_ACTION;
-        }
-        else if (st == "suspend")
-        {
-            action = SUSPEND_ACTION;
-        }
-        else if (st == "resume")
-        {
-            action = RESUME_ACTION;
-        }
-        else if (st == "delete")
-        {
-            action = DELETE_ACTION;
-        }
-        else if (st == "delete-recreate")
-        {
-            action = DELETE_RECREATE_ACTION;
-        }
-        else if (st == "reboot")
-        {
-            action = REBOOT_ACTION;
-        }
-        else if (st == "reboot-hard")
-        {
-            action = REBOOT_HARD_ACTION;
-        }
-        else if (st == "resched")
-        {
-            action = RESCHED_ACTION;
-        }
-        else if (st == "unresched")
-        {
-            action = UNRESCHED_ACTION;
-        }
-        else if (st == "poweroff")
-        {
-            action = POWEROFF_ACTION;
-        }
-        else if (st == "poweroff-hard")
-        {
-            action = POWEROFF_HARD_ACTION;
-        }
-        else if (st == "disk-attach")
-        {
-            action = DISK_ATTACH_ACTION;
-        }
-        else if (st == "disk-detach")
-        {
-            action = DISK_DETACH_ACTION;
-        }
-        else if (st == "nic-attach")
-        {
-            action = NIC_ATTACH_ACTION;
-        }
-        else if (st == "nic-detach")
-        {
-            action = NIC_DETACH_ACTION;
-        }
-        else if (st == "snap-create")
-        {
-            action = DISK_SNAPSHOT_CREATE_ACTION;
-        }
-        else if (st == "snap-delete")
-        {
-            action = DISK_SNAPSHOT_DELETE_ACTION;
-        }
-        else if (st == "disk-resize")
-        {
-            action = DISK_RESIZE_ACTION;
-        }
-        else
-        {
-            action = NONE_ACTION;
-            return -1;
-        }
-
-        return 0;
-    };
+    static int action_from_str(const string& st, VMAction& action);
 
     History(int oid, int _seq = -1);
 
