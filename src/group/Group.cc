@@ -353,7 +353,7 @@ void Group::add_admin_rules(int user_id)
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
-    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP/@<gid> USE+MANAGE *
     if ( aclm->add_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
@@ -365,6 +365,7 @@ void Group::add_admin_rules(int user_id)
             PoolObjectSQL::DOCUMENT |
             PoolObjectSQL::SECGROUP |
             PoolObjectSQL::VROUTER |
+            PoolObjectSQL::VMGROUP |
             AclRule::GROUP_ID |
             oid,
 
@@ -449,7 +450,7 @@ void Group::del_admin_rules(int user_id)
         NebulaLog::log("GROUP",Log::ERROR,error_msg);
     }
 
-    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER/@<gid> USE+MANAGE *
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP/@<gid> USE+MANAGE *
     if ( aclm->del_rule(
             AclRule::INDIVIDUAL_ID |
             user_id,
@@ -461,6 +462,7 @@ void Group::del_admin_rules(int user_id)
             PoolObjectSQL::DOCUMENT |
             PoolObjectSQL::SECGROUP |
             PoolObjectSQL::VROUTER |
+            PoolObjectSQL::VMGROUP |
             AclRule::GROUP_ID |
             oid,
 
