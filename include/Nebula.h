@@ -37,6 +37,7 @@
 #include "VirtualRouterPool.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "VMGroupPool.h"
 
 #include "VirtualMachineManager.h"
 #include "LifeCycleManager.h"
@@ -154,6 +155,11 @@ public:
     MarketPlaceAppPool * get_apppool()
     {
         return apppool;
+    };
+
+    VMGroupPool * get_vmgrouppool()
+    {
+        return vmgrouppool;
     };
 
     // --------------------------------------------------------------
@@ -580,10 +586,10 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
         system_db(0), db(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
-        dspool(0), clpool(0), docpool(0), zonepool(0),
-        secgrouppool(0), vdcpool(0), vrouterpool(0), marketpool(0), apppool(0),
-        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0),
-        aclm(0), imagem(0), marketm(0), ipamm(0)
+        dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
+        vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
+        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
+        imagem(0), marketm(0), ipamm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -634,6 +640,7 @@ private:
         delete vrouterpool;
         delete marketpool;
         delete apppool;
+        delete vmgrouppool;
         delete vmm;
         delete lcm;
         delete im;
@@ -718,6 +725,7 @@ private:
     VirtualRouterPool  * vrouterpool;
     MarketPlacePool    * marketpool;
     MarketPlaceAppPool * apppool;
+    VMGroupPool        * vmgrouppool;
 
     // ---------------------------------------------------------------
     // Nebula Managers

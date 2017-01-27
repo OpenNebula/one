@@ -56,6 +56,8 @@ SecurityGroup::SecurityGroup(
     {
         obj_template = new Template;
     }
+
+    set_umask(_umask);
 }
 
 /* -------------------------------------------------------------------------- */

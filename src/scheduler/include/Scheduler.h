@@ -19,6 +19,7 @@
 
 #include "Log.h"
 #include "HostPoolXML.h"
+#include "VMGroupPoolXML.h"
 #include "UserPoolXML.h"
 #include "ClusterPoolXML.h"
 #include "DatastorePoolXML.h"
@@ -49,14 +50,16 @@ public:
 protected:
 
     Scheduler():
+        acls(0),
+        upool(0),
         hpool(0),
         clpool(0),
-        vmpool(0),
-        vmapool(0),
         dspool(0),
         img_dspool(0),
-        upool(0),
-        acls(0),
+        vmpool(0),
+        vm_roles_pool(0),
+        vmgpool(0),
+        vmapool(0),
         timer(0),
         one_xmlrpc(""),
         machines_limit(0),
@@ -72,12 +75,14 @@ protected:
         delete clpool;
 
         delete vmpool;
+        delete vm_roles_pool;
         delete vmapool;
 
         delete dspool;
         delete img_dspool;
 
         delete upool;
+        delete vmgpool;
 
         delete acls;
     };
@@ -85,17 +90,21 @@ protected:
     // ---------------------------------------------------------------
     // Pools
     // ---------------------------------------------------------------
+    AclXML *      acls;
+    UserPoolXML * upool;
 
     HostPoolXML *    hpool;
     ClusterPoolXML * clpool;
 
-    VirtualMachinePoolXML *       vmpool;
-    VirtualMachineActionsPoolXML* vmapool;
     SystemDatastorePoolXML * dspool;
-    ImageDatastorePoolXML * img_dspool;
-    UserPoolXML * upool;
+    ImageDatastorePoolXML *  img_dspool;
 
-    AclXML * acls;
+    VirtualMachinePoolXML *     vmpool;
+    VirtualMachineRolePoolXML * vm_roles_pool;
+
+    VMGroupPoolXML * vmgpool;
+
+    VirtualMachineActionsPoolXML* vmapool;
 
     // ---------------------------------------------------------------
     // Scheduler Policies
@@ -134,6 +143,8 @@ protected:
     virtual int set_up_pools();
 
     virtual int do_scheduled_actions();
+
+    virtual void do_vm_groups();
 
 private:
     Scheduler(Scheduler const&){};

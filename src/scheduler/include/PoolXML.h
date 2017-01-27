@@ -46,15 +46,15 @@ public:
     {
         int rc;
 
-        // -------------------------------------------------------------------------
+        // ---------------------------------------------------------------------
         // Clean the pool to get updated data from OpenNebula
-        // -------------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 
         flush();
 
-        // -------------------------------------------------------------------------
+        // ---------------------------------------------------------------------
         // Load the ids (to get an updated list of the pool)
-        // -------------------------------------------------------------------------
+        // ---------------------------------------------------------------------
 
         xmlrpc_c::value result;
 
@@ -124,8 +124,49 @@ public:
         }
     };
 
-protected:
+    /**
+     *  Gets an object and removes it from the pool. The calling function
+     *  needs to free the object memory
+     *    @param oid of the object
+     *
+     *    @return pointer of the object 0 if not found
+     */
+    virtual ObjectXML * erase(int oid)
+    {
+        map<int, ObjectXML *>::iterator it;
 
+        it = objects.find(oid);
+
+        if ( it == objects.end() )
+        {
+            return 0;
+        }
+        else
+        {
+            ObjectXML * obj = it->second;
+
+            objects.erase(it);
+
+            return obj;
+        }
+    }
+
+    /**
+     *  Inserts a new object in the pool
+     *    @param obj pointer to the XML object to be inserted
+     *
+     *    @return true if the object was successfully inserted
+     */
+    virtual bool insert(int oid, ObjectXML * obj)
+    {
+        pair<map<int, ObjectXML *>::iterator, bool> rc;
+
+        rc = objects.insert(pair<int,ObjectXML*>(oid, obj));
+
+        return rc.second;
+    }
+
+protected:
     // ------------------------------------------------------------------------
 
     PoolXML(Client* client, unsigned int pool_limit = 0):ObjectXML()
@@ -140,7 +181,6 @@ protected:
     };
 
     // ------------------------------------------------------------------------
-
     /**
      * Inserts a new ObjectXML into the objects map
      */
@@ -156,10 +196,24 @@ protected:
      */
     virtual int load_info(xmlrpc_c::value &result) = 0;
 
+    /**
+     *  Deletes pool objects and frees resources.
+     */
+    void flush()
+    {
+        map<int,ObjectXML*>::iterator it;
+
+        for (it=objects.begin();it!=objects.end();it++)
+        {
+            delete it->second;
+        }
+
+        objects.clear();
+    }
+
     // ------------------------------------------------------------------------
     // Attributes
     // ------------------------------------------------------------------------
-
     /**
      * XML-RPC client
      */
@@ -175,23 +229,6 @@ protected:
      * Hash map contains the suitable [id, object] pairs.
      */
     map<int, ObjectXML *> objects;
-
-
-private:
-    /**
-     *  Deletes pool objects and frees resources.
-     */
-    void flush()
-    {
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
-        {
-            delete it->second;
-        }
-
-        objects.clear();
-    }
 };
 
 #endif /* POOL_XML_H_ */

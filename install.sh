@@ -550,6 +550,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneflow \
            src/cli/oneflow-template \
            src/cli/onesecgroup \
+           src/cli/onevmgroup \
            src/cli/onevdc \
            src/cli/onevrouter \
            src/cli/onemarket \
@@ -1280,6 +1281,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/pool.rb \
                             src/oca/ruby/opennebula/security_group_pool.rb \
                             src/oca/ruby/opennebula/security_group.rb \
+                            src/oca/ruby/opennebula/vm_group_pool.rb \
+                            src/oca/ruby/opennebula/vm_group.rb \
                             src/oca/ruby/opennebula/system.rb \
                             src/oca/ruby/opennebula/template_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
@@ -1440,6 +1443,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onevdc_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
                    src/cli/one_helper/onesecgroup_helper.rb \
+                   src/cli/one_helper/onevmgroup_helper.rb \
                    src/cli/one_helper/onevrouter_helper.rb \
                    src/cli/one_helper/onemarketapp_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb"
@@ -1459,6 +1463,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneflow-template \
                src/cli/oneacct \
                src/cli/onesecgroup \
+               src/cli/onevmgroup \
                src/cli/oneshowback \
                src/cli/onevdc \
                src/cli/onevrouter \
@@ -1478,6 +1483,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml \
                 src/cli/etc/onesecgroup.yaml \
+                src/cli/etc/onevmgroup.yaml \
                 src/cli/etc/oneshowback.yaml \
                 src/cli/etc/onevdc.yaml \
                 src/cli/etc/onevrouter.yaml \

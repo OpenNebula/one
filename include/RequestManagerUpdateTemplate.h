@@ -343,4 +343,19 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VMGroupUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VMGroupUpdateTemplate():
+        RequestManagerUpdateTemplate("VMGroupUpdateTemplate",
+                                     "Updates a vm group template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupUpdateTemplate(){};
+};
+
 #endif

@@ -326,15 +326,15 @@ public:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-	inline const VectorAttribute * get(const string& name) const
-	{
-		return __get<VectorAttribute>(name);
-	}
+    inline const VectorAttribute * get(const string& name) const
+    {
+      return __get<VectorAttribute>(name);
+    }
 
-	inline VectorAttribute * get(const string& name)
-	{
-		return __get<VectorAttribute>(name);
-	}
+    inline VectorAttribute * get(const string& name)
+    {
+      return __get<VectorAttribute>(name);
+    }
 
     /**
      *  Gets the value of a SingleAttribute with the given name and converts

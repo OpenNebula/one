@@ -741,12 +741,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
-
-    oss << oid;
-    value = oss.str();
-
     user_obj_template->erase("VMID");
-    obj_template->add("VMID", value);
+    obj_template->add("VMID", oid);
 
     user_obj_template->get("TEMPLATE_ID", value);
     user_obj_template->erase("TEMPLATE_ID");
@@ -1017,6 +1013,14 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
             deploy_id = value;
             obj_template->add("IMPORTED", "YES");
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Associate to VM Group
+    // ------------------------------------------------------------------------
+    if ( get_vmgroup(error_str) == -1 )
+    {
+        goto error_rollback;
     }
 
     // ------------------------------------------------------------------------
@@ -1908,6 +1912,15 @@ void VirtualMachine::set_auth_request(int uid,
     for( nic = tnics.begin(); nic != tnics.end(); ++nic)
     {
         (*nic)->authorize(uid, &ar);
+    }
+
+    const VectorAttribute * vmgroup = tmpl->get("VMGROUP");
+
+    if ( vmgroup != 0 )
+    {
+        VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+
+        vmgrouppool->authorize(vmgroup, uid, &ar);
     }
 }
 
@@ -2885,4 +2898,72 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* VirtualMachine VMGroup interface                                           */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_vmgroup(string& error)
+{
+    vector<Attribute  *> vmgroups;
+    vector<Attribute*>::iterator it;
+
+    bool found;
+    VectorAttribute * thegroup = 0;
+
+    user_obj_template->remove("VMGROUP", vmgroups);
+
+    for (it = vmgroups.begin(), found = false; it != vmgroups.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR || found )
+        {
+            delete *it;
+            it = vmgroups.erase(it);
+        }
+        else
+        {
+            thegroup = dynamic_cast<VectorAttribute *>(*it);
+            found    = true;
+
+            ++it;
+        }
+    }
+
+    if ( thegroup == 0 )
+    {
+        return 0;
+    }
+
+    VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+    int rc;
+
+    rc = vmgrouppool->vmgroup_attribute(thegroup, get_uid(), get_oid(), error);
+
+    if ( rc != 0 )
+    {
+        delete thegroup;
+
+        return -1;
+    }
+
+    obj_template->set(thegroup);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::release_vmgroup()
+{
+    VectorAttribute * thegroup = obj_template->get("VMGROUP");
+
+    if ( thegroup == 0 )
+    {
+        return;
+    }
+
+    VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
+
+    vmgrouppool->del_vm(thegroup, get_oid());
+}
 

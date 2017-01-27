@@ -250,4 +250,19 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VMGroupChmod: public RequestManagerChmod
+{
+public:
+    VMGroupChmod():
+        RequestManagerChmod("VMGroupChmod",
+                            "Changes permission bits of a vm group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupChmod(){};
+};
+
 #endif

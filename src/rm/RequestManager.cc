@@ -366,6 +366,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_update(new ClusterUpdateTemplate());
     xmlrpc_c::methodPtr secg_update(new SecurityGroupUpdateTemplate());
     xmlrpc_c::methodPtr vrouter_update(new VirtualRouterUpdateTemplate());
+    xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -378,6 +379,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_allocate(new DocumentAllocate());
     xmlrpc_c::methodPtr secg_allocate(new SecurityGroupAllocate());
     xmlrpc_c::methodPtr vrouter_allocate(new VirtualRouterAllocate());
+    xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -394,6 +396,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_delete(new DocumentDelete());
     xmlrpc_c::methodPtr secg_delete(new SecurityGroupDelete());
     xmlrpc_c::methodPtr vrouter_delete(new VirtualRouterDelete());
+    xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -406,6 +409,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
     xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
+    xmlrpc_c::methodPtr vmg_info(new VMGroupInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -421,6 +425,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr clusterpool_info(new ClusterPoolInfo());
     xmlrpc_c::methodPtr docpool_info(new DocumentPoolInfo());
     xmlrpc_c::methodPtr secgpool_info(new SecurityGroupPoolInfo());
+    xmlrpc_c::methodPtr vmgpool_info(new VMGroupPoolInfo());
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
 
     // Host Methods
@@ -449,6 +454,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chown(new DocumentChown());
     xmlrpc_c::methodPtr secg_chown(new SecurityGroupChown());
     xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
+    xmlrpc_c::methodPtr vmg_chown(new VMGroupChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -459,6 +465,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_chmod(new DocumentChmod());
     xmlrpc_c::methodPtr secg_chmod(new SecurityGroupChmod());
     xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
+    xmlrpc_c::methodPtr vmg_chmod(new VMGroupChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -483,6 +490,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr host_rename(new HostRename());
     xmlrpc_c::methodPtr secg_rename(new SecurityGroupRename());
     xmlrpc_c::methodPtr vrouter_rename(new VirtualRouterRename());
+    xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -828,6 +836,18 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.secgroup.commit",  secg_commit);
 
     RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
+
+    /* VM Group objects related methods*/
+
+    RequestManagerRegistry.addMethod("one.vmgroup.allocate", vmg_allocate);
+    RequestManagerRegistry.addMethod("one.vmgroup.delete",   vmg_delete);
+    RequestManagerRegistry.addMethod("one.vmgroup.info",     vmg_info);
+    RequestManagerRegistry.addMethod("one.vmgroup.chown",    vmg_chown);
+    RequestManagerRegistry.addMethod("one.vmgroup.chmod",    vmg_chmod);
+    RequestManagerRegistry.addMethod("one.vmgroup.rename",   vmg_rename);
+    RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
+
+    RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 
     /* Vdc related methods */
 

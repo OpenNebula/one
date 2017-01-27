@@ -223,6 +223,7 @@ void DispatchManager::free_vm_resources(VirtualMachine * vm)
     int vmid;
 
     vm->release_network_leases();
+    vm->release_vmgroup();
     vm->release_disk_images(ds_quotas);
 
     vm->set_exit_time(time(0));

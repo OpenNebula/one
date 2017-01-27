@@ -371,7 +371,23 @@ public:
 
     ~MarketPlaceAppInfo(){};
 };
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class VMGroupInfo : public RequestManagerInfo
+{
+public:
+    VMGroupInfo():
+        RequestManagerInfo("VMGroupInfo",
+                           "Returns vm group information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupInfo(){};
+};
 
 #endif

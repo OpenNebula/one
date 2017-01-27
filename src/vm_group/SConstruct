@@ -1,4 +1,4 @@
-# SConstruct for src/pool
+# SConstruct for src/secgroup
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2016, OpenNebula Project, OpenNebula Systems                #
@@ -16,36 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-Import('sched_env')
-import os
+Import('env')
 
-lib_name='scheduler_sched'
+lib_name='nebula_vmgroup'
 
-source_files=['Scheduler.cc' , 'SchedulerTemplate.cc']
+# Sources to generate the library
+source_files=[
+    'VMGroupPool.cc',
+    'VMGroup.cc',
+    'VMGroupRole.cc',
+    'VMGroupRule.cc'
+]
 
 # Build library
-sched_env.StaticLibrary(lib_name, source_files)
+env.StaticLibrary(lib_name, source_files)
 
-# Build daemon
-sched_env.Prepend(LIBS=[
-    'scheduler_sched',
-    'scheduler_pool',
-    'nebula_vmgroup_roles',
-    'nebula_log',
-    'nebula_client',
-    'nebula_acl',
-    'nebula_pool',
-    'nebula_xml',
-    'nebula_common',
-    'nebula_core',
-    'nebula_template',
-    'nebula_vm',
-    'nebula_host',
-    'crypto',
-    'xml2'
-])
+# Stripped library for scheduler with role logic
+lib_name='nebula_vmgroup_roles'
 
-if not sched_env.GetOption('clean'):
-    sched_env.ParseConfig(("LDFLAGS='%s' ../../../../share/scons/get_xmlrpc_config client") % (os.environ['LDFLAGS'],))
+source_files=[
+    'VMGroupRole.cc',
+    'VMGroupRule.cc'
+]
 
-sched_env.Program('mm_sched.cc')
+env.StaticLibrary(lib_name, source_files)

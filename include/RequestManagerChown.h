@@ -341,4 +341,24 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VMGroupChown: public RequestManagerChown
+{
+public:
+    VMGroupChown():
+        RequestManagerChown("VMGroupChown",
+                            "Changes ownership of a vm group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmgrouppool();
+        auth_object = PoolObjectSQL::VMGROUP;
+    };
+
+    ~VMGroupChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 #endif

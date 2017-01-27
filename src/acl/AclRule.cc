@@ -28,7 +28,7 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 16;
+const int AclRule::num_pool_objects = 17;
 const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -45,7 +45,8 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VDC,
             PoolObjectSQL::VROUTER,
             PoolObjectSQL::MARKETPLACE,
-            PoolObjectSQL::MARKETPLACEAPP
+            PoolObjectSQL::MARKETPLACEAPP,
+            PoolObjectSQL::VMGROUP
 };
 
 const int AclRule::num_auth_operations = 4;
@@ -61,7 +62,8 @@ const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
         PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE |
         PoolObjectSQL::SECGROUP | PoolObjectSQL::VDC | PoolObjectSQL::VROUTER |
-        PoolObjectSQL::MARKETPLACE | PoolObjectSQL::MARKETPLACEAPP;
+        PoolObjectSQL::MARKETPLACE | PoolObjectSQL::MARKETPLACEAPP |
+        PoolObjectSQL::VMGROUP;
 
 const long long AclRule::INVALID_GROUP_OBJECTS =
         PoolObjectSQL::HOST | PoolObjectSQL::GROUP | PoolObjectSQL::CLUSTER |
@@ -237,7 +239,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] type is missing";
     }
 
-    if ( (resource & 0xFFE0000000000000LL) != 0 )
+    if ( (resource & 0xFFC0000000000000LL) != 0 )
     {
         if ( error )
         {

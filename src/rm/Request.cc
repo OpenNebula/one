@@ -63,6 +63,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "marketplace";
         case PoolObjectSQL::MARKETPLACEAPP:
             return "marketplaceapp";
+        case PoolObjectSQL::VMGROUP:
+            return "vm group";
         default:
             return "-";
       }
