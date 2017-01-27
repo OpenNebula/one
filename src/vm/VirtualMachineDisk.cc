@@ -357,6 +357,12 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
 
     delta_size = new_size - current_size;
 
+    //Quotas uses del operation to substract counters, delta needs to be > 0
+    if ( delta_size < 0 )
+    {
+        delta_size = - delta_size;
+    }
+
     bool is_system = get_tm_target() == "SYSTEM";
     string ds_id   = vector_value("DATASTORE_ID");
 
