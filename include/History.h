@@ -18,6 +18,7 @@
 #define HISTORY_H_
 
 #include "ObjectSQL.h"
+#include "ObjectXML.h"
 
 using namespace std;
 
@@ -79,6 +80,8 @@ public:
         SNAPSHOT_REVERT_ACTION = 39,        // "one.vm.snapshotrevert"
         DISK_SAVEAS_ACTION     = 40,        // "one.vm.disksaveas"
         DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
+        RECOVER_ACTION         = 42,        // "one.vm.recover"
+        RETRY_ACTION           = 43         // "one.vm.recover"
     };
 
     static string action_to_str(VMAction action);

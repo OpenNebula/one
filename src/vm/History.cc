@@ -489,6 +489,12 @@ string History::action_to_str(VMAction action)
         case DISK_SNAPSHOT_REVERT_ACTION:
             st = "disk-snapshot-revert";
         break;
+        case RECOVER_ACTION:
+            st = "recover";
+        break;
+        case RETRY_ACTION:
+            st = "retry";
+        break;
         case NONE_ACTION:
             st = "none";
         break;
@@ -650,6 +656,14 @@ int History::action_from_str(const string& st, VMAction& action)
     else if ( st == "disk-snapshot-revert")
     {
         action = DISK_SNAPSHOT_REVERT_ACTION;
+    }
+    else if ( st == "recover")
+    {
+        action = RECOVER_ACTION;
+    }
+    else if ( st == "retry")
+    {
+        action = RETRY_ACTION;
     }
     else
     {
