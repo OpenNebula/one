@@ -19,6 +19,7 @@
 
 #include "Template.h"
 #include "ActionSet.h"
+#include "AuthRequest.h"
 #include "History.h"
 
 #include <map>
@@ -87,6 +88,12 @@ public:
      *  Parse and loads the configuration in the template
      */
     virtual int load_configuration();
+
+    /**
+     *  @param  action
+     *  @return authorization operation configured for the given VM action
+     */
+    AuthRequest::Operation get_vm_auth_op(History::VMAction action);
 
 private:
     /**

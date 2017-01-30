@@ -791,4 +791,26 @@ error_op:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+AuthRequest::Operation OpenNebulaTemplate::get_vm_auth_op(History::VMAction ac)
+{
+    if ( vm_admin_actions.is_set(ac) )
+    {
+        return AuthRequest::ADMIN;
+    }
+    else if ( vm_manage_actions.is_set(ac) )
+    {
+        return AuthRequest::MANAGE;
+    }
+    else if ( vm_use_actions.is_set(ac) )
+    {
+        return AuthRequest::USE;
+    }
+    else
+    {
+        return AuthRequest::MANAGE;
+    }
+
+}

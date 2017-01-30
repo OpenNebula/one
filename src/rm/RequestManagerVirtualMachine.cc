@@ -489,7 +489,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     ostringstream oss;
     string error;
 
-    AuthRequest::Operation op = auth_op;
+    AuthRequest::Operation op;
     History::VMAction action;
 
     VirtualMachine * vm;
@@ -506,10 +506,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     History::action_from_str(action_st, action);
 
-    if (action == History::RESCHED_ACTION || action == History::UNRESCHED_ACTION)
-    {
-        op = AuthRequest::ADMIN;
-    }
+    op = nd.get_vm_auth_op(action);
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, 0, op) == false )
     {
@@ -2436,9 +2433,34 @@ void VirtualMachineRecover::request_execute(
     int    rc;
     string error;
 
-    DispatchManager * dm = Nebula::instance().get_dm();
+    Nebula& nd           = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    AuthRequest::Operation aop;
+
+    switch (op)
+    {
+        case 0: //recover-failure
+        case 1: //recover-success
+            aop = nd.get_vm_auth_op(History::RECOVER_ACTION);
+            break;
+
+        case 2: //retry
+            aop = nd.get_vm_auth_op(History::RETRY_ACTION);
+            break;
+
+        case 3: //delete
+        case 4: //delete-recreate set same as delete in OpenNebulaTemplate
+            aop = nd.get_vm_auth_op(History::DELETE_ACTION);
+            break;
+
+        default:
+            att.resp_msg = "Wrong recovery operation code";
+            failure_response(ACTION, att);
+            return;
+    }
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, aop) == false )
     {
         return;
     }
@@ -2473,15 +2495,7 @@ void VirtualMachineRecover::request_execute(
         case 4: //delete-recreate
             rc = dm->delete_recreate(vm, error);
             break;
-
-        default:
-            att.resp_msg = "Wrong recovery operation code";
-            failure_response(ACTION, att);
-
-            vm->unlock();
-            return;
     }
-
 
     if ( rc == 0 )
     {
