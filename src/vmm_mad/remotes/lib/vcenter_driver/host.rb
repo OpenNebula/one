@@ -10,14 +10,14 @@ class HostFolder
 
     def fetch_clusters!
         VIClient.get_entities(@item, 'ClusterComputeResource').each do |item|
-            _, item_name, _ = item.to_s.split('"')
+            item_name = item._ref
             @clusters[item_name.to_sym] = ClusterComputeResource.new(item)
         end
     end
 
     def get_cluster(ref)
         if !@clusters[ref.to_sym]
-            rbvmomi_dc = RbVmomi::VIM::ClusterComputeResource.new(@vcenter_client.vim, ref)
+            rbvmomi_dc = RbVmomi::VIM::ClusterComputeResource.new(@item._connection, ref)
             @clusters[ref.to_sym] = ClusterComputeResource.new(rbvmomi_dc)
         end
 

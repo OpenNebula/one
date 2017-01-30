@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk 
+# This script is used retrieve the file size of a disk
 ###############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
@@ -31,7 +31,20 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
+require 'opennebula'
+
+################################################################################
+
+def check_valid(parameter, label)
+    if parameter.nil? || parameter.empty?
+        STDERR.puts "Not enough information to delete the image. " +
+                    "Missing '#{label}'."
+        exit -1
+    end
+end
+
+################################################################################
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -39,25 +52,24 @@ id             = ARGV[1]
 drv_action =OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-img_src       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
+ds_ref  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_REF"]
+host_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+dc_ref  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DC_REF"]
+img_src = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
 
-if ds_name.nil? ||
-   hostname.nil? ||
-   img_src.nil?
-    STDERR.puts "Not enough information to delete the image."
-    exit -1
-end
+check_valid ds_ref, "ds_ref"
+check_valid host_id, "vcenter_cluster"
+check_valid img_src, "img_src"
+check_valid dc_ref, "dc_ref"
 
 begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    dc = VCenterDriver::Datacenter.new_from_ref(vi_client, dc_ref)
+    ds = VCenterDriver::Datastore.new_from_ref(vi_client, ds_ref)
 
-    vi_client.delete_virtual_disk(img_src,
-                                  ds_name)
+    ds.delete_virtual_disk(dc, img_src)
 rescue Exception => e
-    STDERR.puts "Error delete virtual disk #{img_src} in #{ds_name}."\
+    STDERR.puts "Error deleting virtual disk #{img_src}."\
                 " Reason: #{e.message}"
     exit -1
 end

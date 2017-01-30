@@ -31,7 +31,8 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
+require 'opennebula'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
@@ -39,21 +40,15 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name  = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_NAME"]
-hostname = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+host_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+ds_ref = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_REF"]
 
-if ds_name.nil? ||
-   hostname.nil?
+if host_id.nil? || ds_ref.nil?
     STDERR.puts "Not enough information to monitor the image."
     exit -1
 end
 
-begin
-    host_id      = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client    = VCenterDriver::VIClient.new host_id
+vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+ds = VCenterDriver::Datastore.new_from_ref(vi_client, ds_ref)
 
-    puts vi_client.monitor_ds(ds_name)
-rescue Exception => e
-    STDERR.puts "Error monitoring #{ds_name}. Reason: #{e.message}"
-    exit -1
-end
+puts ds.monitor

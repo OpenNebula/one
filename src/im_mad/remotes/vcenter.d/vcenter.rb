@@ -26,7 +26,8 @@ end
 
 $: << RUBY_LIB_LOCATION
 
-require 'vcenter_driver'
+require 'vcenter_driver2'
+require 'opennebula'
 
 host_id = ARGV[4]
 
@@ -34,7 +35,7 @@ if !host_id
     exit -1
 end
 
-vi_client    = VCenterDriver::VIClient.new_from_host(host_id)
+vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
 # Get CCR reference
 client = OpenNebula::Client.new

@@ -15,7 +15,7 @@ class DatastoreFolder
     ########################################################################
     def fetch!
         VIClient.get_entities(@item, "Datastore").each do |item|
-            _, item_name, _ = item.to_s.split('"')
+            item_name = item._ref
             @items[item_name.to_sym] = Datastore.new(item)
         end
     end
@@ -27,7 +27,7 @@ class DatastoreFolder
     ########################################################################
     def get(ref)
         if !@items[ref.to_sym]
-            rbvmomi_dc = RbVmomi::VIM::Datastore.new(@vcenter_client.vim, ref)
+            rbvmomi_dc = RbVmomi::VIM::Datastore.new(@item._connection, ref)
             @items[ref.to_sym] = Datastore.new(rbvmomi_dc)
         end
 
@@ -45,6 +45,45 @@ class Datastore
         end
 
         @item = item
+    end
+
+    def monitor
+        summary = @item.summary
+
+        total_mb = (summary.capacity.to_i / 1024) / 1024
+        free_mb  = (summary.freeSpace.to_i / 1024) / 1024
+        used_mb  = total_mb - free_mb
+
+        "USED_MB=#{used_mb}\nFREE_MB=#{free_mb} \nTOTAL_MB=#{total_mb}"
+    end
+
+    def create_virtual_disk(dc, img_name, size, adapter_type, disk_type)
+        vdm = @item._connection.serviceContent.virtualDiskManager
+        ds_name = @item.name
+
+        vmdk_spec = RbVmomi::VIM::FileBackedVirtualDiskSpec(
+            :adapterType => adapter_type,
+            :capacityKb  => size.to_i*1024,
+            :diskType    => disk_type
+        )
+
+        vdm.CreateVirtualDisk_Task(
+          :datacenter => dc.item,
+          :name       => "[#{ds_name}] #{img_name}.vmdk",
+          :spec       => vmdk_spec
+        ).wait_for_completion
+
+        "#{img_name}.vmdk"
+    end
+
+    def delete_virtual_disk(dc, img_name)
+        vdm = @item._connection.serviceContent.virtualDiskManager
+        ds_name = @item.name
+
+        vdm.DeleteVirtualDisk_Task(
+          name: "[#{ds_name}] #{img_name}",
+          datacenter: dc.item
+        ).wait_for_completion
     end
 
     # This is never cached

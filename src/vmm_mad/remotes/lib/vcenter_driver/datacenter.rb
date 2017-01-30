@@ -15,7 +15,7 @@ class DatacenterFolder
     ########################################################################
     def fetch!
         VIClient.get_entities(@vcenter_client.vim.root, "Datacenter").each do |item|
-            _, item_name, _ = item.to_s.split('"')
+            item_name = item._ref
             @items[item_name.to_sym] = Datacenter.new(item)
         end
     end

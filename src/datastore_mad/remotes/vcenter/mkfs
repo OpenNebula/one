@@ -31,8 +31,8 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vcenter_driver'
-require 'digest'
+require 'vcenter_driver2'
+require 'opennebula'
 
 ################################################################################
 
@@ -52,38 +52,40 @@ id             = ARGV[1]
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
 
-ds_name       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/NAME"]
-hostname      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
-adapter_type  = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
-disk_type     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
-size          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
-fs_type       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE"]
+ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_REF"]
+host_id      = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_CLUSTER"]
+dc_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DC_REF"]
+img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/ID"]
+adapter_type = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/ADAPTER_TYPE"]
+disk_type    = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/DISK_TYPE"]
+size         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
+fs_type      = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE"]
 
-str_for_target_path = Time.now.to_s + id.to_s
-target_path = Digest::MD5.hexdigest(str_for_target_path)
-
-if fs_type == "save_as"
-  puts target_path + ".vmdk"
-  exit 0
-end
-
-check_valid ds_name, "ds_name"
-check_valid hostname, "hostname"
+check_valid img_id, "img_id"
+check_valid host_id, "vcenter_cluster"
 check_valid adapter_type, "adapter_type"
 check_valid disk_type, "disk_type"
 check_valid size, "size"
+check_valid ds_ref, "ds_ref"
+check_valid dc_ref, "dc_ref"
+
+# TODO path in vCenter? choose a specific directory
+
+img_name = "one-#{img_id}"
+
+if fs_type == "save_as"
+    puts img_name + ".vmdk"
+    exit 0
+end
 
 begin
-    host_id   = VCenterDriver::VIClient.translate_hostname(hostname)
-    vi_client = VCenterDriver::VIClient.new host_id
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    ds = VCenterDriver::Datastore.new_from_ref(vi_client, ds_ref)
+    dc = VCenterDriver::Datacenter.new_from_ref(vi_client, dc_ref)
 
-    puts vi_client.create_virtual_disk(img_name,
-                                       ds_name,
-                                       size,
-                                       adapter_type,
-                                       disk_type)
+    puts ds.create_virtual_disk(dc, img_name, size, adapter_type, disk_type)
 rescue Exception => e
-    STDERR.puts "Error creating virtual disk in #{ds_name}."\
+    STDERR.puts "Error creating virtual disk #{img_src}."\
                 " Reason: #{e.message}"
     exit -1
 end
