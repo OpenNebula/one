@@ -19,15 +19,15 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
-  var OpenNebulaResource = require('opennebula/user');
+  var OpenNebulaResource = require('opennebula/vmgroup');
   var CommonActions = require('utils/common-actions');
   var TemplateUtils = require('utils/template-utils');
 
   var CREATE_DIALOG_ID = require('tabs/vmgroup-tab/form-panels/create/formPanelId');
   var TAB_ID = require('./tabId');
 
-  var RESOURCE = "vmgroup";
-  var XML_ROOT = "VMGROUP";
+  var RESOURCE = "VMGroup";
+  var XML_ROOT = "VM_GROUP";
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("VM groups"));
@@ -40,7 +40,7 @@ define(function(require) {
     "VMGroup.delete" : _commonActions.del(),
     "VMGroup.refresh" : _commonActions.refresh(),
     "VMGroup.update_template" : _commonActions.updateTemplate(),
-    "VMGroup.append_template" : _commonActions.appendTemplate(),
+    "VMGroup.append_template" : _commonActions.appendTemplate()
     //"vmgroup.chmod": _commonActions.chmod(),
     //"vmgroup.chown": _commonActions.chown(),
   };

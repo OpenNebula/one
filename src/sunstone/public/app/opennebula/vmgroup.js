@@ -21,7 +21,7 @@ define(function(require) {
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError  = require('./error');
 
-  var RESOURCE = "VMGroup";
+  var RESOURCE = "VM_GROUP";
 
   var VMGroup =  {
     "resource": RESOURCE,

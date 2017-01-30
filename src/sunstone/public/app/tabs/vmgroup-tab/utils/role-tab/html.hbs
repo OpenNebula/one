@@ -15,22 +15,22 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div class="row">
-  <div class="service_template_param service_role st_man medium-6 columns">
+  <div class="vmgroup_role st_man medium-6 columns">
     <label>
       {{tr "Role name"}}
-      <input type="text" id="role_name" name="name" aria-describedby="helpText" required pattern="^\w+$"/>
+      <input class="role_param" type="text" id="role_name" name="name" aria-describedby="helpText" required pattern="^\w+$"/>
       <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
     </label>
-  </div>
-  <div class="service_template_param service_role medium-4 columns end">
+  </div> 
+  <div class="vmgroup_role medium-4 columns end">
     <label>
       {{tr "Number min of VMs"}}
-      <input type="number" min="0" id="cardinality" name="cardinality" value="1"/>
+      <input class="role_param" type="number" min="0" id="role_cardinality" name="cardinality" value="1"/>
     </label>
   </div>
-  <div class="service_template_param service_role medium-2 columns end">
-    <label>{{tr "Protocol"}}</label>
-      <select class="vmgroup_policy">
+  <div class="vmgroup_role medium-2 columns end">
+    <label>{{tr "Policy"}}</label>
+      <select class="role_param" id="role_protocol" name="protocol">
         <option value="NONE" selected="selected">{{tr "None"}}</option>
         <option value="AFFINED" >{{tr "Affined"}}</option>
         <option value="ANTI_AFFINED">{{tr "Anti Affined"}}</option>

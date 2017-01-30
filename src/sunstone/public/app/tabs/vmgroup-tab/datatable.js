@@ -22,8 +22,6 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
-  var QuotaDefaults = require('utils/quotas/quota-defaults');
-  var QuotaWidgets = require('utils/quotas/quota-widgets');
   var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
@@ -32,11 +30,11 @@ define(function(require) {
     CONSTANTS
    */
 
-  var RESOURCE = "vmgroup";
-  var XML_ROOT = "VMGROUP";
+  var RESOURCE = "VMGroup";
+  var XML_ROOT = "VM_GROUP";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 11;
-  var SEARCH_COLUMN = 12;
+  var LABELS_COLUMN = 5;
+  var SEARCH_COLUMN = 6;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -56,9 +54,8 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          { "bSortable": false, "aTargets": ["check",6,7,8] },
+          {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
-          { "sWidth": "150px", "aTargets": [6,7,8] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
@@ -66,11 +63,10 @@ define(function(require) {
 
     this.columns = [
       Locale.tr("ID"),
+      Locale.tr("Owner"),
+      Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("Roles"),
-      Locale.tr("VMs"),
-      Locale.tr("Afined"),
-      Locale.tr("Unafined"),
+      Locale.tr("Labels"),
       "search_data"
     ];
 
@@ -83,7 +79,6 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following vm groups:")
     };
 
-    this.totalvmgroup = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
     this.searchColumn = SEARCH_COLUMN;
@@ -94,8 +89,6 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
-  Table.prototype.preUpdateView = _preUpdateView;
-  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -104,39 +97,25 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
-    this.totalvmgroup++;
-
     var element = element_json[XML_ROOT];
-
-    var vms    = '<span class="progress-text right" style="font-size: 12px">-</span>';
-
-    // Build hidden vm group template
-    var hidden_template = TemplateUtils.htmlEncode(TemplateUtils.templateToString(element));
 
     var search = {
       NAME:  element.NAME,
+      UNAME: element.UNAME,
+      GNAME: element.GNAME
     }
 
     return [
-      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" ' +
-                           'value="' + element.ID + '"/>',
-      element.ID,
-      element.NAME,
-      element.GNAME,
-      vms,
-      element.GID,
-      hidden_template,
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
-      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+        '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+                             element.ID + '" name="selected_items" value="' +
+                             element.ID + '"/>',
+        element.ID,
+        element.UNAME,
+        element.GNAME,
+        element.NAME,
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
 
-  function _preUpdateView() {
-    this.totalvmgroup = 0;
-  }
-
-  function _postUpdateView() {
-    $(".total_vmgroup").text(this.totalvmgroup);
-  }
 });

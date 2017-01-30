@@ -66,6 +66,7 @@ define(function(require) {
     var role = {};
     role['name'] = $('input[name="name"]', context).val();
     role['cardinality'] = $('input[name="cardinality"]', context).val();
+    role['protocol'] = $('select[name="protocol"]', context).val();
 
     return role;
   }
@@ -73,8 +74,8 @@ define(function(require) {
   function _fill(context, value, network_names) {
     $("#role_name", context).val(value.name);
     $("#role_name", context).change();
-
     $("#cardinality", context).val(value.cardinality);
+    $("#protocol", context).val(value.protocol);
   }
 
   //----------------------------------------------------------------------------

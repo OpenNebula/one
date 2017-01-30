@@ -19,7 +19,7 @@ define(function(require) {
   var TemplateButtons = require('tabs/templates-tab/buttons');
 
   var Buttons = {
-   "VMGroup.refresh" : {
+    "VMGroup.refresh" : {
       type: "action",
       layout: "refresh",
       alwaysActive: true

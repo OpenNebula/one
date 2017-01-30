@@ -24,10 +24,10 @@
     </div>
     <div class="row">
 	    <div class="service_template_param st_man large-12 columns">
-	      <label  for="description">
+	      <label  for="vm_group_description">
 	        {{tr "Description"}}
 	      </label>
-	      <textarea type="text" id="description" name="description"/>
+	      <textarea type="text" id="vm_group_description" name="vm_group_description"/>
 	    </div>
 	  </div>
 	  <br>
@@ -41,7 +41,6 @@
 	      </h5>
 	    </div>
 	  </div>
-	  <br>
 	  <div class="row">
 	    <div id="new_role" class="large-12 columns">
 	      <ul class="tabs" id="roles_tabs" data-tabs>
@@ -50,5 +49,77 @@
 	      </div>
 	    </div>
 	  </div>
+	  <br/>
+
+	  <div class="row">
+	    <div class="large-12 columns">
+	      <h5>
+	        {{tr "Affinity"}}
+	      </h5>
+	    </div>
+	  </div>
+
+	  <div class="row">
+	  	<div class="medium-5 columns">
+	    	<div class="select_role" style="height: 12em; width: 90%; overflow: auto;">
+	    		<input id="cheese" type="checkbox" name="ingredients[]" value="Cheese" />
+				<label for="cheese">Cheese</label>
+				<br />
+				<input id="olives" type="checkbox" name="ingredients[]" value="Olives" />
+				<label for="olives">Olives</label>
+				<br />
+				<input id="pepperoni" type="checkbox" name="ingredients[]" value="Pepperoni" />
+				<label for="pepperoni">Pepperoni</label>
+				<br />
+				<input id="anchovies" type="checkbox" name="ingredients[]" value="Anchovies" />
+				<label for="anchovies">Anchovies</label>
+				<br />
+				<input id="anchovies" type="checkbox" name="ingredients[]" value="Anchovies" />
+				<label for="anchovies">Anchovies</label>
+				<br />
+				<input id="anchovies" type="checkbox" name="ingredients[]" value="Anchovies" />
+				<label for="anchovies">Anchovies</label>
+				<br />
+				<input id="anchovies" type="checkbox" name="ingredients[]" value="Anchovies" />
+				<label for="anchovies">Anchovies</label>
+	    	</div>
+	    </div>
+
+	    <div class="medium-2 columns">
+	    	<div class="type_affined">
+	    		<select name="affinity">
+		            <option value="12">Affined</option>
+		            <option value="13">Anti Affined</option>
+		        </select>
+	    		<a id="2" class="button medium radius" id="tf_btn_roles" style="vertical-align: text-top; width: 90%; margin-left: 1em;">
+		          <i class="fa fa-lg fa-arrow-right"></i>
+		        </a>
+	    	</div>
+	    </div>
+
+	    <div class="medium-5 columns">
+	    	<div class="selected_roles" style="height: 12em; width: 100%; overflow: auto;">
+	    		<a id="2" class="button alert small radius" id="tf_btn_roles" style="vertical-align: text-top; width: 90%; margin-left: 1em;">
+		          <i class="fa fa-lg fa-times-circle"><label for="2">Roles</label></i>
+		        </a>
+		        
+		        <br/>
+		        <a id="2" class="button success small radius" id="tf_btn_roles" style="vertical-align: text-top; width: 90%; margin-left: 1em;">
+		          <i class="fa fa-lg fa-times-circle"><label for="2">Roles</label></i>
+		        </a>
+		        
+		        <br/>
+		        <a id="2" class="button success small radius" id="tf_btn_roles" style="vertical-align: text-top; width: 90%; margin-left: 1em;">
+		          <i class="fa fa-lg fa-times-circle"><label for="2">Roles</label></i>
+		        </a>
+		        <br/>
+		        <a id="2" class="button alert small radius" id="tf_btn_roles" style="vertical-align: text-top; width: 90%; margin-left: 1em;">
+		          <i class="fa fa-lg fa-times-circle"><label for="2">Roles</label></i>
+		        </a>
+		        <br/>
+	    	</div>
+	    </div>
+	  </div>
+	  <br/>
    </form>
 </div>

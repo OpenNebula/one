@@ -91,7 +91,7 @@ define(function(require) {
     };
 
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
+      'formPanelId': this.formPanelId, 
     });
   }
 
@@ -144,6 +144,7 @@ define(function(require) {
     });
 
     $("#tf_btn_roles", context).bind("click", function(){
+      console.log(roles_index);
       that.addRoleTab(roles_index, context);
       roles_index++;
 
@@ -161,28 +162,28 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
-
+    that = this;
     var name = WizardFields.retrieveInput($('#vm_group_name', context));
     var description = WizardFields.retrieveInput($('#vm_group_description', context));
 
-    var rules =  [];
-
-    $(".vm_group_rules tbody tr").each(function(){
-      rules.push($(this).data("rule"));
+    var role =  [];
+    $('.role_content', context).each(function() {
+      var role_id = $(this).attr("role_id");
+      role.push(that.roleTabObjects[role_id].retrieve($(this)));
     });
-
+    //call to role-tab.js for retrieve data
+    
     var vm_group_json = {
-      "NAME" : name,
-      "DESCRIPTION": description,
-      "RULE" : rules
+      name : name,
+      description: description,
+      roles : role 
     };
 
     if (this.action == "create") {
       vm_group_json = {
-        "vmgroup" : vm_group_json
+        "vm_group" : vm_group_json
       };
-
-      Sunstone.runAction("VMGroup.create",vm_group_json);
+      Sunstone.runAction("VMGroup.create",JSON.parse(JSON.stringify(vm_group_json)));
       return false;
     } else if (this.action == "update") {
       delete vm_group_json["NAME"];
@@ -200,11 +201,11 @@ define(function(require) {
     if (this.action == "create") {
       var template = $('textarea#template', context).val();
       var vm_group_json = {vm_group: {vm_group_raw: template}};
-      Sunstone.runAction("vmGroup.create",vm_group_json);
+      Sunstone.runAction("VMGroup.create",vm_group_json);
       return false;
     } else if (this.action == "update") {
       var template_raw = $('textarea#template', context).val();
-      Sunstone.runAction("vmGroup.update", this.resourceId, template_raw);
+      Sunstone.runAction("VMGroup.update", this.resourceId, template_raw);
       return false;
     }
   }
@@ -232,16 +233,17 @@ define(function(require) {
 
     WizardFields.fillInput($('#vm_group_description', context), element.TEMPLATE.DESCRIPTION );
 
-    var rules = element.TEMPLATE.RULE;
+    var roles = element.TEMPLATE.ROLE;
+    console.log(element);
 
-    if (!rules) { //empty
-      rules = [];
+    if (!roles) { //empty
+      roles = [];
     }
-    else if (rules.constructor != Array) { //>1 rule
-      rules = [rules];
+    else if (roles.constructor != Array) { //>1 rule
+      roles = [roles];
     }
 
-    $.each(rules, function(){
+    $.each(roles, function(){
       var text = Utils.sgRuleToSt(this);
 
       $(".vm_group_rules tbody", context).append(

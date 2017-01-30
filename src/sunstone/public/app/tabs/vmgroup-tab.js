@@ -23,6 +23,10 @@ define(function(require) {
   var TAB_ID = require('./vmgroup-tab/tabId');
   var DATATABLE_ID = "dataTableVMGroup";
 
+  var _panels = [
+    require('./vmgroup-tab/panels/info'),
+  ];
+
   var _formPanels = [
     require('./vmgroup-tab/form-panels/create')
   ];
@@ -30,7 +34,7 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("VM Groups"),
-    icon: 'fa-user',
+    icon: 'fa-folder-open-o',
     tabClass: "subTab",
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Groups"),
@@ -38,10 +42,11 @@ define(function(require) {
     subheader: '<span>\
         <span class="total_vmgroup"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',
-    resource: 'vmgroup',
+    resource: 'VMGroup',
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
+    panels: _panels,
     formPanels: _formPanels
   };
 
