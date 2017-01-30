@@ -114,6 +114,8 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+
+        auth_op     = nd.get_vm_auth_op(History::RENAME_ACTION);
     };
 
     ~VirtualMachineRename(){};
