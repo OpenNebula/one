@@ -22,9 +22,9 @@ module OpenNebulaJSON
         include JSONUtils
 
         def create(template_json)
-            vm_grp_hash = parse_json(template_json, 'vmgroup')
-            if OpenNebula.is_error?(vm_hash)
-                return vm_hash
+            vm_grp_hash = parse_json(template_json, 'vm_group')
+            if OpenNebula.is_error?(vm_grp_hash)
+                return vm_grp_hash
             end
 
             if vm_grp_hash['vm_grp_raw']
@@ -56,11 +56,11 @@ module OpenNebulaJSON
         end
 
         def delete(params=Hash.new)
-            super(params['vmgroup_id'].to_i)
+            super(params['name'].to_i)
         end
 
         def chown(params=Hash.new)
-            super(params['owner_id'].to_i,params['vmgroup_id'].to_i)
+            super(params['owner_id'].to_i,params['name'].to_i)
         end
 
         def chmod_octet(params=Hash.new)
