@@ -23,8 +23,20 @@ lib_name='nebula_vmgroup'
 # Sources to generate the library
 source_files=[
     'VMGroupPool.cc',
-    'VMGroup.cc'
+    'VMGroup.cc',
+    'VMGroupRole.cc',
+    'VMGroupRule.cc'
 ]
 
 # Build library
+env.StaticLibrary(lib_name, source_files)
+
+# Stripped library for scheduler with role logic
+lib_name='nebula_vmgroup_roles'
+
+source_files=[
+    'VMGroupRole.cc',
+    'VMGroupRule.cc'
+]
+
 env.StaticLibrary(lib_name, source_files)

@@ -19,8 +19,11 @@
 
 #include "PoolObjectSQL.h"
 #include "VMGroupRole.h"
+#include "VMGroupRule.h"
 
 class VMGroupPool;
+
+enum class VMGroupPolicy;
 
 /**
  *  A VM group is a set of related VMs that may impose placement constraints.
@@ -37,12 +40,13 @@ class VMGroupPool;
  *  ]
  *
  *  ROLE = [
- *    NAME = "db",
- *    ID   = 1,
- *    VMS  = "2,3,4,5"
+ *    NAME   = "db",
+ *    ID     = 1,
+ *    POLICY = ANTI_AFFINED,
+ *    VMS    = "2,3,4,5"
  *  ]
  *
- *  ANTI_AFFINED = "db", "front_end"
+ *  ANTI_AFFINED = "db, front_end"
  */
 class VMGroup : public PoolObjectSQL
 {
@@ -115,13 +119,26 @@ private:
     // Role Management
     // -------------------------------------------------------------------------
     /**
-     *  Check if all the roles are defined in the group
-     *    @param aname attribute with a list (comma-separated) of role names
+     *  Check if all the roles in a AFFINED/ANTI_AFFINED rules are defined in
+     *  the group
+     *    @param policy attribute with a list (comma-separated) of role names
      *    @param error_str if any
      *
      *    @return 0 if all roles are defined -1 otherwise
      */
-    int check_affinity(const std::string& aname, std::string& error_str);
+    int check_rule_names(VMGroupPolicy policy, std::string& error_str);
+
+    /**
+     *  Generate a rule_set from the AFFINED/ANTI_AFFINED rules
+     *    @param p policy AFFINED or ANTIAFFINED
+     *    @param rs rule_set with the rules
+     *    @param error if some of the roles are not defined
+     *
+     *    @return 0 if success -1 otherwise
+     */
+    int get_rules(VMGroupPolicy p, VMGroupRule::rule_set& rs, std::string& err);
+
+    int check_rule_consistency(std::string& error);
 
     // -------------------------------------------------------------------------
     // DataBase implementation

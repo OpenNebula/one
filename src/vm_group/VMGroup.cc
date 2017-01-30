@@ -16,209 +16,7 @@
 
 #include "VMGroup.h"
 #include "VMGroupRole.h"
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/*  VMGroupRole                                                               */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VMGroupRole::VMGroupRole(VectorAttribute *_va):va(_va)
-{
-    string vms_str = va->vector_value("VMS");
-
-    if ( !vms_str.empty() )
-    {
-        one_util::split_unique(vms_str, ',', vms);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-void VMGroupRole::add_vm(int vm_id)
-{
-    std::pair<std::set<int>::iterator, bool> rc;
-
-    rc = vms.insert(vm_id);
-
-    if ( rc.second == false )
-    {
-        return;
-    }
-
-    set_vms();
-}
-
-void VMGroupRole::del_vm(int vm_id)
-{
-    size_t rc = vms.erase(vm_id);
-
-    if ( rc == 0 )
-    {
-        return;
-    }
-
-    set_vms();
-}
-
-void VMGroupRole::set_vms()
-{
-    if ( vms.empty() )
-    {
-        va->remove("VMS");
-        return;
-    }
-
-    std::string vms_str = one_util::join(vms.begin(), vms.end(), ',');
-
-    va->replace("VMS", vms_str);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VMGroupRoles::from_xml_node(const xmlNodePtr node)
-{
-    std::vector<VectorAttribute *> roles;
-    std::vector<VectorAttribute *>::iterator it;
-
-    if ( roles_template.from_xml_node(node) == -1 )
-    {
-        return -1;
-    }
-
-    roles_template.get("ROLE", roles);
-
-    for (it = roles.begin(); it != roles.end(); ++it)
-    {
-        std::string rname = (*it)->vector_value("NAME");
-
-        int rid;
-        int rc = (*it)->vector_value("ID", rid);
-
-        if ( rname.empty() || rc == -1 )
-        {
-            return -1;
-        }
-
-        if ( rid >= next_role )
-        {
-            next_role = rid + 1;
-        }
-
-        VMGroupRole * role = new VMGroupRole((*it));
-
-        if ( by_id.insert(rid, role) == false )
-        {
-            delete role;
-            return -1;
-        }
-
-        if ( by_name.insert(rname, role) == false )
-        {
-            by_id.erase(rid);
-
-            delete role;
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int VMGroupRoles::add_role(VectorAttribute * vrole, string& error)
-{
-    std::string rname = vrole->vector_value("NAME");
-
-    if ( rname.empty() )
-    {
-        error = "Missing NAME in VM group role";
-        return -1;
-    }
-
-    // Remove internal attributes before inserting
-    vrole->replace("ID", next_role);
-
-    vrole->remove("VMS");
-
-    VMGroupRole * role = new VMGroupRole(vrole);
-
-    if ( by_id.insert(next_role, role) == false )
-    {
-        delete role;
-
-        error = "Role ID already exists";
-        return -1;
-    }
-
-    if ( by_name.insert(rname, role) == false )
-    {
-        by_id.erase(next_role);
-
-        delete role;
-
-        error = "Role NAME already exists";
-        return -1;
-    }
-
-    next_role += 1;
-
-    roles_template.set(vrole);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VMGroupRoles::add_vm(const std::string& role_name, int vmid)
-{
-    VMGroupRole * role;
-
-    role = by_name.get(role_name);
-
-    if ( role == 0 )
-    {
-        return -1;
-    }
-
-    role->add_vm(vmid);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VMGroupRoles::del_vm(const std::string& role_name, int vmid)
-{
-    VMGroupRole * role;
-
-    role = by_name.get(role_name);
-
-    if ( role == 0 )
-    {
-        return -1;
-    }
-
-    role->del_vm(vmid);
-
-    return 0;
-}
-
-int VMGroupRoles::vm_size()
-{
-    int total = 0;
-
-    for ( role_iterator it = begin(); it != end() ; ++it )
-    {
-        total += (*it)->get_vms().size();
-    }
-
-    return total;
-}
+#include "VMGroupRule.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -426,24 +224,31 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
+int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 {
     vector<const SingleAttribute *> affined;
     vector<const SingleAttribute *>::const_iterator jt;
+
+    std::ostringstream oss;
+    oss << policy;
+
+    std::string aname = oss.str();
 
     obj_template->get(aname, affined);
 
     for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
     {
-        std::string a_str = (*jt)->value();
+        std::set<int> id_set;
 
-        if ( !roles.in_map(a_str) )
+        if ( roles.names_to_ids((*jt)->value(), id_set) != 0 )
         {
             std::ostringstream oss;
-            oss << "Some roles used in " << aname << " attribute (" << a_str
-                << ") are not defined";
 
-            error_str = oss.str();
+            oss << "Some roles used in " << aname << " attribute ("
+                << (*jt)->value() << ") are not defined";
+
+            error = oss.str();
+
             return -1;
         }
     }
@@ -451,6 +256,120 @@ int VMGroup::check_affinity(const std::string& aname, std::string& error_str)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
+        std::string& error_str)
+{
+    vector<const SingleAttribute *> affined;
+    vector<const SingleAttribute *>::const_iterator jt;
+
+    std::ostringstream oss;
+    oss << policy;
+
+    std::string aname = oss.str();
+
+    obj_template->get(aname, affined);
+
+    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    {
+        std::set<int> id_set;
+
+        std::pair<std::set<VMGroupRule>::iterator, bool> rc;
+
+        roles.names_to_ids((*jt)->value(), id_set);
+
+        VMGroupRule rule(policy, id_set);
+
+        rc = rules.insert(rule);
+
+        if ( rc.second == false )
+        {
+            std::ostringstream oss;
+
+            oss << "Duplicated " << aname << " rule (" << (*jt)->value()
+                << ") detected.";
+
+            error_str = oss.str();
+
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::check_rule_consistency(std::string& error)
+{
+    VMGroupRule::rule_set affined, anti;
+
+    VMGroupRule::rule_set::iterator it;
+
+    VMGroupRule error_rule;
+
+    if ( get_rules(VMGroupPolicy::AFFINED, affined, error) == -1 )
+    {
+        return -1;
+    }
+
+    for (it=affined.begin() ; it != affined.end(); ++it)
+    {
+        const VMGroupRule::role_bitset rs = (*it).get_roles();
+
+        for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
+        {
+            if ( rs[i] == 1 )
+            {
+                VMGroupRole * role = roles.get(i);
+
+                if ( role != 0 && role->policy() == VMGroupPolicy::ANTI_AFFINED )
+                {
+                    error = "Role " + role->name() + " is in an AFFINED rule "
+                        "but the role policy is ANTI_AFFINED";
+
+                    return -1;
+                }
+            }
+        }
+    }
+
+    if ( get_rules(VMGroupPolicy::ANTI_AFFINED, anti, error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( !VMGroupRule::compatible(affined, anti, error_rule) )
+    {
+        ostringstream oss;
+        const VMGroupRule::role_bitset rs = error_rule.get_roles();
+
+        oss << "Roles defined in AFFINED and ANTI_AFFINED rules:";
+
+        for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
+        {
+            if ( rs[i] == 1 )
+            {
+                VMGroupRole * role = roles.get(i);
+
+                if ( role != 0 )
+                {
+                    oss << " " << role->name();
+                }
+            }
+        }
+
+        error = oss.str();
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VMGroup::insert(SqlDB *db, string& error_str)
@@ -466,7 +385,17 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    obj_template->remove("ROLE", va_roles);
+    int num_role = obj_template->remove("ROLE", va_roles);
+
+    if ( num_role > VMGroupRoles::MAX_ROLES )
+    {
+        for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+        {
+            delete *it;
+        }
+
+        error_str = "Maximum number of roles in a VM Group reached";
+    }
 
     bool error = false;
 
@@ -492,12 +421,17 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    if ( check_affinity("AFFINED", error_str) == -1 )
+    if ( check_rule_names(VMGroupPolicy::AFFINED, error_str) == -1 )
     {
         return -1;
     }
 
-    if ( check_affinity("ANTI_AFFINED", error_str) == -1 )
+    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_consistency(error_str) == -1 )
     {
         return -1;
     }
@@ -529,12 +463,17 @@ int VMGroup::post_update_template(string& error)
 
     obj_template->erase("ROLE");
 
-    if ( check_affinity("AFFINED", error) == -1 )
+    if ( check_rule_names(VMGroupPolicy::AFFINED, error) == -1 )
     {
         return -1;
     }
 
-    if ( check_affinity("ANTI_AFFINED", error) == -1 )
+    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_consistency(error) == -1 )
     {
         return -1;
     }
@@ -542,3 +481,5 @@ int VMGroup::post_update_template(string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

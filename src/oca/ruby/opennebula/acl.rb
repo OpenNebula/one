@@ -23,14 +23,17 @@ module OpenNebula
     #                  @<num>
     #                  ALL
     #     RESOURCE  -> + separated list and "/{#,@,%}<num>|ALL"
-    #                  VM,
+    #                  VM
     #                  HOST
     #                  NET
     #                  IMAGE
     #                  USER
     #                  TEMPLATE
     #                  GROUP
-    #                  ACL
+    #                  DATASTORE
+    #                  CLUSTER
+    #                  DOCUMENT
+    #                  ZONE
     #                  SECGROUP
     #                  VDC
     #                  VROUTER
