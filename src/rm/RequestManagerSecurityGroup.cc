@@ -50,7 +50,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
 
     sg->unlock();
 
-    lcm->trigger(LifeCycleManager::UPDATESG, oid);
+    lcm->trigger(LCMAction::UPDATESG, oid);
 
     success_response(oid, att);
 

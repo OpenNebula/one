@@ -34,25 +34,16 @@ class DispatchManager;
 class VirtualMachineManager;
 class ImageManager;
 
-/**
- *  The Virtual Machine Life-cycle Manager module. This class is responsible for
- *  managing the life-cycle of a Virtual Machine.
- */
-class LifeCycleManager : public ActionListener
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class LCMAction : public ActionRequest
 {
 public:
 
-    LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
-        dm(0), imagem(0)
-    {
-        am.addListener(this);
-    };
-
-    ~LifeCycleManager(){};
-
     enum Actions
     {
+        NONE,
         SAVE_SUCCESS,     /**< Sent by the VMM when a save action succeeds    */
         SAVE_FAILURE,     /**< Sent by the VMM when a save action fails       */
         DEPLOY_SUCCESS,   /**< Sent by the VMM deploy/restore/migrate succeeds*/
@@ -108,10 +99,44 @@ public:
         DISK_LOCK_SUCCESS,  /**< Sent by IM, image moves from locked to ready */
         DISK_LOCK_FAILURE,  /**< Sent by IM, image moves from locked to error */
         DISK_RESIZE_SUCCESS,/**< Sent by TM/VMM when a disk resize succeeds   */
-        DISK_RESIZE_FAILURE,/**< Sent by TM/VMM when a disk resize fails      */
-        DISK_RESIZE,        /**< Sent by DM to resize a disk                  */
-        FINALIZE
+        DISK_RESIZE_FAILURE /**< Sent by TM/VMM when a disk resize fails      */
     };
+
+    LCMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
+        _action(a), _vm_id(v){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    int vm_id() const
+    {
+        return _vm_id;
+    }
+
+private:
+    Actions _action;
+
+    int     _vm_id;
+};
+
+/**
+ *  The Virtual Machine Life-cycle Manager module. This class is responsible for
+ *  managing the life-cycle of a Virtual Machine.
+ */
+class LifeCycleManager : public ActionListener
+{
+public:
+
+    LifeCycleManager():
+        vmpool(0), hpool(0), ipool(0), sgpool(0), clpool(0), tm(0), vmm(0),
+        dm(0), imagem(0)
+    {
+        am.addListener(this);
+    };
+
+    ~LifeCycleManager(){};
 
     /**
      *  Triggers specific actions to the Life-cycle Manager. This function
@@ -120,9 +145,17 @@ public:
      *    @param vid VM unique id. This is the argument of the passed to the
      *    invoked action.
      */
-    void trigger(
-        Actions action,
-        int     vid);
+    void trigger(LCMAction::Actions action, int vid)
+    {
+        LCMAction lcm_ar(action, vid);
+
+        am.trigger(lcm_ar);
+    }
+
+    void finalize()
+    {
+        am.finalize();
+    }
 
     /**
      *  This functions starts a new thread for the Life-cycle Manager. This
@@ -215,21 +248,21 @@ private:
      */
     ImageManager *          imagem;
 
-
     /**
      *  Function to execute the Manager action loop method within a new pthread
      * (requires C linkage)
      */
     friend void * lcm_action_loop(void *arg);
 
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("LCM",Log::INFO,"Stopping Life-cycle Manager...");
+    };
+
+    void user_action(const ActionRequest& ar);
 
     /**
      *  Cleans up a VM, canceling any pending or ongoing action and closing

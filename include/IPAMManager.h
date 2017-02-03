@@ -23,9 +23,43 @@
 #include "ActionManager.h"
 #include "IPAMManagerDriver.h"
 #include "Attribute.h"
+#include "NebulaLog.h"
 
 //Forward definitions
 class IPAMRequest;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class IPMAction : public ActionRequest
+{
+public:
+    enum Actions
+    {
+        REGISTER_ADDRESS_RANGE, /**< Register/Request a new IP network    */
+        ALLOCATE_ADDRESS,       /**< Request a specific IP (or range)     */
+        GET_ADDRESS,            /**< Request any free  IP (or range)      */
+        FREE_ADDRESS            /**< Frees a previously requested IP      */
+    };
+
+    IPMAction(Actions a, IPAMRequest *r):ActionRequest(ActionRequest::USER),
+        _action(a), _request(r){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    IPAMRequest * request() const
+    {
+        return _request;
+    }
+
+private:
+    Actions       _action;
+
+    IPAMRequest * _request;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -44,22 +78,18 @@ public:
 
     ~IPAMManager(){};
 
-    enum Actions
-    {
-        REGISTER_ADDRESS_RANGE, /**< Register/Request a new IP network    */
-        ALLOCATE_ADDRESS,       /**< Request a specific IP (or range)     */
-        GET_ADDRESS,            /**< Request any free  IP (or range)      */
-        FREE_ADDRESS,           /**< Frees a previously requested IP      */
-        FINALIZE
-    };
-
     /**
      * Triggers specific action to the IPAM Manager. This function
      * wraps the ActionManager trigger function.
      *   @param action to the IPAM Manager action
      *   @param request an IPAM request
      */
-    void trigger(Actions action, IPAMRequest* request);
+    void trigger(IPMAction::Actions action, IPAMRequest* request)
+    {
+        IPMAction ipam_ar(action, request);
+
+        am.trigger(ipam_ar);
+    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -91,7 +121,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
 private:
@@ -145,19 +175,6 @@ private:
     };
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread
-     *  (requires C linkage)
-     */
-    friend void * ipamm_action_loop(void *arg);
-
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(const std::string & action, void * arg);
-
-    /**
      *  Register (or requests) a new address range to the IPAM.
      */
     void register_address_range_action(IPAMRequest * ir);
@@ -183,6 +200,29 @@ private:
      *    @return pointer to the IPAM driver to use, 0 on failure
      */
     const IPAMManagerDriver * setup_request(IPAMRequest * ir);
+
+    /**
+     *  Function to execute the Manager action loop method within a new pthread
+     *  (requires C linkage)
+     */
+    friend void * ipamm_action_loop(void *arg);
+
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void timer_action(const ActionRequest& ar)
+    {
+        check_time_outs_action();
+    };
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("IPM",Log::INFO,"Stopping IPAM Manager...");
+
+        MadManager::stop();
+    };
+
+    void user_action(const ActionRequest& ar);
 };
 
 #endif /*IPAM_MANAGER_H*/

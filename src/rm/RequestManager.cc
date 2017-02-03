@@ -107,7 +107,7 @@ extern "C" void * rm_action_loop(void *arg)
 
     rm = static_cast<RequestManager *>(arg);
 
-    rm->am.loop(0,0);
+    rm->am.loop();
 
     NebulaLog::log("ReM",Log::INFO,"Request Manager stopped.");
 
@@ -275,39 +275,6 @@ int RequestManager::start()
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void RequestManager::do_action(
-        const string &  action,
-        void *          arg)
-{
-    if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
-        pthread_cancel(rm_xml_server_thread);
-
-        pthread_join(rm_xml_server_thread,0);
-
-        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
-
-        delete AbyssServer;
-
-        if ( socket_fd != -1 )
-        {
-            close(socket_fd);
-        }
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("ReM", Log::ERROR, oss);
-    }
-};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

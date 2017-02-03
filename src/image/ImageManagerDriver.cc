@@ -469,7 +469,7 @@ static int mkfs_action(istringstream& is,
         goto error_save_state;
     }
 
-    tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
+    tm->trigger(TMAction::SAVEAS_HOT, vm_id);
 
     vmpool->update(vm);
 

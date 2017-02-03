@@ -20,6 +20,7 @@
 #include "MadManager.h"
 #include "ActionManager.h"
 #include "ImageManagerDriver.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -79,7 +80,7 @@ public:
      */
     void finalize()
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     };
 
     /**************************************************************************/
@@ -380,10 +381,19 @@ private:
             const string& ds_data,
             const string& extra_data);
 
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
     /**
      *  This function is executed periodically to monitor Datastores.
      */
-    void timer_action();
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("ImM",Log::INFO,"Stopping Image Manager...");
+        MadManager::stop();
+    };
 };
 
 #endif /*IMAGE_MANAGER_H*/

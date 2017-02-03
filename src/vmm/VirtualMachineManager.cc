@@ -67,7 +67,7 @@ extern "C" void * vmm_action_loop(void *arg)
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
 
-    vmm->am.loop(vmm->timer_period, 0);
+    vmm->am.loop(vmm->timer_period);
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
 
@@ -102,250 +102,82 @@ int VirtualMachineManager::start()
 /* Manager Action Interface                                                   */
 /* ************************************************************************** */
 
-void VirtualMachineManager::trigger(Actions action, int _vid)
+void VirtualMachineManager::user_action(const ActionRequest& ar)
 {
-    int *   vid;
-    string  aname;
+    const VMMAction& vmm_ar = static_cast<const VMMAction& >(ar);
+    int vid = vmm_ar.vm_id();
 
-    vid = new int(_vid);
-
-    switch (action)
+    switch (vmm_ar.action())
     {
-    case DEPLOY:
-        aname = "DEPLOY";
+        case VMMAction::DEPLOY:
+            deploy_action(vid);
         break;
-
-    case SAVE:
-        aname = "SAVE";
+        case VMMAction::SAVE:
+            save_action(vid);
         break;
-
-    case RESTORE:
-        aname = "RESTORE";
+        case VMMAction::RESTORE:
+            restore_action(vid);
         break;
-
-    case REBOOT:
-        aname = "REBOOT";
+        case VMMAction::REBOOT:
+            reboot_action(vid);
         break;
-
-    case RESET:
-        aname = "RESET";
+        case VMMAction::RESET:
+            reset_action(vid);
         break;
-
-    case SHUTDOWN:
-        aname = "SHUTDOWN";
+        case VMMAction::SHUTDOWN:
+            shutdown_action(vid);
         break;
-
-    case CANCEL:
-        aname = "CANCEL";
+        case VMMAction::CANCEL:
+            cancel_action(vid);
         break;
-
-    case CANCEL_PREVIOUS:
-        aname = "CANCEL_PREVIOUS";
+        case VMMAction::CANCEL_PREVIOUS:
+            cancel_previous_action(vid);
         break;
-
-    case CLEANUP:
-        aname = "CLEANUP";
+        case VMMAction::CLEANUP:
+            cleanup_action(vid, false);
         break;
-
-    case CLEANUP_BOTH:
-        aname = "CLEANUP_BOTH";
+        case VMMAction::CLEANUP_BOTH:
+            cleanup_action(vid, true);
         break;
-
-    case CLEANUP_PREVIOUS:
-        aname = "CLEANUP_PREVIOUS";
+        case VMMAction::CLEANUP_PREVIOUS:
+            cleanup_previous_action(vid);
         break;
-
-    case MIGRATE:
-        aname = "MIGRATE";
+        case VMMAction::MIGRATE:
+            migrate_action(vid);
         break;
-
-    case POLL:
-        aname = "POLL";
+        case VMMAction::POLL:
+            poll_action(vid);
         break;
-
-    case DRIVER_CANCEL:
-        aname = "DRIVER_CANCEL";
+        case VMMAction::DRIVER_CANCEL:
+            driver_cancel_action(vid);
         break;
-
-    case FINALIZE:
-        aname = ACTION_FINALIZE;
+        case VMMAction::ATTACH:
+            attach_action(vid);
         break;
-
-    case ATTACH:
-        aname = "ATTACH";
+        case VMMAction::DETACH:
+            detach_action(vid);
         break;
-
-    case DETACH:
-        aname = "DETACH";
+        case VMMAction::ATTACH_NIC:
+            attach_nic_action(vid);
         break;
-
-    case ATTACH_NIC:
-        aname = "ATTACH_NIC";
+        case VMMAction::DETACH_NIC:
+            detach_nic_action(vid);
         break;
-
-    case DETACH_NIC:
-        aname = "DETACH_NIC";
+        case VMMAction::SNAPSHOT_CREATE:
+            snapshot_create_action(vid);
         break;
-
-    case SNAPSHOT_CREATE:
-        aname = "SNAPSHOT_CREATE";
+        case VMMAction::SNAPSHOT_REVERT:
+            snapshot_revert_action(vid);
         break;
-
-    case SNAPSHOT_REVERT:
-        aname = "SNAPSHOT_REVERT";
+        case VMMAction::SNAPSHOT_DELETE:
+            snapshot_delete_action(vid);
         break;
-
-    case SNAPSHOT_DELETE:
-        aname = "SNAPSHOT_DELETE";
+        case VMMAction::DISK_SNAPSHOT_CREATE:
+            disk_snapshot_create_action(vid);
         break;
-
-    case DISK_SNAPSHOT_CREATE:
-        aname = "DISK_SNAPSHOT_CREATE";
+        case VMMAction::DISK_RESIZE:
+            disk_resize_action(vid);
         break;
-
-    case DISK_RESIZE:
-        aname = "DISK_RESIZE";
-        break;
-
-    default:
-        delete vid;
-        return;
-    }
-
-    am.trigger(aname,vid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void VirtualMachineManager::do_action(const string &action, void * arg)
-{
-    int vid;
-
-    if ( arg == 0)
-    {
-        if ( action != ACTION_TIMER && action != ACTION_FINALIZE )
-        {
-            return;
-        }
-
-        vid = -1;
-    }
-    else
-    {
-        vid  = *(static_cast<int *>(arg));
-
-        delete static_cast<int *>(arg);
-    }
-
-    if (action == "DEPLOY")
-    {
-        deploy_action(vid);
-    }
-    else if (action == "SAVE")
-    {
-        save_action(vid);
-    }
-    else if (action == "RESTORE")
-    {
-        restore_action(vid);
-    }
-    else if (action == "REBOOT")
-    {
-        reboot_action(vid);
-    }
-    else if (action == "RESET")
-    {
-        reset_action(vid);
-    }
-    else if (action == "SHUTDOWN")
-    {
-        shutdown_action(vid);
-    }
-    else if (action == "CANCEL")
-    {
-        cancel_action(vid);
-    }
-    else if (action == "CANCEL_PREVIOUS")
-    {
-        cancel_previous_action(vid);
-    }
-    else if (action == "CLEANUP")
-    {
-        cleanup_action(vid, false);
-    }
-    else if (action == "CLEANUP_BOTH")
-    {
-        cleanup_action(vid, true);
-    }
-    else if (action == "CLEANUP_PREVIOUS")
-    {
-        cleanup_previous_action(vid);
-    }
-    else if (action == "MIGRATE")
-    {
-        migrate_action(vid);
-    }
-    else if (action == "POLL")
-    {
-        poll_action(vid);
-    }
-    else if (action == "DRIVER_CANCEL")
-    {
-        driver_cancel_action(vid);
-    }
-    else if (action == "ATTACH")
-    {
-        attach_action(vid);
-    }
-    else if (action == "DETACH")
-    {
-        detach_action(vid);
-    }
-    else if (action == "ATTACH_NIC")
-    {
-        attach_nic_action(vid);
-    }
-    else if (action == "DETACH_NIC")
-    {
-        detach_nic_action(vid);
-    }
-    else if (action == "SNAPSHOT_CREATE")
-    {
-        snapshot_create_action(vid);
-    }
-    else if (action == "SNAPSHOT_REVERT")
-    {
-        snapshot_revert_action(vid);
-    }
-    else if (action == "SNAPSHOT_DELETE")
-    {
-        snapshot_delete_action(vid);
-    }
-    else if (action == "DISK_SNAPSHOT_CREATE")
-    {
-        disk_snapshot_create_action(vid);
-    }
-    else if (action == "DISK_RESIZE")
-    {
-        disk_resize_action(vid);
-    }
-    else if (action == ACTION_TIMER)
-    {
-        timer_action();
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
-
-        MadManager::stop();
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("VMM", Log::ERROR, oss);
     }
 }
 
@@ -615,7 +447,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
+    lcm->trigger(LCMAction::DEPLOY_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -716,7 +548,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::SAVE_FAILURE, vid);
+    lcm->trigger(LCMAction::SAVE_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -791,7 +623,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::SHUTDOWN_FAILURE, vid);
+    lcm->trigger(LCMAction::SHUTDOWN_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1003,11 +835,11 @@ error_history:
 error_driver:
     os << "cancel_action, error getting driver " << vm->get_vmm_mad();
 
-error_common://LifeCycleManager::cancel_failure_action will check state
+error_common://LCMAction::cancel_failure_action will check state
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::CANCEL_FAILURE, vid);
+    lcm->trigger(LCMAction::CANCEL_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1175,7 +1007,7 @@ error_epligo_command:
     os << "cleanup_action canceled";
 
 error_common:
-    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+    (nd.get_lcm())->trigger(LCMAction::CLEANUP_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1261,7 +1093,7 @@ error_epilog_command:
     os << "cleanup_action canceled";
 
 error_common:
-    (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
+    (nd.get_lcm())->trigger(LCMAction::CLEANUP_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1347,7 +1179,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
+    lcm->trigger(LCMAction::DEPLOY_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1454,7 +1286,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DEPLOY_FAILURE, vid);
+    lcm->trigger(LCMAction::DEPLOY_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1586,7 +1418,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineManager::timer_action()
+void VirtualMachineManager::timer_action(const ActionRequest& ar)
 {
     static int mark        = 0;
     static int timer_start = time(0);
@@ -1832,7 +1664,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::ATTACH_FAILURE, vid);
+    lcm->trigger(LCMAction::ATTACH_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -1948,7 +1780,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DETACH_FAILURE, vid);
+    lcm->trigger(LCMAction::DETACH_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2025,7 +1857,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::SNAPSHOT_CREATE_FAILURE, vid);
+    lcm->trigger(LCMAction::SNAPSHOT_CREATE_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2103,7 +1935,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::SNAPSHOT_REVERT_FAILURE, vid);
+    lcm->trigger(LCMAction::SNAPSHOT_REVERT_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2181,7 +2013,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::SNAPSHOT_DELETE_FAILURE, vid);
+    lcm->trigger(LCMAction::SNAPSHOT_DELETE_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2296,7 +2128,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
+    lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2408,7 +2240,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
+    lcm->trigger(LCMAction::DISK_SNAPSHOT_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2518,7 +2350,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::ATTACH_NIC_FAILURE, vid);
+    lcm->trigger(LCMAction::ATTACH_NIC_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();
@@ -2597,7 +2429,7 @@ error_common:
     Nebula              &ne = Nebula::instance();
     LifeCycleManager *  lcm = ne.get_lcm();
 
-    lcm->trigger(LifeCycleManager::DETACH_NIC_FAILURE, vid);
+    lcm->trigger(LCMAction::DETACH_NIC_FAILURE, vid);
 
     vm->log("VMM", Log::ERROR, os);
     vm->unlock();

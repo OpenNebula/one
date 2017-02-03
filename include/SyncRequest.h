@@ -65,7 +65,7 @@ public:
      */
     void notify()
     {
-        am.trigger(ActionListener::ACTION_FINALIZE,0);
+        am.finalize();
     };
 
     /**
@@ -75,7 +75,7 @@ public:
     {
         time_out = time(0) + 90;//Requests will expire in 1.5 minutes
 
-        am.loop(0,0);
+        am.loop();
     };
 
 protected:
@@ -91,11 +91,6 @@ protected:
      *  The ActionManager that will be notify when the request is ready.
      */
     ActionManager am;
-
-    /**
-     *  No actions defined for the request, just FINALIZE when done
-     */
-    void do_action(const string &name, void *args){};
 };
 
 #endif /*SYNC_REQUEST_H_*/

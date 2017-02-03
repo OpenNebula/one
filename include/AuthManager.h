@@ -20,6 +20,7 @@
 #include <time.h>
 
 #include "MadManager.h"
+#include "NebulaLog.h"
 #include "ActionManager.h"
 #include "AuthManagerDriver.h"
 #include "PoolObjectSQL.h"
@@ -29,6 +30,37 @@ using namespace std;
 //Forward definitions
 class AuthRequest;
 class PoolObjectAuth;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class AMAction : public ActionRequest
+{
+public:
+    enum Actions
+    {
+        AUTHENTICATE,
+        AUTHORIZE
+    };
+
+    AMAction(Actions a, AuthRequest *r):ActionRequest(ActionRequest::USER),
+        _action(a), _request(r){};
+
+    Actions action() const
+    {
+        return _action;
+    }
+
+    AuthRequest * request() const
+    {
+        return _request;
+    }
+
+private:
+    Actions       _action;
+
+    AuthRequest * _request;
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -49,22 +81,18 @@ public:
 
     ~AuthManager(){};
 
-    enum Actions
-    {
-        AUTHENTICATE,
-        AUTHORIZE,
-        FINALIZE
-    };
-
     /**
      *  Triggers specific actions to the Auth Manager. This function
      *  wraps the ActionManager trigger function.
      *    @param action the Auth Manager action
      *    @param request an auth request
      */
-    void trigger(
-        Actions       action,
-        AuthRequest*  request);
+    void trigger(AMAction::Actions action, AuthRequest*  request)
+    {
+        AMAction auth_ar(action, request);
+
+        am.trigger(auth_ar);
+    }
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -158,21 +186,6 @@ private:
     };
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * authm_action_loop(void *arg);
-
-    /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(
-        const string &  action,
-        void *          arg);
-
-    /**
      *  This function authenticates a user
      */
     void authenticate_action(AuthRequest * ar);
@@ -181,6 +194,29 @@ private:
      *  This function authorizes a user request
      */
     void authorize_action(AuthRequest * ar);
+
+    /**
+     *  Function to execute the Manager action loop method within a new pthread
+     * (requires C linkage)
+     */
+    friend void * authm_action_loop(void *arg);
+
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void timer_action(const ActionRequest& ar)
+    {
+        check_time_outs_action();
+    };
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("AuM",Log::INFO,"Stopping Authorization Manager...");
+
+        MadManager::stop();
+    };
+
+    void user_action(const ActionRequest& ar);
 };
 
 #endif /*AUTH_MANAGER_H*/

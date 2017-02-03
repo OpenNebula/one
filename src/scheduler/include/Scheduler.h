@@ -200,7 +200,15 @@ private:
     pthread_t       sched_thread;
     ActionManager   am;
 
-    void do_action(const string &name, void *args);
+    // -------------------------------------------------------------------------
+    // Action Listener interface
+    // -------------------------------------------------------------------------
+    void timer_action(const ActionRequest& ar);
+
+    void finalize_action(const ActionRequest& ar)
+    {
+        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
+    };
 };
 
 #endif /*SCHEDULER_H_*/

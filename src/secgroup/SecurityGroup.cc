@@ -453,7 +453,7 @@ int SecurityGroup::post_update_template(string& error)
 
     commit(false);
 
-    Nebula::instance().get_lcm()->trigger(LifeCycleManager::UPDATESG, oid);
+    Nebula::instance().get_lcm()->trigger(LCMAction::UPDATESG, oid);
 
     return 0;
 }

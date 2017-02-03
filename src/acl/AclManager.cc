@@ -17,7 +17,6 @@
 #include <climits>
 
 #include "AclManager.h"
-#include "NebulaLog.h"
 #include "PoolObjectAuth.h"
 
 /* -------------------------------------------------------------------------- */
@@ -132,7 +131,7 @@ extern "C" void * acl_action_loop(void *arg)
 
     aclm = static_cast<AclManager *>(arg);
 
-    aclm->am.loop(aclm->timer_period,0);
+    aclm->am.loop(aclm->timer_period);
 
     NebulaLog::log("ACL",Log::INFO,"ACL Manager stopped.");
 
@@ -174,7 +173,7 @@ void AclManager::finalize()
 {
     if (is_federation_slave)
     {
-        am.trigger(ACTION_FINALIZE,0);
+        am.finalize();
     }
     else
     {
@@ -1262,24 +1261,3 @@ int AclManager::dump(ostringstream& oss)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AclManager::do_action(const string &action, void * arg)
-{
-    if (action == ACTION_TIMER)
-    {
-        select();
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("ACL",Log::INFO,"Stopping ACL Manager...");
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("ACL", Log::ERROR, oss);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */

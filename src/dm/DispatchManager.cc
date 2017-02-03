@@ -34,7 +34,7 @@ extern "C" void * dm_action_loop(void *arg)
 
     NebulaLog::log("DiM",Log::INFO,"Dispatch Manager started.");
 
-    dm->am.loop(0,0);
+    dm->am.loop();
 
     NebulaLog::log("DiM",Log::INFO,"Dispatch Manager stopped.");
 
@@ -53,7 +53,7 @@ int DispatchManager::start()
 
     NebulaLog::log("DiM",Log::INFO,"Starting Dispatch Manager...");
 
-    rc = pthread_create(&dm_thread,&pattr,dm_action_loop,(void *) this);
+    rc = pthread_create(&dm_thread, &pattr, dm_action_loop,(void *) this);
 
     return rc;
 }
@@ -61,102 +61,36 @@ int DispatchManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void DispatchManager::trigger(Actions action, int _vid)
+void DispatchManager::user_action(const ActionRequest& ar)
 {
-    int *   vid;
-    string  aname;
+    const DMAction& dm_ar = static_cast<const DMAction& >(ar);
+    int vid   = dm_ar.vm_id();
 
-    vid = new int(_vid);
-
-    switch (action)
+    switch (dm_ar.action())
     {
-    case SUSPEND_SUCCESS:
-        aname = "SUSPEND_SUCCESS";
-        break;
+        case DMAction::SUSPEND_SUCCESS:
+            suspend_success_action(vid);
+            break;
 
-    case STOP_SUCCESS:
-        aname = "STOP_SUCCESS";
-        break;
+        case DMAction::STOP_SUCCESS:
+            stop_success_action(vid);
+            break;
 
-    case UNDEPLOY_SUCCESS:
-        aname = "UNDEPLOY_SUCCESS";
-        break;
+        case DMAction::UNDEPLOY_SUCCESS:
+            undeploy_success_action(vid);
+            break;
 
-    case POWEROFF_SUCCESS:
-        aname = "POWEROFF_SUCCESS";
-        break;
+        case DMAction::POWEROFF_SUCCESS:
+            poweroff_success_action(vid);
+            break;
 
-    case DONE:
-        aname = "DONE";
-        break;
+        case DMAction::DONE:
+            done_action(vid);
+            break;
 
-    case RESUBMIT:
-        aname = "RESUBMIT";
-        break;
-
-    case FINALIZE:
-        aname = ACTION_FINALIZE;
-        break;
-
-    default:
-        delete vid;
-        return;
-    }
-
-    am.trigger(aname,vid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void DispatchManager::do_action(const string &action, void * arg)
-{
-    int             vid;
-    ostringstream   oss;
-
-    if (arg == 0)
-    {
-        return;
-    }
-
-    vid  = *(static_cast<int *>(arg));
-
-    delete static_cast<int *>(arg);
-
-    if (action == "SUSPEND_SUCCESS")
-    {
-        suspend_success_action(vid);
-    }
-    else if (action == "STOP_SUCCESS")
-    {
-        stop_success_action(vid);
-    }
-    else if (action == "UNDEPLOY_SUCCESS")
-    {
-        undeploy_success_action(vid);
-    }
-    else if (action == "POWEROFF_SUCCESS")
-    {
-        poweroff_success_action(vid);
-    }
-    else if (action == "DONE")
-    {
-        done_action(vid);
-    }
-    else if (action == "RESUBMIT")
-    {
-        resubmit_action(vid);
-    }
-    else if (action == ACTION_FINALIZE)
-    {
-        NebulaLog::log("DiM",Log::INFO,"Stopping Dispatch Manager...");
-    }
-    else
-    {
-        ostringstream oss;
-        oss << "Unknown action name: " << action;
-
-        NebulaLog::log("DiM", Log::ERROR, oss);
+        case DMAction::RESUBMIT:
+            resubmit_action(vid);
+            break;
     }
 }
 
