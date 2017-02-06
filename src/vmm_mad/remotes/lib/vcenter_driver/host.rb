@@ -239,6 +239,19 @@ class ClusterComputeResource
         return str_info.gsub(/^\s+/,"")
     end
 
+    def get_dc
+        item = @item
+
+        while !item.instance_of? RbVmomi::VIM::Datacenter
+            item = item.parent
+            if item.nil?
+                raise "Could not find the parent Datacenter"
+            end
+        end
+
+        Datacenter.new(item)
+    end
+
     def self.new_from_ref(vi_client, ref)
         self.new(RbVmomi::VIM::ClusterComputeResource.new(vi_client.vim, ref))
     end

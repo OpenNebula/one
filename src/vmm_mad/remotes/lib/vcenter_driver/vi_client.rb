@@ -4,10 +4,18 @@ module VCenterDriver
 
 class VIClient
     attr_accessor :vim
+    attr_accessor :rp
 
     def initialize(opts)
         opts = {:insecure => true}.merge(opts)
         @vim = RbVmomi::VIM.connect(opts)
+
+        rp_ref = opts.delete(:rp)
+        @rp = RbVmomi::VIM::ResourcePool(@vim, rp_ref) if rp_ref
+    end
+
+    def rp_confined?
+        !!@rp
     end
 
     def self.get_entities(folder, type, entities=[])

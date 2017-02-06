@@ -55,6 +55,10 @@ class Datacenter
         HostFolder.new(@item.hostFolder)
     end
 
+    def vm_folder
+        VirtualMachineFolder.new(@item.vmFolder)
+    end
+
     # This is never cached
     def self.new_from_ref(vi_client, ref)
         self.new(RbVmomi::VIM::Datacenter.new(vi_client.vim, ref))
