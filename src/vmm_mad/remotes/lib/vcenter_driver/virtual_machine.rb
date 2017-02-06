@@ -1,15 +1,129 @@
 module VCenterDriver
 
-class VirtualMachine
-    POLL_ATTRIBUTE  = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
-    VM_STATE        = OpenNebula::VirtualMachine::Driver::VM_STATE
-
-    include Memoize
+class VirtualMachineFolder
+    attr_accessor :item, :items
 
     def initialize(item)
         @item = item
+        @items = {}
     end
 
+    ########################################################################
+    # Builds a hash with Datastore-Ref / Datastore to be used as a cache
+    # @return [Hash] in the form
+    #   { ds_ref [Symbol] => Datastore object }
+    ########################################################################
+    def fetch!
+        VIClient.get_entities(@item, "VirtualMachine").each do |item|
+            item_name = item._ref
+            @items[item_name.to_sym] = VirtualMachine.new(item)
+        end
+    end
+
+    ########################################################################
+    # Returns a Datastore. Uses the cache if available.
+    # @param ref [Symbol] the vcenter ref
+    # @return Datastore
+    ########################################################################
+    def get(ref)
+        if !@items[ref.to_sym]
+            rbvmomi_dc = RbVmomi::VIM::Datastore.new(@item._connection, ref)
+            @items[ref.to_sym] = Datastore.new(rbvmomi_dc)
+        end
+
+        @items[ref.to_sym]
+    end
+end # class VirtualMachineFolder
+
+class VirtualMachine
+    VM_PREFIX_DEFAULT = "one-$i-"
+    POLL_ATTRIBUTE    = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
+    VM_STATE          = OpenNebula::VirtualMachine::Driver::VM_STATE
+
+    attr_accessor :item
+
+    # clone from template attrs
+    attr_accessor :vi_client
+    attr_accessor :vm_prefix
+    attr_accessor :drv_action
+    attr_accessor :dfile
+    attr_accessor :host
+
+    include Memoize
+
+    def initialize(item=nil)
+        @item = item
+    end
+
+    # (used in clone_vm)
+    # @return ClusterComputeResource
+    def cluster
+        if @cluster.nil?
+            ccr_ref = @host['TEMPLATE/VCENTER_CCR']
+            @cluster = ClusterComputeResource.new_from_ref(@vi_client, ccr_ref)
+        end
+        @cluster
+    end
+
+    # (used in clone_vm)
+    # @return RbVmomi::VIM::ResourcePool
+    def get_rp
+        req_rp = @drv_action['USER_TEMPLATE/RESOURCE_POOL']
+
+        if @vi_client.rp_confined?
+            if req_rp && req_rp != @vi_client.rp
+                raise "Available resource pool in host [#{@vi_client.rp}]"\
+                      " does not match requested resource pool"\
+                      " [#{req_rp}]"
+            end
+
+            return @vi_client.rp
+        else
+
+            if req_rp
+                rps = cluster.resource_pools.select{|r| r._ref == req_rp }
+                raise "No matching resource pool found (#{req_rp})."if rps.empty?
+                return rps.first
+            else
+                return @cluster.item.resourcePool
+            end
+        end
+    end
+
+    # (used in clone_vm)
+    # @return RbVmomi::VIM::Datastore
+    def get_ds
+        req_ds = @drv_action['USER_TEMPLATE/VCENTER_DATASTORE']
+
+        if req_ds
+            dc = cluster.get_dc
+
+            # TODO: add storage pods
+
+            ds_folder = dc.datastore_folder
+            ds = ds_folder.get(req_ds)
+            ds_item = ds.item rescue nil
+
+            return ds_item
+        else
+            return nil
+        end
+    end
+
+    def clone_vm
+        vm_prefix = @host['TEMPLATE/VM_PREFIX']
+        vm_prefix = VM_PREFIX_DEFAULT if vm_prefix.nil? || vm_prefix.empty?
+        vm_prefix.gsub!("$i", @drv_action['ID'])
+
+        vc_template_ref = @drv_action['USER_TEMPLATE/VCENTER_REF']
+        vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
+
+        vcenter_name = vm_prefix + @drv_action['NAME']
+
+        rp = get_rp
+        ds = get_ds
+
+    end
     # @param vm CachedItem (of RbVmomi::VIM::VirtualMachine)
     def to_one
         cluster = self["runtime.host.parent.name"]
@@ -303,6 +417,11 @@ class VirtualMachine
             else
                 VM_STATE[:unknown]
         end
+    end
+
+    # TODO check with uuid
+    def self.new_from_ref(vi_client, ref)
+        self.new(RbVmomi::VIM::VirtualMachine.new(vi_client.vim, ref))
     end
 end # class VirtualMachine
 
