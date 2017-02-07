@@ -18,6 +18,7 @@
 #include "VirtualNetworkPool.h"
 #include "Nebula.h"
 #include "VirtualMachine.h"
+#include "Request.h"
 
 static const History::VMAction action[15] = {
     History::MIGRATE_ACTION,
@@ -149,8 +150,6 @@ int VirtualRouter::drop(SqlDB * db)
     {
         release_network_leases();
 
-        shutdown_vms();
-
         Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template);
     }
 
@@ -160,22 +159,22 @@ int VirtualRouter::drop(SqlDB * db)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualRouter::shutdown_vms()
+int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& ra)
 {
     DispatchManager * dm = Nebula::instance().get_dm();
 
-    set<int> _vms;
-    set<int>::iterator  it;
+    set<int>::const_iterator  it;
 
     string error;
+
     int rc;
     int result = 0;
 
-    _vms = vms.get_collection();
-
     for (it = _vms.begin(); it != _vms.end(); it++)
     {
-        rc = dm->terminate(*it, true, error);
+        int vm_id = *it;
+
+        rc = dm->terminate(vm_id, true, ra, error);
 
         if (rc != 0)
         {
@@ -183,7 +182,7 @@ int VirtualRouter::shutdown_vms()
 
             if (rc == -2)
             {
-                dm->delete_vm(*it, error);
+                dm->delete_vm(vm_id, ra, error);
             }
         }
     }

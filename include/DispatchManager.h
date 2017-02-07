@@ -32,6 +32,8 @@ class LifeCycleManager;
 class VirtualMachineManager;
 class ImageManager;
 
+struct RequestAttributes;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -128,19 +130,19 @@ public:
      *  function. Also the VM MUST have its mutex locked. If the function fails
      *  the calling funtion is responsible for recovering from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int deploy (
-        VirtualMachine * vm);
+    int deploy(VirtualMachine * vm, const RequestAttributes& request);
 
     /**
      *  Sets an imported VM to RUNNING state, a history record MUST be added,
      *  and the VM MUST be locked.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int import (
-        VirtualMachine * vm);
+    int import(VirtualMachine * vm, const RequestAttributes& ra);
 
     /**
      *  Migrates a VM. The following actions must be performed before calling
@@ -151,10 +153,10 @@ public:
      *  If the function fails the calling funtion is responsible for recovering
      *  from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int migrate(
-        VirtualMachine * vm);
+    int migrate(VirtualMachine * vm, const RequestAttributes& request);
 
     /**
      *  Migrates a VM. The following actions must be performed before calling
@@ -165,108 +167,102 @@ public:
      *  If the function fails the calling funtion is responsible for recovering
      *  from the error.
      *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int live_migrate(
-        VirtualMachine * vm);
+    int live_migrate(VirtualMachine * vm, const RequestAttributes& request);
 
     /**
      *  Terminates a VM.
      *    @param vid VirtualMachine identification
      *    @param hard True to force the shutdown (cancel instead of shutdown)
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int terminate (
-        int     vid,
-        bool    hard,
+    int terminate(int vid, bool hard, const RequestAttributes& request,
         string& error_str);
 
     /**
      *  Shuts down a VM, but it is saved in the system DS instead of destroyed.
      *    @param vid VirtualMachine identification
      *    @param hard True to force the shutdown (cancel instead of shutdown)
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int undeploy (
-        int     vid,
-        bool    hard,
-        string& error_str);
+    int undeploy (int vid, bool hard, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Powers off a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @param hard True to force the poweroff (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int poweroff (
-        int     vid,
-        bool    hard,
-        string& error_str);
+    int poweroff (int vid, bool hard, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Holds a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int hold(
-        int     vid,
-        string& error_str);
+    int hold(int vid, const RequestAttributes& ra, string& error_str);
 
     /**
      *  Releases a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int release(
-        int     vid,
-        string& error_str);
+    int release(int vid, const RequestAttributes& ra, string& error_str);
 
     /**
      *  Stops a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int stop(
-        int     vid,
-        string& error_str);
+    int stop(int vid, const RequestAttributes& ra, string& error_str);
 
     /**
      *  Suspends a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int suspend(
-        int     vid,
-        string& error_str);
+    int suspend(int vid, const RequestAttributes& ra, string& error_str);
 
     /**
      *  Resumes a VM.
      *    @param vid VirtualMachine identification
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int resume(
-        int     vid,
-        string& error_str);
+    int resume(int vid, const RequestAttributes& ra, string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE.
      *    @param vm VirtualMachine object
+     *    @param ra information about the API call request
      *    @return 0 on success, the VM mutex is unlocked
      */
-    int delete_vm(VirtualMachine * vm, string& error_str);
+    int delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  VM ID interface
      */
-    int delete_vm(int vid, string& error_str)
+    int delete_vm(int vid, const RequestAttributes& ra, string& error_str)
     {
         VirtualMachine * vm;
 
@@ -278,107 +274,107 @@ public:
             return -1;
         }
 
-        return delete_vm(vm, error_str);
+        return delete_vm(vm, ra, error_str);
     }
 
     /**
      *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
      *    @param vm VirtualMachine object
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int delete_recreate(VirtualMachine * vm, string& error_str);
+    int delete_recreate(VirtualMachine * vm, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Recover the last operation on the VM
      *    @param vm VirtualMachine object
      *    @param success if the operation is assumed to succeed or not
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int recover(VirtualMachine * vm, bool success, string& error_str);
+    int recover(VirtualMachine * vm, bool success, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Retry the last operation on the VM
      *    @param vm VirtualMachine object
+     *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int retry(VirtualMachine * vm, string& error_str);
+    int retry(VirtualMachine * vm, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
      *    @param vid VirtualMachine identification
      *    @param hard True to force the shutdown (cancel instead of shutdown)
+     *    @param ra information about the API call request
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int reboot(
-        int     vid,
-        bool    hard,
-        string& error_str);
+    int reboot(int vid, bool hard, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
      *    @param vid VirtualMachine identification
      *    @param do_resched set or unset the flag
+     *    @param ra information about the API call request
      *
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
-    int resched(
-        int     vid,
-        bool    do_resched,
-        string& error_str);
+    int resched(int vid, bool do_resched, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      *  Starts the attach disk action.
      *    @param vid VirtualMachine identification
      *    @param tmpl Template containing the new DISK attribute.
+     *    @param ra information about the API call request
      *    @param error_str Error reason, if any
      *
      *    @return 0 on success, -1 otherwise
      */
-    int attach(
-        int                      vid,
-        VirtualMachineTemplate * tmpl,
-        string&                  error_str);
+    int attach(int vid, VirtualMachineTemplate * tmpl,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Starts the detach disk action.
      *    @param vid VirtualMachine identification
      *    @param disk_id Disk to detach
+     *    @param ra information about the API call request
      *    @param error_str Error reason, if any
      *
      *    @return 0 on success, -1 otherwise
      */
-    int detach(
-        int      id,
-        int      disk_id,
-        string&  error_str);
+    int detach(int id, int disk_id, const RequestAttributes& ra,
+            string&  error_str);
 
     /**
      *  Starts the attach NIC action.
      *    @param vid VirtualMachine identification
      *    @param tmpl Template containing the new NIC attribute.
+     *    @param ra information about the API call request
      *    @param error_str Error reason, if any
      *
      *    @return 0 on success, -1 otherwise
      */
-    int attach_nic(
-        int                      vid,
-        VirtualMachineTemplate * tmpl,
-        string&                  error_str);
+    int attach_nic(int vid, VirtualMachineTemplate * tmpl,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Starts the detach NIC action.
      *    @param vid VirtualMachine identification
      *    @param nic_id NIC to detach
+     *    @param ra information about the API call request
      *    @param error_str Error reason, if any
      *
      *    @return 0 on success, -1 otherwise
      */
-    int detach_nic(
-        int      id,
-        int      nic_id,
-        string&  error_str);
+    int detach_nic(int id, int nic_id, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      * Starts the snapshot create action
@@ -386,43 +382,39 @@ public:
      * @param vid VirtualMachine identification
      * @param name Name for the new snapshot
      * @param snap_id Will contain the new snapshot ID
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int snapshot_create(
-        int         vid,
-        string&     name,
-        int&        snap_id,
-        string&     error_str);
+    int snapshot_create(int vid, string& name, int& snap_id,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Starts the snapshot revert action
      *
      * @param vid VirtualMachine identification
      * @param snap_id Snapshot to be restored
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int snapshot_revert(
-        int         vid,
-        int         snap_id,
-        string&     error_str);
+    int snapshot_revert(int vid, int snap_id, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      * Starts the snapshot delete action
      *
      * @param vid VirtualMachine identification
      * @param snap_id Snapshot to be deleted
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int snapshot_delete(
-        int         vid,
-        int         snap_id,
-        string&     error_str);
+    int snapshot_delete(int vid, int snap_id, const RequestAttributes& ra,
+            string& error_str);
 
     /**
      * Starts the disk snapshot create action
@@ -431,16 +423,13 @@ public:
      * @param did DISK identification
      * @param name Description for the new snapshot
      * @param snap_id Will contain the new snapshot ID
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_snapshot_create(
-        int           vid,
-        int           did,
-        const string& name,
-        int&          snap_id,
-        string&       error_str);
+    int disk_snapshot_create(int vid, int did, const string& name, int& snap_id,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Reverts the disk state to a previous snapshot
@@ -448,15 +437,13 @@ public:
      * @param vid VirtualMachine identification
      * @param did DISK identification
      * @param snap_id Snapshot to be restored
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_snapshot_revert(
-        int         vid,
-        int         did,
-        int         snap_id,
-        string&     error_str);
+    int disk_snapshot_revert(int vid, int did, int snap_id,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Deletes a disk snapshot
@@ -464,15 +451,13 @@ public:
      * @param vid VirtualMachine identification
      * @param did DISK identification
      * @param snap_id Snapshot to be restored
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_snapshot_delete(
-        int           vid,
-        int           did,
-        int           snap_id,
-        string&       error_str);
+    int disk_snapshot_delete(int vid, int did, int snap_id,
+            const RequestAttributes& ra, string& error_str);
 
     /**
      * Starts the disk resize create action
@@ -480,16 +465,13 @@ public:
      * @param vid VirtualMachine identification
      * @param did DISK identification
      * @param size new size for the disk
+     * @param ra information about the API call request
      * @param error_str Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int disk_resize(
-        int           vid,
-        int           did,
-        long long     new_size,
-        string&       error_str);
-
+    int disk_resize(int vid, int did, long long new_size,
+            const RequestAttributes& ra, string& error_str);
 private:
     /**
      *  Thread id for the Dispatch Manager

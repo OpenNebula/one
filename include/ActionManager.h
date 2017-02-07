@@ -73,8 +73,18 @@ protected:
      */
     virtual void user_action(const ActionRequest& ar){};
 
+    /**
+     *  Periodic timer action, executed each time the time_out expires. Listener
+     *  needs to re-implement the default timer action if needed.
+     *    @param ar the ActionRequest
+     */
     virtual void timer_action(const ActionRequest& ar){};
 
+    /**
+     *  Action executed when the Manager finlizes. Listener needs to re-implement
+     *  the default action if needed.
+     *    @param ar the ActionRequest
+     */
     virtual void finalize_action(const ActionRequest& ar){};
 
 private:
@@ -118,7 +128,8 @@ public:
 
     virtual ~ActionManager();
 
-    /** Function to trigger an action to this manager.
+    /**
+     *  Function to trigger an action to this manager.
      *    @param action the action name
      *    @param args arguments for the action
      */
@@ -150,21 +161,23 @@ public:
     {
         ActionRequest trequest(ActionRequest::TIMER);
 
-        loop (timeout, trequest);
+        loop(timeout, trequest);
     }
 
     /**
-     * The calling thread will be suspended until an action is triggered.
+     * The calling thread will be suspended until an action is triggered. No
+     * periodic action is defined.
      */
     void loop()
     {
         ActionRequest trequest(ActionRequest::TIMER);
 
-        loop (0, trequest);
+        loop(0, trequest);
     }
 
-    /** Register the calling object in this action manager.
-     *    @param listener a pointer to the action listner
+    /**
+     *   Register the calling object in this action manager.
+     *      @param listener a pointer to the action listner
      */
     void addListener(ActionListener *  listener)
     {

@@ -17,6 +17,7 @@
 #include "LifeCycleManager.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "Request.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -80,13 +81,34 @@ void LifeCycleManager::init_managers()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::trigger(LCMAction::Actions action, int vid,
+        const RequestAttributes& ra)
+{
+    LCMAction lcm_ar(action, vid, ra.uid, ra.gid, ra.req_id);
+
+    am.trigger(lcm_ar);
+}
+
+void LifeCycleManager::trigger(LCMAction::Actions action, int vid)
+{
+    LCMAction lcm_ar(action, vid, -1, -1, -1);
+
+    am.trigger(lcm_ar);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void LifeCycleManager::user_action(const ActionRequest& ar)
 {
-    const LCMAction& lcm_ar = static_cast<const LCMAction& >(ar);
-    int vid = lcm_ar.vm_id();
+    const LCMAction& la = static_cast<const LCMAction& >(ar);
+    int vid = la.vm_id();
 
-    switch (lcm_ar.action())
+    switch (la.action())
     {
+    // -------------------------------------------------------------------------
+    // Internal Actions, triggered by OpenNebula components & drivers
+    // -------------------------------------------------------------------------
     case LCMAction::SAVE_SUCCESS:
         save_success_action(vid);
         break;
@@ -207,53 +229,56 @@ void LifeCycleManager::user_action(const ActionRequest& ar)
     case LCMAction::DISK_RESIZE_FAILURE:
         disk_resize_failure(vid);
         break;
+    // -------------------------------------------------------------------------
+    // External Actions, triggered by user requests
+    // -------------------------------------------------------------------------
     case LCMAction::DEPLOY:
-        deploy_action(vid);
+        deploy_action(la);
         break;
     case LCMAction::SUSPEND:
-        suspend_action(vid);
+        suspend_action(la);
         break;
     case LCMAction::RESTORE:
-        restore_action(vid);
+        restore_action(la);
         break;
     case LCMAction::STOP:
-        stop_action(vid);
+        stop_action(la);
         break;
     case LCMAction::CANCEL:
-        shutdown_action(vid, true);
+        shutdown_action(la, true);
         break;
     case LCMAction::MIGRATE:
-        migrate_action(vid);
+        migrate_action(la);
         break;
     case LCMAction::LIVE_MIGRATE:
-        live_migrate_action(vid);
+        live_migrate_action(la);
         break;
     case LCMAction::SHUTDOWN:
-        shutdown_action(vid, false);
+        shutdown_action(la, false);
         break;
     case LCMAction::UNDEPLOY:
-        undeploy_action(vid, false);
+        undeploy_action(la, false);
         break;
     case LCMAction::UNDEPLOY_HARD:
-        undeploy_action(vid, true);
+        undeploy_action(la, true);
         break;
     case LCMAction::RESTART:
-        restart_action(vid);
+        restart_action(la);
         break;
     case LCMAction::DELETE:
-        delete_action(vid);
+        delete_action(la);
         break;
     case LCMAction::DELETE_RECREATE:
-        delete_recreate_action(vid);
+        delete_recreate_action(la);
         break;
     case LCMAction::POWEROFF:
-        poweroff_action(vid);
+        poweroff_action(la);
         break;
     case LCMAction::POWEROFF_HARD:
-        poweroff_hard_action(vid);
+        poweroff_hard_action(la);
         break;
     case LCMAction::UPDATESG:
-        updatesg_action(vid);
+        updatesg_action(la);
         break;
     case LCMAction::NONE:
         break;

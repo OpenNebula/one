@@ -404,6 +404,9 @@ public:
     };
 
     ~VirtualRouterDelete(){};
+
+protected:
+    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

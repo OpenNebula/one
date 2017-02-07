@@ -21,7 +21,7 @@
 /* ActionManager constructor & destructor                                   */
 /* ************************************************************************** */
 
-ActionManager::ActionManager(): actions(), listener(0)
+ActionManager::ActionManager(): listener(0)
 {
     pthread_mutex_init(&mutex,0);
 

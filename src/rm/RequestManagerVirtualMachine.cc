@@ -545,49 +545,49 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (action)
     {
         case History::TERMINATE_ACTION:
-            rc = dm->terminate(id, false, error);
+            rc = dm->terminate(id, false, att, error);
             break;
         case History::TERMINATE_HARD_ACTION:
-            rc = dm->terminate(id, true, error);
+            rc = dm->terminate(id, true, att, error);
             break;
         case History::HOLD_ACTION:
-            rc = dm->hold(id, error);
+            rc = dm->hold(id, att, error);
             break;
         case History::RELEASE_ACTION:
-            rc = dm->release(id, error);
+            rc = dm->release(id, att, error);
             break;
         case History::STOP_ACTION:
-            rc = dm->stop(id, error);
+            rc = dm->stop(id, att, error);
             break;
         case History::SUSPEND_ACTION:
-            rc = dm->suspend(id, error);
+            rc = dm->suspend(id, att, error);
             break;
         case History::RESUME_ACTION:
-            rc = dm->resume(id, error);
+            rc = dm->resume(id, att, error);
             break;
         case History::REBOOT_ACTION:
-            rc = dm->reboot(id, false, error);
+            rc = dm->reboot(id, false, att, error);
             break;
         case History::REBOOT_HARD_ACTION:
-            rc = dm->reboot(id, true, error);
+            rc = dm->reboot(id, true, att, error);
             break;
         case History::RESCHED_ACTION:
-            rc = dm->resched(id, true, error);
+            rc = dm->resched(id, true, att, error);
             break;
         case History::UNRESCHED_ACTION:
-            rc = dm->resched(id, false, error);
+            rc = dm->resched(id, false, att, error);
             break;
         case History::POWEROFF_ACTION:
-            rc = dm->poweroff(id, false, error);
+            rc = dm->poweroff(id, false, att, error);
             break;
         case History::POWEROFF_HARD_ACTION:
-            rc = dm->poweroff(id, true, error);
+            rc = dm->poweroff(id, true, att, error);
             break;
         case History::UNDEPLOY_ACTION:
-            rc = dm->undeploy(id, false, error);
+            rc = dm->undeploy(id, false, att, error);
             break;
         case History::UNDEPLOY_HARD_ACTION:
-            rc = dm->undeploy(id, true, error);
+            rc = dm->undeploy(id, true, att, error);
             break;
         default:
             rc = -3;
@@ -928,11 +928,11 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm->is_imported())
     {
-        dm->import(vm);
+        dm->import(vm, att);
     }
     else
     {
-        dm->deploy(vm);
+        dm->deploy(vm, att);
     }
 
     vm->unlock();
@@ -1263,11 +1263,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        dm->live_migrate(vm);
+        dm->live_migrate(vm, att);
     }
     else
     {
-        dm->migrate(vm);
+        dm->migrate(vm, att);
     }
 
     vm->unlock();
@@ -1698,7 +1698,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    rc = dm->attach(id, &tmpl, att.resp_msg);
+    rc = dm->attach(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -1760,7 +1760,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->unlock();
 
-    rc = dm->detach(id, disk_id, att.resp_msg);
+    rc = dm->detach(id, disk_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2092,7 +2092,7 @@ void VirtualMachineSnapshotCreate::request_execute(
         return;
     }
 
-    rc = dm->snapshot_create(id, name, snap_id, att.resp_msg);
+    rc = dm->snapshot_create(id, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2130,7 +2130,7 @@ void VirtualMachineSnapshotRevert::request_execute(
         return;
     }
 
-    rc = dm->snapshot_revert(id, snap_id, att.resp_msg);
+    rc = dm->snapshot_revert(id, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2168,7 +2168,7 @@ void VirtualMachineSnapshotDelete::request_execute(
         return;
     }
 
-    rc = dm->snapshot_delete(id, snap_id, att.resp_msg);
+    rc = dm->snapshot_delete(id, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2312,7 +2312,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     // Perform the attach
     // -------------------------------------------------------------------------
 
-    rc = dm->attach_nic(id, &tmpl, att.resp_msg);
+    rc = dm->attach_nic(id, &tmpl, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2413,7 +2413,7 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
     // -------------------------------------------------------------------------
     // Perform the detach
     // -------------------------------------------------------------------------
-    if ( dm->detach_nic(id, nic_id, att.resp_msg) != 0 )
+    if ( dm->detach_nic(id, nic_id, att, att.resp_msg) != 0 )
     {
         return ACTION;
     }
@@ -2477,23 +2477,23 @@ void VirtualMachineRecover::request_execute(
     switch (op)
     {
         case 0: //recover-failure
-            rc = dm->recover(vm, false, error);
+            rc = dm->recover(vm, false, att, error);
             break;
 
         case 1: //recover-success
-            rc = dm->recover(vm, true, error);
+            rc = dm->recover(vm, true, att, error);
             break;
 
         case 2: //retry
-            rc = dm->retry(vm, error);
+            rc = dm->retry(vm, att, error);
             break;
 
         case 3: //delete
-            rc = dm->delete_vm(vm, error);
+            rc = dm->delete_vm(vm, att, error);
             break;
 
         case 4: //delete-recreate
-            rc = dm->delete_recreate(vm, error);
+            rc = dm->delete_recreate(vm, att, error);
             break;
     }
 
@@ -2686,7 +2686,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     // ------------------------------------------------------------------------
     // Do the snapshot
     // ------------------------------------------------------------------------
-    rc = dm->disk_snapshot_create(id, did, name, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_create(id, did, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2731,7 +2731,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
         return;
     }
 
-    rc = dm->disk_snapshot_revert(id, did, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_revert(id, did, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -2817,7 +2817,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         return;
     }
 
-    rc = dm->disk_snapshot_delete(id, did, snap_id, att.resp_msg);
+    rc = dm->disk_snapshot_delete(id, did, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -3066,7 +3066,7 @@ void VirtualMachineDiskResize::request_execute(
     // ------------------------------------------------------------------------
     // Resize the disk
     // ------------------------------------------------------------------------
-    int rc = dm->disk_resize(id, did, size, att.resp_msg);
+    int rc = dm->disk_resize(id, did, size, att, att.resp_msg);
 
     if ( rc != 0 )
     {

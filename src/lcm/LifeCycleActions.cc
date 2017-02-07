@@ -18,11 +18,14 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "Request.h"
 
-void  LifeCycleManager::deploy_action(int vid)
+void  LifeCycleManager::deploy_action(const LCMAction& la)
 {
     VirtualMachine *    vm;
     ostringstream       os;
+
+    int vid = la.vm_id();
 
     vm = vmpool->get(vid,true);
 
@@ -99,11 +102,11 @@ void  LifeCycleManager::deploy_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::suspend_action(int vid)
+void  LifeCycleManager::suspend_action(const LCMAction& la)
 {
-    VirtualMachine *    vm;
+    int vid = la.vm_id();
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -144,9 +147,11 @@ void  LifeCycleManager::suspend_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::stop_action(int vid)
+void  LifeCycleManager::stop_action(const LCMAction& la)
 {
-    VirtualMachine * vm = vmpool->get(vid,true);
+    int vid = la.vm_id();
+
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -207,16 +212,16 @@ void  LifeCycleManager::stop_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::migrate_action(int vid)
+void  LifeCycleManager::migrate_action(const LCMAction& la)
 {
-    VirtualMachine *    vm;
-
     int    cpu, mem, disk;
     vector<VectorAttribute *> pci;
 
     time_t the_time = time(0);
 
-    vm = vmpool->get(vid,true);
+    int vid = la.vm_id();
+
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -326,12 +331,13 @@ void  LifeCycleManager::migrate_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::live_migrate_action(int vid)
+void  LifeCycleManager::live_migrate_action(const LCMAction& la)
 {
-    VirtualMachine *    vm;
-    ostringstream        os;
+    ostringstream os;
 
-    vm = vmpool->get(vid,true);
+    int vid = la.vm_id();
+
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -383,8 +389,9 @@ void  LifeCycleManager::live_migrate_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::shutdown_action(int vid, bool hard)
+void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
 {
+    int vid = la.vm_id();
     VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -473,8 +480,9 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::undeploy_action(int vid, bool hard)
+void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
 {
+    int vid = la.vm_id();
     VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -548,16 +556,20 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::poweroff_action(int vid)
+void  LifeCycleManager::poweroff_action(const LCMAction& la)
 {
+    int vid = la.vm_id();
+
     poweroff_action(vid, false);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::poweroff_hard_action(int vid)
+void  LifeCycleManager::poweroff_hard_action(const LCMAction& la)
 {
+    int vid = la.vm_id();
+
     poweroff_action(vid, true);
 }
 
@@ -566,9 +578,7 @@ void  LifeCycleManager::poweroff_hard_action(int vid)
 
 void  LifeCycleManager::poweroff_action(int vid, bool hard)
 {
-    VirtualMachine *    vm;
-
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -619,12 +629,13 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::restore_action(int vid)
+void  LifeCycleManager::restore_action(const LCMAction& la)
 {
-    VirtualMachine *    vm;
-    ostringstream       os;
+    ostringstream os;
 
-    vm = vmpool->get(vid,true);
+    int vid = la.vm_id();
+
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -673,11 +684,11 @@ void  LifeCycleManager::restore_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::restart_action(int vid)
+void  LifeCycleManager::restart_action(const LCMAction& la)
 {
-    VirtualMachine *    vm;
+    int vid = la.vm_id();
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -728,13 +739,12 @@ void  LifeCycleManager::restart_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::delete_action(int vid)
+void LifeCycleManager::delete_action(const LCMAction& la)
 {
-    VirtualMachine * vm;
-
     int image_id = -1;
+    int vid      = la.vm_id();
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -785,7 +795,7 @@ void LifeCycleManager::delete_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::delete_recreate_action(int vid)
+void LifeCycleManager::delete_recreate_action(const LCMAction& la)
 {
     Template * vm_quotas_snp = 0;
     Template * vm_quotas_rsz = 0;
@@ -798,6 +808,8 @@ void LifeCycleManager::delete_recreate_action(int vid)
     VirtualMachine * vm;
 
     int image_id = -1;
+
+    int vid = la.vm_id();
 
     vm = vmpool->get(vid,true);
 
@@ -1150,7 +1162,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::recover(VirtualMachine * vm, bool success)
+void LifeCycleManager::recover(VirtualMachine * vm, bool success,
+        const RequestAttributes& ra)
 {
     LCMAction::Actions lcm_action = LCMAction::NONE;
 
@@ -1373,7 +1386,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success)
 
     if (lcm_action != LCMAction::NONE)
     {
-        trigger(lcm_action, vm->get_oid());
+        trigger(lcm_action, vm->get_oid(), ra);
     }
 }
 
@@ -1600,12 +1613,12 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 /*  -------------------------------------------------------------------------- */
 /*  -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::updatesg_action(int sgid)
+void  LifeCycleManager::updatesg_action(const LCMAction& la)
 {
+    int  vmid;
     VirtualMachine * vm;
 
-    int  vmid;
-
+    int sgid = la.vm_id();
     SecurityGroup  * sg = sgpool->get(sgid, true);
 
     if ( sg == 0 )
