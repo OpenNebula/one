@@ -1388,6 +1388,7 @@ const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 5;
 
 void AddressRange::process_security_rule(VectorAttribute * rule)
 {
+    // Persistent attributes
     for ( int i = 0; i < NUM_SG_RULE_ATTRIBUTES; i++ )
     {
         string st = attr->vector_value(SG_RULE_ATTRIBUTES[i]);
@@ -1396,6 +1397,21 @@ void AddressRange::process_security_rule(VectorAttribute * rule)
         {
             rule->replace(SG_RULE_ATTRIBUTES[i], st);
         }
+    }
+
+    // Non persistent attributes
+    string ip6_s;
+
+    if (ula6[1] != 0 || ula6[0] != 0 )
+    {
+        ip6_to_s(ula6, mac, ip6_s);
+        rule->replace("IP6_ULA", ip6_s);
+    }
+
+    if (global6[1] != 0 || global6[0] != 0 )
+    {
+        ip6_to_s(global6, mac, ip6_s);
+        rule->replace("IP6_GLOBAL", ip6_s);
     }
 }
 
