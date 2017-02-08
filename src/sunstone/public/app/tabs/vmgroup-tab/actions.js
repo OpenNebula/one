@@ -34,15 +34,18 @@ define(function(require) {
 
   var _actions = {
     "VMGroup.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "VMGroup.update" : _commonActions.update(),
     "VMGroup.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "VMGroup.update_dialog" : _commonActions.checkAndShowUpdate(),
     "VMGroup.list" : _commonActions.list(),
     "VMGroup.show" : _commonActions.show(),
     "VMGroup.delete" : _commonActions.del(),
     "VMGroup.refresh" : _commonActions.refresh(),
     "VMGroup.update_template" : _commonActions.updateTemplate(),
-    "VMGroup.append_template" : _commonActions.appendTemplate()
-    //"vmgroup.chmod": _commonActions.chmod(),
-    //"vmgroup.chown": _commonActions.chown(),
+    "VMGroup.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    "VMGroup.append_template" : _commonActions.appendTemplate(),
+    "VMGroup.chown": _commonActions.multipleAction('chown'),
+    "VMGroup.chgrp": _commonActions.multipleAction('chgrp')
   };
 
   return _actions;

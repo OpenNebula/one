@@ -27,6 +27,9 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var WizardFields = require('utils/wizard-fields');
   var RoleTab = require('tabs/vmgroup-tab/utils/role-tab');
+  var GroupRoleAffinity = require('tabs/vmgroup-tab/utils/group-role-affinity');
+  var Utils = require('../utils/common');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -89,6 +92,7 @@ define(function(require) {
       info: false,
       select: true
     };
+    
 
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId, 
@@ -101,8 +105,10 @@ define(function(require) {
 
   function _setup(context) {
     this.roleTabObjects = {};
+    this.group_roles_affinity = {};
     var that = this;
     var roles_index = 0;
+    var group_roles_index = 0;
 
     // Fill parents table
     // Each time a tab is clicked the table is filled with existing tabs (roles)
@@ -116,7 +122,7 @@ define(function(require) {
       var parent_role_available = false;
 
       $("#roles_tabs_content #role_name", context).each(function(){
-        if ($(this).val() && ($(this).val() != $(tab_id+" #role_name", context).val())) {
+        if ($(this).val() != "" && ($(this).val() != $(tab_id+" #role_name", context).val())) {
           parent_role_available = true;
           str += "<tr>\
             <td style='width:10%'>\
@@ -144,13 +150,48 @@ define(function(require) {
     });
 
     $("#tf_btn_roles", context).bind("click", function(){
-      console.log(roles_index);
       that.addRoleTab(roles_index, context);
       roles_index++;
 
       return false;
     });
 
+    $("#btn_refresh_roles", context).bind("click", function(){
+        $("#btn_refresh_roles", context).html("<i class='fa fa-angle-double-down'></i> "+Locale.tr("Refresh roles"));
+        var role =  [];
+        $("#list_roles_select").html("");
+        $('.role_content', context).each(function() {
+          var role_id = $(this).attr("role_id");
+          var role = that.roleTabObjects[role_id].retrieve($(this));
+          if(role.name){
+            var html = "<input id="+ role.name +" type='checkbox' class='roles' value="+role.name+" />\
+                      <label for="+ role.name+">"+role.name+"</label>\
+                      <br />";
+            $("#list_roles_select").append(html);
+          }
+      });
+        $("#affinity",context).show();
+    });
+
+    $("#btn_group_vm_roles").bind("click", function(){
+      var rolesSt = "";
+      var numRoles = 0;
+      $(".roles",context).each(function(){
+        if($(this)[0].checked)
+          rolesSt+= $(this)[0].id+",";
+          numRoles++;
+      });
+      if(rolesSt != "" && numRoles > 1){
+        var affinity = $("#value_affinity", context).val();
+        _add_group_affinity_box(rolesSt.slice(0,-1), context, group_roles_index, that.group_roles_affinity);
+        group_roles_index++;
+      }
+      else{
+        Notifier.notifyError(Locale.tr("You have to choose at least two roles."));
+      }
+    });
+      
+    $("#affinity",context).hide();
     Foundation.reflow(context, 'tabs');
 
     // Add first role
@@ -167,6 +208,17 @@ define(function(require) {
     var description = WizardFields.retrieveInput($('#vm_group_description', context));
 
     var role =  [];
+    var roles_affinity ={};
+    roles_affinity["AFFINED"] = [];
+    roles_affinity["ANTI_AFFINED"] = [];
+
+    //RETRIEVE ALL GROUPS OF AFFINITY ROLES
+    $('.group_role_content', context).each(function() {
+      var group_role_id = $(this).attr("group_role_id");
+      var group_role = that.group_roles_affinity[group_role_id];
+      roles_affinity[group_role.getAffinity()].push(group_role.retrieve($(this)));
+    });
+
     $('.role_content', context).each(function() {
       var role_id = $(this).attr("role_id");
       role.push(that.roleTabObjects[role_id].retrieve($(this)));
@@ -174,10 +226,12 @@ define(function(require) {
     //call to role-tab.js for retrieve data
     
     var vm_group_json = {
-      name : name,
-      description: description,
-      roles : role 
+      "NAME" : name,
+      "DESCRIPTION": description,
+      "ROLE" : role,
     };
+
+    vm_group_json = $.extend(vm_group_json, roles_affinity);
 
     if (this.action == "create") {
       vm_group_json = {
@@ -189,7 +243,7 @@ define(function(require) {
       delete vm_group_json["NAME"];
 
       Sunstone.runAction(
-        "vmGroup.update",
+        "VMGroup.update",
         this.resourceId,
         TemplateUtils.templateToString(vm_group_json));
 
@@ -205,7 +259,7 @@ define(function(require) {
       return false;
     } else if (this.action == "update") {
       var template_raw = $('textarea#template', context).val();
-      Sunstone.runAction("VMGroup.update", this.resourceId, template_raw);
+      Sunstone.runAction("VMGroup.update_template", this.resourceId, template_raw);
       return false;
     }
   }
@@ -221,9 +275,9 @@ define(function(require) {
 
   function _fill(context, element) {
     var that = this;
-
     this.setHeader(element);
     this.resourceId = element.ID;
+    var group_roles_index = 0;
 
     // Populates the Avanced mode Tab
     $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
@@ -233,39 +287,77 @@ define(function(require) {
 
     WizardFields.fillInput($('#vm_group_description', context), element.TEMPLATE.DESCRIPTION );
 
-    var roles = element.TEMPLATE.ROLE;
-    console.log(element);
+    var roles_names = [];
+    var data = [];
+    if(Array.isArray(element.ROLES.ROLE))
+      data = element.ROLES.ROLE;
+    else
+      data.push(element.ROLES.ROLE);
 
-    if (!roles) { //empty
-      roles = [];
-    }
-    else if (roles.constructor != Array) { //>1 rule
-      roles = [roles];
-    }
+    $.each(data, function(index, value){
+      roles_names.push(value.NAME);
 
-    $.each(roles, function(){
-      var text = Utils.sgRuleToSt(this);
+      $("#tf_btn_roles", context).click();
 
-      $(".vm_group_rules tbody", context).append(
-        '<tr>\
-        <td>'+text.PROTOCOL+'</td>\
-        <td>'+text.RULE_TYPE+'</td>\
-        <td>'+text.RANGE+'</td>\
-        <td>'+text.NETWORK+'</td>\
-        <td>'+text.ICMP_TYPE+'</td>\
-        <td>\
-        <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
-        </td>\
-        </tr>');
+      var role_context = $('.role_content', context).last();
+      var role_id = $(role_context).attr("role_id");
 
-      $(".vm_group_rules tbody", context).children("tr").last().data("rule", this);
+      that.roleTabObjects[role_id].fill(role_context, value,element);
     });
+
+    $.each(data, function(index, value){
+      var role_context = $('.role_content', context)[index];
+      var str = "";
+
+      $.each(roles_names, function(){
+        if (this != value.NAME) {
+          str += "<tr>\
+            <td style='width:10%'>\
+              <input class='check_item' type='checkbox' value='"+this+"' id='"+this+"'/>\
+            </td>\
+            <td>"+this+"</td>\
+          </tr>";
+        }
+      });
+
+      $(".parent_roles_body", role_context).html(str);
+
+      if (value.parents) {
+        $.each(value.parents, function(index, value){
+          $(".parent_roles_body #"+this, role_context).attr('checked', true);
+        });
+      }
+    });
+
+    $.each(element.TEMPLATE, function(affinity, value){
+      if(affinity == "AFFINED" || affinity == "ANTI_AFFINED"){
+        if(Array.isArray(value)){
+          for(dbs in value){
+            _add_group_affinity_box(value[dbs],context, group_roles_index, that.group_roles_affinity, affinity);
+            group_roles_index++;
+          }
+        }
+        else{
+          _add_group_affinity_box(value, context, group_roles_index, that.group_roles_affinity, affinity);
+          group_roles_index++;
+        }
+      }
+    });
+
+    //Remove first tab role, is empty.
+    var role_context_first = $('.role_content', context).first();
+    var role_id_first = $(role_context_first).attr("role_id");
+    $('i.remove-tab', context).first().click();
+    delete that.roleTabObjects[role_id_first];
+    $("#tf_btn_roles", context).click();
+
+
   }
 
   function _add_role_tab(role_id, dialog) {
     var that = this;
     var html_role_id  = 'role' + role_id;
-
+    
     var role_tab = new RoleTab(html_role_id);
     that.roleTabObjects[role_id] = role_tab;
 
@@ -317,49 +409,25 @@ define(function(require) {
     role_tab.onShow();
   }
 
-  function _redo_service_vmgroup_selector(dialog){
-    $('#roles_tabs_content .role_content', dialog).each(function(){
-      var role_section = this;
-      _redo_service_vmgroup_selector_role(dialog, role_section);
-    });
-  }
-
   function _redo_service_vmgroup_selector_role(dialog, role_section){
     $('#roles_tabs_content .role_content', dialog).each(function(){
       var role_section = this;
-
-      var selected_networks = [];
-      $(".service_network_checkbox:checked", role_section).each(function(){
-        selected_networks.push($(this).val());
-      });
-
-      $(".networks_role", role_section).hide();
-      var service_networks = false;
-
       var role_tab_id = $(role_section).attr('id');
+    });
+  }
 
-      var str = "";
-      $(".service_networks .service_network_name", dialog).each(function(){
-        if ($(this).val()) {
-          service_networks = true;
-          str += "<tr>\
-            <td style='width:10%'>\
-              <input class='service_network_checkbox check_item' type='checkbox' value='"+$(this).val()+"' id='"+role_tab_id+"_"+$(this).val()+"'/>\
-            </td>\
-            <td>\
-              <label for='"+role_tab_id+"_"+$(this).val()+"'>"+$(this).val()+"</label>\
-            </td>\
-          </tr>";
-        }
-      });
-
-      if (service_networks) {
-        $(".networks_role", role_section).show();
-      }
-
-      $.each(selected_networks, function(){
-        $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true).change();
-      });
+  function _add_group_affinity_box(rolesSt, context, group_roles_index, group_roles_affinity, affinity){
+    var that = this;
+    var index = group_roles_index;
+    var group_roles_id  = 'group_role_' + group_roles_index;
+    var group_role = new GroupRoleAffinity(group_roles_id, rolesSt, affinity);
+    group_roles_affinity[group_roles_index] = group_role;
+    var html = '<div id="'+group_roles_id+'" class="group_role_content" group_role_id="'+group_roles_index+'">' + group_role.html() + '</div>';
+    $("#group_vm_roles").append(html);
+    $(".group_roles").on("click", "i.remove_group_affinity", function() {
+      $(this.parentElement.parentElement).remove();
+      delete group_roles_affinity[index];
+      return false;
     });
   }
 });

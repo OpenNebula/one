@@ -47,6 +47,9 @@ define(function(require) {
     },
     "del": function(params) {
       OpenNebulaAction.del(params, RESOURCE);
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
     }
   };
 

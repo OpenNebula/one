@@ -41,7 +41,6 @@ module OpenNebulaJSON
             if OpenNebula.is_error?(action_hash)
                 return action_hash
             end
-
             rc = case action_hash['perform']
                  when "delete"       then self.delete(action_hash['params'])
                  when "chown"        then self.chown(action_hash['params'])
@@ -56,7 +55,7 @@ module OpenNebulaJSON
         end
 
         def delete(params=Hash.new)
-            super(params['name'].to_i)
+            super()
         end
 
         def chown(params=Hash.new)
@@ -68,6 +67,8 @@ module OpenNebulaJSON
         end
 
         def update(params=Hash.new)
+            require 'pry'
+            binding.pry()
             if !params['append'].nil?
                 super(params['template_raw'], params['append'])
             else

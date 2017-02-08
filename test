@@ -1,0 +1,14 @@
+NAME = "TEST2"
+
+ROLE = [ NAME="db", POLICY="AFFINED" ]
+ROLE = [ NAME="db1", HOST_ANTI_AFFINED="3,4" ]
+ROLE = [ NAME="db2", HOST_AFFINED="1,2" ]
+ROLE = [ NAME="db3"]
+ROLE = [ NAME="db4"]
+ROLE = [ NAME="db5"]
+ROLE = [ NAME="db6"]
+
+AFFINED = "db5, db4"
+AFFINED = "db3, db"
+ANTI_AFFINED ="db2, db6"
+

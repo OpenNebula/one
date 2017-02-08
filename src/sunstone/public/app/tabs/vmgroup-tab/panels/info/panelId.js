@@ -14,48 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  var Locale = require('utils/locale');
-  var TemplateButtons = require('tabs/templates-tab/buttons');
-
-  var Buttons = {
-    "VMGroup.refresh" : {
-      type: "action",
-      layout: "refresh",
-      alwaysActive: true
-    },
-    "VMGroup.create_dialog" : {
-      type: "create_dialog",
-      layout: "create"
-    },
-    "VMGroup.update_dialog" : {
-      type : "action",
-      layout: "main",
-      text : Locale.tr("Update")
-    },
-    "VMGroup.chown" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change owner"),
-      layout: "user_select",
-      select: "User",
-      tip: Locale.tr("Select the new owner")
-    },
-    "VMGroup.chgrp" : {
-      type: "confirm_with_select",
-      text: Locale.tr("Change group"),
-      layout: "user_select",
-      select: "Group",
-      tip: Locale.tr("Select the new group")
-    },
-    "VMGroup.delete" : {
-      type: "confirm",
-      text: Locale.tr("Delete"),
-      layout: "del"
-    }/*,
-    "VMGroup.edit_labels" : {
-      layout: "labels",
-    }*/
-  };
-
-  return Buttons;
-});
+define(function(require){
+  return 'vm_group_info_tab';
+})

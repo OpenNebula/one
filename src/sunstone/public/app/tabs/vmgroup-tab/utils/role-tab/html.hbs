@@ -29,11 +29,47 @@
     </label>
   </div>
   <div class="vmgroup_role medium-2 columns end">
-    <label>{{tr "Policy"}}</label>
+    <label>{{tr "VM-VM Affinity"}}</label>
       <select class="role_param" id="role_protocol" name="protocol">
         <option value="NONE" selected="selected">{{tr "None"}}</option>
         <option value="AFFINED" >{{tr "Affined"}}</option>
         <option value="ANTI_AFFINED">{{tr "Anti Affined"}}</option>
       </select>
   </div>
+   <div id="host_affinity">
+      <div class="row">
+        <div class="large-12 columns">
+          <h5>
+            {{tr "Host-VM Affinity"}}
+          </h5>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="medium-8 columns">
+          <div class="select_host_role" id="list_host_roles_select">
+            {{{hostsTableHTML}}}
+        </div>
+        </div>
+
+        <div class="medium-2 columns">
+          <div class="type_affined">
+            <select id="{{value_host_affinity}}">
+                  <option value="AFFINED" selected="selected" style="background: lightgreen;">{{tr "Affined"}}</option>
+                  <option value="ANTI_AFFINED" style="background: lightcoral;">{{tr "Anti Affined"}}</option>
+              </select>
+            <a class="button medium radius" id="{{btn_host_vm_roles}}">
+                <i class="fa fa-lg fa-arrow-right"></i>
+              </a>
+          </div>
+        </div>
+
+        <div class="medium-2 columns">
+          <div class="group_vm_host_roles" id="{{group_vm_host_roles}}">
+
+          </div>
+        </div>
+      </div>
+      <br/>
+    </div>
 </div>
