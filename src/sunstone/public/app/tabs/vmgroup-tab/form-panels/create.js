@@ -163,9 +163,9 @@ define(function(require) {
         $('.role_content', context).each(function() {
           var role_id = $(this).attr("role_id");
           var role = that.roleTabObjects[role_id].retrieve($(this));
-          if(role.name){
-            var html = "<input id="+ role.name +" type='checkbox' class='roles' value="+role.name+" />\
-                      <label for="+ role.name+">"+role.name+"</label>\
+          if(role.NAME){
+            var html = "<input id="+ role.NAME +" type='checkbox' class='roles' value="+role.NAME+" />\
+                      <label for="+ role.NAME+">"+role.NAME+"</label>\
                       <br />";
             $("#list_roles_select").append(html);
           }
@@ -183,7 +183,7 @@ define(function(require) {
       });
       if(rolesSt != "" && numRoles > 1){
         var affinity = $("#value_affinity", context).val();
-        _add_group_affinity_box(rolesSt.slice(0,-1), context, group_roles_index, that.group_roles_affinity);
+        _add_group_affinity_box(rolesSt.slice(0,-1), context, group_roles_index, that.group_roles_affinity, affinity);
         group_roles_index++;
       }
       else{
@@ -197,7 +197,7 @@ define(function(require) {
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
 
-    Tips.setup();
+    //Tips.setup();
 
     return false;
   }
@@ -266,7 +266,6 @@ define(function(require) {
 
   function _onShow(context) {
     var that = this;
-
     $('.role_content', context).each(function() {
       var role_id = $(this).attr("role_id");
       that.roleTabObjects[role_id].onShow();
@@ -279,14 +278,35 @@ define(function(require) {
     this.resourceId = element.ID;
     var group_roles_index = 0;
 
-    // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
+     $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE));
 
     WizardFields.fillInput($('#vm_group_name',context), element.NAME);
     $('#vm_group_name',context).prop("disabled", true);
 
     WizardFields.fillInput($('#vm_group_description', context), element.TEMPLATE.DESCRIPTION );
 
+    //Remove row of roles-----------------------------------------------------------------
+    $.each(element.ROLES.ROLE, function(index, value){
+      var name = value.NAME;
+        if(name){
+          var html = "<input id="+ name +" type='checkbox' class='roles' value="+name+" />\
+                    <label for="+ name+">"+name+"</label>\
+                    <br />";
+          $("#list_roles_select").append(html);
+        }
+      });
+
+    $("#btn_refresh_roles", context).remove();
+    $("#affinity",context).show();
+    $("#new_role", context).remove(); 
+    //Remove row of roles------------------------------------------------------------------
+    
+    /*var role_context_first = $('.role_content', context).first();
+    var role_id_first = $(role_context_first).attr("role_id");
+    delete that.roleTabObjects[role_id_first];
+
+    // Populates the Avanced mode Tab
+   
     var roles_names = [];
     var data = [];
     if(Array.isArray(element.ROLES.ROLE))
@@ -327,7 +347,7 @@ define(function(require) {
           $(".parent_roles_body #"+this, role_context).attr('checked', true);
         });
       }
-    });
+    });*/
 
     $.each(element.TEMPLATE, function(affinity, value){
       if(affinity == "AFFINED" || affinity == "ANTI_AFFINED"){
@@ -345,11 +365,9 @@ define(function(require) {
     });
 
     //Remove first tab role, is empty.
-    var role_context_first = $('.role_content', context).first();
-    var role_id_first = $(role_context_first).attr("role_id");
-    $('i.remove-tab', context).first().click();
-    delete that.roleTabObjects[role_id_first];
-    $("#tf_btn_roles", context).click();
+
+    //$('i.remove-tab', context).first().click();
+    //$("#tf_btn_roles", context).click();
 
 
   }
