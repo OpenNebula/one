@@ -45,6 +45,7 @@ module OpenNebula
                     end
                 end
             end
+            @xml
         end
 
         # Builds a XML document
